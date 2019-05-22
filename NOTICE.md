@@ -30,7 +30,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
 | core-js@2.5.7 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-selection@1.4.0 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
-| d3-shape@1.3.4 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
+| d3-shape@1.3.5 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.2.0 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |
@@ -49,12 +49,13 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | lodash@4.15.0 | [MIT](https://github.com/lodash/lodash/raw/master/LICENSE) |
 | moment-timezone@0.5.13 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.18.1 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
-| neon-framework@1.3.5 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon) |
+| neon-framework@1.0.1 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
+| ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |
-| rxjs@6.4.0 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
-| zone.js@0.8.29 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
+| zone.js@0.8.26 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |

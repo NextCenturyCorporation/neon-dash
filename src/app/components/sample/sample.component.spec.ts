@@ -33,10 +33,8 @@ import { SearchService } from '../../services/search.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -133,7 +131,7 @@ describe('Component: Sample', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -195,7 +193,7 @@ describe('Component: Sample', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testRequiredField1',
                 name: '_count',
                 type: 'count'
             }],
@@ -220,7 +218,7 @@ describe('Component: Sample', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
-                field: '*',
+                field: 'testOptionalField1',
                 name: '_count',
                 type: 'count'
             }],
@@ -367,7 +365,7 @@ describe('Component: Sample', () => {
             _count: 1,
             testRequiredField1: 'z'
         }]);
-        expect(actual.data).toEqual([{
+        expect(component.visualizationData).toEqual([{
             count: 2,
             field: component.options.sampleRequiredField,
             label: 'a',
@@ -378,13 +376,15 @@ describe('Component: Sample', () => {
             label: 'z',
             value: 'z'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
-        expect(actual.data).toEqual([]);
+        expect(component.visualizationData).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('transformVisualizationQueryResults with aggregation query data and optional field does return expected data', () => {
@@ -400,7 +400,7 @@ describe('Component: Sample', () => {
             testOptionalField1: 'omega',
             testRequiredField1: 'z'
         }]);
-        expect(actual.data).toEqual([{
+        expect(component.visualizationData).toEqual([{
             count: 2,
             field: component.options.sampleRequiredField,
             label: 'a - alpha',
@@ -411,6 +411,7 @@ describe('Component: Sample', () => {
             label: 'z - omega',
             value: 'z'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('refreshVisualization does call subcomponentObject.updateData', () => {
@@ -419,12 +420,12 @@ describe('Component: Sample', () => {
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(0);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([]));
+        (component as any).visualizationData = [];
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[]]);
 
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}, {}]));
+        (component as any).visualizationData = [{}, {}];
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{}, {}]]);
@@ -486,7 +487,7 @@ describe('Component: Sample', () => {
     });
 
     it('does show data-item elements if active data is non-empty array', () => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).visualizationData = [{
             count: 2,
             label: 'alpha',
             value: 'a'
@@ -494,7 +495,7 @@ describe('Component: Sample', () => {
             count: 1,
             label: 'omega',
             value: 'z'
-        }]));
+        }];
 
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
@@ -533,7 +534,7 @@ describe('Component: Sample with config', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },

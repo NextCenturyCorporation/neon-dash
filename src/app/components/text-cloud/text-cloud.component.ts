@@ -28,6 +28,7 @@ import {
 import {
     AbstractSearchService,
     AggregationType,
+    CompoundFilterType,
     FilterClause,
     QueryPayload,
     SortOrder
@@ -36,7 +37,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import {
     OptionChoices,
@@ -62,7 +63,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     public textCloud: TextCloud;
 
-    // TODO THOR-985
     public textCloudData: any[] = [];
 
     public textColor: string = '#111';
@@ -109,7 +109,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     refreshVisualization() {
-        this.textCloudData = this.textCloud.createTextCloud(this.getActiveData(this.options).data);
+        // Do nothing.
     }
 
     /**
@@ -139,7 +139,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            optional: !this.options.andFilters,
+            root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,
@@ -197,7 +197,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(options.dataField.columnName, '!=', null);
 
-        let aggregationField = options.aggregation === AggregationType.COUNT ? '*' : options.sizeField.columnName;
+        let aggregationField = options.aggregation === AggregationType.COUNT ? options.dataField.columnName : options.sizeField.columnName;
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, [this.searchService.buildQueryGroup(options.dataField.columnName)])
@@ -219,23 +219,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields(): { columnName: string, prettyName: string }[] {
-        // TODO Do we really need this behavior for the sizeField or can we just simplify it and use the superclass getExportFields?
-        return [{
-            columnName: this.options.dataField.columnName,
-            prettyName: this.options.dataField.prettyName
-        }, {
-            columnName: 'value',
-            prettyName: this.options.sizeField.prettyName || 'Count'
-        }];
     }
 
     /**
@@ -289,15 +272,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        let data = results.map((item) => {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        let data: any[] = results.map((item) => {
             let key = item[options.dataField.columnName];
             return {
                 key: key,
@@ -307,7 +291,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             };
         });
 
-        return new TransformedVisualizationData(data);
+        this.textCloudData = this.textCloud.createTextCloud(data);
+
+        return this.textCloudData.length;
     }
 
     /**
@@ -328,10 +314,5 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // These methods must be present for AoT compile
     requestExport() {
         // Do nothing.
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

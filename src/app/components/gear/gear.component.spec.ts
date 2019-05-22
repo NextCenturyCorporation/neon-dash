@@ -29,22 +29,22 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { GearComponent } from '../gear/gear.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { WidgetService } from '../../services/widget.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { WidgetService } from '../../services/widget.service';
-
 import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
+
+import { NeonGTDConfig } from '../../neon-gtd-config';
+import { neonEvents } from '../../neon-namespaces';
+import { eventing } from 'neon-framework';
+
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 /* tslint:disable:component-class-suffix */
 
@@ -60,12 +60,11 @@ describe('Component: Gear Component', () => {
             UnsharedFilterComponent
         ],
         providers: [
-            ConnectionService,
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
             AppMaterialModule,
@@ -619,6 +618,8 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleDeleteLayer does not delete a layer if deleteLayer returned false', () => {
+        let spy = spyOn((component as any).messenger, 'publish');
+
         component.layerHidden.set('testId1', true);
         let called = 0;
         (component as any).deleteLayer = () => {
@@ -632,6 +633,8 @@ describe('Component: Gear Component', () => {
         expect(called).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_ERROR);
     });
 
     it('toggleFilter does update layerHidden', () => {
@@ -685,8 +688,8 @@ describe('Component: Gear Component', () => {
 
     it('publishing a message on the options channel does set HTML elements', () => {
         // TODO
-        // let messenger = new neon.eventing.Messenger;
-        // messenger.publish('options', {});
+        // let messenger = new eventing.Messenger;
+        // messenger.publish(neonEvents.SHOW_OPTION_MENU, {});
         // expect(component.changeMage).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
         // expect(component.layerHidden).toEqual(new Map<string, boolean>());

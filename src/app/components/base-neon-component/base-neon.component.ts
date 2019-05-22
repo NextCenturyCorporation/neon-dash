@@ -20,16 +20,17 @@ import {
     AggregationType,
     CompoundFilterType,
     FilterClause,
-    QueryPayload
+    QueryPayload,
+    RequestWrapper
 } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import {
     FilterBehavior,
+    FilterCollection,
     FilterDesign,
     FilterService,
     FilterUtil,
-    SimpleFilterDesign,
-    SingleListFilterCollection
+    SimpleFilterDesign
 } from '../../services/filter.service';
 import { FieldMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
@@ -47,27 +48,10 @@ import {
     WidgetTableOption
 } from '../../widget-option';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
-
-export class TransformedVisualizationData {
-    constructor(protected _data: any = []) {}
-
-    get data(): any {
-        return this._data;
-    }
-
-    /**
-     * Returns the length of the data if it is an array or 0 otherwise (override as needed).
-     *
-     * @return {number}
-     */
-    public count(): number {
-        return this._data instanceof Array ? this._data.length : 0;
-    }
-}
 
 /**
  * @class BaseNeonComponent
@@ -84,19 +68,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private nextLayerIndex = 1;
 
     protected id: string;
-    protected messenger: neon.eventing.Messenger;
+    protected messenger: eventing.Messenger;
 
     // Maps a specific filter data source list to its filter list.
-    private cachedFilters: SingleListFilterCollection = new SingleListFilterCollection();
-
-    // Maps the options/layer ID to the active transformed visualization data.
-    private layerIdToActiveData: Map<string, TransformedVisualizationData> = new Map<string, TransformedVisualizationData>();
+    private cachedFilters: FilterCollection = new FilterCollection();
 
     // Maps the options/layer ID to the element count.
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
     // Maps the options/layer ID to the query ID to the query object.
-    private layerIdToQueryIdToQueryObject: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
+    private layerIdToQueryIdToQueryObject: Map<string, Map<string, RequestWrapper>> = new Map<string, Map<string, RequestWrapper>>();
 
     public errorMessage: string = '';
     public loadingCount: number = 0;
@@ -127,7 +108,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         public changeDetection: ChangeDetectorRef,
         public dialog: MatDialog
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     /**
@@ -149,7 +130,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
-        this.messenger.subscribe('select_id', (eventMessage) => {
+        this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
                     if (eventMessage.database === layer.database.name && eventMessage.table === layer.table.name) {
@@ -251,34 +232,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns the export header data using the given options and visualization query.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} query
-     * @return {{name:string,data:any}}
-     */
-    private createExportOptions(options: any, query: QueryPayload): { name: string, data: any } {
-        let exportName = options.title.split(':').join(' ');
-        let exportQuery: any = this.searchService.transformQueryPayloadToExport(query);
-        return {
-            // TODO THOR-861 What is this name?  Should it really be hard-coded?
-            name: 'Query_Results_Table',
-            data: {
-                query: exportQuery,
-                name: exportName + '-' + options._id,
-                fields: this.getExportFields(options).map((exportFieldsObject) => ({
-                    query: exportFieldsObject.columnName,
-                    pretty: exportFieldsObject.prettyName || exportFieldsObject.columnName
-                })),
-                ignoreFilters: exportQuery.ignoreFilters,
-                selectionOnly: exportQuery.selectionOnly,
-                ignoredFilterIds: [],
-                type: 'query'
-            }
-        };
-    }
-
-    /**
      * Returns the export header data.
      *
      * @return {{name:string,data:any}[]}
@@ -286,7 +239,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public createExportData(): { name: string, data: any }[] {
         return (this.options.layers.length ? this.options.layers : [this.options]).map((options) => {
             let query: QueryPayload = this.createCompleteVisualizationQuery(options);
-            return query ? this.createExportOptions(options, query) : [];
+            let title = options.title.split(':').join(' ') + '-' + options._id;
+            return query ? this.searchService.transformQueryPayloadToExport(this.getExportFields(options), query, title) : null;
         }).filter((exportObject) => !!exportObject);
     }
 
@@ -567,7 +521,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private getGlobalFilterClauses(options: any): FilterClause[] {
         let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
             list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
-        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, ignoreFilters);
+        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 
     /**
@@ -595,11 +549,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(elementCount: number) => void} successCallback
      * @arg {(err: Error) => void} successCallback
      */
-    protected handleTransformVisualizationQueryResults(options: any, results: any[],
-        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+    protected handleTransformVisualizationQueryResults(
+        options: any,
+        results: any[],
+        successCallback: (elementCount: number) => void,
+        failureCallback: (err: Error) => void
+    ): void {
 
         try {
             let data = this.transformVisualizationQueryResults(options, results);
@@ -619,23 +577,20 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: any, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
-            // TODO THOR-985 Don't call transformVisualizationQueryResults
             this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'No Data';
-            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
             this.layerIdToElementCount.set(options._id, 0);
-            this.clearVisualizationData(options);
             callback();
             return;
         }
 
-        let successCallback = (data: TransformedVisualizationData) => {
+        let successCallback = (elementCount: number) => {
             this.errorMessage = '';
-            this.layerIdToActiveData.set(options._id, data);
 
             if (this.visualizationQueryPaginates && !this.showingZeroOrMultipleElementsPerResult) {
                 let countQuery: QueryPayload = this.createCompleteVisualizationQuery(options);
                 if (countQuery) {
+                    // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
                     this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
@@ -648,19 +603,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 // If the visualization query paginates but is showing zero or multiple elements per result, we cannot determine the page,
                 // so just set lastPage to false.
                 this.lastPage = this.visualizationQueryPaginates ? false : true;
-                this.layerIdToElementCount.set(options._id, this.layerIdToActiveData.get(options._id).count());
+                this.layerIdToElementCount.set(options._id, elementCount);
                 callback();
             }
         };
 
         let failureCallback = (err: Error) => {
+            this.transformVisualizationQueryResults(options, []);
             this.errorMessage = 'Error';
+            this.layerIdToElementCount.set(options._id, 0);
             this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
                 error: err,
                 message: 'FAILED ' + options.title + ' transform results'
             });
-            this.layerIdToActiveData.set(options._id, new TransformedVisualizationData());
-            this.layerIdToElementCount.set(options._id, 0);
             callback();
         };
 
@@ -668,24 +623,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return TransformedVisualizationData
+     * @return {number}
      * @abstract
      */
-    public abstract transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData;
-
-    /**
-     * Returns the active transformed visualization data (or null) for the given options (or this.options if no options are given).
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @return {TransformedVisualizationData}
-     */
-    public getActiveData(options?: any): TransformedVisualizationData {
-        return this.layerIdToActiveData.get((options || this.options)._id) || null;
-    }
+    public abstract transformVisualizationQueryResults(options: any, results: any[]): number;
 
     /**
      * Updates and redraws the elements and properties for the visualization.
@@ -776,7 +722,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.updateCollectionWithGlobalCompatibleFilters();
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
-        if (eventMessage.source !== this.id || this.shouldFilterSelf()) {
+        if (eventMessage.caller !== this.id || this.shouldFilterSelf()) {
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
         }
@@ -835,7 +781,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {boolean} databaseOrTableChange
      */
     public handleChangeData(options?: any, databaseOrTableChange?: boolean): void {
-        this.layerIdToActiveData.delete((options || this.options)._id);
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
@@ -967,7 +912,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        this.messenger.publish('options', {
+        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, {
             changeData: this.handleChangeData.bind(this),
             changeFilterData: this.handleChangeFilterField.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -988,21 +933,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @fires select_id
      */
     public publishSelectId(id: any, metadata?: any) {
-        this.messenger.publish('select_id', {
+        this.messenger.publish(neonEvents.SELECT_ID, {
             source: this.id,
             database: this.options.database.name,
             table: this.options.table.name,
             id: id,
             metadata: metadata
-        });
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    publishToggleGear() {
-        this.messenger.publish('toggleGear', {
-            toggleGear: true
         });
     }
 
@@ -1021,7 +957,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     toggleGear() {
         this.publishOptions();
-        this.publishToggleGear();
     }
 
     /**
@@ -1154,7 +1089,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options: any = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
-        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, any>());
+        this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
         options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], false));
@@ -1172,7 +1107,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         options.inject(this.createNonFieldOptions());
 
-        options.updateDatabases(this.datasetService, this.injector.get('tableKey', null));
+        options.updateDatabases(this.datasetService);
 
         this.injector.get('layers', []).forEach((layerBindings) => {
             this.addLayer(options, layerBindings);
@@ -1236,20 +1171,27 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {{ columnName: string, prettyName: string }[]}
      */
     public getExportFields(options?: any): { columnName: string, prettyName: string }[] {
-        return (options || this.options).list().reduce((exportFields, option) => {
+        return (options || this.options).list().reduce((returnFields, option) => {
+            let fields = [];
             if (option.optionType === OptionType.FIELD && option.valueCurrent.columnName) {
-                return exportFields.concat({
-                    columnName: option.valueCurrent.columnName,
-                    prettyName: option.valueCurrent.prettyName
-                });
+                fields = [option.valueCurrent];
             }
             if (option.optionType === OptionType.FIELD_ARRAY) {
-                return exportFields.concat(option.valueCurrent.filter((fieldsObject) => !!fieldsObject.columnName).map((fieldsObject) => ({
-                    columnName: fieldsObject.columnName,
-                    prettyName: fieldsObject.prettyName
-                })));
+                fields = option.valueCurrent;
             }
-            return exportFields;
+            return fields.reduce((exportFields, field) => {
+                if (field.columnName) {
+                    // Ignore repeated fields.
+                    let exists = exportFields.some((exportField) => exportField.columnName === field.columnName);
+                    if (!exists) {
+                        return exportFields.concat({
+                            columnName: field.columnName,
+                            prettyName: field.prettyName
+                        });
+                    }
+                }
+                return exportFields;
+            }, returnFields);
         }, []);
     }
 
@@ -1309,20 +1251,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         return !this.options.ignoreSelf;
     }
 
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.  Override as needed.
-    }
-
     /**
      * Checks wheather there are any filters and returns no data.
      */
     public noDataCheck() {
-        if (this.filterService.getFilters().length > 0) {
-            let activeData = this.getActiveData();
-            this.showNoData = !activeData || !activeData.data || !activeData.data.length;
-        } else {
-            this.showNoData = false;
-        }
+        this.showNoData = !!(this.filterService.getFilters().length && !this.layerIdToElementCount.get(this.options._id));
         this.changeDetection.detectChanges();
         this.toggleBodyContainer();
     }
@@ -1335,7 +1268,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         //
     }
 
-    protected showContribution() {
+    public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
             || (this.options.contributionKeys === null
             && this.datasetService.getCurrentDashboard()

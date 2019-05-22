@@ -32,7 +32,7 @@ import { AbstractSearchService, FilterClause, QueryPayload } from '../../service
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -64,6 +64,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+
+    public wikiViewerData: any[] = [];
 
     constructor(
         datasetService: DatasetService,
@@ -214,16 +216,17 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
-        return null;
+        return 0;
     }
 
     /**
@@ -231,18 +234,23 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @arg {(data: TransformedVisualizationData) => void} successCallback
+     * @arg {(elementCount: number) => void} successCallback
      * @arg {(err: Error) => void} successCallback
      * @override
      */
-    public handleTransformVisualizationQueryResults(options: any, results: any[],
-        successCallback: (data: TransformedVisualizationData) => void, failureCallback: (err: Error) => void): void {
+    protected handleTransformVisualizationQueryResults(
+        options: any,
+        results: any[],
+        successCallback: (elementCount: number) => void,
+        failureCallback: (err: Error) => void
+    ): void {
 
-        new Promise<TransformedVisualizationData>((resolve, reject) => {
+        new Promise<number>((resolve, reject) => {
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
-                    resolve(new TransformedVisualizationData(data));
+                    this.wikiViewerData = data || [];
+                    resolve(data ? data.length : 0);
                 });
             } catch (err) {
                 reject(err);
