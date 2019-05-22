@@ -16,7 +16,7 @@
                     <app-gear [sideNavRight]="sideNavRight"></app-gear>
                 </div>
                 <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
-                    <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="widgetGridItems" [widgets]="widgets"></app-save-state>
+                    <app-save-state [sidenav]="sideNavRight" [widgetGridItems]="tabbedGrid[selectedTabIndex].list" [widgets]="widgets"></app-save-state>
                 </div>
                 <div id="settings" class="setting-container" *ngIf="createSettings">
                     <app-settings [widgets]="widgets"></app-settings>
