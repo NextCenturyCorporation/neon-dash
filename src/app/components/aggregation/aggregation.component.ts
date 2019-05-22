@@ -76,7 +76,7 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -104,16 +104,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         height: number,
         width: number
     } = {
-        height: 50,
-        width: 50
-    };
+            height: 50,
+            width: 50
+        };
     public minimumDimensionsZoom: {
         height: number,
         width: number
     } = {
-        height: 50,
-        width: 50
-    };
+            height: 50,
+            width: 50
+        };
 
     // TODO THOR-1067 The subcomponent should draw this!
     // The selected area on the subcomponent (box or range).
@@ -129,9 +129,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         x: number,
         y: number
     } = {
-        x: 0,
-        y: 0
-    };
+            x: 0,
+            y: 0
+        };
 
     // The subcomponents.  If dualView is on, both are used.  Otherwise, only main is used.
     public subcomponentMain: AbstractAggregationSubcomponent;
@@ -282,19 +282,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             switch (options.granularity) {
                 case 'minute':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
-                    /* falls through */
+                /* falls through */
                 case 'hour':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
-                    /* falls through */
+                /* falls through */
                 case 'day':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
-                    /* falls through */
+                /* falls through */
                 case 'month':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
-                    /* falls through */
+                /* falls through */
                 case 'year':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
-                    /* falls through */
+                /* falls through */
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
             countField = '_' + options.granularity;
