@@ -99,7 +99,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         name: ''
     }];
 
-    public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public gridConfig: NgGridConfig = {
