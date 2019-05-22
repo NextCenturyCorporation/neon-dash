@@ -348,6 +348,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
+        let previousPage = this.page;
+        if (this.shouldFilterSelf()) {
+            this.page = 1;
+        }
+
+        // Update the filters once the page is changed.
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
             this.datasetService.findRelationDataList(), this.searchService, filterDesignListToDelete);
 
@@ -355,13 +361,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         Array.from(results ? results.keys() : []).forEach((key) => {
             let outputFilterDesignList: FilterDesign[] = results.get(key);
             outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, this.page);
+                this.savedPages.set(outputFilterDesign.id, previousPage);
             });
         });
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
     }
 
     /**
@@ -371,6 +373,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} filterDesignList
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
+        let previousPage = this.page;
+        if (this.shouldFilterSelf()) {
+            this.page = 1;
+        }
+
+        // Update the filters once the page is changed.
         let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
             this.datasetService.findRelationDataList(), this.searchService);
 
@@ -378,13 +386,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         Array.from(results ? results.keys() : []).forEach((key) => {
             let outputFilterDesignList: FilterDesign[] = results.get(key);
             outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, this.page);
+                this.savedPages.set(outputFilterDesign.id, previousPage);
             });
         });
-
-        if (this.shouldFilterSelf()) {
-            this.page = 1;
-        }
     }
 
     /**
