@@ -31,6 +31,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     @Input() dashboards: Dashboard;
 
+    @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
 
     private messenger: eventing.Messenger;
@@ -71,5 +73,12 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 dashboard: dashboard
             });
         }
+    }
+
+    /**
+     * Emits an event to close the dashboard selector component.
+     */
+    closeDashboardSelectorDialog() {
+        this.closeDialog.emit(true);
     }
 }
