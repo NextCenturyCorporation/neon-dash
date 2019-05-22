@@ -3676,6 +3676,7 @@ describe('Component: Aggregation', () => {
 
     it('getBindings does set expected properties in bindings', () => {
         expect(component.getBindings()).toEqual({
+            contributionKeys: null,
             customEventsToPublish: [],
             customEventsToReceive: [],
             database: 'testDatabase1',
