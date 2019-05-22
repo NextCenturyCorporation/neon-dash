@@ -46,12 +46,12 @@ import {
     SimpleFilterDesign
 } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -60,29 +60,13 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
+import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
 declare let d3;
-
-export class TransformedTimelineAggregationData extends TransformedVisualizationData {
-    constructor(data: any[]) {
-        super(data);
-    }
-
-    /**
-     * Returns the sum of the value of each element in the data.
-     *
-     * @return {number}
-     * @override
-     */
-    public count(): number {
-        return this._data.reduce((sum, element) => sum + element.value, 0);
-    }
-}
 
 @Component({
     selector: 'app-timeline',
@@ -107,8 +91,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     public timelineChart: TimelineSelectorChart;
 
-    // TODO THOR-985
     public timelineData: TimelineData = new TimelineData();
+
+    // TODO THOR-1137 Save in timelineData
+    public timelineQueryResults: { value: number, date: Date }[] = null;
 
     constructor(
         datasetService: DatasetService,
@@ -141,14 +127,27 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('dateField', 'Date Field', true)
+            new WidgetFieldOption('dateField', 'Date Field', true),
+            new WidgetFieldOption('idField', 'Id Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false)
         ];
+    }
+
+    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
     }
 
     private createFilterDesignOnTimeline(begin?: Date, end?: Date): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,
@@ -197,6 +196,15 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 redrawCallback: this.redrawTimelineFilter.bind(this)
             });
         }
+
+        if (this.options.filterField.columnName) {
+            behaviors.push({
+                // Match a single EQUALS filter on the specific filter field.
+                filterDesign: this.createFilterDesignOnItem(this.options.filterField),
+                redrawCallback: () => { /* Do nothing */ }
+            } as FilterBehavior);
+        }
+
         return behaviors;
     }
 
@@ -213,14 +221,27 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
     }
 
-    onTimelineSelection(beginDate: Date, endDate: Date): void {
-        let filterDesign: FilterDesign = this.createFilterDesignOnTimeline(beginDate, endDate);
+    onTimelineSelection(beginDate: Date, endDate: Date, selectedData: TimelineItem[]): void {
+        let filters: FilterDesign[] = [this.createFilterDesignOnTimeline(beginDate, endDate)];
 
         this.selected = [beginDate, endDate];
 
-        this.exchangeFilters([filterDesign]);
+        if (this.options.filterField.columnName) {
+            let filterValues: any[] = neonUtilities.flatten((selectedData || []).map((selectedItem) => selectedItem.filters)).filter(
+                (value, index, array) => array.indexOf(value) === index);
 
-        this.filterAndRefreshData(this.getActiveData(this.options).data);
+            if (!filterValues.length) {
+                // TODO NEON-36 The "filterField equals empty string" behavior may not work as expected with every dataset.
+                filterValues = [''];
+            }
+
+            // Create a separate filter on each value because each value is a distinct item in the data (they've been aggregated together).
+            filters = filters.concat(filterValues.map((value) => this.createFilterDesignOnItem(this.options.filterField, value)));
+        }
+
+        this.exchangeFilters(filters);
+
+        this.filterAndRefreshData(this.timelineQueryResults);
     }
 
     /**
@@ -258,9 +279,18 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filter: FilterClause = this.searchService.buildFilterClause(this.options.dateField.columnName, '!=', null);
+        let filter: FilterClause = this.searchService.buildFilterClause(options.dateField.columnName, '!=', null);
 
         let groups = [];
+
+        if (options.filterField.columnName) {
+            groups.push(this.searchService.buildQueryGroup(options.filterField.columnName));
+
+            if (options.idField.columnName) {
+                groups.push(this.searchService.buildQueryGroup(options.idField.columnName));
+            }
+        }
+
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
@@ -282,31 +312,128 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
-            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '*');
+            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '_' + options.granularity);
 
         return query;
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        // Convert all the dates into Date objects
-        let data: { value: number, date: Date }[] = results.map((item) => {
-            return {
-                value: item._aggregation,
-                date: new Date(item._date)
-            };
-        });
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        // Convert all the dates into new Date objects
+        if (options.filterField.columnName) {
+            this.timelineQueryResults = results.reduce((itemBucket, currentItem) => {
+                let uniqueIdentifier = currentItem[options.idField.columnName || options.filterField.columnName];
 
-        this.filterAndRefreshData(data);
+                let previousItem = this.findDateInPreviousItem(itemBucket, currentItem);
 
-        return new TransformedTimelineAggregationData(data);
+                if (previousItem) {
+                    if (previousItem.ids.indexOf(uniqueIdentifier) === -1) {
+                        previousItem.ids.push(uniqueIdentifier);
+                        previousItem.value++;
+                    }
+
+                    previousItem.filters = previousItem.filters.concat(currentItem[options.filterField.columnName])
+                        .filter((value, index, array) => array.indexOf(value) === index);
+                } else {
+                    itemBucket.push({
+                        value: 1,
+                        ids: [uniqueIdentifier],
+                        filters: [currentItem[options.filterField.columnName]],
+                        origDate: currentItem._date,
+                        date: new Date(currentItem._date)
+                    });
+                }
+
+                return itemBucket;
+
+            }, []);
+        } else {
+            this.timelineQueryResults = results.map((item) => {
+                return {
+                    value: item._aggregation,
+                    date: new Date(item._date)
+                };
+            });
+        }
+
+        this.filterAndRefreshData(this.timelineQueryResults);
+
+        return this.timelineQueryResults.reduce((sum, element) => sum + element.value, 0);
+    }
+
+    /**
+     * Finds if the current date exists in the previous date items based on the granularity option
+     *
+     * @arg {any[]} previous
+     * @arg {any} current
+     * @return {previousItem}
+     */
+    findDateInPreviousItem(previousItems: any[], current: any) {
+        let prevItem: any = null;
+
+        if (previousItems.length) {
+            let currentDate = new Date(current._date),
+                currentMonth = currentDate.getUTCMonth(),
+                currentYear = currentDate.getUTCFullYear();
+
+            switch (this.options.granularity) {
+                case 'minute':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCSeconds(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCSeconds(59));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'hour':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCMinutes(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCMinutes(59));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'day':
+                    prevItem = previousItems.find((o) => {
+                        let minDate = new Date(new Date(o.origDate).setUTCHours(0)),
+                            maxDate = new Date(new Date(o.origDate).setUTCHours(23));
+                        if (minDate <= currentDate && currentDate <= maxDate) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'month':
+                    prevItem = previousItems.find((o) => {
+
+                        let prevMonth = new Date(o.origDate).getUTCMonth(),
+                            prevYear = new Date(o.origDate).getUTCFullYear();
+                        if (prevMonth === currentMonth && prevYear === currentYear) {
+                            return o;
+                        }
+                    });
+                    break;
+                case 'year':
+                    prevItem = previousItems.find((o) => {
+                        let prevYear = new Date(o.origDate).getUTCFullYear();
+                        if (prevYear === currentYear) {
+                            return o;
+                        }
+                    });
+                    break;
+            }
+        }
+
+        return prevItem;
     }
 
     /**
@@ -320,11 +447,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             options: {},
             data: [],
             focusData: [],
+            selectedData: [],
             startDate: null,
             endDate: null
         };
 
-        if (data.length > 0) {
+        if (data && data.length) {
             // The query includes a sort, so it *should* be sorted.
             // Start date will be the first entry, and the end date will be the last
             series.startDate = data[0].date;
@@ -342,7 +470,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
                     series.data[i] = {
                         date: bucketDate,
-                        value: 0
+                        value: 0,
+                        filters: []
                     };
                 }
 
@@ -353,7 +482,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         if (this.selected[0] <= row.date && this.selected[1] >= row.date) {
                             series.focusData.push({
                                 date: this.zeroDate(row.date),
-                                value: row.value
+                                value: row.value,
+                                filters: this.options.filterField.columnName && row ? row.filters : []
                             });
                         }
                     }
@@ -361,7 +491,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
 
                     if (series.data[bucketIndex]) {
-                        series.data[bucketIndex].value += row.value;
+                        series.data[bucketIndex].value = row.value;
+                        series.data[bucketIndex].filters = row.filters;
                     }
                 }
             } else {
@@ -372,14 +503,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         if (this.selected[0] <= row.date && this.selected[1] >= row.date) {
                             series.focusData.push({
                                 date: row.date,
-                                value: row.value
+                                value: row.value,
+                                filters: this.options.filterField.columnName && row ? row.filters : []
                             });
                         }
                     }
 
                     series.data.push({
                         date: row.date,
-                        value: row.value
+                        value: row.value,
+                        filters: this.options.filterField.columnName && row ? row.filters : []
                     });
                 }
             }
@@ -414,18 +547,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return date;
     }
 
-    handleChangeGranularity() {
+    onChangeData() {
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.bucketizer = this.getBucketizer();
         this.timelineData.granularity = this.options.granularity;
-        this.handleChangeData();
     }
 
     getBucketizer() {
         switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
-            let bucketizer = new DateBucketizer();
+                let bucketizer = new DateBucketizer();
                 bucketizer.setGranularity(DateBucketizer.HOUR);
                 return bucketizer;
             case 'day':
@@ -496,59 +628,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the list of fields to export.
-     *
-     * @return {{ columnName: string, prettyName: string }[]}
-     * @override
-     */
-    getExportFields() {
-        let exportFields = [{
-            columnName: 'value',
-            prettyName: 'Count'
-        }];
-        switch (this.options.granularity) {
-            case 'minute':
-                exportFields.push({
-                    columnName: 'minute',
-                    prettyName: 'Minute'
-                });
-                /* falls through */
-            case 'hour':
-                exportFields.push({
-                    columnName: 'hour',
-                    prettyName: 'Hour'
-                });
-                /* falls through */
-            case 'day':
-                exportFields.push({
-                    columnName: 'day',
-                    prettyName: 'Day'
-                });
-                /* falls through */
-            case 'month':
-                exportFields.push({
-                    columnName: 'month',
-                    prettyName: 'Month'
-                });
-                /* falls through */
-            case 'year':
-                exportFields.push({
-                    columnName: 'year',
-                    prettyName: 'Year'
-                });
-                /* falls through */
-        }
-        return exportFields;
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
      * @override
      */
     getVisualizationDefaultLimit(): number {
-        return 10;
+        return 5000;
     }
 
     /**
@@ -570,10 +656,5 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     protected shouldFilterSelf(): boolean {
         // This timeline should never filter itself.
         return false;
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

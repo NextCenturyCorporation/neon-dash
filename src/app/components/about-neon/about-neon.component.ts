@@ -13,12 +13,9 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit } from '@angular/core';
-import { map, catchError } from 'rxjs/operators';
-import {throwError as observableThrowError,  Observable } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
 
-import * as neon from 'neon-framework';
+import { util } from 'neon-framework';
 
 @Component({
     selector: 'app-about-neon',
@@ -26,47 +23,15 @@ import * as neon from 'neon-framework';
     styleUrls: ['about-neon.component.scss']
 })
 export class AboutNeonComponent implements OnInit {
+    @Input() public dashboardVersion: string = 'Unavailable...';
 
-    static NEON_GTD_VERSION_FILE: string = './app/config/version.json';
-
-    public serverVersionString: string = 'Unavailable...';
-    public neonGTDVersionString: string = 'Unavailable...';
-    private serverInfoLoaded: boolean = false;
-    private neonGTDVersionLoaded: boolean = false;
-
-    constructor(private http: HttpClient) { }
-
-    private handleError(error: any) {
-        return observableThrowError(error);
-    }
-
-    private loadNeonGTDVersionFile(): Observable<any> {
-       return this.http.get(AboutNeonComponent.NEON_GTD_VERSION_FILE)
-            .pipe(catchError(this.handleError));
-    }
-
-    private loadNeonInfo() {
-        neon.util.infoUtils.getNeonVersion((result) => {
-            this.serverVersionString = result;
-            this.serverInfoLoaded = false;
-        });
-    }
+    public backendVersion: string = 'Unavailable...';
 
     ngOnInit() {
-        if (!this.neonGTDVersionLoaded) {
-            this.loadNeonGTDVersionFile().subscribe((versionInfo: VersionInfo) => {
-                this.neonGTDVersionString = versionInfo.version;
-                this.neonGTDVersionLoaded = true;
+        if (!this.backendVersion) {
+            util.infoUtils.getNeonVersion((result) => {
+                this.backendVersion = result;
             });
         }
-
-        if (!this.serverInfoLoaded) {
-            this.loadNeonInfo();
-        }
     }
-}
-
-interface VersionInfo {
-    name: string;
-    version: string;
 }

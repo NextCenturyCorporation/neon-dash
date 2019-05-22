@@ -38,9 +38,7 @@ import { WidgetService } from '../../services/widget.service';
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
@@ -86,7 +84,7 @@ describe('Component: Settings', () => {
         providers: [
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [

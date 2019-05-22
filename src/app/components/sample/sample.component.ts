@@ -36,7 +36,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import {
     OptionChoices,
@@ -73,6 +73,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     public subcomponentObject: AbstractSubcomponent;
 
     public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
+
+    public visualizationData: any[] = null;
 
     constructor(
         datasetService: DatasetService,
@@ -188,13 +190,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
 
         let groups = [this.searchService.buildQueryGroup(options.sampleRequiredField.columnName)];
+        let countField = options.sampleRequiredField.columnName;
 
         if (options.sampleOptionalField.columnName) {
             groups.push(this.searchService.buildQueryGroup(options.sampleOptionalField.columnName));
+            countField = options.sampleOptionalField.columnName;
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', '*')
+            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', countField)
             .updateSort(query, '_count', SortOrder.DESCENDING);
 
         return query;
@@ -320,18 +324,19 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
         // The aggregation query response data will have a _count field and all visualization fields.
-        let data = results.map((item) => {
+        this.visualizationData = results.map((item) => {
             let label = item[options.sampleRequiredField.columnName] + (options.sampleOptionalField.columnName ? ' - ' +
                 item[options.sampleOptionalField.columnName] : '');
 
@@ -343,7 +348,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             };
         });
 
-        return new TransformedVisualizationData(data);
+        return this.visualizationData.length;
     }
 
     /**
@@ -353,8 +358,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     refreshVisualization() {
         // TODO Do you need to update and properties or redraw any sub-components?
-        if (this.getActiveData(this.options)) {
-            this.subcomponentObject.updateData(this.getActiveData(this.options).data);
+        if (this.visualizationData) {
+            this.subcomponentObject.updateData(this.visualizationData);
         }
     }
 

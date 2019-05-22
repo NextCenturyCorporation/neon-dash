@@ -32,7 +32,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import {
@@ -100,7 +100,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     public annotations: Annotation[];
 
-    // TODO THOR-985
     public data: Data[] = [];
 
     public annotationVisible: boolean[] = [];
@@ -683,14 +682,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.displayField = options.respondMode ? options.linkField.columnName : options.documentTextField.columnName;
 
         this.disabledSet = [] as any;
@@ -700,7 +700,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.createDisplayObjects(this.data);
         this.updateLegend();
 
-        return new TransformedVisualizationData(this.data);
+        return this.data.length;
     }
 
     processResults(options: any, results: any[]): Data[] {
@@ -750,10 +750,5 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         return (!this.options.singleColor && this.colorKeys.length > 0);
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }
