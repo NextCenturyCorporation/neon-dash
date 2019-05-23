@@ -15,13 +15,13 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { DatasetService } from './dataset.service';
 import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../dataset';
+import { DatasetService } from './dataset.service';
 import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -39,11 +39,12 @@ export interface FilterDataSource {
 export interface FilterDesign {
     id?: string;
     name?: string;
-    // By default, each filter is required:  each search result must adhere to each filter.  In searches, each required filter with the
-    // same FilterDataSource is combined into a single compound AND filter on that FilterDataSource.  However, each filter that is
-    // "optional" is instead combined into a single compound OR filter.  This means that each search result must adhere to at least one
-    // optional filter.  A FilterDataSource with both required and optional filters generates two compound filters:  one AND, one OR.
-    optional?: boolean;
+    // By default, each filter with the same FilterDataSource will be combined into a single compound AND filter (its "root" filter) so all
+    // of the search results will match all of the filters.  Each filter with a different "root" (and with the same FilterDataSource) will
+    // be combined into a single compound filter with that CompoundFilterType.  Thus if some filters have "root=CompoundFilterType.OR" then
+    // they will be combined into a single compound OR filter (but not the filters with other "root" types) so all of the search results
+    // will match at least one of the filters.  A single FilterDataSource may generate multiple compound filters (like one AND and one OR).
+    root?: CompoundFilterType;
 }
 
 export interface SimpleFilterDesign extends FilterDesign {
@@ -57,13 +58,6 @@ export interface SimpleFilterDesign extends FilterDesign {
 
 export interface CompoundFilterDesign extends FilterDesign {
     type: CompoundFilterType;
-    // The "inflexible" property is used in comparing two compound filters.  A compound filter is "flexible" by default.  A flexible filter
-    // is equivalent to another compound filter as long as that filter contains one or more nested filters with the same FilterDataSource
-    // as flexible filter.  This is useful with visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-    // Comparitively, an inflexible filter is equivalent to another compound filter only if that filter contains the specific set of nested
-    // filters (except they can be rearranged).  This is useful with visualizations that filter on a specific range, point, or box.
-    // Regardless, both compound filters must have the same "type".
-    inflexible?: boolean;
     filters: FilterDesign[];
 }
 
@@ -99,6 +93,18 @@ export namespace FilterUtil {
             list1.every((item1) => list2.some((item2) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2))) &&
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
             list2.every((item2) => list2.some((item1) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2)));
+    }
+
+    /**
+     * Creates and returns the pretty name for the given database, table, and field.
+     *
+     * @arg {DatabaseMetaData} database
+     * @arg {TableMetaData} table
+     * @arg {FieldMetaData} field
+     * @return {string}
+     */
+    export function createFilterName(database: DatabaseMetaData, table: TableMetaData, field: FieldMetaData, operator: string): string {
+        return database.prettyName + ' / ' + table.prettyName + ' / ' + field.prettyName + ' ' + operator.toUpperCase();
     }
 
     /**
@@ -167,7 +173,7 @@ export namespace FilterUtil {
             let field: FieldMetaData = datasetService.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
             return {
                 name: filterObject.name,
-                optional: filterObject.optional,
+                root: filterObject.root,
                 datastore: filterObject.datastore,
                 database: database,
                 table: table,
@@ -180,7 +186,7 @@ export namespace FilterUtil {
         if (filterObject.filters && filterObject.type) {
             return {
                 name: filterObject.name,
-                optional: filterObject.optional,
+                root: filterObject.root,
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
                     FilterUtil.createFilterDesignFromJsonObject(nestedObject, datasetService))
@@ -222,7 +228,7 @@ export namespace FilterUtil {
         if (filter) {
             filter.id = filterDesign.id || filter.id;
             filter.name = filterDesign.name || filter.name;
-            filter.optional = !!filterDesign.optional;
+            filter.root = filterDesign.root || CompoundFilterType.AND;
         }
 
         return filter;
@@ -238,7 +244,7 @@ export namespace FilterUtil {
         if (FilterUtil.isSimpleFilterDesign(filter)) {
             return {
                 name: filter.name,
-                optional: filter.optional,
+                root: filter.root,
                 datastore: filter.datastore,
                 database: filter.database.name,
                 table: filter.table.name,
@@ -251,7 +257,7 @@ export namespace FilterUtil {
         if (FilterUtil.isCompoundFilterDesign(filter)) {
             return {
                 name: filter.name,
-                optional: filter.optional,
+                root: filter.root,
                 type: filter.type,
                 filters: filter.filters.map((nestedFilter) => FilterUtil.createFilterJsonObjectFromDesign(nestedFilter))
             };
@@ -285,16 +291,8 @@ export namespace FilterUtil {
     }
 }
 
-export abstract class AbstractFilterCollection {
+export class FilterCollection {
     protected data: Map<FilterDataSource[], AbstractFilter[]> = new Map<FilterDataSource[], AbstractFilter[]>();
-
-    /**
-     * Creates and returns an empty array to save in the data.
-     *
-     * @return {AbstractFilter[]}
-     * @abstract
-     */
-    protected abstract createEmptyDataArray(): AbstractFilter[];
 
     /**
      * Returns the data source for the given filter design as either an existing matching data source within this collection or a new data
@@ -318,7 +316,7 @@ export abstract class AbstractFilterCollection {
         }
 
         // Otherwise save the FilterDataSource in the internal data and return it.
-        this.data.set(filterDataSourceList, this.createEmptyDataArray());
+        this.data.set(filterDataSourceList, []);
 
         return filterDataSourceList;
     }
@@ -338,9 +336,9 @@ export abstract class AbstractFilterCollection {
      * @arg {FilterDataSource[]} filterDataSourceList
      * @return {AbstractFilter[]}
      */
-    protected getFiltersHelper(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
         if (this.data.has(filterDataSourceList)) {
-            return this.data.get(filterDataSourceList) || this.createEmptyDataArray();
+            return this.data.get(filterDataSourceList) || [];
         }
 
         // Return a matching existing FilterDataSource list if possible (should either be length 0 or 1 matches).
@@ -351,11 +349,11 @@ export abstract class AbstractFilterCollection {
             if (matchingDataSourceList.length > 1) {
                 console.error('Multiple equivalent data source objects in filter collection; something is wrong!', this.data);
             }
-            return this.data.get(matchingDataSourceList[0]) || this.createEmptyDataArray();
+            return this.data.get(matchingDataSourceList[0]) || [];
         }
 
         // Otherwise save the FilterDataSource in the internal data and return the empty array.
-        this.data.set(filterDataSourceList, this.createEmptyDataArray());
+        this.data.set(filterDataSourceList, []);
 
         return this.data.get(filterDataSourceList);
     }
@@ -366,14 +364,9 @@ export abstract class AbstractFilterCollection {
      *
      * @arg {FilterDataSource[]} filterDataSourceList
      * @arg {AbstractFilter[]} filterList
-     * @arg {AbstractSearchService} searchService
      * @return {FilterDataSource[]}
      */
-    protected setFiltersHelper(
-        filterDataSourceList: FilterDataSource[],
-        filterList: AbstractFilter[],
-        searchService: AbstractSearchService
-    ): FilterDataSource[] {
+    public setFilters(filterDataSourceList: FilterDataSource[], filterList: AbstractFilter[]): FilterDataSource[] {
         if (this.data.has(filterDataSourceList)) {
             this.data.set(filterDataSourceList, filterList);
             return filterDataSourceList;
@@ -397,145 +390,10 @@ export abstract class AbstractFilterCollection {
     }
 }
 
-export class SingleListFilterCollection extends AbstractFilterCollection {
-    /**
-     * Creates and returns an empty array to save in the data.
-     *
-     * @return {AbstractFilter[]}
-     * @override
-     */
-    protected createEmptyDataArray(): AbstractFilter[] {
-        return [];
-    }
-
-    /**
-     * Returns the filters for the given data source (or an existing matching data source within this collection).
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @return {AbstractFilter[]}
-     */
-    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
-        return this.getFiltersHelper(filterDataSourceList);
-    }
-
-    /**
-     * Sets the filters for the given data source (or an existing matching data source within this collection) to the given filters, then
-     * returns the data source used for the collection key (either the given data source or the existing matching data source).
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @arg {AbstractFilter[]} filterList
-     * @arg {AbstractSearchService} searchService
-     * @return {FilterDataSource[]}
-     */
-    public setFilters(
-        filterDataSourceList: FilterDataSource[],
-        filterList: AbstractFilter[],
-        searchService: AbstractSearchService
-    ): FilterDataSource[] {
-        return this.setFiltersHelper(filterDataSourceList, filterList, searchService);
-    }
-}
-
-export class DualListFilterCollection extends AbstractFilterCollection {
-    /**
-     * Creates and returns an empty array to save in the data.
-     *
-     * @return {AbstractFilter[]}
-     * @override
-     */
-    protected createEmptyDataArray(): AbstractFilter[] {
-        return [null, null];
-    }
-
-    /**
-     * Returns the nested optional filters for the given data source (or an existing matching data source within this collection).
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @return {AbstractFilter[]}
-     */
-    public getFiltersFromOptionalList(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
-        let filters = this.getFiltersHelper(filterDataSourceList);
-        if (filters.length !== 2) {
-            console.error('DualListFilterCollection has bad data!', this.data);
-            return [];
-        }
-        return filters[1] ? (filters[1] as CompoundFilter).filters : [];
-    }
-
-    /**
-     * Returns the nested required filters for the given data source (or an existing matching data source within this collection).
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @return {AbstractFilter[]}
-     */
-    public getFiltersFromRequiredList(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
-        let filters = this.getFiltersHelper(filterDataSourceList);
-        if (filters.length !== 2) {
-            console.error('DualListFilterCollection has bad data!', this.data);
-            return [];
-        }
-        return filters[0] ? (filters[0] as CompoundFilter).filters : [];
-    }
-
-    /**
-     * Returns the nested required and optional filters for the given data source (or an existing matching data source within this
-     * collection) as a single filter list.
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @return {AbstractFilter[]}
-     */
-    public getFiltersInSingleList(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
-        return this.getFiltersFromRequiredList(filterDataSourceList).concat(this.getFiltersFromOptionalList(filterDataSourceList));
-    }
-
-    /**
-     * Returns the required and optional filters for the given data source (or an existing matching data source within this collection) as
-     * either single compound filters or single nested filters if only one nested filter exists within the required or optional compound
-     * filter.  Returns a list of between 0 and 2 filters.
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @return {AbstractFilter[]}
-     */
-    public getFiltersToSearch(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
-        let filterList: AbstractFilter[] = this.getFiltersHelper(filterDataSourceList);
-        return filterList.map((filter) => {
-            if (filter && (filter as CompoundFilter).filters.length === 1) {
-                return (filter as CompoundFilter).filters[0];
-            }
-            return filter;
-        }).filter((filter) => !!filter);
-    }
-
-    /**
-     * Creates two compound filters for the given required and optional filters (regardless of how many filters exist in the given lists),
-     * sets the filters for the given data source (or an existing matching data source within this collection) to the given filters, then
-     * returns the data source used for the collection key (either the given data source or the existing matching data source).
-     *
-     * @arg {FilterDataSource[]} filterDataSourceList
-     * @arg {AbstractFilter[]} requiredFilters
-     * @arg {AbstractFilter[]} optionalFilters
-     * @arg {AbstractSearchService} searchService
-     * @return {FilterDataSource[]}
-     */
-    public setFiltersInDualLists(
-        filterDataSourceList: FilterDataSource[],
-        requiredFilters: AbstractFilter[],
-        optionalFilters: AbstractFilter[],
-        searchService: AbstractSearchService
-    ): FilterDataSource[] {
-        // Always use either a CompoundFilter or null.
-        let requiredFilter: AbstractFilter = requiredFilters.length ? new CompoundFilter(CompoundFilterType.AND, requiredFilters,
-            searchService) : null;
-        let optionalFilter: AbstractFilter = optionalFilters.length ? new CompoundFilter(CompoundFilterType.OR, optionalFilters,
-            searchService) : null;
-        return this.setFiltersHelper(filterDataSourceList, [requiredFilter, optionalFilter], searchService);
-    }
-}
-
 @Injectable()
 export class FilterService {
-    protected filterCollection: DualListFilterCollection = new DualListFilterCollection();
-    protected messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
+    protected filterCollection: FilterCollection = new FilterCollection();
+    protected messenger: eventing.Messenger = new eventing.Messenger();
 
     constructor() { /* Do nothing */ }
 
@@ -579,7 +437,7 @@ export class FilterService {
                         if (relation !== equivalentRelationList[0]) {
                             let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation,
                                 searchService);
-                            relationFilter.optional = !!filter.optional;
+                            relationFilter.root = filter.root || CompoundFilterType.AND;
                             relationFilterList.push(relationFilter);
                         }
                     });
@@ -615,25 +473,19 @@ export class FilterService {
 
         let filterDataSourceListToDelete: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
 
-        let deleteIdList: string[] = this.filterCollection.getFiltersInSingleList(filterDataSourceListToDelete).reduce((idList, filter) =>
+        let deleteIdList: string[] = this.filterCollection.getFilters(filterDataSourceListToDelete).reduce((idList, filter) =>
             (filter.id === filterDesign.id ? idList.concat(filter.id).concat(filter.relations) : idList), []);
 
         if (deleteIdList.length) {
             // Loop over the data sources of the complete collection to delete the old relation filters in each data source.
             this.filterCollection.getDataSources().forEach((filterDataSource) => {
-                let previousRequiredFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromRequiredList(filterDataSource);
-                let previousOptionalFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromOptionalList(filterDataSource);
+                let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSource);
 
-                let requiredFilterList: AbstractFilter[] = previousRequiredFilterList.filter((filter) =>
-                    deleteIdList.indexOf(filter.id) < 0);
-                let optionalFilterList: AbstractFilter[] = previousOptionalFilterList.filter((filter) =>
-                    deleteIdList.indexOf(filter.id) < 0);
+                let modifiedFilterList: AbstractFilter[] = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
 
-                let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFiltersInDualLists(filterDataSource,
-                    requiredFilterList, optionalFilterList, searchService);
+                let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSource, modifiedFilterList);
 
-                returnCollection.set(actualDataSourceList, requiredFilterList.concat(optionalFilterList).map((filter) =>
-                    filter.toDesign()));
+                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
             });
 
             this.messenger.publish(neonEvents.FILTERS_CHANGED, {
@@ -642,7 +494,7 @@ export class FilterService {
             });
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSource) => {
-                returnCollection.set(filterDataSource, this.filterCollection.getFiltersInSingleList(filterDataSource).map((filter) =>
+                returnCollection.set(filterDataSource, this.filterCollection.getFilters(filterDataSource).map((filter) =>
                     filter.toDesign()));
             });
         }
@@ -670,25 +522,19 @@ export class FilterService {
         let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
 
         let deleteIdList: string[] = filterCollectionKeys.reduce((outerList, filterDataSourceList) =>
-            outerList.concat(this.filterCollection.getFiltersInSingleList(filterDataSourceList).reduce((innerList, filter) =>
+            outerList.concat(this.filterCollection.getFilters(filterDataSourceList).reduce((innerList, filter) =>
                 innerList.concat(filter.id).concat(filter.relations), [] as string[])), [] as string[]);
 
         if (deleteIdList.length) {
             // Loop over the data sources of the complete collection to delete the old relation filters in each data source.
             this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
-                let previousRequiredFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromRequiredList(filterDataSourceList);
-                let previousOptionalFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromOptionalList(filterDataSourceList);
+                let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
 
-                let requiredFilterList: AbstractFilter[] = previousRequiredFilterList.filter((filter) =>
-                    deleteIdList.indexOf(filter.id) < 0);
-                let optionalFilterList: AbstractFilter[] = previousOptionalFilterList.filter((filter) =>
-                    deleteIdList.indexOf(filter.id) < 0);
+                let modifiedFilterList: AbstractFilter[] = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
 
-                let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFiltersInDualLists(filterDataSourceList,
-                    requiredFilterList, optionalFilterList, searchService);
+                let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
 
-                returnCollection.set(actualDataSourceList, requiredFilterList.concat(optionalFilterList).map((filter) =>
-                    filter.toDesign()));
+                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
             });
 
             this.messenger.publish(neonEvents.FILTERS_CHANGED, {
@@ -697,7 +543,7 @@ export class FilterService {
             });
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
-                returnCollection.set(filterDataSourceList, this.filterCollection.getFiltersInSingleList(filterDataSourceList)
+                returnCollection.set(filterDataSourceList, this.filterCollection.getFilters(filterDataSourceList)
                     .map((filter) => filter.toDesign()));
             });
         }
@@ -723,7 +569,7 @@ export class FilterService {
         searchService: AbstractSearchService,
         filterDesignListToDelete: FilterDesign[] = []
     ): Map<FilterDataSource[], FilterDesign[]> {
-        let updateCollection: SingleListFilterCollection = new SingleListFilterCollection();
+        let updateCollection: FilterCollection = new FilterCollection();
         let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
         let deleteIdList: string[] = [];
 
@@ -736,10 +582,10 @@ export class FilterService {
             [exchangeFilter].concat(relationFilterList).forEach((relationFilter) => {
                 let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toDesign());
                 let filterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
-                updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter), searchService);
+                updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter));
 
                 // Find the IDs of all the old filters and old relation filters to delete in the exchange.  Repeat IDs don't matter.
-                let deleteFilterList: AbstractFilter[] = this.filterCollection.getFiltersInSingleList(filterDataSourceList);
+                let deleteFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
                 deleteIdList = deleteFilterList.reduce((idList, filter) => idList.concat(filter.id).concat(filter.relations), deleteIdList);
             });
         });
@@ -749,32 +595,27 @@ export class FilterService {
             let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
 
             // Find the IDs of all the filters and relation filters to delete.  Repeat IDs don't matter.
-            let deleteFilterList: AbstractFilter[] = this.filterCollection.getFiltersInSingleList(filterDataSourceList);
+            let deleteFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
             deleteIdList = deleteFilterList.reduce((idList, filter) => idList.concat(filter.id).concat(filter.relations), deleteIdList);
 
             // Mark this data source in updateCollection so the next loop will remove all the filters with IDs in the deleteIdList.
-            updateCollection.setFilters(filterDataSourceList, [], searchService);
+            updateCollection.setFilters(filterDataSourceList, []);
         });
 
         // Delete the old filters (if any) from and add the new filters (if any) to the data source of each filter passed as an argument.
         // Loop over the data sources of the complete collection to delete the old relation filters in each data source with no exchanges.
         this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
-            let completeFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
-            let requiredFilterList: AbstractFilter[] = completeFilterList.filter((filter) => !filter.optional);
-            let optionalFilterList: AbstractFilter[] = completeFilterList.filter((filter) => !!filter.optional);
+            let modifiedFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
 
             // If this is a data source with no exchanges, keep the old filters but remove any old relation filters as needed.
-            if (!completeFilterList.length) {
-                let previousRequiredFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromRequiredList(filterDataSourceList);
-                let previousOptionalFilterList: AbstractFilter[] = this.filterCollection.getFiltersFromOptionalList(filterDataSourceList);
-                requiredFilterList = previousRequiredFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
-                optionalFilterList = previousOptionalFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
+            if (!modifiedFilterList.length) {
+                let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
+                modifiedFilterList = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
             }
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
-            let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFiltersInDualLists(filterDataSourceList,
-                requiredFilterList, optionalFilterList, searchService);
-            returnCollection.set(actualDataSourceList, requiredFilterList.concat(optionalFilterList).map((filter) => filter.toDesign()));
+            let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
+            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
         });
 
         if (filterDesignList.length || filterDesignListToDelete.length) {
@@ -795,10 +636,10 @@ export class FilterService {
      */
     public getFilters(filterDataSourceList?: FilterDataSource[]): FilterDesign[] {
         if (filterDataSourceList) {
-            return this.filterCollection.getFiltersInSingleList(filterDataSourceList).map((filter) => filter.toDesign());
+            return this.filterCollection.getFilters(filterDataSourceList).map((filter) => filter.toDesign());
         }
         return this.filterCollection.getDataSources().reduce((returnList, globalDataSource) => returnList.concat(
-            this.filterCollection.getFiltersInSingleList(globalDataSource)), [] as AbstractFilter[]).map((filter) => filter.toDesign());
+            this.filterCollection.getFilters(globalDataSource)), [] as AbstractFilter[]).map((filter) => filter.toDesign());
     }
 
     /**
@@ -823,6 +664,7 @@ export class FilterService {
         datastoreName: string,
         databaseName: string,
         tableName: string,
+        searchService: AbstractSearchService,
         filterDesignListToIgnore: FilterDesign[] = []
     ): FilterClause[] {
         return this.filterCollection.getDataSources().reduce((returnList, filterDataSourceList) => {
@@ -833,8 +675,16 @@ export class FilterService {
             if (ignore) {
                 return returnList;
             }
-            let filterList = this.filterCollection.getFiltersToSearch(filterDataSourceList);
-            return returnList.concat(filterList.filter((filter) => filter.doesAffectSearch(datastoreName, databaseName, tableName)));
+            let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
+            let filterListToAND: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.root === CompoundFilterType.AND && filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filterListToOR: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.root === CompoundFilterType.OR && filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filterAND: AbstractFilter = filterListToAND.length ? new CompoundFilter(CompoundFilterType.AND, filterListToAND,
+                searchService) : null;
+            let filterOR: AbstractFilter = filterListToOR.length ? new CompoundFilter(CompoundFilterType.OR, filterListToOR,
+                searchService) : null;
+            return returnList.concat(filterAND || []).concat(filterOR || []);
         }, [] as AbstractFilter[]).map((filter) => filter.filterClause);
     }
 
@@ -847,17 +697,17 @@ export class FilterService {
      */
     private getFiltersWithDesign(filterDesign: FilterDesign): AbstractFilter[] {
         let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
-        return this.filterCollection.getFiltersInSingleList(filterDataSourceList);
+        return this.filterCollection.getFilters(filterDataSourceList);
     }
 
     /**
      * Returns if the visualization is filtered by the given filter collection (optionally, filtered matching the given filter design).
      *
-     * @arg {SingleListFilterCollection} filterCollection
+     * @arg {FilterCollection} filterCollection
      * @arg {FilterDesign} [filterDesign]
      * @return {boolean}
      */
-    public isFiltered(filterCollection: SingleListFilterCollection, filterDesign?: FilterDesign): boolean {
+    public isFiltered(filterCollection: FilterCollection, filterDesign?: FilterDesign): boolean {
         if (filterDesign) {
             let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(filterDesign);
             let filterList: AbstractFilter[] = filterCollection.getFilters(filterDataSourceList);
@@ -883,13 +733,6 @@ export class FilterService {
     }
 
     /**
-     * Resets the filters in the FilterService.
-     */
-    public resetFilters() {
-        this.filterCollection = new DualListFilterCollection();
-    }
-
-    /**
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      *
      * @arg {any[]} filtersFromConfig
@@ -897,16 +740,13 @@ export class FilterService {
      * @arg {AbstractSearchService} searchService
      */
     public setFiltersFromConfig(filtersFromConfig: any[], datasetService: DatasetService, searchService: AbstractSearchService) {
-        let collection: DualListFilterCollection = new DualListFilterCollection();
+        let collection: FilterCollection = new FilterCollection();
         filtersFromConfig.forEach((filterFromConfig) => {
             let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, datasetService);
             if (filterDesign) {
                 let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
                 let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
-                collection.setFiltersInDualLists(filterDataSourceList,
-                    collection.getFiltersFromRequiredList(filterDataSourceList).concat(!!filter.optional ? [] : filter),
-                    collection.getFiltersFromOptionalList(filterDataSourceList).concat(!filter.optional ? [] : filter),
-                    searchService);
+                collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
             }
         });
         this.filterCollection = collection;
@@ -928,7 +768,7 @@ export class FilterService {
         relationDataList: SingleField[][][],
         searchService: AbstractSearchService
     ): Map<FilterDataSource[], FilterDesign[]> {
-        let updateCollection: SingleListFilterCollection = new SingleListFilterCollection();
+        let updateCollection: FilterCollection = new FilterCollection();
         let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
 
         filterDesignList.forEach((toggleFilterDesign) => {
@@ -940,14 +780,14 @@ export class FilterService {
             [toggleFilter].concat(relationFilterList).forEach((relationFilter) => {
                 let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toDesign());
                 let filterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
-                updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter), searchService);
+                updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter));
             });
         });
 
         // Find the IDs of all the old filters and old relation filters to delete (toggle OFF).  Repeat IDs don't matter.
         let deleteIdList: string[] = [];
         updateCollection.getDataSources().forEach((filterDataSourceList) => {
-            let globalFilterList: AbstractFilter[] = this.filterCollection.getFiltersInSingleList(filterDataSourceList);
+            let globalFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
             let toggleFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
 
             // Identify a filter to delete if an equivalent filter (with the same properties) already exists in the global filter list.
@@ -959,7 +799,7 @@ export class FilterService {
         // Toggle each filter passed as an argument and all its relation filters.
         // Loop over the data sources of the complete collection to delete the old relation filters in each data source with no toggles.
         this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
-            let globalFilterList: AbstractFilter[] = this.filterCollection.getFiltersInSingleList(filterDataSourceList);
+            let globalFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
             let toggleFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
 
             // Drop the old filters and the old relation filters to delete (toggle ON) and keep the remaining filters.
@@ -969,14 +809,11 @@ export class FilterService {
             let appendFilterList: AbstractFilter[] = toggleFilterList.filter((toggleFilter) => !globalFilterList.some((globalFilter) =>
                 globalFilter.isEquivalentToFilter(toggleFilter)));
 
-            let completeFilterList: AbstractFilter[] = retainFilterList.concat(appendFilterList);
-            let requiredFilterList: AbstractFilter[] = completeFilterList.filter((filter) => !filter.optional);
-            let optionalFilterList: AbstractFilter[] = completeFilterList.filter((filter) => !!filter.optional);
+            let modifiedFilterList: AbstractFilter[] = retainFilterList.concat(appendFilterList);
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
-            let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFiltersInDualLists(filterDataSourceList,
-                requiredFilterList, optionalFilterList, searchService);
-            returnCollection.set(actualDataSourceList, requiredFilterList.concat(optionalFilterList).map((filter) => filter.toDesign()));
+            let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
+            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
         });
 
         if (filterDesignList.length) {
@@ -993,15 +830,15 @@ export class FilterService {
      * Swaps the existing filters in the given filter collection with all the compatible (matching) global filters.
      *
      * @arg {FilterBehavior[]} compatibleFilterBehaviorList
-     * @arg {SingleListFilterCollection} filterCollection
+     * @arg {FilterCollection} filterCollection
      * @arg {AbstractSearchService} searchService
      */
     public updateCollectionWithGlobalCompatibleFilters(
         compatibleFilterBehaviorList: FilterBehavior[],
-        filterCollection: SingleListFilterCollection,
+        filterCollection: FilterCollection,
         searchService: AbstractSearchService
     ): void {
-        let compatibleCollection: SingleListFilterCollection = new SingleListFilterCollection();
+        let compatibleCollection: FilterCollection = new FilterCollection();
 
         compatibleFilterBehaviorList.forEach((compatibleFilterBehavior) => {
             // Find the data source for the filter design.
@@ -1015,7 +852,7 @@ export class FilterService {
             // overwrite compatible filter lists from previous filter designs.  Also, don't add the same filter to the list twice!
             let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, filter) =>
                 list.concat((list.indexOf(filter) < 0 ? filter : [])), compatibleCollection.getFilters(filterDataSourceList));
-            compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList, searchService);
+            compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
         });
 
         compatibleCollection.getDataSources().forEach((filterDataSourceList) => {
@@ -1027,7 +864,7 @@ export class FilterService {
                 filter.isEquivalentToFilter(cachedFilterList[index]));
 
             if (!equals) {
-                filterCollection.setFilters(filterDataSourceList, filterList, searchService);
+                filterCollection.setFilters(filterDataSourceList, filterList);
 
                 // Call the redrawCallback of each compatibleFilterBehaviorList object with an equivalent filterDataSourceList.
                 compatibleFilterBehaviorList.forEach((compatibleFilterBehavior) => {
@@ -1046,7 +883,7 @@ export class FilterService {
 abstract class AbstractFilter {
     public id: string;
     public name: string;
-    public optional: boolean = false;
+    public root: CompoundFilterType = CompoundFilterType.AND;
     public relations: string[] = [];
 
     constructor(public filterClause: FilterClause) {
@@ -1079,7 +916,7 @@ abstract class AbstractFilter {
     public abstract doesAffectSearch(datastore: string, database: string, table: string): boolean;
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
@@ -1167,7 +1004,7 @@ class SimpleFilter extends AbstractFilter {
 
                     relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table,
                         substitute.field, this.operator, this.value, searchService);
-                    relationFilter.optional = this.optional;
+                    relationFilter.root = this.root;
                 }
             }
         });
@@ -1188,14 +1025,14 @@ class SimpleFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
      */
     public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
         let simpleFilterDesign = (filterDesign as SimpleFilterDesign);
-        return !!simpleFilterDesign.optional === !!this.optional &&
+        return (simpleFilterDesign.root || CompoundFilterType.AND) === this.root &&
             simpleFilterDesign.datastore === this.datastore &&
             simpleFilterDesign.database.name === this.database.name &&
             simpleFilterDesign.table.name === this.table.name &&
@@ -1211,7 +1048,7 @@ class SimpleFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof SimpleFilter && !!filter.optional === !!this.optional && filter.datastore === this.datastore &&
+        return filter instanceof SimpleFilter && filter.root === this.root && filter.datastore === this.datastore &&
             filter.database.name === this.database.name && filter.table.name === this.table.name &&
             filter.field.columnName === this.field.columnName && filter.operator === this.operator && filter.value === this.value;
     }
@@ -1225,7 +1062,7 @@ class SimpleFilter extends AbstractFilter {
         return {
             id: this.id,
             name: this.name,
-            optional: this.optional,
+            root: this.root,
             datastore: this.datastore,
             database: this.database,
             table: this.table,
@@ -1245,8 +1082,7 @@ class SimpleFilter extends AbstractFilter {
         let prettyValue = this.value instanceof Date ? ((this.value.getUTCMonth() + 1) + '-' + this.value.getUTCDate() + '-' +
             this.value.getUTCFullYear()) : this.value;
         // EX:  database.table.field = value
-        return this.database.prettyName + ' / ' + this.table.prettyName + ' / ' + this.field.prettyName + ' ' + this.operator + ' ' +
-            prettyValue;
+        return FilterUtil.createFilterName(this.database, this.table, this.field, this.operator) + ' ' + prettyValue;
     }
 }
 
@@ -1283,7 +1119,7 @@ class CompoundFilter extends AbstractFilter {
             return nestedRelationFilter || filter;
         }), searchService);
 
-        relationFilter.optional = this.optional;
+        relationFilter.root = this.root;
 
         // Return null unless at least one nested relation filter exists.
         return nestedRelationExists ? relationFilter : null;
@@ -1302,26 +1138,32 @@ class CompoundFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.
+     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
      * @return {boolean}
      */
     public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
         let compoundFilterDesign = (filterDesign as CompoundFilterDesign);
-        if (compoundFilterDesign.inflexible) {
-            // If the filter design is inflexible, ensure that 1) each nested design is compatible with at least one nested filter object,
-            // 2) each nested filter object is compatible with at least one nested filter design, and 3) the lists are the same length.
-            // This forces designs to have specific nested filters but allows them to have nested filters in an unexpected order.
-            return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
+
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(compoundFilterDesign);
+
+        if (filterDataSourceList.length > 1) {
+            // If the filter design contains more than one FilterDataSource, ensure that 1) each nested design is compatible with at least
+            // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
+            // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
+            // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
+            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
                 compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
                 compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                     nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
                         compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
         }
-        // If the filter design is flexible, ensure that each nested filter design is compatible with at least one nested filter object.
-        // This allows filters that expect one or more nested filters with the same design.
-        return !!compoundFilterDesign.optional === !!this.optional && compoundFilterDesign.type === this.type &&
+
+        // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
+        // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
+        // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
+        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
             compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                 nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
@@ -1333,7 +1175,7 @@ class CompoundFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof CompoundFilter && !!filter.optional === !!this.optional && filter.type === this.type &&
+        return filter instanceof CompoundFilter && filter.root === this.root && filter.type === this.type &&
             filter.filters.length === this.filters.length &&
             filter.filters.every((nestedFilter, index) => nestedFilter.isEquivalentToFilter(this.filters[index]));
     }
@@ -1347,7 +1189,7 @@ class CompoundFilter extends AbstractFilter {
         return {
             id: this.id,
             name: this.name,
-            optional: this.optional,
+            root: this.root,
             type: this.type,
             filters: this.filters.map((filter) => filter.toDesign())
         } as CompoundFilterDesign;
@@ -1360,6 +1202,22 @@ class CompoundFilter extends AbstractFilter {
      * @protected
      */
     protected toStringHelper(): string {
+        // With too many nested filters (arbitrarily more than 5), the name gets too long, so abbreviate it.
+        // EX:  (fieldA : 5 Filters) AND (fieldB : 1 Filter)
+        if (this.filters.length > 5) {
+            let filterNameCollection: Map<string, number> = new Map<string, number>();
+            this.filters.forEach((filter) => {
+                let filterName = filter instanceof SimpleFilter ? FilterUtil.createFilterName(filter.database, filter.table, filter.field,
+                    filter.operator) : filter.toString();
+                let priorCount = filterNameCollection.get(filterName) || 0;
+                filterNameCollection.set(filterName, priorCount + 1);
+            });
+            return '(' + Array.from(filterNameCollection.keys()).map((filterName) => {
+                let typeString = this.type === CompoundFilterType.AND ? 'ALL OF ' : 'ONE OF ';
+                let totalCount = filterNameCollection.get(filterName);
+                return filterName + ' ' + typeString + totalCount + ' FILTER' + (totalCount > 1 ? 'S' : '');
+            }).join(') ' + this.type + ' (') + ')';
+        }
         // EX:  (fieldA != value1) AND ((fieldB = value2) OR (fieldB = value3))
         return '(' + this.filters.map((filter) => filter.toString()).join(') ' + this.type + ' (') + ')';
     }

@@ -78,7 +78,7 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[0].changeField).toEqual(new FieldMetaData());
 
         expect(component.compoundTypeIsOr).toEqual(false);
-        expect(component.filterIsOptional).toEqual(false);
+        expect(component.parentFilterIsOr).toEqual(false);
     });
 
     it('does show expected HTML elements', () => {
@@ -101,6 +101,14 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[1].changeDatabase).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(component.filterClauses[1].changeTable).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.filterClauses[1].changeField).toEqual(new FieldMetaData());
+    });
+
+    it('addBlankFilterClause does use the database, table, and/or field from the existing filter clause', () => {
+        // TODO THOR-701
+    });
+
+    it('addBlankFilterClause does add a new set of HTML elements', () => {
+        // TODO THOR-701
     });
 
     it('clearEveryFilterClause does remove all the filter clauses from the internal list', () => {

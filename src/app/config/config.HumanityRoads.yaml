@@ -238,8 +238,7 @@ layouts:
               idField: _id
               sortField: createdAt
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - createdAt
                   - translatedText
                   - mediaEntities.mediaURLHttps
@@ -324,8 +323,7 @@ layouts:
               idField: _id
               sortField: createdDate
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - createdDate
                   - originalText
               customColumnWidths:
@@ -406,8 +404,7 @@ layouts:
               sortField: createdDate
               idField: _id
               limit: 100
-              allColumnStatus: hide
-              exceptionsToStatus:
+              showFields:
                   - createdDate
                   - topic
                   - location

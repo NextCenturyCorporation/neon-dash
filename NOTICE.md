@@ -50,6 +50,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | moment-timezone@0.5.13 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.18.1 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | neon-framework@1.0.1 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
+| ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | npm-license-crawler@0.1.9 | [BSD-3-Clause](https://github.com/mwittig/npm-license-crawler/raw/master/LICENSE) |
 | reflect-metadata@0.1.10 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
 | requirejs@2.3.5 | [MIT](https://github.com/jrburke/r.js) |

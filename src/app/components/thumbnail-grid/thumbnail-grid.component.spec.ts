@@ -27,7 +27,7 @@ import {} from 'jasmine-core';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
@@ -37,7 +37,6 @@ import { MatAutocompleteModule } from '@angular/material';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -116,7 +115,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.options.categoryField).toEqual(new FieldMetaData());
         expect(component.options.compareField).toEqual(new FieldMetaData());
-        expect(component.options.filterField).toEqual(new FieldMetaData());
+        expect(component.options.filterFields).toEqual([]);
         expect(component.options.idField).toEqual(new FieldMetaData());
         expect(component.options.linkField).toEqual(new FieldMetaData());
         expect(component.options.nameField).toEqual(new FieldMetaData());
@@ -275,7 +274,6 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show footer-container and pagination-button elements if on first page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 1;
@@ -302,7 +300,6 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on middle page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = false;
         (component as any).page = 2;
@@ -329,7 +326,6 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show footer-container and pagination-button elements if on last page', async(() => {
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{}]));
         (component as any).layerIdToElementCount.set(component.options._id, 3);
         (component as any).lastPage = true;
         (component as any).page = 3;
@@ -364,6 +360,7 @@ describe('Component: ThumbnailGrid', () => {
         let fields = ['testLinkField', 'testSortField'];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
             filter: {
                 filters: [{
                     field: 'testLinkField',
@@ -385,6 +382,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.sortDescending = true;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
             filter: {
                 filters: [{
                     field: 'testLinkField',
@@ -401,6 +399,13 @@ describe('Component: ThumbnailGrid', () => {
                 field: 'testSortField',
                 order: -1
             }
+        });
+
+        delete component.options.sortField.columnName;
+
+        expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
+            fields: ['*'],
+            filter: null
         });
     });
 
@@ -521,23 +526,26 @@ describe('Component: ThumbnailGrid', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(1);
+        expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
         expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign as any).operator).toEqual('=');
         expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign as any).type).toEqual(CompoundFilterType.OR);
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
     });
 
     it('isSelectable does return expected boolean', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
-
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-        expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         expect(component.isSelectable()).toEqual(true);
@@ -554,7 +562,7 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -562,7 +570,7 @@ describe('Component: ThumbnailGrid', () => {
 
         spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
             return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === component.options.filterField && filterDesign.operator === '=' &&
+                filterDesign.field === component.options.filterFields[0] && filterDesign.operator === '=' &&
                 filterDesign.value === 'testFilterValue1';
         });
 
@@ -578,7 +586,7 @@ describe('Component: ThumbnailGrid', () => {
             testNotAFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterField = new FieldMetaData();
+        component.options.filterFields = [];
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -595,16 +603,13 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
-
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
@@ -643,7 +648,7 @@ describe('Component: ThumbnailGrid', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.gridArray).toEqual([{
             _id: 'id1',
             testCategoryField: 'category1',
             testCompareField: 'compare1',
@@ -670,6 +675,7 @@ describe('Component: ThumbnailGrid', () => {
             testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
@@ -678,7 +684,8 @@ describe('Component: ThumbnailGrid', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual.data).toEqual([]);
+        expect(component.gridArray).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
@@ -704,7 +711,7 @@ describe('Component: ThumbnailGrid', () => {
             testTypeField: 'type2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.gridArray).toEqual([{
             _id: 'id1',
             testLinkField: 'prefix/link1',
             testNameField: 'name1',
@@ -717,6 +724,7 @@ describe('Component: ThumbnailGrid', () => {
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('refreshVisualization does call changeDetection.detectChanges', () => {
@@ -743,21 +751,24 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.argsFor(0)).toEqual(['id1']);
     });
 
-    it('selectGridItem does call createFilter if filterField is set', () => {
+    it('selectGridItem does call createFilter if filterFields is set', () => {
         let spy = spyOn(component, 'createFilter');
 
         component.selectGridItem({
             testFilterField: 'filter1'
         });
+
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
 
         component.selectGridItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['filter1']);
+        expect(spy.calls.argsFor(0)).toEqual([{
+            testFilterField: 'filter1'
+        }]);
     });
 
     it('isValideMediaType does return true if a MediaType is valid', () => {
@@ -803,7 +814,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'dateField', useValue: 'testDateField' },
             { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
             { provide: 'defaultPercent', useValue: 'testDefaultPercent' },
-            { provide: 'filterField', useValue: 'testFilterField' },
+            { provide: 'filterFields', useValue: ['testFilterField'] },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },
             { provide: 'ignoreSelf', useValue: true },
@@ -876,7 +887,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.categoryField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
         expect(component.options.compareField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
         expect(component.options.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.filterField).toEqual(new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string'));
+        expect(component.options.filterFields).toEqual([new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string')]);
         expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
         expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
         expect(component.options.nameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));

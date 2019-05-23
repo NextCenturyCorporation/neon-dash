@@ -15,9 +15,7 @@
  */
 import { Component } from '@angular/core';
 
-import * as neon from 'neon-framework';
-
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
@@ -56,10 +54,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         }[];
     }[];
 
-    constructor(
-        private connectionService: ConnectionService,
-        private datasetService: DatasetService
-    ) {
+    constructor(private datasetService: DatasetService, private searchService: AbstractSearchService) {
         super();
         this.selected = true;
         this.stepNumber = 1;
@@ -111,10 +106,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     connectToServer(): void {
-        let connection = this.connectionService.createActiveConnection(
-            this.data.datastoreType,
-            this.data.datastoreHost
-        );
+        let connection: Connection = this.searchService.createConnection(this.data.datastoreType, this.data.datastoreHost);
         if (!connection) {
             return;
         }
@@ -138,10 +130,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         );
     }
 
-    updateDatabases(
-        connection: neon.query.Connection,
-        index: number = 0
-    ): void {
+    updateDatabases(connection: Connection, index: number = 0): void {
         let database = this.data.allDatabases[index];
         connection.getTableNamesAndFieldNames(
             database.name,

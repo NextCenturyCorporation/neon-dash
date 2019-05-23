@@ -53,7 +53,7 @@ import {
     AbstractAggregationSubcomponent,
     AggregationSubcomponentListener
 } from './subcomponent.aggregation.abstract';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
 import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
@@ -78,25 +78,6 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import { MatDialog } from '@angular/material';
-
-export class TransformedAggregationData extends TransformedVisualizationData {
-    constructor(data: any[], public options: any) {
-        super(data);
-    }
-
-    /**
-     * Returns the sum of the Y value of each element in the data.
-     *
-     * @return {number}
-     * @override
-     */
-    public count(): number {
-        if (this.options.countByAggregation) {
-            return this._data.length;
-        }
-        return this._data.reduce((count, element) => count + element.y, 0);
-    }
-}
 
 @Component({
     selector: 'app-aggregation',
@@ -188,6 +169,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         name: 'Text List (Aggregations)',
         type: 'list'
     }];
+
+    public aggregationData: any[] = null;
 
     public colorKeys: any[] = [];
     public legendActiveGroups: any[] = [];
@@ -314,7 +297,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     /* falls through */
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
-            countField = '_date';
+            countField = '_' + options.granularity;
         } else if (!options.sortByAggregation) {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
             this.searchService.updateSort(query, options.xField.columnName);
@@ -326,13 +309,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.optionsTypeIsXY(options)) {
             groups.push(this.searchService.buildQueryGroup(options.yField.columnName));
             filters.push(this.searchService.buildFilterClause(options.yField.columnName, '!=', null));
-        } else {
-            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
-                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         if (options.groupField.columnName) {
             groups.push(this.searchService.buildQueryGroup(options.groupField.columnName));
+            countField = options.groupField.columnName;
+        }
+
+        if (!this.optionsTypeIsXY(options)) {
+            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
+                (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
@@ -359,7 +345,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,
@@ -395,7 +380,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnDomain(beginX?: any, endX?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: this.options.database,
@@ -416,7 +400,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private createFilterDesignOnItem(value?: any): FilterDesign {
         return {
-            optional: !this.options.requireAll,
+            root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
             datastore: '',
             database: this.options.database,
             table: this.options.table,
@@ -794,14 +778,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData} results
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
@@ -957,7 +942,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
         this.yList = yList;
-        return new TransformedAggregationData(shownResults, this.options);
+
+        this.aggregationData = shownResults;
+
+        return this.options.countByAggregation ? this.aggregationData.length : this.aggregationData.reduce((count, element) =>
+            count + element.y, 0);
     }
 
     /**
@@ -1248,14 +1237,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return type === 'date' ? 'date' : 'string';
         };
 
-        let activeData = this.getActiveData(this.options) || {
-            data: []
-        };
         let isXY = this.optionsTypeIsXY(this.options);
         let meta = {
             aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
             aggregationLabel: isXY ? undefined : this.options.aggregation,
-            dataLength: activeData.data.length,
+            dataLength: this.aggregationData.length,
             groups: this.legendGroups,
             sort: this.options.sortByAggregation ? 'y' : 'x',
             xAxis: findAxisType(this.options.xField.type),
@@ -1266,7 +1252,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // Update the overview if dualView is off or if it is not filtered.  It will only show the unfiltered data.
         if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.isFiltered())) {
-            this.subcomponentMain.draw(activeData.data, meta);
+            this.subcomponentMain.draw(this.aggregationData, meta);
         }
 
         // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
@@ -1274,7 +1260,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             if (!this.subcomponentZoom) {
                 this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
             }
-            this.subcomponentZoom.draw(activeData.data, meta);
+            this.subcomponentZoom.draw(this.aggregationData, meta);
         }
 
         this.updateOnResize();
@@ -1490,10 +1476,5 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let validFields = options.xField.columnName && (this.optionsTypeIsXY(options) ? options.yField.columnName : true) &&
             (options.aggregation !== AggregationType.COUNT ? options.aggregationField.columnName : true);
         return !!(options.database.name && options.table.name && validFields);
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.onChangeData();
     }
 }

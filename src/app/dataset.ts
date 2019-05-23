@@ -125,7 +125,7 @@ export class Dashboard {
     public contributors?: { [key: string]: Contributor } = {};
     // The datastores and layoutObject properties are assigned by the DatasetService.
     public datastores?: Datastore[] = [];
-    public layoutObject?: any[] = [];
+    public layoutObject?: (any[] | {[key: string]: any[]}) = [];
 }
 
 /**

@@ -31,7 +31,7 @@ import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '..
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -87,7 +87,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public mediaTypes: any = MediaTypes;
 
-    // TODO THOR-985
     public tabsAndMedia: MediaTab[] = [];
 
     public noDataId: string = undefined;
@@ -486,16 +485,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.noDataId = options.id;
-        options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
@@ -542,7 +541,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             });
         });
 
-        return new TransformedVisualizationData(this.tabsAndMedia);
+        return this.tabsAndMedia.length;
     }
 
     /**
@@ -723,10 +722,5 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.addEventLinks(fields, metadata, name);
         }
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }

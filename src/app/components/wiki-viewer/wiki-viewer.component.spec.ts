@@ -32,7 +32,6 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -214,36 +213,37 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
         (component as any).errorMessage = 'testErrorMessage';
 
-        let successCallback = (data) => {
-            expect(data.data).toEqual([]);
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(0);
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
+        (component as any).handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
     });
 
     it('handleTransformVisualizationQueryResults with data does call http.get', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(1);
-            expect(data.data[0].name).toEqual('Test Title');
-            expect(data.data[0].text.toString()).toBe(
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue'
         }], successCallback, failureCallback);
 
@@ -266,19 +266,20 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults on fail does call http.get', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(1);
-            expect(data.data[0].name).toEqual('testLinkValue');
-            expect(data.data[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('testLinkValue');
+            expect(component.wikiViewerData[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue'
         }], successCallback, failureCallback);
 
@@ -297,23 +298,24 @@ describe('Component: WikiViewer with mock HTTP', () => {
     it('handleTransformVisualizationQueryResults with multiple links does call http.get multiple times', (done) => {
         component.options.linkField.columnName = 'testLinkField';
 
-        let successCallback = (data) => {
-            expect(data.data.length).toEqual(2);
-            expect(data.data[0].name).toEqual('Test Title 1');
-            expect(data.data[1].name).toEqual('Test Title 2');
-            expect(data.data[0].text.toString()).toBe(
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(2);
+            expect(component.wikiViewerData.length).toEqual(2);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
+            expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
-            expect(data.data[1].text.toString()).toBe(
+            expect(component.wikiViewerData[1].text.toString()).toBe(
                 'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
             done();
         };
 
-        let failureCallback = (data) => {
+        let failureCallback = () => {
             fail();
             done();
         };
 
-        component.handleTransformVisualizationQueryResults(component.options, [{
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
             testLinkField: ['testLinkValue1', 'testLinkValue2']
         }], successCallback, failureCallback);
 

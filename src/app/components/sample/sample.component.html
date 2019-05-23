@@ -11,7 +11,7 @@
             </span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
-            (click)="optionsMenu.toggle();">
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -23,8 +23,8 @@
     <div class="body-container">
 
         <!-- TODO Replace with your visualization components! -->
-        <div *ngIf="getActiveData(options) != null">
-            <div class="data-item" *ngFor="let item of getActiveData(options).data">
+        <div *ngIf="visualizationData != null">
+            <div class="data-item" *ngFor="let item of visualizationData">
                 <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
                     {{ item.label }}: {{ item.count }}
                 </span>

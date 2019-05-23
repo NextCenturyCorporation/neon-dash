@@ -1,6 +1,7 @@
 <mat-sidenav-container #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}
+        </div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
             <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -22,13 +23,31 @@
     <div class="body-container" [class.with-contribution]="showContribution()">
         <div #taxonomyViewer class="taxonomy-viewer-container">
             <tree-root #treeRoot [nodes]="taxonomyGroups" [options]="testOptions">
-                <ng-template #treeNodeTemplate let-node="node"  let-index="index">
-                    <input
-                        (change)="checkRelatedNodes( node, $event)"
-                        type="checkbox"
-                        [indeterminate]="node.data.indeterminate"
-                        [checked]="node.data.checked">
-                        <span (click)="onEvent($event, node)">{{ node.data.name }} <span *ngIf="node.data.nodeCount > 0">({{ node.data.nodeCount }})</span></span>
+                <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
+                    <div [ngClass]="setClassForTreePosition(node, 'tree-node tree-node-level-')" [class]="node.getClass()">
+                        <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
+                            <tree-node-expander [node]="node"></tree-node-expander>
+                            <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
+                                 (dblclick)="node.mouseAction('dblClick', $event)"
+                                 [class.node-content-wrapper-active]="node.isActive"
+                                 [class.node-content-wrapper-focused]="node.isFocused">
+                                <div *ngIf="node.data.description != options.valueField.columnName">
+                                    <input
+                                        (change)="checkRelatedNodes( node, $event)"
+                                        type="checkbox"
+                                        [indeterminate]="node.data.indeterminate"
+                                        [checked]="node.data.checked">
+                                    <span>{{ node.data.name }}
+                                        <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
+                                    </span>
+                                </div>
+                                <div *ngIf="node.data.description === options.valueField.columnName">
+                                    <span>{{ node.data.name }}<span *ngIf="node.data.nodeCount > 0"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+                    </div>
                 </ng-template>
             </tree-root>
         </div>
