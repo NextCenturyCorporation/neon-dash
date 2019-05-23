@@ -14,9 +14,9 @@
  *
  */
 import { Inject, Injectable } from '@angular/core';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
-import { ConnectionService } from './connection.service';
+import { AbstractSearchService, Connection } from './abstract.search.service';
 import {
     Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
@@ -59,58 +59,59 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
-    static appendDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
+
+    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
+        // Transform the datastores from config file structures to Datastore objects.
+        Object.keys(configDatastores).forEach((datastoreKey) => {
+            let configDatastore: any = configDatastores[datastoreKey] || {};
+            let outputDatastore: Datastore = new Datastore(datastoreKey, configDatastore.host, configDatastore.type);
+
+            // Keep whether the datastore's fields are already updated (important for loading a saved state).
+            outputDatastore.hasUpdatedFields = !!configDatastore.hasUpdatedFields;
+
+            let configDatabases: any = configDatastore.databases || {};
+            outputDatastore.databases = Object.keys(configDatabases).map((databaseKey) => {
+                let configDatabase: any = configDatabases[databaseKey] || {};
+                let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
+
+                let configTables: any = configDatabase.tables || {};
+                outputDatabase.tables = Object.keys(configTables).map((tableKey) => {
+                    let configTable = configTables[tableKey] || {};
+                    let outputTable: TableMetaData = new TableMetaData(tableKey, configTable.prettyName);
+
+                    outputTable.fields = (configTable.fields || []).map((configField) =>
+                        new FieldMetaData(configField.columnName, configField.prettyName, !!configField.hide, configField.type));
+
+                    // Create copies to maintain original config data.
+                    outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
+                    outputTable.mappings = _.cloneDeep(configTable.mappings);
+
+                    return outputTable;
+                });
+
+                return outputDatabase;
+            });
+
+            // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
+            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === outputDatastore.name)) {
+                existingDatastores.push(outputDatastore);
+            }
+        });
+
+        return existingDatastores;
+    }
+
+    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
         Object.keys(newChoices).forEach((newChoiceId) => {
             let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
 
             if (exists) {
                 oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
-                DatasetService.appendDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+                DatasetService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
             } else {
                 oldChoices[newChoiceId] = newChoices[newChoiceId];
             }
         });
-    }
-
-    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
-        // Transform the datastores from config file structures to Datastore objects.
-        Object.keys(configDatastores).forEach((datastoreKey) => {
-            let oldDatastore: any = configDatastores[datastoreKey];
-            let newDatastore: Datastore = new Datastore(datastoreKey, oldDatastore.host, oldDatastore.type);
-
-            // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            newDatastore.hasUpdatedFields = !!oldDatastore.hasUpdatedFields;
-
-            let oldDatabases: any = oldDatastore.databases || {};
-            newDatastore.databases = Object.keys(oldDatabases).map((databaseKey) => {
-                let oldDatabase: any = oldDatabases[databaseKey];
-                let newDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, oldDatabase.prettyName);
-
-                let oldTables: any = oldDatabase.tables || {};
-                newDatabase.tables = Object.keys(oldTables).map((tableKey) => {
-                    let oldTable = oldTables[tableKey];
-                    let newTable: TableMetaData = new TableMetaData(tableKey, oldTable.prettyName);
-
-                    newTable.fields = (oldTable.fields || []).map((oldField) =>
-                        new FieldMetaData(oldField.columnName, oldField.prettyName, !!oldField.hide, oldField.type));
-
-                    // Create copies to maintain original config data.
-                    newTable.labelOptions = _.cloneDeep(oldTable.labelOptions);
-                    newTable.mappings = _.cloneDeep(oldTable.mappings);
-
-                    return newTable;
-                });
-
-                return newDatabase;
-            });
-
-            // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
-            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === newDatastore.name)) {
-                existingDatastores.push(newDatastore);
-            }
-        });
-
-        return existingDatastores;
     }
 
     static removeFromArray(array, indexList): void {
@@ -354,15 +355,15 @@ export class DatasetService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService) {
-        this.messenger = new neon.eventing.Messenger();
+    constructor(@Inject('config') private config: NeonGTDConfig, private searchService: AbstractSearchService) {
+        this.messenger = new eventing.Messenger();
 
         this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
             { category: 'No Dashboards', choices: {} });
 
         this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
-        this.layouts = config.layouts || {};
+        this.layouts = _.cloneDeep(config.layouts || {});
 
         DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
         DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
@@ -375,7 +376,7 @@ export class DatasetService {
                 this.messenger.publish(neonEvents.DASHBOARD_READY, {});
             };
 
-            let connection: neon.query.Connection = this.connectionService.createActiveConnection(dataset.type, dataset.host);
+            let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
             if (connection) {
                 // Update the fields within each table to add any that weren't listed in the config file as well as field types.
                 this.updateDatabases(dataset, connection).then(() => {
@@ -392,7 +393,7 @@ export class DatasetService {
     public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
         let validatedDashboard: Dashboard = DatasetService.validateDashboards(dashboard);
 
-        DatasetService.appendDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
+        DatasetService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
 
         DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
 
@@ -479,8 +480,6 @@ export class DatasetService {
             delete this.updateSubscription;
             delete this.updateInterval;
         }
-
-        this.messenger.publish(neonEvents.NEW_DATASET, {});
     }
 
     /**
@@ -893,11 +892,11 @@ export class DatasetService {
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
      * @param {Object} dataset
-     * @param {Object} connection
+     * @param {Connection} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: Datastore, connection: neon.query.Connection): any {
+    public updateDatabases(dataset: Datastore, connection: Connection): any {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
@@ -912,12 +911,12 @@ export class DatasetService {
     /**
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
-     * @param {neon.query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @return {Promise}
      * @private
      */
-    private getTableNamesAndFieldNames(connection: neon.query.Connection, database: DatabaseMetaData): Promise<any> {
+    private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
@@ -945,7 +944,7 @@ export class DatasetService {
                 Promise.all(promiseFields).then((response) => {
                     resolve(response);
                 });
-            }).fail((error) => {
+            }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
                     let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
@@ -954,7 +953,7 @@ export class DatasetService {
                         resolve(response);
                     });
                 } else {
-                    reject(error);
+                    resolve();
                 }
             });
         });
@@ -962,14 +961,13 @@ export class DatasetService {
 
     /**
      * Wraps connection.getFieldTypes() in a promise object.
-     * @param {neon.query.Connection} connection
+     * @param {Connection} connection
      * @param {DatabaseMetaData} database
      * @param {TableMetaData} table
      * @return {Promise<FieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: neon.query.Connection, database: DatabaseMetaData,
-        table: TableMetaData): Promise<FieldMetaData[]> {
+    private getFieldTypes(connection: Connection, database: DatabaseMetaData, table: TableMetaData): Promise<FieldMetaData[]> {
         return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let f of table.fields) {
                 if (types && types[f.columnName]) {
@@ -977,6 +975,8 @@ export class DatasetService {
                 }
             }
             resolve(table.fields);
+        }, (error) => {
+            resolve([]);
         }));
     }
 

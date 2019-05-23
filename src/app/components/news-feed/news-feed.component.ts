@@ -31,7 +31,7 @@ import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '..
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -62,6 +62,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('newsFeed') newsFeed: ElementRef;
     @ViewChild('filter') filter: ElementRef;
+
+    public newsFeedData: any[] = null;
 
     constructor(
         datasetService: DatasetService,
@@ -99,7 +101,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
             new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', true)
+            new WidgetFieldOption('sortField', 'Sort Field', false)
         ];
     }
 
@@ -172,13 +174,25 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
-        ];
 
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateSort(query, options.sortField.columnName, !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        let filters = sharedFilters;
+
+        if (this.options.sortField.columnName) {
+            filters = [
+                ...filters,
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+            ];
+        }
+
+        this.searchService.updateFieldsToMatchAll(query);
+
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
+
+        if (this.options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName,
+                !options.ascending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
 
         return query;
     }
@@ -227,19 +241,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.idField.columnName && options.sortField.columnName);
+        return !!(options.database.name && options.table.name && options.idField.columnName);
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {any[]}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        let data = results.map((d) => {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        this.newsFeedData = results.map((d) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
@@ -251,7 +266,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             }
             return item;
         });
-        return new TransformedVisualizationData(data);
+        return this.newsFeedData.length;
     }
 
     /**
@@ -290,10 +305,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     initializeProperties() {
-        if (!this.options.sortField.columnName) {
-            this.options.sortField = this.options.idField;
-        }
-
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
         // Backwards compatibility (ascending deprecated and replaced by sortDescending).

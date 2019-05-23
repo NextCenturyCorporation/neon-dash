@@ -39,7 +39,7 @@ import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } f
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-gear',
@@ -52,7 +52,7 @@ export class GearComponent implements OnInit, OnDestroy {
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     private originalOptions: any;
 
     // Set to a stub object to stop initialization errors.
@@ -63,14 +63,14 @@ export class GearComponent implements OnInit, OnDestroy {
         tables: []
     };
 
-    private requiredList: string[] = [];
-    private requiredListNonField: string[] = [];
-    private optionalList: string[] = [];
-    private optionalListNonField: string[] = [];
+    public exportCallbacks: (() => { name: string, data: any }[])[] = [];
+    public requiredList: string[] = [];
+    public requiredListNonField: string[] = [];
+    public optionalList: string[] = [];
+    public optionalListNonField: string[] = [];
 
     private createLayer: (options: any, layerBinding?: any) => any;
     private deleteLayer: (options: any, layerOptions: any) => boolean;
-    private exportCallbacks: (() => { name: string, data: any }[])[] = [];
     private finalizeCreateLayer: (layerOptions: any) => void;
     private finalizeDeleteLayer: (layerOptions: any) => void;
     private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
@@ -88,7 +88,7 @@ export class GearComponent implements OnInit, OnDestroy {
         protected datasetService: DatasetService,
         protected widgetService: AbstractWidgetService
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     private closeSidenav() {
@@ -301,7 +301,7 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.messenger.subscribe('options', (message) => this.updateOptions(message));
+        this.messenger.subscribe(neonEvents.SHOW_OPTION_MENU, (message) => this.updateOptions(message));
         this.changeDetection.detectChanges();
     }
 

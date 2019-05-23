@@ -27,11 +27,16 @@
     }
 }
 
-.next-to-button {
+.symbol {
+    background-color: var(--color-background-contrast, lightgrey);
+    border-radius: 15px;
+    margin-right: 5px;
+    text-align: center;
+
     /* Same as mat-icon-button in src/styles.scss */
     line-height: 20px;
-    height: 30px;
-    width: 30px;
+    height: 20px;
+    min-width: 20px;
     padding: 5px;
 }
 

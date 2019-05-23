@@ -19,7 +19,7 @@ import { BaseNeonComponent } from '../components/base-neon-component/base-neon.c
 import { Color, ColorSet } from '../color';
 import { DatasetService } from './dataset.service';
 import { neonEvents } from '../neon-namespaces';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 /**
  * @class NeonTheme
@@ -49,12 +49,12 @@ export class WidgetService extends AbstractWidgetService {
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
     constructor(protected datasetService: DatasetService) {
         super();
-        this.messenger = new neon.eventing.Messenger();
-        this.messenger.subscribe(neonEvents.NEW_DATASET, this.resetColorMap.bind(this));
+        this.messenger = new eventing.Messenger();
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
         document.body.className = this.currentThemeId;
     }
 
