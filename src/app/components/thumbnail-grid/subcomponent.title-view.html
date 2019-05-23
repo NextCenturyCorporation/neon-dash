@@ -1,11 +1,13 @@
-<div class="thumbnail-details" *ngIf="thumbnailGrid.getThumbnailLabel(item) != ''" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
+<div class="thumbnail-details" *ngIf="thumbnailGrid.getThumbnailLabel(item) != ''" (click)="thumbnailGrid.selectGridItem(item)"
+    [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
     <p>
         <span class="detail-ellipses">{{ thumbnailGrid.getThumbnailLabel(item) }}</span>
         <span class="detail-percentage">{{ thumbnailGrid.getThumbnailPercent(item) }}</span>
     </p>
 </div>
-<div (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+<div (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()"
+    [class.selected]="thumbnailGrid.isSelected(item)">
     <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
-            (click)="thumbnailGrid.displayMediaTab(item)">
+        (click)="thumbnailGrid.displayMediaTab(item)">
     </canvas>
 </div>
