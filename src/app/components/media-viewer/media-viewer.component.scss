@@ -1,19 +1,19 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
- @import '../base-neon-component/base-neon.component.scss';
+* Copyright 2016 Next Century Corporation
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+@import '../base-neon-component/base-neon.component';
 
 .full-height,
 .mat-tab-group {
@@ -30,24 +30,39 @@
     padding: 5px;
 }
 
-iframe.with-border, img.with-border, video.with-border, audio.with-border {
+iframe.with-border,
+img.with-border,
+video.with-border,
+audio.with-border {
     border: 3px solid var(--color-background, white);
 }
 
-iframe.border-mat-blue, img.border-mat-blue, video.border-mat-blue, audio.border-mat-blue {
-    border-color: #2196f3; /* mat-color-blue-500 */
+iframe.border-mat-blue,
+img.border-mat-blue,
+video.border-mat-blue,
+audio.border-mat-blue {
+    border-color: #2196F3; /* mat-color-blue-500 */
 }
 
-iframe.border-mat-grey, img.border-mat-grey, video.border-mat-grey, audio.border-mat-grey {
-    border-color: #9e9e9e; /* mat-color-grey-500 */
+iframe.border-mat-grey,
+img.border-mat-grey,
+video.border-mat-grey,
+audio.border-mat-grey {
+    border-color: #9E9E9E; /* mat-color-grey-500 */
 }
 
-iframe.border-mat-red, img.border-mat-red, video.border-mat-red, audio.border-mat-grey {
-    border-color: #f44336; /* mat-color-red-500 */
+iframe.border-mat-red,
+img.border-mat-red,
+video.border-mat-red,
+audio.border-mat-grey {
+    border-color: #F44336; /* mat-color-red-500 */
 }
 
-iframe.border-mat-yellow, img.border-mat-yellow, video.border-mat-yellow, audio.border-mat-grey {
-    border-color: #ffeb3b; /* mat-color-yellow-500 */
+iframe.border-mat-yellow,
+img.border-mat-yellow,
+video.border-mat-yellow,
+audio.border-mat-grey {
+    border-color: #FFEB3B; /* mat-color-yellow-500 */
 }
 
 iframe {
@@ -55,7 +70,8 @@ iframe {
     width: 100%;
 }
 
-img:not(.mask), video {
+img:not(.mask),
+video {
     height: auto;
     width: auto;
 }
@@ -76,7 +92,7 @@ img:not(.mask), video {
 
     ::ng-deep div.mat-slider-thumb-label {
         ::after {
-            content: "%";
+            content: '%';
         }
     }
 
@@ -85,7 +101,7 @@ img:not(.mask), video {
     }
 }
 
-.maskingDiv{
+.maskingDiv { // sass-lint:disable-line class-name-format
     position: relative;
 
     .medium {

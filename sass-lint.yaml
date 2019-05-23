@@ -1,0 +1,207 @@
+# https://www.npmjs.com/package/sass-lint-auto-fix
+files:
+    include: "**/*.s+(a|c)ss"
+    ignore:
+      - node_modules/**
+options:
+    max-warnings: 0
+rules:
+    attribute-quotes:
+        - 1
+        - include: true
+    bem-depth:
+        - 1
+        - max-depth: 1
+    border-zero:
+        - 1
+        - convention: '0'
+    brace-style:
+        - 1
+        - style: 1tbs
+          allow-single-line: true
+    class-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    clean-import-paths:
+        - 1
+        - leading-underscore: false
+          filename-extension: false
+    declarations-before-nesting:
+        - 1
+    empty-args:
+        - 1
+        - include: false
+    empty-line-between-blocks:
+        - 1
+        - include: true
+          allow-single-line-rulesets: false
+    extends-before-declarations:
+        - 1
+    extends-before-mixins:
+        - 1
+    final-newline:
+        - 1
+        - include: true
+    force-attribute-nesting:
+        - 0 # TODO
+    force-element-nesting:
+        - 0 # TODO
+    force-pseudo-nesting:
+        - 0 # TODO
+    function-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    hex-length:
+        - 1
+        - style: long
+    hex-notation:
+        - 1
+        - style: uppercase
+    id-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    indentation:
+        - 1
+        - size: 4
+    leading-zero:
+        - 1
+        - include: true
+    max-file-line-count:
+        - 0
+    max-line-length:
+        - 1
+        - length: 140
+    mixin-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    mixins-before-declarations:
+        - 1
+    nesting-depth:
+        - 0
+    no-at-rule-vendor-prefix:
+        - 0
+    no-attribute-selectors:
+        - 0
+    no-color-hex:
+        - 0
+    no-color-keywords:
+        - 0
+    no-color-literals:
+        - 0
+    no-combinators:
+        - 0
+    no-css-comments:
+        - 0
+    no-debug:
+        - 1
+    no-disallowed-properties:
+        - 0
+    no-disallowed-property-values:
+        - 0
+    no-duplicate-properties:
+        - 1
+    no-empty-rulesets:
+        - 1
+    no-extends:
+        - 0
+    no-ids:
+        - 0
+    no-important:
+        - 0
+    no-invalid-hex:
+        - 1
+    no-media-feature-vendor-prefix:
+        - 0
+    no-mergable-selectors:
+        - 0 # TODO
+    no-misspelled-properties:
+        - 1
+    no-property-vendor-prefix:
+        - 0
+    no-qualifying-elements:
+        - 0 # TODO
+    no-selector-vendor-prefix:
+        - 0
+    no-trailing-whitespace:
+        - 1
+    no-trailing-zero:
+        - 1
+    no-transition-all:
+        - 1
+    no-universal-selectors:
+        - 1
+    no-url-domains:
+        - 1
+    no-url-protocols:
+        - 1
+    no-value-vendor-prefix:
+        - 0
+    no-vendor-prefixes:
+        - 0
+    no-warn:
+        - 1
+    one-declaration-per-line:
+        - 1
+    placeholder-in-extend:
+        - 0
+    placeholder-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    property-sort-order:
+        - 0 # TODO https://github.com/sasstools/sass-lint/issues/1224
+        - order: alphabetical
+          ignore-custom-properties: false
+    property-units:
+        - 0
+    pseudo-element:
+        - 1
+    quotes:
+        - 1
+        - style: single
+    shorthand-values:
+        - 1
+    single-line-per-selector:
+        - 1
+    space-after-bang:
+        - 1
+        - include: false
+    space-after-colon:
+        - 1
+        - include: true
+    space-after-comma:
+        - 1
+        - include: true
+    space-around-operator:
+        - 1
+        - include: true
+    space-before-bang:
+        - 1
+        - include: true
+    space-before-brace:
+        - 1
+        - include: true
+    space-before-colon:
+        - 1
+        - include: false
+    space-between-parens:
+        - 1
+        - include: false
+    trailing-semicolon:
+        - 1
+        - include: true
+    url-quotes:
+        - 1
+    variable-for-property:
+        - 0
+    variable-name-format:
+        - 1
+        - allow-leading-underscore: true
+          convention: hyphenatedlowercase
+    zero-unit:
+        - 1
+        - include: false
