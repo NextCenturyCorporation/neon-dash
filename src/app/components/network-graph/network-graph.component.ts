@@ -1220,7 +1220,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     onSelect = (properties: { nodes: string[] }) => {
         if (properties.nodes.length === 1) {
-            let selectedNode = <Node> this.graphData.nodes.get(properties.nodes[0]);
+            let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
 
             let filters: FilterDesign[] = [];
 

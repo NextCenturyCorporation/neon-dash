@@ -94,7 +94,7 @@
     "ngx-monaco-editor": "^7.0.0",
     "ng-dynamic-component": "^4.0.3",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.5.2",
+    "rxjs": "~6.3.3",
     "tslib": "^1.9.3",
     "uuid": "^3.3.2",
     "vis": "^4.21.0",
@@ -140,7 +140,7 @@
     "protractor": "~5.4.2",
     "tslint": "~5.16.0",
     "typedoc": "~0.14.2",
-    "typescript": "~3.1.6",
+    "typescript": "~3.2.0",
     "webpack-bundle-analyzer": "^3.3.2"
   }
 }
