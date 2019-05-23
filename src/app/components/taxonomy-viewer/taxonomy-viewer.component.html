@@ -28,21 +28,17 @@
                         <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                             <tree-node-expander [node]="node"></tree-node-expander>
                             <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
-                                 (dblclick)="node.mouseAction('dblClick', $event)"
-                                 [class.node-content-wrapper-active]="node.isActive"
-                                 [class.node-content-wrapper-focused]="node.isFocused">
+                                (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
+                                [class.node-content-wrapper-focused]="node.isFocused">
                                 <div *ngIf="node.data.description != options.valueField.columnName">
-                                    <input
-                                        (change)="checkRelatedNodes( node, $event)"
-                                        type="checkbox"
-                                        [indeterminate]="node.data.indeterminate"
+                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
                                         [checked]="node.data.checked">
                                     <span>{{ node.data.name }}
-                                        <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
+                                        <span *ngIf="node.data.count > 0"> ({{ node.data.count }})</span>
                                     </span>
                                 </div>
                                 <div *ngIf="node.data.description === options.valueField.columnName">
-                                    <span>{{ node.data.name }}<span *ngIf="node.data.nodeCount > 0"></span></span>
+                                    <span>{{ node.data.name }}<span *ngIf="node.data.count > 0"></span></span>
                                 </div>
                             </div>
                         </div>

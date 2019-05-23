@@ -45,28 +45,33 @@ export namespace neonUtilities {
      * @arg {array} input
      * @return {array}
      */
-    export function flatten(input) {
-        return (input || []).reduce((array, element) => {
-            return array.concat(Array.isArray(element) ? flatten(element) : element);
-        }, []);
+    export function flatten(input, out = []) {
+        for (const element of (input || [])) {
+            if (Array.isArray(element)) {
+                flatten(element, out);
+            } else {
+                out.push(element);
+            }
+        }
+        return out;
     }
 
     /**
      * Returns the object nested inside the given object using the given path string (with periods to mark each nested property).
      *
      * @arg {object} item
-     * @arg {string} pathString
+     * @arg {string|string[]} pathString
      * @return {object}
      */
-    export function deepFind(item, pathString) {
+    export function deepFind(item, path, offset = 0) {
         let itemToReturn = item;
-        let path = (pathString ? pathString.split('.') : []);
-        for (let i = 0; i < path.length; i++) {
+        const pathElements = Array.isArray(path) ? path : (path ? path.split('.') : []);
+
+        for (let i = offset; i < pathElements.length; i++) {
             if (itemToReturn instanceof Array) {
-                let nestedPath = path.slice(i).join('.');
                 let pieces = [];
                 for (let itemInList of itemToReturn) {
-                    let entryValue = deepFind(itemInList, nestedPath);
+                    let entryValue = deepFind(itemInList, pathElements, i);
                     if (entryValue instanceof Array) {
                         entryValue = flatten(entryValue);
                     }
@@ -74,7 +79,7 @@ export namespace neonUtilities {
                 }
                 return pieces;
             }
-            itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
+            itemToReturn = itemToReturn && itemToReturn[pathElements[i]];
         }
         return itemToReturn;
     }
@@ -123,22 +128,22 @@ export const neonCustomConnectionMappings: { name: string, prettyName: string }[
     name: 'date',
     prettyName: 'Date'
 },
-    {
-        name: 'id',
-        prettyName: 'ID'
-    },
-    {
-        name: 'latitude',
-        prettyName: 'Latitude'
-    },
-    {
-        name: 'longitude',
-        prettyName: 'Longitude'
-    },
-    {
-        name: 'url',
-        prettyName: 'URL'
-    }];
+{
+    name: 'id',
+    prettyName: 'ID'
+},
+{
+    name: 'latitude',
+    prettyName: 'Latitude'
+},
+{
+    name: 'longitude',
+    prettyName: 'Longitude'
+},
+{
+    name: 'url',
+    prettyName: 'URL'
+}];
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
