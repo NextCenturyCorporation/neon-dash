@@ -50,6 +50,7 @@ interface TaxonomyNode {
     externalId?: string;
     sourceIds: string[];
     parent?: TaxonomyGroup;
+    externalName?: string;
     name: string;
     level?: number;
     checked?: boolean;
@@ -313,61 +314,80 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             this.options.categoryField.columnName);
     }
 
-    mergeTaxonomyData(group: TaxonomyGroup, lineage: { category: string, type: string, subtype?: string }, child: TaxonomyNode) {
-        let nestedGroups = group;
-        const parts = [
-            ...lineage.category.split('.').map((v) => [v, 'category']),
-            ...lineage.type.split('.').map((v) => [v, 'type']),
-            ...(lineage.subtype ? lineage.subtype.split('.').map((v) => [v, 'subtype']) : [])
-        ] as [string, 'category' | 'type' | 'subtype'][];
+    mergeTaxonomyData(group: TaxonomyGroup, lineage: { category: string | string[], type: string | string[], subtype?: string | string[] },
+        child: TaxonomyNode
+    ) {
+        let currentGroup = group;
+        let toArray = (el: string | string[]) => Array.isArray(el) ? el : (el ? el.split('.') : []);
+
+        // Compose all layers into single array of [name, type][]
+        const segments = [
+            [toArray(lineage.category), 'category'],
+            [toArray(lineage.type), 'type'],
+            [toArray(lineage.subtype), 'subtype']
+        ] as [string[], string][];
+
+
         let pos = 0;
-        while (pos < parts.length) {
-            const [pcat, ptype] = parts[pos];
-            if (!(pcat in nestedGroups.childrenMap)) {
-                const node: TaxonomyGroup = {
-                    id: `${this.counter++}`,
-                    description: this.options.categoryField,
-                    name: pcat,
-                    parent: nestedGroups,
-                    checked: !this.isTaxonomyNodeFiltered(
-                        ptype === 'category' ?
-                            this.options.categoryField :
-                            ptype === 'type' ?
-                                this.options.typeField :
-                                this.options.subtypeField,
-                        parts.slice(0, pos).map((v) => v[0]).join('.')),
-                    sourceIds: [],
-                    nodeIds: [],
-                    level: pos + 1,
-                    count: 0,
-                    children: [],
-                    childrenMap: {}
-                };
-                nestedGroups.childrenMap[pcat] = node;
-                nestedGroups.children.push(node);
+        for (const [segment, ptype] of segments) {
+            let subPos = 0;
+            // Travel inward, one level at a time
+            for (const pcat of segment) {
+                // Traverse forward in each layer
+                if (!(pcat in currentGroup.childrenMap)) {
+                    // Find field that this node should be filtered by
+                    const fieldToCheck = this.options[`${ptype}Field`];
+
+                    // Build new object
+                    const node: TaxonomyGroup = {
+                        id: `${this.counter++}`,
+                        description: fieldToCheck,
+                        name: pcat,
+                        externalName: segment.slice(0, subPos + 1).join('.'),
+                        parent: currentGroup,
+                        checked: !this.isTaxonomyNodeFiltered(fieldToCheck, pcat),
+                        sourceIds: [],
+                        nodeIds: [],
+                        level: pos + 1,
+                        count: 0,
+                        children: [],
+                        childrenMap: {}
+                    };
+
+                    // Register node with parent
+                    currentGroup.childrenMap[pcat] = node;
+                    currentGroup.children.push(node);
+                }
+                // Descend into child
+                const next = currentGroup.childrenMap[pcat] as TaxonomyGroup;
+                currentGroup = next;
+                pos += 1;
+                subPos += 1;
             }
-            const next = nestedGroups.childrenMap[pcat] as TaxonomyGroup;
-            nestedGroups = next;
-            pos += 1;
         }
-        if (!(child.name in nestedGroups.childrenMap)) {
-            nestedGroups.childrenMap[child.name] = child;
-            nestedGroups.children.push(child);
-            child.parent = nestedGroups;
+
+        // If new node, walk back up to parent, recording counts
+        if (!(child.externalId in currentGroup.childrenMap)) {
+            currentGroup.childrenMap[child.externalId] = child;
+            // currentGroup.children.push(child);
+            child.parent = currentGroup;
             child.level = pos + 1;
 
             // Walk back up if a new item
-            while (nestedGroups && nestedGroups.id) {
-                nestedGroups.count += 1;
+            while (currentGroup && currentGroup.id) {
+                currentGroup.count += 1;
                 if (child.externalId) {
-                    nestedGroups.nodeIds.push(child.externalId);
+                    currentGroup.nodeIds.push(child.externalId);
                 }
-                nestedGroups.sourceIds.push(...child.sourceIds);
-                nestedGroups = nestedGroups.parent;
+                currentGroup.sourceIds.push(...child.sourceIds);
+                currentGroup = currentGroup.parent;
             }
         }
     }
 
+    /**
+     * Navigate each level, sorting by name if children present
+     */
     sortTaxonomies(group: TaxonomyGroup | TaxonomyNode) {
         if ('children' in group) {
             for (const child of group.children) {
@@ -393,6 +413,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             children: []
         } as TaxonomyGroup;
 
+        let find = (d: any, field: string) => neonUtilities.deepFind(d, this.options[field].columnName);
+
         for (const d of results) {
             let types: string[];
             const categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
@@ -404,25 +426,25 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
             //leaf value set in case it is needed for the taxonomy valueObject
             // If a value is not found for the leafValue, id will be used
-            const leafValue =
-                neonUtilities.deepFind(d, this.options.valueField.columnName) ||
-                neonUtilities.deepFind(d, this.options.idField.columnName);
-
             const child = {
-                id: `${this.counter++}`,
                 description: this.options.valueField,
-                name: leafValue,
-                sourceIds: neonUtilities.deepFind(d, this.options.sourceIdField.columnName),
-                externalId: neonUtilities.deepFind(d, this.options.idField.columnName)
+                name: find(d, 'valueField') || find(d, 'idField'),
+                sourceIds: find(d, 'sourceIdField'),
+                externalId: find(d, 'idField')
             };
 
+            // Loop, categories[] -> types[] -> subTypes?[]
             for (const category of categories) {
                 for (const type of types) {
 
-                    this.mergeTaxonomyData(group, { category, type }, {
+                    // const [typeMajor, ...subTypes] = type.split('.');
+                    // const lineage = { category, type: typeMajor, subtype: subTypes.join('.') };
+                    const lineage = { category, type };
+
+                    this.mergeTaxonomyData(group, lineage, {
                         ...child,
-                        checked: !this.isTaxonomyNodeFiltered(this.options.typeField,
-                            type.includes('.') ? type.substring(0, type.indexOf('.')) : type)
+                        id: `${this.counter++}`,
+                        checked: !this.isTaxonomyNodeFiltered(this.options.typeField, lineage.type)
                     });
                 }
             }
@@ -430,29 +452,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         this.sortTaxonomies(group);
 
-        // this.addCountsToTaxonomy(results, this.taxonomyGroups);
         this.taxonomyGroups = group.children as TaxonomyGroup[];
         this.dataSource.data = group.children;
         return this.taxonomyGroups.length;
-    }
-
-    /**
-     * Sets class for nodes based on position in taxonomy
-     *
-     * @arg {TreeNode} node
-     * @arg {string} classString
-     * @return {string}
-     */
-    setClassForTreePosition(node, classString) {
-        let nodeClass = classString + node.level;
-        //adds a styling class for the values of types or subTypes
-        if (this.options.valueField.columnName &&
-            ((node.level === 2 && node.hasChildren && !node.children[0].hasChildren) || node.level === 3)) {
-            nodeClass = nodeClass + ' leaf-node-level';
-
-        }
-
-        return nodeClass;
     }
 
     /**
@@ -483,7 +485,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         // Create filters for all the unselected groups with valid fields (description properties).
         let filters: SimpleFilterDesign[] = unselectedGroups.filter((group) => group.description && group.description.columnName)
-            .map((group) => this.createFilterDesign(group.description, group.name));
+            .map((group) => this.createFilterDesign(group.description, group.externalName));
 
         let categoryFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName ===
             this.options.categoryField.columnName);
@@ -531,6 +533,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // }
 
         this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterDesignListToDelete);
+
+        this.changeDetection.detectChanges();
     }
 
     updateChildNodesCheckBox(node: TaxonomyNode | TaxonomyGroup, checked: boolean) {
