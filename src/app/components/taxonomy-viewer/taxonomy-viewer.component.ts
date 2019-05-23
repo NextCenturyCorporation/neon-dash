@@ -40,7 +40,8 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatTreeNestedDataSource } from '@angular/material';
+import { NestedTreeControl } from '@angular/cdk/tree';
 
 let styleImport: any;
 
@@ -48,8 +49,11 @@ interface TaxonomyNode {
     id: string;
     externalId?: string;
     sourceIds: string[];
+    parent?: TaxonomyGroup;
     name: string;
+    level?: number;
     checked?: boolean;
+    indeterminate?: boolean;
     description: string;
 }
 
@@ -75,13 +79,15 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('treeRoot') treeRoot: ElementRef;
 
     private counter = 0;
 
     public taxonomyGroups: TaxonomyGroup[] = [];
 
     public deletedFilter: any;
+
+    public treeControl = new NestedTreeControl<TaxonomyNode | TaxonomyGroup>((node) => 'children' in node && node.children);
+    public dataSource = new MatTreeNestedDataSource<TaxonomyGroup | TaxonomyNode>();
 
     public testOptions = {
         actionMapping: {
@@ -126,6 +132,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             document.head.appendChild(link);
         }
     }
+
+    hasNestedChild = (_: number, node: TaxonomyGroup) => !!node.children && node.children.some((x) => 'children' in x);
 
     private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
         list.push({
@@ -264,8 +272,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return {
             visualization: this.visualization,
             headerText: this.headerText,
-            infoText: this.infoText,
-            treeRoot: this.treeRoot
+            infoText: this.infoText
         };
     }
 
@@ -306,19 +313,32 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             this.options.categoryField.columnName);
     }
 
-    mergeTaxonomyData(group: TaxonomyGroup, category: string, child: TaxonomyNode) {
+    mergeTaxonomyData(group: TaxonomyGroup, lineage: { category: string, type: string, subtype?: string }, child: TaxonomyNode) {
         let nestedGroups = group;
-        const parts = category.split('.');
+        const parts = [
+            ...lineage.category.split('.').map((v) => [v, 'category']),
+            ...lineage.type.split('.').map((v) => [v, 'type']),
+            ...(lineage.subtype ? lineage.subtype.split('.').map((v) => [v, 'subtype']) : [])
+        ] as [string, 'category' | 'type' | 'subtype'][];
         let pos = 0;
         while (pos < parts.length) {
-            const pcat = parts[pos];
+            const [pcat, ptype] = parts[pos];
             if (!(pcat in nestedGroups.childrenMap)) {
-                const node = {
+                const node: TaxonomyGroup = {
                     id: `${this.counter++}`,
                     description: this.options.categoryField,
                     name: pcat,
+                    parent: nestedGroups,
+                    checked: !this.isTaxonomyNodeFiltered(
+                        ptype === 'category' ?
+                            this.options.categoryField :
+                            ptype === 'type' ?
+                                this.options.typeField :
+                                this.options.subtypeField,
+                        parts.slice(0, pos).map((v) => v[0]).join('.')),
                     sourceIds: [],
                     nodeIds: [],
+                    level: pos + 1,
                     count: 0,
                     children: [],
                     childrenMap: {}
@@ -327,23 +347,34 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 nestedGroups.children.push(node);
             }
             const next = nestedGroups.childrenMap[pcat] as TaxonomyGroup;
-            next.count += 1;
-            if (child.externalId) {
-                next.nodeIds.push(child.externalId);
-            }
-            next.sourceIds.push(...child.sourceIds);
             nestedGroups = next;
             pos += 1;
         }
-        nestedGroups.childrenMap[child.name] = child;
+        if (!(child.name in nestedGroups.childrenMap)) {
+            nestedGroups.childrenMap[child.name] = child;
+            nestedGroups.children.push(child);
+            child.parent = nestedGroups;
+            child.level = pos + 1;
+
+            // Walk back up if a new item
+            while (nestedGroups && nestedGroups.id) {
+                nestedGroups.count += 1;
+                if (child.externalId) {
+                    nestedGroups.nodeIds.push(child.externalId);
+                }
+                nestedGroups.sourceIds.push(...child.sourceIds);
+                nestedGroups = nestedGroups.parent;
+            }
+        }
     }
 
     sortTaxonomies(group: TaxonomyGroup | TaxonomyNode) {
         if ('children' in group) {
-            group.children.sort((a, b) => a.name.localeCompare(b.name));
             for (const child of group.children) {
                 this.sortTaxonomies(child);
             }
+            group.children.sort((a, b) => a.name.localeCompare(b.name));
+            group.checked = !group.children.find((x) => x.checked === false);
         }
     }
 
@@ -388,7 +419,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             for (const category of categories) {
                 for (const type of types) {
 
-                    this.mergeTaxonomyData(group, `${category}.${type}`, {
+                    this.mergeTaxonomyData(group, { category, type }, {
                         ...child,
                         checked: !this.isTaxonomyNodeFiltered(this.options.typeField,
                             type.includes('.') ? type.substring(0, type.indexOf('.')) : type)
@@ -401,6 +432,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         // this.addCountsToTaxonomy(results, this.taxonomyGroups);
         this.taxonomyGroups = group.children as TaxonomyGroup[];
+        this.dataSource.data = group.children;
         return this.taxonomyGroups.length;
     }
 
@@ -424,47 +456,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Adds necessary ids and counts to the nodes in the taxonomy
-     *
-     * @arg {any} data
-     * @arg {any[]} groups
-     */
-    addCountsToTaxonomy(data: any, groups: any[]) {
-        for (let group of groups) {
-            let count = 0;
-            group.nodeIds = [];
-            group.sourceIds = [];
-
-            data.forEach((d) => {
-                let description = neonUtilities.deepFind(d, group.description.columnName),
-                    lineage = neonUtilities.deepFind(d, this.options.categoryField.columnName),
-                    id = neonUtilities.deepFind(d, this.options.idField.columnName);
-
-                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
-                    description.includes(group.name);
-
-                let lineageExists = lineage instanceof Array ?
-                    lineage.find((s) => (s === group.lineage)) : (lineage === group.lineage);
-
-                if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
-                    let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
-                    group.nodeIds.push(id);
-                    group.sourceIds.push(sourceIds);
-                    count++;
-                }
-            });
-
-            group.nodeCount = count;
-            group.sourceIds = neonUtilities.flatten(group.sourceIds)
-                .filter((value, index, array) => array.indexOf(value) === index);
-
-            if (group.hasOwnProperty('children')) {
-                this.addCountsToTaxonomy(data, group.children);
-            }
-        }
-    }
-
-    /**
      * Alphabetize the values added to the taxonomy
      *
      * @arg {any[]} array
@@ -475,30 +466,16 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             a.name.localeCompare(b.name) * (this.options.ascending ? 1 : -1));
     }
 
-    getTaxonomyObject(group: any[], name: string) {
-        let foundIndex = 0,
-            foundObject = group.find((item, index) => {
-                let found = item.name === name;
-                foundIndex = index;
-                return found;
-            });
-
-        return {
-            index: foundIndex,
-            object: foundObject
-        };
-    }
-
     private findUnselectedGroups(group: any): any[] {
         return (group.checked ? [] : [group]).concat((group.children || []).reduce((array, child) =>
             array.concat(this.findUnselectedGroups(child)), []));
     }
 
-    checkRelatedNodes(node: TreeNode, $event: any) {
+    checkRelatedNodes(node: TaxonomyNode, $event: any) {
         let relatives = [];
 
         // Update all the groups in the taxonomy (select or unselect them).
-        this.updateChildNodesCheckBox(node, $event.target.checked);
+        this.updateChildNodesCheckBox(node, $event.checked);
         this.updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
@@ -556,45 +533,42 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterDesignListToDelete);
     }
 
-    updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
-        let setNode = node.data || node;
-        setNode.checked = checked;
-        if (checked === false && setNode.indeterminate) {
-            setNode.indeterminate = checked;
+    updateChildNodesCheckBox(node: TaxonomyNode | TaxonomyGroup, checked: boolean) {
+        node.checked = checked;
+        if (checked === false && node.indeterminate) {
+            node.indeterminate = checked;
         }
 
-        if (setNode.children) {
-            setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+        if ('children' in node) {
+            node.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
         }
     }
 
-    updateParentNodesCheckBox(node: TreeNode) {
-        if (node && node.level > 0 && node.children) {
-            let setNode = node.data || node,
-                allChildrenChecked = true,
+    updateParentNodesCheckBox(node: TaxonomyNode | TaxonomyGroup) {
+        if (node && node.level > 0 && 'children' in node) {
+            let allChildrenChecked = true,
                 noChildrenChecked = true;
 
             for (let child of node.children) {
-                let setChild = child.data || child;
-                if (node.level === 1 && !!setChild.indeterminate) {
+                if (node.level === 1 && !!child.indeterminate) {
                     allChildrenChecked = false;
                     noChildrenChecked = false;
-                } else if (!setChild.checked) {
+                } else if (!child.checked) {
                     allChildrenChecked = false;
-                } else if (setChild.checked) {
+                } else if (child.checked) {
                     noChildrenChecked = false;
                 }
             }
 
             if (allChildrenChecked) {
-                setNode.checked = true;
-                setNode.indeterminate = false;
+                node.checked = true;
+                node.indeterminate = false;
             } else if (noChildrenChecked) {
-                setNode.checked = false;
-                setNode.indeterminate = false;
+                node.checked = false;
+                node.indeterminate = false;
             } else {
-                setNode.checked = true;
-                setNode.indeterminate = true;
+                node.checked = true;
+                node.indeterminate = true;
             }
 
             if (node.parent) {
@@ -633,7 +607,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     refreshVisualization() {
-        this.getElementRefs().treeRoot.treeModel.update();
+        // Do nothing
     }
 
     /**

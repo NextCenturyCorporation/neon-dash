@@ -21,7 +21,33 @@
     </div>
 
     <div class="body-container" [class.with-contribution]="showContribution()">
-        <div #taxonomyViewer class="taxonomy-viewer-container">
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+            <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+                <div class="mat-tree-node leaf-node level-{{node.level}}">
+                    <mat-checkbox [disableRipple]="true" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
+                        [indeterminate]="!!node.indeterminate">
+                        {{node.name}} <span>({{ node.count }})</span>
+                    </mat-checkbox>
+                </div>
+            </mat-tree-node>
+            <!-- This is the tree node template for expandable nodes -->
+            <mat-nested-tree-node *matTreeNodeDef="let node; when: hasNestedChild">
+                <div class="mat-tree-node level-{{node.level}}">
+                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name" [disableRipple]="true">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                        </mat-icon>
+                    </button>
+                    <mat-checkbox [disableRipple]="true" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
+                        [indeterminate]="!!node.indeterminate">
+                        {{node.name}} <span>({{ node.count }})</span>
+                    </mat-checkbox>
+                </div>
+                <ng-container *ngIf="treeControl.isExpanded(node)" matTreeNodeOutlet></ng-container>
+            </mat-nested-tree-node>
+        </mat-tree>
+
+        <!-- <div #taxonomyViewer class="taxonomy-viewer-container">
             <tree-root #treeRoot [nodes]="taxonomyGroups" [options]="testOptions">
                 <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
                     <div [ngClass]="setClassForTreePosition(node, 'tree-node tree-node-level-')" [class]="node.getClass()">
@@ -46,7 +72,7 @@
                     </div>
                 </ng-template>
             </tree-root>
-        </div>
+        </div> -->
     </div>
 
     <div class="contribution-text" *ngIf="showContribution()">

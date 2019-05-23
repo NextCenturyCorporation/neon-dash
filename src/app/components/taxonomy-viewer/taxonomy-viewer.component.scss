@@ -16,10 +16,6 @@
 
 @import '../base-neon-component/base-neon.component.scss';
 
-/deep/ {
-    @import '../../../../node_modules/angular-tree-component/dist/angular-tree-component.css';
-}
-
 .full-height,
 .mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});
@@ -39,6 +35,35 @@
     font-size: 14px;
 }
 
+.mat-tree-node {
+    min-height: 0px;
+    font-size: 1em;
+    overflow: unset;
+    [mat-icon-button] {
+        padding: 0 !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    &.leaf-node {
+        margin-left: 20px;
+    }
+    &.level-2 {
+        padding-left: 10px;
+    }
+    &.level-3 {
+        padding-left: 20px;
+    }
+    &.level-4 {
+        padding-left: 30px;
+    }
+    &.level-5 {
+        padding-left: 40px;
+    }
+    mat-checkbox {
+        margin-right: .5em;
+    }
+}
+
 /deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div{
     border: 1px solid var(--color-text-header, grey);
     max-height: 200px;
@@ -46,5 +71,3 @@
     padding-left: 0px;
     width: 92%;
 }
-
-

@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { TreeModule } from 'angular-tree-component';
+import { MatTreeModule, MatCheckboxModule, MatIconModule, MatButtonModule } from '@angular/material';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -25,7 +25,10 @@ import { CommonWidgetModule } from '../../common-widget.module';
   entryComponents: [TaxonomyViewerComponent],
   imports: [
     CommonWidgetModule,
-    TreeModule.forRoot(),
+    MatTreeModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCheckboxModule,
     CommonModule
   ]
 })
