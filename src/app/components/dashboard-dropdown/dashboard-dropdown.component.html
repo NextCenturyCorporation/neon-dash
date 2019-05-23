@@ -6,7 +6,6 @@
     </mat-select>
 </mat-form-field>
 
-<app-dashboard-dropdown *ngIf="hasMoreChoices()" #nextDropdown
-    [dashboards]="selectedDashboard"
+<app-dashboard-dropdown *ngIf="hasMoreChoices()" #nextDropdown [dashboards]="selectedDashboard"
     (selectionChange)="onChildSelectionChange($event)">
 </app-dashboard-dropdown>
