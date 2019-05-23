@@ -89,7 +89,7 @@ $contribution-height: 20px;
             }
 
             .chart-selection {
-                background-color: var(--color-primary-transparent, rgba(128,128,128,0.33));
+                background-color: var(--color-primary-transparent, rgba(128, 128, 128, 0.33));
                 height: 10px;
                 width: 10px;
                 position: absolute;
@@ -102,6 +102,7 @@ $contribution-height: 20px;
             float: left;
         }
     }
+
     .filter-container {
         @extend %filter-container-shared;
     }
@@ -140,8 +141,8 @@ $contribution-height: 20px;
 
         .pagination-button[disabled] {
             @extend .pagination-button;
-            background-color: #dcdcdc !important;
-            color: #adadad !important;
+            background-color: #DCDCDC !important;
+            color: #ADADAD !important;
         }
     }
 
@@ -175,7 +176,10 @@ $contribution-height: 20px;
             max-width: 240px;
         }
 
-        mat-form-field, mat-input, mat-select, table {
+        mat-form-field,
+        mat-input,
+        mat-select,
+        table {
             width: 100%;
         }
     }

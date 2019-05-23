@@ -14,7 +14,7 @@
  *
  */
 
-@import '../base-neon-component/base-neon.component.scss';
+@import '../base-neon-component/base-neon.component';
 
 /deep/ {
     @import '../../../../node_modules/angular-tree-component/dist/angular-tree-component.css';
@@ -25,12 +25,12 @@
     height: calc(100% - #{$vis-title-expected-height});
 }
 
-/deep/ .mat-drawer-content{
+/deep/ .mat-drawer-content {
     overflow: unset;
 }
 
 
-.taxonomy-viewer-container{
+.taxonomy-viewer-container {
     overflow-y: auto;
     overflow-x: auto;
     overflow: hidden;
@@ -39,11 +39,11 @@
     font-size: 14px;
 }
 
-/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div{
+/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div {
     border: 1px solid var(--color-text-header, grey);
     max-height: 200px;
     overflow-y: auto;
-    padding-left: 0px;
+    padding-left: 0;
     width: 92%;
 }
 
