@@ -95,9 +95,8 @@ describe('Component: SaveStateComponent', () => {
     });
 
     it('deleteState does call connection.deleteState with expected data', () => {
-        let spy = spyOn(component, 'closeSidenav');
-
         let calls = 0;
+        let listCalls = 1;
         spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 deleteState: (data, successCallback) => {
@@ -107,13 +106,19 @@ describe('Component: SaveStateComponent', () => {
                     let successSpy = spyOn(component, 'handleDeleteStateSuccess');
                     successCallback();
                     expect(successSpy.calls.count()).toEqual(1);
+                },
+                listStates: (data, callback) => {
+                    listCalls += 1;
+                    callback();
                 }
             };
         });
 
+        let spy = spyOn(component, 'fetchStates');
+
         component.deleteState('testState', false);
         expect(calls).toEqual(1);
-        expect(spy.calls.count()).toEqual(1);
+        expect(listCalls).toEqual(1);
     });
 
     it('deleteState does validate the state name', () => {
@@ -139,9 +144,7 @@ describe('Component: SaveStateComponent', () => {
 
     it('handleDeleteStateSuccess does reset stateToDelete and call fetchStates', () => {
         let spy = spyOn(component, 'fetchStates');
-        component.formData.stateToDelete = 'testState';
         component['handleDeleteStateSuccess']({}, 'testState');
-        expect(component.formData.stateToDelete).toEqual('');
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -158,7 +161,6 @@ describe('Component: SaveStateComponent', () => {
             }
         });
         let spyMessengerPublish = spyOn(component['messenger'], 'publish');
-        component.formData.stateToLoad = 'testState';
         component['handleLoadStateSuccess']({
             fileName: 'dashboard1',
             lastModified: Date.now(),
@@ -185,7 +187,6 @@ describe('Component: SaveStateComponent', () => {
             saved_state: savedStateDashboard
         };
 
-        expect(component.formData.stateToDelete).toEqual('');
         expect(spyDatasetService.calls.count()).toEqual(1);
         expect(spyDatasetService.calls.argsFor(0)).toEqual([expectedDashboard, {
             datastore1: {}
@@ -193,19 +194,22 @@ describe('Component: SaveStateComponent', () => {
                 layout1: []
             }]);
         expect(spyMessengerPublish.calls.count()).toEqual(1);
-        expect(spyMessengerPublish.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+        const [type, { dashboard: { lastModified, ...dashboard } }] = spyMessengerPublish.calls.argsFor(0);
+        expect([type, { dashboard }]).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: {
+                fileName: 'dashboard1',
                 name: 'dashboard1'
             }
         }]);
     });
 
     it('handleSaveStateSuccess does reset stateToSave and call fetchStates', () => {
-        let spy = spyOn(component, 'fetchStates');
-        component.formData.stateToSave = 'testState';
+        component.current = new Dashboard();
+        component.current.lastModified = 0;
+        component.current.modified = true;
         component['handleSaveStateSuccess']({}, 'testState');
-        expect(component.formData.stateToSave).toEqual('');
-        expect(spy.calls.count()).toEqual(1);
+        expect(component.current.lastModified).toBeGreaterThan(0);
+        expect(component.current.modified).toBeFalsy();
     });
 
     it('loadState does call connection.loadState with expected data', () => {
@@ -260,7 +264,7 @@ describe('Component: SaveStateComponent', () => {
         component['fetchStates']();
         expect(calls).toEqual(1);
         expect(component['isLoading']).toEqual(true);
-        expect(component.states.results).toEqual({ reuslts: [], count: 0 });
+        expect(component.states.results).toEqual([]);
     });
 
     it('openConfirmationDialog does open dialog', () => {
@@ -487,7 +491,7 @@ describe('Component: SaveStateComponent', () => {
                             }
                         }]
                     });
-                    expect(data.name).toEqual('testState');
+                    expect(data.stateName).toEqual('testState');
 
                     let successSpy = spyOn(component, 'handleSaveStateSuccess');
                     successCallback();
@@ -514,7 +518,7 @@ describe('Component: SaveStateComponent', () => {
             return {
                 saveState: (data, successCallback) => {
                     calls++;
-                    expect(data.name).toEqual('folder.my-test.state_name1234');
+                    expect(data.stateName).toEqual('folder.my-test.state_name1234');
                 }
             };
         });

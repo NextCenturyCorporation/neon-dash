@@ -56,12 +56,6 @@ export class SaveStateComponent implements OnInit {
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
     @Input() public current: Dashboard;
 
-    public formData: any = {
-        newStateName: '',
-        stateToLoad: '',
-        stateToDelete: ''
-    };
-
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
@@ -74,10 +68,11 @@ export class SaveStateComponent implements OnInit {
         public widgetService: AbstractWidgetService,
         private snackBar: MatSnackBar,
         private dialog: MatDialog
-    ) { }
+    ) {
+        this.messenger = new eventing.Messenger();
+    }
 
     ngOnInit() {
-        this.messenger = new eventing.Messenger();
         this.fetchStates();
     }
 
@@ -149,7 +144,7 @@ export class SaveStateComponent implements OnInit {
         if (isOverwrite) {
             this.openConfirmationDialog(
                 'Save Changes',
-                'Looks like you have made changes to this saved state.  Would you like to save these changes?',
+                `Looks like you have made changes to the current saved state.  Would you like to save these changes?`,
                 'Save',
                 'Discard'
             )
@@ -174,8 +169,10 @@ export class SaveStateComponent implements OnInit {
             };
 
             connection.saveState(stateData, (response) => {
-                this.current.name = name;
-                this.current.fileName = `${validStateName}.yaml`;
+                if (this.current) {
+                    this.current.name = name;
+                    this.current.fileName = `${validStateName}.yaml`;
+                }
                 this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
                 this.handleStateFailure(response, validStateName);
@@ -241,13 +238,11 @@ export class SaveStateComponent implements OnInit {
     }
 
     private handleDeleteStateSuccess(response: any, name: string) {
-        this.formData.stateToDelete = '';
         this.fetchStates();
         this.openNotification(name, 'deleted');
     }
 
     private handleLoadStateSuccess(response: State, name: string) {
-        this.formData.stateToLoad = '';
         if (response.dashboards && response.datastores && response.layouts) {
             let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
                 response.datastores, response.layouts);
@@ -279,7 +274,6 @@ export class SaveStateComponent implements OnInit {
         this.current.modified = false;
         this.current.lastModified = Date.now();
 
-        this.formData.stateToSave = '';
         this.fetchStates();
         this.openNotification(name, 'saved');
     }
@@ -302,9 +296,7 @@ export class SaveStateComponent implements OnInit {
      *
      * @private
      */
-    private fetchStates(limit = 10, offset = 0) {
-        this.formData.stateToDelete = '';
-        this.formData.stateToLoad = '';
+    private fetchStates(limit = 100, offset = 0) {
         this.isLoading = true;
         this.states = { total: 0, results: [] };
         let connection = this.openConnection();
@@ -326,8 +318,7 @@ export class SaveStateComponent implements OnInit {
                 title,
                 confirmMessage: message,
                 confirmText,
-                cancelText,
-                target: this.formData.stateToDelete
+                cancelText
             },
             height: 'auto',
             width: '500px',

@@ -1,6 +1,6 @@
-<form #optionsForm="ngForm" (submit)="saveState(formData.stateToSave)">
+<form #optionsForm="ngForm" (submit)="saveState(stateName.value)">
     <mat-form-field>
-        <input matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
+        <input #stateName matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent">
     </mat-form-field>
 
     <button mat-raised-button class="neon-button-small" color="accent" type="submit">
