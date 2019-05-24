@@ -71,6 +71,7 @@ export class SaveStateComponent implements OnInit {
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
+        private snackBar: MatSnackBar,
         private dialog: MatDialog
     ) { }
 
