@@ -21,7 +21,7 @@ export enum MapType { Leaflet }
 
 // create array of name/value pairs for map types
 export const MapTypePairs: { name: string, value: number }[] =
-    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({ name: name, value: MapType[name] }));
+    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key, 10))).map((name) => ({ name: name, value: MapType[name] }));
 
 export class BoundingBoxByDegrees {
     constructor(

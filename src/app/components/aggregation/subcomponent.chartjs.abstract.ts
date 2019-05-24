@@ -17,7 +17,7 @@ import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
