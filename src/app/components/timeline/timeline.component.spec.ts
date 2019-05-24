@@ -14,18 +14,13 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { FieldMetaData } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { TimelineComponent } from './timeline.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -36,7 +31,9 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { WidgetService } from '../../services/widget.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 
-let d3 = require('../../../assets/d3.min.js');
+import { TimelineModule } from './timeline.module';
+import { ConfigService } from '../../services/config.service';
+import { FieldMetaData } from '../../dataset';
 
 describe('Component: Timeline', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -45,22 +42,17 @@ describe('Component: Timeline', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Timeline', {
-        declarations: [
-            TimelineComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            {provide: AbstractWidgetService, useClass: WidgetService},
-            {provide: DatasetService, useClass: DatasetServiceMock},
+            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            {provide: AbstractSearchService, useClass: SearchServiceMock},
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            {provide: 'config', useValue: testConfig}
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TimelineModule
         ]
     });
 
@@ -318,10 +310,10 @@ describe('Component: Timeline', () => {
                 field: 'testDateField',
                 type: 'month'
             },
-                {
-                    field: 'testDateField',
-                    type: 'year'
-                }
+            {
+                field: 'testDateField',
+                type: 'year'
+            }
             ],
             aggregation: [
                 {
@@ -523,14 +515,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-            testIdField: 'id3',
-            testFilterField: 'filter3',
-            _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-            _month: 1,
-            _year: 2018
+                testIdField: 'id3',
+                testFilterField: 'filter3',
+                _aggregation: 1,
+                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+                _month: 1,
+                _year: 2018
 
-        });
+            });
 
         //Expected date value equals UTCMonth - 1
         expect(previousItem).toEqual({
@@ -556,14 +548,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-            testIdField: 'id3',
-            testFilterField: 'filter3',
-            _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-            _month: 1,
-            _year: 2018
+                testIdField: 'id3',
+                testFilterField: 'filter3',
+                _aggregation: 1,
+                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+                _month: 1,
+                _year: 2018
 
-        });
+            });
 
         //Expected date value equals UTCMonth - 1
         expect(previousItem2).toEqual({
@@ -596,14 +588,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-            testIdField: 'id3',
-            testFilterField: 'filter3',
-            _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-            _month: 1,
-            _year: 2018
+                testIdField: 'id3',
+                testFilterField: 'filter3',
+                _aggregation: 1,
+                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+                _month: 1,
+                _year: 2018
 
-        });
+            });
 
         expect(previousItem).toEqual(undefined);
 
@@ -622,14 +614,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-            testIdField: 'id3',
-            testFilterField: 'filter3',
-            _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-            _month: 1,
-            _year: 2018
+                testIdField: 'id3',
+                testFilterField: 'filter3',
+                _aggregation: 1,
+                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+                _month: 1,
+                _year: 2018
 
-        });
+            });
 
         expect(previousItem2).toEqual(undefined);
     });

@@ -3,32 +3,72 @@
     "node_modules/codelyzer"
   ],
   "rules": {
-    "angular-whitespace": [true, "check-interpolation", "check-pipe", "check-semicolon"],
-    "array-type": [true, "array"],
+    "angular-whitespace": [
+      true,
+      "check-interpolation",
+      "check-pipe",
+      "check-semicolon"
+    ],
+    "array-type": [
+      true,
+      "array"
+    ],
     "arrow-parens": true,
     "arrow-return-shorthand": true,
-    "ban": [true, "fdescribe", "fit"],
+    "ban": [
+      true,
+      "fdescribe",
+      "fit"
+    ],
     "callable-types": true,
     "class-name": true,
     "comment-format": true,
     "component-class-suffix": true,
-    "component-selector": [true, "element", "app", "kebab-case"],
+    "component-selector": [
+      true,
+      "element",
+      "app",
+      "kebab-case"
+    ],
     "contextual-life-cycle": true,
     "curly": true,
     "directive-class-suffix": true,
-    "directive-selector": [true, "attribute", "app", "camelCase"],
+    "directive-selector": [
+      true,
+      "attribute",
+      "app",
+      "camelCase"
+    ],
     "decorator-not-allowed": true,
     "eofline": true,
-    "file-header": [true, "Copyright 2017 Next Century Corporation\n \\* Licensed under the Apache License, Version 2.0 \\(the \"License\"\\);\n \\* you may not use this file except in compliance with the License.\n \\* You may obtain a copy of the License at\n \\*\n \\*     http:\/\/www.apache.org\/licenses\/LICENSE-2.0\n \\*\n \\* Unless required by applicable law or agreed to in writing, software\n \\* distributed under the License is distributed on an \"AS IS\" BASIS,\n \\* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n \\* See the License for the specific language governing permissions and\n \\* limitations under the License."],
+    "file-header": [
+      true,
+      "Copyright 2017 Next Century Corporation\n \\* Licensed under the Apache License, Version 2.0 \\(the \"License\"\\);\n \\* you may not use this file except in compliance with the License.\n \\* You may obtain a copy of the License at\n \\*\n \\*     http:\/\/www.apache.org\/licenses\/LICENSE-2.0\n \\*\n \\* Unless required by applicable law or agreed to in writing, software\n \\* distributed under the License is distributed on an \"AS IS\" BASIS,\n \\* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n \\* See the License for the specific language governing permissions and\n \\* limitations under the License."
+    ],
     "forin": true,
-    "import-blacklist": [true],
+    "import-blacklist": [
+      true
+    ],
     "import-spacing": true,
-    "indent": [true, "spaces", 4],
+    "indent": [
+      true,
+      "spaces",
+      4
+    ],
     "interface-over-type-literal": true,
-    "jsdoc-format": [true, "check-multiline-start"],
+    "jsdoc-format": [
+      true,
+      "check-multiline-start"
+    ],
     "label-position": true,
-    "linebreak-style": [true, "LF"],
-    "max-line-length": [true, 140],
+    "linebreak-style": [
+      true,
+      "LF"
+    ],
+    "max-line-length": [
+      true,
+      140
+    ],
     "member-ordering": [
       true,
       {
@@ -74,13 +114,23 @@
     "no-duplicate-imports": true,
     "no-duplicate-super": true,
     "no-duplicate-switch-case": true,
-    "no-duplicate-variable": [true, "check-parameters"],
+    "no-duplicate-variable": [
+      true,
+      "check-parameters"
+    ],
     "no-empty": true,
     "no-empty-interface": true,
     "no-eval": true,
     "no-forward-ref": true,
-    "no-inferrable-types": [true, "ignore-params", "ignore-properties"],
-    "no-implicit-dependencies": [true, "dev"],
+    "no-inferrable-types": [
+      true,
+      "ignore-params",
+      "ignore-properties"
+    ],
+    "no-implicit-dependencies": [
+      true,
+      "dev"
+    ],
     "no-input-rename": true,
     "no-internal-module": true,
     "no-invalid-template-strings": true,
@@ -100,17 +150,22 @@
     "no-this-assignment": [
       true,
       {
-        "allowed-names": ["^(me|self)$"]
+        "allowed-names": [
+          "^(me|self)$"
+        ]
       }
     ],
     "no-trailing-whitespace": true,
     "no-unsafe-finally": true,
     "no-unnecessary-callback-wrapper": true,
-    "no-unnecessary-class": true,
+    "no-unnecessary-class": false,
     "no-unnecessary-initializer": true,
     "no-unused-expression": true,
     "no-var-keyword": true,
-    "object-literal-key-quotes": [true, "consistent-as-needed"],
+    "object-literal-key-quotes": [
+      true,
+      "consistent-as-needed"
+    ],
     "one-line": [
       true,
       "check-catch",
@@ -120,15 +175,27 @@
       "check-whitespace"
     ],
     "pipe-impure": true,
-    "pipe-naming": ["camelCase"],
+    "pipe-naming": [
+      "camelCase"
+    ],
     "prefer-for-of": true,
     "prefer-method-signature": true,
     "prefer-switch": true,
-    "quotemark": [true, "single", "avoid-escape"],
+    "quotemark": [
+      true,
+      "single",
+      "avoid-escape"
+    ],
     "radix": true,
-    "semicolon": [true, "always"],
+    "semicolon": [
+      true,
+      "always"
+    ],
     "space-within-parens": 0,
-    "space-before-function-paren": [true, "never"],
+    "space-before-function-paren": [
+      true,
+      "never"
+    ],
     "templates-no-negated-async": true,
     "trailing-comma": [
       true,
@@ -137,7 +204,10 @@
         "singleline": "never"
       }
     ],
-    "triple-equals": [true, "allow-null-check"],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
     "typedef-whitespace": [
       true,
       {
@@ -164,7 +234,10 @@
     "use-output-property-decorator": true,
     "use-pipe-decorator": true,
     "use-pipe-transform-interface": true,
-    "variable-name": [true, "ban-keywords"],
+    "variable-name": [
+      true,
+      "ban-keywords"
+    ],
     "whitespace": [
       true,
       "check-branch",

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -23,13 +23,14 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 import { Dashboard, Datastore } from '../../dataset';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
+
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 
@@ -61,7 +62,7 @@ export class SaveStateComponent implements OnInit {
         stateToDelete: ''
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
+    public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
     public states: { total: number, results: State[] } = { total: 0, results: [] };
@@ -84,6 +85,18 @@ export class SaveStateComponent implements OnInit {
         if (this.sidenav) {
             this.sidenav.close();
         }
+    }
+
+    openEditConfigDialog() {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
+            height: '80%',
+            width: '80%',
+            hasBackdrop: true,
+            disableClose: true
+        });
     }
 
     private createDashboard(stateName: string, dashboard: Dashboard, filters: any[]): Dashboard {
@@ -307,16 +320,19 @@ export class SaveStateComponent implements OnInit {
     }
 
     public openConfirmationDialog(title: string, message: string, confirmText = 'Ok', cancelText = 'Cancel') {
-        this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'confirmation-dialog',
+                title,
+                confirmMessage: message,
+                confirmText,
+                cancelText,
+                target: this.formData.stateToDelete
+            },
+            height: '130px',
             width: '500px',
             disableClose: false
         });
-
-        this.confirmDialogRef.componentInstance.title = title;
-        this.confirmDialogRef.componentInstance.confirmMessage = message;
-        this.confirmDialogRef.componentInstance.cancelText = cancelText;
-        this.confirmDialogRef.componentInstance.confirmText = confirmText;
-        this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
 
         return this.confirmDialogRef.afterClosed()
             .pipe(tap(() => {

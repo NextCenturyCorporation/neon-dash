@@ -14,7 +14,6 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { Color, ColorSet } from '../color';
 
 /**

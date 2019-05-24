@@ -18,6 +18,8 @@ import { ElementRef } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 
+let styleImport: any;
+
 export class LeafletNeonMap extends AbstractMap {
     private leafletOptions: L.MapOptions = {
         minZoom: 2,
@@ -36,6 +38,22 @@ export class LeafletNeonMap extends AbstractMap {
     private box: L.Rectangle;
 
     private hiddenPoints = new Map();
+
+    constructor() {
+        super();
+        if (!styleImport) {
+            for (const src of [
+                '/assets/leaflet/dist/leaflet.css',
+                '/assets/leaflet.markercluster/dist/MarkerCluster.Default.css'
+            ]) {
+                const link = styleImport = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = src;
+
+                document.head.appendChild(link);
+            }
+        }
+    }
 
     doCustomInitialization(mapContainer: ElementRef) {
         let baseTileLayer = this.mapOptions.customServer && this.mapOptions.customServer.useCustomServer ?
@@ -93,7 +111,7 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         if (!layerGroup) {
-            layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
+            layerGroup = !cluster ? new L.LayerGroup() : (L as any).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
                 iconCreateFunction: (clusterPoint) => {
                     return new L.DivIcon({

@@ -16,12 +16,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -30,12 +27,13 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { TextCloudModule } from './text-cloud.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
@@ -43,11 +41,6 @@ describe('Component: TextCloud', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Text Cloud', {
-        declarations: [
-            DataMessageComponent,
-            TextCloudComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             {
@@ -57,12 +50,11 @@ describe('Component: TextCloud', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TextCloudModule
         ]
     });
 

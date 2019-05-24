@@ -42,17 +42,21 @@ import {
 } from '../../widget-option';
 import { MatDialog } from '@angular/material';
 
+let styleImport: any;
+
 @Component({
     selector: 'app-taxonomy-viewer',
     templateUrl: './taxonomy-viewer.component.html',
-    styleUrls: ['./taxonomy-viewer.component.scss'],
+    styleUrls: [
+        './taxonomy-viewer.component.scss'
+    ],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
 
     //HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('treeRoot') treeRoot: ElementRef;
@@ -95,6 +99,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             ref,
             dialog
         );
+
+        if (!styleImport) {
+            const link = styleImport = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/assets/angular-tree-component/dist/angular-tree-component.css';
+
+            document.head.appendChild(link);
+        }
     }
 
     private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {

@@ -44,14 +44,13 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetOptionCollection,
-    WidgetSelectOption,
-    WidgetTableOption
+    WidgetSelectOption
 } from '../../widget-option';
 
 import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
-import { ContributionDialogComponent } from '../contribution-dialog/contribution-dialog.component';
-import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
 /**
  * @class BaseNeonComponent
@@ -98,7 +97,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
 
-    private contributorsRef: MatDialogRef<ContributionDialogComponent>;
+    private contributorsRef: MatDialogRef<DynamicDialogComponent>;
 
     constructor(
         protected datasetService: DatasetService,
@@ -1301,10 +1300,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected openContributionDialog() {
-        let config = new MatDialogConfig();
-        config = { width: '400px', minHeight: '200px', data: this.getContributorsForComponent() };
-
-        this.contributorsRef = this.dialog.open(ContributionDialogComponent, config);
+        this.contributorsRef = this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'contribution-dialog',
+                ...this.getContributorsForComponent()
+            },
+            width: '400px',
+            minHeight: '200px'
+        });
         this.contributorsRef.afterClosed().subscribe(() => {
             this.contributorsRef = null;
         });

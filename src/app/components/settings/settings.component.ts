@@ -15,14 +15,10 @@
  */
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
-import { BehaviorSubject } from 'rxjs';
+import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DatabaseMetaData, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -31,6 +27,7 @@ import { DatasetService } from '../../services/dataset.service';
 
 import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
 @Component({
     selector: 'app-settings',
@@ -46,7 +43,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         currentTheme: 'neon-green-theme'
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public messenger: eventing.Messenger;
 
     public fields: FieldMetaData[] = [];
@@ -103,13 +99,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     openEditConfigDialog() {
-        let dConfig  = {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
             height: '80%',
             width: '80%',
             hasBackdrop: true,
             disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        });
     }
 
     publishShowFilterTray() {

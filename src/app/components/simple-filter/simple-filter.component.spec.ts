@@ -13,29 +13,27 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { DashboardOptions, Dashboard, SimpleFilter } from '../../dataset';
+import { DashboardOptions, SimpleFilter } from '../../dataset';
 import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    DebugElement,
-    NO_ERRORS_SCHEMA,
-    OnDestroy, OnInit
+    DebugElement
 } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+
+import { SimpleFilterModule } from './simple-filter.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: SimpleFilter', () => {
     let component: SimpleFilterComponent;
@@ -54,19 +52,14 @@ describe('Component: SimpleFilter', () => {
     };
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 
@@ -199,19 +192,14 @@ describe('Component: SimpleFilter unconfigured', () => {
     let fixture: ComponentFixture<SimpleFilterComponent>;
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetService },
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 

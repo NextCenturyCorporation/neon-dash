@@ -13,8 +13,8 @@
  * limitations under the License.
  *
  */
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
@@ -71,7 +71,7 @@ export class AddVisualizationComponent implements OnInit {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
-         });
+        });
     }
 
     publishShowVisualizationsShortcut() {

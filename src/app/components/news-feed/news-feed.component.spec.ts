@@ -13,15 +13,12 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -31,6 +28,9 @@ import { NewsFeedComponent } from './news-feed.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
+import { NewsFeedModule } from './news-feed.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
     let fixture: ComponentFixture<NewsFeedComponent>;
@@ -38,20 +38,16 @@ describe('Component: NewsFeed', () => {
 
     //may need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
-        declarations: [
-            NewsFeedComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            NewsFeedModule
         ]
     });
 

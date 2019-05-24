@@ -33,7 +33,6 @@ import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -45,7 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
@@ -57,7 +56,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 

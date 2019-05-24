@@ -14,15 +14,14 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 import { DashboardSelectorComponent } from './dashboard-selector.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { DashboardSelectorModule } from './dashboard-selector.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -30,17 +29,12 @@ describe('Component: DashboardSelector', () => {
     let component: DashboardSelectorComponent;
 
     initializeTestBed('Dataset Selector', {
-        declarations: [
-            DashboardDropdownComponent,
-            DashboardSelectorComponent
-        ],
         providers: [
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            DashboardSelectorModule
         ]
     });
 

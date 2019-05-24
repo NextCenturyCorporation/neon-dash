@@ -13,23 +13,31 @@
  * limitations under the License.
  *
  */
-import { Component, Input } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
-  selector: 'app-confirm-dialog',
-  templateUrl: 'confirmation-dialog.component.html',
-  styleUrls: ['confirmation-dialog.component.scss']
+    selector: 'app-confirmation-dialog',
+    templateUrl: 'confirmation-dialog.component.html',
+    styleUrls: ['confirmation-dialog.component.scss']
 })
 
 export class ConfirmationDialogComponent {
     public confirmDialogRef: any;
-    public confirmMessage: string;
+    public confirmMessage: string = '';
     public target: string;
     public title: string;
-    public confirmText: string;
-    public cancelText: string;
+    public confirmText: string = 'Confirm';
+    public cancelText: string = 'Cancel';
 
-    constructor(public dialogRef: MatDialogRef<ConfirmationDialogComponent>) {}
-
+    constructor(
+        @Inject(MAT_DIALOG_DATA) public data: any,
+        public dialogRef: MatDialogRef<ConfirmationDialogComponent>
+    ) {
+        this.target = data.target;
+        this.title = data.title;
+        this.confirmMessage = data.confirmMessage;
+        this.confirmText = data.confirmText || this.confirmText;
+        this.cancelText = data.cancelText || this.cancelText;
+    }
 }
