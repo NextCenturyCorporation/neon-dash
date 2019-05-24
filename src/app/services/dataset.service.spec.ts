@@ -14,17 +14,22 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
+
+import { AbstractSearchService } from './abstract.search.service';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: DatasetService', () => {
     let datasetService: DatasetService;
 
     initializeTestBed('Dataset Service', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
@@ -62,22 +67,23 @@ describe('Service: DatasetService', () => {
 describe('Service: DatasetService Static Functions', () => {
     initializeTestBed('Dataset Service Static Functions', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 
-    it('appendDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
+    it('assignDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
         let input = {};
-        DatasetService.appendDashboardChoicesFromConfig(input, {});
+        DatasetService.assignDashboardChoicesFromConfig(input, {});
         expect(input).toEqual({});
     });
 
-    it('appendDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -85,11 +91,11 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -105,7 +111,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -113,7 +119,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -122,7 +128,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
+    it('assignDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -134,7 +140,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -151,7 +157,7 @@ describe('Service: DatasetService Static Functions', () => {
         });
     });
 
-    it('appendDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
+    it('assignDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
         let previousDashboard = new Dashboard();
         previousDashboard.name = 'previous';
         let input = {
@@ -159,7 +165,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.appendDashboardChoicesFromConfig(input, {
+        DatasetService.assignDashboardChoicesFromConfig(input, {
             prev: dashboard
         });
         expect(input).toEqual({
@@ -699,6 +705,7 @@ describe('Service: DatasetService with Mock Data', () => {
 
     initializeTestBed('Dataset Service with Mock Data', {
         providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
@@ -744,8 +751,163 @@ describe('Service: DatasetService with Mock Data', () => {
         // TODO THOR-692
     });
 
-    it('findRelationDataList does not error if relations are undefined', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({});
+    it('findRelationDataList does work with relations in string list structure', () => {
+        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.testTable1.testRelationFieldB', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        });
+
+        expect(datasetService.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    });
+
+    it('findRelationDataList does work with relations in nested list structure', () => {
+        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
+            ]
+        });
+
+        expect(datasetService.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }, {
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }, {
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    });
+
+    it('findRelationDataList does work with relations in both structures', () => {
+        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldA', ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
+                [['datastore1.testDatabase1.testTable1.testRelationFieldB'], 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+            ]
+        });
+
+        expect(datasetService.findRelationDataList()).toEqual([
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_A
+                }]
+            ],
+            [
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[0],
+                    table: DatasetServiceMock.TABLES[0],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }],
+                [{
+                    datastore: '',
+                    database: DatasetServiceMock.DATABASES[1],
+                    table: DatasetServiceMock.TABLES[1],
+                    field: DatasetServiceMock.RELATION_FIELD_B
+                }]
+            ]
+        ]);
+    });
+
+    it('findRelationDataList does ignore relations on databases/tables/fields that don\'t exist', () => {
+        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+            relations: [
+                ['datastore1.fakeDatabase1.testTable1.testRelationFieldA', 'datastore1.fakeDatabase2.testTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.fakeTable1.testRelationFieldA', 'datastore1.testDatabase2.fakeTable2.testRelationFieldA'],
+                ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase2.testTable2.fakeRelationFieldA'],
+                [
+                    ['datastore1.fakeDatabase1.testTable1.fakeRelationFieldA', 'datastore1.fakeDatabase1.testTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ],
+                [
+                    ['datastore1.testDatabase1.fakeTable1.fakeRelationFieldA', 'datastore1.testDatabase1.fakeTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ],
+                [
+                    ['datastore1.testDatabase1.testTable1.fakeRelationFieldA', 'datastore1.testDatabase1.testTable1.fakeRelationFieldA'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
+            ]
+        });
+
         expect(datasetService.findRelationDataList()).toEqual([]);
     });
 

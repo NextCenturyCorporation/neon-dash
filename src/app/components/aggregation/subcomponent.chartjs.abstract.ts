@@ -363,27 +363,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
-     * Deselects all the items in the given chart.
-     *
-     * @arg {any} chart
-     * @protected
-     */
-    protected dataDeselect(chart: any) {
-        // Override as needed.
-    }
-
-    /**
-     * Selects the given items in the given chart.
-     *
-     * @arg {any} chart
-     * @arg {any[]} items
-     * @protected
-     */
-    protected dataSelect(chart: any, items: any[]) {
-        // Override as needed.
-    }
-
-    /**
      * Destroys all the subcomponent elements.
      *
      * @override
@@ -793,33 +772,28 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @override
      */
     public select(items: any[]) {
-        // TODO THOR-1057 Deselect all the items in this specific chart before we select the input items.
-        // this.dataDeselect(this.chart);
-
-        // TODO THOR-1057 Delete this code.
+        // TODO THOR-1057 Delete this code once it is replaced with code that is specific to the BOUNDS and DOMAIN select modes.
         if (!items.length) {
-            this.dataDeselect(this.chart);
             this.selectedLabels = [];
             this.selectedDomain = null;
             this.selectedBounds = null;
+            return;
         }
 
         if (this.selectMode === SelectMode.ITEM) {
-            // TODO THOR-1057 Select the items in this specific chart.
-            // this.selectedLabels = items;
-            // this.dataSelect(this.chart, items);
+            this.selectedLabels = items;
         }
+
         if (this.selectMode === SelectMode.DOMAIN) {
-            // TODO THOR-1057 Set the selected labels and domain, then select the items in this specific chart.
+            // TODO THOR-1057 Set the selected labels and domain (must find the X coordinates).
             // this.selectedLabels = [];
             // this.selectedDomain = null;
-            // this.dataSelect(this.chart, items);
         }
+
         if (this.selectMode === SelectMode.BOUNDS_DOMAIN || this.selectMode === SelectMode.BOUNDS) {
-            // TODO THOR-1057 Set the selected labels and bounds, then select the items in this specific chart.
+            // TODO THOR-1057 Set the selected labels and bounds (must find the X and Y coordinates).
             // this.selectedLabels = [];
             // this.selectedBounds = null;
-            // this.dataSelect(this.chart, items);
         }
     }
 
@@ -849,7 +823,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (this.selectedBounds && event.buttons > 1) {
             this.selectedLabels = [];
-            this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
             this.selectedBounds = null;
@@ -881,8 +854,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             if (items.length) {
                 this.selectedLabels = this.selectedLabels.indexOf(items[0]._model.label) < 0 ?
                     this.selectedLabels.concat(items[0]._model.label) : this.selectedLabels;
-
-                this.dataSelect(chart, items);
             }
 
             this.listener.subcomponentRequestsSelect(
@@ -961,7 +932,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (this.selectedDomain && event.buttons > 1) {
             this.selectedLabels = [];
-            this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
             this.selectedDomain = null;
@@ -992,8 +962,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 this.selectedLabels.concat(items[0]._model.label) : this.selectedLabels;
 
             let elementWidth = this.findChartElementWidth(items[0]);
-
-            this.dataSelect(chart, items);
 
             this.listener.subcomponentRequestsSelect(
                 Math.min(this.selectedDomain.beginX, this.selectedDomain.endX) - Math.ceil(elementWidth / 2.0),
@@ -1044,12 +1012,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let exchangeFilter = !(event.ctrlKey || event.metaKey);
         if (exchangeFilter) {
             this.selectedLabels = [labelValue];
-            this.dataDeselect(chart);
         } else {
             this.selectedLabels = this.selectedLabels.indexOf(labelValue) < 0 ? this.selectedLabels.concat(labelValue) :
                 this.selectedLabels.filter((oldLabel) => oldLabel !== labelValue);
         }
-        this.dataSelect(chart, items);
         this.listener.subcomponentRequestsFilter(labelGroup, labelValue, !exchangeFilter);
     }
 
