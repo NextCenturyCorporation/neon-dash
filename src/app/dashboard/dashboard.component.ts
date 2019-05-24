@@ -54,7 +54,7 @@ export function DashboardModified() {
     return (inst: any, prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
-            if (!this.pauseModifyTrack && this.currentDashboard) {
+            if (!this.pendingInitialRegistrations && this.currentDashboard) {
                 this.currentDashboard.modified = true;
             }
             return fn.call(this, ...args);
@@ -103,7 +103,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public dashboards: Dashboard;
     public currentDashboard: Dashboard;
-    public pauseModifyTrack = false;
+    public pendingInitialRegistrations = 0;
 
     public selectedTabIndex = 0;
     public tabbedGrid: {
@@ -222,6 +222,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
@@ -633,6 +634,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @DashboardModified()
     private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
+            if (this.pendingInitialRegistrations > 0) {
+                this.pendingInitialRegistrations -= 1;
+            }
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }
     }
@@ -699,7 +703,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
 
-        this.pauseModifyTrack = true;
+        this.pendingInitialRegistrations = 0;
 
         // Should map the grid name to the layout list.
         let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
@@ -710,6 +714,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             let layout = gridNameToLayout[gridName] || [];
             layout.forEach((widgetGridItem) => {
                 if (!widgetGridItem.hide) {
+                    this.pendingInitialRegistrations += 1;
                     this.messageSender.publish(neonEvents.WIDGET_ADD, {
                         gridName: gridName,
                         widgetGridItem: widgetGridItem
@@ -720,8 +725,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
-
-        setTimeout(() => this.pauseModifyTrack = false, 200);
     }
 
     /**
@@ -766,6 +769,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
+    @DashboardModified()
     private unregisterWidget(eventMessage: { id: string }) {
         this.widgets.delete(eventMessage.id);
     }
