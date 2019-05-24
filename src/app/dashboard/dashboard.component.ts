@@ -53,7 +53,7 @@ import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dia
 export function DashboardModified() {
     return (inst: any, prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
-        descriptor.value = function(this: AppComponent, ...args: any[]) {
+        descriptor.value = function(this: DashboardComponent, ...args: any[]) {
             if (!this.pauseModifyTrack && this.currentDashboard) {
                 this.currentDashboard.modified = true;
             }
@@ -103,6 +103,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public dashboards: Dashboard;
     public currentDashboard: Dashboard;
+    public pauseModifyTrack = false;
 
     public selectedTabIndex = 0;
     public tabbedGrid: {
@@ -210,7 +211,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             }
         });
     }
-
 
     @DashboardModified()
     private generalChange() {
@@ -699,6 +699,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
 
+        this.pauseModifyTrack = true;
+
         // Should map the grid name to the layout list.
         let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
             '': eventMessage.dashboard.layoutObject
@@ -718,6 +720,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
+
+        setTimeout(() => this.pauseModifyTrack = false, 200);
     }
 
     /**
