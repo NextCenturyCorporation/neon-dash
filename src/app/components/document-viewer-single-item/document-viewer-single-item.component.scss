@@ -15,10 +15,12 @@
  */
 @import '../base-neon-component/base-neon.component';
 
-td.metadata-bold {
+.metadata-bold {
     font-weight: bold;
 }
 
-tr.metadata-row:nth-child(even) {
-    background-color: var(--color-background-contrast, lightgrey);
+.metadata-row {
+    &:nth-child(even) {
+        background-color: var(--color-background-contrast, lightgrey);
+    }
 }

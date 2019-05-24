@@ -24,14 +24,14 @@
     border-radius: 20px;
 }
 
-input.simple-filter-input {
+.simple-filter-input {
     flex: 1 1 auto;
     border: 0;
     background: transparent;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
     font-size: 14px; // TODO: tie into theme
-}
 
-input.simple-filter-input:focus {
-    outline-width: 0;
+    &:focus {
+        outline-width: 0;
+    }
 }

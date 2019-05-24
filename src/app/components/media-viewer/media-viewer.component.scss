@@ -30,38 +30,23 @@
     padding: 5px;
 }
 
-iframe.with-border,
-img.with-border,
-video.with-border,
-audio.with-border {
+.with-border {
     border: 3px solid var(--color-background, white);
 }
 
-iframe.border-mat-blue,
-img.border-mat-blue,
-video.border-mat-blue,
-audio.border-mat-blue {
+.border-mat-blue {
     border-color: #2196F3; /* mat-color-blue-500 */
 }
 
-iframe.border-mat-grey,
-img.border-mat-grey,
-video.border-mat-grey,
-audio.border-mat-grey {
+.border-mat-grey {
     border-color: #9E9E9E; /* mat-color-grey-500 */
 }
 
-iframe.border-mat-red,
-img.border-mat-red,
-video.border-mat-red,
-audio.border-mat-grey {
+.border-mat-red {
     border-color: #F44336; /* mat-color-red-500 */
 }
 
-iframe.border-mat-yellow,
-img.border-mat-yellow,
-video.border-mat-yellow,
-audio.border-mat-grey {
+.border-mat-yellow {
     border-color: #FFEB3B; /* mat-color-yellow-500 */
 }
 
@@ -70,19 +55,21 @@ iframe {
     width: 100%;
 }
 
-img:not(.mask),
+img:not(.mask), // sass-lint:disable-line force-pseudo-nesting
 video {
     height: auto;
     width: auto;
 }
 
 /*TODO: ng-deep will be deprecated in the future. Need to find another workaround to shadow piercing due to angular shadow DOM boundaries*/
-.mat-tab-group ::ng-deep .mat-tab-body-wrapper {
-    flex: 1 auto;
-}
+.mat-tab-group ::ng-deep {
+    .mat-tab-body-wrapper {
+        flex: 1 auto;
+    }
 
-.mat-tab-group ::ng-deep .mat-tab-body-content {
-    overflow: hidden !important;
+    .mat-tab-body-content {
+        overflow: hidden !important;
+    }
 }
 
 .mat-slider {
@@ -90,14 +77,16 @@ video {
     width: calc(100% - 20px);
     z-index: 4;
 
-    ::ng-deep div.mat-slider-thumb-label {
-        ::after {
-            content: '%';
+    ::ng-deep {
+        .mat-slider-thumb-label {
+            ::after {
+                content: '%';
+            }
         }
-    }
 
-    ::ng-deep span.mat-slider-thumb-label-text {
-        font-size: 11px;
+        .mat-slider-thumb-label-text {
+            font-size: 11px;
+        }
     }
 }
 

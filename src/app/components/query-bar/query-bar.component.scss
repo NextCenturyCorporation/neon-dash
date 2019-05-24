@@ -28,34 +28,37 @@
     display: flex;
     max-width: 40%;
     align-items: baseline;
+
+    /deep/.mat-form-field-infix {
+        display: inline-flex;
+    }
+
+    .mat-form-field {
+        /deep/.mat-button {
+            bottom: 9px;
+        }
+    }
 }
 
-input.query-bar-input {
+.query-bar-input {
     flex: 1 1 auto;
     border: 0;
     background: transparent;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
     font-size: 14px; // TODO: tie into theme
-}
 
-input.query-bar-input:focus {
-    outline-width: 0;
+    &:focus {
+        outline-width: 0;
+    }
 }
-
 
 .full-width {
     width: 100%;
 }
 
-.query-bar  /deep/.mat-form-field-infix {
-    display: inline-flex;
-}
-
-.query-bar  .mat-form-field  /deep/.mat-button {
-    bottom: 9px;
-}
-
-.mat-option:hover:not(.mat-option-disabled),
-.mat-option.mat-active {
-    background-color: var(--color-accent, lightgrey);
+.mat-option {
+    &:hover:not(.mat-option-disabled), // sass-lint:disable-line force-pseudo-nesting
+    &.mat-active {
+        background-color: var(--color-accent, lightgrey);
+    }
 }

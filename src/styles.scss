@@ -87,24 +87,24 @@ body {
 
     /* Support for IE. */
     font-feature-settings: 'liga';
-}
 
-/* Rules for using icons as black on a light background. */
-.material-icons.mat-dark {
-    color: rgba(0, 0, 0, 0.54);
-}
+    /* Rules for using icons as black on a light background. */
+    &.mat-dark {
+        color: rgba(0, 0, 0, 0.54);
 
-.material-icons.mat-dark.mat-inactive {
-    color: rgba(0, 0, 0, 0.26);
-}
+        &.mat-inactive {
+            color: rgba(0, 0, 0, 0.26);
+        }
+    }
 
-/* Rules for using icons as white on a dark background. */
-.material-icons.mat-light {
-    color: rgba(255, 255, 255, 1);
-}
+    /* Rules for using icons as white on a dark background. */
+    &.mat-light {
+        color: rgba(255, 255, 255, 1);
 
-.material-icons.mat-light.mat-inactive {
-    color: rgba(255, 255, 255, 0.3);
+        &.mat-inactive {
+            color: rgba(255, 255, 255, 0.3);
+        }
+    }
 }
 
 /* General layout styles. */
@@ -129,10 +129,10 @@ body {
 .grid-item {
     border-radius: 5px;
     background-color: inherit !important;
-}
 
-.grid-item.moving {
-    z-index: z-index + 1;
+    &.moving {
+        z-index: z-index + 1;
+    }
 }
 
 .placeholder {
@@ -243,8 +243,12 @@ body {
             border-radius: 0 10px 10px 0 !important;
         }
 
-        &:hover:not(.mat-button-toggle-checked):not(.mat-button-toggle-disabled) {
-            background-color: var(--color-accent, lightgrey) !important;
+        &:hover {
+            &:not(.mat-button-toggle-checked) {
+                &:not(.mat-button-toggle-disabled) {
+                    background-color: var(--color-accent, lightgrey) !important;
+                }
+            }
         }
     }
 
@@ -389,8 +393,10 @@ body {
     padding: 5px 10px !important;
 }
 
-.mat-nav-list .mat-list-item-content {
-    padding: 5px 20px !important;
+.mat-nav-list {
+    .mat-list-item-content {
+        padding: 5px 20px !important;
+    }
 }
 
 
@@ -399,8 +405,10 @@ body {
     background-color: white;
     color: #333333;
 
-    .mat-option:hover {
-        background-color: #999999;
+    .mat-option {
+        &:hover {
+            background-color: #999999;
+        }
     }
 }
 
@@ -434,7 +442,7 @@ body {
     padding: 5px 10px !important;
 }
 
-.mat-tab-label:hover,
+.mat-tab-label:hover, // sass-lint:disable-line force-pseudo-nesting
 .mat-tab-label-active {
     background-color: var(--color-background-contrast);
 }

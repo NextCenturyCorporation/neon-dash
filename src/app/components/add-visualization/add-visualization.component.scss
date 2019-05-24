@@ -47,12 +47,22 @@
         outline: 0;
         width: 100%;
 
-        &.collapsed:hover,
+        &.collapsed:hover, // sass-lint:disable-line force-pseudo-nesting
         &:focus,
         &:hover {
             cursor: pointer;
             color: var(--color-primary, grey);
         }
+    }
+
+    &:hover {
+        border: 1px solid var(--color-primary, grey);
+        border-radius: 7px;
+    }
+
+    &:active {
+        border: 1px solid  var(--color-primary, grey);
+        border-radius: 7px;
     }
 }
 
@@ -60,16 +70,6 @@
     justify-content: center;
     text-align: center;
     display: flex;
-}
-
-.add-visualization-tile:hover {
-    border: 1px solid var(--color-primary, grey);
-    border-radius: 7px;
-}
-
-.add-visualization-tile:active {
-    border: 1px solid  var(--color-primary, grey);
-    border-radius: 7px;
 }
 
 .app-simple-snack-center {
