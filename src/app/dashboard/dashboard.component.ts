@@ -50,6 +50,19 @@ import { VisualizationContainerComponent } from '../components/visualization-con
 import { ConfigService } from '../services/config.service';
 import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
 
+export function DashboardModified() {
+    return (inst: any, prop: string | symbol, descriptor) => {
+        const fn = descriptor.value;
+        descriptor.value = function(this: AppComponent, ...args: any[]) {
+            if (!this.pauseModifyTrack && this.currentDashboard) {
+                this.currentDashboard.modified = true;
+            }
+            return fn.call(this, ...args);
+        };
+        return;
+    };
+}
+
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
@@ -89,6 +102,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
     public dashboards: Dashboard;
+    public currentDashboard: Dashboard;
 
     public selectedTabIndex = 0;
     public tabbedGrid: {
@@ -195,6 +209,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.changeFavicon();
             }
         });
+    }
+
+
+    @DashboardModified()
+    private generalChange() {
+        // Do nothing
     }
 
     /**
@@ -315,6 +335,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
         eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
@@ -327,6 +348,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
+    @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
         for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
             if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
@@ -346,6 +368,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
@@ -454,6 +477,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
     }
@@ -463,6 +487,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
+    @DashboardModified()
     private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
         eventMessage.widgetGridItem.row = 1;
     }
@@ -512,9 +537,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-
+        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.generalChange.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
     }
 
+    @DashboardModified()
     onDragStop(i, event) {
         this.showItemLocation(event);
     }
@@ -523,6 +550,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[i].onResizeStart();
     }
 
+    @DashboardModified()
     onResizeStop(i, event) {
         this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
@@ -602,6 +630,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
+    @DashboardModified()
     private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
@@ -660,6 +689,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @private
      */
     private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+        this.currentDashboard = eventMessage.dashboard;
+
         // TODO THOR-1062 Permit multiple datastores.
         this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
         this.datasetService.setCurrentDashboard(eventMessage.dashboard);
