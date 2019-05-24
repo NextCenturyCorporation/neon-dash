@@ -44,11 +44,11 @@ rules:
         - 1
         - include: true
     force-attribute-nesting:
-        - 0 # TODO
+        - 1
     force-element-nesting:
-        - 0 # TODO
+        - 1
     force-pseudo-nesting:
-        - 0 # TODO
+        - 1
     function-name-format:
         - 1
         - allow-leading-underscore: true
@@ -116,14 +116,14 @@ rules:
         - 1
     no-media-feature-vendor-prefix:
         - 0
-    no-mergable-selectors:
-        - 0 # TODO
+    no-mergeable-selectors:
+        - 1
     no-misspelled-properties:
         - 1
     no-property-vendor-prefix:
         - 0
     no-qualifying-elements:
-        - 0 # TODO
+        - 1
     no-selector-vendor-prefix:
         - 0
     no-trailing-whitespace:

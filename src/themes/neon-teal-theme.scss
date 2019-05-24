@@ -49,7 +49,7 @@ $teal-theme-base: (
 
 // https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L674
 // TODO Update default angular material design light theme background as needed.
-// sass-lint:disable function-name-format
+// sass-lint:disable-block function-name-format
 $teal-theme-background: (
     status-bar:               map_get($mat-grey, 300),
     app-bar:                  map_get($mat-grey, 100),

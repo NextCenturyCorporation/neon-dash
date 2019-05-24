@@ -52,13 +52,15 @@ h3 {
         width: 100%;
         display: block;
 
-        .invalid-record-count:hover {
-            color: goldenrod;
-            cursor: pointer;
-
-            .count {
+        .invalid-record-count {
+            &:hover {
                 color: goldenrod;
                 cursor: pointer;
+
+                .count {
+                    color: goldenrod;
+                    cursor: pointer;
+                }
             }
         }
 
@@ -66,30 +68,31 @@ h3 {
             margin: 0 10px;
         }
 
-        .y.axis {
-            text {
-                text-shadow: 1px 1px 0 $text-shadow-color,
-                1px 0 0 $text-shadow-color,
-                1px -1px 0 $text-shadow-color,
-                -1px 1px 0 $text-shadow-color,
-                -1px 0 0 $text-shadow-color,
-                -1px -1px 0 $text-shadow-color,
-                0 2px 0 $text-shadow-color,
-                0 -2px 0 $text-shadow-color;
-                font-weight: bold;
-            }
+        .y {
+            &.axis {
+                text {
+                    text-shadow: 1px 1px 0 $text-shadow-color,
+                    1px 0 0 $text-shadow-color,
+                    1px -1px 0 $text-shadow-color,
+                    -1px 1px 0 $text-shadow-color,
+                    -1px 0 0 $text-shadow-color,
+                    -1px -1px 0 $text-shadow-color,
+                    0 2px 0 $text-shadow-color,
+                    0 -2px 0 $text-shadow-color;
+                    font-weight: bold;
+                }
 
-            path {
-                display: none;
-            }
-
-            .tick {
-                line {
+                path {
                     display: none;
+                }
+
+                .tick {
+                    line {
+                        display: none;
+                    }
                 }
             }
         }
-
 
         .highlight {
             background-color: var(--color-accent, lightgrey);
@@ -125,7 +128,7 @@ h3 {
                 fill-opacity: 0.3;
             }
 
-            rect.background {
+            .background {
                 cursor: pointer !important;
             }
         }

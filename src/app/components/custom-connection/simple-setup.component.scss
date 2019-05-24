@@ -6,10 +6,10 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-}
 
-.modal__row--slotted div { // sass-lint:disable-line class-name-format
-    flex-grow: 1;
+    div {
+        flex-grow: 1;
+    }
 }
 
 .modal__row-label { // sass-lint:disable-line class-name-format

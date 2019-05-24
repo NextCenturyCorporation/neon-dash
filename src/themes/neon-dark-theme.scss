@@ -51,7 +51,7 @@ $dark-theme-base: (
 
 // https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L692
 // TODO Update default angular material design dark theme background as needed.
-// sass-lint:disable function-name-format
+// sass-lint:disable-block function-name-format
 $dark-theme-background: (
     status-bar:               black,
     app-bar:                  map_get($mat-grey, 900),

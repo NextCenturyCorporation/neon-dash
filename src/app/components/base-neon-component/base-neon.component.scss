@@ -24,24 +24,28 @@ $contribution-height: 20px;
     cursor: default;
     border-radius: 5px;
 
-    .header.text {
-        font-size: 14px;
-        font-weight: 500;
-        margin: 0 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: var(--color-text-header, grey);
+    .header {
+        &.text {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--color-text-header, grey);
+        }
     }
 
-    .info.text {
-        font-size: 14px;
-        font-weight: 500;
-        margin: 0 5px;
-        overflow: hidden;
-        text-align: right;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .info {
+        &.text {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 5px;
+            overflow: hidden;
+            text-align: right;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
     .body-container {
@@ -137,12 +141,12 @@ $contribution-height: 20px;
             height: 25px !important;
             line-height: 15px !important;
             margin: 0 5px;
-        }
 
-        .pagination-button[disabled] {
-            @extend .pagination-button;
-            background-color: #DCDCDC !important;
-            color: #ADADAD !important;
+            &[disabled] {
+                @extend .pagination-button;
+                background-color: #DCDCDC !important;
+                color: #ADADAD !important;
+            }
         }
     }
 

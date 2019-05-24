@@ -39,16 +39,16 @@
 
 .mat-menu-item {
     overflow: hidden;
-}
 
-.mat-menu-item .mat-icon {
-    margin-right: 3px;
+    .mat-icon {
+        margin-right: 3px;
+    }
 }
 
 .resize-icon {
     cursor: default;
-}
 
-.resize-icon .mat-icon {
-    font-size: 28px !important;
+    .mat-icon {
+        font-size: 28px !important;
+    }
 }
