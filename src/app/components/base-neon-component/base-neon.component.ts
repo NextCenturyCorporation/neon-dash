@@ -91,9 +91,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected visualizationQueryPaginates: boolean = false;
 
     // The data pagination properties.
+    protected cachedPage: number = -1;
     protected lastPage: boolean = true;
     protected page: number = 1;
-    protected savedPages: Map<string, number> = new Map<string, number>();
 
     // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
     public options: any;
@@ -322,22 +322,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
     public deleteFilters(filterDesignListToDelete?: FilterDesign[]) {
-        let results: Map<any, FilterDesign[]> = this.filterService.deleteFilters(this.id, this.searchService, filterDesignListToDelete);
-
-        // Return to the previously saved page that was being viewed when the deleted filter was first added.
-        let page = this.page;
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                // TODO THOR-1107 How to choose the page if multiple filters are deleted.
-                page = this.savedPages.get(outputFilterDesign.id) || page;
-                this.savedPages.delete(outputFilterDesign.id);
-            });
-        });
-
-        if (this.shouldFilterSelf()) {
-            this.page = page;
-        }
+        this.filterService.deleteFilters(this.id, this.searchService, filterDesignListToDelete);
     }
 
     /**
@@ -348,22 +333,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
-        let previousPage = this.page;
+        if (this.cachedPage <= 0) {
+            this.cachedPage = this.page;
+        }
+
         if (this.shouldFilterSelf()) {
             this.page = 1;
         }
 
-        // Update the filters once the page is changed.
-        let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.datasetService.findRelationDataList(), this.searchService, filterDesignListToDelete);
-
-        // Save the page that is being viewed.
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, previousPage);
-            });
-        });
+        // Update the filters only once the page is changed.
+        this.filterService.exchangeFilters(this.id, filterDesignList, this.datasetService.findRelationDataList(), this.searchService,
+            filterDesignListToDelete);
     }
 
     /**
@@ -373,22 +353,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} filterDesignList
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
-        let previousPage = this.page;
+        if (this.cachedPage <= 0) {
+            this.cachedPage = this.page;
+        }
+
         if (this.shouldFilterSelf()) {
             this.page = 1;
         }
 
-        // Update the filters once the page is changed.
-        let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.datasetService.findRelationDataList(), this.searchService);
-
-        // Save the page that is being viewed.
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, previousPage);
-            });
-        });
+        // Update the filters only once the page is changed.
+        this.filterService.toggleFilters(this.id, filterDesignList, this.datasetService.findRelationDataList(), this.searchService);
     }
 
     /**
@@ -523,8 +497,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private getGlobalFilterClauses(options: any): FilterClause[] {
-        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
-            list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
+        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getFilters().map((filter) =>
+            filter.toDesign());
         return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 
@@ -738,6 +712,12 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private updateCollectionWithGlobalCompatibleFilters(): void {
         let behaviors: FilterBehavior[] = this.designEachFilterWithNoValues();
         this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters, this.searchService);
+
+        // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
+        if (this.cachedPage > 0 && !this.cachedFilters.getFilters().length) {
+            this.page = this.cachedPage;
+            this.cachedPage = -1;
+        }
     }
 
     /**
@@ -788,6 +768,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
+        this.cachedPage = -1;
         this.lastPage = true;
         this.page = 1;
         this.showingZeroOrMultipleElementsPerResult = false;
@@ -841,8 +822,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the query was empty, show the relevant text.
         if (!elementCount) {
-            let filtered: boolean = this.cachedFilters.getDataSources().some((dataSource) =>
-                !!this.cachedFilters.getFilters(dataSource).length);
+            let filtered: boolean = !!this.cachedFilters.getFilters().length;
             return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : ('0' + (elementLabel ? (' ' + elementLabel) : ''));
         }
 
