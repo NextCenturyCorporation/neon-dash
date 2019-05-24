@@ -333,10 +333,14 @@ export class FilterCollection {
     /**
      * Returns the filters for the given data source (or an existing matching data source within this collection).
      *
-     * @arg {FilterDataSource[]} filterDataSourceList
+     * @arg {FilterDataSource[]} [filterDataSourceList]
      * @return {AbstractFilter[]}
      */
-    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
+        if (!filterDataSourceList) {
+            return this.getDataSources().reduce((list, dataSource) => list.concat(this.getFilters(dataSource)), [] as AbstractFilter[]);
+        }
+
         if (this.data.has(filterDataSourceList)) {
             return this.data.get(filterDataSourceList) || [];
         }
