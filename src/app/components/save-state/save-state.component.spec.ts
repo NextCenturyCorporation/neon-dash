@@ -101,7 +101,7 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 deleteState: (data, successCallback) => {
                     calls++;
@@ -114,7 +114,7 @@ describe('Component: SaveStateComponent', () => {
             };
         });
 
-        component.deleteState('testState');
+        component.deleteState('testState', false);
         expect(calls).toEqual(1);
         expect(spy.calls.count()).toEqual(1);
     });
@@ -123,7 +123,7 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 deleteState: (data, successCallback) => {
                     calls++;
@@ -140,16 +140,16 @@ describe('Component: SaveStateComponent', () => {
         // TODO THOR-1133
     });
 
-    it('handleDeleteStateSuccess does reset stateToDelete and call loadStateNames', () => {
-        let spy = spyOn(component, 'loadStateNames');
+    it('handleDeleteStateSuccess does reset stateToDelete and call fetchStates', () => {
+        let spy = spyOn(component, 'fetchStates');
         component.formData.stateToDelete = 'testState';
-        (component as any).handleDeleteStateSuccess({}, 'testState');
+        component['handleDeleteStateSuccess']({}, 'testState');
         expect(component.formData.stateToDelete).toEqual('');
         expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleLoadStateSuccess does reset stateToLoad and publish dashboard state event', () => {
-        let spyDatasetService = spyOn((component as any).datasetService, 'appendDatasets').and.returnValue({
+        let spyDatasetService = spyOn(component['datasetService'], 'appendDatasets').and.returnValue({
             choices: {
                 saved_state: {
                     choices: {
@@ -160,15 +160,17 @@ describe('Component: SaveStateComponent', () => {
                 }
             }
         });
-        let spyMessengerPublish = spyOn((component as any).messenger, 'publish');
+        let spyMessengerPublish = spyOn(component['messenger'], 'publish');
         component.formData.stateToLoad = 'testState';
-        (component as any).handleLoadStateSuccess({
+        component['handleLoadStateSuccess']({
+            fileName: 'dashboard1',
+            lastModified: Date.now(),
             dashboards: {
                 name: 'dashboard1'
             },
             datastores: {
                 datastore1: {}
-            },
+            } as any,
             layouts: {
                 layout1: []
             }
@@ -191,8 +193,8 @@ describe('Component: SaveStateComponent', () => {
         expect(spyDatasetService.calls.argsFor(0)).toEqual([expectedDashboard, {
             datastore1: {}
         }, {
-            layout1: []
-        }]);
+                layout1: []
+            }]);
         expect(spyMessengerPublish.calls.count()).toEqual(1);
         expect(spyMessengerPublish.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: {
@@ -201,10 +203,10 @@ describe('Component: SaveStateComponent', () => {
         }]);
     });
 
-    it('handleSaveStateSuccess does reset stateToSave and call loadStateNames', () => {
-        let spy = spyOn(component, 'loadStateNames');
+    it('handleSaveStateSuccess does reset stateToSave and call fetchStates', () => {
+        let spy = spyOn(component, 'fetchStates');
         component.formData.stateToSave = 'testState';
-        (component as any).handleSaveStateSuccess({}, 'testState');
+        component['handleSaveStateSuccess']({}, 'testState');
         expect(component.formData.stateToSave).toEqual('');
         expect(spy.calls.count()).toEqual(1);
     });
@@ -213,7 +215,7 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 loadState: (data, successCallback) => {
                     calls++;
@@ -235,7 +237,7 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 loadState: (data, successCallback) => {
                     calls++;
@@ -248,24 +250,24 @@ describe('Component: SaveStateComponent', () => {
         expect(calls).toEqual(1);
     });
 
-    it('loadStateNames does call connection.getStateNames with expected behavior', () => {
+    it('fetchStates does call connection.listStates with expected behavior', () => {
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
-                getStateNames: () => {
+                listStates: () => {
                     calls++;
                 }
             };
         });
 
-        (component as any).loadStateNames();
+        component['fetchStates']();
         expect(calls).toEqual(1);
-        expect((component as any).isLoading).toEqual(true);
-        expect(component.stateNames).toEqual([]);
+        expect(component['isLoading']).toEqual(true);
+        expect(component.states.results).toEqual({ reuslts: [], count: 0 });
     });
 
     it('openConfirmationDialog does open dialog', () => {
-        // TODO THOR-1133
+        // TODO THOR-1133f
     });
 
     it('openNotification does open notification in snack bar', () => {
@@ -369,10 +371,10 @@ describe('Component: SaveStateComponent', () => {
             }]
         }];
 
-        spyOn((component as any).datasetService, 'getCurrentDashboard').and.returnValue(dashboard);
-        spyOn((component as any).datasetService, 'getDatastoresInConfigFormat').and.returnValue(datastores);
-        spyOn((component as any).filterService, 'getFiltersToSaveInConfig').and.returnValue(filters);
-        spyOn((component as any), 'getWidgetById').and.callFake((id: string) => {
+        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(dashboard);
+        spyOn(component['datasetService'], 'getDatastoresInConfigFormat').and.returnValue(datastores);
+        spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue(filters);
+        spyOn(component, 'getWidgetById').and.callFake((id: string) => {
             if (id === 'id1') {
                 return {
                     getBindings: () => ({
@@ -411,7 +413,7 @@ describe('Component: SaveStateComponent', () => {
         } as NeonGridItem];
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 saveState: (data, successCallback) => {
                     calls++;
@@ -488,7 +490,7 @@ describe('Component: SaveStateComponent', () => {
                             }
                         }]
                     });
-                    expect(data.stateName).toEqual('testState');
+                    expect(data.name).toEqual('testState');
 
                     let successSpy = spyOn(component, 'handleSaveStateSuccess');
                     successCallback();
@@ -504,18 +506,18 @@ describe('Component: SaveStateComponent', () => {
 
     it('saveState does validate the state name', () => {
         spyOn(component, 'closeSidenav');
-        spyOn((component as any).datasetService, 'getCurrentDashboard').and.returnValue(new Dashboard());
-        spyOn((component as any).datasetService, 'getDatastoresInConfigFormat').and.returnValue([]);
-        spyOn((component as any).filterService, 'getFiltersToSaveInConfig').and.returnValue([]);
-        spyOn((component as any), 'getWidgetById').and.returnValue(null);
+        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(new Dashboard());
+        spyOn(component['datasetService'], 'getDatastoresInConfigFormat').and.returnValue([]);
+        spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
+        spyOn(component, 'getWidgetById').and.returnValue(null);
         component.widgetGridItems = [];
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
+        spyOn(component, 'openConnection').and.callFake(() => {
             return {
                 saveState: (data, successCallback) => {
                     calls++;
-                    expect(data.stateName).toEqual('folder.my-test.state_name1234');
+                    expect(data.name).toEqual('folder.my-test.state_name1234');
                 }
             };
         });
