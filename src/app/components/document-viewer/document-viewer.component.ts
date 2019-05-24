@@ -44,7 +44,7 @@ import {
     WidgetSelectOption
 } from '../../widget-option';
 import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 

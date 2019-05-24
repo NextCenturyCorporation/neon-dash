@@ -13,7 +13,15 @@
     "target": "es5",
     "module": "es2015",
     "baseUrl": "",
-    "types": []
+    "types": [],
+    "paths": {
+      "moment": [
+        "../node_modules/moment/min/moment.min.js"
+      ],
+      "esprima": [
+        "./empty_module.js"
+      ]
+    }
   },
   "exclude": [
     "test.ts",

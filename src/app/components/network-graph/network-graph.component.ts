@@ -52,7 +52,7 @@ import {
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
-import * as vis from 'vis';
+import * as vis from 'vis/dist/vis-network.min';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -293,7 +293,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private createFilterDesignOnList(filterDesigns: FilterDesign[]): FilterDesign {
         return {
-            type: this.options.multiFilterOperator === 'or' ?  CompoundFilterType.OR : CompoundFilterType.AND,
+            type: this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
             filters: filterDesigns
         } as CompoundFilterDesign;
     }
@@ -1220,7 +1220,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     onSelect = (properties: { nodes: string[] }) => {
         if (properties.nodes.length === 1) {
-            let selectedNode = <Node> this.graphData.nodes.get(properties.nodes[0]);
+            let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
 
             let filters: FilterDesign[] = [];
 
