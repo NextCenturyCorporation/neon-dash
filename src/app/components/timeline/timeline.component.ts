@@ -646,15 +646,4 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getVisualizationDefaultTitle(): string {
         return 'Timeline';
     }
-
-    /**
-     * Returns whether this visualization should filter itself.
-     *
-     * @return {boolean}
-     * @override
-     */
-    protected shouldFilterSelf(): boolean {
-        // This timeline should never filter itself.
-        return false;
-    }
 }
