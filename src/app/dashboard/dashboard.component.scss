@@ -97,3 +97,12 @@
    top: 0;
    z-index: 9999;
 }
+
+.dashboard-name {
+    /deep/ .mat-badge-active {
+        color: transparent !important;
+        width: 10px;
+        height: 10px;
+        top: 5px !important;
+    }
+}
