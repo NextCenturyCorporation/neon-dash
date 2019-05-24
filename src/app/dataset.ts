@@ -134,7 +134,6 @@ export class Dashboard {
 export class DashboardOptions {
     public connectOnLoad?: boolean = false;
     public colorMaps?: Object;
-    public requeryInterval?: number;
     public simpleFilter?: SimpleFilter;
 }
 

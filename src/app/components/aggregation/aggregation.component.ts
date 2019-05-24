@@ -1407,8 +1407,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     subcomponentRequestsSelect(x: number, y: number, width: number, height: number) {
         this.selectedAreaOffset = {
-            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
-            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
+            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
+            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0', 10)
         };
         this.selectedArea = {
             height: height,
@@ -1445,8 +1445,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // Update the selected area and offset AFTER redrawing the subcomponents.
         this.selectedAreaOffset = {
-            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
-            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
+            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
+            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0', 10)
         };
 
         // TODO THOR-973 Change the height of the selected area if the dual view was changed (and the height of the main subcomponent).

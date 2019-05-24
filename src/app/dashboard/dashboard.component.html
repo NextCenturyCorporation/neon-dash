@@ -19,7 +19,7 @@
                 </div>
                 <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
                     <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
-                        [inputs]="{sidenav: sidenavRight, widgetGridItems: widgetGridItems, widgets: widgets}">
+                        [inputs]="{sidenav: sidenavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets}">
                     </wt-lazy>
                 </div>
                 <div id="settings" class="setting-container" *ngIf="createSettings">
@@ -32,6 +32,11 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
         <span class="fill-remaining"></span>
+        <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" matBadgePosition="above after"
+            [matBadgeHidden]="!updatedData" matBadgeColor="warn" matBadge="x" matBadgeSize="small" (click)="refreshDashboard()"
+            matTooltip="Refresh Data" tooltip-position="below">
+            <mat-icon class="neon-icon-large">notifications</mat-icon>
+        </button>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
             id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
             (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisualizationsShortcut">

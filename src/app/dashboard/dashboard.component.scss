@@ -75,6 +75,16 @@
    }
 }
 
+[mat-icon-button].notify {
+    /deep/ .mat-badge-active {
+        color: transparent;
+        height: 10px;
+        width: 10px;
+        top: 5px;
+        right: 7px !important;
+    }
+}
+
 .right-panel-container {
    height: 100%;
 }
