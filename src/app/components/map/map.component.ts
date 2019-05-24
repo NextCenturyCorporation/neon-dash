@@ -50,7 +50,7 @@ import {
     MapTypePairs,
     whiteString
 } from './map.type.abstract';
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { CesiumNeonMap } from './map.type.cesium';
 import { FieldMetaData } from '../../dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -69,7 +69,8 @@ import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
 class UniqueLocationPoint {
-    constructor(public idField: string, public idList: string[], public lat: number, public lng: number, public count: number,
+    constructor(public idField: string, public idList: string[], public filterList: Map<string, any>[],
+        public filterMap: Map<string, any>, public lat: number, public lng: number, public count: number,
         public colorField: string, public colorValue: string, public hoverPopupMap: Map<string, number>) { }
 }
 
@@ -196,22 +197,49 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Sets the filter bounding box to the given box and adds or replaces the neon map filter.
+     * Sets the filter on the given bounding box.
      *
      * Function for the FilterListener interface.
      *
      * @arg {BoundingBoxByDegrees} box
      * @override
      */
-    filterByLocation(box: BoundingBoxByDegrees) {
+    public filterByLocation(box: BoundingBoxByDegrees): void {
         let filters: FilterDesign[] = this.options.layers.map((layer) => this.createFilterDesignOnBox(layer, box.north, box.south,
             box.east, box.west));
         this.exchangeFilters(filters);
     }
 
-    filterByMapPoint(lat: number, lon: number) {
-        let filters: FilterDesign[] = this.options.layers.map((layer) => this.createFilterDesignOnPoint(layer, lat, lon));
-        this.exchangeFilters(filters);
+    /**
+     * Sets the filter on the given map point and the given map of filter fields and values.
+     *
+     * Function for the FilterListener interface.
+     *
+     * @arg {Map<string,any>[]} filterFieldToValueList
+     * @arg {number} lat
+     * @arg {number} lon
+     * @override
+     */
+    public filterByMapPoint(filterFieldToValueList: Map<string, any>[], lat: number, lon: number): void {
+        let filters: FilterDesign[] = [];
+        let filtersToDelete: FilterDesign[] = [];
+
+        this.options.layers.forEach((layer) => {
+            filters.push(this.createFilterDesignOnPoint(layer, lat, lon));
+            layer.filterFields.forEach((filterField) => {
+                let filterValues: any[] = neonUtilities.flatten(filterFieldToValueList.map((filterFieldToValue) =>
+                    filterFieldToValue.get(filterField.columnName))).filter((value) => !!value);
+                if (!filterValues.length) {
+                    // Delete any previous filters on the filter field.
+                    filtersToDelete.push(this.createFilterDesignOnValue(layer, filterField));
+                } else {
+                    // Create a separate filter on each value because each value is a distinct item in the data (overlapping points).
+                    filters = filters.concat(filterValues.map((value) => this.createFilterDesignOnValue(layer, filterField, value)));
+                }
+            });
+        });
+
+        this.exchangeFilters(filters, filtersToDelete);
     }
 
     /**
@@ -287,8 +315,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, lngField: string, latField: string, colorField: string,
-        hoverPopupField: FieldMetaData, data: any[]
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[],
+       lngField: string, latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]
     ): any[] {
 
         let map = new Map<string, UniqueLocationPoint>();
@@ -298,7 +326,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
                 colorValue = neonUtilities.deepFind(point, colorField),
                 idValue = neonUtilities.deepFind(point, idField),
+                filterValues = new Map<string, any>(),
                 hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
+
+            for (let field of filterFields) {
+                let fieldValue = neonUtilities.deepFind(point, field.columnName);
+                filterValues.set(field.columnName, fieldValue);
+            }
 
             //use first value if deepFind returns an array
             colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
@@ -309,15 +343,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
                     //check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                        this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
                             (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue[pos]);
                     } else {
-                        this.addOrUpdateUniquePoint(map, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
+                        this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
                             (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue);
                     }
                 }
             } else {
-                this.addOrUpdateUniquePoint(map, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
+                this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord, lngCoord, colorField, colorValue, hoverPopupValue);
             }
         }
 
@@ -330,31 +364,29 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                     unique.colorValue).getComputedCss(this.visualization);
             }
 
-            mapPoints.push(
-                new MapPoint(unique.idField, unique.idList, `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
-                    unique.lat, unique.lng, unique.count, color,
-                    'Count: ' + unique.count,
-                    unique.colorField, unique.colorValue, unique.hoverPopupMap
-                ));
+            let name = `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`;
+            mapPoints.push(new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, name, unique.lat, unique.lng,
+                unique.count, color, 'Count: ' + unique.count, unique.colorField, unique.colorValue, unique.hoverPopupMap));
         });
         mapPoints.sort((a, b) => b.count - a.count);
         return mapPoints;
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
 
         if (!this.mapObject) {
-            return;
+            return 0;
         }
 
         // TODO Move singleColor to layer options.
@@ -369,6 +401,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             options.database.name,
             options.table.name,
             options.idField.columnName,
+            options.filterFields,
             options.longitudeField.columnName,
             options.latitudeField.columnName,
             options.colorField.columnName,
@@ -392,7 +425,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.filterMapForLegend();
         this.updateLegend();
 
-        return new TransformedVisualizationData(mapPoints);
+        return mapPoints.length;
     }
 
     /**
@@ -423,8 +456,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, idValue: string, lat: number, lng: number, colorField: string,
-         colorValue: string, hoverPopupValue: string) {
+    addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterMap: Map<string, any>, idValue: string, lat: number, lng: number,
+        colorField: string, colorValue: string, hoverPopupValue: string) {
 
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
@@ -437,7 +470,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         if (!obj) {
 
             let idList: string[] = [];
-            idList.push(idValue);  //store the id of the unique point
+                idList.push(idValue);  //store the id of the unique point
+
+            let filterList: any[] = [];
+            filterList.push(filterMap);
 
             let hoverPopupMap = new Map<string, number>();
 
@@ -445,11 +481,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             if (hoverPopupValue) {
                 hoverPopupMap.set(hoverPopupValue, 1);
             }
-
-            obj = new UniqueLocationPoint(idValue, idList, lat, lng, 1, colorField, colorValue, hoverPopupMap);
+            obj = new UniqueLocationPoint(idValue, idList, filterList, filterMap, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
-            obj.idList.push(idValue); //add the id to the list of points
+            obj.idList.push(idValue);  //add the id to the list of points
+            obj.filterList.push(filterMap);
             obj.count++;
 
             //check if popup value already exists increase count in map
@@ -594,7 +630,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: layer.database,
@@ -630,7 +665,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnPoint(layer: any, latitude?: number, longitude?: number): FilterDesign {
         return {
             type: CompoundFilterType.AND,
-            inflexible: true,
             filters: [{
                 datastore: '',
                 database: layer.database,
@@ -649,6 +683,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         } as CompoundFilterDesign;
     }
 
+    private createFilterDesignOnValue(layer: any, field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            root: CompoundFilterType.OR,
+            datastore: '',
+            database: layer.database,
+            table: layer.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
     /**
      * Creates and returns an array of field options for a layer for the visualization.
      *
@@ -663,7 +709,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sizeField', 'Size Field', false)
+            new WidgetFieldOption('sizeField', 'Size Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
         ];
     }
 
@@ -733,6 +780,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                     redrawCallback: this.redrawFilterPoint.bind(this)
                 });
             }
+
+            layer.filterFields.forEach((filterField) => {
+                behaviors.push({
+                    // Match a single EQUALS filter on the specific filter field.
+                    filterDesign: this.createFilterDesignOnValue(layer, filterField),
+                    redrawCallback: () => { /* Do nothing */ }
+                } as FilterBehavior);
+            });
         });
 
         return behaviors;

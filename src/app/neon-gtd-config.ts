@@ -23,4 +23,5 @@ export class NeonGTDConfig {
     layouts: {[key: string]: any} = {};
     errors: String[];
     neonServerUrl: string;
+    version: string;
 }

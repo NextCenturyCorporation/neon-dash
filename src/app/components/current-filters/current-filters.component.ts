@@ -16,11 +16,11 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FilterDesign, FilterService } from '../../services/filter.service';
 
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 
 @Component({
@@ -29,27 +29,26 @@ import * as _ from 'lodash';
     styleUrls: ['./current-filters.component.scss']
 })
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
 
-    public optionalFilters: FilterDesign[] = [];
-    public requiredFilters: FilterDesign[] = [];
+    public COMPOUND_FILTER_TYPE = CompoundFilterType;
+
+    public filters: FilterDesign[] = [];
 
     constructor(public filterService: FilterService, public searchService: AbstractSearchService) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
-        this.messenger.subscribe(neonEvents.NEW_DATASET, this.updateFilters.bind(this));
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.updateFilters.bind(this));
         this.updateFilters();
     }
 
     updateFilters() {
-        let filters: FilterDesign[] = this.filterService.getFilters();
-        this.requiredFilters = filters.filter((filter) => !filter.optional);
-        this.optionalFilters = filters.filter((filter) => !!filter.optional);
+        this.filters = this.filterService.getFilters();
     }
 
     ngOnDestroy() {

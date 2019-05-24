@@ -18,6 +18,7 @@ import { AggregationType } from './services/abstract.search.service';
 import { DatasetService } from './services/dataset.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
 import * as _ from 'lodash';
+import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
 
 type OptionCallback = (options: any) => boolean;
@@ -30,6 +31,7 @@ export enum OptionType {
     FREE_TEXT = 'FREE_TEXT',
     MULTIPLE_SELECT = 'MULTIPLE_SELECT',
     NON_PRIMITIVE = 'NON_PRIMITIVE',
+    COLOR = 'COLOR',
     SELECT = 'SELECT',
     TABLE = 'TABLE'
 }
@@ -55,7 +57,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) {}
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -119,7 +121,7 @@ export class WidgetFieldOption extends WidgetOption {
      * @arg {boolean} isRequired
      * @arg {boolean|OptionCallback} [enableInMenu=true]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, enableInMenu: boolean | OptionCallback = true) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, enableInMenu: boolean | OptionCallback = true) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
     }
@@ -153,6 +155,24 @@ export class WidgetFreeTextOption extends WidgetOption {
     }
 }
 
+export class WidgetColorOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+}
+
 export class WidgetMultipleSelectOption extends WidgetOption {
     /**
      * @constructor
@@ -174,6 +194,9 @@ export class WidgetMultipleSelectOption extends WidgetOption {
 }
 
 export class WidgetNonPrimitiveOption extends WidgetOption {
+
+    private _intermediateValue: string;
+
     /**
      * @constructor
      * @arg {string} bindingKey
@@ -184,10 +207,39 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string,
-        valueDefault: any,
+        valueDefault: any = undefined as any,
         enableInMenu: boolean | OptionCallback = true
     ) {
-        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName,
+            valueDefault, undefined, enableInMenu);
+    }
+
+    get intermediateValue() {
+        if (this._intermediateValue === undefined) {
+            try {
+                const v = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isEmpty(v) ? '' : yaml.safeDump(v);
+            } catch {
+                // Consume error
+            }
+            this._intermediateValue = this._intermediateValue || '';
+        }
+
+        return this._intermediateValue;
+    }
+
+    set intermediateValue(v: any) {
+        this._intermediateValue = v;
+        try {
+            this.valueCurrent = _.isEmpty(v) ? undefined : yaml.safeLoad(this._intermediateValue);
+        } catch {
+            // Ignore error
+        }
+    }
+
+    getValueToSaveInBindings() {
+        delete this._intermediateValue;
+        return this.valueCurrent || this.valueDefault;
     }
 }
 

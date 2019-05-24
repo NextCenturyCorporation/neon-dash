@@ -129,7 +129,7 @@ export class Dashboard {
     public contributors?: { [key: string]: Contributor } = {};
     // The datastores and layoutObject properties are assigned by the DatasetService.
     public datastores?: Datastore[] = [];
-    public layoutObject?: any[] = [];
+    public layoutObject?: (any[] | {[key: string]: any[]}) = [];
 }
 
 /**
@@ -138,7 +138,6 @@ export class Dashboard {
 export class DashboardOptions {
     public connectOnLoad?: boolean = false;
     public colorMaps?: Object;
-    public requeryInterval?: number;
     public simpleFilter?: SimpleFilter;
 }
 

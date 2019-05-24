@@ -17,8 +17,8 @@ import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -30,7 +30,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 
 interface State {
@@ -63,20 +63,19 @@ export class SaveStateComponent implements OnInit {
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     private isLoading: boolean = false;
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     public states: { total: number, results: State[] } = { total: 0, results: [] };
 
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
         protected filterService: FilterService,
-        private snackBar: MatSnackBar,
+        protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
         private dialog: MatDialog
     ) { }
 
     ngOnInit() {
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
         this.fetchStates();
     }
 
@@ -157,7 +156,6 @@ export class SaveStateComponent implements OnInit {
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(validStateName, this.widgetGridItems),
-                // The stateName property is needed in neon.query.Connection.saveState
                 stateName: validStateName
             };
 
@@ -181,11 +179,7 @@ export class SaveStateComponent implements OnInit {
         let connection = this.openConnection();
         if (connection) {
             let validStateName = this.validateName(name);
-            let stateData: any = {
-                // The stateName property is needed in neon.query.Connection.loadState
-                stateName: validStateName
-            };
-            connection.loadState(stateData, (response) => {
+            connection.loadState(validStateName, (response) => {
                 this.handleLoadStateSuccess(response, validStateName);
             }, (response) => {
                 this.handleStateFailure(response, validStateName);
@@ -329,9 +323,8 @@ export class SaveStateComponent implements OnInit {
             }));
     }
 
-    private openConnection() {
-        return this.connectionService.createActiveConnection(this.datasetService.getDatastoreType(),
-            this.datasetService.getDatastoreHost());
+    private openConnection(): any {
+        return this.searchService.createConnection(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
     }
 
     public openNotification(stateName: string, actionName: string) {

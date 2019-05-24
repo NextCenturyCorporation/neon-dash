@@ -1,31 +1,25 @@
-<div class="delete-all-filters" *ngIf="requiredFilters.length || optionalFilters.length">
+<div class="delete-all-filters" *ngIf="filters.length">
     <button mat-icon-button aria-label="Reset" title="Remove All Filters"
             (click)="filterService.deleteFilters('FilterList', searchService)">
         <mat-icon>delete_sweep</mat-icon>
     </button>
     <div class="filter-text" style="display: inline-block; padding-left: 10px;">
-        {{ requiredFilters.length + optionalFilters.length }} {{ 'Filter' + (requiredFilters.length + optionalFilters.length == 1 ? '' : 's') }}
+        {{ filters.length }} {{ 'Filter' + (filters.length == 1 ? '' : 's') }}
     </div>
 </div>
 
 <div>
     <div mat-fill>
         <mat-list>
-            <mat-list-item *ngFor="let filter of requiredFilters" class="current-filters-item filter-text">
+            <mat-list-item *ngFor="let filter of filters" class="current-filters-item filter-text">
                 <button mat-icon-button title="Remove Filter" (click)="this.filterService.deleteFilter('FilterList', filter, searchService)">
                     <mat-icon>delete</mat-icon>
                 </button>
-                <mat-icon class="next-to-button" title="Required Filter">star</mat-icon>
-                <div>{{ filter.name }}</div>
+                <div class="symbol" title="AND" *ngIf="filter.root === COMPOUND_FILTER_TYPE.AND">&</div>
+                <div class="symbol" title="OR" *ngIf="!filter.root || filter.root === COMPOUND_FILTER_TYPE.OR">|</div>
+                <div [title]="filter.name">{{ filter.name }}</div>
             </mat-list-item>
-            <mat-list-item *ngFor="let filter of optionalFilters" class="current-filters-item filter-text">
-                <button mat-icon-button title="Remove Filter" (click)="this.filterService.deleteFilter('FilterList', filter, searchService)">
-                    <mat-icon>delete</mat-icon>
-                </button>
-                <mat-icon class="next-to-button" title="Optional Filter">star_border</mat-icon>
-                <div>{{ filter.name }}</div>
-            </mat-list-item>
-            <mat-list-item *ngIf="!requiredFilters.length && !optionalFilters.length" class="filter-text">No Filters</mat-list-item>
+            <mat-list-item *ngIf="!filters.length" class="filter-text">No Filters</mat-list-item>
         </mat-list>
     </div>
 

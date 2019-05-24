@@ -23,7 +23,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -35,9 +35,8 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import WherePredicate = neon.query.WherePredicate;
 
-import * as neon from 'neon-framework';
+import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -53,11 +52,13 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     autoComplete: boolean = true;
     queryValues: string[] = [];
-    queryArray: any[];
+    queryArray: any[] = [];
 
     public queryOptions: Observable<void | string[]>;
 
     private filterFormControl: FormControl;
+
+    private previousText: string = '';
 
     constructor(
         datasetService: DatasetService,
@@ -195,11 +196,11 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+    finalizeVisualizationQuery(options: any, queryPayload: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(options.filterField.columnName, '!=', null);
-        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateSort(query, options.filterField.columnName);
-        return query;
+        this.searchService.updateFilter(queryPayload, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
+            .updateSort(queryPayload, options.filterField.columnName);
+        return queryPayload;
     }
 
     /**
@@ -234,14 +235,15 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.queryArray = [];
 
         let setValues = true;
@@ -271,8 +273,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
         this.queryBarSetup();
 
-        // TODO THOR-985
-        return new TransformedVisualizationData();
+        return this.queryValues.length;
     }
 
     private queryBarSetup() {
@@ -317,41 +318,35 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @arg {string} text
      */
     createFilter(text: string) {
-        let removeTextFilter = true;
-        let removeFilterList: FilterDesign[] = [];
+        if (text === this.previousText) {
+            return;
+        }
 
-        if (text) {
-            let values: any[] = this.queryArray.filter((value) =>
-                value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase());
+        this.previousText = text;
 
-            if (values.length) {
-                let filters: FilterDesign[] = [this.createFilterDesignOnText(text)];
+        let values: any[] = !text ? [] : this.queryArray.filter((value) =>
+            value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase());
 
-                removeTextFilter = false;
+        if (values.length) {
+            let filtersToAdd: FilterDesign[] = [this.createFilterDesignOnText(text)];
+            let filtersToDelete: FilterDesign[] = [];
 
-                //gathers ids from the filtered query text in order to extend filtering to the other components
-                if (this.options.extendedFilter) {
-                    this.options.extensionFields.forEach((extensionField) => {
-                        let extendFilters: FilterDesign[] = this.extensionFilter(text, extensionField, values);
-                        if (extendFilters.length) {
-                            filters = filters.concat(extendFilters);
-                        } else {
-                            removeFilterList.push(this.createFilterDesignOnExtensionField(extensionField.database, extensionField.table,
-                                extensionField.idField));
-                        }
-                    });
-                }
-
-                this.exchangeFilters(filters);
+            //gathers ids from the filtered query text in order to extend filtering to the other components
+            if (this.options.extendedFilter) {
+                this.options.extensionFields.forEach((extensionField) => {
+                    let extendedFilter: FilterDesign = this.extensionFilter(text, extensionField, values);
+                    if (extendedFilter) {
+                        filtersToAdd = filtersToAdd.concat(extendedFilter);
+                    } else {
+                        filtersToDelete.push(this.createFilterDesignOnExtensionField(extensionField.database, extensionField.table,
+                            extensionField.idField));
+                    }
+                });
             }
-        }
 
-        if (removeTextFilter) {
-            removeFilterList.push(this.createFilterDesignOnText());
-        }
-
-        if (removeFilterList.length) {
-            this.deleteFilters(removeFilterList);
+            this.exchangeFilters(filtersToAdd, filtersToDelete);
+        } else {
+            this.removeFilters();
         }
     }
 
@@ -365,22 +360,20 @@ export class QueryBarComponent  extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionFilter(text: string, fields: any, array: any[]): FilterDesign[] {
-        let filters: FilterDesign[] = [];
-
+    private extensionFilter(text: string, fields: any, array: any[]): FilterDesign {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
-            let query = new neon.query.Query().selectFrom(fields.database, fields.table),
+            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table),
                 queryFields = [fields.idField, fields.filterField],
                 execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
-                    query: query
+                    query: extensionQuery
                 }),
                 tempArray = [],
                 queryClauses = [];
             for (let value of array) {
-                queryClauses.push(neon.query.where(fields.filterField, '=', value[this.options.idField.columnName]));
+                queryClauses.push(query.where(fields.filterField, '=', value[this.options.idField.columnName]));
             }
 
-            query.withFields(queryFields).where(neon.query.or.apply(query, queryClauses));
+            extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
             execute.done((response) => {
                 if (response && response.data && response.data.length) {
                     response.data.forEach((d) => {
@@ -398,14 +391,15 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 }
 
                 tempArray = tempArray.filter((value, index, items) => items.indexOf(value) === index);
-                filters.push(this.extensionAddFilter(text, fields, tempArray));
+                let filter: FilterDesign = this.extensionAddFilter(text, fields, tempArray);
+                this.exchangeFilters([filter]);
             });
+
+            // Don't return a filter because we're making an async ajax call.
+            return null;
         }
 
-        filters.push(this.extensionAddFilter(text, fields, array));
-
-        // Remove null objects.
-        return filters.filter((filter) => !!filter);
+        return this.extensionAddFilter(text, fields, array);
     }
 
     /**
@@ -438,9 +432,14 @@ export class QueryBarComponent  extends BaseNeonComponent {
         this.deleteFilters(removeFilterList);
     }
 
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
+    /**
+     * Returns whether this visualization should filter itself.
+     *
+     * @return {boolean}
+     * @override
+     */
+    protected shouldFilterSelf(): boolean {
+        return false;
     }
 
     private updateQueryBarText(filters: FilterDesign[]) {

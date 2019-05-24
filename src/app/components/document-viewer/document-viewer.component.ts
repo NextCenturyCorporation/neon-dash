@@ -31,7 +31,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
@@ -60,6 +60,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+
+    public documentViewerData: any[] = null;
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
@@ -207,14 +209,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
             neonUtilities.flatten(options.popoutFields));
 
@@ -245,7 +248,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
         }
 
-        let data = results.map((result) => {
+        this.documentViewerData = results.map((result) => {
             let activeItem = {
                 data: {},
                 rows: []
@@ -257,7 +260,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             return activeItem;
         });
 
-        return new TransformedVisualizationData(data);
+        return this.documentViewerData.length;
     }
 
     /**
