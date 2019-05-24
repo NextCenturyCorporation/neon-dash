@@ -67,6 +67,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
+    public updatedData = false;
+
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFiltersComponent: boolean = false;
@@ -97,7 +99,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         name: ''
     }];
 
-    public widgetGridItems: NeonGridItem[] = [];
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public gridConfig: NgGridConfig = {
@@ -486,7 +487,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
          * To work around this, trigger a resize event in the grid on page load so that it measures
          * correctly
          */
-        this.refreshDashboard();
+        this.resizeGrid();
     }
 
     ngOnDestroy(): void {
@@ -494,6 +495,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.messageReceiver.subscribe((eventing as any).channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
@@ -574,10 +576,25 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Refreshes the grid.
+     * Refreshes all of the visualizations in the dashboard.
      */
-    private refreshDashboard() {
+    public refreshDashboard() {
+        this.updatedData = false;
+        this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
+    }
+
+    /**
+     * Resizes the grid.
+     */
+    private resizeGrid() {
         this.grid.triggerResize();
+    }
+
+    /**
+     * Indicates to the dashboard that there is new data available
+     */
+    dataAvailableDashboard() {
+        this.updatedData = true;
     }
 
     /**
