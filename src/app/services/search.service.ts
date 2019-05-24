@@ -32,7 +32,7 @@ import { query } from 'neon-framework';
 
 // Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
 export class NeonConnection implements Connection {
-    constructor(public connection: query.Connection) {}
+    constructor(public connection: query.Connection) { }
 
     /**
      * Deletes the saved dashboard state with the given name.
@@ -79,15 +79,16 @@ export class NeonConnection implements Connection {
     }
 
     /**
-     * Returns the saved dashboard state names.
+     * Returns the saved dashboard states.
      *
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}
      * @override
      */
-    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.getAllStateNames(onSuccess, onError);
+    public listStates(limit: number, offset: number, onSuccess: (response: any) => void,
+        onError?: (response: any) => void): RequestWrapper {
+        return this.connection.listStates(limit, offset, onSuccess, onError);
     }
 
     /**
@@ -177,17 +178,17 @@ export class NeonConnection implements Connection {
 }
 
 export class NeonGroupWrapper implements QueryGroup {
-    constructor(public group: string | query.GroupByFunctionClause) {}
+    constructor(public group: string | query.GroupByFunctionClause) { }
 }
 
 export class NeonQueryWrapper implements QueryPayload {
     /* tslint:disable:no-shadowed-variable */
-    constructor(public query: query.Query) {}
+    constructor(public query: query.Query) { }
     /* tslint:enable:no-shadowed-variable */
 }
 
 export class NeonWhereWrapper implements FilterClause {
-    constructor(public where: query.WherePredicate) {}
+    constructor(public where: query.WherePredicate) { }
 }
 
 interface ExportField {

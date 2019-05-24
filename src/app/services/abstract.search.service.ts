@@ -65,14 +65,14 @@ export interface Connection {
         onError?: (response: any) => void): RequestWrapper;
 
     /**
-     * Returns the saved dashboard state names.
+     * Returns the saved dashboard states.
      *
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}
      * @abstract
      */
-    getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
+    listStates(limit: number, offset: number, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
 
     /**
      * Returns the table and field names in the given database.
@@ -156,11 +156,11 @@ export enum TimeInterval {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface FilterClause {}
+export interface FilterClause { }
 
-export interface QueryGroup {}
+export interface QueryGroup { }
 
-export interface QueryPayload {}
+export interface QueryPayload { }
 /* tslint:enable:no-empty-interface */
 
 /**
