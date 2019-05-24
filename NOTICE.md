@@ -15,13 +15,13 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | @angular/platform-server@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @angular/router@7.1.0 | [MIT](https://github.com/angular/angular) |
 | @angular/upgrade@7.1.0 | [MIT](https://github.com/angular/angular) |
-| @swimlane/ngx-charts@10.0.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
+| @swimlane/ngx-charts@10.1.0 | [MIT](https://github.com/swimlane/ngx-charts/raw/master/LICENSE.md) |
 | @swimlane/ngx-datatable@14.0.0 | [MIT](https://github.com/swimlane/ngx-datatable/raw/master/LICENSE) |
-| @swimlane/ngx-graph@5.4.1 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
+| @swimlane/ngx-graph@5.5.0 | [MIT](https://github.com/swimlane/ngx-graph/raw/master/LICENSE) |
 | ajv-keywords@1.5.1 | [MIT](https://github.com/epoberezkin/ajv-keywords/raw/master/LICENSE) |
 | ajv@5.2.0 | [MIT](https://github.com/epoberezkin/ajv/raw/master/LICENSE) |
 | angular-core@0.0.5 | [ISC](undefined) |
-| angular-tree-component@8.2.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
+| angular-tree-component@8.3.0 | [MIT](https://github.com/500tech/angular-tree-component/raw/master/LICENSE) |
 | angular2-chartjs@0.4.1 | [MIT](https://github.com/emn178/angular2-chartjs/raw/master/LICENSE.txt) |
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | brace@0.10.0 | [MIT](https://github.com/thlorenz/brace/raw/master/LICENSE) |
@@ -29,9 +29,9 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | chart.js@2.7.2 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
 | core-js@2.5.7 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
-| d3-selection@1.4.0 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
-| d3-shape@1.3.3 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
-| d3-transition@1.2.0 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
+| d3-selection@1.3.2 | [BSD-3-Clause](https://github.com/d3/d3-selection/raw/master/LICENSE) |
+| d3-shape@1.2.2 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
+| d3-transition@1.1.3 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | dagre@0.8.4 | [MIT](https://github.com/dagrejs/dagre/raw/master/LICENSE) |
 | fast-deep-equal@1.0.0 | [MIT](https://github.com/epoberezkin/fast-deep-equal/raw/master/LICENSE) |
 | geo-hash@0.0.2 | [MIT](https://github.com/Wayla/geo-hash) |
@@ -57,4 +57,4 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
-| zone.js@0.8.29 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
+| zone.js@0.8.27 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |

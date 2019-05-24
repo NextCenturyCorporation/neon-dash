@@ -613,7 +613,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         //Gather the top level nodes in the taxonomy that are unchecked and add a != filter
-        if (node.parent.level === 0 && $event.target.checked === false) {
+        if (node.parent.level === 0 && !$event.target.checked) {
             this.createNodeFilter(node.data, []);
         } else if (node.parent.level > 0) {
             //Add parents' siblings if they exist
@@ -638,7 +638,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
         let setNode = node.data || node;
         setNode.checked = checked;
-        if (checked === false && setNode.indeterminate) {
+        if (!checked && setNode.indeterminate) {
             setNode.indeterminate = checked;
         }
 
@@ -688,14 +688,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             //Ensures that only child nodes(with checkboxes) are added and not leaf nodes(without checkboxes)
             if (node.children && node.children.length) {
                 for (let child of node.children) {
-                    if ((child.checked === false || child.indeterminate === true)
+                    if ((!child.checked || child.indeterminate)
                         && child.description !== this.options.valueField.columnName) {
                         relatives.push(child);
                     }
                 }
             }
 
-            if ((node.checked === false || node.indeterminate === true)
+            if ((!node.checked || node.indeterminate)
                 && node.description !== this.options.valueField.columnName) {
                 relatives.push(node);
             }

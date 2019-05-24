@@ -1,0 +1,1746 @@
+projectIcon: 'assets/images/verdi-favicon.ico'
+datastores:
+    es1:
+        host: localhost
+        type: elasticsearch
+        databases:
+            kb-events:
+                prettyName: Events
+                tables:
+                    seedling:
+                        prettyName: Seedling
+                        fields:
+                        labelOptions:
+            kb-geo:
+                prettyName: Geolocation
+                
+                tables:
+                    seedling:
+                        prettyName: Seedling
+                        fields:
+                        labelOptions:
+            kb-simple:
+                prettyName: Network
+                tables:
+                    seedling:
+                        prettyName: Seedling
+                        fields:
+                        labelOptions:
+            verdi-rdf:
+                prettyName: Documents
+                tables:
+                    normal:
+                        prettyName: Normal
+                        fields:
+                        labelOptions:
+                    kb:
+                      prettyName: Knowledge Base
+                      fields:
+                      labelOptions:
+                    reified:
+                        prettyName: Reified
+                        fields:
+                        labelOptions:
+            verdi-support:
+                prettyName: Support
+                tables:
+                    hypothesis_info:
+                        prettyName: Hypotheses
+                        fields:
+                        labelOptions:
+                    parent_children:
+                        prettyName: Parent Children Documents
+                        fields:
+                        labelOptions:
+            rpi-m9-ta1-v2:
+                prettyName: TA1
+                tables:
+                    graph:
+                        prettyName: Documents
+                        fields:
+                        labelOptions:
+                    docs:
+                         prettyName: Root Documents
+                         fields:
+                         labelOptions:
+                    children:
+                         prettyName: Child Documents
+                         fields:
+                         labelOptions:
+            rpi-m9-ta1-v2-graph:
+                prettyName: TA2 Network
+                tables:
+                    graph:
+                        prettyName: ARL M9 Graph
+                        fields:
+                        labelOptions:
+            rpi-m9-ta1-v2-events:
+                prettyName: TA2 Events
+                tables:
+                    graph:
+                        prettyName: ARL M9 Events
+                        fields:
+                        labelOptions:
+            rpi-m9-ta1-v2-geo:
+                 prettyName: TA2 Locations
+                 tables:
+                     graph:
+                         prettyName: ARL M9 Geonames
+                         fields:
+                         labelOptions:
+            aida-docs-tmp:
+                prettyName: Documents
+                tables:
+                    parents:
+                        prettyName: Root Documents
+                        fields:
+                        labelOptions:
+                    parent_children:
+                         prettyName: Child Documents
+                         fields:
+                         labelOptions:
+            gaia:
+                prettyName: GAIA
+                tables:
+                    graph:
+                        prettyName: Documents
+                        fields:
+                        labelOptions:
+
+dashboards:
+    category: 'Select...'
+    choices:
+        arl-m9:
+            name: ARL M9
+            category: 'Select...'
+            choices:
+                arl-ta1:
+                    name: TA1
+                    category: 'Select...'
+                    choices:
+                        rpi:
+                            name: RPI
+                            layout: arl-ta1-m9
+                            tables:
+                                document_table: es1.rpi-m9-ta1-v2.docs
+                                graph_table: es1.rpi-m9-ta1-v2.graph
+                            fields:
+                                document_field_id: es1.rpi-m9-ta1-v2.docs.id
+                                document_field_link: es1.rpi-m9-ta1-v2.docs.reconstructed
+                                document_field_documenttype: es1.rpi-m9-ta1-v2.docs.dtype
+
+                                graph_field_type: es1.rpi-m9-ta1-v2.graph.types
+                                graph_field_category: es1.rpi-m9-ta1-v2.graph.categories
+                            relations:
+                                - - es1.rpi-m9-ta1-v2.docs.id
+                                  - es1.rpi-m9-ta1-v2.graph.parentIds
+                            options:
+                                connectOnLoad: false
+                                colorMaps:
+                                    rpi-m9-ta1-v2:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
+                arl-ta2:
+                    name: TA2
+                    category: 'Select...'
+                    choices:
+                        network:
+                            name: Network
+                            layout: arl-ta2-network
+                            tables:
+                                document_table: es1.rpi-m9-ta1-v2.children
+                                graph_table: es1.rpi-m9-ta1-v2-graph.graph
+                            fields:
+                                document_field_id: es1.rpi-m9-ta1-v2.children.id
+                                document_field_date: es1.rpi-m9-ta1-v2.children.download_date
+                                document_field_parentId: es1.rpi-m9-ta1-v2.children.parent_uid
+                                document_field_documenttype: es1.rpi-m9-ta1-v2.children.dtype
+                                document_field_link: es1.rpi-m9-ta1-v2.children.url
+
+                                graph_field_id: es1.rpi-m9-ta1-v2-graph.graph.kbid
+                                graph_field_name: es1.rpi-m9-ta1-v2-graph.graph.name
+                                graph_field_type: es1.rpi-m9-ta1-v2-graph.graph.types
+                                graph_field_category: es1.rpi-m9-ta1-v2-graph.graph.categories
+                                graph_field_x: es1.rpi-m9-ta1-v2-graph.graph.x
+                                graph_field_y: es1.rpi-m9-ta1-v2-graph.graph.y
+                                graph_field_documentid: es1.rpi-m9-ta1-v2-graph.graph.docIds
+                                graph_field_link: es1.rpi-m9-ta1-v2-graph.graph.edgeTarget
+                                graph_field_linkname: es1.rpi-m9-ta1-v2-graph.graph.edgeLabel
+                                graph_field_targetname: es1.rpi-m9-ta1-v2-graph.graph.targetName
+                                graph_field_targetx: es1.rpi-m9-ta1-v2-graph.graph.targetX
+                                graph_field_targety: es1.rpi-m9-ta1-v2-graph.graph.targetY
+                                graph_field_targetcategory: es1.rpi-m9-ta1-v2-graph.graph.targetCategories
+                            relations:
+                                - - es1.rpi-m9-ta1-v2.children.id
+                                  - es1.rpi-m9-ta1-v2-graph.graph.docIds
+                            options:
+                                connectOnLoad: false
+                                colorMaps:
+                                    rpi-m9-ta1-v2-graph:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
+                        events:
+                            name: Events
+                            layout: arl-ta2-events
+                            tables:
+                                document_table: es1.rpi-m9-ta1-v2.children
+                                event_table: es1.rpi-m9-ta1-v2-events.graph
+                            fields:
+                                document_field_id: es1.rpi-m9-ta1-v2.children.id
+                                document_field_date: es1.rpi-m9-ta1-v2.children.download_date
+                                document_field_parentId: es1.rpi-m9-ta1-v2.children.parent_uid
+                                document_field_documenttype: es1.rpi-m9-ta1-v2.children.dtype
+                                document_field_link: es1.rpi-m9-ta1-v2.children.url
+
+                                event_field_id: es1.rpi-m9-ta1-v2-events.graph.kbid
+                                event_field_type: es1.rpi-m9-ta1-v2-events.graph.types
+                                event_field_category: es1.rpi-m9-ta1-v2-events.graph.categories
+                                event_field_documentid: es1.rpi-m9-ta1-v2-events.graph.docIds
+                                event_field_name: es1.rpi-m9-ta1-v2-events.graph.name
+                                event_field_date: es1.rpi-m9-ta1-v2-events.graph.download_date
+                                event_field_link: es1.rpi-m9-ta1-v2-events.graph.url
+                                event_field_documenttype: es1.rpi-m9-ta1-v2-events.graph.dtype
+                            relations:
+                                - - es1.rpi-m9-ta1-v2.children.id
+                                  - es1.rpi-m9-ta1-v2-events.graph.docIds
+                            options:
+                                connectOnLoad: false
+                        map:
+                            name: Map
+                            layout: arl-ta2-map
+                            tables:
+                                document_table: es1.rpi-m9-ta1-v2.children
+                                geo_table: es1.rpi-m9-ta1-v2-geo.graph
+                            fields:
+                                document_field_id: es1.rpi-m9-ta1-v2.children.id
+                                document_field_date: es1.rpi-m9-ta1-v2.children.download_date
+                                document_field_parentId: es1.rpi-m9-ta1-v2.children.parent_uid
+                                document_field_documenttype: es1.rpi-m9-ta1-v2.children.dtype
+                                document_field_link: es1.rpi-m9-ta1-v2.children.url
+
+                                geo_field_id: es1.rpi-m9-ta1-v2-geo.graph.kbid
+                                geo_field_type: es1.rpi-m9-ta1-v2-geo.graph.types
+                                geo_field_category: es1.rpi-m9-ta1-v2-geo.graph.categories
+                                geo_field_documentid: es1.rpi-m9-ta1-v2-geo.graph.docIds
+                                geo_field_name: es1.rpi-m9-ta1-v2-geo.graph.name
+                                geo_field_date: es1.rpi-m9-ta1-v2-geo.graph.download_date
+                                geo_field_link: es1.rpi-m9-ta1-v2-geo.graph.url
+                                geo_field_doctype: es1.rpi-m9-ta1-v2-geo.graph.dtype
+                                geo_field_latitude: es1.rpi-m9-ta1-v2-geo.graph.geoLocation.lat
+                                geo_field_longitude: es1.rpi-m9-ta1-v2-geo.graph.geoLocation.lon
+                            relations:
+                                - - es1.rpi-m9-ta1-v2.children.id
+                                  - es1.rpi-m9-ta1-v2-geo.graph.docIds
+                            options:
+                                connectOnLoad: true
+        gaia:
+            name: GAIA Pilot
+            category: 'Select...'
+            choices:
+                gaia-ta1:
+                    name: TA1
+                    category: 'Select...'
+                    choices:
+                        pilot:
+                            name: Pilot
+                            layout: gaia-ta1-pilot
+                            tables:
+                                document_table: es1.aida-docs-tmp.parents
+                                graph_table: es1.gaia.graph
+                            fields:
+                                document_field_id: es1.aida-docs-tmp.parents.id
+                                document_field_documenttype: es1.aida-docs-tmp.parents.dtype
+                                document_field_link: es1.aida-docs-tmp.parents.reconstructed
+
+                                graph_field_type: es1.gaia.graph.types
+                                graph_field_category: es1.gaia.graph.categories
+                            relations:
+                                - - es1.aida-docs-tmp.parents.children
+                                  - es1.gaia.graph.docIds
+                                - - es1.aida-docs-tmp.parents.id
+                                  - es1.gaia.graph.parentIds
+                            options:
+                                connectOnLoad: true
+
+        seedling:
+            name: LDC Seedling
+            category: 'Select...'
+            choices:
+                ldc-ta2:
+                    name: TA2
+                    category: 'Select...'
+                    choices:
+                        network:
+                            name: Network
+                            layout: seedling-ta2-network
+                            tables:
+                                document_table: es1.verdi-rdf.normal
+                                kb_table: es1.kb-simple.seedling
+                            fields:
+                                document_field_id: 'es1.verdi-rdf.normal.@id'
+                                document_field_date: es1.verdi-rdf.normal.date
+                                document_field_link: es1.verdi-rdf.normal.url
+                                document_field_doctype: es1.verdi-rdf.normal.docType
+                                document_field_sourceid: es1.verdi-rdf.normal.isPartOf
+
+                                kb_field_category: es1.kb-simple.seedling.categories
+                                kb_field_documentid: es1.kb-simple.seedling.docIds
+                                kb_field_edgecategory: es1.kb-simple.seedling.edgeCategories
+                                kb_field_edgename: es1.kb-simple.seedling.edgeLabel
+                                kb_field_edgetarget: es1.kb-simple.seedling.edgeTarget
+                                kb_field_edgetargetname: es1.kb-simple.seedling.edgeTargetName
+                                kb_field_x: es1.kb-simple.seedling.x
+                                kb_field_y: es1.kb-simple.seedling.y
+                                kb_field_edgex: es1.kb-simple.seedling.edgeX
+                                kb_field_edgey: es1.kb-simple.seedling.edgeY
+                                kb_field_name: es1.kb-simple.seedling.name
+                                kb_field_objectid: es1.kb-simple.seedling.kbid
+                                kb_field_type: es1.kb-simple.seedling.types
+                            relations:
+                                - - 'es1.verdi-rdf.normal.@id'
+                                  - es1.kb-simple.seedling.docIds
+                                # This is an ambitious assumption being that documents and kb elements have
+                                # a many to many relationship. Removing this.
+                                #- - es1.verdi-rdf.normal.date
+                                #  - es1.kb-simple.seedling.docDate
+                            options:
+                                connectOnLoad: true
+                                colorMaps:
+                                    kb-simple:
+                                        seedling:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
+                        events:
+                            name: Events
+                            layout: seedling-ta2-events
+                            tables:
+                                document_table: es1.verdi-rdf.normal
+                                event_table: es1.kb-events.seedling
+                            fields:
+                                document_field_id: 'es1.verdi-rdf.normal.@id'
+                                document_field_date: es1.verdi-rdf.normal.date
+                                document_field_link: es1.verdi-rdf.normal.url
+                                document_field_doctype: es1.verdi-rdf.normal.docType
+                                document_field_sourceid: es1.verdi-rdf.normal.isPartOf
+
+                                event_field_type: es1.kb-events.seedling.types
+                                event_field_name: es1.kb-events.seedling.name
+                                event_field_category: es1.kb-events.seedling.categories
+                                event_field_documentid: es1.kb-events.seedling.docIds
+                                event_field_objectid: es1.kb-events.seedling.kbid
+                                event_field_docdate: es1.kb-events.seedling.docDate
+                                event_field_link: es1.kb-events.seedling.url
+                                event_field_doctype: es1.kb-events.seedling.docType
+                            relations:
+                                - - 'es1.verdi-rdf.normal.@id'
+                                  - es1.kb-events.seedling.docIds
+                            options:
+                                connectOnLoad: false
+                        map:
+                            name: Map
+                            layout: seedling-ta2-map
+                            tables:
+                                document_table: es1.verdi-rdf.normal
+                                geo_table: es1.kb-geo.seedling
+                            fields:
+                                document_field_id: 'es1.verdi-rdf.normal.@id'
+                                document_field_date: es1.verdi-rdf.normal.date
+                                document_field_link: es1.verdi-rdf.normal.url
+                                document_field_doctype: es1.verdi-rdf.normal.docType
+                                document_field_sourceid: es1.verdi-rdf.normal.isPartOf
+
+                                geo_field_name: es1.kb-geo.seedling.name
+                                geo_field_latitude: es1.kb-geo.seedling.geoLocation.lat
+                                geo_field_longitude: es1.kb-geo.seedling.geoLocation.lon
+                                geo_field_type: es1.kb-geo.seedling.types
+                                geo_field_category: es1.kb-geo.seedling.categories
+                                geo_field_documentid: es1.kb-geo.seedling.docIds
+                                geo_field_objectid: es1.kb-geo.seedling.kbid
+                                geo_field_docdate: es1.kb-geo.seedling.docDate
+                            relations:
+                                - - 'es1.verdi-rdf.normal.@id'
+                                  - es1.kb-geo.seedling.docIds
+                            options:
+                                connectOnLoad: false
+                ldc-ta3:
+                    name: TA3
+                    category: 'Select...'
+                    choices:
+                        network:
+                            name: Network
+                            layout: seedling-ta3-network
+                            tables:
+                                hypotheses_table: es1.verdi-support.hypothesis_info
+                                document_table: es1.verdi-support.parent_children
+                                kb_table: es1.kb-simple.seedling
+                            fields:
+                                hypotheses_field_id: es1.verdi-support.hypothesis_info.hypothesis_id
+                                hypotheses_field_date: es1.verdi-support.hypothesis_info.date
+                                hypotheses_field_query: es1.verdi-support.hypothesis_info.query
+                                hypotheses_field_hypothesis: es1.verdi-support.hypothesis_info.hypothesis
+
+                                document_field_id: es1.verdi-support.parent_children.id
+                                document_field_sourceid: es1.verdi-support.parent_children.parent_uid
+                                document_field_date: es1.verdi-support.parent_children.download_date
+                                document_field_doctype: es1.verdi-support.parent_children.dtyp
+                                document_field_link: es1.verdi-support.parent_children.url
+
+                                kb_field_category: es1.kb-simple.seedling.categories
+                                kb_field_documentid: es1.kb-simple.seedling.docIds
+                                kb_field_docdate: es1.kb-simple.seedling.docDate
+                                kb_field_edgecategory: es1.kb-simple.seedling.edgeCategories
+                                kb_field_edgename: es1.kb-simple.seedling.edgeLabel
+                                kb_field_edgetarget: es1.kb-simple.seedling.edgeTarget
+                                kb_field_edgetargetname: es1.kb-simple.seedling.edgeTargetName
+                                kb_field_x: es1.kb-simple.seedling.x
+                                kb_field_y: es1.kb-simple.seedling.y
+                                kb_field_edgex: es1.kb-simple.seedling.edgeX
+                                kb_field_edgey: es1.kb-simple.seedling.edgeY
+                                kb_field_name: es1.kb-simple.seedling.name
+                                kb_field_objectid: es1.kb-simple.seedling.kbid
+                                kb_field_type: es1.kb-simple.seedling.types
+                                kb_field_hypotheses: es1.kb-simple.seedling.hypotheses
+                            relations:
+                                - - es1.verdi-support.parent_children.id
+                                  - es1.verdi-support.hypothesis_info.docIds
+                                  - es1.kb-simple.seedling.docIds
+
+                                - - es1.verdi-support.parent_children.hypotheses
+                                  - es1.verdi-support.hypothesis_info.hypothesis_id
+                                  - es1.kb-simple.seedling.hypotheses
+                            options:
+                                connectOnLoad: true
+                                colorMaps:
+                                    kb-simple:
+                                        seedling:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
+
+                        events:
+                            name: Events
+                            layout: seedling-ta3-events
+                            tables:
+                                hypotheses_table: es1.verdi-support.hypothesis_info
+                                document_table: es1.verdi-support.parent_children
+                                event_table: es1.kb-events.seedling
+                            fields:
+                                hypotheses_field_id: es1.verdi-support.hypothesis_info.hypothesis_id
+                                hypotheses_field_date: es1.verdi-support.hypothesis_info.date
+                                hypotheses_field_query: es1.verdi-support.hypothesis_info.query
+                                hypotheses_field_hypothesis: es1.verdi-support.hypothesis_info.hypothesis
+
+                                document_field_id: es1.verdi-support.parent_children.id
+                                document_field_sourceid: es1.verdi-support.parent_children.parent_uid
+                                document_field_date: es1.verdi-support.parent_children.download_date
+                                document_field_doctype: es1.verdi-support.parent_children.dtyp
+                                document_field_link: es1.verdi-support.parent_children.url
+
+                                event_field_type: es1.kb-events.seedling.types
+                                event_field_name: es1.kb-events.seedling.name
+                                event_field_category: es1.kb-events.seedling.categories
+                                event_field_documentid: es1.kb-events.seedling.docIds
+                                event_field_objectid: es1.kb-events.seedling.kbid
+                                event_field_docdate: es1.kb-events.seedling.docDate
+                                event_field_link: es1.kb-events.seedling.url
+                                event_field_doctype: es1.kb-events.seedling.docType
+                                event_field_hypotheses: es1.kb-events.seedling.hypotheses
+                            relations:
+                                - - es1.verdi-support.parent_children.id
+                                  - es1.verdi-support.hypothesis_info.docIds
+                                  - es1.kb-events.seedling.docIds
+
+                                - - es1.verdi-support.parent_children.hypotheses
+                                  - es1.verdi-support.hypothesis_info.hypothesis_id
+                                  - es1.kb-events.seedling.hypotheses
+                            options:
+                                connectOnLoad: false
+                        map:
+                            name: Map
+                            layout: seedling-ta3-map
+                            tables:
+                                hypotheses_table: es1.verdi-support.hypothesis_info
+                                document_table: es1.verdi-support.parent_children
+                                geo_table: es1.kb-geo.seedling
+                            fields:
+                                hypotheses_field_id: es1.verdi-support.hypothesis_info.hypothesis_id
+                                hypotheses_field_date: es1.verdi-support.hypothesis_info.date
+                                hypotheses_field_query: es1.verdi-support.hypothesis_info.query
+                                hypotheses_field_hypothesis: es1.verdi-support.hypothesis_info.hypothesis
+
+                                document_field_id: es1.verdi-support.parent_children.id
+                                document_field_sourceid: es1.verdi-support.parent_children.parent_uid
+                                document_field_date: es1.verdi-support.parent_children.download_date
+                                document_field_doctype: es1.verdi-support.parent_children.dtyp
+                                document_field_link: es1.verdi-support.parent_children.url
+
+                                geo_field_name: es1.kb-geo.seedling.name
+                                geo_field_latitude: es1.kb-geo.seedling.geoLocation.lat
+                                geo_field_longitude: es1.kb-geo.seedling.geoLocation.lon
+                                geo_field_type: es1.kb-geo.seedling.types
+                                geo_field_category: es1.kb-geo.seedling.categories
+                                geo_field_documentid: es1.kb-geo.seedling.docIds
+                                geo_field_objectid: es1.kb-geo.seedling.kbid
+                                geo_field_docdate: es1.kb-geo.seedling.docDate
+                                geo_field_hypotheses: es1.kb-geo.seedling.hypotheses
+                            relations:
+                                - - es1.verdi-support.parent_children.id
+                                  - es1.verdi-support.hypothesis_info.docIds
+                                  - es1.kb-geo.seedling.docIds
+
+                                - - es1.verdi-support.parent_children.hypotheses
+                                  - es1.verdi-support.hypothesis_info.hypothesis_id
+                                  - es1.kb-geo.seedling.hypotheses
+                            options:
+                                connectOnLoad: false
+layouts:
+    gaia-ta1-pilot:
+        - type: dataTable
+          row: 1
+          col: 1
+          sizex: 2
+          sizey: 17.5
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              sortField: document_field_id
+              filterable: true
+              ignoreSelf: true
+              singleFilter: true
+              filterFields:
+                - document_field_id
+              exceptionsToStatus:
+                - document_field_id
+              allColumnStatus: hide
+
+        - type: aggregation
+          row: 1
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Entities
+              tableKey: graph_table
+              type: bar-v
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: true
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: ENTITY
+
+        - type: aggregation
+          row: 6
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Relations
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: true
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: RELATION
+
+        - type: aggregation
+          row: 11
+          col: 3
+          sizex: 4
+          sizey: 5.5
+          bindings:
+              title: Events
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: true
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: EVENT
+
+        - type: mediaViewer
+          row: 1
+          col: 7
+          sizex: 6
+          sizey: 17.5
+          bindings:
+              title: 'Media Viewer'
+              tableKey: document_table
+              idField: document_field_id
+              linkField: document_field_link
+              linkPrefix: 'https://demo.verdi.nextcentury.com/Reconstructed/html/gaia/'
+              typeField: document_field_documenttype
+              clearMedia: false
+    arl-ta1-m9:
+        - type: dataTable
+          row: 1
+          col: 1
+          sizex: 2
+          sizey: 17.5
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              sortField: document_field_id
+              filterable: true
+              ignoreSelf: true
+              singleFilter: true
+              filterFields:
+                - document_field_id
+              exceptionsToStatus:
+                - document_field_id
+              allColumnStatus: hide
+
+        - type: aggregation
+          row: 1
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Entities
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: ENTITY
+
+        - type: aggregation
+          row: 6
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Relations
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: RELATION
+
+        - type: aggregation
+          row: 11
+          col: 3
+          sizex: 4
+          sizey: 5.5
+          bindings:
+              title: Events
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: EVENT
+
+        - type: mediaViewer
+          row: 1
+          col: 7
+          sizex: 6
+          sizey: 17.5
+          bindings:
+              title: 'Media Viewer'
+              tableKey: document_table
+              idField: document_field_id
+              linkField: document_field_link
+              linkPrefix: 'https://demo.verdi.nextcentury.com/Reconstructed/html/rpi-m9-ta1-v2/'
+              typeField: document_field_documenttype
+              clearMedia: false
+    arl-ta2-network:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: graph_table
+              typeField: graph_field_type
+              subTypeField: graph_field_type
+              valueField: graph_field_name
+              categoryField: graph_field_category
+              sourceIdField: graph_field_documentid
+              filterFields:
+                  - graph_field_category
+                  - graph_field_type
+                  - graph_field_documentid
+              ignoreSelf: true
+              idField: graph_field_id
+              linkField:
+              ascending: true
+
+        - type: networkGraph
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Network Graph
+              tableKey: graph_table
+              unsharedFilterField:
+              unsharedFilterValue:
+              nodeField: graph_field_id
+              nodeNameField: graph_field_name
+              nodeShape: box
+              linkField: graph_field_link
+              linkNameField: graph_field_linkname
+              targetNameField: graph_field_targetname
+              nodeColor:
+              linkColor: '#D1C2F0'
+              edgeColor: '#63B4CF'
+              xPositionField: graph_field_x
+              yPositionField: graph_field_y
+              xTargetPositionField: graph_field_targetx
+              yTargetPositionField: graph_field_targety
+              typeField: graph_field_type
+              isReified: false
+              isDirected: true
+              hideUnfiltered: false
+              physics: false
+              filterFields:
+                  - graph_field_documentid
+              idField: graph_field_id
+              filterable: true
+              multiFilter: true
+              multiFilterOperator: or
+              displayLegend: true
+              nodeColorField: graph_field_category
+              targetColorField: graph_field_targetcategory
+              edgeColorField:
+              cleanLegendLabels: true
+              legendFiltering: false
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Document Timeline
+              tableKey: document_table
+              idField: document_field_id
+              filterField: document_field_id
+              dateField: document_field_date
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_parentid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_documenttype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_documenttype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField: document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              ignoreMediaTypes:
+                  - ltf
+                  - html
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    arl-ta2-events:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: event_table
+              typeField: event_field_type
+              subTypeField: event_field_type
+              valueField: event_field_name
+              categoryField: event_field_category
+              sourceIdField: event_field_documentid
+              filterFields:
+                  - event_field_category
+                  - event_field_type
+                  - event_field_documentid
+              ignoreSelf: true
+              idField: event_field_id
+              linkField:
+              ascending: true
+
+        - type: thumbnailGrid
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Events
+              tableKey: event_table
+              idField: event_field_id
+              flagLabel: event_field_name
+              flagSubLabel1: event_field_date
+              flagSubLabel2: event_field_documentid
+              flagSubLabel3: event_field_id
+              linkField: event_field_link
+              dateField: event_field_date
+              objectNameField:
+              objectIdField: event_field_id
+              typeField: event_field_documenttype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: event_field_date
+              filterFields:
+                  - event_field_id
+                  - event_field_documentid
+              ascending: false
+              canvasSize: 180.00
+              viewType: card
+              truncateLabel:
+                  value: true
+                  length: 35
+              limit: 12
+              ignoreMediaTypes:
+                  - ltf
+                  - html
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Event Timeline
+              tableKey: event_table
+              idField: event_field_id
+              filterField: event_field_documentid
+              dateField: event_field_date
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_parentId
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_documenttype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_documenttype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField:
+                  - document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              ignoreMediaTypes:
+                  - ltf
+                  - html
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    arl-ta2-map:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: geo_table
+              typeField: types
+              subTypeField: geo_field_type
+              valueField: geo_field_name
+              categoryField: geo_field_category
+              sourceIdField: geo_field_documentid
+              filterFields:
+                  - geo_field_category
+                  - geo_field_type
+                  - geo_field_documentid
+              ignoreSelf: true
+              idField: geo_field_id
+              linkField:
+              ascending: true
+
+        - type: map
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Locations
+              tableKey: geo_table
+              show: true
+              type: cluster
+              limit: 5000
+              mapType: leaflet
+              singleColor: true
+              filterable: true
+              hideUnfiltered: false
+              showPointDataOnHover: true
+              layers:
+                    - title: Map
+                      tableKey: geo_table
+                      latitudeField: geo_field_latitude
+                      longitudeField: geo_field_longitude
+                      hoverPopupField: geo_field_name
+                      dateField: geo_field_date
+                      idField: geo_field_id
+                      filterFields:
+                        - geo_field_id
+                        - geo_field_documentid
+                      colorField: geo_field_type
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Map Timeline
+              tableKey: geo_table
+              idField: geo_field_id
+              filterField: geo_field_documentid
+              dateField: geo_field_date
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_parentid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_documenttype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_documenttype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField:
+                  - document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              ignoreMediaTypes:
+                  - ltf
+                  - html
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    seedling-ta2-network:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: kb_table
+              typeField: kb_field_type
+              subTypeField: kb_field_type
+              valueField: kb_field_name
+              categoryField: kb_field_category
+              sourceIdField: kb_field_documentid
+              filterFields:
+                  - kb_field_category
+                  - kb_field_type
+                  - kb_field_documentid
+              ignoreSelf: true
+              idField: kb_field_objectid
+              linkField:
+              ascending: true
+
+        - type: networkGraph
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Network Graph
+              tableKey: kb_table
+              unsharedFilterField:
+              unsharedFilterValue:
+              nodeField: kb_field_objectid
+              nodeNameField: kb_field_name
+              nodeShape: box
+              linkField: kb_field_edgetarget
+              linkNameField: kb_field_edgename
+              targetNameField: kb_field_edgetargetname
+              nodeColor:
+              linkColor: '#D1C2F0'
+              edgeColor: '#63B4CF'
+              xPositionField: kb_field_x
+              yPositionField: kb_field_y
+              xTargetPositionField: kb_field_edgex
+              yTargetPositionField: kb_field_edgey
+              typeField: kb_field_type
+              isReified: false
+              isDirected: true
+              hideUnfiltered: false
+              physics: false
+              filterFields:
+                  - kb_field_category
+                  - kb_field_type
+                  - kb_field_documentid
+              idField: kb_field_objectid
+              filterable: true
+              multiFilter: true
+              multiFilterOperator: or
+              displayLegend: true
+              nodeColorField: kb_field_category
+              targetColorField: kb_field_edgecategory
+              edgeColorField:
+              cleanLegendLabels: true
+              legendFiltering: false
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Document Timeline
+              tableKey: document_table
+              idField: document_field_id
+              filterField: document_field_id
+              dateField: document_field_date
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField: document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    seedling-ta2-events:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: event_table
+              typeField: event_field_type
+              subTypeField: event_field_type
+              valueField: event_field_name
+              categoryField: event_field_category
+              sourceIdField: event_field_documentid
+              filterFields:
+                  - event_field_category
+                  - event_field_type
+                  - event_field_documentid
+              ignoreSelf: true
+              idField: event_field_objectid
+              linkField:
+              ascending: true
+
+        - type: thumbnailGrid
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Events
+              tableKey: event_table
+              idField: event_field_objectid
+              flagLabel: event_field_name
+              flagSubLabel1: event_field_docdate
+              flagSubLabel2: event_field_type
+              flagSubLabel3: event_field_name
+              linkField: event_field_link
+              dateField: event_field_docdate
+              objectNameField:
+              objectIdField: event_field_objectid
+              typeField: event_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: event_field_docdate
+              filterFields:
+                  - event_field_objectid
+                  - event_field_documentid
+              ascending: false
+              canvasSize: 180.00
+              viewType: card
+              truncateLabel:
+                  value: true
+                  length: 35
+              limit: 12
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Event Timeline
+              tableKey: event_table
+              idField: event_field_objectid
+              filterField: event_field_documentid
+              dateField: event_field_docdate
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField: document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    seedling-ta2-map:
+        - type: taxonomyViewer
+          row: 0
+          col: 0
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Ontology
+              tableKey: geo_table
+              typeField: geo_field_type
+              subTypeField: geo_field_type
+              valueField: geo_field_name
+              categoryField: geo_field_category
+              sourceIdField: geo_field_documentid
+              filterFields:
+                  - geo_field_category
+                  - geo_field_type
+                  - geo_field_documentid
+              ignoreSelf: true
+              idField: geo_field_objectid
+              linkField:
+              ascending: true
+
+        - type: map
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Locations
+              tableKey: geo_table
+              show: true
+              type: cluster
+              limit: 5000
+              mapType: leaflet
+              singleColor: true
+              filterable: true
+              hideUnfiltered: false
+              showPointDataOnHover: true
+              layers:
+                    - title: Map
+                      tableKey: geo_table
+                      latitudeField: geo_field_latitude
+                      longitudeField: geo_field_longitude
+                      hoverPopupField: geo_field_name
+                      dateField: geo_field_docdate
+                      idField: geo_field_objectid
+                      filterFields:
+                        - geo_field_objectid
+                        - geo_field_documentid
+                      colorField: geo_field_type
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Map Timeline
+              tableKey: geo_table
+              idField: geo_field_objectid
+              filterField: geo_field_documentid
+              dateField: geo_field_docdate
+              granularity: month
+              hideUnfiltered: false
+
+        - type: thumbnailGrid
+          row: 0
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: false
+              sortField: document_field_id
+              filterField: document_field_id
+              ignoreSelf: false
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+    seedling-ta3-network:
+        - type: queryBar
+          row: 1
+          col: 1
+          sizex: 12
+          sizey: 1
+          bindings:
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              filterField: hypotheses_field_query
+              placeholder: 'Query Hypotheses'
+              extendedFilter: true
+              extensionFields:
+                  - database: verdi-support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-simple
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
+
+        - type: newsFeed
+          row: 2
+          col: 1
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Hypotheses
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              linkField:
+              dateField: hypotheses_field_date
+              primaryTitleField: hypotheses_field_id
+              secondaryTitleField:
+              contentField: hypotheses_field_hypothesis
+              hideUnfiltered: true
+              filterField: hypotheses_field_id
+              sortField: hypotheses_field_id
+              ascending: true
+              ignoreSelf: false
+
+
+        - type: networkGraph
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Network Graph
+              tableKey: kb_table
+              unsharedFilterField:
+              unsharedFilterValue:
+              nodeField: kb_field_objectid
+              nodeNameField: kb_field_name
+              nodeShape: box
+              linkField: kb_field_edgetarget
+              linkNameField: kb_field_edgename
+              targetNameField: kb_field_edgetargetname
+              nodeColor:
+              linkColor: '#D1C2F0'
+              edgeColor: '#63B4CF'
+              xPositionField: kb_field_x
+              yPositionField: kb_field_y
+              xTargetPositionField: kb_field_edgex
+              yTargetPositionField: kb_field_edgey
+              typeField: kb_field_type
+              isReified: false
+              isDirected: true
+              hideUnfiltered: true
+              physics: false
+              filterFields:
+                  - kb_field_category
+                  - kb_field_type
+                  - kb_field_documentid
+                  - kb_field_docdate
+              idField: kb_field_objectid
+              filterable: true
+              multiFilter: true
+              multiFilterOperator: or
+              displayLegend: true
+              nodeColorField: kb_field_category
+              targetColorField: kb_field_edgecategory
+              edgeColorField:
+              cleanLegendLabels: true
+              legendFiltering: false
+
+        - type: thumbnailGrid
+          row: 2
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_docdate
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: true
+              sortField: document_field_id
+              filterField: document_field_id
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Document Timeline
+              tableKey: document_table
+              idField: document_field_id
+              filterField: document_field_id
+              dateField: document_field_date
+              granularity: month
+              hideUnfiltered: true
+    seedling-ta3-events:
+        - type: queryBar
+          row: 1
+          col: 1
+          sizex: 12
+          sizey: 1
+          bindings:
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              filterField: hypotheses_field_query
+              placeholder: 'Query Hypotheses'
+              extendedFilter: true
+              extensionFields:
+                  - database: verdi-support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-events
+                    table: seedling
+                    idField: kbid
+                    filterField: hypotheses
+                  - database: kb-events
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
+
+        - type: newsFeed
+          row: 2
+          col: 1
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Hypotheses
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              linkField:
+              dateField: hypotheses_field_date
+              primaryTitleField: hypotheses_field_id
+              secondaryTitleField:
+              contentField: hypotheses_field_hypothesis
+              hideUnfiltered: true
+              filterField: hypotheses_field_id
+              sortField: hypotheses_field_id
+              ascending: true
+              ignoreSelf: false
+
+        - type: thumbnailGrid
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Events
+              tableKey: event_table
+              idField: event_field_objectid
+              flagLabel: event_field_name
+              flagSubLabel1: event_field_docdate
+              flagSubLabel2: event_field_type
+              flagSubLabel3: event_field_name
+              linkField: event_field_link
+              dateField: event_field_docdate
+              objectNameField:
+              objectIdField: event_field_objectid
+              typeField: event_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: true
+              sortField: event_field_docdate
+              filterFields:
+                - event_field_objectid
+                - event_field_documentid
+              ascending: false
+              canvasSize: 180.00
+              viewType: card
+              truncateLabel :
+                value: true
+                length: 35
+              limit: 12
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: thumbnailGrid
+          row: 2
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_docdate
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: true
+              sortField: document_field_id
+              filterField: document_field_id
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Event Timeline
+              tableKey: event_table
+              idField: event_field_objectid
+              filterField: event_field_documentid
+              dateField: event_field_docdate
+              granularity: month
+              hideUnfiltered: true
+    seedling-ta3-map:
+        - type: queryBar
+          row: 1
+          col: 1
+          sizex: 12
+          sizey: 1
+          bindings:
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              filterField: hypotheses_field_query
+              placeholder: 'Query Hypotheses'
+              extendedFilter: true
+              extensionFields:
+                  - database: verdi-support
+                    table: hypothesis_info
+                    idField: hypothesis_id
+                    filterField: query
+                  - database: kb-geo
+                    table: seedling
+                    idField: kbid
+                    filterField: hypotheses
+                  - database: kb-geo
+                    table: seedling
+                    idField: docIds
+                    filterField: hypotheses
+        - type: newsFeed
+          row: 2
+          col: 1
+          sizex: 3
+          sizey: 16
+          bindings:
+              title: Hypotheses
+              tableKey: hypotheses_table
+              idField: hypotheses_field_id
+              linkField:
+              dateField: hypotheses_field_date
+              primaryTitleField: hypotheses_field_id
+              secondaryTitleField:
+              contentField: hypotheses_field_hypothesis
+              hideUnfiltered: true
+              filterField: hypotheses_field_id
+              sortField: hypotheses_field_id
+              ascending: true
+              ignoreSelf: false
+
+        - type: map
+          row: 2
+          col: 4
+          sizex: 7
+          sizey: 12
+          bindings:
+              title: Locations
+              tableKey: geo_table
+              show: true
+              type: cluster
+              limit: 5000
+              mapType: leaflet
+              singleColor: true
+              filterable: true
+              hideUnfiltered: true
+              showPointDataOnHover: true
+              layers:
+                    - title: Map
+                      tableKey: geo_table
+                      latitudeField: geo_field_latitude
+                      longitudeField: geo_field_longitude
+                      hoverPopupField: geo_field_name
+                      dateField: geo_field_docdate
+                      idField: geo_field_objectid
+                      filterFields:
+                        - geo_field_objectid
+                        - geo_field_documentid
+                      colorField: geo_field_type
+
+        - type: thumbnailGrid
+          row: 2
+          col: 11
+          sizex: 2
+          sizey: 16
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_sourceid
+              flagSubLabel2: document_field_date
+              flagSubLabel3: document_field_doctype
+              linkField: document_field_link
+              dateField: document_field_date
+              objectNameField:
+              objectIdField: document_field_id
+              typeField: document_field_doctype
+              predictedNameField:
+              percentField:
+              openOnMouseClick: true
+              hideUnfiltered: true
+              sortField: document_field_id
+              filterField: document_field_id
+              ascending: true
+              viewType: details
+              limit: 8
+              typeMap:
+                  jpg: img
+                  png: img
+                  mp4: vid
+                  pdf: pdf
+                  ltf: pdf
+                  gif: img
+                  mp3: aud
+                  svg: img
+
+        - type: timeline
+          row: 16
+          col: 4
+          sizex: 7
+          sizey: 4
+          bindings:
+              title: Map Timeline
+              tableKey: geo_table
+              idField: geo_field_objectid
+              filterField: geo_field_documentid
+              dateField: geo_field_docdate
+              granularity: month
+              hideUnfiltered: true
