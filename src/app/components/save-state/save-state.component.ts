@@ -329,7 +329,7 @@ export class SaveStateComponent implements OnInit {
                 cancelText,
                 target: this.formData.stateToDelete
             },
-            height: '130px',
+            height: 'auto',
             width: '500px',
             disableClose: false
         });
