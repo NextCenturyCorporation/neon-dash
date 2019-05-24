@@ -14,12 +14,12 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
 
 import { AboutNeonComponent } from './about-neon.component';
+import { AboutNeonModule } from './about-neon.module';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: AboutNeonComponent', () => {
 
@@ -41,15 +41,9 @@ describe('Component: AboutNeonComponent', () => {
     };
 
     initializeTestBed('About Neon', {
-        declarations: [
-            AboutNeonComponent
-        ],
-        imports: [
-            HttpClientModule,
-            AppMaterialModule
-        ],
+        imports: [AboutNeonModule],
         providers: [
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'neon', useValue: neonStub }
         ]
     });

@@ -13,13 +13,14 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectionStrategy,
+import {
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 

@@ -13,7 +13,6 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
@@ -22,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { DataMessageComponent } from '../data-message/data-message.component';
 import { MediaViewerComponent } from './media-viewer.component';
@@ -34,27 +33,25 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { MediaViewerModule } from './media-viewer.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
     let fixture: ComponentFixture<MediaViewerComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Media Viewer', {
-        declarations: [
-            DataMessageComponent,
-            MediaViewerComponent
-        ],
         providers: [
             DatasetService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            MediaViewerModule
         ]
     });
 
@@ -1080,7 +1077,7 @@ describe('Component: MediaViewer', () => {
         expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
     })));
 
-    it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) => {
         component.tabsAndMedia = [{
             loaded: false,
             name: 'testTabName1',
@@ -1137,7 +1134,7 @@ describe('Component: MediaViewer', () => {
         expect(slider.length).toBe(1);
     })));
 
-    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) => {
         let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
@@ -1177,16 +1174,12 @@ describe('Component: MediaViewer with config', () => {
     let fixture: ComponentFixture<MediaViewerComponent>;
 
     initializeTestBed('Media Viewer', {
-        declarations: [
-            DataMessageComponent,
-            MediaViewerComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'idField', useValue: 'testIdField' },
@@ -1202,9 +1195,7 @@ describe('Component: MediaViewer with config', () => {
             { provide: 'autoplay', useValue: true }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            MediaViewerModule
         ]
     });
 

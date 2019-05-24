@@ -13,18 +13,14 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FieldMetaData } from '../../dataset';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
@@ -33,10 +29,9 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatAutocompleteModule } from '@angular/material';
-import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './subcomponent.title-view';
-import { CardThumbnailSubComponent } from './subcomponent.card-view';
+
+import { ThumbnailGridModule } from './thumbnail-grid.module';
+import { ConfigService } from '../../services/config.service';
 
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
@@ -69,26 +64,16 @@ describe('Component: ThumbnailGrid', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            MatAutocompleteModule,
-            ReactiveFormsModule
+            ThumbnailGridModule
         ]
     });
 
@@ -789,20 +774,12 @@ describe('Component: ThumbnailGrid with config', () => {
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
-
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
@@ -835,9 +812,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            ThumbnailGridModule
         ]
     });
 

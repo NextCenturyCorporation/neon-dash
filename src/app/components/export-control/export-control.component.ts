@@ -13,23 +13,17 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { Component, ViewContainerRef, Input } from '@angular/core';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ParameterService } from '../../services/parameter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-
-import { neonEvents } from '../../neon-namespaces';
 
 @Component({
-  selector: 'app-export-control',
-  templateUrl: './export-control.component.html',
-  styleUrls: ['./export-control.component.scss']
+    selector: 'app-export-control',
+    templateUrl: './export-control.component.html',
+    styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
     @Input() exportCallbacks: (() => { name: string, data: any }[])[];

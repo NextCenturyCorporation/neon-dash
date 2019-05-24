@@ -13,43 +13,18 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-
-import { AggregationComponent } from '../aggregation/aggregation.component';
-import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
-import { DataMessageComponent } from '../data-message/data-message.component';
-import { DataTableComponent } from '../data-table/data-table.component';
-import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
-import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
-import { LegendComponent } from '../legend/legend.component';
-import { MapComponent } from '../map/map.component';
-import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { NetworkGraphComponent } from '../network-graph/network-graph.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { SampleComponent } from '../sample/sample.component';
-import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
-import { TextCloudComponent } from '../text-cloud/text-cloud.component';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
-import { TimelineComponent } from '../timeline/timeline.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './visualization-container.component';
-import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
-import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
-
-import { DetailsThumbnailSubComponent } from '../thumbnail-grid/subcomponent.details-view';
-import { TitleThumbnailSubComponent } from '../thumbnail-grid/subcomponent.title-view';
-import { CardThumbnailSubComponent } from '../thumbnail-grid/subcomponent.card-view';
-
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { MatAutocompleteModule } from '@angular/material';
-import { TreeModule } from 'angular-tree-component';
+
+import { ConfigService } from '../../services/config.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NgModuleFactoryLoader } from '@angular/core';
+import { AboutNeonModule } from '../about-neon/about-neon.module';
+import { VisualizationContainerModule } from './visualization-container.module';
+import { AppLazyModule } from '../../app-lazy.module';
+import { AboutNeonComponent } from '../about-neon/about-neon.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -57,53 +32,35 @@ describe('Component: VisualizationContainer', () => {
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 
     initializeTestBed('Visualization Container', {
-        declarations: [
-            AnnotationViewerComponent,
-            AggregationComponent,
-            CardThumbnailSubComponent,
-            DataMessageComponent,
-            DataTableComponent,
-            DetailsThumbnailSubComponent,
-            DocumentViewerComponent,
-            FilterBuilderComponent,
-            LegendComponent,
-            MapComponent,
-            MediaViewerComponent,
-            NetworkGraphComponent,
-            NewsFeedComponent,
-            QueryBarComponent,
-            SampleComponent,
-            TaxonomyViewerComponent,
-            TextCloudComponent,
-            ThumbnailGridComponent,
-            TimelineComponent,
-            TitleThumbnailSubComponent,
-            UnsharedFilterComponent,
-            VisualizationContainerComponent,
-            VisualizationInjectorComponent,
-            WikiViewerComponent
-        ],
         providers: [
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            MatAutocompleteModule,
-            NgxDatatableModule,
-            NgxGraphModule,
-            BrowserAnimationsModule,
-            ReactiveFormsModule,
-            TreeModule.forRoot()
+            AppLazyModule,
+            VisualizationContainerModule,
+            RouterTestingModule
         ]
     });
 
     beforeEach(() => {
+        const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
+        spyNgModuleFactoryLoader.stubbedModules = {
+            './components/about-neon/about-neon.module#AboutNeonModule': AboutNeonModule
+        };
+
         fixture = TestBed.createComponent(VisualizationContainerComponent);
         component = fixture.componentInstance;
+        component.visualization = { type: 'about-neon', config: {} } as any;
     });
 
-    it('should create an instance', async(() => {
+    it('should create an instance', fakeAsync(() => {
         expect(component).toBeTruthy();
+        fixture.detectChanges();
+        tick(100);
+        expect(component.injector).toBeTruthy();
+        expect(component.injector.currentComponent).toBeTruthy();
+        expect(component.injector.currentComponent.instance.constructor).toEqual(AboutNeonComponent);
+
     }));
 });

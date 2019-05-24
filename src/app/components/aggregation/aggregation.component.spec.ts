@@ -13,12 +13,12 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
+
+import { AggregationModule } from './aggregation.module';
 
 import { AggregationComponent } from './aggregation.component';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
@@ -35,13 +35,13 @@ import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { Color } from '../../color';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -52,24 +52,16 @@ describe('Component: Aggregation', () => {
     let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
 
     initializeTestBed('Aggregation', {
-        declarations: [
-            AggregationComponent,
-            DataMessageComponent,
-            LegendComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            AggregationModule
         ]
     });
 
@@ -4097,20 +4089,14 @@ describe('Component: Aggregation with config', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
-        declarations: [
-            AggregationComponent,
-            DataMessageComponent,
-            LegendComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'tableKey', useValue: 'table_key_2'},
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'title', useValue: 'Test Title' },
@@ -4142,9 +4128,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'yPercentage', useValue: 0.5 }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            AggregationModule
         ]
     });
 
@@ -4208,20 +4192,14 @@ describe('Component: Aggregation with XY config', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
-        declarations: [
-            AggregationComponent,
-            DataMessageComponent,
-            LegendComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'tableKey', useValue: 'table_key_2'},
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'title', useValue: 'Test Title' },
@@ -4253,9 +4231,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'yPercentage', useValue: 0.5 }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            AggregationModule
         ]
     });
 
@@ -4319,20 +4295,14 @@ describe('Component: Aggregation with date config', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
-        declarations: [
-            AggregationComponent,
-            DataMessageComponent,
-            LegendComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'tableKey', useValue: 'table_key_2'},
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
             { provide: 'title', useValue: 'Test Title' },
@@ -4364,9 +4334,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'yPercentage', useValue: 0.5 }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            AggregationModule
         ]
     });
 

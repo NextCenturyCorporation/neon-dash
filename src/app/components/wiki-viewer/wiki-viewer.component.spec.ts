@@ -13,18 +13,14 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
@@ -36,26 +32,25 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
+import { WikiViewerModule } from './wiki-viewer.module';
+
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             DatasetService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -181,21 +176,16 @@ describe('Component: WikiViewer with mock HTTP', () => {
     let backend;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             DatasetService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -356,15 +346,12 @@ describe('Component: WikiViewer with config', () => {
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },
@@ -372,10 +359,7 @@ describe('Component: WikiViewer with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });

@@ -13,38 +13,29 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy,
-    ChangeDetectorRef, Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    ElementRef,
-    Injector,
-    ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { GearComponent } from '../gear/gear.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
+import { FieldMetaData } from '../../dataset';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonEvents } from '../../neon-namespaces';
-import { eventing } from 'neon-framework';
-
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { neonEvents } from '../../neon-namespaces';
+
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { GearModule } from './gear.module';
+import { ConfigService } from '../../services/config.service';
+import { WidgetOptionCollection, WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../widget-option';
 
 /* tslint:disable:component-class-suffix */
 
@@ -54,24 +45,16 @@ describe('Component: Gear Component', () => {
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('gear component', {
-        declarations: [
-            GearComponent,
-            ExportControlComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
-        ],
-        schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+            GearModule
+        ]
     });
 
     beforeEach(() => {

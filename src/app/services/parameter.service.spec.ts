@@ -23,6 +23,7 @@ import { ParameterService } from './parameter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: Parameter', () => {
@@ -34,7 +35,8 @@ describe('Service: Parameter', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ]
     });
 

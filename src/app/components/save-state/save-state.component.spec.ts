@@ -15,7 +15,6 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
 import { SaveStateComponent } from './save-state.component';
@@ -29,13 +28,16 @@ import { WidgetService } from '../../services/widget.service';
 import { MatSnackBar } from '@angular/material';
 import { Dashboard } from '../../dataset';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
+
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
+import { SaveStateModule } from './save-state.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: SaveStateComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -43,13 +45,8 @@ describe('Component: SaveStateComponent', () => {
     let component: SaveStateComponent;
 
     initializeTestBed('Save State', {
-        declarations: [
-            SaveStateComponent
-        ],
         imports: [
-            FormsModule,
-            AppMaterialModule,
-            BrowserAnimationsModule
+            SaveStateModule
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -58,7 +55,7 @@ describe('Component: SaveStateComponent', () => {
             { provide: AbstractWidgetService, useClass: WidgetService },
             MatSnackBar,
             ViewContainerRef,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ]
     });
 

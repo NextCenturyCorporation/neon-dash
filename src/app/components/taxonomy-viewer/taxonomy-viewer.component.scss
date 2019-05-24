@@ -16,6 +16,10 @@
 
 @import '../base-neon-component/base-neon.component.scss';
 
+/deep/ {
+    @import '../../../../node_modules/angular-tree-component/dist/angular-tree-component.css';
+}
+
 .full-height,
 .mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});

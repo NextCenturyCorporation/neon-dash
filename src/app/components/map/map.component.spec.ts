@@ -14,7 +14,6 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -25,7 +24,6 @@ import {
 } from '@angular/core';
 
 import { MapComponent } from './map.component';
-import { LegendComponent } from '../legend/legend.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -34,8 +32,6 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -44,7 +40,11 @@ import { WidgetOptionCollection } from '../../widget-option';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { LegendModule } from '../legend/legend.module';
+import { CommonWidgetModule } from '../../common-widget.module';
 import { MatDialog } from '@angular/material';
+import { ConfigService } from '../../services/config.service';
 
 function webgl_support(): any {
     try {
@@ -63,7 +63,6 @@ function webgl_support(): any {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 class TestMapComponent extends MapComponent {
     constructor(
         datasetService: DatasetService,
@@ -223,8 +222,7 @@ describe('Component: Map', () => {
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
-            LegendComponent
+            TestMapComponent
         ],
         providers: [
             DatasetService,
@@ -232,12 +230,12 @@ describe('Component: Map', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 
@@ -1164,8 +1162,7 @@ describe('Component: Map with config', () => {
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
-            LegendComponent
+            TestMapComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -1173,7 +1170,7 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers', useValue: [{
@@ -1200,9 +1197,8 @@ describe('Component: Map with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 

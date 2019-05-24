@@ -22,9 +22,10 @@ import {
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
 } from '../dataset';
 import { Subscription, Observable } from 'rxjs';
-import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
+import { ConfigService } from './config.service';
+import { NeonGTDConfig } from '../neon-gtd-config';
 
 @Injectable()
 export class DatasetService {
@@ -32,6 +33,8 @@ export class DatasetService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
     protected datasets: Datastore[] = [];
+
+    private config: NeonGTDConfig;
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
@@ -355,38 +358,42 @@ export class DatasetService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig, private searchService: AbstractSearchService) {
+    constructor(private configService: ConfigService, private searchService: AbstractSearchService) {
+        this.datasets = [];
         this.messenger = new eventing.Messenger();
+        this.configService.$source.subscribe((config) => {
+            this.config = config;
 
-        this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
-            { category: 'No Dashboards', choices: {} });
+            this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+                { category: 'No Dashboards', choices: {} });
 
-        this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
+            this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
-        this.layouts = _.cloneDeep(config.layouts || {});
+            this.layouts = _.cloneDeep(config.layouts || {});
 
-        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+            DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+            DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
-        let loaded = 0;
-        this.datasets.forEach((dataset) => {
-            DatasetService.validateDatabases(dataset);
+            let loaded = 0;
+            this.datasets.forEach((dataset) => {
+                DatasetService.validateDatabases(dataset);
 
-            let callback = () => {
-                this.messenger.publish(neonEvents.DASHBOARD_READY, {});
-            };
+                let callback = () => {
+                    this.messenger.publish(neonEvents.DASHBOARD_READY, {});
+                };
 
-            let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
-            if (connection) {
-                // Update the fields within each table to add any that weren't listed in the config file as well as field types.
-                this.updateDatabases(dataset, connection).then(() => {
-                    if (++loaded === this.datasets.length) {
-                        callback();
-                    }
-                });
-            } else {
-                callback();
-            }
+                let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
+                if (connection) {
+                    // Update the fields within each table to add any that weren't listed in the config file as well as field types.
+                    this.updateDatabases(dataset, connection).then(() => {
+                        if (++loaded === this.datasets.length) {
+                            callback();
+                        }
+                    });
+                } else {
+                    callback();
+                }
+            });
         });
     }
 
@@ -900,11 +907,9 @@ export class DatasetService {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
-        return new Promise<any>((resolve) => {
-            Promise.all(promiseArray).then((response) => {
-                dataset.hasUpdatedFields = true;
-                resolve(dataset);
-            });
+        return Promise.all(promiseArray).then((response) => {
+            dataset.hasUpdatedFields = true;
+            return dataset;
         });
     }
 
@@ -995,22 +1000,22 @@ export class DatasetService {
             return Promise.resolve();
         }
 
-        return Promise.resolve(keys.forEach((choiceKey) => {
+        for (const choiceKey of keys) {
             if (dashboardChoices[choiceKey].tables) {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
-                tableKeys.forEach((tableKey) => {
+                for (const tableKey of tableKeys) {
                     let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
 
                     if (databaseName === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
                     }
-                });
+                }
             } else {
                 let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
                 this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
             }
-        }));
+        }
     }
 
     /**

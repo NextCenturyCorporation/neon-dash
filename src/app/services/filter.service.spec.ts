@@ -37,6 +37,7 @@ import { neonEvents } from '../neon-namespaces';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { ConfigService } from './config.service';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
@@ -623,7 +624,14 @@ describe('FilterCollection', () => {
 
     initializeTestBed('Single List Filter Collection', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock }
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
+        ],
+        imports: [
+            HttpClientModule,
+            HttpClientTestingModule
         ]
     });
 
@@ -3186,7 +3194,12 @@ describe('FilterService with no filters', () => {
             { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
+        ],
+        imports: [
+            HttpClientModule,
+            HttpClientTestingModule
         ]
     });
 

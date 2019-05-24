@@ -17,8 +17,7 @@ import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
-import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
@@ -59,7 +58,7 @@ export class ChartJsData {
     constructor(
         public datasets: AbstractChartJsDataset[],
         public labels: string[]
-    ) {}
+    ) { }
 }
 
 export enum SelectMode {
@@ -102,9 +101,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         x: any[],
         y: any[]
     } = {
-        x: [],
-        y: []
-    };
+            x: [],
+            y: []
+        };
 
     protected selectedLabels: any[] = [];
 
@@ -708,7 +707,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     protected padEndDate(endDate: any) {
         let newEndDate = moment.utc(endDate);
-        newEndDate.add(1, <moment.unitOfTime.DurationConstructor> this.options.granularity);
+        newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
         newEndDate.subtract(1, 'second');
         return moment(newEndDate).toDate();
     }

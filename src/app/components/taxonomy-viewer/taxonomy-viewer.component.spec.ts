@@ -15,19 +15,13 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
-
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -35,7 +29,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { TreeModule } from 'angular-tree-component';
+
+import { TaxonomyViewerModule } from './taxonomy-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -153,22 +149,16 @@ describe('Component: TaxonomyViewer', () => {
     };
 
     initializeTestBed('Taxonomy', {
-        declarations: [
-            TaxonomyViewerComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            {provide: DatasetService, useClass: DatasetServiceMock},
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            {provide: AbstractSearchService, useClass: SearchServiceMock},
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            {provide: 'config', useValue: new NeonGTDConfig()}
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            TreeModule.forRoot()
+            TaxonomyViewerModule
         ]
     });
 
@@ -258,7 +248,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.ascending  = true;
+        component.options.ascending = true;
 
         component.transformVisualizationQueryResults(component.options, responseData);
 

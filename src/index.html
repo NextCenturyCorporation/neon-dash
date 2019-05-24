@@ -1,82 +1,60 @@
 <!doctype html>
 <html>
 
-<head>
-    <meta charset="utf-8">
-    <base href="/">
+    <head>
+        <meta charset="utf-8">
+        <base href="/">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" >
-    <script src="assets/d3.min.js"></script>
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
 
-        .app-loading {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-
-        .app-loading .spinner {
-            height: 200px;
-            width: 200px;
-            animation: rotate 2s linear infinite;
-            transform-origin: center center;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            margin: auto;
-        }
-
-        .app-loading .spinner .path {
-            stroke-dasharray: 89, 200;
-            stroke-dashoffset: -35px;
-            stroke-linecap: round;
-            stroke: #ddd;
-        }
-
-        @keyframes rotate {
-            100% {
-                transform: rotate(360deg);
+    <body>
+        <style>
+            .app-loading {
+                position: absolute;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+                padding: 0;
+                box-sizing: content-box;
+                height: 100vh;
+                width: 100vw;
+                top: 0;
+                left: 0;
             }
-        }
 
-        @keyframes dash {
-            0% {
-                stroke-dasharray: 1, 200;
-                stroke-dashoffset: 0;
+            .app-loading .spinner {
+                height: 200px;
+                width: 200px;
+                animation: app-loading-rotate 2s linear infinite;
+                transform-origin: center center;
+                position: absolute;
+                left: calc(50vw - 100px);
+                top: calc(50vh - 100px);
             }
-            50% {
+
+            .app-loading .spinner .path {
                 stroke-dasharray: 89, 200;
                 stroke-dashoffset: -35px;
+                stroke-linecap: round;
+                stroke: #ddd;
             }
-            100% {
-                stroke-dasharray: 89, 200;
-                stroke-dashoffset: -124px;
+
+            @keyframes app-loading-rotate {
+                100% {
+                    transform: rotate(360deg);
+                }
             }
-        }
-    </style>
 
-</head>
-
-<body>
-    <app-root>
-      <!-- loading layout replaced by app after startupp -->
-      <div class="app-loading">
-        <svg class="spinner" viewBox="25 25 50 50">
-          <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-        </svg>
-      </div>
-    </app-root>
-</body>
+        </style>
+        <app-root>
+            <div class="app-loading">
+                <svg class="spinner" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" />
+                </svg>
+            </div>
+        </app-root>
+    </body>
 
 </html>

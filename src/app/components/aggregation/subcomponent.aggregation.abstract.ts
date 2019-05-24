@@ -16,7 +16,7 @@
 import { ElementRef } from '@angular/core';
 
 import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 
 export interface AggregationSubcomponentListener {
     /**
@@ -97,7 +97,7 @@ export abstract class AbstractAggregationSubcomponent {
         protected options: any,
         protected listener: AggregationSubcomponentListener,
         protected elementRef: ElementRef
-    ) {}
+    ) { }
 
     /**
      * Destroys all the subcomponent elements.

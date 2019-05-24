@@ -13,7 +13,6 @@
  * limitations under the License.
  *
  */
-/// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -47,26 +46,25 @@ import {
 } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { Bucketizer } from '../bucketizers/Bucketizer';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { FieldMetaData } from '../../dataset';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetFieldArrayOption
 } from '../../widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import { FieldMetaData } from '../../dataset';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
-declare let d3;
+import * as d3 from 'd3';
 
 @Component({
     selector: 'app-timeline',
@@ -76,7 +74,7 @@ declare let d3;
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 

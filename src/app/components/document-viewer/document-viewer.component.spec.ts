@@ -13,12 +13,9 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -34,14 +31,14 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { DocumentViewerModule } from './document-viewer.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
     initializeTestBed('Document Viewer', {
-        declarations: [
-            DocumentViewerComponent
-        ],
         providers: [
             DatasetService,
             {
@@ -52,12 +49,10 @@ describe('Component: DocumentViewer', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            DocumentViewerModule
         ]
     });
 
@@ -897,16 +892,13 @@ describe('Component: Document Viewer with Config', () => {
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
     initializeTestBed('Document Viewer', {
-        declarations: [
-            DocumentViewerComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
@@ -932,9 +924,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: 'limit', useValue: 25 }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            DocumentViewerModule
         ]
     });
 

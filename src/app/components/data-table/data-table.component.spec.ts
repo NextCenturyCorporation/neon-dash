@@ -13,18 +13,13 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -35,6 +30,9 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { DataTableModule } from './data-table.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
@@ -42,22 +40,15 @@ describe('Component: DataTable', () => {
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Data Table', {
-        declarations: [
-            DataTableComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            NgxDatatableModule,
-            BrowserAnimationsModule
+            DataTableModule
         ]
     });
 
@@ -1033,7 +1024,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalledTimes(0);
@@ -1165,7 +1156,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();

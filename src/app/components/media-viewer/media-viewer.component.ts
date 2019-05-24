@@ -560,7 +560,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.options.sliderValue = Number.parseInt(this.options.sliderValue);
+        this.options.sliderValue = Number.parseInt(this.options.sliderValue, 10);
 
         // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
