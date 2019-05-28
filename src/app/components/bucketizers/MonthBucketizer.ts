@@ -96,5 +96,4 @@ export class MonthBucketizer extends Bucketizer {
     getDateFormat(): string {
         return 'MMM yyyy';
     }
-
 }

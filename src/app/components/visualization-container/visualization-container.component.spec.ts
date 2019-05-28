@@ -61,6 +61,5 @@ describe('Component: VisualizationContainer', () => {
         expect(component.injector).toBeTruthy();
         expect(component.injector.currentComponent).toBeTruthy();
         expect(component.injector.currentComponent.instance.constructor).toEqual(AboutNeonComponent);
-
     }));
 });

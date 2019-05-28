@@ -35,7 +35,7 @@ import {
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
+import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import {
@@ -76,6 +76,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     public visualizationData: any[] = null;
 
+    /* eslint-disable @typescript-eslint/no-useless-constructor */
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -92,7 +93,10 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             ref,
             dialog
         );
+
+        // TODO
     }
+    /* eslint-enable @typescript-eslint/no-useless-constructor */
 
     /**
      * Creates any visualization elements when the widget is drawn.

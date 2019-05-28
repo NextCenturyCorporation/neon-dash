@@ -18,7 +18,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { VisualizationInjectorModule } from './visualization-injector.module';
 
 describe('Component: VisualizationInjector', () => {
-
     initializeTestBed('Visualization Injector', {
         providers: [ComponentFactoryResolver],
         imports: [

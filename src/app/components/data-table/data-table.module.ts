@@ -22,16 +22,16 @@ import { FormsModule } from '@angular/forms';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [DataTableComponent],
-  exports: [DataTableComponent],
-  entryComponents: [DataTableComponent],
-  imports: [
-    CommonWidgetModule,
-    MatCheckboxModule,
-    MatListModule,
-    NgxDatatableModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [DataTableComponent],
+    exports: [DataTableComponent],
+    entryComponents: [DataTableComponent],
+    imports: [
+        CommonWidgetModule,
+        MatCheckboxModule,
+        MatListModule,
+        NgxDatatableModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class DataTableModule { }

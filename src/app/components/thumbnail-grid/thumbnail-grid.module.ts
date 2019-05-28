@@ -22,17 +22,17 @@ import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [
-    ThumbnailGridComponent,
-    CardThumbnailSubComponent,
-    TitleThumbnailSubComponent,
-    DetailsThumbnailSubComponent
-  ],
-  exports: [ThumbnailGridComponent],
-  entryComponents: [ThumbnailGridComponent],
-  imports: [
-    CommonWidgetModule,
-    CommonModule
-  ]
+    declarations: [
+        ThumbnailGridComponent,
+        CardThumbnailSubComponent,
+        TitleThumbnailSubComponent,
+        DetailsThumbnailSubComponent
+    ],
+    exports: [ThumbnailGridComponent],
+    entryComponents: [ThumbnailGridComponent],
+    imports: [
+        CommonWidgetModule,
+        CommonModule
+    ]
 })
 export class ThumbnailGridModule { }

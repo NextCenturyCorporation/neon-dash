@@ -20,13 +20,13 @@ import { TreeModule } from 'angular-tree-component';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [TaxonomyViewerComponent],
-  exports: [TaxonomyViewerComponent],
-  entryComponents: [TaxonomyViewerComponent],
-  imports: [
-    CommonWidgetModule,
-    TreeModule.forRoot(),
-    CommonModule
-  ]
+    declarations: [TaxonomyViewerComponent],
+    exports: [TaxonomyViewerComponent],
+    entryComponents: [TaxonomyViewerComponent],
+    imports: [
+        CommonWidgetModule,
+        TreeModule.forRoot(),
+        CommonModule
+    ]
 })
 export class TaxonomyViewerModule { }

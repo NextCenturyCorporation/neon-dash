@@ -19,12 +19,12 @@ import { NewsFeedComponent } from './news-feed.component';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [NewsFeedComponent],
-  exports: [NewsFeedComponent],
-  entryComponents: [NewsFeedComponent],
-  imports: [
-    CommonWidgetModule,
-    CommonModule
-  ]
+    declarations: [NewsFeedComponent],
+    exports: [NewsFeedComponent],
+    entryComponents: [NewsFeedComponent],
+    imports: [
+        CommonWidgetModule,
+        CommonModule
+    ]
 })
 export class NewsFeedModule { }

@@ -38,7 +38,6 @@ import { ConfigService } from '../../services/config.service';
 describe('Component: AnnotationViewer', () => {
     let component: AnnotationViewerComponent;
     let fixture: ComponentFixture<AnnotationViewerComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Annotation Viewer', {
         providers: [
@@ -67,7 +66,6 @@ describe('Component: AnnotationViewer', () => {
         expect(component.visualization).toBeDefined();
 
         // Options
-
     });
 
     it('Checks if option object has expected defaults', () => {

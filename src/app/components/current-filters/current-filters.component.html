@@ -12,8 +12,7 @@
     <div mat-fill>
         <mat-list>
             <mat-list-item *ngFor="let filter of filters" class="current-filters-item filter-text">
-                <button mat-icon-button title="Remove Filter"
-                    (click)="this.filterService.deleteFilter('FilterList', filter, searchService)">
+                <button mat-icon-button title="Remove Filter" (click)="this.filterService.deleteFilter('FilterList', filter)">
                     <mat-icon>delete</mat-icon>
                 </button>
                 <div class="symbol" title="AND" *ngIf="filter.root === COMPOUND_FILTER_TYPE.AND">&</div>

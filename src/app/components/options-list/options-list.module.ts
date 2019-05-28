@@ -21,15 +21,15 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
-  declarations: [OptionsListComponent],
-  exports: [OptionsListComponent],
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    MonacoEditorModule.forRoot(),
-    MatSelectModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [OptionsListComponent],
+    exports: [OptionsListComponent],
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        MonacoEditorModule.forRoot(),
+        MatSelectModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class OptionsListModule { }

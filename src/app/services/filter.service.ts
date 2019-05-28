@@ -20,7 +20,6 @@ import { DatasetService } from './dataset.service';
 import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
-import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
 
 export interface FilterBehavior {
@@ -62,6 +61,7 @@ export interface CompoundFilterDesign extends FilterDesign {
 }
 
 export namespace FilterUtil {
+
     /**
      * Returns if the given FilterDataSource objects are equivalent.
      *
@@ -90,9 +90,9 @@ export namespace FilterUtil {
     export function areFilterDataSourceListsEquivalent(list1: FilterDataSource[], list2: FilterDataSource[]): boolean {
         return list1.length === list2.length &&
             // Each FilterDataSource in list1 must be equivalent to a FilterDataSource in list2.
-            list1.every((item1) => list2.some((item2) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2))) &&
+            list1.every((item1) => list2.some((item2) => areFilterDataSourcesEquivalent(item1, item2))) &&
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
-            list2.every((item2) => list2.some((item1) => FilterUtil.areFilterDataSourcesEquivalent(item1, item2)));
+            list2.every((item2) => list2.some((item1) => areFilterDataSourcesEquivalent(item1, item2)));
     }
 
     /**
@@ -118,12 +118,11 @@ export namespace FilterUtil {
         filterDesign: FilterDesign,
         ignoreOperator: boolean = false
     ): FilterDataSource[] {
-        if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
-            let simpleFilterDesign = filterDesign as SimpleFilterDesign;
+        if (isSimpleFilterDesign(filterDesign)) {
+            let simpleFilterDesign = filterDesign;
 
             if (simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
                 simpleFilterDesign.table.name && simpleFilterDesign.field && simpleFilterDesign.field.columnName) {
-
                 return [{
                     datastoreName: simpleFilterDesign.datastore,
                     databaseName: simpleFilterDesign.database.name,
@@ -134,17 +133,17 @@ export namespace FilterUtil {
             }
         }
 
-        if (FilterUtil.isCompoundFilterDesign(filterDesign)) {
-            let compoundFilterDesign = filterDesign as CompoundFilterDesign;
+        if (isCompoundFilterDesign(filterDesign)) {
+            let compoundFilterDesign = filterDesign;
 
             let returnList: FilterDataSource[] = [];
 
             compoundFilterDesign.filters.forEach((nestedFilterDesign) => {
-                let nestedDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(nestedFilterDesign,
+                let nestedDataSourceList: FilterDataSource[] = createFilterDataSourceListFromDesign(nestedFilterDesign,
                     ignoreOperator);
 
                 nestedDataSourceList.forEach((nestedDataSource) => {
-                    let exists = returnList.some((existingDataSource) => FilterUtil.areFilterDataSourcesEquivalent(nestedDataSource,
+                    let exists = returnList.some((existingDataSource) => areFilterDataSourcesEquivalent(nestedDataSource,
                         existingDataSource, ignoreOperator));
 
                     if (!exists) {
@@ -189,7 +188,7 @@ export namespace FilterUtil {
                 root: filterObject.root,
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    FilterUtil.createFilterDesignFromJsonObject(nestedObject, datasetService))
+                    createFilterDesignFromJsonObject(nestedObject, datasetService))
             } as CompoundFilterDesign;
         }
 
@@ -205,16 +204,15 @@ export namespace FilterUtil {
      */
     export function createFilterFromDesign(filterDesign: FilterDesign, searchService: AbstractSearchService): AbstractFilter {
         let filter: AbstractFilter = null;
-        let simpleFilterDesign: SimpleFilterDesign = FilterUtil.isSimpleFilterDesign(filterDesign) ? (filterDesign as SimpleFilterDesign) :
+        let simpleFilterDesign: SimpleFilterDesign = isSimpleFilterDesign(filterDesign) ? (filterDesign) :
             null;
-        let compoundFilterDesign: CompoundFilterDesign = FilterUtil.isCompoundFilterDesign(filterDesign) ?
-            (filterDesign as CompoundFilterDesign) : null;
+        let compoundFilterDesign: CompoundFilterDesign = isCompoundFilterDesign(filterDesign) ?
+            (filterDesign) : null;
 
         // TODO THOR-1078 Validate that datastore is non-empty.
         if (simpleFilterDesign && simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
             simpleFilterDesign.table.name && simpleFilterDesign.field && simpleFilterDesign.field.columnName &&
             simpleFilterDesign.operator && typeof simpleFilterDesign.value !== 'undefined') {
-
             // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
             filter = new SimpleFilter('', simpleFilterDesign.database, simpleFilterDesign.table, simpleFilterDesign.field,
                 simpleFilterDesign.operator, simpleFilterDesign.value, searchService);
@@ -222,7 +220,7 @@ export namespace FilterUtil {
 
         if (compoundFilterDesign && compoundFilterDesign.type && compoundFilterDesign.filters) {
             filter = new CompoundFilter(compoundFilterDesign.type, compoundFilterDesign.filters.map((nestedDesign) =>
-                FilterUtil.createFilterFromDesign(nestedDesign, searchService)), searchService);
+                createFilterFromDesign(nestedDesign, searchService)), searchService);
         }
 
         if (filter) {
@@ -241,7 +239,7 @@ export namespace FilterUtil {
      * @return {any}
      */
     export function createFilterJsonObjectFromDesign(filter: FilterDesign): any {
-        if (FilterUtil.isSimpleFilterDesign(filter)) {
+        if (isSimpleFilterDesign(filter)) {
             return {
                 name: filter.name,
                 root: filter.root,
@@ -254,12 +252,12 @@ export namespace FilterUtil {
             };
         }
 
-        if (FilterUtil.isCompoundFilterDesign(filter)) {
+        if (isCompoundFilterDesign(filter)) {
             return {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => FilterUtil.createFilterJsonObjectFromDesign(nestedFilter))
+                filters: filter.filters.map((nestedFilter) => createFilterJsonObjectFromDesign(nestedFilter))
             };
         }
 
@@ -395,8 +393,6 @@ export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
     protected messenger: eventing.Messenger = new eventing.Messenger();
 
-    constructor() { /* Do nothing */ }
-
     /**
      * Creates and returns the relation filter list for the given filter (but not including the given filter).  Also sets the relations
      * (list of IDs) on the given filter and all its relation filters.
@@ -420,14 +416,13 @@ export class FilterService {
             // Assume that each item within the relationData list is a nested list with the same length.
             // EX:  [[x1, y1], [x2, y2], [x3, y3]]
             if (relationData.length && relationData[0].length === filterDataSourceList.length) {
-                let equivalentRelationList: SingleField[][] = relationData.filter((relationFilterFields) => {
+                let equivalentRelationList: SingleField[][] = relationData.filter((relationFilterFields) =>
                     // Each item within the relationFilterFields must be equivalent to a FilterDataSource.
-                    return relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
+                    relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
                         this.isRelationEquivalent(relatedField, filterDataSource))) &&
                             // Each FilterDataSource must be equivalent to an item within the relationFilterFields.
                             filterDataSourceList.every((filterDataSource) => relationFilterFields.some((relatedField) =>
-                                this.isRelationEquivalent(relatedField, filterDataSource)));
-                });
+                                this.isRelationEquivalent(relatedField, filterDataSource))));
 
                 // The length of equivalentRelationList should be either 0 or 1.
                 if (equivalentRelationList.length) {
@@ -461,13 +456,11 @@ export class FilterService {
      *
      * @arg {string} callerId
      * @arg {FilterDesign} filterDesign
-     * @arg {AbstractSearchService} searchService
      * @return {Map<FilterDataSource[], FilterDesign[]>}
      */
     public deleteFilter(
         callerId: string,
-        filterDesign: FilterDesign,
-        searchService: AbstractSearchService
+        filterDesign: FilterDesign
     ): Map<FilterDataSource[], FilterDesign[]> {
         let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
 
@@ -639,7 +632,8 @@ export class FilterService {
             return this.filterCollection.getFilters(filterDataSourceList).map((filter) => filter.toDesign());
         }
         return this.filterCollection.getDataSources().reduce((returnList, globalDataSource) => returnList.concat(
-            this.filterCollection.getFilters(globalDataSource)), [] as AbstractFilter[]).map((filter) => filter.toDesign());
+            this.filterCollection.getFilters(globalDataSource)
+        ), [] as AbstractFilter[]).map((filter) => filter.toDesign());
     }
 
     /**
@@ -675,7 +669,6 @@ export class FilterService {
             if (ignore) {
                 return returnList;
             }
-            let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
             let filterListToAND: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
                 filter.root === CompoundFilterType.AND && filter.doesAffectSearch(datastoreName, databaseName, tableName));
             let filterListToOR: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
@@ -831,12 +824,10 @@ export class FilterService {
      *
      * @arg {FilterBehavior[]} compatibleFilterBehaviorList
      * @arg {FilterCollection} filterCollection
-     * @arg {AbstractSearchService} searchService
      */
     public updateCollectionWithGlobalCompatibleFilters(
         compatibleFilterBehaviorList: FilterBehavior[],
-        filterCollection: FilterCollection,
-        searchService: AbstractSearchService
+        filterCollection: FilterCollection
     ): void {
         let compatibleCollection: FilterCollection = new FilterCollection();
 
@@ -869,7 +860,8 @@ export class FilterService {
                 // Call the redrawCallback of each compatibleFilterBehaviorList object with an equivalent filterDataSourceList.
                 compatibleFilterBehaviorList.forEach((compatibleFilterBehavior) => {
                     let callbackFilterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(
-                        compatibleFilterBehavior.filterDesign);
+                        compatibleFilterBehavior.filterDesign
+                    );
 
                     if (FilterUtil.areFilterDataSourceListsEquivalent(filterDataSourceList, callbackFilterDataSourceList)) {
                         compatibleFilterBehavior.redrawCallback(filterList);
@@ -996,12 +988,10 @@ class SimpleFilter extends AbstractFilter {
         equivalentRelationFilterFields.forEach((equivalent, index) => {
             if (equivalent.datastore === this.datastore && equivalent.database.name === this.database.name &&
                 equivalent.table.name === this.table.name && equivalent.field.columnName === this.field.columnName) {
-
                 let substitute: SingleField = substituteRelationFilterFields[index];
 
                 if (substitute.database && substitute.database.name && substitute.table && substitute.table.name &&
                     substitute.field && substitute.field.columnName) {
-
                     relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table,
                         substitute.field, this.operator, this.value, searchService);
                     relationFilter.root = this.root;
@@ -1157,7 +1147,7 @@ class CompoundFilter extends AbstractFilter {
                 compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
                 compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
                     nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
-                        compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
+                compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
         }
 
         // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
@@ -1165,7 +1155,7 @@ class CompoundFilter extends AbstractFilter {
         // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
         return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
             compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
-                nestedFilter.isCompatibleWithDesign(nestedDesign)));
+            nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
 
     /**

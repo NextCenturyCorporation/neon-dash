@@ -14,11 +14,9 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
-
-import * as _ from 'lodash';
 
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
@@ -31,7 +29,6 @@ export class ChartJsBarDataset extends AbstractChartJsDataset {
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
         public horizontal: boolean = false) {
-
         super(elementRef, color, label, xList);
         this.borderColor = this.getColorSelected();
         this.hoverBackgroundColor = this.getColorSelected();
@@ -66,7 +63,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM) {
-
         super(options, listener, elementRef, selectMode);
     }
 

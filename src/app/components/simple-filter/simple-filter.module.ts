@@ -19,12 +19,12 @@ import { SimpleFilterComponent } from './simple-filter.component';
 import { MatIconModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
-  declarations: [SimpleFilterComponent],
-  exports: [SimpleFilterComponent],
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    CommonModule
-  ]
+    declarations: [SimpleFilterComponent],
+    exports: [SimpleFilterComponent],
+    imports: [
+        MatButtonModule,
+        MatIconModule,
+        CommonModule
+    ]
 })
 export class SimpleFilterModule { }

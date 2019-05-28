@@ -14,15 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    DebugElement,
-    Injector,
-    ViewEncapsulation
-} from '@angular/core';
-import { MatDialog, MatDividerModule, MatRadioModule, MatSelectModule, MatFormFieldModule } from '@angular/material';
+import { MatDividerModule, MatRadioModule, MatSelectModule, MatFormFieldModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
@@ -41,44 +33,13 @@ import { ExportControlModule } from '../export-control/export-control.module';
 import { FormsModule } from '@angular/forms';
 import { ConfigService } from '../../services/config.service';
 
-// Must define the test component.
-@Component({
-    selector: 'app-settings',
-    templateUrl: 'settings.component.html',
-    styleUrls: ['settings.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated,
-    changeDetection: ChangeDetectionStrategy.OnPush
-})
-class TestSettingsComponent extends SettingsComponent {
-    constructor(
-        changeDetection: ChangeDetectorRef,
-        datasetService: DatasetService,
-        dialog: MatDialog,
-        injector: Injector,
-        widgetService: AbstractWidgetService
-    ) {
-
-        super(
-            changeDetection,
-            datasetService,
-            dialog,
-            injector,
-            widgetService
-        );
-    }
-
-    // TODO Add any needed custom functions here.
-}
-
 describe('Component: Settings', () => {
-    let component: TestSettingsComponent;
-    let fixture: ComponentFixture<TestSettingsComponent>,
-        getService = (type: any) => fixture.debugElement.injector.get(type);
-    let debugElement: DebugElement;
+    let fixture: ComponentFixture<SettingsComponent>;
+    // TODO let component: SettingsComponent;
 
     initializeTestBed('Settings', {
         declarations: [
-            TestSettingsComponent
+            SettingsComponent
         ],
         providers: [
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
@@ -98,11 +59,8 @@ describe('Component: Settings', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestSettingsComponent);
-        component = fixture.componentInstance;
+        fixture = TestBed.createComponent(SettingsComponent);
+        // TODO component = fixture.componentInstance;
         fixture.detectChanges();
-
-        debugElement = fixture.debugElement;
     });
-
 });

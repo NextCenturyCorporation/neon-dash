@@ -24,7 +24,6 @@ import { neonUtilities } from '../../neon-namespaces';
     styleUrls: ['./document-viewer-single-item.component.scss']
 })
 export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
-
     private data: any;
     public text: any;
     public showText: boolean;
@@ -47,7 +46,7 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
 
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
-        if (typeof field  === 'string') {
+        if (typeof field === 'string') {
             return field || 'None';
         } else if (field instanceof Array) {
             let matches = [];
@@ -63,9 +62,8 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
                 }
             }
             return matches.join(', ') || 'None';
-        } else {
-            return 'None';
         }
+        return 'None';
     }
 
     checkIfRecordMatchesFilter(object, filter) {
@@ -80,7 +78,6 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
             }
             return false;
         } else if (filter.filterType === '!=') {
-            let matches = true;
             for (let item of filter.filterFor) {
                 let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
                 if (fieldToFilter === item) {
@@ -89,5 +86,6 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
             }
             return true;
         }
+        return false;
     }
 }

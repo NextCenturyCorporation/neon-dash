@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-import { ElementRef } from '@angular/core';
-import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
+import { AbstractAggregationSubcomponent } from './subcomponent.aggregation.abstract';
 
 import * as _ from 'lodash';
 
@@ -29,20 +28,10 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     protected activeSort: string = '';
     protected ignoreSelect: boolean = false;
     protected selectedData: {
-        element: any,
-        group: string,
-        value: any
+        element: any;
+        group: string;
+        value: any;
     }[] = [];
-
-    /**
-     * @constructor
-     * @arg {any} options
-     * @arg {AggregationSubcomponentListener} listener
-     * @arg {ElementRef} elementRef
-     */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
-        super(options, listener, elementRef);
-    }
 
     /**
      * Creates a list with the given data.
@@ -85,9 +74,8 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             let rowTitle = item.x + ' (' + item.y + ')';
             let rowElement = document.createElement('tr');
 
-            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => {
-                return selectedItem.group === item.group && selectedItem.value === item.x;
-            });
+            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === item.group &&
+                selectedItem.value === item.x);
 
             if (selectedIndex >= 0) {
                 rowClass += ' active';
@@ -181,9 +169,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
         let group = event.currentTarget.getAttribute('group');
         let value = event.currentTarget.getAttribute('value');
-        let index = _.findIndex(this.selectedData, (selectedItem) => {
-            return selectedItem.group === group && selectedItem.value === value;
-        });
+        let index = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === group && selectedItem.value === value);
 
         if (index < 0) {
             event.currentTarget.setAttribute('class', event.currentTarget.getAttribute('class') + ' active');

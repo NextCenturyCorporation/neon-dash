@@ -20,12 +20,12 @@ import { MatDialogModule } from '@angular/material';
 import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 @NgModule({
-  declarations: [DynamicDialogComponent],
-  exports: [DynamicDialogComponent],
-  imports: [
-    MatDialogModule,
-    ReactiveComponentLoaderModule,
-    CommonModule
-  ]
+    declarations: [DynamicDialogComponent],
+    exports: [DynamicDialogComponent],
+    imports: [
+        MatDialogModule,
+        ReactiveComponentLoaderModule,
+        CommonModule
+    ]
 })
 export class DynamicDialogModule { }

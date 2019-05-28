@@ -18,7 +18,6 @@
 
 import { ListSubcomponent } from './subcomponent.list';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 class TestAggregationSubcomponentListener implements AggregationSubcomponentListener {
@@ -30,23 +29,23 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
         // Do nothing.
     }
 
-    subcomponentRequestsFilter(group: string, value: any, doNotReplace?: boolean) {
+    subcomponentRequestsFilter(_group: string, _value: any, _doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsFilterOnBounds(beginX: any, beginY: any, endX: any, endY: any, doNotReplace?: boolean) {
+    subcomponentRequestsFilterOnBounds(_beginX: any, _beginY: any, _endX: any, _endY: any, _doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace?: boolean) {
+    subcomponentRequestsFilterOnDomain(_beginX: any, _endX: any, _doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsRedraw(event?) {
+    subcomponentRequestsRedraw(_event?) {
         // Do nothing.
     }
 
-    subcomponentRequestsSelect(x: number, y: number, width: number, height: number) {
+    subcomponentRequestsSelect(_x: number, _y: number, _width: number, _height: number) {
         // Do nothing.
     }
 }
@@ -80,9 +79,7 @@ describe('ListSubcomponent', () => {
 
         let isClassSet = false;
         let mockTarget = {
-            getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
-            },
+            getAttribute: (attribute) => attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue'),
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
                 expect(value).toEqual('testClass active');
@@ -117,9 +114,7 @@ describe('ListSubcomponent', () => {
 
         let isClassSet = false;
         let mockTarget = {
-            getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
-            },
+            getAttribute: (attribute) => attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue'),
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
                 expect(value).toEqual('testClass active');
@@ -154,9 +149,7 @@ describe('ListSubcomponent', () => {
 
         let isClassSet = false;
         let mockTarget = {
-            getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
-            },
+            getAttribute: (attribute) => attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue'),
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
                 expect(value).toEqual('testClass active');
@@ -196,9 +189,7 @@ describe('ListSubcomponent', () => {
 
         let isClassSet = false;
         let mockTarget = {
-            getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
-            },
+            getAttribute: (attribute) => attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue'),
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
                 expect(value).toEqual('testClass active');
@@ -238,9 +229,7 @@ describe('ListSubcomponent', () => {
 
         let isClassSet = false;
         let mockTarget = {
-            getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
-            },
+            getAttribute: (attribute) => attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue'),
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
                 expect(value).toEqual('testClass active');
@@ -268,9 +257,7 @@ describe('ListSubcomponent', () => {
 
         let item1 = {
             element: {
-                getAttribute: (attribute) => {
-                    return attribute === 'class' ? 'testClassA active testClassB' : '';
-                },
+                getAttribute: (attribute) => attribute === 'class' ? 'testClassA active testClassB' : '',
                 setAttribute: (attribute, value) => {
                     expect(attribute).toEqual('class');
                     expect(value).toEqual('testClassA testClassB');
@@ -282,9 +269,7 @@ describe('ListSubcomponent', () => {
 
         let item2 = {
             element: {
-                getAttribute: (attribute) => {
-                    return attribute === 'class' ? 'testClassC active testClassD' : '';
-                },
+                getAttribute: (attribute) => attribute === 'class' ? 'testClassC active testClassD' : '',
                 setAttribute: (attribute, value) => {
                     expect(attribute).toEqual('class');
                     expect(value).toEqual('testClassC testClassD');
@@ -309,9 +294,7 @@ describe('ListSubcomponent', () => {
 
         let item1 = {
             element: {
-                getAttribute: (attribute) => {
-                    return attribute === 'class' ? 'testClassA active testClassB' : '';
-                },
+                getAttribute: (attribute) => attribute === 'class' ? 'testClassA active testClassB' : '',
                 setAttribute: (attribute, value) => {
                     expect(attribute).toEqual('class');
                     expect(value).toEqual('testClassA testClassB');
@@ -323,9 +306,7 @@ describe('ListSubcomponent', () => {
 
         let item2 = {
             element: {
-                getAttribute: (attribute) => {
-                    return attribute === 'class' ? 'testClassC active testClassD' : '';
-                },
+                getAttribute: (attribute) => attribute === 'class' ? 'testClassC active testClassD' : '',
                 setAttribute: (attribute, value) => {
                     expect(attribute).toEqual('class');
                     expect(value).toEqual('testClassC testClassD');

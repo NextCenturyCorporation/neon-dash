@@ -19,15 +19,15 @@ import { DocumentViewerSingleItemComponent } from './document-viewer-single-item
 import { MatButtonModule, MatDialogModule } from '@angular/material';
 
 @NgModule({
-  declarations: [DocumentViewerSingleItemComponent],
-  exports: [DocumentViewerSingleItemComponent],
-  entryComponents: [
-    DocumentViewerSingleItemComponent
-  ],
-  imports: [
-    MatButtonModule,
-    MatDialogModule,
-    CommonModule
-  ]
+    declarations: [DocumentViewerSingleItemComponent],
+    exports: [DocumentViewerSingleItemComponent],
+    entryComponents: [
+        DocumentViewerSingleItemComponent
+    ],
+    imports: [
+        MatButtonModule,
+        MatDialogModule,
+        CommonModule
+    ]
 })
 export class DocumentViewerSingleItemModule { }

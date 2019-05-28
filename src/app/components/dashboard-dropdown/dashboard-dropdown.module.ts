@@ -19,12 +19,12 @@ import { DashboardDropdownComponent } from './dashboard-dropdown.component';
 import { MatSelectModule, MatFormFieldModule } from '@angular/material';
 
 @NgModule({
-  declarations: [DashboardDropdownComponent],
-  exports: [DashboardDropdownComponent],
-  imports: [
-    MatFormFieldModule,
-    MatSelectModule,
-    CommonModule
-  ]
+    declarations: [DashboardDropdownComponent],
+    exports: [DashboardDropdownComponent],
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        CommonModule
+    ]
 })
 export class DashboardDropdownModule { }

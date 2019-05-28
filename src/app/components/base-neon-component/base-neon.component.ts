@@ -18,7 +18,6 @@ import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@
 import {
     AbstractSearchService,
     AggregationType,
-    CompoundFilterType,
     FilterClause,
     QueryPayload,
     RequestWrapper
@@ -28,16 +27,13 @@ import {
     FilterBehavior,
     FilterCollection,
     FilterDesign,
-    FilterService,
-    FilterUtil,
-    SimpleFilterDesign
+    FilterService
 } from '../../services/filter.service';
 import { FieldMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
     OptionType,
-    WidgetDatabaseOption,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -61,6 +57,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private SETTINGS_BUTTON_WIDTH: number = 30;
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
+    /* eslint-disable-next-line no-invalid-this */
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
     protected TOOLBAR_HEIGHT: number = 40;
 
@@ -165,7 +162,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    protected postAddLayer(options: any): void {
+    protected postAddLayer(_options: any): void {
         // Override if needed.
     }
 
@@ -291,7 +288,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
             // so the current width and height are not the new width and height.  NgGrid uses a 0.25
             // second transition so wait until that has finished before redrawing.
-            setTimeout(() => { this.refreshVisualization(); }, 300);
+            setTimeout(() => {
+                this.refreshVisualization();
+            }, 300);
         }
     }
 
@@ -395,7 +394,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Used to notify the visualization that queries are imminent.
      */
     public beforeExecuteAllQueryChain(): void {
-        // do nothing by default
+        // Do nothing by default
     }
 
     /**
@@ -561,7 +560,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         successCallback: (elementCount: number) => void,
         failureCallback: (err: Error) => void
     ): void {
-
         try {
             let data = this.transformVisualizationQueryResults(options, results);
             successCallback(data);
@@ -605,7 +603,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             } else {
                 // If the visualization query paginates but is showing zero or multiple elements per result, we cannot determine the page,
                 // so just set lastPage to false.
-                this.lastPage = this.visualizationQueryPaginates ? false : true;
+                this.lastPage = !this.visualizationQueryPaginates;
                 this.layerIdToElementCount.set(options._id, elementCount);
                 callback();
             }
@@ -662,7 +660,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private executeQuery(options: any, query: QueryPayload, queryId: string,
         callback: (options: any, response: any, callback: () => void) => void) {
-
         this.loadingCount++;
 
         if (this.cannotExecuteQuery(options) || !this.layerIdToQueryIdToQueryObject.has(options._id)) {
@@ -675,9 +672,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return;
         }
 
-        //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
-        //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
-        //database won't recognize the pretty name.
+        // If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
+        // "pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
+        // database won't recognize the pretty name.
         this.searchService.transformFilterClauseValues(query, this.getLabelOptions(options));
 
         if (this.layerIdToQueryIdToQueryObject.get(options._id).has(queryId)) {
@@ -685,7 +682,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), query));
+            this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), query
+        ));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -736,7 +734,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private updateCollectionWithGlobalCompatibleFilters(): void {
         let behaviors: FilterBehavior[] = this.designEachFilterWithNoValues();
-        this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters, this.searchService);
+        this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters);
     }
 
     /**
@@ -773,7 +771,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates elements and properties whenever the widget config is changed.
      * @arg {boolean} databaseOrTableChange
      */
-    protected onChangeData(databaseOrTableChange?: boolean) {
+    protected onChangeData(_databaseOrTableChange?: boolean) {
         // Override if needed.
     }
 
@@ -951,7 +949,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any} id
      */
-    protected onSelectId(options: any, id: any) {
+    protected onSelectId(_options: any, _id: any) {
         // Override if needed.
     }
 
@@ -993,20 +991,20 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let labelOptions = this.getLabelOptions(options);
         let labelKeys = Object.keys(labelOptions);
         let itemKeys;
-        //Go through each item in the response data
+        // Go through each item in the response data
         for (let item of response.data) {
             itemKeys = Object.keys(item);
-            //for each key in the data item
+            // For each key in the data item
             for (let key of itemKeys) {
-                //if that key exists in the labelOptions as keys for which there is a value to change
+                // If that key exists in the labelOptions as keys for which there is a value to change
                 if (labelKeys.includes(key)) {
-                    //data items can have arrays of values, and we have to change all of them otherwise,
-                    //there is only one, and we have to change that one
+                    // Data items can have arrays of values, and we have to change all of them otherwise,
+                    // there is only one, and we have to change that one
                     let value = item[key];
                     if (value instanceof Array) {
                         let newItemParam = [];
-                        //for each value in that array, if that element is a key in the options,
-                        //push into the new array the pretty name, otherwize push the original value
+                        // For each value in that array, if that element is a key in the options,
+                        // push into the new array the pretty name, otherwize push the original value
                         for (let element of value) {
                             let possibleNewValue = labelOptions[key][element];
                             let newValue = possibleNewValue ? possibleNewValue : element;
@@ -1014,7 +1012,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                         }
                         item[key] = newItemParam;
                     } else if (labelOptions[key][value]) {
-                        //if it's not an array, check to see if its a value in the options, set it if it is
+                        // If it's not an array, check to see if its a value in the options, set it if it is
                         item[key] = labelOptions[key][value];
                     }
                 }
@@ -1145,10 +1143,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
             return currentDashboard.visualizationTitles[configValue];
-        } else {
-            // otherwise, just return value from layouts section of config
-            return configValue;
         }
+        // Otherwise, just return value from layouts section of config
+        return configValue;
     }
 
     /**
@@ -1162,9 +1159,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                    undefined
-            });
+            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                undefined
+        });
     }
 
     /**
@@ -1272,25 +1269,25 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     public showContribution() {
-        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0)
-            || (this.options.contributionKeys === null
-                && this.datasetService.getCurrentDashboard()
-                && this.datasetService.getCurrentDashboard().contributors
-                && Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
+        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
+            (this.options.contributionKeys === null &&
+                this.datasetService.getCurrentDashboard() &&
+                this.datasetService.getCurrentDashboard().contributors &&
+                Object.keys(this.datasetService.getCurrentDashboard().contributors).length));
     }
 
     protected getContributorsForComponent() {
         let allContributors = this.datasetService.getCurrentDashboard().contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
-            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
+            Object.keys(this.datasetService.getCurrentDashboard().contributors);
 
         return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
 
     protected getContributorAbbreviations() {
         let contributors = this.datasetService.getCurrentDashboard().contributors;
-        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys
-            : Object.keys(this.datasetService.getCurrentDashboard().contributors);
+        let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
+            Object.keys(this.datasetService.getCurrentDashboard().contributors);
 
         let contributorAbbreviations = contributorKeys.filter((key) =>
             !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);

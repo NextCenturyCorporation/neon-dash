@@ -36,10 +36,6 @@ export class OptionsListComponent {
     @Input() options: any;
     @Input() updateOnChange: Function;
 
-    constructor() {
-        // Do nothing.
-    }
-
     /**
      * Creates and returns a new empty field object.
      *

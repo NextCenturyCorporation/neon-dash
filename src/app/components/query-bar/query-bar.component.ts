@@ -45,9 +45,8 @@ import { MatDialog } from '@angular/material';
     styleUrls: ['./query-bar.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QueryBarComponent  extends BaseNeonComponent {
-
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+export class QueryBarComponent extends BaseNeonComponent {
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('queryBar') queryBar: ElementRef;
 
     autoComplete: boolean = true;
@@ -69,7 +68,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
-
         super(
             datasetService,
             filterService,
@@ -331,7 +329,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
             let filtersToAdd: FilterDesign[] = [this.createFilterDesignOnText(text)];
             let filtersToDelete: FilterDesign[] = [];
 
-            //gathers ids from the filtered query text in order to extend filtering to the other components
+            // Gathers ids from the filtered query text in order to extend filtering to the other components
             if (this.options.extendedFilter) {
                 this.options.extensionFields.forEach((extensionField) => {
                     let extendedFilter: FilterDesign = this.extensionFilter(text, extensionField, values);
@@ -362,13 +360,13 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     private extensionFilter(text: string, fields: any, array: any[]): FilterDesign {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
-            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table),
-                queryFields = [fields.idField, fields.filterField],
-                execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
-                    query: extensionQuery
-                }),
-                tempArray = [],
-                queryClauses = [];
+            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
+            let queryFields = [fields.idField, fields.filterField];
+            let execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
+                query: extensionQuery
+            });
+            let tempArray = [];
+            let queryClauses = [];
             for (let value of array) {
                 queryClauses.push(query.where(fields.filterField, '=', value[this.options.idField.columnName]));
             }
@@ -442,7 +440,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         return false;
     }
 
-    private updateQueryBarText(filters: FilterDesign[]) {
+    private updateQueryBarText(_filters: FilterDesign[]) {
         // TODO AIDA-754
     }
 }

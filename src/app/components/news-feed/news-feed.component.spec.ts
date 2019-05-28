@@ -34,9 +34,8 @@ import { ConfigService } from '../../services/config.service';
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
     let fixture: ComponentFixture<NewsFeedComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    //may need to add or remove some initializations (copied from media-viewer.component)
+    // May need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -51,14 +50,14 @@ describe('Component: NewsFeed', () => {
         ]
     });
 
-    //may need to change further
+    // May need to change further
     beforeEach(() => {
         fixture = TestBed.createComponent(NewsFeedComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    //checks if all class properties are there
+    // Checks if all class properties are there
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
@@ -100,11 +99,11 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DatasetServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
@@ -147,14 +146,14 @@ describe('Component: NewsFeed', () => {
         });
     }));
 
-    //for getElementRefs method
+    // For getElementRefs method
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.newsFeed).toBeDefined();
         expect(refs.visualization).toBeDefined();
-        //expect(refs.filter).toBeDefined();
+        // TODO expect(refs.filter).toBeDefined();
     });
 
     it('validateVisualizationQuery does return expected boolean', () => {
@@ -267,6 +266,7 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
+        expect(actual).toEqual(2);
         expect(component.newsFeedData).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
@@ -282,7 +282,7 @@ describe('Component: NewsFeed', () => {
         }]);
     });
 
-    //for isSelectable method
+    // For isSelectable method
     it('isSelectable does return expected boolean', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         expect(component.isSelectable()).toEqual(true);
@@ -293,7 +293,7 @@ describe('Component: NewsFeed', () => {
         component.options.idField = new FieldMetaData();
     });
 
-    //for isSelected method
+    // For isSelected method
     it('isSelected does return expected boolean', () => {
         expect(component.isSelected({})).toEqual(false);
 
@@ -307,11 +307,9 @@ describe('Component: NewsFeed', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === component.options.filterField && filterDesign.operator === '=' &&
-                filterDesign.value === 'testFilterValue1';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
+            filterDesign.table === component.options.table && filterDesign.field === component.options.filterField &&
+            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -332,7 +330,7 @@ describe('Component: NewsFeed', () => {
         })).toEqual(false);
     });
 
-    //for refreshVisualization method
+    // For refreshVisualization method
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
@@ -340,9 +338,9 @@ describe('Component: NewsFeed', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    //private get array values method test?
+    // Private get array values method test?
 
-    //for selectGridItem method
+    // for selectGridItem method
     it('selectGridItem does call publishSelectId if idField is set', () => {
         let spy = spyOn(component, 'publishSelectId');
 
