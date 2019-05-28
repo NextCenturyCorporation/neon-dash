@@ -33,10 +33,8 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
-    OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -61,7 +59,7 @@ export class WikiData {
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -77,7 +75,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         protected sanitizer: DomSanitizer,
         dialog: MatDialog
     ) {
-
         super(
             datasetService,
             filterService,
@@ -224,7 +221,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(_options: any, _results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
         return 0;
     }
@@ -244,7 +241,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         successCallback: (elementCount: number) => void,
         failureCallback: (err: Error) => void
     ): void {
-
         new Promise<number>((resolve, reject) => {
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
@@ -298,9 +294,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
             }
             return this.retrieveWikiPage(links.slice(1), data, callback);
-        }, (error: HttpErrorResponse) => {
-            return handleErrorOrFailure(error.error);
-        });
+        }, (error: HttpErrorResponse) => handleErrorOrFailure(error.error));
     }
 
     sanitize(text) {

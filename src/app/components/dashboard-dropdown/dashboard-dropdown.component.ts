@@ -45,9 +45,7 @@ export class DashboardDropdownComponent {
      * @return {String[]}
      */
     getDashboardKeys() {
-        if (this.dashboards) {
-            return Object.keys(this.dashboards.choices);
-        }
+        return this.dashboards ? Object.keys(this.dashboards.choices) : null;
     }
 
     /**
@@ -66,7 +64,7 @@ export class DashboardDropdownComponent {
     emitSelectedDashboard() {
         this.changeDetection.detectChanges();
 
-        // if no more choices/dropdowns exist, emit the chosen dashboard
+        // If no more choices/dropdowns exist, emit the chosen dashboard
         // otherwise, emit undefined
         if (!this.hasMoreChoices()) {
             this.selectionChange.emit(this.selectedDashboard);
@@ -84,7 +82,7 @@ export class DashboardDropdownComponent {
         return (
             this.selectedDashboard &&
             this.selectedDashboard.choices &&
-            _.findKey(this.dashboards.choices, <any> this.selectedDashboard)
+            _.findKey(this.dashboards.choices, this.selectedDashboard as any)
         );
     }
 

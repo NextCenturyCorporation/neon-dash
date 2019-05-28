@@ -18,14 +18,10 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    Injector,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
     Input,
-    Output,
-    EventEmitter,
-    ViewChild,
     ViewChildren,
     QueryList
 } from '@angular/core';
@@ -34,8 +30,7 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { OptionType, WidgetOption } from '../../widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
@@ -84,7 +79,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        public injector: Injector,
         protected datasetService: DatasetService,
         protected widgetService: AbstractWidgetService
     ) {
@@ -112,7 +106,7 @@ export class GearComponent implements OnInit, OnDestroy {
         let requiredFieldList: WidgetOption[] = [];
         let optionalFieldList: WidgetOption[] = [];
 
-        optionList.forEach(function(element) {
+        optionList.forEach((element) => {
             if (element.isRequired) {
                 requiredList.push(element);
             } else {
@@ -120,14 +114,14 @@ export class GearComponent implements OnInit, OnDestroy {
             }
         });
 
-        requiredList.forEach(function(element) {
+        requiredList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 requiredFieldList.push(element);
                 requiredList.splice(requiredList.indexOf(element), 1);
             }
         });
 
-        optionalList.forEach(function(element) {
+        optionalList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 optionalFieldList.push(element);
                 optionalList.splice(optionalList.indexOf(element), 1);
@@ -307,25 +301,19 @@ export class GearComponent implements OnInit, OnDestroy {
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.bindingKey !== bindingKey;
-        });
+        newList = newList.filter((field) => field.bindingKey !== bindingKey);
         return newList;
     }
 
     private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.enableInMenu !== enableInMenu;
-        });
+        newList = newList.filter((field) => field.enableInMenu !== enableInMenu);
         return newList;
     }
 
     private removeOptionsByType(list: any[], optionType: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.optionType !== optionType;
-        });
+        newList = newList.filter((field) => field.optionType !== optionType);
         return newList;
     }
 
@@ -405,5 +393,4 @@ export class GearComponent implements OnInit, OnDestroy {
         this.resetOptions();
         this.constructOptions();
     }
-
 }

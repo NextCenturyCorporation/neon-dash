@@ -1,24 +1,24 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
- @import '../base-neon-component/base-neon.component.scss';
+* Copyright 2016 Next Century Corporation
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+@import '../base-neon-component/base-neon.component';
 
 .legend-container {
     margin: 5px;
     background-color: white;
-    border: 2px solid rgba(0,0,0,0.2);
+    border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 5px;
 
     .legend-button {
@@ -26,7 +26,7 @@
 
         &:not([disabled]) {
             &:hover {
-                background-color: #f4f4f4 !important
+                background-color: #F4F4F4 !important;
             }
         }
     }
@@ -39,16 +39,16 @@
 
 .mat-menu-item {
     overflow: hidden;
+
+    .mat-icon {
+        margin-right: 3px;
+    }
 }
 
-.mat-menu-item .mat-icon {
-    margin-right: 3px;
-}
-
-.resize-icon{
+.resize-icon {
     cursor: default;
-}
 
-.resize-icon .mat-icon{
-    font-size: 28px !important;
+    .mat-icon {
+        font-size: 28px !important;
+    }
 }

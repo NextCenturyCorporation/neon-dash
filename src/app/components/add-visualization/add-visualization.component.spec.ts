@@ -13,35 +13,27 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
-    DebugElement,
-    NO_ERRORS_SCHEMA,
-    Injector,
     ViewEncapsulation
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatGridListModule, MatDividerModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { AddVisualizationComponent } from './add-visualization.component';
+import { AddVisualizationModule } from './add-visualization.module';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { eventing } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { ConfigService } from '../../services/config.service';
 
 // Must define the test component.
 @Component({
@@ -69,8 +61,6 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
 describe('Component: AddVisualization', () => {
     let component: TestAddVisualizationComponent;
     let fixture: ComponentFixture<TestAddVisualizationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
-    let debugElement: DebugElement;
     let spyOnInit;
 
     initializeTestBed('Add Visualization', {
@@ -78,7 +68,7 @@ describe('Component: AddVisualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             {
@@ -87,11 +77,10 @@ describe('Component: AddVisualization', () => {
             }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
-        ],
-        schemas: [NO_ERRORS_SCHEMA]
+            MatDividerModule,
+            MatGridListModule,
+            AddVisualizationModule
+        ]
     });
 
     beforeEach(() => {
@@ -99,8 +88,6 @@ describe('Component: AddVisualization', () => {
         component = fixture.componentInstance;
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
-
-        debugElement = fixture.debugElement;
     });
 
     it('tests default values', (() => {
@@ -127,5 +114,4 @@ describe('Component: AddVisualization', () => {
         expect(spyOnInit.calls.count()).toEqual(3);
         expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
     }));
-
 });

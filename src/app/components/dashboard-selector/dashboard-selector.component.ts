@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
 import { Dashboard } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';

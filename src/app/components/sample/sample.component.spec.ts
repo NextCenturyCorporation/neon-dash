@@ -13,26 +13,22 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
-import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
+import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -40,8 +36,12 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
+import { CommonWidgetModule } from '../../common-widget.module';
+import { ConfigService } from '../../services/config.service';
+
 // Helper functions.
 
+/*
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
     expect(element.componentInstance.placeholder).toEqual(name);
@@ -68,16 +68,18 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
     expect(element.nativeElement.textContent).toContain(content);
     expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
 };
+*/
 
 // Must define the test component.
 @Component({
-        selector: 'app-test-sample',
-        templateUrl: './sample.component.html',
-        styleUrls: ['./sample.component.scss'],
-        encapsulation: ViewEncapsulation.Emulated,
-        changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-test-sample',
+    templateUrl: './sample.component.html',
+    styleUrls: ['./sample.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
+/* eslint-disable @typescript-eslint/no-useless-constructor */
 class TestSampleComponent extends SampleComponent {
     constructor(
         datasetService: DatasetService,
@@ -87,7 +89,6 @@ class TestSampleComponent extends SampleComponent {
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
-
         super(
             datasetService,
             filterService,
@@ -100,12 +101,13 @@ class TestSampleComponent extends SampleComponent {
 
     // TODO Add any needed custom functions here.
 }
+/* eslint-enable @typescript-eslint/no-useless-constructor */
 
 // TODO Create a test implementation of your subcomponent so you can test its behavior.
 
-/* tslint:disable:component-class-suffix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 class TestSubcomponent extends AbstractSubcomponent {
-    buildElements(elementRef: ElementRef) {
+    buildElements(_elementRef: ElementRef) {
         // TODO
     }
 
@@ -113,33 +115,30 @@ class TestSubcomponent extends AbstractSubcomponent {
         // TODO
     }
 
-    updateData(data: any[]) {
+    updateData(_data: any[]) {
         // TODO
     }
 }
-/* tslint:enable:component-class-suffix */
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 describe('Component: Sample', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
-            UnsharedFilterComponent
+            TestSampleComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            CommonWidgetModule
         ]
     });
 
@@ -179,11 +178,11 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DatasetServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
@@ -454,8 +453,6 @@ describe('Component: Sample', () => {
     });
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
-
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
@@ -525,19 +522,17 @@ describe('Component: Sample', () => {
 describe('Component: Sample with config', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
-            UnsharedFilterComponent
+            TestSampleComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -553,9 +548,7 @@ describe('Component: Sample with config', () => {
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            CommonWidgetModule
         ]
     });
 
@@ -604,7 +597,7 @@ describe('Component: Sample with config', () => {
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
-        // expect(component.subcomponentElementRef).toBeDefined();
+        // TODO expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
     });
 

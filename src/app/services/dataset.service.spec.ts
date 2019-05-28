@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
+import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
 import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../dataset';
@@ -22,6 +22,7 @@ import { NeonGTDConfig } from '../neon-gtd-config';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: DatasetService', () => {
@@ -31,7 +32,7 @@ describe('Service: DatasetService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ]
     });
 
@@ -707,7 +708,7 @@ describe('Service: DatasetService with Mock Data', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ]
     });
 

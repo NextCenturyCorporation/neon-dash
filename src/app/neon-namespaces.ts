@@ -39,6 +39,7 @@ export namespace neonEvents {
 }
 
 export namespace neonUtilities {
+
     /**
      * Flattens and returns the given array.
      *
@@ -46,9 +47,7 @@ export namespace neonUtilities {
      * @return {array}
      */
     export function flatten(input) {
-        return (input || []).reduce((array, element) => {
-            return array.concat(Array.isArray(element) ? flatten(element) : element);
-        }, []);
+        return (input || []).reduce((array, element) => array.concat(Array.isArray(element) ? flatten(element) : element), []);
     }
 
     /**
@@ -92,7 +91,7 @@ export namespace neonUtilities {
     export function sortArrayOfObjects(array: any[], key: string, order: number = 1) {
         return array.sort((a, b) => {
             if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
-                // property doesn't exist on either object
+                // Property doesn't exist on either object
                 return 0;
             }
 
@@ -123,22 +122,22 @@ export const neonCustomConnectionMappings: { name: string, prettyName: string }[
     name: 'date',
     prettyName: 'Date'
 },
-    {
-        name: 'id',
-        prettyName: 'ID'
-    },
-    {
-        name: 'latitude',
-        prettyName: 'Latitude'
-    },
-    {
-        name: 'longitude',
-        prettyName: 'Longitude'
-    },
-    {
-        name: 'url',
-        prettyName: 'URL'
-    }];
+{
+    name: 'id',
+    prettyName: 'ID'
+},
+{
+    name: 'latitude',
+    prettyName: 'Latitude'
+},
+{
+    name: 'longitude',
+    prettyName: 'Longitude'
+},
+{
+    name: 'url',
+    prettyName: 'URL'
+}];
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;

@@ -15,19 +15,13 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
-
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -35,7 +29,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { TreeModule } from 'angular-tree-component';
+
+import { TaxonomyViewerModule } from './taxonomy-viewer.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -147,28 +143,24 @@ describe('Component: TaxonomyViewer', () => {
 
         taxonomyGroups.forEach((categoryNode) => categoryNode.children.forEach((typeNode) => {
             (typeNode as any).parent = categoryNode;
-            (typeNode as any).children.forEach((subTypeNode) => (subTypeNode as any).parent = typeNode);
+            (typeNode as any).children.forEach((subTypeNode) => {
+                (subTypeNode).parent = typeNode;
+            });
         }));
         return taxonomyGroups;
     };
 
     initializeTestBed('Taxonomy', {
-        declarations: [
-            TaxonomyViewerComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            {provide: DatasetService, useClass: DatasetServiceMock},
+            { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            {provide: AbstractSearchService, useClass: SearchServiceMock},
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            {provide: 'config', useValue: new NeonGTDConfig()}
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            TreeModule.forRoot()
+            TaxonomyViewerModule
         ]
     });
 
@@ -258,7 +250,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.ascending  = true;
+        component.options.ascending = true;
 
         component.transformVisualizationQueryResults(component.options, responseData);
 
@@ -271,7 +263,6 @@ describe('Component: TaxonomyViewer', () => {
         expect(component.taxonomyGroups[2].children.length).toEqual(5);
         expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
         expect(component.taxonomyGroups[3].children.length).toEqual(1);
-
     }));
 
     it('does create filter when a parent node in the taxonomy is unselected', async(() => {
@@ -459,16 +450,19 @@ describe('Component: TaxonomyViewer', () => {
             hasChildren: false,
             children: []
 
-        }, nodeB = {
+        };
+        let nodeB = {
             level: 2,
             hasChildren: false,
             children: [nodeA]
 
-        }, nodeC = {
+        };
+        let nodeC = {
             level: 2,
             hasChildren: true,
             children: [nodeB]
-        }, nodeD = {
+        };
+        let nodeD = {
             level: 1,
             hasChildren: true,
             children: [nodeA]
@@ -485,7 +479,6 @@ describe('Component: TaxonomyViewer', () => {
 
         nodeClass = component.setClassForTreePosition(nodeD, classString);
         expect(nodeClass).toEqual('test-class1');
-
     }));
 
     it('designEachFilterWithNoValues does return expected object', () => {
@@ -494,97 +487,97 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
 
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[2].filterDesign as any).operator).toEqual('!=');
-        expect((actual[2].filterDesign as any).value).toBeUndefined();
+        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[2].filterDesign).operator).toEqual('!=');
+        expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[3].filterDesign as any).type).toEqual('and');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('and');
+        expect((actual[3].filterDesign).filters.length).toEqual(1);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
 
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(6);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[2].filterDesign as any).operator).toEqual('!=');
-        expect((actual[2].filterDesign as any).value).toBeUndefined();
+        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[2].filterDesign).operator).toEqual('!=');
+        expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[3].filterDesign as any).type).toEqual('and');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('and');
+        expect((actual[3].filterDesign).filters.length).toEqual(1);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[4].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[4].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[4].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[4].filterDesign as any).operator).toEqual('!=');
-        expect((actual[4].filterDesign as any).value).toBeUndefined();
+        expect((actual[4].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[4].filterDesign).operator).toEqual('!=');
+        expect((actual[4].filterDesign).value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[5].filterDesign as any).type).toEqual('and');
-        expect((actual[5].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[5].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[5].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[5].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[5].filterDesign as any).filters[0].operator).toEqual('!=');
-        expect((actual[5].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[5].filterDesign).type).toEqual('and');
+        expect((actual[5].filterDesign).filters.length).toEqual(1);
+        expect((actual[5].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[5].filterDesign).filters[0].operator).toEqual('!=');
+        expect((actual[5].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
     });
 

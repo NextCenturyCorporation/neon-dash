@@ -8,7 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -21,9 +22,9 @@
         <div class="data-message-container" *ngIf="showNoData">
             <app-data-message> </app-data-message>
         </div>
-        <a (click)="onClick(item)" class="text" [class.filter]="item.selected" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
-            [matTooltip]="item.key + ': ' + item.value + (item.selected ? ' (Selected)' : '')" tooltip-position="below" [rel]="item.value"
-            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
+        <a (click)="onClick(item)" class="text" [class.filter]="item.selected" [class.paragraphs]="options.paragraphs"
+            *ngFor="let item of textCloudData" [matTooltip]="item.key + ': ' + item.value + (item.selected ? ' (Selected)' : '')"
+            tooltip-position="below" [rel]="item.value" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
             <span>{{ item.key }}</span>
             <span *ngIf="options.showCounts">({{ item.value }})</span>
         </a>

@@ -152,10 +152,10 @@ export class NeonConnection implements Connection {
      */
     public runSearchQuery(
         queryPayload: NeonQueryWrapper,
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
+        _onSuccess: (response: any) => void,
+        _onError?: (response: any) => void
     ): RequestWrapper {
-        return this.connection.executeQuery((queryPayload as NeonQueryWrapper).query, null);
+        return this.connection.executeQuery((queryPayload).query, null);
     }
 
     /**
@@ -181,9 +181,8 @@ export class NeonGroupWrapper implements QueryGroup {
 }
 
 export class NeonQueryWrapper implements QueryPayload {
-    /* tslint:disable:no-shadowed-variable */
+    /* eslint-disable-next-line no-shadow */
     constructor(public query: query.Query) {}
-    /* tslint:enable:no-shadowed-variable */
 }
 
 export class NeonWhereWrapper implements FilterClause {
@@ -205,10 +204,6 @@ export class SearchService extends AbstractSearchService {
     // Maps the datastore types to datastore hosts to connections.
     private connections: Map<string, Map<string, NeonConnection>> = new Map<string, Map<string, NeonConnection>>();
 
-    constructor() {
-        super();
-    }
-
     /**
      * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
@@ -228,7 +223,7 @@ export class SearchService extends AbstractSearchService {
         if (filterClauses.length === 1) {
             return filterClauses[0];
         }
-        let wheres = filterClauses.map((filterClause) => (filterClause as NeonWhereWrapper).where);
+        let wheres = filterClauses.map((filterClause) => (filterClause).where);
         return new NeonWhereWrapper(type === CompoundFilterType.AND ? query.and.apply(query, wheres) :
             query.or.apply(query, wheres));
     }
@@ -342,9 +337,9 @@ export class SearchService extends AbstractSearchService {
         // Save each activeField that is a field from the exportQuery in the export fields.
         let queryFields: ExportField[] = (isWildcard ? activeFields : activeFields.filter((activeField) =>
             exportQuery.fields.some((exportFieldName) => exportFieldName === activeField.columnName))).map((activeField) => ({
-                query: activeField.columnName,
-                pretty: activeField.prettyName
-            } as ExportField));
+            query: activeField.columnName,
+            pretty: activeField.prettyName
+        } as ExportField));
 
         // Save each group function from the exportQuery in the export fields.
         let groupFields: ExportField[] = exportQuery.groupByClauses.filter((group) => group.type === 'function').map((group) => {
@@ -359,11 +354,11 @@ export class SearchService extends AbstractSearchService {
         // Save each aggregation field from the exportQuery in the export fields.
         let aggregationFields: ExportField[] = exportQuery.aggregates.map((aggregate) => {
             // Remove the field of each non-COUNT aggregation from the queryFields.
-            /* tslint:disable:no-string-literal */
+            /* eslint-disable-next-line dot-notation */
             if (aggregate.operation !== query['COUNT']) {
                 queryFields = queryFields.filter((field) => field.query !== aggregate.field);
             }
-            /* tslint:enable:no-string-literal */
+
             return {
                 query: aggregate.name,
                 pretty: this.transformAggregationOperatorToPrettyName(aggregate.operation, aggregate.field, activeFields)
@@ -393,7 +388,8 @@ export class SearchService extends AbstractSearchService {
         fields: { columnName: string, prettyName: string }[]
     ): string {
         let prettyName = (fields.filter((field) => field.columnName === aggregationField)[0] || {} as any).prettyName;
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable dot-notation */
         switch (aggregationOperator) {
             case query['AVG']:
                 return 'Average' + (prettyName ? (' ' + prettyName) : '');
@@ -406,12 +402,12 @@ export class SearchService extends AbstractSearchService {
             case query['SUM']:
                 return 'Sum' + (prettyName ? (' ' + prettyName) : '');
         }
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
         return '';
     }
 
     private transformAggregationType(type: AggregationType): string {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable dot-notation */
         switch (type) {
             case AggregationType.AVG:
                 return query['AVG'];
@@ -424,7 +420,7 @@ export class SearchService extends AbstractSearchService {
             case AggregationType.SUM:
                 return query['SUM'];
         }
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
         return '';
     }
 
@@ -457,15 +453,13 @@ export class SearchService extends AbstractSearchService {
      * @return {NeonQueryWrapper}
      * @override
      */
-    public transformFilterClauseValues(queryPayload: NeonQueryWrapper, keysToValuesToLabels: { [key: string]: { [value: string]: string } }
-    ): NeonQueryWrapper {
-
-        /* tslint:disable:no-string-literal */
+    public transformFilterClauseValues(queryPayload: NeonQueryWrapper,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): NeonQueryWrapper {
+        /* eslint-disable-next-line dot-notation */
         let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
-        /* tslint:enable:no-string-literal */
 
         if (wherePredicate) {
-            this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+            this.transformWherePredicateNestedValues(wherePredicate, keysToValuesToLabels);
         }
 
         return queryPayload;
@@ -504,31 +498,37 @@ export class SearchService extends AbstractSearchService {
      * @arg {query.WherePredicate} wherePredicate
      * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
      */
-    private transformWherePredicateValues(
+    private transformWherePredicateNestedValues(
         wherePredicate: query.WherePredicate,
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }
     ): void {
-
         switch (wherePredicate.type) {
             case 'and':
             case 'or':
                 for (let nestedWherePredicate of (wherePredicate as query.BooleanClause).whereClauses) {
-                    this.transformWherePredicateValues(nestedWherePredicate, keysToValuesToLabels);
+                    this.transformWherePredicateNestedValues(nestedWherePredicate, keysToValuesToLabels);
                 }
                 break;
             case 'where':
-                let keys = Object.keys(keysToValuesToLabels);
-                let key = (wherePredicate as query.WhereClause).lhs;
-                if (keys.includes(key)) {
-                    let valuesToLabels = keysToValuesToLabels[key];
-                    let values = Object.keys(valuesToLabels);
-                    for (let value of values) {
-                        if (valuesToLabels[value] === (wherePredicate as query.WhereClause).rhs) {
-                            (wherePredicate as query.WhereClause).rhs = value;
-                        }
-                    }
-                }
+                this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
                 break;
+        }
+    }
+
+    private transformWherePredicateValues(
+        wherePredicate: query.WherePredicate,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): void {
+        let keys = Object.keys(keysToValuesToLabels);
+        let key = (wherePredicate as query.WhereClause).lhs;
+        if (keys.includes(key)) {
+            let valuesToLabels = keysToValuesToLabels[key];
+            let values = Object.keys(valuesToLabels);
+            for (let value of values) {
+                if (valuesToLabels[value] === (wherePredicate as query.WhereClause).rhs) {
+                    (wherePredicate as query.WhereClause).rhs = value;
+                }
+            }
         }
     }
 
@@ -638,9 +638,8 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateSort(queryPayload: NeonQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         queryPayload.query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] : query['DESCENDING']);
-        /* tslint:enable:no-string-literal */
         return this;
     }
 }

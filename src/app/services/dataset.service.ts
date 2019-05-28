@@ -13,26 +13,27 @@
  * limitations under the License.
  *
  */
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import { AbstractSearchService, Connection } from './abstract.search.service';
-import { Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField } from '../dataset';
-import { Subscription, Observable, interval } from 'rxjs';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import {
+    Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
+    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
+} from '../dataset';
+import { Subscription, Observable } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
+import { ConfigService } from './config.service';
+import { NeonGTDConfig } from '../neon-gtd-config';
 
 @Injectable()
 export class DatasetService {
-
-    // The Dataset Service may ask the visualizations to update their data.
-    static UPDATE_DATA_CHANNEL: string = 'update_data';
-
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
     protected datasets: Datastore[] = [];
+
+    private config: NeonGTDConfig;
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
@@ -233,7 +234,7 @@ export class DatasetService {
      * @param {string} pathFromTop path to append to current dashboard object
      * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    static validateDashboardChoices(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
@@ -263,10 +264,9 @@ export class DatasetService {
 
                 // If simpleFilter present in config, make sure to translate keys to database, table, and
                 // field names.
-                if (dashboardChoices[choiceKey].options
-                    && dashboardChoices[choiceKey].options.simpleFilter
-                    && dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
-
+                if (dashboardChoices[choiceKey].options &&
+                    dashboardChoices[choiceKey].options.simpleFilter &&
+                    dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
                     let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
 
                     let databaseName = this.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
@@ -284,7 +284,7 @@ export class DatasetService {
                         dashboardChoices[choiceKey].options.simpleFilter.fieldName = '';
                     }
                 } else if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.simpleFilter) {
-                    // delete simpleFilter from config if no tableKey present
+                    // Delete simpleFilter from config if no tableKey present
                     delete dashboardChoices[choiceKey].options.simpleFilter;
                 }
 
@@ -356,38 +356,42 @@ export class DatasetService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(@Inject('config') private config: NeonGTDConfig, private searchService: AbstractSearchService) {
+    constructor(private configService: ConfigService, private searchService: AbstractSearchService) {
+        this.datasets = [];
         this.messenger = new eventing.Messenger();
+        this.configService.$source.subscribe((config) => {
+            this.config = config;
 
-        this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
-            { category: 'No Dashboards', choices: {} });
+            this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+                { category: 'No Dashboards', choices: {} });
 
-        this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
+            this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
 
-        this.layouts = _.cloneDeep(config.layouts || {});
+            this.layouts = _.cloneDeep(config.layouts || {});
 
-        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+            DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+            DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
-        let loaded = 0;
-        this.datasets.forEach((dataset) => {
-            DatasetService.validateDatabases(dataset);
+            let loaded = 0;
+            this.datasets.forEach((dataset) => {
+                DatasetService.validateDatabases(dataset);
 
-            let callback = () => {
-                this.messenger.publish(neonEvents.DASHBOARD_READY, {});
-            };
+                let callback = () => {
+                    this.messenger.publish(neonEvents.DASHBOARD_READY, {});
+                };
 
-            let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
-            if (connection) {
-                // Update the fields within each table to add any that weren't listed in the config file as well as field types.
-                this.updateDatabases(dataset, connection).then(() => {
-                    if (++loaded === this.datasets.length) {
-                        callback();
-                    }
-                });
-            } else {
-                callback();
-            }
+                let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
+                if (connection) {
+                    // Update the fields within each table to add any that weren't listed in the config file as well as field types.
+                    this.updateDatabases(dataset, connection).then(() => {
+                        if (++loaded === this.datasets.length) {
+                            callback();
+                        }
+                    });
+                } else {
+                    callback();
+                }
+            });
         });
     }
 
@@ -398,7 +402,9 @@ export class DatasetService {
 
         DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
 
-        Object.keys(layouts).forEach((layout) => this.layouts[layout] = layouts[layout]);
+        Object.keys(layouts).forEach((layout) => {
+            this.layouts[layout] = layouts[layout];
+        });
 
         DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
 
@@ -410,14 +416,6 @@ export class DatasetService {
     // ---
     // PRIVATE METHODS
     // ---
-
-    /**
-     * Publishes an update data message.
-     * @private
-     */
-    private publishUpdateData(): void {
-        this.messenger.publish(DatasetService.UPDATE_DATA_CHANNEL, {});
-    }
 
     /**
      * Updates the dataset that matches the active dataset.
@@ -471,9 +469,7 @@ export class DatasetService {
      * @return {string}
      */
     public getCurrentDashboardTitle(): string {
-        if (this.currentDashboard) {
-            return this.currentDashboard.fullTitle;
-        }
+        return this.currentDashboard ? this.currentDashboard.fullTitle : null;
     }
 
     /**
@@ -488,14 +484,6 @@ export class DatasetService {
             this.updateSubscription.unsubscribe();
             delete this.updateSubscription;
             delete this.updateInterval;
-        }
-
-        if (this.currentDashboard.options.requeryInterval) {
-            let delay = Math.max(0.5, this.currentDashboard.options.requeryInterval) * 60000;
-            this.updateInterval = interval(delay);
-            this.updateSubscription = this.updateInterval.subscribe(() => {
-                this.publishUpdateData();
-            });
         }
     }
 
@@ -529,7 +517,6 @@ export class DatasetService {
      */
     public createSimpleFilter() {
         if (!this.currentDashboard.options.simpleFilter) {
-
             let tableKey = Object.keys(this.currentDashboard.tables)[0];
 
             this.currentDashboard.options.simpleFilter = new SimpleFilter(
@@ -541,7 +528,7 @@ export class DatasetService {
     }
 
     /**
-     * returns the simple search field
+     * Returns the simple search field
      * @return {string}
      */
     public getCurrentDashboardSimpleFilterFieldName(): string {
@@ -550,7 +537,7 @@ export class DatasetService {
     }
 
     /**
-     * returns the active table fields
+     * Returns the active table fields
      * @return {Object}
      */
     public getActiveFields() {
@@ -593,7 +580,7 @@ export class DatasetService {
      * Returns all of the layouts.
      * @return {[key: string]: any}
      */
-    public getLayouts(): {[key: string]: any} {
+    public getLayouts(): { [key: string]: any } {
         return this.layouts;
     }
 
@@ -735,7 +722,7 @@ export class DatasetService {
      * Returns a map of database names to an array of table names within that database.
      * @return {Object}
      */
-    public getDatabaseAndTableNames(): Object {
+    public getDatabaseAndTableNames(): Record<string, any> {
         let databases = this.getDatabases();
         let names = {};
         for (let database of databases) {
@@ -839,9 +826,7 @@ export class DatasetService {
             return [];
         }
 
-        let fields = _.cloneDeep(table.fields).filter((field) => {
-            return ignoreHiddenFields ? !field.hide : true;
-        });
+        let fields = _.cloneDeep(table.fields).filter((field) => (ignoreHiddenFields ? !field.hide : true));
 
         fields.sort((x, y) => {
             if (!x.prettyName || !y.prettyName) {
@@ -917,11 +902,9 @@ export class DatasetService {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
-        return new Promise<any>((resolve) => {
-            Promise.all(promiseArray).then((response) => {
-                dataset.hasUpdatedFields = true;
-                resolve(dataset);
-            });
+        return Promise.all(promiseArray).then((_response) => {
+            dataset.hasUpdatedFields = true;
+            return dataset;
         });
     }
 
@@ -935,12 +918,10 @@ export class DatasetService {
      */
     private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<any>((resolve, _reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
                 Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                    let table = _.find(database.tables, (item: TableMetaData) => {
-                        return item.name === tableName;
-                    });
+                    let table = _.find(database.tables, (item: TableMetaData) => item.name === tableName);
 
                     if (table) {
                         let hasField = {};
@@ -992,7 +973,7 @@ export class DatasetService {
                 }
             }
             resolve(table.fields);
-        }, (error) => {
+        }, (_error) => {
             resolve([]);
         }));
     }
@@ -1006,28 +987,30 @@ export class DatasetService {
      * @return {Promise}
      * @private
      */
-    private deleteInvalidDashboards(dashboardChoices: {[key: string]: Dashboard}, keys: string[],
+    private deleteInvalidDashboards(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
         invalidDatabaseName: string): any {
         if (!keys.length) {
             return Promise.resolve();
         }
 
-        return Promise.resolve(keys.forEach((choiceKey) => {
+        for (const choiceKey of keys) {
             if (dashboardChoices[choiceKey].tables) {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
-                tableKeys.forEach((tableKey) => {
+                for (const tableKey of tableKeys) {
                     let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
 
                     if (databaseName === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
                     }
-                });
+                }
             } else {
                 let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
                 this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
             }
-        }));
+        }
+
+        return null;
     }
 
     /**
@@ -1037,9 +1020,7 @@ export class DatasetService {
      *
      */
     public getCurrentDashboardOptions(): DashboardOptions {
-        if (this.currentDashboard) {
-            return this.currentDashboard.options;
-        }
+        return this.currentDashboard ? this.currentDashboard.options : null;
     }
 
     /**
@@ -1113,27 +1094,25 @@ export class DatasetService {
         // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
         // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
         // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
-        return configRelationDataList.map((configRelationData) => {
-            return configRelationData.map((configRelationFilterFields) => {
-                // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
-                // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
-                let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
-                    [configRelationFilterFields];
+        return configRelationDataList.map((configRelationData) => configRelationData.map((configRelationFilterFields) => {
+            // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
+            // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
+            let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
+                [configRelationFilterFields];
 
-                return relationFilterFields.map((item) => {
-                    let databaseName = DatasetService.getDatabaseNameFromCompleteFieldName(item);
-                    let tableName = DatasetService.getTableNameFromCompleteFieldName(item);
-                    let fieldName = DatasetService.getFieldNameFromCompleteFieldName(item);
-                    return {
-                        // TODO THOR-1062 THOR-1078 Set the datastore name too!
-                        datastore: '',
-                        database: this.getDatabaseWithName(databaseName),
-                        table: this.getTableWithName(databaseName, tableName),
-                        field: this.getFieldWithName(databaseName, tableName, fieldName)
-                    } as SingleField;
-                }).filter((item) => item.database && item.table && item.field);
-            });
-        }).filter((relationData) => {
+            return relationFilterFields.map((item) => {
+                let databaseName = DatasetService.getDatabaseNameFromCompleteFieldName(item);
+                let tableName = DatasetService.getTableNameFromCompleteFieldName(item);
+                let fieldName = DatasetService.getFieldNameFromCompleteFieldName(item);
+                return {
+                    // TODO THOR-1062 THOR-1078 Set the datastore name too!
+                    datastore: '',
+                    database: this.getDatabaseWithName(databaseName),
+                    table: this.getTableWithName(databaseName, tableName),
+                    field: this.getFieldWithName(databaseName, tableName, fieldName)
+                } as SingleField;
+            }).filter((item) => item.database && item.table && item.field);
+        })).filter((relationData) => {
             if (relationData.length > 1) {
                 // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
                 let size = relationData[0].length;
@@ -1143,7 +1122,7 @@ export class DatasetService {
         });
     }
 
-    // used to link layouts with dashboards
+    // Used to link layouts with dashboards
     /**
      * Returns entire value of matching table key from current dashboard.
      * @param {String} key
@@ -1151,9 +1130,7 @@ export class DatasetService {
      */
     public getTableFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        if (currentConfig) {
-            return currentConfig.tables[key];
-        }
+        return currentConfig ? currentConfig.tables[key] : null;
     }
 
     /**
@@ -1163,9 +1140,7 @@ export class DatasetService {
      */
     public getFieldFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        if (currentConfig) {
-            return currentConfig.fields[key];
-        }
+        return currentConfig ? currentConfig.fields[key] : null;
     }
 
     // TODO: THOR-1062: entire key may be more important later when
@@ -1178,9 +1153,7 @@ export class DatasetService {
      */
     public getDatabaseNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        if (currentConfig) {
-            return DatasetService.getDatabaseNameByKey(currentConfig, key);
-        }
+        return currentConfig ? DatasetService.getDatabaseNameByKey(currentConfig, key) : null;
     }
 
     /**
@@ -1190,9 +1163,7 @@ export class DatasetService {
      */
     public getTableNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        if (currentConfig) {
-            return DatasetService.getTableNameByKey(currentConfig, key);
-        }
+        return currentConfig ? DatasetService.getTableNameByKey(currentConfig, key) : null;
     }
 
     /**
@@ -1202,9 +1173,7 @@ export class DatasetService {
      */
     public getFieldNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        if (currentConfig) {
-            return DatasetService.getFieldNameByKey(currentConfig, key);
-        }
+        return currentConfig ? DatasetService.getFieldNameByKey(currentConfig, key) : null;
     }
 
     /**

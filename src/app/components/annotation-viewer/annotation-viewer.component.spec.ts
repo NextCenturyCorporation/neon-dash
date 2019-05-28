@@ -13,69 +13,45 @@
  * limitations under the License.
  *
  */
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    ElementRef,
-    Injector,
-    NgModule,
-    OnDestroy,
-    OnInit,
-    ViewChild,
-    ViewEncapsulation
-} from '@angular/core';
+import { Injector } from '@angular/core';
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { } from 'jasmine-core';
 
 import { AnnotationViewerComponent } from './annotation-viewer.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
-import { Color } from '../../color';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
-import { LegendComponent } from '../legend/legend.component';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { AnnotationViewerModule } from './annotation-viewer.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: AnnotationViewer', () => {
     let component: AnnotationViewerComponent;
     let fixture: ComponentFixture<AnnotationViewerComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Annotation Viewer', {
-          declarations: [
-              LegendComponent,
-              AnnotationViewerComponent,
-              UnsharedFilterComponent
-          ],
-          providers: [
-              { provide: AbstractWidgetService, useClass: WidgetService },
-              { provide: DatasetService, useClass: DatasetServiceMock },
-              FilterService,
-              { provide: AbstractSearchService, useClass: SearchServiceMock },
-              Injector,
-              { provide: 'config', useValue: new NeonGTDConfig() }
-          ],
-          imports: [
-              AppMaterialModule,
-              BrowserAnimationsModule,
-              FormsModule
-          ]
-      });
+        providers: [
+            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            Injector,
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+        ],
+        imports: [
+            AnnotationViewerModule
+        ]
+    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(AnnotationViewerComponent);
@@ -90,7 +66,6 @@ describe('Component: AnnotationViewer', () => {
         expect(component.visualization).toBeDefined();
 
         // Options
-
     });
 
     it('Checks if option object has expected defaults', () => {

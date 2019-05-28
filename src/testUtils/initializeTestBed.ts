@@ -15,9 +15,12 @@
  */
 ///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
 import { async, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 export const initializeTestBed = (name, config) => {
     config.providers = config.providers || [];
+    config.imports = config.imports || [];
+    config.imports.push(NoopAnimationsModule);
 
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;

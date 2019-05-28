@@ -15,22 +15,18 @@
  */
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
-import { BehaviorSubject } from 'rxjs';
+import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { DatabaseMetaData, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 
-import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
 @Component({
     selector: 'app-settings',
@@ -39,14 +35,12 @@ import { eventing } from 'neon-framework';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public messenger: eventing.Messenger;
 
     public fields: FieldMetaData[] = [];
@@ -103,13 +97,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     openEditConfigDialog() {
-        let dConfig  = {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
             height: '80%',
             width: '80%',
             hasBackdrop: true,
             disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        });
     }
 
     publishShowFilterTray() {
@@ -143,7 +139,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
             let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
             let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);

@@ -1,45 +1,45 @@
-.modal__row {
-  padding: 12px 0 6px 0;
+.modal__row { // sass-lint:disable-line class-name-format
+    padding: 12px 0 6px;
 }
 
-.modal__row--slotted {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+.modal__row--slotted { // sass-lint:disable-line class-name-format
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    div {
+        flex-grow: 1;
+    }
 }
 
-.modal__row--slotted div {
-  flex-grow: 1;
+.modal__row-label { // sass-lint:disable-line class-name-format
+    display: block;
+    padding-bottom: 3px;
+    // font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.8);
 }
 
-.modal__row-label {
-  display: block;
-  padding-bottom: 3px;
-  // font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.8);
+.modal__row-label--info { // sass-lint:disable-line class-name-format
+    padding-top: 6px;
+    // font-size: 0.8rem;
+    font-style: italic;
 }
 
-.modal__row-label--info {
-  padding-top: 6px;
-  // font-size: 0.8rem;
-  font-style: italic;
+.modal__input--medium { // sass-lint:disable-line class-name-format
+    width: 60%;
 }
 
-.modal__input--medium {
-  width: 60%;
+.modal__datasource-container { // sass-lint:disable-line class-name-format
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    background-color: var(--color-background, white);
+    border-radius: 2px;
+    height: 140px;
+    overflow-y: auto;
 }
 
-.modal__datasource-container {
-  border: solid 1px rgba(0, 0, 0, 0.2);
-  background-color: var(--color-background, white);
-  border-radius: 2px;
-  height: 140px;
-  overflow-y: auto;
-}
-
-.modal__datasource-list-item {
-  font-size: 14px;
-  padding: 6px 6px 0 6px;
+.modal__datasource-list-item { // sass-lint:disable-line class-name-format
+    font-size: 14px;
+    padding: 6px 6px 0;
 }
 
 button {
@@ -47,7 +47,8 @@ button {
     font-weight: 500;
 }
 
-select, input {
+select,
+input {
     font-size: 14px;
     font-weight: 400;
 }

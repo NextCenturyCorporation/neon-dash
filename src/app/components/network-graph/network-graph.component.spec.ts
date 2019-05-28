@@ -13,51 +13,41 @@
  * limitations under the License.
  *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
-import { LegendComponent } from '../legend/legend.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
+import { NetworkGraphModule } from './network-graph.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: NetworkGraphComponent;
     let fixture: ComponentFixture<NetworkGraphComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Network Graph', {
-        declarations: [
-            LegendComponent,
-            NetworkGraphComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: testConfig },
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [
-            BrowserAnimationsModule,
-            AppMaterialModule,
-            FormsModule
+            NetworkGraphModule
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA]
     });
@@ -172,11 +162,10 @@ describe('Component: NetworkGraph', () => {
             subject: ['testSubject4']
         }]);
 
-        expect(component.totalNodes).toEqual(8); //Total based on allowed limit
+        expect(component.totalNodes).toEqual(8); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
         expect(component.graphData.nodes.length).toEqual(component.totalNodes);
         expect(component.graphData.edges.length).toEqual(5);
-
     }));
 
     it('transformVisualizationQueryResults does load the Network Graph with tabular data', (() => {
@@ -234,11 +223,10 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: -525
         }]);
 
-        expect(component.totalNodes).toEqual(3); //Total based on allowed limit
+        expect(component.totalNodes).toEqual(3); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
         expect(component.graphData.nodes.length).toEqual(component.totalNodes);
         expect(component.graphData.edges.length).toEqual(4);
-
     }));
 
     it('transformVisualizationQueryResults does load the Network Graph from multiple data tables', (() => {
@@ -253,7 +241,7 @@ describe('Component: NetworkGraph', () => {
                 colorField: new FieldMetaData('testNodeColorField'),
                 param1Field: new FieldMetaData('testNodeXPositionField'),
                 param2Field: new FieldMetaData('testNodeYPositionField'),
-                filterFields: [ new FieldMetaData('testFilterField')]
+                filterFields: [new FieldMetaData('testFilterField')]
             },
             {
                 database: 'testEdgeDatabase',
@@ -263,7 +251,7 @@ describe('Component: NetworkGraph', () => {
                 colorField: new FieldMetaData('testEdgeColorField'),
                 param1Field: new FieldMetaData('testEdgeSourceIdField'),
                 param2Field: new FieldMetaData('testEdgeDestinationIdField'),
-                filterFields: [ new FieldMetaData('testFilterField')]
+                filterFields: [new FieldMetaData('testFilterField')]
             }
         ];
         options.nodeColor = '#96f4f2';
@@ -326,11 +314,10 @@ describe('Component: NetworkGraph', () => {
 
         component.transformVisualizationQueryResults(options.layers[1], edgesData);
 
-        expect(component.totalNodes).toEqual(component.options.limit); //Total based on allowed limit
+        expect(component.totalNodes).toEqual(component.options.limit); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
         expect(component.graphData.nodes.length).toEqual(component.options.limit);
         expect(component.graphData.edges.length).toEqual(edgesData.length);
-
     }));
 
     it('legendIsNeeded does not display a legend when display boolean is set to false', () => {
@@ -771,152 +758,152 @@ describe('Component: NetworkGraph', () => {
         component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         component.options.edgeColorField = new FieldMetaData();
 
         component.options.nodeField = DatasetServiceMock.NAME_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         component.options.nodeField = new FieldMetaData();
 
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
 
         component.options.multiFilterOperator = 'and';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
 
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[2].filterDesign as any).operator).toEqual('=');
-        expect((actual[2].filterDesign as any).value).toBeUndefined();
+        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[2].filterDesign).operator).toEqual('=');
+        expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign as any).type).toEqual('and');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('and');
+        expect((actual[3].filterDesign).filters.length).toEqual(1);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
 
         component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
         component.options.nodeField = DatasetServiceMock.NAME_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect((actual[1].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[1].filterDesign as any).operator).toEqual('=');
-        expect((actual[1].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).operator).toEqual('=');
+        expect((actual[1].filterDesign).value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign as any).type).toEqual('and');
-        expect((actual[2].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).type).toEqual('and');
+        expect((actual[2].filterDesign).filters.length).toEqual(1);
+        expect((actual[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[3].filterDesign as any).operator).toEqual('=');
-        expect((actual[3].filterDesign as any).value).toBeUndefined();
+        expect((actual[3].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign).operator).toEqual('=');
+        expect((actual[3].filterDesign).value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[4].filterDesign as any).type).toEqual('and');
-        expect((actual[4].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[4].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[4].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[4].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[4].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[4].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[4].filterDesign).type).toEqual('and');
+        expect((actual[4].filterDesign).filters.length).toEqual(1);
+        expect((actual[4].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[5].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[5].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[5].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[5].filterDesign as any).operator).toEqual('=');
-        expect((actual[5].filterDesign as any).value).toBeUndefined();
+        expect((actual[5].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign).operator).toEqual('=');
+        expect((actual[5].filterDesign).value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[6].filterDesign as any).type).toEqual('and');
-        expect((actual[6].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[6].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[6].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[6].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[6].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[6].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[6].filterDesign).type).toEqual('and');
+        expect((actual[6].filterDesign).filters.length).toEqual(1);
+        expect((actual[6].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[6].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[6].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
     });
 
@@ -929,53 +916,53 @@ describe('Component: NetworkGraph', () => {
 
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('!=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('!=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect((actual[1].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[1].filterDesign as any).operator).toEqual('=');
-        expect((actual[1].filterDesign as any).value).toBeUndefined();
+        expect((actual[1].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).operator).toEqual('=');
+        expect((actual[1].filterDesign).value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign as any).type).toEqual('or');
-        expect((actual[2].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).type).toEqual('or');
+        expect((actual[2].filterDesign).filters.length).toEqual(1);
+        expect((actual[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[3].filterDesign as any).operator).toEqual('=');
-        expect((actual[3].filterDesign as any).value).toBeUndefined();
+        expect((actual[3].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign).operator).toEqual('=');
+        expect((actual[3].filterDesign).value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[4].filterDesign as any).type).toEqual('or');
-        expect((actual[4].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[4].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[4].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[4].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[4].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[4].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[4].filterDesign).type).toEqual('or');
+        expect((actual[4].filterDesign).filters.length).toEqual(1);
+        expect((actual[4].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[5].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[5].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[5].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[5].filterDesign as any).operator).toEqual('=');
-        expect((actual[5].filterDesign as any).value).toBeUndefined();
+        expect((actual[5].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign).operator).toEqual('=');
+        expect((actual[5].filterDesign).value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[6].filterDesign as any).type).toEqual('or');
-        expect((actual[6].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[6].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[6].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[6].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[6].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[6].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[6].filterDesign).type).toEqual('or');
+        expect((actual[6].filterDesign).filters.length).toEqual(1);
+        expect((actual[6].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[6].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[6].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
     });
 });

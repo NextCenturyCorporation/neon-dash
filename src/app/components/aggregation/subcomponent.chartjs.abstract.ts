@@ -17,8 +17,7 @@ import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
-import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
@@ -63,7 +62,7 @@ export class ChartJsData {
     constructor(
         public datasets: AbstractChartJsDataset[],
         public labels: string[]
-    ) {}
+    ) { }
 }
 
 export enum SelectMode {
@@ -88,23 +87,23 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private ignoreSelect: boolean = false;
 
     private selectedBounds: {
-        beginX: number,
-        beginY: number,
-        endX: number,
-        endY: number
+        beginX: number;
+        beginY: number;
+        endX: number;
+        endY: number;
     } = null;
 
     private selectedDomain: {
-        beginIndex: number,
-        beginX: number,
-        endIndex: number,
-        endX: number
+        beginIndex: number;
+        beginX: number;
+        endIndex: number;
+        endX: number;
     } = null;
 
     // Save only the tick labels shown in the chart (adjusted for its size) rather than the chart.data.labels which are all the labels.
     private tickLabels: {
-        x: any[],
-        y: any[]
+        x: any[];
+        y: any[];
     } = {
         x: [],
         y: []
@@ -121,7 +120,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected selectMode: SelectMode = SelectMode.NONE) {
-
         super(options, listener, elementRef);
     }
 
@@ -153,9 +151,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
         }
-        let labelWidth = this.tickLabels.y.reduce((max, yLabel) => {
-            return Math.max(max, this.computeTextWidth(yLabel));
-        }, 0);
+        let labelWidth = this.tickLabels.y.reduce((max, yLabel) => Math.max(max, this.computeTextWidth(yLabel)), 0);
         return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0) + this.Y_AXIS_LABEL_WIDTH;
     }
 
@@ -438,7 +434,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected findChartElementWidth(item: any): number {
+    protected findChartElementWidth(_item: any): number {
         return this.DEFAULT_CHART_ELEMENT_WIDTH;
     }
 
@@ -571,7 +567,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickHeight(axisType: string): number {
+    protected getMinimumTickHeight(_axisType: string): number {
         return 25;
     }
 
@@ -582,7 +578,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickWidth(axisType: string): number {
+    protected getMinimumTickWidth(_axisType: string): number {
         return 50;
     }
 
@@ -712,7 +708,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     protected padEndDate(endDate: any) {
         let newEndDate = moment.utc(endDate);
-        newEndDate.add(1, <moment.unitOfTime.DurationConstructor> this.options.granularity);
+        newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
         newEndDate.subtract(1, 'second');
         return moment(newEndDate).toDate();
     }
@@ -810,6 +806,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {boolean} [domainOnly=false]
      * @private
      */
+    // TODO Move this code into separate functions
+    /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
@@ -877,7 +875,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
             let endValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
 
-            let beginLabelX, beginLabelY, endLabelX, endLabelY;
+            let beginLabelX;
+            let beginLabelY;
+            let endLabelX;
+            let endLabelY;
             if (this.findAxisTypeX() === 'string') {
                 beginValueX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
                 endValueX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);

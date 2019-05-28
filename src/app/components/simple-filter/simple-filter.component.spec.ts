@@ -13,35 +13,25 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { SimpleFilterComponent } from './simple-filter.component';
-import { DashboardOptions, Dashboard, SimpleFilter } from '../../dataset';
-import {
-    ChangeDetectorRef,
-    ChangeDetectionStrategy,
-    Component,
-    DebugElement,
-    NO_ERRORS_SCHEMA,
-    OnDestroy, OnInit
-} from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 
+import { SimpleFilterModule } from './simple-filter.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: SimpleFilter', () => {
     let component: SimpleFilterComponent;
     let fixture: ComponentFixture<SimpleFilterComponent>;
     let filterService: FilterService;
-    let searchService: AbstractSearchService;
     let setInput = (input: string) => {
         component.showSimpleSearch = true;
         (component as any).changeDetection.detectChanges();
@@ -54,19 +44,14 @@ describe('Component: SimpleFilter', () => {
     };
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 
@@ -74,7 +59,6 @@ describe('Component: SimpleFilter', () => {
         fixture = TestBed.createComponent(SimpleFilterComponent);
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(FilterService);
-        searchService = fixture.debugElement.injector.get(AbstractSearchService);
         fixture.debugElement.injector.get(DatasetService).getCurrentDashboardOptions().simpleFilter = {
             databaseName: DatasetServiceMock.DATABASES[0].name,
             tableName: DatasetServiceMock.TABLES[0].name,
@@ -84,14 +68,14 @@ describe('Component: SimpleFilter', () => {
     });
 
     it('should filter when the user clicks the search icon', () => {
-        // set input.value
+        // Set input.value
         let value = 'add filter with click';
         setInput(value);
 
-        // find search icon element and click it
+        // Find search icon element and click it
         clickSearch();
 
-        // verify that filter is added to filterService
+        // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -102,11 +86,11 @@ describe('Component: SimpleFilter', () => {
     });
 
     it('should replace filter when one already exists', () => {
-        // set input.value
+        // Set input.value
         let value = 'add filter with click';
         setInput(value);
 
-        // find search icon element and click it
+        // Find search icon element and click it
         clickSearch();
 
         value = 'replace filter with click';
@@ -123,14 +107,14 @@ describe('Component: SimpleFilter', () => {
     });
 
     it('should filter when the user presses enter', () => {
-        // set input.value
+        // Set input.value
         let value = 'add filter with enter';
         setInput(value);
 
-        // simulate enter key
+        // Simulate enter key
         fixture.debugElement.query(By.css('input.simple-filter-input')).triggerEventHandler('keyup.enter', null);
 
-        // verify that filter is added to filterService
+        // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
@@ -141,55 +125,55 @@ describe('Component: SimpleFilter', () => {
     });
 
     it('should show close icon when filter has been created', () => {
-        // set input.value
+        // Set input.value
         setInput('filter for showing close icon');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         clickSearch();
 
-        // verify that close exists
+        // Verify that close exists
         expect(fixture.debugElement.query(By.css('.simple-filter')).children[2]).toBeTruthy();
 
-        // should even show if user removes text from input
+        // Should even show if user removes text from input
         setInput('');
 
-        // verify that close exists
+        // Verify that close exists
         expect(fixture.debugElement.query(By.css('.simple-filter')).children[2]).toBeTruthy();
     });
 
     it('should clear the filter if the user clicks the close icon', () => {
-        // set input.value
+        // Set input.value
         setInput('filter for checking close button');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         clickSearch();
 
         expect(filterService.getFilters().length).toBe(1);
 
-        // find close icon element and click it
+        // Find close icon element and click it
         fixture.debugElement.query(By.css('.simple-filter')).children[2].triggerEventHandler('click', null);
         fixture.detectChanges();
 
-        // verify that filter is no longer in filterService
+        // Verify that filter is no longer in filterService
         expect(filterService.getFilters().length).toBe(0);
     });
 
     it('should clear the filter if the user filters on an empty string', () => {
-        // set input.value
+        // Set input.value
         setInput('filter for empty string test');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         clickSearch();
 
         expect(filterService.getFilters().length).toBe(1);
 
-        // set input.value to ''
+        // Set input.value to ''
         setInput('');
 
-        // click search
+        // Click search
         clickSearch();
 
-        // verify that filter is no longer in filterService
+        // Verify that filter is no longer in filterService
         expect(filterService.getFilters().length).toBe(0);
     });
 });
@@ -199,19 +183,14 @@ describe('Component: SimpleFilter unconfigured', () => {
     let fixture: ComponentFixture<SimpleFilterComponent>;
 
     initializeTestBed('Simple Filter', {
-        declarations: [
-            SimpleFilterComponent
-        ],
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DatasetService, useClass: DatasetService },
             FilterService,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            SimpleFilterModule
         ]
     });
 

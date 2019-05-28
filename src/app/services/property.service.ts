@@ -13,17 +13,14 @@
  * limitations under the License.
  *
  */
-import { Injectable, Inject } from '@angular/core';
-import { Http, RequestOptionsArgs, Headers  } from '@angular/http';
-import { Observable } from 'rxjs';
-import * as _ from 'lodash';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable()
 export class PropertyService {
     baseUrl: string;
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
         this.http = http;
         this.baseUrl = '/neon/services/propertyservice/';
     }
@@ -37,12 +34,12 @@ export class PropertyService {
      * @method setProperty
      */
     setProperty(propertyName: string, value: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
-        let h: Headers = new Headers();
+        let h = new HttpHeaders();
         h.append('content-type', 'text/plain');
         return this.http.post(this.baseUrl + propertyName, value, {
             headers: h
         })
-          .toPromise().then(successCallback).catch(failureCallback);
+            .toPromise().then(successCallback).catch(failureCallback);
     }
 
     setPropertyJson(propertyName: string, value: object, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
@@ -57,14 +54,14 @@ export class PropertyService {
      * @method getProperty
      */
     getProperty(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
-         return this.http.get(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
+        return this.http.get(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
     }
 
     getPropertyJson(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
         return this.http.get(this.baseUrl + propertyName).toPromise().then((resp: any) => {
             try {
-              let json = JSON.parse(resp.value);
-              successCallback(json);
+                let json = JSON.parse(resp.value);
+                successCallback(json);
             } catch (err) {
                 failureCallback(resp);
             }
@@ -79,7 +76,7 @@ export class PropertyService {
      * @method setService
      */
     deleteProperty(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
-         return this.http.delete(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
+        return this.http.delete(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
     }
 
     /**
