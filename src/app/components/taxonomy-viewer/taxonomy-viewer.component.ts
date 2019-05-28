@@ -15,20 +15,16 @@
  */
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     ElementRef,
-    Injector,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
+import { CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
@@ -40,10 +36,8 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { MatDialog, MatTreeNestedDataSource } from '@angular/material';
+import { MatTreeNestedDataSource } from '@angular/material';
 import { NestedTreeControl } from '@angular/cdk/tree';
-
-let styleImport: any;
 
 interface TaxonomyNode {
     id: string;
@@ -89,50 +83,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     public treeControl = new NestedTreeControl<TaxonomyNode | TaxonomyGroup>((node) => 'children' in node && node.children);
     public dataSource = new MatTreeNestedDataSource<TaxonomyGroup | TaxonomyNode>();
-
-    public testOptions = {
-        actionMapping: {
-            mouse: {
-                dblClick: (tree, node, $event) => {
-                    if (node.hasChildren) {
-                        TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event);
-                    }
-                }
-            },
-            keys: {
-                [KEYS.ENTER]: (tree, node) => {
-                    node.expandAll();
-                }
-            }
-        }
-    };
-
-    constructor(
-        datasetService: DatasetService,
-        filterService: FilterService,
-        searchService: AbstractSearchService,
-        injector: Injector,
-        ref: ChangeDetectorRef,
-        dialog: MatDialog
-    ) {
-
-        super(
-            datasetService,
-            filterService,
-            searchService,
-            injector,
-            ref,
-            dialog
-        );
-
-        if (!styleImport) {
-            const link = styleImport = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = '/assets/angular-tree-component/dist/angular-tree-component.css';
-
-            document.head.appendChild(link);
-        }
-    }
 
     hasNestedChild = (_: number, node: TaxonomyGroup) => !!node.children && node.children.some((x) => 'children' in x);
 
@@ -326,7 +276,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             [toArray(lineage.type), 'type'],
             [toArray(lineage.subtype), 'subtype']
         ] as [string[], string][];
-
 
         let pos = 0;
         for (const [segment, ptype] of segments) {
