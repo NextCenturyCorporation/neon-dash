@@ -25,7 +25,8 @@
             <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <div class="mat-tree-node leaf-node level-{{node.level}}">
                     <label>
-                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)">
+                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
+                            [class.indeterminate]="!!node.indeterminate">
                         {{node.name}} <span>({{ node.count }})</span>
                     </label>
                 </div>
@@ -39,7 +40,8 @@
                         </mat-icon>
                     </button>
                     <label>
-                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)">
+                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
+                            [class.indeterminate]="!!node.indeterminate">
                         {{node.name}} <span>({{ node.count }})</span>
                     </label>
                 </div>
