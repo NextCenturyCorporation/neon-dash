@@ -45,6 +45,7 @@ import { DatasetService } from '../../services/dataset.service';
 interface TaxonomyNode {
     id: string;
     externalId?: string;
+    hidden?: boolean;
     sourceIds: string[];
     parent?: TaxonomyGroup;
     externalName?: string;
@@ -98,8 +99,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         super(datasetService, filterService, searchService, injector, changeDetection, dialog);
     }
 
-    hasNestedChild = (_: number, node: TaxonomyGroup) => {
-        return !!node.children; // && node.children.some((x) => 'children' in x);
+    hasChild = (_: number, node: TaxonomyGroup) => {
+        return !!node.children && node.children.length; // && node.children.some((x) => 'children' in x);
     }
 
     private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
@@ -334,7 +335,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // If new node, walk back up to parent, recording counts
         if (!(child.externalId in currentGroup.childrenMap)) {
             currentGroup.childrenMap[child.externalId] = child;
-            // currentGroup.children.push(child);
+            if (child.name !== child.externalId) {
+                currentGroup.children.push(child);
+            }
             child.parent = currentGroup;
             child.level = pos + 1;
 
@@ -380,7 +383,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             children: []
         } as TaxonomyGroup;
 
-        let find = (d: any, field: string) => neonUtilities.deepFind(d, this.options[field].columnName);
+        let find = (d: any, field: string) =>
+            this.options[field].columnName ?
+                neonUtilities.deepFind(d, this.options[field].columnName) :
+                null;
 
         for (const d of results) {
             let types: string[];
@@ -424,27 +430,16 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return this.taxonomyGroups.length;
     }
 
-    /**
-     * Alphabetize the values added to the taxonomy
-     *
-     * @arg {any[]} array
-     * @return {array}
-     */
-    sortTaxonomyArrays(array: any[]) {
-        return array.sort((a: { name: string }, b: { name: string }) =>
-            a.name.localeCompare(b.name) * (this.options.ascending ? 1 : -1));
-    }
-
     private findUnselectedGroups(group: any): any[] {
         return (group.checked ? [] : [group]).concat((group.children || []).reduce((array, child) =>
             array.concat(this.findUnselectedGroups(child)), []));
     }
 
-    checkRelatedNodes(node: TaxonomyNode, $event: any) {
+    checkRelatedNodes(node: TaxonomyNode, check: HTMLInputElement) {
         let relatives = [];
 
         // Update all the groups in the taxonomy (select or unselect them).
-        this.updateChildNodesCheckBox(node, $event.checked);
+        this.updateChildNodesCheckBox(node, check.checked);
         this.updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
