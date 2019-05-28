@@ -21,7 +21,7 @@ export class NeonGTDConfig {
     datastores: {[key: string]: any} = {};
     dashboards: Dashboard;
     layouts: {[key: string]: any} = {};
-    errors: String[];
+    errors: string[];
     neonServerUrl: string;
     version: string;
 }

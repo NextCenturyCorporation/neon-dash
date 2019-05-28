@@ -19,13 +19,12 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatabaseMetaData, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 
-import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 
@@ -36,7 +35,6 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
@@ -141,7 +139,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
             let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
             let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);

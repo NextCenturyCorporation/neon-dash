@@ -20,14 +20,14 @@ import { MatSidenavModule, MatButtonModule, MatIconModule } from '@angular/mater
 import { DashboardDropdownModule } from '../dashboard-dropdown/dashboard-dropdown.module';
 
 @NgModule({
-  declarations: [DashboardSelectorComponent],
-  exports: [DashboardSelectorComponent],
-  imports: [
-    DashboardDropdownModule,
-    MatIconModule,
-    MatSidenavModule,
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [DashboardSelectorComponent],
+    exports: [DashboardSelectorComponent],
+    imports: [
+        DashboardDropdownModule,
+        MatIconModule,
+        MatSidenavModule,
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class DashboardSelectorModule { }

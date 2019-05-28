@@ -86,7 +86,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @return {boolean}
      * @override
      */
-    protected isSelectable(items: any[]): boolean {
+    protected isSelectable(_items: any[]): boolean {
         // Ignore whether any items exist at the location of the hover event.
         return this.selectMode !== SelectMode.NONE;
     }

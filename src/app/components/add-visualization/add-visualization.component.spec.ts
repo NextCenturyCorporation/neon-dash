@@ -17,7 +17,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
     ChangeDetectionStrategy,
     Component,
-    DebugElement,
     ViewEncapsulation
 } from '@angular/core';
 import { MatSnackBar, MatGridListModule, MatDividerModule } from '@angular/material';
@@ -33,7 +32,6 @@ import { WidgetService } from '../../services/widget.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { eventing } from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
@@ -63,8 +61,6 @@ class TestAddVisualizationComponent extends AddVisualizationComponent {
 describe('Component: AddVisualization', () => {
     let component: TestAddVisualizationComponent;
     let fixture: ComponentFixture<TestAddVisualizationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
-    let debugElement: DebugElement;
     let spyOnInit;
 
     initializeTestBed('Add Visualization', {
@@ -92,8 +88,6 @@ describe('Component: AddVisualization', () => {
         component = fixture.componentInstance;
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
-
-        debugElement = fixture.debugElement;
     });
 
     it('tests default values', (() => {
@@ -120,5 +114,4 @@ describe('Component: AddVisualization', () => {
         expect(spyOnInit.calls.count()).toEqual(3);
         expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
     }));
-
 });

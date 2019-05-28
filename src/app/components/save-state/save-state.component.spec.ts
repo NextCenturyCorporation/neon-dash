@@ -62,6 +62,7 @@ describe('Component: SaveStateComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SaveStateComponent);
         component = fixture.componentInstance;
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.ngOnInit = () => { /* Don't call loadStateNames. */ };
         fixture.detectChanges();
     });
@@ -98,18 +99,16 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                deleteState: (data, successCallback) => {
-                    calls++;
-                    expect(data).toEqual('testState');
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            deleteState: (data, successCallback) => {
+                calls++;
+                expect(data).toEqual('testState');
 
-                    let successSpy = spyOn(component, 'handleDeleteStateSuccess');
-                    successCallback();
-                    expect(successSpy.calls.count()).toEqual(1);
-                }
-            };
-        });
+                let successSpy = spyOn(component, 'handleDeleteStateSuccess');
+                successCallback();
+                expect(successSpy.calls.count()).toEqual(1);
+            }
+        }));
 
         component.deleteState('testState');
         expect(calls).toEqual(1);
@@ -120,14 +119,12 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                deleteState: (data, successCallback) => {
-                    calls++;
-                    expect(data).toEqual('folder.my-test.state_name1234');
-                }
-            };
-        });
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            deleteState: (data, _successCallback) => {
+                calls++;
+                expect(data).toEqual('folder.my-test.state_name1234');
+            }
+        }));
 
         component.deleteState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
         expect(calls).toEqual(1);
@@ -188,8 +185,8 @@ describe('Component: SaveStateComponent', () => {
         expect(spyDatasetService.calls.argsFor(0)).toEqual([expectedDashboard, {
             datastore1: {}
         }, {
-                layout1: []
-            }]);
+            layout1: []
+        }]);
         expect(spyMessengerPublish.calls.count()).toEqual(1);
         expect(spyMessengerPublish.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: {
@@ -210,18 +207,16 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                loadState: (data, successCallback) => {
-                    calls++;
-                    expect(data).toEqual('testState');
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            loadState: (data, successCallback) => {
+                calls++;
+                expect(data).toEqual('testState');
 
-                    let successSpy = spyOn(component, 'handleLoadStateSuccess');
-                    successCallback();
-                    expect(successSpy.calls.count()).toEqual(1);
-                }
-            };
-        });
+                let successSpy = spyOn(component, 'handleLoadStateSuccess');
+                successCallback();
+                expect(successSpy.calls.count()).toEqual(1);
+            }
+        }));
 
         component.loadState('testState');
         expect(calls).toEqual(1);
@@ -232,14 +227,12 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component, 'closeSidenav');
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                loadState: (data, successCallback) => {
-                    calls++;
-                    expect(data).toEqual('folder.my-test.state_name1234');
-                }
-            };
-        });
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            loadState: (data, _successCallback) => {
+                calls++;
+                expect(data).toEqual('folder.my-test.state_name1234');
+            }
+        }));
 
         component.loadState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
         expect(calls).toEqual(1);
@@ -247,13 +240,11 @@ describe('Component: SaveStateComponent', () => {
 
     it('loadStateNames does call connection.getStateNames with expected behavior', () => {
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                getStateNames: () => {
-                    calls++;
-                }
-            };
-        });
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            getStateNames: () => {
+                calls++;
+            }
+        }));
 
         (component as any).loadStateNames();
         expect(calls).toEqual(1);
@@ -408,91 +399,89 @@ describe('Component: SaveStateComponent', () => {
         } as NeonGridItem];
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                saveState: (data, successCallback) => {
-                    calls++;
-                    expect(data.dashboards.fullTitle).toEqual('Full Title');
-                    expect(data.dashboards.layout).toEqual('testState');
-                    expect(data.dashboards.name).toEqual('testState');
-                    expect(data.dashboards.tables).toEqual({
-                        table_key_1: 'datastore1.databaseZ.tableA',
-                        table_key_2: 'datastore2.databaseY.tableB'
-                    });
-                    expect(data.dashboards.fields).toEqual({
-                        field_key_1: 'datastore1.databaseZ.tableA.field1',
-                        field_key_2: 'datastore2.databaseY.tableB.field2'
-                    });
-                    expect(data.dashboards.options).toEqual({
-                        connectOnLoad: true,
-                        simpleFilter: {
-                            databaseName: 'databaseZ',
-                            tableName: 'tableA',
-                            fieldName: 'field1'
-                        }
-                    });
-                    expect(data.dashboards.datastores).toBeUndefined();
-                    expect(data.dashboards.layoutObject).toBeUndefined();
-                    expect(data.dashboards.pathFromTop).toBeUndefined();
-                    expect(data.dashboards.filters).toEqual([{
-                        optional: true,
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            saveState: (data, successCallback) => {
+                calls++;
+                expect(data.dashboards.fullTitle).toEqual('Full Title');
+                expect(data.dashboards.layout).toEqual('testState');
+                expect(data.dashboards.name).toEqual('testState');
+                expect(data.dashboards.tables).toEqual({
+                    table_key_1: 'datastore1.databaseZ.tableA',
+                    table_key_2: 'datastore2.databaseY.tableB'
+                });
+                expect(data.dashboards.fields).toEqual({
+                    field_key_1: 'datastore1.databaseZ.tableA.field1',
+                    field_key_2: 'datastore2.databaseY.tableB.field2'
+                });
+                expect(data.dashboards.options).toEqual({
+                    connectOnLoad: true,
+                    simpleFilter: {
+                        databaseName: 'databaseZ',
+                        tableName: 'tableA',
+                        fieldName: 'field1'
+                    }
+                });
+                expect(data.dashboards.datastores).toBeUndefined();
+                expect(data.dashboards.layoutObject).toBeUndefined();
+                expect(data.dashboards.pathFromTop).toBeUndefined();
+                expect(data.dashboards.filters).toEqual([{
+                    optional: true,
+                    datastore: 'datastore1',
+                    database: 'databaseZ',
+                    table: 'tableA',
+                    field: 'field1',
+                    operator: '=',
+                    value: 'value1'
+                }, {
+                    optional: false,
+                    type: 'and',
+                    filters: [{
                         datastore: 'datastore1',
-                        database: 'databaseZ',
-                        table: 'tableA',
-                        field: 'field1',
-                        operator: '=',
-                        value: 'value1'
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: ''
                     }, {
-                        optional: false,
-                        type: 'and',
-                        filters: [{
-                            datastore: 'datastore1',
-                            database: 'databaseY',
-                            table: 'tableB',
-                            field: 'field2',
-                            operator: '!=',
-                            value: ''
-                        }, {
-                            datastore: 'datastore1',
-                            database: 'databaseY',
-                            table: 'tableB',
-                            field: 'field2',
-                            operator: '!=',
-                            value: null
-                        }]
-                    }]);
-                    expect(data.datastores).toEqual(datastores);
-                    expect(data.layouts).toEqual({
-                        testState: [{
-                            col: 1,
-                            row: 2,
-                            sizex: 3,
-                            sizey: 4,
-                            type: 'type1',
-                            bindings: {
-                                binding1: 'a',
-                                binding2: 'b'
-                            }
-                        }, {
-                            col: 5,
-                            row: 6,
-                            sizex: 7,
-                            sizey: 8,
-                            type: 'type2',
-                            bindings: {
-                                binding3: 'c',
-                                binding4: 'd'
-                            }
-                        }]
-                    });
-                    expect(data.stateName).toEqual('testState');
+                        datastore: 'datastore1',
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: null
+                    }]
+                }]);
+                expect(data.datastores).toEqual(datastores);
+                expect(data.layouts).toEqual({
+                    testState: [{
+                        col: 1,
+                        row: 2,
+                        sizex: 3,
+                        sizey: 4,
+                        type: 'type1',
+                        bindings: {
+                            binding1: 'a',
+                            binding2: 'b'
+                        }
+                    }, {
+                        col: 5,
+                        row: 6,
+                        sizex: 7,
+                        sizey: 8,
+                        type: 'type2',
+                        bindings: {
+                            binding3: 'c',
+                            binding4: 'd'
+                        }
+                    }]
+                });
+                expect(data.stateName).toEqual('testState');
 
-                    let successSpy = spyOn(component, 'handleSaveStateSuccess');
-                    successCallback();
-                    expect(successSpy.calls.count()).toEqual(1);
-                }
-            };
-        });
+                let successSpy = spyOn(component, 'handleSaveStateSuccess');
+                successCallback();
+                expect(successSpy.calls.count()).toEqual(1);
+            }
+        }));
 
         component.saveState('testState');
         expect(calls).toEqual(1);
@@ -508,14 +497,12 @@ describe('Component: SaveStateComponent', () => {
         component.widgetGridItems = [];
 
         let calls = 0;
-        spyOn((component as any), 'openConnection').and.callFake(() => {
-            return {
-                saveState: (data, successCallback) => {
-                    calls++;
-                    expect(data.stateName).toEqual('folder.my-test.state_name1234');
-                }
-            };
-        });
+        spyOn((component as any), 'openConnection').and.callFake(() => ({
+            saveState: (data, _successCallback) => {
+                calls++;
+                expect(data.stateName).toEqual('folder.my-test.state_name1234');
+            }
+        }));
 
         component.saveState('../folder/my-test.!@#$%^&*state_name`~?\\1234');
         expect(calls).toEqual(1);

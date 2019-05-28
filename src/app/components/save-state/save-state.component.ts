@@ -24,7 +24,7 @@ import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { Dashboard, Datastore } from '../../dataset';
+import { Dashboard } from '../../dataset';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -216,7 +216,6 @@ export class SaveStateComponent implements OnInit {
             // Dashboard choices should be set by wrapInSavedStateDashboard
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
-
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]
                 });
@@ -319,7 +318,7 @@ export class SaveStateComponent implements OnInit {
 
     private validateName(stateName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9\.\_\-\+\=\,]/g, '');
+        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 
     private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {

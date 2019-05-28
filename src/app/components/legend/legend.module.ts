@@ -19,17 +19,17 @@ import { LegendComponent } from './legend.component';
 import { MatIconModule, MatButtonModule, MatMenuModule } from '@angular/material';
 
 @NgModule({
-  declarations: [
-    LegendComponent
-  ],
-  exports: [
-    LegendComponent
-  ],
-  imports: [
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [
+        LegendComponent
+    ],
+    exports: [
+        LegendComponent
+    ],
+    imports: [
+        MatMenuModule,
+        MatIconModule,
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class LegendModule { }

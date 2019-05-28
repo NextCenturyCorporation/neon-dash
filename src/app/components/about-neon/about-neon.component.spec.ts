@@ -22,7 +22,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: AboutNeonComponent', () => {
-
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let fixture: ComponentFixture<AboutNeonComponent>;
     let component: AboutNeonComponent;

@@ -19,11 +19,11 @@ import { SampleComponent } from './sample.component';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [SampleComponent],
-  exports: [SampleComponent],
-  imports: [
-    CommonWidgetModule,
-    CommonModule
-  ]
+    declarations: [SampleComponent],
+    exports: [SampleComponent],
+    imports: [
+        CommonWidgetModule,
+        CommonModule
+    ]
 })
 export class SampleModule { }

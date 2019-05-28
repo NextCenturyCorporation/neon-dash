@@ -23,7 +23,6 @@ import { ThumbnailGridComponent } from './thumbnail-grid.component';
 })
 
 export class DetailsThumbnailSubComponent {
-
     @Input() item: any;
     @Input() options: any;
 

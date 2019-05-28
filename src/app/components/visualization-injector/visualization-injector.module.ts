@@ -19,11 +19,11 @@ import { VisualizationInjectorComponent } from './visualization-injector.compone
 import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
 
 @NgModule({
-  declarations: [VisualizationInjectorComponent],
-  exports: [VisualizationInjectorComponent],
-  imports: [
-    ReactiveComponentLoaderModule,
-    CommonModule
-  ]
+    declarations: [VisualizationInjectorComponent],
+    exports: [VisualizationInjectorComponent],
+    imports: [
+        ReactiveComponentLoaderModule,
+        CommonModule
+    ]
 })
 export class VisualizationInjectorModule { }

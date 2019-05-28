@@ -24,7 +24,6 @@ import { ThumbnailGridComponent } from './thumbnail-grid.component';
 })
 
 export class CardThumbnailSubComponent {
-
     @Input() item: any;
     @Input() options: any;
 

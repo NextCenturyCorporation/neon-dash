@@ -27,7 +27,7 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService, AggregationType, FilterClause } from '../../services/abstract.search.service';
+import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
@@ -45,13 +45,11 @@ import {
     WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
-import { basename } from 'path';
 import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import * as _ from 'lodash';
 import { neonEvents } from '../../neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
 import { of } from 'rxjs';
@@ -68,6 +66,8 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
 
+    // It's not a useless constructor!  Silly linter!
+    /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -121,7 +121,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return query;
     }
 
-    transformVisualizationQueryResults(options, results) {
+    transformVisualizationQueryResults(_options, _results) {
         return 0;
     }
 
@@ -353,12 +353,10 @@ describe('BaseNeonComponent', () => {
     it('addLayer with options and bindings does add a new layer to it', () => {
         let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
         expect(inputOptions.layers.length).toEqual(0);
-        component.createLayerFieldOptions = () => {
-            return [new WidgetFieldOption('testField', 'Test Field', false)];
-        };
-        component.createLayerNonFieldOptions = () => {
-            return [new WidgetFreeTextOption('testValue', 'Test Value', '')];
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.createLayerFieldOptions = () => [new WidgetFieldOption('testField', 'Test Field', false)];
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.createLayerNonFieldOptions = () => [new WidgetFreeTextOption('testValue', 'Test Value', '')];
         let spyPostAddLayer = spyOn(component, 'postAddLayer');
         component.addLayer(inputOptions, {
             tableKey: 'table_key_2',
@@ -431,8 +429,17 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField', 'testFilterField', 'testCategoryField', 'testXField', 'testYField', 'testDateField', 'testLinkField',
-                'testNameField', 'testSizeField', 'testTextField', 'testTypeField'
+                'testIdField',
+                'testFilterField',
+                'testCategoryField',
+                'testXField',
+                'testYField',
+                'testDateField',
+                'testLinkField',
+                'testNameField',
+                'testSizeField',
+                'testTextField',
+                'testTypeField'
             ],
             filter: {
                 type: 'and',
@@ -493,7 +500,7 @@ describe('BaseNeonComponent', () => {
         component.options.layers[1].table = DatasetServiceMock.TABLES[1];
         // End setup
 
-        let spyExportFields = spyOn(component, 'getExportFields').and.callFake((options, query) => {
+        let spyExportFields = spyOn(component, 'getExportFields').and.callFake((options, _query) => {
             if (options === component.options.layers[0]) {
                 return [{
                     columnName: 'export_1',
@@ -748,9 +755,8 @@ describe('BaseNeonComponent', () => {
 
     it('executeQueryChain does call executeQuery', () => {
         let spy = spyOn(component, 'executeQuery');
-        component.validateVisualizationQuery = () => {
-            return true;
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.validateVisualizationQuery = () => true;
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
@@ -767,16 +773,14 @@ describe('BaseNeonComponent', () => {
     it('executeQueryChain does not call executeQuery if initializing or validateVisualizationQuery is false', () => {
         let spy = spyOn(component, 'executeQuery');
         component['initializing'] = true;
-        component.validateVisualizationQuery = () => {
-            return true;
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.validateVisualizationQuery = () => true;
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(0);
 
         (component['initializing'] as boolean) = false;
-        component.validateVisualizationQuery = () => {
-            return false;
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.validateVisualizationQuery = () => false;
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(0);
     });
@@ -784,9 +788,8 @@ describe('BaseNeonComponent', () => {
     it('executeQueryChain with pagination does call executeQuery', () => {
         let spy = spyOn(component, 'executeQuery');
         component['visualizationQueryPaginates'] = true;
-        component.validateVisualizationQuery = () => {
-            return true;
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.validateVisualizationQuery = () => true;
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
@@ -828,7 +831,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-        DatasetServiceMock.Y_FIELD]);
+            DatasetServiceMock.Y_FIELD]);
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -853,9 +856,8 @@ describe('BaseNeonComponent', () => {
         }];
 
         let spy = spyOn(component, 'executeQuery');
-        component.validateVisualizationQuery = () => {
-            return true;
-        };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.validateVisualizationQuery = () => true;
         component['executeQueryChain']();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual(component.options);
@@ -863,8 +865,17 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField', 'testFilterField', 'testCategoryField', 'testXField', 'testYField', 'testDateField', 'testLinkField',
-                'testNameField', 'testSizeField', 'testTextField', 'testTypeField'
+                'testIdField',
+                'testFilterField',
+                'testCategoryField',
+                'testXField',
+                'testYField',
+                'testDateField',
+                'testLinkField',
+                'testNameField',
+                'testSizeField',
+                'testTextField',
+                'testTypeField'
             ],
             filter: {
                 type: 'and',
@@ -1060,7 +1071,7 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DatasetServiceMock.TYPE_FIELD);
         component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DatasetServiceMock.NAME_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-        DatasetServiceMock.Y_FIELD]);
+            DatasetServiceMock.Y_FIELD]);
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testNameField',
@@ -1293,6 +1304,7 @@ describe('BaseNeonComponent', () => {
     it('handleSuccessfulVisualizationQuery does call handleTransformVisualizationQueryResults with expected failure callback', (done) => {
         let spy = spyOn(component, 'handleTransformVisualizationQueryResults');
         let expectedError = new Error('Test Error');
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component['messenger'].publish = () => {
             // Override the messenger publish function so it does not print expected error messages to the console during the test.
         };
@@ -1466,6 +1478,7 @@ describe('BaseNeonComponent', () => {
     it('handleTransformVisualizationQueryResults does call success callback function', (done) => {
         let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (options, results) => {
             expect(options).toEqual(expectedOptions);
             expect(results).toEqual(expectedResults);
@@ -1476,7 +1489,7 @@ describe('BaseNeonComponent', () => {
             expect(elementCount).toEqual(10);
             done();
         };
-        let failureCallback = (err: Error) => {
+        let failureCallback = (_err: Error) => {
             fail();
             done();
         };
@@ -1487,11 +1500,12 @@ describe('BaseNeonComponent', () => {
         let expectedError = new Error('Test Error');
         let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        component.transformVisualizationQueryResults = (options, results) => {
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        component.transformVisualizationQueryResults = (_options, _results) => {
             throw expectedError;
         };
 
-        let successCallback = (elementCount: number) => {
+        let successCallback = (_elementCount: number) => {
             fail();
             done();
         };
@@ -1679,6 +1693,7 @@ describe('BaseNeonComponent', () => {
                 }
             }
         };
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.getElementRefs = () => elementRefs;
         component['updateHeaderTextStyles']();
         expect(elementRefs.headerText.nativeElement.style.maxWidth).toEqual('839px');
@@ -1689,7 +1704,7 @@ describe('BaseNeonComponent', () => {
 
         component['updateCollectionWithGlobalCompatibleFilters']();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], component['cachedFilters'], component['searchService']]);
+        expect(spy.calls.argsFor(0)).toEqual([[], component['cachedFilters']]);
 
         let compatibleFilterBehaviorList = [{
             filterDesign: {},
@@ -1702,8 +1717,7 @@ describe('BaseNeonComponent', () => {
 
         component['updateCollectionWithGlobalCompatibleFilters']();
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, component['cachedFilters'],
-            component['searchService']]);
+        expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, component['cachedFilters']]);
     });
 
     it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event', () => {
@@ -1942,16 +1956,20 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             {
-                provide: 'customEventsToPublish', useValue: [{
-                    id: 'testPublishId', fields: [{
+                provide: 'customEventsToPublish',
+                useValue: [{
+                    id: 'testPublishId',
+                    fields: [{
                         columnName: 'testPublishColumnName',
                         prettyName: 'testPublishPrettyName'
                     }]
                 }]
             },
             {
-                provide: 'customEventsToReceive', useValue: [{
-                    id: 'testReceiveId', fields: [{
+                provide: 'customEventsToReceive',
+                useValue: [{
+                    id: 'testReceiveId',
+                    fields: [{
                         columnName: 'testReceiveColumnName',
                         type: 'testReceiveType'
                     }]
@@ -2029,7 +2047,13 @@ describe('Advanced BaseNeonComponent with config', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testConfigField', 'testSizeField', 'testNameField', 'testXField', 'testYField', 'testFilterField', 'testPublishColumnName',
+                'testConfigField',
+                'testSizeField',
+                'testNameField',
+                'testXField',
+                'testYField',
+                'testFilterField',
+                'testPublishColumnName',
                 'testReceiveColumnName'
             ],
             filter: {
@@ -2160,6 +2184,7 @@ describe('Advanced BaseNeonComponent with config', () => {
 
         component['openContributionDialog']();
 
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(component.dialog.open).toHaveBeenCalledWith(DynamicDialogComponent, config);
         expect(component['contributorsRef']).toBeNull();
     }));

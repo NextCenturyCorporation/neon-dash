@@ -13,9 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 // Includes the filter-builder as well as the current-filters component.
 @Component({
@@ -25,7 +23,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 })
 export class FiltersComponent {
     @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
-    public showFilterBuilderView: boolean = true; // if false, show current filters instead
+    public showFilterBuilderView: boolean = true; // If false, show current filters instead
 
     /**
      * Returns the default title.

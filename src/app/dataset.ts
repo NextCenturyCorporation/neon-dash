@@ -21,7 +21,7 @@ export class FieldMetaData {
         public prettyName: string = '',
         public hide: boolean = false,
         public type: string = ''
-    ) { }
+    ) {}
 }
 
 export class TableMetaData {
@@ -31,7 +31,7 @@ export class TableMetaData {
         public fields: FieldMetaData[] = [],
         public mappings: TableMappings = {},
         public labelOptions: any = {}
-    ) { }
+    ) {}
 }
 
 export class DatabaseMetaData {
@@ -39,7 +39,7 @@ export class DatabaseMetaData {
         public name: string = '',
         public prettyName: string = '',
         public tables: TableMetaData[] = []
-    ) { }
+    ) {}
 }
 
 export interface TableMappings {
@@ -65,7 +65,7 @@ export class SimpleFilter {
         public icon?: string,
         public tableKey?: string,
         public fieldKey?: string
-    ) { }
+    ) {}
 }
 
 /*
@@ -98,9 +98,9 @@ export class Datastore {
 
     constructor(
         public name: string = '',
-        public host: string = '', // formerly hostname
-        public type: string = '' // type of datastore (mongo, elasticsearch, etc.)
-    ) { }
+        public host: string = '', // Formerly hostname
+        public type: string = '' // Type of datastore (mongo, elasticsearch, etc.)
+    ) {}
 }
 
 /**
@@ -118,8 +118,8 @@ export class Dashboard {
     public filters?: any[] = [];
     public visualizationTitles?: { [key: string]: string } = {};
     public options?: DashboardOptions = new DashboardOptions();
-    public fullTitle?: string; // added to dashboard in validateDashboards()
-    public pathFromTop?: string[]; // added to dashboard in validateDashboards() - contains keys
+    public fullTitle?: string; // Added to dashboard in validateDashboards()
+    public pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
     // (sans choices object references) needed to traverse back up Dashboard object
     public relations?: (string | string[])[][];
     public contributors?: { [key: string]: Contributor } = {};
@@ -133,17 +133,17 @@ export class Dashboard {
  */
 export class DashboardOptions {
     public connectOnLoad?: boolean = false;
-    public colorMaps?: Object;
+    public colorMaps?: Record<string, any>;
     public simpleFilter?: SimpleFilter;
 }
 
 export class Contributor {
-    public orgName: String;
-    public abbreviation: String;
-    public contactName: String;
-    public contactEmail: String;
-    public website: String;
-    public logo: String;
+    public orgName: string;
+    public abbreviation: string;
+    public contactName: string;
+    public contactEmail: string;
+    public website: string;
+    public logo: string;
 }
 
 export const MediaTypes = {

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
@@ -153,7 +153,6 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does hide loading overlay by default', (() => {
-
         let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
@@ -161,13 +160,13 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does hide wiki-text tabs if active data is empty', inject([DomSanitizer], (sanitizer) => {
+    it('does hide wiki-text tabs if active data is empty', () => {
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
 
         let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
         expect(text.length).toBe(0);
-    }));
+    });
 });
 
 describe('Component: WikiViewer with mock HTTP', () => {
@@ -224,7 +223,8 @@ describe('Component: WikiViewer with mock HTTP', () => {
             expect(component.wikiViewerData.length).toEqual(1);
             expect(component.wikiViewerData[0].name).toEqual('Test Title');
             expect(component.wikiViewerData[0].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)'
+            );
             done();
         };
 
@@ -294,9 +294,11 @@ describe('Component: WikiViewer with mock HTTP', () => {
             expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
             expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
             expect(component.wikiViewerData[0].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)'
+            );
             expect(component.wikiViewerData[1].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)'
+            );
             done();
         };
 

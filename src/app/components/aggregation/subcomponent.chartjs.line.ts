@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
 
@@ -70,7 +70,6 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         selectMode: SelectMode = SelectMode.DOMAIN) {
-
         super(options, listener, elementRef, selectMode);
     }
 

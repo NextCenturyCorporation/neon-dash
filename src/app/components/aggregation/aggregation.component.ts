@@ -60,7 +60,6 @@ import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
-import { FieldMetaData } from '../../dataset';
 import { ListSubcomponent } from './subcomponent.list';
 import {
     OptionChoices,
@@ -101,37 +100,38 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     // The minimum dimensions for the subcomponent.
     public minimumDimensionsMain: {
-        height: number,
-        width: number
+        height: number;
+        width: number;
     } = {
-            height: 50,
-            width: 50
-        };
+        height: 50,
+        width: 50
+    };
+
     public minimumDimensionsZoom: {
-        height: number,
-        width: number
+        height: number;
+        width: number;
     } = {
-            height: 50,
-            width: 50
-        };
+        height: 50,
+        width: 50
+    };
 
     // TODO THOR-1067 The subcomponent should draw this!
     // The selected area on the subcomponent (box or range).
     public selectedArea: {
-        height: number,
-        width: number,
-        x: number,
-        y: number
+        height: number;
+        width: number;
+        x: number;
+        y: number;
     } = null;
 
     // The selected area offset from the subcomponent location.
     public selectedAreaOffset: {
-        x: number,
-        y: number
+        x: number;
+        y: number;
     } = {
-            x: 0,
-            y: 0
-        };
+        x: 0,
+        y: 0
+    };
 
     // The subcomponents.  If dualView is on, both are used.  Otherwise, only main is used.
     public subcomponentMain: AbstractAggregationSubcomponent;
@@ -189,7 +189,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         dialog: MatDialog,
         protected widgetService: AbstractWidgetService
     ) {
-
         super(
             datasetService,
             filterService,
@@ -282,19 +281,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             switch (options.granularity) {
                 case 'minute':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
-                /* falls through */
+                    // Falls through
                 case 'hour':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
-                /* falls through */
+                    // Falls through
                 case 'day':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
-                /* falls through */
+                    // Falls through
                 case 'month':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
-                /* falls through */
+                    // Falls through
                 case 'year':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
-                /* falls through */
+                    // Falls through
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
             countField = '_' + options.granularity;
@@ -335,10 +334,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
-            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount),
+            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
             new WidgetFieldOption('groupField', 'Group Field', false),
             new WidgetFieldOption('xField', 'X Field', true),
-            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY)
+            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this))
         ];
     }
 
@@ -430,10 +429,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
-                this.optionsTypeIsNotXY),
+                this.optionsTypeIsNotXY.bind(this)),
             new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate),
-            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity, this.optionsXFieldIsDate),
+            new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate.bind(this)),
+            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity,
+                this.optionsXFieldIsDate.bind(this)),
             new WidgetSelectOption('dualView', 'Dual View', '', [{
                 prettyName: 'Always Off',
                 variable: ''
@@ -443,14 +443,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: 'Only On Filter',
                 variable: 'filter'
-            }], this.optionsTypeIsDualViewCompatible),
+            }], this.optionsTypeIsDualViewCompatible.bind(this)),
             new WidgetSelectOption('notFilterable', 'Filterable', false, OptionChoices.YesFalseNoTrue),
             new WidgetSelectOption('requireAll', 'Filter Operator', false, OptionChoices.OrFalseAndTrue),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
-            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue, this.optionsTypeUsesGrid),
-            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.optionsTypeUsesGrid),
-            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', '', this.optionsTypeUsesGrid),
+            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue,
+                this.optionsTypeUsesGrid.bind(this)),
+            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue,
+                this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', '', this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
@@ -478,17 +480,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: '0.9',
                 variable: 0.9
-            }], this.optionsTypeIsLine),
+            }], this.optionsTypeIsLine.bind(this)),
             new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, OptionChoices.NoFalseYesTrue,
-                this.optionsTypeIsLine),
-            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.optionsTypeUsesGrid),
-            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue, this.optionsTypeUsesGrid),
+                this.optionsTypeIsLine.bind(this)),
+            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeUsesGrid.bind(this)),
+            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid),
-            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid),
-            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid),
-            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid),
-            new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList),
+            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList.bind(this)),
             new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
                 prettyName: 'Label',
@@ -543,7 +547,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }, {
                 prettyName: '0.5',
                 variable: 0.5
-            }], this.optionsTypeUsesGrid)
+            }], this.optionsTypeUsesGrid.bind(this))
         ];
     }
 
@@ -819,9 +823,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let shownResults = [];
 
         if (!isXY) {
-            queryResults = queryResults.filter((item) => {
-                return item._aggregation !== 'NaN';
-            });
+            queryResults = queryResults.filter((item) => item._aggregation !== 'NaN');
         }
 
         if (options.xField.type === 'date' && queryResults.length) {
@@ -856,18 +858,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 options.granularity === 'year' ? 1 : 0);
 
             // Create the X list now so it is properly sorted.  Items will be removed as needed.
-            xList = _.range(xDomainLength).map((index) => {
-                return moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
-            });
+            xList = _.range(xDomainLength).map((index) => moment(this.dateBucketizer.getDateForBucket(index)).toISOString());
 
             queryResults.forEach((item) => {
                 let transformation = createTransformationFromItem(item);
                 let transformations = groupToTransformations.get(transformation.group);
                 if (!transformations) {
                     // Create an empty array for each date bucket.
-                    transformations = new Array(xDomainLength).fill(undefined).map(() => {
-                        return [];
-                    });
+                    transformations = new Array(xDomainLength).fill(undefined).map(() => []);
                     groupToTransformations.set(transformation.group, transformations);
                 }
                 let index = this.dateBucketizer.getBucketIndex(new Date(item._date));
@@ -882,15 +880,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             shownResults = Array.from(groupToTransformations.keys()).reduce((transformations, group) => {
                 let nextTransformations = groupToTransformations.get(group);
                 if (options.timeFill) {
-                    nextTransformations = nextTransformations.map((transformationArray, index) => {
+                    nextTransformations = nextTransformations.map((transformationArray, index) =>
                         // If timeFill is true and the date bucket is an empty array, replace it with a single item with a Y of zero.
-                        return transformationArray.length ? transformationArray : [{
+                        transformationArray.length ? transformationArray : [{
                             color: findGroupColor(group),
                             group: group,
                             x: moment(this.dateBucketizer.getDateForBucket(index)).toISOString(),
                             y: 0
-                        }];
-                    });
+                        }]);
                 }
 
                 // Update the X and Y lists, remove each empty array, and flatten all date buckets into one big array.
@@ -907,9 +904,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
             // Remove each X from the list that does not exist in the data unless the subcomponent is a histogram.
             if (options.type !== 'histogram') {
-                xList = xList.filter((x) => {
-                    return xExists.get(x);
-                });
+                xList = xList.filter((x) => xExists.get(x));
             }
         } else {
             // Transform non-date data.
@@ -1094,7 +1089,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
-
                 let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
                 let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
                 let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
@@ -1103,7 +1097,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
                 if (this.subcomponentMain && typeof beginX !== 'undefined' && typeof endX !== 'undefined' &&
                     typeof beginY !== 'undefined' && typeof endY !== 'undefined') {
-
                     this.subcomponentMain.select([{
                         beginX: beginX,
                         endX: endX,
@@ -1141,7 +1134,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             if (domainFilter && domainFilter.type === CompoundFilterType.AND && domainFilter.filters.length === 2 &&
                 FilterUtil.isSimpleFilterDesign(domainFilter.filters[0]) &&
                 FilterUtil.isSimpleFilterDesign(domainFilter.filters[1])) {
-
                 let nestedFilters: SimpleFilterDesign[] = domainFilter.filters as SimpleFilterDesign[];
                 let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
                 let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
@@ -1176,7 +1168,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
             this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
                 if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
-                    let value = this.findMatchingFilterDesign([filterDesign as SimpleFilterDesign], 'xField', '=');
+                    let value = this.findMatchingFilterDesign([filterDesign], 'xField', '=');
                     return value ? values.concat(value) : values;
                 }
                 return values;
@@ -1190,7 +1182,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         // Find the values inside the filters with an expected structure of createFilterDesignOnLegend.
         this.legendDisabledGroups = filterDesigns.reduce((groups, filterDesign) => {
             if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
-                let group = this.findMatchingFilterDesign([filterDesign as SimpleFilterDesign], 'groupField', '!=');
+                let group = this.findMatchingFilterDesign([filterDesign], 'groupField', '!=');
                 return group ? groups.concat(group) : groups;
             }
             return groups;
@@ -1228,12 +1220,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     refreshVisualization(redrawMain: boolean = false) {
         let findAxisType = (type) => {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
-            /* tslint:disable:prefer-switch */
             if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||
                 type === 'half_float' || type === 'scaled_float') {
                 return 'number';
             }
-            /* tslint:enable:prefer-switch */
             return type === 'date' ? 'date' : 'string';
         };
 
@@ -1388,11 +1378,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (event) {
             this.stopEventPropagation(event);
         }
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         if (!this.changeDetection['destroyed']) {
             this.changeDetection.detectChanges();
         }
-        /* tslint:enable:no-string-literal */
     }
 
     /**

@@ -22,20 +22,20 @@ import { OptionsListModule } from '../options-list/options-list.module';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [GearComponent],
-  exports: [GearComponent],
-  entryComponents: [GearComponent],
-  imports: [
-    ExportControlModule,
-    OptionsListModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatSelectModule,
-    MatInputModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [GearComponent],
+    exports: [GearComponent],
+    entryComponents: [GearComponent],
+    imports: [
+        ExportControlModule,
+        OptionsListModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatSelectModule,
+        MatInputModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class GearModule { }

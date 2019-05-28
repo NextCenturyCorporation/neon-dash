@@ -24,7 +24,6 @@ import { Contributor } from '../../../app/dataset';
     styleUrls: ['./contribution-dialog.component.scss']
 })
 export class ContributionDialogComponent {
-
     public data: Contributor[];
 
     constructor(@Inject(MAT_DIALOG_DATA) data: Contributor[], public dialogRef: MatDialogRef<ContributionDialogComponent>) {

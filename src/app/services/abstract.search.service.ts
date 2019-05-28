@@ -30,6 +30,7 @@ export enum CompoundFilterType {
 }
 
 export interface Connection {
+
     /**
      * Deletes the saved dashboard state with the given name.
      *
@@ -84,7 +85,7 @@ export interface Connection {
      * @abstract
      */
     getTableNamesAndFieldNames(databaseName: string, onSuccess: (response: any) => void, onError?: (response: any) => void):
-        RequestWrapper;
+    RequestWrapper;
 
     /**
      * Loads the saved state with the given name.
@@ -108,7 +109,7 @@ export interface Connection {
      * @abstract
      */
     runExportQuery(exportData: any, exportFormat: any, onSuccess: (response: any) => void, onError?: (response: any) => void):
-        RequestWrapper;
+    RequestWrapper;
 
     /**
      * Runs a search query with the given payload.
@@ -120,7 +121,7 @@ export interface Connection {
      * @abstract
      */
     runSearchQuery(queryPayload: QueryPayload, onSuccess: (response: any) => void, onError?: (response: any) => void):
-        RequestWrapper;
+    RequestWrapper;
 
     /**
      * Saves (or overwrites) a state with the given data.
@@ -155,13 +156,13 @@ export enum TimeInterval {
     YEAR = 'year'
 }
 
-/* tslint:disable:no-empty-interface */
+/* eslint-disable @typescript-eslint/no-empty-interface */
 export interface FilterClause {}
 
 export interface QueryGroup {}
 
 export interface QueryPayload {}
-/* tslint:enable:no-empty-interface */
+/* eslint-enable @typescript-eslint/no-empty-interface */
 
 /**
  * A service to run searches.
@@ -171,7 +172,6 @@ export interface QueryPayload {}
  */
 @Injectable()
 export abstract class AbstractSearchService {
-
     /**
      * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that
      * filter clause.
@@ -263,7 +263,7 @@ export abstract class AbstractSearchService {
      * @abstract
      */
     public abstract transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
-        { [key: string]: { [value: string]: string } }): QueryPayload;
+    { [key: string]: { [value: string]: string } }): QueryPayload;
 
     /**
      * Transforms the given search query payload into an object to export.

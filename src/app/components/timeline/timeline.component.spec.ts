@@ -39,7 +39,6 @@ describe('Component: Timeline', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Timeline', {
         providers: [
@@ -74,9 +73,9 @@ describe('Component: Timeline', () => {
 
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 3, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 3, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
 
         component.onTimelineSelection(startDate, endDate, []);
 
@@ -108,9 +107,9 @@ describe('Component: Timeline', () => {
 
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
 
         let selectedData = [
             {
@@ -155,9 +154,9 @@ describe('Component: Timeline', () => {
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear() - 1, date.getUTCMonth(), date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear() - 1, date.getUTCMonth(), date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getDay());
 
         component.onTimelineSelection(startDate, endDate, []);
 
@@ -199,9 +198,9 @@ describe('Component: Timeline', () => {
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
 
         let selectedData = [
             {
@@ -278,8 +277,7 @@ describe('Component: Timeline', () => {
             groups: [{
                 field: 'testDateField',
                 type: 'year'
-            }
-            ],
+            }],
             aggregation: [
                 {
                     type: 'min',
@@ -313,8 +311,7 @@ describe('Component: Timeline', () => {
             {
                 field: 'testDateField',
                 type: 'year'
-            }
-            ],
+            }],
             aggregation: [
                 {
                     type: 'min',
@@ -352,8 +349,7 @@ describe('Component: Timeline', () => {
                 {
                     field: 'testDateField',
                     type: 'year'
-                }
-            ],
+                }],
             aggregation: [
                 {
                     type: 'min',
@@ -393,8 +389,7 @@ describe('Component: Timeline', () => {
                 {
                     field: 'testDateField',
                     type: 'year'
-                }
-            ],
+                }],
             aggregation: [
                 {
                     type: 'min',
@@ -453,7 +448,7 @@ describe('Component: Timeline', () => {
         }]);
 
         expect(actual).toEqual(4);
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 3,
             ids: ['id1', 'id2', 'id3'],
@@ -489,7 +484,7 @@ describe('Component: Timeline', () => {
         }]);
 
         expect(actual).toEqual(11);
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 10,
             date: new Date(2017, 9, 26, 12, 33, 13)
@@ -515,16 +510,16 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(previousItem).toEqual({
             value: 1,
             ids: ['id2'],
@@ -548,16 +543,16 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(previousItem2).toEqual({
             value: 1,
             ids: ['id2'],
@@ -588,14 +583,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         expect(previousItem).toEqual(undefined);
 
@@ -614,16 +609,15 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         expect(previousItem2).toEqual(undefined);
     });
-
 });

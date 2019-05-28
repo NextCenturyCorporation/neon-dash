@@ -13,10 +13,9 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, fakeAsync, inject, tick } from '@angular/core/testing';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { AbstractSearchService, CompoundFilterType } from './abstract.search.service';
 import { DatasetService } from './dataset.service';
@@ -41,9 +40,9 @@ import { ConfigService } from './config.service';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
-        /* tslint:disable:no-console */
+        /* eslint-disable no-console */
         console.log('STARTING FILTER UTIL TESTS...');
-        /* tslint:enable:no-console */
+        /* eslint-enable no-console */
     });
 
     it('areFilterDataSourcesEquivalent should return expected boolean', () => {
@@ -1598,7 +1597,9 @@ describe('SimpleFilter and CompoundFilter (Date Fields)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+        compoundFilter.filters.forEach((filter) => {
+            filter.datastore = 'testDatastore1';
+        });
     }));
 
     it('toString on simple date filter should return expected string', () => {
@@ -1642,7 +1643,9 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+        compoundFilter.filters.forEach((filter) => {
+            filter.datastore = 'testDatastore1';
+        });
     }));
 
     it('does have expected properties', () => {
@@ -2216,7 +2219,9 @@ describe('CompoundFilter (One Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        (testFilter9 as any).filters.forEach((filter) => filter.datastore = 'testDatastore1');
+        (testFilter9 as any).filters.forEach((filter) => {
+            filter.datastore = 'testDatastore1';
+        });
 
         expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
@@ -2301,7 +2306,9 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        compoundFilter.filters.forEach((filter) => filter.datastore = 'testDatastore1');
+        compoundFilter.filters.forEach((filter) => {
+            filter.datastore = 'testDatastore1';
+        });
     }));
 
     it('does have expected properties', () => {
@@ -2968,7 +2975,9 @@ describe('CompoundFilter (Multi-Field)', () => {
             } as SimpleFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        (testFilter9 as any).filters.forEach((filter) => filter.datastore = 'testDatastore1');
+        (testFilter9 as any).filters.forEach((filter) => {
+            filter.datastore = 'testDatastore1';
+        });
 
         expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
@@ -3073,7 +3082,9 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
             } as CompoundFilterDesign]
         } as CompoundFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
-        compoundFilter.filters.forEach((filter) => filter.filters.forEach((nestedFilter) => nestedFilter.datastore = 'testDatastore1'));
+        compoundFilter.filters.forEach((filter) => filter.filters.forEach((nestedFilter) => {
+            nestedFilter.datastore = 'testDatastore1';
+        }));
     }));
 
     it('does have expected properties', () => {
@@ -3185,9 +3196,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
 });
 
 describe('FilterService with no filters', () => {
-    let datasetService: DatasetService;
     let filterService: FilterService;
-    let searchService: AbstractSearchService;
 
     initializeTestBed('Filter Service with no filters', {
         providers: [
@@ -3203,15 +3212,13 @@ describe('FilterService with no filters', () => {
         ]
     });
 
-    beforeEach(inject([DatasetService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
-        datasetService = _datasetService;
+    beforeEach(inject([FilterService], (_filterService) => {
         filterService = _filterService;
-        searchService = _searchService;
     }));
 
     it('should have expected properties', () => {
         expect((filterService as any).filterCollection).toBeDefined();
-        expect(((filterService as any).filterCollection as any).data.size).toEqual(0);
+        expect(((filterService as any).filterCollection).data.size).toEqual(0);
         expect((filterService as any).messenger).toBeDefined();
     });
 
@@ -3363,7 +3370,7 @@ describe('FilterService with filters', () => {
 
     afterEach(() => {
         // Services are not recreated in each test so we must reset the internal data.
-        ((filterService as any).filterCollection as any).data.clear();
+        ((filterService as any).filterCollection).data.clear();
     });
 
     /**
@@ -3449,7 +3456,7 @@ describe('FilterService with filters', () => {
     it('deleteFilter should delete filter and publish a FILTERS_CHANGED event', () => {
         let spy = spyOn((filterService as any).messenger, 'publish');
 
-        let actual = filterService.deleteFilter('testCaller', design1A, searchService);
+        let actual = filterService.deleteFilter('testCaller', design1A);
 
         expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
         expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
@@ -3472,7 +3479,7 @@ describe('FilterService with filters', () => {
 
         let spy = spyOn((filterService as any).messenger, 'publish');
 
-        let actual = filterService.deleteFilter('testCaller', relationDesign1, searchService);
+        let actual = filterService.deleteFilter('testCaller', relationDesign1);
 
         expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
         expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
@@ -5242,7 +5249,7 @@ describe('FilterService with filters', () => {
 
         let testCollection = new FilterCollection();
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
         expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
@@ -5275,7 +5282,7 @@ describe('FilterService with filters', () => {
 
         let testCollection = new FilterCollection();
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([source1, source2]);
         expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
@@ -5302,7 +5309,7 @@ describe('FilterService with filters', () => {
         let testCollection = new FilterCollection();
         testCollection.setFilters(source1, [filter1A, filter1C]);
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
         expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
@@ -5330,7 +5337,7 @@ describe('FilterService with filters', () => {
         let testCollection = new FilterCollection();
         testCollection.setFilters(source1, [filter1A, filter1C]);
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
         expect(testCollection.getFilters(source1)).toEqual([]);
@@ -5376,7 +5383,7 @@ describe('FilterService with filters', () => {
 
         let testCollection = new FilterCollection();
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
         expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
@@ -5403,7 +5410,7 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         let calls = 0;
-        let testRedrawCallback = (filters) => {
+        let testRedrawCallback = (_filters) => {
             calls++;
         };
 
@@ -5414,7 +5421,7 @@ describe('FilterService with filters', () => {
 
         let testCollection = new FilterCollection();
 
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection, searchService);
+        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
 
         expect(testCollection.getDataSources()).toEqual([testSource]);
         expect(testCollection.getFilters(testSource)).toEqual([]);
