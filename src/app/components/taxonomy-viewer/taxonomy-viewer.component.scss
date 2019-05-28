@@ -57,6 +57,10 @@
     }
     &.leaf-node {
         margin-left: 20px;
+        label {
+            display: grid;
+            grid-template-columns: auto 1fr;
+        }
     }
     input[type=checkbox] {
         margin-right: .5em;

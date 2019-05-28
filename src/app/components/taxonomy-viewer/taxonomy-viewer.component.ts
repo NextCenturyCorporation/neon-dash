@@ -445,8 +445,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     checkRelatedNodes(node: TaxonomyNode, check: { checked: boolean }) {
-        let relatives = [];
-
         // Update all the groups in the taxonomy (select or unselect them).
         this.updateChildNodesCheckBox(node, check.checked);
         this.updateParentNodesCheckBox(node.parent);
@@ -521,34 +519,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     updateParentNodesCheckBox(node: TaxonomyNode | TaxonomyGroup) {
         if (node && node.level > 0 && 'children' in node) {
-            let allChildrenChecked = true,
-                noChildrenChecked = true;
-
-            for (let child of node.children) {
-                if (node.level === 1 && !!child.indeterminate) {
-                    allChildrenChecked = false;
-                    noChildrenChecked = false;
-                } else if (!child.checked) {
-                    allChildrenChecked = false;
-                } else if (child.checked) {
-                    noChildrenChecked = false;
-                }
-            }
-
-            if (allChildrenChecked) {
-                node.checked = true;
-                node.indeterminate = false;
-            } else if (noChildrenChecked) {
-                node.checked = false;
-                node.indeterminate = false;
-            } else {
-                node.checked = true;
-                node.indeterminate = true;
-            }
-
-            if (node.parent) {
-                this.updateParentNodesCheckBox(node.parent);
-            }
+            const checked = node.children.filter((x) => x.checked).length;
+            const allChecked = checked === node.children.length;
+            node.indeterminate = !allChecked && checked > 0;
+            node.checked = allChecked;
+            this.updateParentNodesCheckBox(node.parent);
         }
     }
 

@@ -27,9 +27,11 @@
                     <label>
                         <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
                             [class.indeterminate]="!!node.indeterminate">
-                        {{node.name}}
-                        <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
-                        <span *ngIf="node.count">({{ node.count }})</span>
+                        <span class="text">
+                            {{node.name}}
+                            <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
+                            <span *ngIf="node.count">({{ node.count }})</span>
+                        </span>
                     </label>
                 </div>
             </mat-tree-node>
