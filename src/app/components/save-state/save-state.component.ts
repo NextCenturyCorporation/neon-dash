@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
+import { Component, OnInit, Input, ViewContainerRef } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -24,20 +23,20 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
-import { Dashboard, Datastore } from '../../dataset';
+import { Dashboard } from '../../dataset';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
+
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 
 @Component({
-  selector: 'app-save-state',
-  templateUrl: 'save-state.component.html',
-  styleUrls: ['save-state.component.scss']
+    selector: 'app-save-state',
+    templateUrl: 'save-state.component.html',
+    styleUrls: ['save-state.component.scss']
 })
 export class SaveStateComponent implements OnInit {
     private static SAVED_STATE_DASHBOARD_KEY = 'saved_state';
@@ -53,7 +52,7 @@ export class SaveStateComponent implements OnInit {
         stateToDelete: ''
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
+    public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
     public stateNames: string[] = [];
@@ -78,6 +77,18 @@ export class SaveStateComponent implements OnInit {
         if (this.sidenav) {
             this.sidenav.close();
         }
+    }
+
+    openEditConfigDialog() {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
+            height: '80%',
+            width: '80%',
+            hasBackdrop: true,
+            disableClose: true
+        });
     }
 
     private createDashboard(stateName: string, dashboard: Dashboard, filters: any[]): Dashboard {
@@ -205,7 +216,6 @@ export class SaveStateComponent implements OnInit {
             // Dashboard choices should be set by wrapInSavedStateDashboard
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
-
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]
                 });
@@ -273,17 +283,18 @@ export class SaveStateComponent implements OnInit {
         this.formData.stateToDelete = name;
     }
 
-    public openConfirmationDialog() {
-        this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    openConfirmationDialog() {
+        this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'confirmation-dialog',
+                confirmMessage: 'Are you sure you want to delete ',
+                confirmText: 'Delete',
+                target: this.formData.stateToDelete
+            },
             height: '130px',
             width: '500px',
             disableClose: false
         });
-
-        this.confirmDialogRef.componentInstance.confirmMessage = 'Are you sure you want to delete ';
-        this.confirmDialogRef.componentInstance.cancelText = 'Cancel';
-        this.confirmDialogRef.componentInstance.confirmText = 'Delete';
-        this.confirmDialogRef.componentInstance.target = this.formData.stateToDelete;
 
         this.confirmDialogRef.afterClosed().subscribe((result) => {
             if (result) {
@@ -302,12 +313,12 @@ export class SaveStateComponent implements OnInit {
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top'
-         });
+        });
     }
 
     private validateName(stateName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9\.\_\-\+\=\,]/g, '');
+        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 
     private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {

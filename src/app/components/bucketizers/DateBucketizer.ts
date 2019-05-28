@@ -113,9 +113,8 @@ export class DateBucketizer extends Bucketizer {
         let roundedDate = this.zeroOutDate(new Date(date.getTime() - 1 + this.millisMultiplier));
         if (roundedDate > this.getEndDate()) {
             return this.getEndDate();
-        } else {
-            return roundedDate;
         }
+        return roundedDate;
     }
 
     /**
@@ -127,9 +126,8 @@ export class DateBucketizer extends Bucketizer {
         let roundedDate = this.zeroOutDate(new Date(date.getTime() + 1));
         if (roundedDate < this.getStartDate()) {
             return this.getStartDate();
-        } else {
-            return roundedDate;
         }
+        return roundedDate;
     }
 
     getDateFormat(): string {

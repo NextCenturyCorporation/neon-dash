@@ -13,18 +13,14 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FieldMetaData } from '../../dataset';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
@@ -33,62 +29,25 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatAutocompleteModule } from '@angular/material';
-import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './subcomponent.title-view';
-import { CardThumbnailSubComponent } from './subcomponent.card-view';
 
-let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
-    expect(element.componentInstance.disabled).toEqual(disabled);
-    expect(element.componentInstance.placeholder).toEqual(name);
-    expect(element.componentInstance.required).toEqual(required);
-};
-
-let validateSelectFields = (element: any, required: boolean = false, selected: string = '') => {
-    let options = element.componentInstance.options.toArray();
-    expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + (required ? 0 : 1));
-    if (!required) {
-        expect(options[0].getLabel()).toEqual('(None)');
-    }
-    for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-        let index = (required ? i : (i + 1));
-        expect(options[index].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-        expect(options[index].selected).toEqual(selected ? (DatasetServiceMock.FIELDS[i].columnName === selected) : false);
-    }
-};
-
-let validateToggle = (element: any, value: any, content: string, checked: boolean) => {
-    expect(element.componentInstance.value).toEqual(value);
-    expect(element.nativeElement.textContent).toContain(content);
-    expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
-};
+import { ThumbnailGridModule } from './thumbnail-grid.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
     let fixture: ComponentFixture<ThumbnailGridComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            MatAutocompleteModule,
-            ReactiveFormsModule
+            ThumbnailGridModule
         ]
     });
 
@@ -186,8 +145,6 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
-
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
@@ -289,7 +246,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(true);
@@ -315,7 +273,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(false);
@@ -341,7 +300,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            'mat-sidenav-container .footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(false);
@@ -356,8 +316,6 @@ describe('Component: ThumbnailGrid', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-
-        let fields = ['testLinkField', 'testSortField'];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -529,18 +487,18 @@ describe('Component: ThumbnailGrid', () => {
         component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual(CompoundFilterType.OR);
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
     });
 
     it('isSelectable does return expected boolean', () => {
@@ -568,11 +526,9 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === component.options.filterFields[0] && filterDesign.operator === '=' &&
-                filterDesign.value === 'testFilterValue1';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
+            filterDesign.table === component.options.table && filterDesign.field === component.options.filterFields[0] &&
+            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -789,20 +745,12 @@ describe('Component: ThumbnailGrid with config', () => {
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
-
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
@@ -835,9 +783,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            ThumbnailGridModule
         ]
     });
 

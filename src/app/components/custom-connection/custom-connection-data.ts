@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { TableMetaData, DatabaseMetaData } from '../../dataset';
+import { DatabaseMetaData } from '../../dataset';
 
 export class CustomConnectionData {
     public datasetName: string = '';

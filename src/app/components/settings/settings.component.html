@@ -6,7 +6,8 @@
     <h3 class="header">Themes</h3>
     <div class='radio-container' layout="row" mat-margin>
         <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}
+            </mat-radio-button>
         </mat-radio-group>
     </div>
     <mat-divider class="divider"></mat-divider>

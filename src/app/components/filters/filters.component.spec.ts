@@ -13,14 +13,11 @@
  * limitations under the License.
  *
  */
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector, DebugElement } from '@angular/core';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { AppMaterialModule } from '../../app.material.module';
 import { FiltersComponent } from './filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -31,9 +28,10 @@ import { FilterService } from '../../services/filter.service';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { CurrentFiltersComponent } from '../current-filters/current-filters.component';
-import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { By } from '@angular/platform-browser';
+
+import { FiltersModule } from './filters.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -42,22 +40,16 @@ describe('Component: Filters', () => {
     let debugElement: DebugElement;
 
     initializeTestBed('Filters', {
-        declarations: [
-            FiltersComponent,
-            FilterBuilderComponent,
-            CurrentFiltersComponent
-        ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            FiltersModule
         ]
     });
 
@@ -84,8 +76,10 @@ describe('Component: Filters', () => {
     it('closeFiltersDialog() emits boolean when called', (() => {
         spyOn(component.closeDialog, 'emit');
         component.closeFiltersDialog();
+        /* eslint-disable @typescript-eslint/unbound-method */
         expect(component.closeDialog.emit).toHaveBeenCalled();
         expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
+        /* eslint-enable @typescript-eslint/unbound-method */
     }));
 
     it('filter-builder is shown when showFilterBuilderView is true', (() => {

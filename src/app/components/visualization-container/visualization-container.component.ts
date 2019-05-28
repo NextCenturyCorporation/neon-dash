@@ -22,9 +22,9 @@ import { neonEvents } from '../../neon-namespaces';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 
 @Component({
-  selector: 'app-visualization-container',
-  templateUrl: 'visualization-container.component.html',
-  styleUrls: ['visualization-container.component.scss']
+    selector: 'app-visualization-container',
+    templateUrl: 'visualization-container.component.html',
+    styleUrls: ['visualization-container.component.scss']
 })
 export class VisualizationContainerComponent implements OnInit {
     @ViewChild(VisualizationInjectorComponent) injector: VisualizationInjectorComponent;
@@ -72,7 +72,6 @@ export class VisualizationContainerComponent implements OnInit {
         setTimeout(() => {
             this.onResizeStop();
         }, 300);
-
     }
 
     moveToTop() {

@@ -30,17 +30,13 @@ import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, Simp
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import {
-    OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetNonPrimitiveOption,
     WidgetOption,
-    WidgetOptionCollection,
-    WidgetSelectOption
+    WidgetOptionCollection
 } from '../../widget-option';
 
 import { neonEvents } from '../../../app/neon-namespaces';
-import * as uuidv4 from 'uuid/v4';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -74,7 +70,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
-
         super(
             datasetService,
             filterService,
@@ -165,7 +160,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+    finalizeVisualizationQuery(_options: any, _query: QueryPayload, _sharedFilters: FilterClause[]): QueryPayload {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return null;
     }
@@ -219,7 +214,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {FilterClauseMetaData} filterClause
      */
-    public handleChangeDataOfClause(filterClause: FilterClauseMetaData): void {
+    public handleChangeDataOfClause(_filterClause: FilterClauseMetaData): void {
         // Do nothing.
     }
 
@@ -258,9 +253,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @arg {FilterClauseMetaData} filterClause
      */
     public removeClause(filterClause: FilterClauseMetaData): void {
-        this.filterClauses = this.filterClauses.filter((filterClauseFromGlobalList) => {
-            return filterClause._id !== filterClauseFromGlobalList._id;
-        });
+        this.filterClauses = this.filterClauses.filter((filterClauseFromGlobalList) => filterClause._id !== filterClauseFromGlobalList._id);
 
         if (!this.filterClauses.length) {
             this.addBlankFilterClause();
@@ -277,7 +270,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         // Turn the filter clauses into filter designs.
         let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
-            let operator: string = filterClause.operator.value;
             let value: any = filterClause.value;
             if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
                 value = parseFloat(filterClause.value);
@@ -321,7 +313,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(_options: any, _results: any[]): number {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return 0;
     }
@@ -355,7 +347,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      * @override
      */
-    validateVisualizationQuery(options: any): boolean {
+    validateVisualizationQuery(_options: any): boolean {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return false;
     }

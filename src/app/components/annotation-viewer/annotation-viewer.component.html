@@ -10,7 +10,8 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -25,7 +26,8 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="showLegendContainer()" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+    <div class="body-container" [class.with-filter]="showLegendContainer()" [class.with-footer]="showPagination()"
+        [class.with-contribution]="showContribution()">
         <mat-list class="annotation-viewer-list-container">
             <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->
@@ -34,10 +36,9 @@
                         <li [ngClass]="{
                                 'document-row': !options.respondMode || options.highlightInRespondMode,
                                 'document-row-no-highlight-respond': options.respondMode && !options.highlightInRespondMode
-                            }"
-                            (click)="onClick(item)"
-                        >
-                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type" (click)="onClickPart(parts, item); stopEventPropagation($event)"
+                            }" (click)="onClick(item)">
+                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type"
+                                (click)="onClickPart(parts, item); stopEventPropagation($event)"
                                 tooltip-position="below">{{ parts.text }}</span>
                         </li>
                     </ng-template>
@@ -49,7 +50,8 @@
     <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
     <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
@@ -61,7 +63,8 @@
 
     <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>

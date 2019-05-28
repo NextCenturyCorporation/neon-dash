@@ -13,16 +13,15 @@
  * limitations under the License.
  *
  */
-import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 export const whiteString = 'rgb(255,255,255)';
 
-export enum MapType {Leaflet, Cesium}
+export enum MapType { Leaflet }
 
-// create array of name/value pairs for map types
-export const MapTypePairs: {name: string, value: number}[] =
-    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({name: name, value: MapType[name]}));
+// Create array of name/value pairs for map types
+export const MapTypePairs: { name: string, value: number }[] =
+    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key, 10))).map((name) => ({ name: name, value: MapType[name] }));
 
 export class BoundingBoxByDegrees {
     constructor(
@@ -70,11 +69,15 @@ export abstract class AbstractMap {
     abstract doCustomInitialization(mapContainer: ElementRef);
 
     // Location Filter
-    isExact() { return this.isDrawnFilterExact; }
+    isExact() {
+        return this.isDrawnFilterExact;
+    }
+
     markInexact() {
         this.isDrawnFilterExact = false;
         this.makeSelectionInexact();
     }
+
     abstract makeSelectionInexact();
     abstract removeFilterBox();
 
@@ -111,9 +114,9 @@ export abstract class AbstractMap {
     abstract zoomOut();
     abstract zoomIn();
 
-    // utility
+    // Utility
     areBoundsSet() {
-        return this.mapOptions.west != null && this.mapOptions.east != null &&
-            this.mapOptions.north != null && this.mapOptions.south != null;
+        return this.mapOptions.west !== null && this.mapOptions.east !== null &&
+            this.mapOptions.north !== null && this.mapOptions.south !== null;
     }
 }

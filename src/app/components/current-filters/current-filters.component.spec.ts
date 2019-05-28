@@ -13,22 +13,17 @@
  * limitations under the License.
  *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent } from './current-filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { CurrentFiltersModule } from './current-filters.module';
+import { ConfigService } from '../../services/config.service';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -36,20 +31,12 @@ describe('Component: CurrentFiltersComponent', () => {
     let component: CurrentFiltersComponent;
 
     initializeTestBed('Current Filters', {
-        declarations: [
-            CurrentFiltersComponent
-        ],
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DatasetService,
             FilterService,
-            { provide: 'config', useValue: testConfig }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ],
-        imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
-        ]
+        imports: [CurrentFiltersModule]
     });
 
     it('should create an instance', (() => {

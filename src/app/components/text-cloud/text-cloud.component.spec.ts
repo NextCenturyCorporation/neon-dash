@@ -16,12 +16,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -30,24 +27,19 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
+import { TextCloudModule } from './text-cloud.module';
+import { ConfigService } from '../../services/config.service';
+
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Text Cloud', {
-        declarations: [
-            DataMessageComponent,
-            TextCloudComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             {
@@ -57,12 +49,11 @@ describe('Component: TextCloud', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TextCloudModule
         ]
     });
 
@@ -150,11 +141,11 @@ describe('Component: TextCloud', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
     });
 
@@ -252,9 +243,7 @@ describe('Component: TextCloud', () => {
             value: 'value2'
         }];
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.value === 'key2';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.value === 'key2');
 
         (component as any).redrawText();
 
@@ -369,9 +358,5 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(actual1).toEqual(3);
-    });
-
-    it('has a requestExport method that does nothing', () => {
-        expect(component.requestExport).toBeDefined();
     });
 });

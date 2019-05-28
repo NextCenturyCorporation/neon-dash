@@ -14,10 +14,8 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     ElementRef,
     Injector,
@@ -25,7 +23,6 @@ import {
 } from '@angular/core';
 
 import { MapComponent } from './map.component';
-import { LegendComponent } from '../legend/legend.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -34,8 +31,6 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
@@ -44,17 +39,10 @@ import { WidgetOptionCollection } from '../../widget-option';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatDialog } from '@angular/material';
 
-function webgl_support(): any {
-    try {
-        let canvas = document.createElement('canvas');
-        /* tslint:disable:no-string-literal */
-        return !!window['WebGLRenderingContext'] && (
-            canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-        /* tslint:enable:no-string-literal */
-    } catch (e) { return false; }
-}
+import { LegendModule } from '../legend/legend.module';
+import { CommonWidgetModule } from '../../common-widget.module';
+import { ConfigService } from '../../services/config.service';
 
 @Component({
     selector: 'app-map',
@@ -63,28 +51,7 @@ function webgl_support(): any {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 class TestMapComponent extends MapComponent {
-    constructor(
-        datasetService: DatasetService,
-        filterService: FilterService,
-        searchService: AbstractSearchService,
-        injector: Injector,
-        widgetService: AbstractWidgetService,
-        ref: ChangeDetectorRef,
-        dialog: MatDialog
-    ) {
-        super(
-            datasetService,
-            filterService,
-            searchService,
-            injector,
-            widgetService,
-            ref,
-            dialog
-        );
-    }
-
     assignTestMap() {
         this.options.type = -1;
         this.mapObject = new TestMap();
@@ -100,8 +67,7 @@ class TestMapComponent extends MapComponent {
     }
 
     getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[], lngField: string,
-                 latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]
-    ) {
+        latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]) {
         return super.getMapPoints(databaseName, tableName, idField, filterFields, lngField, latField, colorField, hoverPopupField, data);
     }
 
@@ -110,43 +76,51 @@ class TestMapComponent extends MapComponent {
     }
 }
 
-/* tslint:disable:component-class-suffix */
 class TestMap extends AbstractMap {
-    addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string) {
+    addPoints(_points: MapPoint[], _layer?: any, _cluster?: boolean, _layerTitle?: string) {
         /* NO-OP */
     }
-    clearLayer(layer: any) {
+
+    clearLayer(_layer: any) {
         /* NO-OP */
     }
+
     destroy() {
         /* NO-OP */
     }
-    doCustomInitialization(mapContainer: ElementRef) {
+
+    doCustomInitialization(_mapContainer: ElementRef) {
         /* NO-OP */
     }
-    hidePoints(layer: any, value: string) {
+
+    hidePoints(_layer: any, _value: string) {
         /* NO-OP */
     }
+
     makeSelectionInexact() {
         /* NO-OP */
     }
+
     removeFilterBox() {
         /* NO-OP */
     }
-    unhidePoints(layer: any, value: string) {
+
+    unhidePoints(_layer: any, _value: string) {
         /* NO-OP */
     }
-    unhideAllPoints(layer: any) {
+
+    unhideAllPoints(_layer: any) {
         /* NO-OP */
     }
+
     zoomIn() {
         /* NO-OP */
     }
+
     zoomOut() {
         /* NO-OP*/
     }
 }
-/* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
@@ -199,32 +173,14 @@ function updateMapLayer2(component: TestMapComponent) {
 }
 
 describe('Component: Map', () => {
-    let fixture: ComponentFixture<TestMapComponent>,
-        component: TestMapComponent,
-        getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
-        getService = (type: any) => fixture.debugElement.injector.get(type),
-        addFilter = (box: BoundingBoxByDegrees, dbName: string, tableName: string, latName: string, lngName: string) => {
-            let layer = component.options.layers[0];
-            let latfield = new FieldMetaData(latName);
-            let lngfield = new FieldMetaData(lngName);
-            let catfield = new FieldMetaData('category');
-            let table = new TableMetaData(tableName, tableName, [latfield, lngfield, catfield]);
-            let database = new DatabaseMetaData(dbName);
-
-            database.tables.push(table);
-
-            layer.database = database;
-            layer.table = table;
-            layer.latitudeField = latfield;
-            layer.longitudeField = lngfield;
-
-            component.filterByLocation(box);
-        };
+    let fixture: ComponentFixture<TestMapComponent>;
+    let component: TestMapComponent;
+    let getDebug = (selector: string) => fixture.debugElement.query(By.css(selector));
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
-            LegendComponent
+            TestMapComponent
         ],
         providers: [
             DatasetService,
@@ -232,12 +188,12 @@ describe('Component: Map', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 
@@ -312,11 +268,11 @@ describe('Component: Map', () => {
 
         let dataset1 = {
             data: [
-                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A', filterFields: [1]},
-                { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B', filterFields: [1, 2]},
-                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C', filterFields: [3]},
-                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [2, 4]},
-                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [5]}
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A', filterFields: [1] },
+                { id: 'testId2', lat: 0, lng: 0, category: 'b', hoverPopupField: 'Hover Popup Field:  B', filterFields: [1, 2] },
+                { id: 'testId3', lat: 0, lng: 0, category: 'c', hoverPopupField: 'Hover Popup Field:  C', filterFields: [3] },
+                { id: 'testId4', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [2, 4] },
+                { id: 'testId5', lat: 0, lng: 0, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [5] }
             ],
             expected: [
                 new MapPoint('testId4', ['testId4', 'testId5'], [filter4, filter5], filter4, '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
@@ -332,10 +288,10 @@ describe('Component: Map', () => {
 
         let dataset2 = {
             data: [
-                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A', filterFields: [1]},
-                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B', filterFields: [1, 2]},
-                { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C', filterFields: [3]},
-                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [2, 4]}
+                { id: 'testId1', lat: 0, lng: 0, category: 'a', hoverPopupField: 'Hover Popup Field:  A', filterFields: [1] },
+                { id: 'testId2', lat: 0, lng: 1, category: 'b', hoverPopupField: 'Hover Popup Field:  B', filterFields: [1, 2] },
+                { id: 'testId3', lat: 0, lng: 2, category: 'c', hoverPopupField: 'Hover Popup Field:  C', filterFields: [3] },
+                { id: 'testId4', lat: 0, lng: 3, category: 'd', hoverPopupField: 'Hover Popup Field:  D', filterFields: [2, 4] }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
@@ -350,10 +306,18 @@ describe('Component: Map', () => {
         };
         let dataset3 = {
             data: [
-                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a', hoverPopupField: 'Hover Popup Field:  A',
-                    filterFields: [1]},
-                { id: 'testId2', lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b', hoverPopupField: 'Hover Popup Field:  B',
-                    filterFields: [1, 2]}
+                { id: 'testId1',
+                    lat: [0, 0, 0, 0],
+                    lng: [0, 0, 0, 0],
+                    category: 'a',
+                    hoverPopupField: 'Hover Popup Field:  A',
+                    filterFields: [1] },
+                { id: 'testId2',
+                    lat: [0, 0, 0, 0],
+                    lng: [0, 0, 0, 0],
+                    category: 'b',
+                    hoverPopupField: 'Hover Popup Field:  B',
+                    filterFields: [1, 2] }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], [filter1, filter1, filter1, filter1], filter1,
@@ -365,27 +329,35 @@ describe('Component: Map', () => {
         };
         let dataset4 = {
             data: [
-                { id: 'testId1', lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a', hoverPopupField: 'Hover Popup Field:  A',
+                { id: 'testId1',
+                    lat: [0, 0, 0, 0],
+                    lng: [0, 1, 2, 3],
+                    category: 'a',
+                    hoverPopupField: 'Hover Popup Field:  A',
                     filterFields: [1] },
-                { id: 'testId2', lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b', hoverPopupField: 'Hover Popup Field:  B',
+                { id: 'testId2',
+                    lat: [0, 0, 0, 0],
+                    lng: [4, 5, 6, 7],
+                    category: 'b',
+                    hoverPopupField: 'Hover Popup Field:  B',
                     filterFields: [1, 2] }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                     aColor, 'Count: 1', 'category', 'a', aHoverMap),
-                new MapPoint('testId1', ['testId1'], [filter1], filter1,  '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
+                new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                     aColor, 'Count: 1', 'category', 'a', aHoverMap),
-                new MapPoint('testId1', ['testId1'], [filter1], filter1,  '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
+                new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                     aColor, 'Count: 1', 'category', 'a', aHoverMap),
-                new MapPoint('testId1', ['testId1'], [filter1], filter1,  '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                     aColor, 'Count: 1', 'category', 'a', aHoverMap),
-                new MapPoint('testId2', ['testId2'], [filter2], filter2,  '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
+                new MapPoint('testId2', ['testId2'], [filter2], filter2, '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
                     bColor, 'Count: 1', 'category', 'b', bHoverMap),
-                new MapPoint('testId2', ['testId2'], [filter2], filter2,  '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
+                new MapPoint('testId2', ['testId2'], [filter2], filter2, '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
                     bColor, 'Count: 1', 'category', 'b', bHoverMap),
                 new MapPoint('testId2', ['testId2'], [filter2], filter2, '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
                     bColor, 'Count: 1', 'category', 'b', bHoverMap),
-                new MapPoint('testId2', ['testId2'], [filter2], filter2,  '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
+                new MapPoint('testId2', ['testId2'], [filter2], filter2, '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
                     bColor, 'Count: 1', 'category', 'b', bHoverMap)
             ]
         };
@@ -394,7 +366,7 @@ describe('Component: Map', () => {
             [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat',
             'category', new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
-        //expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
+        // TODO expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
         let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id',
             [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
             new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset2.data);
@@ -423,127 +395,128 @@ describe('Component: Map', () => {
         let actual1 = (component as any).designEachFilterWithNoValues();
         expect(actual1.length).toEqual(2);
         // Layer 1 box filter
-        expect((actual1[0].filterDesign as any).type).toEqual('and');
-        expect((actual1[0].filterDesign as any).filters.length).toEqual(4);
-        expect((actual1[0].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual1[0].filterDesign as any).filters[0].operator).toEqual('>=');
-        expect((actual1[0].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual1[0].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual1[0].filterDesign as any).filters[1].operator).toEqual('<=');
-        expect((actual1[0].filterDesign as any).filters[1].value).toBeUndefined();
-        expect((actual1[0].filterDesign as any).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign as any).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign as any).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual1[0].filterDesign as any).filters[2].operator).toEqual('>=');
-        expect((actual1[0].filterDesign as any).filters[2].value).toBeUndefined();
-        expect((actual1[0].filterDesign as any).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign as any).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign as any).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual1[0].filterDesign as any).filters[3].operator).toEqual('<=');
-        expect((actual1[0].filterDesign as any).filters[3].value).toBeUndefined();
+        expect((actual1[0].filterDesign).type).toEqual('and');
+        expect((actual1[0].filterDesign).filters.length).toEqual(4);
+        expect((actual1[0].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[0].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[0].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[0].filterDesign).filters[0].operator).toEqual('>=');
+        expect((actual1[0].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual1[0].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[0].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[0].filterDesign).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[0].filterDesign).filters[1].operator).toEqual('<=');
+        expect((actual1[0].filterDesign).filters[1].value).toBeUndefined();
+        expect((actual1[0].filterDesign).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[0].filterDesign).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[0].filterDesign).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[0].filterDesign).filters[2].operator).toEqual('>=');
+        expect((actual1[0].filterDesign).filters[2].value).toBeUndefined();
+        expect((actual1[0].filterDesign).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[0].filterDesign).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[0].filterDesign).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[0].filterDesign).filters[3].operator).toEqual('<=');
+        expect((actual1[0].filterDesign).filters[3].value).toBeUndefined();
         expect(actual1[0].redrawCallback.toString()).toEqual((component as any).redrawFilterBox.bind(component).toString());
         // Layer 1 point filter
-        expect((actual1[1].filterDesign as any).type).toEqual('and');
-        expect((actual1[1].filterDesign as any).filters.length).toEqual(2);
-        expect((actual1[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual1[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual1[1].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual1[1].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[1].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[1].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual1[1].filterDesign as any).filters[1].operator).toEqual('=');
-        expect((actual1[1].filterDesign as any).filters[1].value).toBeUndefined();
+        expect((actual1[1].filterDesign).type).toEqual('and');
+        expect((actual1[1].filterDesign).filters.length).toEqual(2);
+        expect((actual1[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual1[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual1[1].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual1[1].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual1[1].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[1].filterDesign).filters[1].operator).toEqual('=');
+        expect((actual1[1].filterDesign).filters[1].value).toBeUndefined();
         expect(actual1[1].redrawCallback.toString()).toEqual((component as any).redrawFilterPoint.bind(component).toString());
 
         updateMapLayer2(component);
         let actual2 = (component as any).designEachFilterWithNoValues();
         expect(actual2.length).toEqual(4);
-        expect((actual2[0].filterDesign as any)).toEqual((actual1[0].filterDesign as any));
-        expect((actual2[1].filterDesign as any)).toEqual((actual1[1].filterDesign as any));
+        expect((actual2[0].filterDesign)).toEqual((actual1[0].filterDesign));
+        expect((actual2[1].filterDesign)).toEqual((actual1[1].filterDesign));
         // Layer 2 box filter
-        expect((actual2[2].filterDesign as any).type).toEqual('and');
-        expect((actual2[2].filterDesign as any).filters.length).toEqual(4);
-        expect((actual2[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual2[2].filterDesign as any).filters[0].operator).toEqual('>=');
-        expect((actual2[2].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual2[2].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual2[2].filterDesign as any).filters[1].operator).toEqual('<=');
-        expect((actual2[2].filterDesign as any).filters[1].value).toBeUndefined();
-        expect((actual2[2].filterDesign as any).filters[2].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign as any).filters[2].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign as any).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual2[2].filterDesign as any).filters[2].operator).toEqual('>=');
-        expect((actual2[2].filterDesign as any).filters[2].value).toBeUndefined();
-        expect((actual2[2].filterDesign as any).filters[3].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign as any).filters[3].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign as any).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual2[2].filterDesign as any).filters[3].operator).toEqual('<=');
-        expect((actual2[2].filterDesign as any).filters[3].value).toBeUndefined();
+        expect((actual2[2].filterDesign).type).toEqual('and');
+        expect((actual2[2].filterDesign).filters.length).toEqual(4);
+        expect((actual2[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[2].filterDesign).filters[0].operator).toEqual('>=');
+        expect((actual2[2].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual2[2].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[2].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[2].filterDesign).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[2].filterDesign).filters[1].operator).toEqual('<=');
+        expect((actual2[2].filterDesign).filters[1].value).toBeUndefined();
+        expect((actual2[2].filterDesign).filters[2].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[2].filterDesign).filters[2].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[2].filterDesign).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[2].filterDesign).filters[2].operator).toEqual('>=');
+        expect((actual2[2].filterDesign).filters[2].value).toBeUndefined();
+        expect((actual2[2].filterDesign).filters[3].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[2].filterDesign).filters[3].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[2].filterDesign).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[2].filterDesign).filters[3].operator).toEqual('<=');
+        expect((actual2[2].filterDesign).filters[3].value).toBeUndefined();
         expect(actual2[2].redrawCallback.toString()).toEqual((component as any).redrawFilterBox.bind(component).toString());
         // Layer 2 point filter
-        expect((actual2[3].filterDesign as any).type).toEqual('and');
-        expect((actual2[3].filterDesign as any).filters.length).toEqual(2);
-        expect((actual2[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual2[3].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual2[3].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual2[3].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[3].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[3].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual2[3].filterDesign as any).filters[1].operator).toEqual('=');
-        expect((actual2[3].filterDesign as any).filters[1].value).toBeUndefined();
+        expect((actual2[3].filterDesign).type).toEqual('and');
+        expect((actual2[3].filterDesign).filters.length).toEqual(2);
+        expect((actual2[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[3].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual2[3].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual2[3].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual2[3].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual2[3].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[3].filterDesign).filters[1].operator).toEqual('=');
+        expect((actual2[3].filterDesign).filters[1].value).toBeUndefined();
         expect(actual2[3].redrawCallback.toString()).toEqual((component as any).redrawFilterPoint.bind(component).toString());
 
         component.options.layers[0].filterFields = [DatasetServiceMock.FILTER_FIELD];
         let actual3 = (component as any).designEachFilterWithNoValues();
         expect(actual3.length).toEqual(5);
-        expect((actual2[0].filterDesign as any)).toEqual((actual2[0].filterDesign as any));
-        expect((actual2[1].filterDesign as any)).toEqual((actual2[1].filterDesign as any));
-        expect((actual3[3].filterDesign as any)).toEqual((actual2[2].filterDesign as any));
-        expect((actual3[4].filterDesign as any)).toEqual((actual2[3].filterDesign as any));
+        expect((actual2[0].filterDesign)).toEqual((actual2[0].filterDesign));
+        expect((actual2[1].filterDesign)).toEqual((actual2[1].filterDesign));
+        expect((actual3[3].filterDesign)).toEqual((actual2[2].filterDesign));
+        expect((actual3[4].filterDesign)).toEqual((actual2[3].filterDesign));
         // Layer 1 filter field
-        expect((actual3[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual3[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual3[2].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual3[2].filterDesign as any).operator).toEqual('=');
-        expect((actual3[2].filterDesign as any).value).toBeUndefined();
+        expect((actual3[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual3[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual3[2].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual3[2].filterDesign).operator).toEqual('=');
+        expect((actual3[2].filterDesign).value).toBeUndefined();
 
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD, DatasetServiceMock.NAME_FIELD,
+        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
+            DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.TYPE_FIELD];
         let actual4 = (component as any).designEachFilterWithNoValues();
         expect(actual4.length).toEqual(8);
-        expect((actual4[0].filterDesign as any)).toEqual((actual3[0].filterDesign as any));
-        expect((actual4[1].filterDesign as any)).toEqual((actual3[1].filterDesign as any));
-        expect((actual4[2].filterDesign as any)).toEqual((actual3[2].filterDesign as any));
-        expect((actual4[3].filterDesign as any)).toEqual((actual3[3].filterDesign as any));
-        expect((actual4[4].filterDesign as any)).toEqual((actual3[4].filterDesign as any));
+        expect((actual4[0].filterDesign)).toEqual((actual3[0].filterDesign));
+        expect((actual4[1].filterDesign)).toEqual((actual3[1].filterDesign));
+        expect((actual4[2].filterDesign)).toEqual((actual3[2].filterDesign));
+        expect((actual4[3].filterDesign)).toEqual((actual3[3].filterDesign));
+        expect((actual4[4].filterDesign)).toEqual((actual3[4].filterDesign));
         // Layer 2 filter fields
-        expect((actual4[5].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[5].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[5].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual4[5].filterDesign as any).operator).toEqual('=');
-        expect((actual4[5].filterDesign as any).value).toBeUndefined();
-        expect((actual4[6].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[6].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[6].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((actual4[6].filterDesign as any).operator).toEqual('=');
-        expect((actual4[6].filterDesign as any).value).toBeUndefined();
-        expect((actual4[7].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[7].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[7].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
-        expect((actual4[7].filterDesign as any).operator).toEqual('=');
-        expect((actual4[7].filterDesign as any).value).toBeUndefined();
+        expect((actual4[5].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual4[5].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual4[5].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual4[5].filterDesign).operator).toEqual('=');
+        expect((actual4[5].filterDesign).value).toBeUndefined();
+        expect((actual4[6].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual4[6].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual4[6].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual4[6].filterDesign).operator).toEqual('=');
+        expect((actual4[6].filterDesign).value).toBeUndefined();
+        expect((actual4[7].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect((actual4[7].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((actual4[7].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual4[7].filterDesign).operator).toEqual('=');
+        expect((actual4[7].filterDesign).value).toBeUndefined();
     });
 
     it('filterByLocation does call exchangeFilters with filters on each layer', () => {
@@ -767,7 +740,8 @@ describe('Component: Map', () => {
         }], []]);
 
         updateMapLayer2(component);
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD, DatasetServiceMock.NAME_FIELD,
+        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
+            DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.TYPE_FIELD];
 
         let filterDataB = new Map<string, any>();
@@ -902,7 +876,8 @@ describe('Component: Map', () => {
         }]]);
 
         updateMapLayer2(component);
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD, DatasetServiceMock.NAME_FIELD,
+        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
+            DatasetServiceMock.NAME_FIELD,
             DatasetServiceMock.TYPE_FIELD];
 
         component.filterByMapPoint([new Map<string, any>()], 3, 4);
@@ -1164,8 +1139,7 @@ describe('Component: Map with config', () => {
 
     initializeTestBed('Map', {
         declarations: [
-            TestMapComponent,
-            LegendComponent
+            TestMapComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -1173,10 +1147,11 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
-                provide: 'layers', useValue: [{
+                provide: 'layers',
+                useValue: [{
                     colorField: 'testColorField',
                     hoverPopupField: 'testHoverField',
                     dateField: 'testDateField',
@@ -1200,9 +1175,8 @@ describe('Component: Map with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            CommonWidgetModule,
+            LegendModule
         ]
     });
 

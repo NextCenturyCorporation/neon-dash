@@ -31,10 +31,8 @@ export class Color {
         }
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
-            return r + r + g + g + b + b;
-        });
-        let hexArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        let hex = inputHex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+        let hexArray = (/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i).exec(hex);
         if (hexArray) {
             let rgb = parseInt(hexArray[1], 16) + ',' + parseInt(hexArray[2], 16) + ',' + parseInt(hexArray[3], 16);
             return new Color((inputHex.indexOf('#') === 0 ? inputHex : ('#' + inputHex)), 'rgba(' + rgb + ',0.66)',
@@ -89,9 +87,7 @@ export class Color {
      * @arg {string} hoverColor
      * @arg {string} transparencyHigh
      */
-    constructor(private css: string, private hoverColor: string, private transparencyHigh: string) {
-        // Do nothing.
-    }
+    constructor(private css: string, private hoverColor: string, private transparencyHigh: string) {}
 
     /**
      * Returns the computed CSS for the color using the given ElementRef object to find custom CSS properties like "--variable".
@@ -185,6 +181,7 @@ export class ColorSet {
         new Color('var(--color-set-light-7)', 'var(--color-set-7)', 'var(--color-set-light-7-transparency-high)'),
         new Color('var(--color-set-light-8)', 'var(--color-set-8)', 'var(--color-set-light-8-transparency-high)')
     ];
+
     private currentIndex: number = 0;
 
     /**
@@ -196,10 +193,7 @@ export class ColorSet {
      * @arg {Map<string, Color>} [valueToColor=new Map<string, Color>()]
      */
     constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string,
-        private valueToColor: Map<string, Color> = new Map<string, Color>()) {
-
-        // Do nothing.
-    }
+        private valueToColor: Map<string, Color> = new Map<string, Color>()) {}
 
     /**
      * Returns the color field.
