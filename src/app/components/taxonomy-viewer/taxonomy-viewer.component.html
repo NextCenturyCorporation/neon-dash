@@ -28,7 +28,7 @@
                         <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
                             [class.indeterminate]="!!node.indeterminate">
                         {{node.name}}
-                        <span *ngIf="node.duplicateLabel">[{{node.externalId}}]</span>
+                        <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
                         <span *ngIf="node.count">({{ node.count }})</span>
                     </label>
                 </div>
