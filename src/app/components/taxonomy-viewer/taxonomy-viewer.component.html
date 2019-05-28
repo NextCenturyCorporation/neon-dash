@@ -24,15 +24,10 @@
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
             <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <div class="mat-tree-node leaf-node level-{{node.level}}">
-                    <label>
-                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
-                            [indeterminate]="!!node.indeterminate">
-                        <span class="text">
-                            {{node.name}}
-                            <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
-                            <span *ngIf="node.count">({{ node.count }})</span>
-                        </span>
-                    </label>
+                    <span class="text">
+                        {{node.name}}
+                        <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
+                    </span>
                 </div>
             </mat-tree-node>
             <!-- This is the tree node template for expandable nodes -->

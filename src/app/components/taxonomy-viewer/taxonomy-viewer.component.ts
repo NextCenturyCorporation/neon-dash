@@ -426,6 +426,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     this.mergeTaxonomyData(group, lineage, {
                         ...child,
                         id: `${this.counter++}`,
+                        externalName: child.name,
                         checked: !this.isTaxonomyNodeFiltered(this.options.typeField, lineage.type)
                     });
                 }

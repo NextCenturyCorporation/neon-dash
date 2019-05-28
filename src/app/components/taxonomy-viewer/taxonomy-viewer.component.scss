@@ -21,8 +21,6 @@
 // }
 
 .body-container {
-    height: 100%;
-    background-color: var(--color-background-white, white);
 }
 
 .full-height,
@@ -64,9 +62,11 @@
     }
     input[type=checkbox] {
         margin-right: .5em;
-        &.indeterminate {
-        }
     }
+}
+
+:host .body-container mat-tree {
+    background: transparent;
 }
 
 mat-tree > mat-nested-tree-node  {
@@ -85,7 +85,7 @@ mat-nested-tree-node {
     .scrollable {
         max-height: 16em;
         overflow-y: auto;
-        background-color: var(--color-background, #ccc);
+        background-color: var(--color-background-white, white);
         .scrollable {
             max-height: unset;
             overflow: unset;
