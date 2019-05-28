@@ -20,11 +20,13 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Injector,
+    ChangeDetectorRef
 } from '@angular/core';
 
-import { CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterType, FilterClause, QueryPayload, SortOrder, AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign, FilterService } from '../../services/filter.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
@@ -36,8 +38,9 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { MatTreeNestedDataSource } from '@angular/material';
+import { MatTreeNestedDataSource, MatDialog } from '@angular/material';
 import { NestedTreeControl } from '@angular/cdk/tree';
+import { DatasetService } from '../../services/dataset.service';
 
 interface TaxonomyNode {
     id: string;
@@ -55,7 +58,7 @@ interface TaxonomyNode {
 interface TaxonomyGroup extends TaxonomyNode {
     count: number;
     childrenMap?: { [key: string]: TaxonomyGroup | TaxonomyNode };
-    nodeIds: string[];
+    nodeIds: Set<string>;
     children?: (TaxonomyGroup | TaxonomyNode)[];
 }
 
@@ -84,7 +87,20 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public treeControl = new NestedTreeControl<TaxonomyNode | TaxonomyGroup>((node) => 'children' in node && node.children);
     public dataSource = new MatTreeNestedDataSource<TaxonomyGroup | TaxonomyNode>();
 
-    hasNestedChild = (_: number, node: TaxonomyGroup) => !!node.children && node.children.some((x) => 'children' in x);
+    constructor(
+        datasetService: DatasetService,
+        filterService: FilterService,
+        searchService: AbstractSearchService,
+        injector: Injector,
+        changeDetection: ChangeDetectorRef,
+        dialog: MatDialog
+    ) {
+        super(datasetService, filterService, searchService, injector, changeDetection, dialog);
+    }
+
+    hasNestedChild = (_: number, node: TaxonomyGroup) => {
+        return !!node.children; // && node.children.some((x) => 'children' in x);
+    }
 
     private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
         list.push({
@@ -296,7 +312,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         parent: currentGroup,
                         checked: !this.isTaxonomyNodeFiltered(fieldToCheck, pcat),
                         sourceIds: [],
-                        nodeIds: [],
+                        nodeIds: new Set(),
                         level: pos + 1,
                         count: 0,
                         children: [],
@@ -324,9 +340,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
             // Walk back up if a new item
             while (currentGroup && currentGroup.id) {
-                currentGroup.count += 1;
-                if (child.externalId) {
-                    currentGroup.nodeIds.push(child.externalId);
+                if (!currentGroup.nodeIds.has(child.externalId)) {
+                    currentGroup.count += 1;
+                    if (child.externalId) {
+                        currentGroup.nodeIds.add(child.externalId);
+                    }
                 }
                 currentGroup.sourceIds.push(...child.sourceIds);
                 currentGroup = currentGroup.parent;

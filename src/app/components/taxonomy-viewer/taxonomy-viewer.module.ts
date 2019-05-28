@@ -28,7 +28,6 @@ import { CommonWidgetModule } from '../../common-widget.module';
     MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatCheckboxModule,
     CommonModule
   ]
 })

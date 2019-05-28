@@ -24,10 +24,10 @@
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
             <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <div class="mat-tree-node leaf-node level-{{node.level}}">
-                    <mat-checkbox [disableRipple]="true" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
-                        [indeterminate]="!!node.indeterminate">
+                    <label>
+                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)">
                         {{node.name}} <span>({{ node.count }})</span>
-                    </mat-checkbox>
+                    </label>
                 </div>
             </mat-tree-node>
             <!-- This is the tree node template for expandable nodes -->
@@ -38,10 +38,10 @@
                             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                         </mat-icon>
                     </button>
-                    <mat-checkbox [disableRipple]="true" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)"
-                        [indeterminate]="!!node.indeterminate">
+                    <label>
+                        <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event)">
                         {{node.name}} <span>({{ node.count }})</span>
-                    </mat-checkbox>
+                    </label>
                 </div>
                 <ng-container *ngIf="treeControl.isExpanded(node)" matTreeNodeOutlet></ng-container>
             </mat-nested-tree-node>
