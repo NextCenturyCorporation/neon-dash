@@ -31,13 +31,12 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | js-yaml@3.13.1 | [MIT](https://github.com/nodeca/js-yaml/raw/master/LICENSE) |
 | leaflet.markercluster@1.4.1 | [MIT](https://github.com/Leaflet/Leaflet.markercluster/raw/master/MIT-LICENCE.txt) |
 | leaflet@1.5.1 | [BSD-2-Clause](https://github.com/Leaflet/Leaflet/raw/master/LICENSE) |
-| moment-timezone@0.5.25 | [MIT](https://github.com/moment/moment-timezone/raw/master/LICENSE) |
 | moment@2.24.0 | [MIT](https://github.com/moment/moment/raw/master/LICENSE) |
 | neon-framework@1.0.1 | [Apache-2.0](https://github.com/NextCenturyCorporation/neon-framework/raw/master/LICENSE) |
 | ng-dynamic-component@4.0.3 | [MIT](https://github.com/gund/ng-dynamic-component/raw/master/LICENSE) |
 | ngx-monaco-editor@7.0.0 | [MIT](https://github.com/atularen/ngx-monaco-editor) |
 | reflect-metadata@0.1.13 | [Apache-2.0](https://github.com/rbuckton/reflect-metadata/raw/master/LICENSE) |
-| rxjs@6.5.2 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
+| rxjs@6.3.3 | [Apache-2.0](https://github.com/reactivex/rxjs/raw/master/LICENSE.txt) |
 | tslib@1.9.3 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
