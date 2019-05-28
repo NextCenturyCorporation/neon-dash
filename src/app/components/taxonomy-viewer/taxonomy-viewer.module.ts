@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
-import { MatTreeModule, MatCheckboxModule, MatIconModule, MatButtonModule } from '@angular/material';
+import { MatTreeModule, MatIconModule, MatButtonModule } from '@angular/material';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({

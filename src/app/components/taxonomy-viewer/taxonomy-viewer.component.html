@@ -27,7 +27,9 @@
                     <label>
                         <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
                             [class.indeterminate]="!!node.indeterminate">
-                        {{node.name}} <span *ngIf="node.count">({{ node.count }})</span>
+                        {{node.name}}
+                        <span *ngIf="node.duplicateLabel">[{{node.externalId}}]</span>
+                        <span *ngIf="node.count">({{ node.count }})</span>
                     </label>
                 </div>
             </mat-tree-node>
@@ -45,36 +47,11 @@
                         {{node.name}} <span span *ngIf="node.count">({{ node.count }})</span>
                     </label>
                 </div>
-                <ng-container *ngIf="treeControl.isExpanded(node)" matTreeNodeOutlet></ng-container>
+                <div class="children" [class.scrollable]="node.level > 1 && node.children.length > 10">
+                    <ng-container *ngIf="treeControl.isExpanded(node)" matTreeNodeOutlet></ng-container>
+                </div>
             </mat-nested-tree-node>
         </mat-tree>
-
-        <!-- <div #taxonomyViewer class="taxonomy-viewer-container">
-            <tree-root #treeRoot [nodes]="taxonomyGroups" [options]="testOptions">
-                <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
-                    <div [ngClass]="setClassForTreePosition(node, 'tree-node tree-node-level-')" [class]="node.getClass()">
-                        <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
-                            <tree-node-expander [node]="node"></tree-node-expander>
-                            <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
-                                (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
-                                [class.node-content-wrapper-focused]="node.isFocused">
-                                <div *ngIf="node.data.description != options.valueField.columnName">
-                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                                        [checked]="node.data.checked">
-                                    <span>{{ node.data.name }}
-                                        <span *ngIf="node.data.count > 0"> ({{ node.data.count }})</span>
-                                    </span>
-                                </div>
-                                <div *ngIf="node.data.description === options.valueField.columnName">
-                                    <span>{{ node.data.name }}<span *ngIf="node.data.count > 0"></span></span>
-                                </div>
-                            </div>
-                        </div>
-                        <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
-                    </div>
-                </ng-template>
-            </tree-root>
-        </div> -->
     </div>
 
     <div class="contribution-text" *ngIf="showContribution()">

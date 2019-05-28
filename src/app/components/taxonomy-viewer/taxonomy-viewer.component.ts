@@ -42,9 +42,10 @@ import { MatTreeNestedDataSource, MatDialog } from '@angular/material';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { DatasetService } from '../../services/dataset.service';
 
-interface TaxonomyNode {
+export interface TaxonomyNode {
     id: string;
     externalId?: string;
+    duplicateLabel?: boolean;
     hidden?: boolean;
     sourceIds: string[];
     parent?: TaxonomyGroup;
@@ -53,10 +54,10 @@ interface TaxonomyNode {
     level?: number;
     checked?: boolean;
     indeterminate?: boolean;
-    description: string;
+    description: FieldMetaData;
 }
 
-interface TaxonomyGroup extends TaxonomyNode {
+export interface TaxonomyGroup extends TaxonomyNode {
     count: number;
     childrenMap?: { [key: string]: TaxonomyGroup | TaxonomyNode };
     nodeIds: Set<string>;
@@ -335,6 +336,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // If new node, walk back up to parent, recording counts
         if (!(child.externalId in currentGroup.childrenMap)) {
             currentGroup.childrenMap[child.externalId] = child;
+
             if (child.name !== child.externalId) {
                 currentGroup.children.push(child);
             }
@@ -360,11 +362,18 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     sortTaxonomies(group: TaxonomyGroup | TaxonomyNode) {
         if ('children' in group) {
-            for (const child of group.children) {
-                this.sortTaxonomies(child);
-            }
             group.children.sort((a, b) => a.name.localeCompare(b.name));
             group.checked = !group.children.find((x) => x.checked === false);
+            for (let i = 0; i < group.children.length; i++) {
+                if (i > 0) {
+                    if (group.children[i - 1].name.toLowerCase() === group.children[i].name.toLowerCase()) {
+                        group.children[i - 1].duplicateLabel = true;
+                        group.children[i].duplicateLabel = true;
+                    }
+                }
+                this.sortTaxonomies(group.children[i]);
+            }
+
         }
     }
 
@@ -435,7 +444,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             array.concat(this.findUnselectedGroups(child)), []));
     }
 
-    checkRelatedNodes(node: TaxonomyNode, check: HTMLInputElement) {
+    checkRelatedNodes(node: TaxonomyNode, check: { checked: boolean }) {
         let relatives = [];
 
         // Update all the groups in the taxonomy (select or unselect them).

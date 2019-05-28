@@ -16,6 +16,15 @@
 
 @import '../base-neon-component/base-neon.component.scss';
 
+// :host {
+//     display: block;
+// }
+
+.body-container {
+    height: 100%;
+    background-color: var(--color-background-white, white);
+}
+
 .full-height,
 .mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});
@@ -24,11 +33,6 @@
 /deep/ .mat-drawer-content{
     overflow: unset;
 }
-
-mat-tree {
-    height: 100%;
-}
-
 
 .taxonomy-viewer-container{
     overflow-y: auto;
@@ -54,23 +58,32 @@ mat-tree {
     &.leaf-node {
         margin-left: 20px;
     }
-    &.level-1 {
-        padding-left: 10px;
-    }
-    &.level-2 {
-        padding-left: 20px;
-    }
-    &.level-3 {
-        padding-left: 30px;
-    }
-    &.level-4 {
-        padding-left: 40px;
-    }
-    &.level-5 {
-        padding-left: 50px;
-    }
     input[type=checkbox] {
         margin-right: .5em;
+    }
+}
+
+mat-tree > mat-nested-tree-node  {
+    > .mat-tree-node {
+        padding-left: 10px;
+    }
+    >.children {
+        margin-left: 10px;
+    }
+}
+
+mat-nested-tree-node {
+    .children {
+        padding-left: 10px;
+    }
+    .scrollable {
+        max-height: 16em;
+        overflow-y: auto;
+        background-color: var(--color-background, #ccc);
+        .scrollable {
+            max-height: unset;
+            overflow: unset;
+        }
     }
 }
 
