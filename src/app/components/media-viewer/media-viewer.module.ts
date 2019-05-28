@@ -21,15 +21,15 @@ import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [MediaViewerComponent],
-  exports: [MediaViewerComponent],
-  entryComponents: [MediaViewerComponent],
-  imports: [
-    CommonWidgetModule,
-    MatTabsModule,
-    MatSliderModule,
-    DataMessageModule,
-    CommonModule
-  ]
+    declarations: [MediaViewerComponent],
+    exports: [MediaViewerComponent],
+    entryComponents: [MediaViewerComponent],
+    imports: [
+        CommonWidgetModule,
+        MatTabsModule,
+        MatSliderModule,
+        DataMessageModule,
+        CommonModule
+    ]
 })
 export class MediaViewerModule { }

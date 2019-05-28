@@ -24,8 +24,8 @@ describe('dateBucketizer', () => {
     });
 
     it('constants are correct', () => {
-       expect(DateBucketizer.DAY).toBe('day');
-       expect(DateBucketizer.HOUR).toBe('hour');
+        expect(DateBucketizer.DAY).toBe('day');
+        expect(DateBucketizer.HOUR).toBe('hour');
     });
 
     it('initial values are correct', () => {

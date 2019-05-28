@@ -8,7 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -20,8 +21,8 @@
     <div class="body-container" [class.with-contribution]="showContribution()">
         <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
-        <div class ="xlabel"> {{ options.granularity }}</div>
-        <div class ="ylabel">{{ options.yLabel }}</div>
+        <div class="xlabel"> {{ options.granularity }}</div>
+        <div class="ylabel">{{ options.yLabel }}</div>
     </div>
 
     <div class="contribution-text" *ngIf="showContribution()">

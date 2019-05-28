@@ -18,18 +18,18 @@ import { AddVisualizationComponent } from './add-visualization.component';
 import { MatGridListModule, MatSnackBarModule, MatDividerModule } from '@angular/material';
 
 @NgModule({
-  declarations: [
-    AddVisualizationComponent
-  ],
-  entryComponents: [
-    AddVisualizationComponent
-  ],
-  exports: [AddVisualizationComponent],
-  imports: [
-    MatGridListModule,
-    MatDividerModule,
-    MatSnackBarModule,
-    CommonModule
-  ]
+    declarations: [
+        AddVisualizationComponent
+    ],
+    entryComponents: [
+        AddVisualizationComponent
+    ],
+    exports: [AddVisualizationComponent],
+    imports: [
+        MatGridListModule,
+        MatDividerModule,
+        MatSnackBarModule,
+        CommonModule
+    ]
 })
 export class AddVisualizationModule { }

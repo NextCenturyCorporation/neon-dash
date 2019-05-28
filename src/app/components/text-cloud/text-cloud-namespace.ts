@@ -72,14 +72,12 @@ export class TextCloud {
     }
 
     private colorIncrement(color: ColorOptions, range: number): number[] {
-        return this.toRGB(color.end).map((n, i) => {
-            return (n - this.toRGB(color.start)[i]) / range;
-        });
+        return this.toRGB(color.end).map((n, i) => (n - this.toRGB(color.start)[i]) / range);
     }
 
     // Converts hex to an RGB array
     private toRGB(code: string): number[] {
-        let hex = /(\w{2})(\w{2})(\w{2})/.exec((code.length === 4 ? code.replace(/(\w)(\w)(\w)/gi, '\$1\$1\$2\$2\$3\$3') : code));
+        let hex = (/(\w{2})(\w{2})(\w{2})/).exec((code.length === 4 ? code.replace(/(\w)(\w)(\w)/gi, '$1$1$2$2$3$3') : code));
         return [parseInt(hex[1], 16), parseInt(hex[2], 16), parseInt(hex[3], 16)];
     }
 
@@ -88,10 +86,8 @@ export class TextCloud {
             let ref = Math.round(n + (increment[i] * weighting));
             if (ref > 255) {
                 ref = 255;
-            } else {
-                if (ref < 0) {
-                    ref = 0;
-                }
+            } else if (ref < 0) {
+                ref = 0;
             }
             return ref;
         });
@@ -106,7 +102,6 @@ export class TextCloud {
             return hex;
         }).join('');
     }
-
 }
 
 export class SizeOptions {

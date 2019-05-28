@@ -17,30 +17,30 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueryBarComponent } from './query-bar.component';
 import {
-  MatFormFieldModule, MatIconModule, MatAutocompleteModule,
-  MatInputModule, MatToolbarModule, MatTooltipModule, MatDialogModule, MatButtonModule
+    MatFormFieldModule, MatIconModule, MatAutocompleteModule,
+    MatInputModule, MatToolbarModule, MatTooltipModule, MatDialogModule, MatButtonModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [QueryBarComponent],
-  exports: [
-    QueryBarComponent
-  ],
-  entryComponents: [
-    QueryBarComponent
-  ],
-  imports: [
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatDialogModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    ReactiveFormsModule,
-    CommonModule
-  ]
+    declarations: [QueryBarComponent],
+    exports: [
+        QueryBarComponent
+    ],
+    entryComponents: [
+        QueryBarComponent
+    ],
+    imports: [
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatDialogModule,
+        MatTooltipModule,
+        MatToolbarModule,
+        ReactiveFormsModule,
+        CommonModule
+    ]
 })
 export class QueryBarModule { }

@@ -74,8 +74,7 @@ export interface TaxonomyGroup extends TaxonomyNode {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-
-    //HTML element references used by the superclass for the resizing behavior.
+    // HTML element references used by the superclass for the resizing behavior.
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
@@ -278,8 +277,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(this.options.database.name && this.options.table.name && this.options.idField.columnName &&
-            this.options.categoryField.columnName);
+        return !!(options.database.name && options.table.name && options.idField.columnName && options.categoryField.columnName);
     }
 
     mergeTaxonomyData(group: TaxonomyGroup, lineage: { category: string | string[], type: string | string[], subtype?: string | string[] },
@@ -534,24 +532,22 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     retrieveUnselectedNodes(nodeArray: any[]) {
         let relatives = [];
         for (let node of nodeArray) {
-            //Ensures that only node child relatives(with checkboxes) are added and not the values listed(without checkboxes)
+            // Ensures that only node child relatives(with checkboxes) are added and not the values listed(without checkboxes)
             if (node.children && node.children.length && node.children[0].description.columnName !== this.options.valueField.columnName) {
                 for (let child of node.children) {
                     if (child.checked === false && child.description.columnName !== this.options.valueField.columnName) {
                         relatives.push(child);
                     }
                 }
-            } else {
-                if (node.checked === false) {
-                    relatives.push(node);
-                }
+            } else if (node.checked === false) {
+                relatives.push(node);
             }
         }
 
         return relatives;
     }
 
-    private redrawTaxonomy(filters: FilterDesign[]) {
+    private redrawTaxonomy(_filters: FilterDesign[]) {
         // TODO AIDA-753
     }
 

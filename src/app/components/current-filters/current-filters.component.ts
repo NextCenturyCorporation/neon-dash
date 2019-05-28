@@ -13,15 +13,13 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { CompoundFilterType } from '../../services/abstract.search.service';
 import { FilterDesign, FilterService } from '../../services/filter.service';
 
 import { eventing } from 'neon-framework';
-import * as _ from 'lodash';
 
 @Component({
     selector: 'app-current-filters',
@@ -35,7 +33,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public filters: FilterDesign[] = [];
 
-    constructor(public filterService: FilterService, public searchService: AbstractSearchService) {
+    constructor(public filterService: FilterService) {
         this.messenger = new eventing.Messenger();
     }
 
@@ -54,5 +52,4 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
     }
-
 }

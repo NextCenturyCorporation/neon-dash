@@ -39,6 +39,7 @@ export namespace neonEvents {
 }
 
 export namespace neonUtilities {
+
     /**
      * Flattens and returns the given array.
      *
@@ -97,7 +98,7 @@ export namespace neonUtilities {
     export function sortArrayOfObjects(array: any[], key: string, order: number = 1) {
         return array.sort((a, b) => {
             if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
-                // property doesn't exist on either object
+                // Property doesn't exist on either object
                 return 0;
             }
 

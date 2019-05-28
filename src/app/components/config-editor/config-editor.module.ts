@@ -17,30 +17,30 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfigEditorComponent } from './config-editor.component';
 import {
-  MatToolbarModule, MatTooltipModule, MatSelectModule,
-  MatDialogModule, MatSnackBarModule, MatButtonModule
+    MatToolbarModule, MatTooltipModule, MatSelectModule,
+    MatDialogModule, MatSnackBarModule, MatButtonModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
-  declarations: [ConfigEditorComponent],
-  entryComponents: [
-    ConfigEditorComponent
-  ],
-  exports: [
-    ConfigEditorComponent
-  ],
-  imports: [
-    FormsModule,
-    MonacoEditorModule.forRoot(),
-    MatDialogModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatSelectModule,
-    CommonModule
-  ]
+    declarations: [ConfigEditorComponent],
+    entryComponents: [
+        ConfigEditorComponent
+    ],
+    exports: [
+        ConfigEditorComponent
+    ],
+    imports: [
+        FormsModule,
+        MonacoEditorModule.forRoot(),
+        MatDialogModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatSelectModule,
+        CommonModule
+    ]
 })
 export class ConfigEditorModule { }

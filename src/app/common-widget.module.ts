@@ -14,22 +14,21 @@
  *
  */
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
-  MatDialogModule, MatIconModule, MatProgressSpinnerModule,
-  MatToolbarModule, MatTooltipModule, MatSidenavModule, MatButtonModule
+    MatDialogModule, MatIconModule, MatProgressSpinnerModule,
+    MatToolbarModule, MatTooltipModule, MatSidenavModule, MatButtonModule
 } from '@angular/material';
 
 @NgModule({
-  declarations: [],
-  exports: [
-    MatDialogModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatSidenavModule,
-    MatButtonModule
-  ]
+    declarations: [],
+    exports: [
+        MatDialogModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatSidenavModule,
+        MatButtonModule
+    ]
 })
 export class CommonWidgetModule { }

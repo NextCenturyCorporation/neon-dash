@@ -27,7 +27,7 @@ export class VisualizationInjectorComponent {
 
     @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
 
-    // component: Class for the component you want to create
+    // Component: Class for the component you want to create
     // inputs: An object with key/value pairs mapped to input name/input value
     @Input() set componentData(data: NeonGridItem) {
         if (!data) {
@@ -44,12 +44,10 @@ export class VisualizationInjectorComponent {
             data.bindings._id = data.id;
 
             // Inputs need to be in the following format to be resolved properly
-            let inputProviders = Object.keys(data.bindings).map((bindingKey) => {
-                return {
-                    provide: bindingKey,
-                    useValue: data.bindings[bindingKey]
-                };
-            });
+            let inputProviders = Object.keys(data.bindings).map((bindingKey) => ({
+                provide: bindingKey,
+                useValue: data.bindings[bindingKey]
+            }));
             let resolvedInputs = ReflectiveInjector.resolve(inputProviders);
 
             // We create an injector out of the data we want to pass down and this components injector
@@ -65,7 +63,7 @@ export class VisualizationInjectorComponent {
         });
     }
 
-    constructor(private loader: ReactiveComponentLoader) { }
+    constructor(private loader: ReactiveComponentLoader) {}
 
     findVisualizationComponent(type: string) {
         const id = type.replace(/([a-z])([A-Z])/g, (all, l, r) => `${l}-${r.toLowerCase()}`);

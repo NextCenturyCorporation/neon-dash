@@ -457,16 +457,19 @@ fdescribe('Component: TaxonomyViewer', () => {
             hasChildren: false,
             children: []
 
-        }, nodeB = {
+        };
+        let nodeB = {
             level: 2,
             hasChildren: false,
             children: [nodeA]
 
-        }, nodeC = {
+        };
+        let nodeC = {
             level: 2,
             hasChildren: true,
             children: [nodeB]
-        }, nodeD = {
+        };
+        let nodeD = {
             level: 1,
             hasChildren: true,
             children: [nodeA]

@@ -13,18 +13,18 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-snack-bar',
-  templateUrl: 'snack-bar.component.html',
-  styleUrls: ['snack-bar.component.scss']
+    selector: 'app-snack-bar',
+    templateUrl: 'snack-bar.component.html',
+    styleUrls: ['snack-bar.component.scss']
 })
 export class SnackBarComponent {
     public snackBarRef: any;
     public messages: {
-      type: string,
-      display: string[]
+        type: string;
+        display: string[];
     }[] = [];
 
     public addErrors(messageType: string, newMessages: string[]) {
@@ -58,10 +58,9 @@ export class SnackBarComponent {
     public closeAll() {
         if (this.snackBarRef && this.snackBarRef.dismiss) {
             this.snackBarRef.afterDismissed().subscribe(() => {
-              this.messages = [];
+                this.messages = [];
             });
             this.snackBarRef.dismiss();
         }
     }
-
 }

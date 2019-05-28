@@ -39,7 +39,7 @@ import { ConfigService } from '../services/config.service';
 import { GearModule } from '../components/gear/gear.module';
 
 const Modules = {
-  './components/gear/gear.module#GearModule': GearModule
+    './components/gear/gear.module#GearModule': GearModule
 };
 
 import { AppLazyModule } from '../app-lazy.module';
@@ -49,7 +49,6 @@ import { Dashboard, Datastore } from '../dataset';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
     let debugElement: DebugElement;
     let component: DashboardComponent;
     let spyOnInit;
@@ -129,7 +128,6 @@ describe('Dashboard', () => {
         component.setPanel('settings', 'Settings');
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
-
     }));
 
     it('toggle filters component', async(() => {
@@ -625,7 +623,7 @@ describe('Dashboard', () => {
             sizey: 4
         };
 
-        let spy = spyOn((component as any), 'getVisibleRowCount').and.returnValue(50);
+        spyOn((component as any), 'getVisibleRowCount').and.returnValue(50);
 
         component['expandWidget']({
             widgetGridItem: widgetGridItem1

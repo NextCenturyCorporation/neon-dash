@@ -21,21 +21,21 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
-  declarations: [
-    CustomConnectionComponent,
-    CustomConnectionSimpleSetupStepComponent
-  ],
-  entryComponents: [
-    CustomConnectionComponent
-  ],
-  exports: [
-    CustomConnectionComponent
-  ],
-  imports: [
-    MatDialogModule,
-    MatButtonModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [
+        CustomConnectionComponent,
+        CustomConnectionSimpleSetupStepComponent
+    ],
+    entryComponents: [
+        CustomConnectionComponent
+    ],
+    exports: [
+        CustomConnectionComponent
+    ],
+    imports: [
+        MatDialogModule,
+        MatButtonModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class CustomConnectionModule { }

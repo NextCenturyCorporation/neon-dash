@@ -19,12 +19,12 @@ import { DataMessageComponent } from './data-message.component';
 import { MatSnackBarModule } from '@angular/material';
 
 @NgModule({
-  declarations: [DataMessageComponent],
-  entryComponents: [DataMessageComponent],
-  exports: [DataMessageComponent],
-  imports: [
-    MatSnackBarModule,
-    CommonModule
-  ]
+    declarations: [DataMessageComponent],
+    entryComponents: [DataMessageComponent],
+    exports: [DataMessageComponent],
+    imports: [
+        MatSnackBarModule,
+        CommonModule
+    ]
 })
 export class DataMessageModule { }

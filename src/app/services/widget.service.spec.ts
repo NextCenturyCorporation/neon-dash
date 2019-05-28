@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
+import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
 import { DatasetService } from './dataset.service';

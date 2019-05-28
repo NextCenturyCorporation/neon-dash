@@ -20,14 +20,14 @@ import { MatRadioModule, MatSnackBarModule, MatButtonModule } from '@angular/mat
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [ExportControlComponent],
-  exports: [ExportControlComponent],
-  imports: [
-    MatRadioModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [ExportControlComponent],
+    exports: [ExportControlComponent],
+    imports: [
+        MatRadioModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class ExportControlModule { }

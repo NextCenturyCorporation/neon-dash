@@ -29,19 +29,20 @@ export class ElasticsearchLogger {
     }
 
     public doLog(component: string, message: string): void {
-        /* tslint:disable:no-console */
-        let  fullMsg = new LogMessage();
+        /* eslint-disable no-console */
+        let fullMsg = new LogMessage();
         fullMsg.componentName = component;
         fullMsg.time = new Date();
         fullMsg.logMessage = message;
         console.log(message);
-        const req =  this.http.post(this.url, JSON.stringify(fullMsg)).subscribe(
+        this.http.post(this.url, JSON.stringify(fullMsg)).subscribe(
             (res) => {
                 console.log(res);
             },
-            (err) => {
+            (_error) => {
                 console.log('Error occured!! ');
-            });
-        /* tslint:enable:no-console */
+            }
+        );
+        /* eslint-enable no-console */
     }
 }

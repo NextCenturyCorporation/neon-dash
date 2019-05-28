@@ -26,50 +26,50 @@ import { ConfirmationDialogModule } from '../confirmation-dialog/confirmation-di
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 describe('DynamicDialogComponent', () => {
-  let component: DynamicDialogComponent;
-  let fixture: ComponentFixture<DynamicDialogComponent>;
+    let component: DynamicDialogComponent;
+    let fixture: ComponentFixture<DynamicDialogComponent>;
 
-  initializeTestBed('DynamicDialog', {
-    providers: [
-      {
-        provide: MAT_DIALOG_DATA,
-        useValue: {
-          component: 'confirmation-dialog',
-          cancelText: 'Uhoh'
-        }
-      },
-      {
-        provide: MatDialogRef,
-        useValue: {}
-      }
-    ],
-    imports: [
-      AppLazyModule,
-      DynamicDialogModule,
-      RouterTestingModule
-    ]
-  });
+    initializeTestBed('DynamicDialog', {
+        providers: [
+            {
+                provide: MAT_DIALOG_DATA,
+                useValue: {
+                    component: 'confirmation-dialog',
+                    cancelText: 'Uhoh'
+                }
+            },
+            {
+                provide: MatDialogRef,
+                useValue: {}
+            }
+        ],
+        imports: [
+            AppLazyModule,
+            DynamicDialogModule,
+            RouterTestingModule
+        ]
+    });
 
-  beforeEach(() => {
-    const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
-    spyNgModuleFactoryLoader.stubbedModules = {
-      './components/confirmation-dialog/confirmation-dialog.module#ConfirmationDialogModule': ConfirmationDialogModule
-    };
+    beforeEach(() => {
+        const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
+        spyNgModuleFactoryLoader.stubbedModules = {
+            './components/confirmation-dialog/confirmation-dialog.module#ConfirmationDialogModule': ConfirmationDialogModule
+        };
 
-    fixture = TestBed.createComponent(DynamicDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(DynamicDialogComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create with dynamic component', fakeAsync(() => {
-    component.ngOnInit();
-    tick(1000);
-    fixture.detectChanges();
-    tick(1000);
+    it('should create with dynamic component', fakeAsync(() => {
+        component.ngOnInit();
+        tick(1000);
+        fixture.detectChanges();
+        tick(1000);
 
-    expect(component).toBeTruthy();
-    const inst = component.componentRef.instance;
-    expect(inst.constructor).toEqual(ConfirmationDialogComponent);
-    expect((inst as ConfirmationDialogComponent).cancelText).toEqual('Uhoh');
-  }));
+        expect(component).toBeTruthy();
+        const inst = component.componentRef.instance;
+        expect(inst.constructor).toEqual(ConfirmationDialogComponent);
+        expect((inst as ConfirmationDialogComponent).cancelText).toEqual('Uhoh');
+    }));
 });

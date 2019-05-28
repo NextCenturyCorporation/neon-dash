@@ -8,7 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -18,10 +19,12 @@
     </div>
 
     <div class="body-container" (click)="stopEventPropagation($event)" [class.with-contribution]="showContribution()">
-        <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
+        <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)"
+            (mouseWheelDown)="mouseWheelDown($event)">
             <div #mapOverlay class="overlay"> {{ getOverlayText() }} </div>
             <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
-            <div class="map-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+            <div class="map-selection" *ngIf="false"
+                [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
 
         <div class=" legend-container ">

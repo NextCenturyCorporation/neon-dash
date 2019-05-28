@@ -17,14 +17,13 @@ import { AbstractSubcomponent } from './subcomponent.abstract';
 import { ElementRef } from '@angular/core';
 
 export class SubcomponentImpl1 extends AbstractSubcomponent {
-
     /**
      * Builds the subcomponent elements.
      *
      * @arg {ElementRef} elementRef
      * @override
      */
-    buildElements(elementRef: ElementRef) {
+    buildElements(_elementRef: ElementRef) {
         // TODO
     }
 
@@ -43,7 +42,7 @@ export class SubcomponentImpl1 extends AbstractSubcomponent {
      * @arg {array} data
      * @override
      */
-    updateData(data: any[]) {
+    updateData(_data: any[]) {
         // TODO
     }
 }

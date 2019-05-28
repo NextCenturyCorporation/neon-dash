@@ -20,13 +20,13 @@ import { MatTabsModule } from '@angular/material';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [WikiViewerComponent],
-  exports: [WikiViewerComponent],
-  entryComponents: [WikiViewerComponent],
-  imports: [
-    CommonWidgetModule,
-    MatTabsModule,
-    CommonModule
-  ]
+    declarations: [WikiViewerComponent],
+    exports: [WikiViewerComponent],
+    entryComponents: [WikiViewerComponent],
+    imports: [
+        CommonWidgetModule,
+        MatTabsModule,
+        CommonModule
+    ]
 })
 export class WikiViewerModule { }

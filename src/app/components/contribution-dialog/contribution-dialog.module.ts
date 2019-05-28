@@ -20,20 +20,20 @@ import { MatDialogModule, MatIconModule, MatButtonModule } from '@angular/materi
 import { ConfirmationDialogModule } from '../confirmation-dialog/confirmation-dialog.module';
 
 @NgModule({
-  declarations: [
-    ContributionDialogComponent
-  ],
-  entryComponents: [
-    ContributionDialogComponent
-  ],
-  exports: [
-    ConfirmationDialogModule
-  ],
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    CommonModule
-  ]
+    declarations: [
+        ContributionDialogComponent
+    ],
+    entryComponents: [
+        ContributionDialogComponent
+    ],
+    exports: [
+        ConfirmationDialogModule
+    ],
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        CommonModule
+    ]
 })
 export class ContributionDialogModule { }

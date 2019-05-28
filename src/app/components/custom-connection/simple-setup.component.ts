@@ -29,7 +29,7 @@ import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
     styleUrls: ['simple-setup.component.scss']
 })
 export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionStep {
-    // this.data is inherited from the superclass
+    // This.data is inherited from the superclass
 
     // Variables associated with connecting to a datastore.
     public datasetNameIsValid: boolean = false;
@@ -38,7 +38,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     public error: boolean = false;
     public tooltip: string = '';
 
-    //Variables associated with selecting databases and tables.
+    // Variables associated with selecting databases and tables.
     public selectedDatabase: {
         database: DatabaseMetaData;
         selectedTable: {
@@ -46,6 +46,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             table: TableMetaData;
         };
     };
+
     public customDatabases: {
         database: DatabaseMetaData;
         customTables: {

@@ -22,7 +22,7 @@ import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
 
 type OptionCallback = (options: any) => boolean;
-interface OptionChoice { prettyName: string; variable: any; }
+interface OptionChoice { prettyName: string, variable: any }
 
 export enum OptionType {
     DATABASE = 'DATABASE',
@@ -57,7 +57,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) { }
+    ) {}
 
     /**
      * Returns the current value to save in the bindings.
@@ -194,7 +194,6 @@ export class WidgetMultipleSelectOption extends WidgetOption {
 }
 
 export class WidgetNonPrimitiveOption extends WidgetOption {
-
     private _intermediateValue: string;
 
     /**
@@ -288,7 +287,7 @@ export class WidgetTableOption extends WidgetOption {
  */
 export class WidgetOptionCollection {
     // An object containing strings mapped to WidgetOption objects.
-    private _collection: { [bindingKey: string]: WidgetOption; } = {};
+    private _collection: { [bindingKey: string]: WidgetOption } = {};
 
     public _id: string;
     public database: DatabaseMetaData = null;
@@ -404,7 +403,8 @@ export class WidgetOptionCollection {
     public findFieldObjects(datasetService: DatasetService, bindingKey: string): FieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(datasetService.translateFieldKeyToValue(
-            fieldKey))).filter((fieldsObject) => !!fieldsObject);
+            fieldKey
+        ))).filter((fieldsObject) => !!fieldsObject);
     }
 
     /**
@@ -467,9 +467,8 @@ export class WidgetOptionCollection {
     public updateFields(datasetService: DatasetService): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
-                return (field && field.columnName);
-            });
+            this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true)
+                .filter((field) => (field && field.columnName));
 
             // Create the field options and assign the default value as FieldMetaData objects.
             this.createFieldOptionsCallback().forEach((fieldsOption) => {
@@ -513,7 +512,6 @@ export class WidgetOptionCollection {
 
         return this.updateFields(datasetService);
     }
-
 }
 
 export namespace OptionChoices {

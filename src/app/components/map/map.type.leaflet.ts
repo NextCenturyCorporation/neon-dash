@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.type.abstract';
+import { AbstractMap, BoundingBoxByDegrees, MapPoint } from './map.type.abstract';
 import { ElementRef } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
@@ -32,6 +32,7 @@ export class LeafletNeonMap extends AbstractMap {
         tap: true,
         touchZoom: true
     };
+
     private map: L.Map;
     private layerGroups = new Map<any, L.LayerGroup>();
     private layerControl: L.Control.Layers;
@@ -46,11 +47,10 @@ export class LeafletNeonMap extends AbstractMap {
                 '/assets/leaflet/dist/leaflet.css',
                 '/assets/leaflet.markercluster/dist/MarkerCluster.Default.css'
             ]) {
-                const link = styleImport = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = src;
-
-                document.head.appendChild(link);
+                styleImport = document.createElement('link');
+                styleImport.rel = 'stylesheet';
+                styleImport.href = src;
+                document.head.appendChild(styleImport);
             }
         }
     }
@@ -64,16 +64,17 @@ export class LeafletNeonMap extends AbstractMap {
             }) : new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 minZoom: this.leafletOptions.minZoom,
                 attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-            }),
-            monochrome = new L.TileLayer(
-                'https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-                    minZoom: this.leafletOptions.minZoom,
-                    attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
-                }),
-            baseLayers = {
-                Normal: baseTileLayer,
-                MonoChrome: monochrome
-            };
+            });
+        let monochrome = new L.TileLayer(
+            'https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                minZoom: this.leafletOptions.minZoom,
+                attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
+            }
+        );
+        let baseLayers = {
+            Normal: baseTileLayer,
+            MonoChrome: monochrome
+        };
 
         this.map = new L.Map(mapContainer.nativeElement, this.leafletOptions).addLayer(baseTileLayer);
         if (this.areBoundsSet()) {
@@ -85,8 +86,7 @@ export class LeafletNeonMap extends AbstractMap {
         this.layerControl = L.control.layers(baseLayers, {});
         this.map.addControl(this.layerControl);
 
-        this.map.on('boxzoomend', this.handleBoxZoom, this);
-
+        this.map.on('boxzoomend', this.handleBoxZoom.bind(this), this);
     }
 
     makeSelectionInexact() {
@@ -103,7 +103,7 @@ export class LeafletNeonMap extends AbstractMap {
     addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string) {
         let layerGroup = this.layerGroups.get(layer);
 
-        // if title is updated for an existing layerGroup, we need to
+        // If title is updated for an existing layerGroup, we need to
         // remove and add layer back to the control layer with the new title
         if (layerGroup && layerTitle) {
             this.layerControl.removeLayer(layerGroup);
@@ -113,13 +113,11 @@ export class LeafletNeonMap extends AbstractMap {
         if (!layerGroup) {
             layerGroup = !cluster ? new L.LayerGroup() : (L as any).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
-                iconCreateFunction: (clusterPoint) => {
-                    return new L.DivIcon({
-                        html: '<div><span>' + clusterPoint.getChildCount() + '</span></div>',
-                        className: 'marker-cluster neon-cluster',
-                        iconSize: new L.Point(40, 40)
-                    });
-                },
+                iconCreateFunction: (clusterPoint) => new L.DivIcon({
+                    html: '<div><span>' + clusterPoint.getChildCount() + '</span></div>',
+                    className: 'marker-cluster neon-cluster',
+                    iconSize: new L.Point(40, 40)
+                }),
                 maxClusterRadius: 20,
                 spiderLegPolylineOptions: {
                     // TODO Use theme color (color-text-main)
@@ -134,8 +132,8 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         for (let point of points) {
-            let mapIsSelected = this.mapOptions.id && point.idValue;          //is point selected record
-            let pointIsSelected = point.idList.includes(this.mapOptions.id);  //check if point is in list
+            let mapIsSelected = this.mapOptions.id && point.idValue; // Is point selected record
+            let pointIsSelected = point.idList.includes(this.mapOptions.id); // Check if point is in list
 
             let circleOptions = {
                 // TODO Use theme color (color-text-main)
@@ -147,17 +145,17 @@ export class LeafletNeonMap extends AbstractMap {
                 fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : 0.1) : 0.6,
                 opacity: mapIsSelected ? (pointIsSelected ? 0 : 0.2) : 1,
                 radius: Math.min(Math.floor(6 * Math.pow(point.count, 0.5)), 30), // Default is 10
-                stroke: mapIsSelected && pointIsSelected ? false : true,
+                stroke: !(mapIsSelected && pointIsSelected),
                 weight: 1
             };
 
-            let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/*.setRadius(6)*/;
+            let circle = new L.CircleMarker([point.lat, point.lng], circleOptions)/* .setRadius(6)*/;
             circle = this.addClickEventListener(circle);
 
             let tooltip = this.mapOptions.showPointDataOnHover ? `<span>${point.name}</span><br/><span>${point.description}</span>` : '';
 
             if (point.hoverPopupMap.size > 0) {
-                //build hover value and add to tooltip
+                // Build hover value and add to tooltip
                 let hoverPopupString = this.createHoverPopupString(point.hoverPopupMap);
                 tooltip += (tooltip ? '<br/>' : '') + (hoverPopupString !== '' ? `<span>${hoverPopupString}</span>` : '');
             }
@@ -271,7 +269,7 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     private addClickEventListener(circle: L.CircleMarker) {
-        return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
+        return circle.addEventListener('click', (event) => { // Event is a leaflet MouseEvent
             let castEvent = event as L.LeafletMouseEvent;
             // The _preSpiderfyLatlng property will be attached to clusters.
             let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
@@ -283,7 +281,7 @@ export class LeafletNeonMap extends AbstractMap {
     private createHoverPopupString(hoverPopupMap: Map<string, number>) {
         let result = [];
 
-        //loop through and push values to array
+        // Loop through and push values to array
         hoverPopupMap.forEach((value: number, key: string) => {
             if (value <= 1) {
                 result.push(key);
@@ -292,6 +290,6 @@ export class LeafletNeonMap extends AbstractMap {
             }
         });
 
-        return result.join(','); // return comma separated string
+        return result.join(','); // Return comma separated string
     }
 }

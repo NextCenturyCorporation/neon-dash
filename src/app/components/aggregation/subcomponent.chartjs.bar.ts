@@ -14,35 +14,30 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
-
-import * as _ from 'lodash';
 
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
 export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
-    public borderColor: string;
-    public borderWidth: number = 3;
-    public hoverBackgroundColor: string;
-    public hoverBorderColor: string;
-    public hoverBorderWidth: number = 3;
+    public hoverBackgroundColor: string[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[],
         public horizontal: boolean = false) {
-
         super(elementRef, color, label, xList);
-        this.borderColor = this.getColorSelected();
-        this.hoverBackgroundColor = this.getColorSelected();
-        this.hoverBorderColor = this.getColorSelected();
     }
 
     public finalizeData() {
         Array.from(this.xToY.keys()).forEach((x) => {
             let yList = this.xToY.get(x);
             (yList.length ? yList : [null]).forEach((y) => {
-                this.backgroundColor.push(this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.backgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+
+                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
+
                 this.data.push({
                     x: this.horizontal ? y : x,
                     y: this.horizontal ? x : y
@@ -66,7 +61,6 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM) {
-
         super(options, listener, elementRef, selectMode);
     }
 

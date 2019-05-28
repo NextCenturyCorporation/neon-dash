@@ -19,12 +19,12 @@ import { TimelineComponent } from './timeline.component';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [TimelineComponent],
-  exports: [TimelineComponent],
-  entryComponents: [TimelineComponent],
-  imports: [
-    CommonWidgetModule,
-    CommonModule
-  ]
+    declarations: [TimelineComponent],
+    exports: [TimelineComponent],
+    entryComponents: [TimelineComponent],
+    imports: [
+        CommonWidgetModule,
+        CommonModule
+    ]
 })
 export class TimelineModule { }
