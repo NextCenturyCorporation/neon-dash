@@ -26,7 +26,7 @@
                 <div class="mat-tree-node leaf-node level-{{node.level}}">
                     <label>
                         <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
-                            [class.indeterminate]="!!node.indeterminate">
+                            [indeterminate]="!!node.indeterminate">
                         <span class="text">
                             {{node.name}}
                             <em *ngIf="node.duplicateLabel">[{{node.externalId}}]</em>
@@ -45,7 +45,7 @@
                     </button>
                     <label>
                         <input type="checkbox" [checked]="node.checked" (change)="checkRelatedNodes( node, $event.target)"
-                            [class.indeterminate]="!!node.indeterminate">
+                            [indeterminate]="!!node.indeterminate">
                         {{node.name}} <span span *ngIf="node.count">({{ node.count }})</span>
                     </label>
                 </div>

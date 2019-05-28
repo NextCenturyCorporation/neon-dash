@@ -519,10 +519,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     updateParentNodesCheckBox(node: TaxonomyNode | TaxonomyGroup) {
         if (node && node.level > 0 && 'children' in node) {
-            const checked = node.children.filter((x) => x.checked).length;
+            const checked = node.children.filter((x) => x.checked && !x.indeterminate).length;
             const allChecked = checked === node.children.length;
             node.indeterminate = !allChecked && checked > 0;
-            node.checked = allChecked;
+            if (!node.indeterminate) {
+                node.checked = allChecked;
+            }
             this.updateParentNodesCheckBox(node.parent);
         }
     }
