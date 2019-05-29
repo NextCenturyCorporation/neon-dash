@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
@@ -51,6 +51,11 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     constructor(public filterService: FilterService) {
         this.messenger = new eventing.Messenger();
+    }
+
+    @HostBinding('style.display')
+    get visible() {
+        return this.groups.length > 0 ? 'grid' : 'none';
     }
 
     ngOnInit() {
@@ -158,6 +163,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 }
             } else {
                 this.groups.push({
+                    name: 'Custom',
                     filters: [filter]
                 });
             }
