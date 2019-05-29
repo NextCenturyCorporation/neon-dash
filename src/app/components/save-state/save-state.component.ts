@@ -18,20 +18,21 @@ import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { ParameterService } from '../../services/parameter.service';
+import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
+import { Dashboard, Datastore } from '../../dataset';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
   selector: 'app-save-state',
@@ -39,6 +40,7 @@ import * as neon from 'neon-framework';
   styleUrls: ['save-state.component.scss']
 })
 export class SaveStateComponent implements OnInit {
+    private static SAVED_STATE_DASHBOARD_KEY = 'saved_state';
 
     @Input() sidenav: MatSidenav;
 
@@ -52,216 +54,226 @@ export class SaveStateComponent implements OnInit {
     };
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
-    private dashboardStateId: string = '';
-    private filterStateId: string = '';
     private isLoading: boolean = false;
-    private messenger: neon.eventing.Messenger;
+    private messenger: eventing.Messenger;
     public stateNames: string[] = [];
-    public exportTarget: string = 'all';
 
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
-        private snackBar: MatSnackBar,
-        protected parameterService: ParameterService,
+        protected filterService: FilterService,
+        protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
+        private snackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
-    ) {}
+    ) {
+        this.messenger = new eventing.Messenger();
+    }
 
     ngOnInit() {
-        this.messenger = new neon.eventing.Messenger();
         this.loadStateNames();
     }
 
-    openEditConfigDialog() {
-        let dConfig  = {
-            height: '80%',
-            width: '80%',
-            hasBackdrop: true,
-            disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+    private closeSidenav() {
+        if (this.sidenav) {
+            this.sidenav.close();
+        }
     }
 
-    /*
-     * Saves the current state to the given name.
-     * @param {String} name
-     * @method saveState
-     */
-    saveState(name: string) {
-        /*
-        // Commenting this out because it causes silent failure on trying to update a saved state.
-        // Better for now to let people overwrite states and protect them from themselves later.
-        if (!this.validateName(name)) {
-            console.error('Name already exists');
-            return;
-        }*/
-        let stateParams: any = {};
+    private createDashboard(stateName: string, dashboard: Dashboard, filters: any[]): Dashboard {
+        // Don't modify the original dashboard object
+        let clonedDashboard = _.cloneDeep(dashboard);
+        clonedDashboard.options.connectOnLoad = true;
 
-        if (name) {
-            stateParams.stateName = name;
-        }
+        // Customize the dashboard with the saved state name
+        clonedDashboard.name = stateName;
+        clonedDashboard.layout = stateName;
 
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
-        if (connection) {
-            // Get each visualization's bindings and save them to our dashboard state parameter
-            stateParams.dashboard = this.widgetGridItems.map((widgetGridItem) => {
-                let widget = this.widgets.get(widgetGridItem.id);
+        // Add the dashboard filters
+        clonedDashboard.filters = filters;
 
-                let widgetGridItemCopy: NeonGridItem = _.cloneDeep(widgetGridItem);
+        // Unset the properties that were set by the dataset service (but keep the fullTitle)
+        clonedDashboard.datastores = undefined;
+        clonedDashboard.layoutObject = undefined;
+        clonedDashboard.pathFromTop = undefined;
 
-                widgetGridItemCopy.col = widgetGridItemCopy.config.col;
-                widgetGridItemCopy.row = widgetGridItemCopy.config.row;
-                widgetGridItemCopy.sizex = widgetGridItemCopy.config.sizex;
-                widgetGridItemCopy.sizey = widgetGridItemCopy.config.sizey;
-
-                widgetGridItemCopy.bindings = widget.getBindings();
-
-                return widgetGridItemCopy;
-            });
-
-            stateParams.dataset = this.datasetService.getDataset();
-
-            connection.saveState(stateParams, (response) => {
-                this.handleSaveStateSuccess(response);
-                this.openNotification(name, 'saved');
-            }, (response) => {
-                this.handleStateFailure(response);
-            });
-        }
-        this.sidenav.close();
+        return clonedDashboard;
     }
 
-    /*
-     * Validates a state's name by checking that the name doesn't exist already for another saved state.
-     */
-    validateName(name: string): boolean {
-        return (!this.stateNames.length || this.stateNames.indexOf(name) === -1);
-    }
+    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): { [key: string]: any } {
+        let layouts: { [key: string]: any } = {};
 
-    /*
-     * Loads the states for the name choosen and updates the dashboard and url parameters.
-     */
-    loadState(name: string) {
-        if (this.validateName(name)) {
-            return;
-        }
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
-        if (connection) {
-            let stateParams = {
-                stateName: name
+        layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
+            let widget = this.getWidgetById(widgetGridItem.id);
+
+            let widgetConfig: { [key: string]: any } = {
+                type: widgetGridItem.type,
+                col: widgetGridItem.col,
+                row: widgetGridItem.row,
+                sizex: widgetGridItem.sizex,
+                sizey: widgetGridItem.sizey,
+                bindings: widget.getBindings()
             };
-            connection.loadState(stateParams, (dashboardState) => {
-                if (_.keys(dashboardState).length) {
-                    // ensure that active dataset matches the one we're attempting to load
-                    dashboardState.dataset.name += ' (' + name + ')';
-                    this.datasetService.setActiveDataset(dashboardState.dataset);
-                    this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
-                    this.openNotification(name, 'loaded');
-                } else {
-                    this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                        error: null,
-                        message: 'State ' + name + ' not found.'
-                    });
-                }
+
+            return widgetConfig;
+        });
+
+        return layouts;
+    }
+
+    /**
+     * Saves the current dashboard state using the given name and closes the saved state menu.
+     *
+     * @arg {string} name
+     */
+    public saveState(name: string): void {
+        let connection = this.openConnection();
+        if (connection) {
+            let validStateName = this.validateName(name);
+            // Same format as the config file.
+            let stateData: any = {
+                dashboards: this.createDashboard(validStateName, this.datasetService.getCurrentDashboard(),
+                    this.filterService.getFiltersToSaveInConfig()),
+                datastores: this.datasetService.getDatastoresInConfigFormat(),
+                layouts: this.createLayouts(validStateName, this.widgetGridItems),
+                stateName: validStateName
+            };
+
+            connection.saveState(stateData, (response) => {
+                this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
-                this.handleStateFailure(response);
+                this.handleStateFailure(response, validStateName);
             });
         }
-        this.sidenav.close();
+        this.closeSidenav();
+    }
+
+    /**
+     * Loads the dashboard state with the given name.
+     *
+     * @arg {string} name
+     */
+    public loadState(name: string): void {
+        let connection = this.openConnection();
+        if (connection) {
+            let validStateName = this.validateName(name);
+            connection.loadState(validStateName, (response) => {
+                this.handleLoadStateSuccess(response, validStateName);
+            }, (response) => {
+                this.handleStateFailure(response, validStateName);
+            });
+        }
+        this.closeSidenav();
     }
 
     /*
      * Deletes the state for the name choosen.
      * @method deleteState
      */
-    deleteState(name: string) {
-        if (this.validateName(name)) {
-            return;
-        }
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+    public deleteState(name: string) {
+        let connection = this.openConnection();
         if (connection) {
-            connection.deleteState(this.formData.stateToDelete, (stateIds) => {
-                this.loadStateNames();
-                this.openNotification(name, 'deleted');
+            let validStateName = this.validateName(name);
+            connection.deleteState(validStateName, (response) => {
+                this.handleDeleteStateSuccess(response, validStateName);
             }, (response) => {
-                this.handleStateFailure(response);
+                this.handleStateFailure(response, validStateName);
             });
         }
-        this.sidenav.close();
+        this.closeSidenav();
     }
 
     getDefaultOptionTitle() {
         return this.isLoading ? 'Loading...' : 'Select a name';
     }
 
-    /*
-     * Replaces the url parameters on a successful state save.
-     * @param {Object} response
-     * @private
-     */
-    handleSaveStateSuccess(response) {
-        this.dashboardStateId = response.dashboardStateId;
-        this.filterStateId = response.filterStateId;
-        this.formData.stateToSave = '';
-
-        this.parameterService.updateStateParameters(response.dashboardStateId, response.filterStateId);
-        this.loadStateNames();
+    private getWidgetById(id: string): any {
+        return this.widgets.get(id);
     }
 
-    /*
-     * Shows an error notification on a state call error.
-     * @param {Object} response
+    private handleDeleteStateSuccess(response: any, name: string) {
+        this.formData.stateToDelete = '';
+        this.loadStateNames();
+        this.openNotification(name, 'deleted');
+    }
+
+    private handleLoadStateSuccess(response: any, name: string) {
+        this.formData.stateToLoad = '';
+        if (response.dashboards && response.datastores && response.layouts) {
+            let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
+                response.datastores, response.layouts);
+            // Dashboard choices should be set by wrapInSavedStateDashboard
+            if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
+                dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
+
+                this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                    dashboard: dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]
+                });
+                this.openNotification(name, 'loaded');
+            } else {
+                console.error('Dashboard does not have saved state ' + name, dashboard);
+            }
+        } else {
+            this.openNotification(name, 'not loaded:  bad format');
+        }
+    }
+
+    /**
+     * Updates the state in the URL parameters and reloads the available dashboard state names.
+     *
+     * @arg {Object} response
      * @private
      */
-    handleStateFailure(response) {
+    private handleSaveStateSuccess(response: any, name: string) {
+        this.formData.stateToSave = '';
+        this.loadStateNames();
+        this.openNotification(name, 'saved');
+    }
+
+    /**
+     * Shows an error notification.
+     *
+     * @arg {Object} response
+     * @private
+     */
+    private handleStateFailure(response: any, name: string) {
         this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-            error: null,
-            message: response.responseJSON.error
+            error: response.responseJSON ? response.responseJSON.error : undefined,
+            message: 'State operation failed on ' + name
         });
     }
 
-    /*
-     * Retrieves all the current state names before when any of the modals are shown.
+    /**
+     * Updates the list of available dashboard state names.
+     *
      * @private
      */
-    loadStateNames() {
+    private loadStateNames() {
         this.formData.stateToDelete = '';
         this.formData.stateToLoad = '';
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
-        if (!connection) {
-            connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-                this.datasetService.getHostname());
-        }
-
         this.isLoading = true;
-        connection.getAllStateNames((stateNames) => {
-            this.stateNames = stateNames;
-            this.isLoading = false;
-        }, (response) => {
-            this.isLoading = false;
-            this.stateNames = [];
-            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                error: null,
-                message: response.responseJSON.error
+        this.stateNames = [];
+        let connection = this.openConnection();
+        if (connection) {
+            connection.getStateNames((stateNames) => {
+                this.isLoading = false;
+                this.stateNames = stateNames;
+            }, (response) => {
+                this.isLoading = false;
+                this.handleStateFailure(response, 'load states');
             });
-        });
+        }
     }
 
-    setStateToLoad(name: string) {
+    public setStateToLoad(name: string) {
         this.formData.stateToLoad = name;
     }
 
-    setStateToDelete(name: string) {
+    public setStateToDelete(name: string) {
         this.formData.stateToDelete = name;
     }
 
-    openConfirmationDialog() {
+    public openConfirmationDialog() {
         this.confirmDialogRef = this.dialog.open(ConfirmationDialogComponent, {
             height: '130px',
             width: '500px',
@@ -281,12 +293,32 @@ export class SaveStateComponent implements OnInit {
         });
     }
 
-    public openNotification(stateName: String, actionName: String) {
-        let message = 'State "' + stateName + '" has been ' + actionName;
+    private openConnection(): any {
+        return this.searchService.createConnection(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
+    }
+
+    public openNotification(stateName: string, actionName: string) {
+        let message = 'State "' + stateName + '" was ' + actionName;
         this.snackBar.open(message, 'x', {
             duration: 5000,
-            verticalPosition: 'top',
-            panelClass: [this.widgetService.getTheme(), 'simpleSnackBar']
+            verticalPosition: 'top'
          });
+    }
+
+    private validateName(stateName: string): string {
+        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
+        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9\.\_\-\+\=\,]/g, '');
+    }
+
+    private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {
+        let savedStateDashboard: Dashboard = new Dashboard();
+        savedStateDashboard.name = 'Saved State';
+        savedStateDashboard.choices = {};
+        savedStateDashboard.choices[stateName] = dashboard;
+
+        let rootDashboard: Dashboard = new Dashboard();
+        rootDashboard.choices = {};
+        rootDashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] = savedStateDashboard;
+        return rootDashboard;
     }
 }

@@ -29,7 +29,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { CurrentFiltersComponent } from '../current-filters/current-filters.component';
@@ -42,7 +41,7 @@ describe('Component: Filters', () => {
     let fixture: ComponentFixture<FiltersComponent>;
     let debugElement: DebugElement;
 
-    initializeTestBed({
+    initializeTestBed('Filters', {
         declarations: [
             FiltersComponent,
             FilterBuilderComponent,
@@ -50,7 +49,7 @@ describe('Component: Filters', () => {
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'config', useValue: testConfig }

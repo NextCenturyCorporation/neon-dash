@@ -8,238 +8,33 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
-
-    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
-        <mat-card align="left">
-            <mat-card-content>
-                <div *ngIf="errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
-                        <span>{{ getButtonText() }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
-                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <span *ngIf="options.isReified" class="toggle-text">Data Format:</span>
-                <mat-button-toggle-group *ngIf="options.isReified" class="neon-button-toggle-group-small" [(ngModel)]="options.isReified" (ngModelChange)="handleChangeReified()">
-                    <mat-button-toggle [value]="true">Reified</mat-button-toggle>
-                    <mat-button-toggle [value]="false">Tabular</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <div *ngIf="!options.isReified">
-                    <mat-form-field>
-                        <mat-select placeholder="Node Field" [(ngModel)]="options.nodeField" required="true" (ngModelChange)="handleChangeData()"
-                                    [disabled]="options.fields.length == 0">
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Node Name Field" [(ngModel)]="options.nodeNameField" required="false" (ngModelChange)="handleChangeData()"
-                                    [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Target Name Field" [(ngModel)]="options.targetNameField" required="false" (ngModelChange)="handleChangeData()"
-                                    [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Node Shape" [(ngModel)]="options.nodeShape" required="false" (ngModelChange)="handleChangeData()"
-                                    [disabled]="nodeShapes.length == 0">
-                            <mat-option [value]="createEmptyField()">(Default)</mat-option>
-                            <mat-option *ngFor="let shape of nodeShapes" [value]="shape">{{ shape }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()"
-                                    [disabled]="options.fields.length == 0">
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Link Name Field" [(ngModel)]="options.linkNameField" required="false" (ngModelChange)="handleChangeData()"
-                                    [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-                </div>
-                <p></p>
-
-                <div mat-fill class="flex center">
-                    <mat-form-field>
-                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="handleChangeLimit()">
-                    </mat-form-field>
-
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="reloadGraph()">
-                        <mat-icon>refresh</mat-icon>
-                    </button>
-                </div>
-                <p></p>
-                <p></p>
-
-                <!-- Color Options -->
-                <div *ngIf="!options.isReified">
-                    <mat-form-field>
-                        <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor"
-                               [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <input matInput type="color" placeholder="Link Color" [(ngModel)]="options.linkColor"
-                               [value]="options.linkColor" (ngModelChange)="reloadGraph()">
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <input matInput type="color" placeholder="Text Color" [(ngModel)]="options.fontColor"
-                               [value]="options.fontColor" (ngModelChange)="reloadGraph()">
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor"
-                               [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
-                    </mat-form-field>
-                    <p></p>
-                </div>
-
-                <button mat-raised-button class="neon-button-small" color="accent" (click)="resetColors()">
-                    <span>Reset Colors</span>
-                </button>
-                <p></p>
-
-                <div *ngIf="!options.isReified">
-                    <mat-form-field>
-                        <mat-select placeholder="Node Color Field" [(ngModel)]="options.nodeColorField"
-                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField"
-                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-
-                    <mat-form-field>
-                        <mat-select placeholder="Target Node Color Field" [(ngModel)]="options.targetColorField"
-                                    (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                            <mat-option [value]="createEmptyField()">(None)</mat-option>
-                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <p></p>
-                </div>
-
-                <div
-                    *ngIf="options.nodeColorField.columnName || options.edgeColorField.columnName || options.targetColorField.columnName">
-                    <span class="toggle-text">Show Legend:</span>
-                    <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.displayLegend">
-                        <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                        <mat-button-toggle [value]="false">No</mat-button-toggle>
-                    </mat-button-toggle-group>
-                    <p></p>
-                </div>
-
-                <span class="toggle-text">Show Directed:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isDirected" (ngModelChange)="handleChangeDirected()">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.multiFilterOperator">
-                    <mat-button-toggle value="and">All Filters</mat-button-toggle>
-                    <mat-button-toggle value="or">Any Filters</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <app-export-control [widgets]="this"></app-export-control>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav>
 
     <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container" (click)="stopEventPropagation($event)">
+    <div class="body-container" (click)="stopEventPropagation($event)" [class.with-contribution]="showContribution()">
         <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
             <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
             <div class="graph-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
     </div>
 
-    <div class="filter-container" *ngIf="options.filterable">
-        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-        </div>
+    <div class="legend-container" *ngIf="legendIsNeeded()">
+        <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
+                [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+        <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
     </div>
 
-    <div class=" legend-container ">
-        <div *ngIf="legendIsNeeded()">
-            <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
-                    [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
-            <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys"  [filteringOn]="options.legendFiltering"></app-legend>
+    <div class="contribution-text" *ngIf="showContribution()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
         </div>
     </div>
-
 </mat-sidenav-container>

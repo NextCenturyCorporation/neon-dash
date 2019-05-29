@@ -15,6 +15,7 @@
  */
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     Inject,
     OnInit,
@@ -27,15 +28,16 @@ import {
 } from '@angular/core';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
 import * as uuidv4 from 'uuid/v4';
 
+import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { BaseNeonComponent } from './components/base-neon-component/base-neon.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-import { Dataset } from './dataset';
+import { Dashboard, Datastore } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../app/services/filter.service';
@@ -45,7 +47,9 @@ import { NeonGridItem } from './neon-grid-item';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { neonEvents } from './neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
+import { ParameterService } from './services/parameter.service';
 import { SaveStateComponent } from './components/save-state/save-state.component';
+import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
@@ -63,25 +67,39 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-
-    @Input() sidenav = MatSidenav;
-    // Used to determine which pane is show in the right sidenav
+    @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
+    @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFiltersComponent: boolean = false;
-    public showFiltersComponentIcon: boolean = false;
+    public showFilterTray: boolean = false;
     //Toolbar
-    public showVisShortcut: boolean = true;
+    public showVisualizationsShortcut: boolean = true;
+    public showDashboardSelector: boolean = false;
 
     public rightPanelTitle: string = 'Dashboard Layouts';
 
+    public createAboutNeon: boolean = false;
+    public createAddVis: boolean = false;
+    public createDashboardLayouts: boolean = true;
+    public createGear: boolean = true;
+    public createSavedState: boolean = false;
+    public createSettings: boolean = false;
     public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
 
-    public widgetGridItems: NeonGridItem[] = [];
-    public widgets: Map<string, BaseNeonComponent> = new Map();
+    public dashboards: Dashboard;
 
-    public datasets: Dataset[] = [];
+    public selectedTabIndex = 0;
+    public tabbedGrid: {
+        list: NeonGridItem[],
+        name: string
+    }[] = [{
+        list: [],
+        name: ''
+    }];
+
+    public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public gridConfig: NgGridConfig = {
         resizable: true,
@@ -104,6 +122,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
+    public dashboardVersion: string = '';
 
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
@@ -113,40 +132,47 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public filtersIcon;
 
-    public messenger: neon.eventing.Messenger;
+    // Use two messengers here because a single messager doesn't receive its own messages.
+    public messageReceiver: eventing.Messenger;
+    public messageSender: eventing.Messenger;
 
     constructor(
+        public changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
         public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
+        private parameterService: ParameterService,
+        private searchService: AbstractSearchService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         @Inject('config') private neonConfig: NeonGTDConfig
     ) {
-        this.messenger = new neon.eventing.Messenger();
+        this.messageReceiver = new eventing.Messenger();
+        this.messageSender = new eventing.Messenger();
+
+        // The dashboards are read from the config file in the DatasetService's constructor.
+        this.dashboards = this.datasetService.getDashboards();
 
         // TODO: Default to false and set to true only after a dataset has been selected.
-        this.showFiltersComponentIcon = true;
+        this.showFilterTray = true;
         this.showCustomConnectionButton = true;
-        this.datasets = this.datasetService.getDatasets();
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
 
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
-                panelClass: this.widgetService.getTheme(),
                 viewContainerRef: this.viewContainerRef
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
-        if (this.datasets && this.datasets.length > 0) {
-            this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
-            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
+        if (this.neonConfig) {
+            this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
+            this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
         }
 
         this.matIconRegistry.addSvgIcon(
@@ -159,20 +185,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters_active.svg')
         );
 
+        this.matIconRegistry.addSvgIcon(
+            'dashboard_selector',
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/database_icon.svg')
+        );
+
         this.changeFavicon();
         this.filtersIcon = 'filters';
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_CLEAR, this.clearDashboard.bind(this));
-        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
-        this.messenger.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messenger.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+        this.dashboardVersion = neonConfig.version || '';
     }
 
     /**
@@ -180,34 +201,57 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    addWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
         let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
-        widgetGridItem.config = widgetGridItem.config || {};
-        widgetGridItem.config.borderSize = widgetGridItem.config.borderSize || 10;
-        widgetGridItem.config.dragHandle = widgetGridItem.config.dragHandle || '.drag-handle';
+        widgetGridItem.borderSize = widgetGridItem.borderSize || 10;
+        widgetGridItem.dragHandle = widgetGridItem.dragHandle || '.drag-handle';
         widgetGridItem.id = widgetGridItem.id || uuidv4();
 
         // Move grid item config properties from the top-level into the config object.
-        widgetGridItem.config.col = widgetGridItem.config.col || widgetGridItem.col;
-        widgetGridItem.config.row = widgetGridItem.config.row || widgetGridItem.row;
-        widgetGridItem.config.sizex = widgetGridItem.config.sizex || widgetGridItem.sizex || AppComponent.DEFAULT_SIZEX;
-        widgetGridItem.config.sizey = widgetGridItem.config.sizey || widgetGridItem.sizey || AppComponent.DEFAULT_SIZEY;
+        widgetGridItem.col = widgetGridItem.col || widgetGridItem.col;
+        widgetGridItem.row = widgetGridItem.row || widgetGridItem.row;
+        widgetGridItem.sizex = widgetGridItem.sizex || widgetGridItem.sizex || AppComponent.DEFAULT_SIZEX;
+        widgetGridItem.sizey = widgetGridItem.sizey || widgetGridItem.sizey || AppComponent.DEFAULT_SIZEY;
+
+        let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
+        if (eventMessage.gridName) {
+            // Find the correct tab, or create a new one if needed.
+            this.tabbedGrid.forEach((grid, i) => {
+                if (grid.name === eventMessage.gridName) {
+                    index = i;
+                }
+            });
+
+            if (index < 0) {
+                // Rename the default tab if it is empty.
+                if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
+                    this.tabbedGrid[0].name = eventMessage.gridName;
+                    index = 0;
+                } else {
+                    this.tabbedGrid.push({
+                        list: [],
+                        name: eventMessage.gridName
+                    });
+                    index = this.tabbedGrid.length - 1;
+                }
+            }
+        }
 
         // If both col and row are set, add the widget to the grid.
-        if (widgetGridItem.config.col && widgetGridItem.config.row) {
-            this.widgetGridItems.push(widgetGridItem);
+        if (widgetGridItem.col && widgetGridItem.row) {
+            this.tabbedGrid[index].list.push(widgetGridItem);
             return;
         }
 
         // Otherwise insert the widget into the first empty space in the grid.
-        widgetGridItem.config.col = widgetGridItem.config.col || 1;
-        widgetGridItem.config.row = widgetGridItem.config.row || 1;
+        widgetGridItem.col = widgetGridItem.col || 1;
+        widgetGridItem.row = widgetGridItem.row || 1;
 
         // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
-        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizex + 1;
-        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.config.sizey + 1;
+        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizex + 1;
+        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
 
         // Find the first empty space for the widget.
         let x = 1;
@@ -216,15 +260,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         while (y <= maxRow && !found) {
             x = 1;
             while (x <= maxCol && !found) {
-                widgetGridItem.config.col = x;
-                widgetGridItem.config.row = y;
+                widgetGridItem.col = x;
+                widgetGridItem.row = y;
                 found = this.widgetFits(widgetGridItem);
                 x++;
             }
             y++;
         }
 
-        this.widgetGridItems.push(widgetGridItem);
+        this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
     changeFavicon() {
@@ -248,25 +292,21 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         head.appendChild(title);
     }
 
-    changeFiltersComponentIcon() {
-        let filters = this.filterService.getFilters();
-        if (filters.length > 0) {
-            this.filtersIcon = 'filters_active';
-        } else {
-            this.filtersIcon = 'filters';
-        }
+    changeFilterTrayIcon() {
+        this.filtersIcon = this.isFiltered() ? 'filters_active' : 'filters';
+        // TODO Does this function really have to return a boolean value?
         return true;
-    }
-
-    checkPanel(panel: string) {
-        return this.currentPanel === panel;
     }
 
     /**
      * Clears the grid.
      */
-    clearDashboard() {
-        this.widgetGridItems = [];
+    private clearDashboard() {
+        this.selectedTabIndex = 0;
+        this.tabbedGrid = [{
+            list: [],
+            name: ''
+        }];
     }
 
     /**
@@ -274,11 +314,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
-        eventMessage.widgetGridItem.config.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
-        eventMessage.widgetGridItem.config.row = eventMessage.widgetGridItem.previousConfig.row;
-        eventMessage.widgetGridItem.config.col = eventMessage.widgetGridItem.previousConfig.col;
+    private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
+        eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
+        eventMessage.widgetGridItem.row = eventMessage.widgetGridItem.previousConfig.row;
+        eventMessage.widgetGridItem.col = eventMessage.widgetGridItem.previousConfig.col;
     }
 
     /**
@@ -286,12 +326,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
-    deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.widgetGridItems.length; i++) {
-            if (this.widgetGridItems[i].id === eventMessage.id) {
-                this.widgetGridItems.splice(i, 1);
+    private deleteWidget(eventMessage: { id: string }) {
+        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
+                // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
+                this.tabbedGrid[this.selectedTabIndex].list[i].hide = true;
+                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
             }
         }
+    }
+
+    disableClose(): boolean {
+        return this.currentPanel === 'gear';
     }
 
     /**
@@ -299,22 +345,42 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+    private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         let visibleRowCount = this.getVisibleRowCount();
         eventMessage.widgetGridItem.previousConfig = {
-            col: eventMessage.widgetGridItem.config.col,
-            row: eventMessage.widgetGridItem.config.row,
-            sizex: eventMessage.widgetGridItem.config.sizex,
-            sizey: eventMessage.widgetGridItem.config.sizey
+            col: eventMessage.widgetGridItem.col,
+            row: eventMessage.widgetGridItem.row,
+            sizex: eventMessage.widgetGridItem.sizex,
+            sizey: eventMessage.widgetGridItem.sizey
         };
-        eventMessage.widgetGridItem.config.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        eventMessage.widgetGridItem.config.col = 1;
+        eventMessage.widgetGridItem.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
+        eventMessage.widgetGridItem.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        eventMessage.widgetGridItem.config.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.config.sizex;
+        eventMessage.widgetGridItem.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.sizex;
     }
 
-    getDatasets(): Dataset[] {
-        return this.datasets;
+    /**
+     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
+     *
+     * @arg {{ [key: string]: Dashboard }} dashboardChoices
+     * @return {Dashboard}
+     * @private
+     */
+    private findAutoShowDashboard(dashboardChoices: { [key: string]: Dashboard }): Dashboard {
+        for (let choiceKey of Object.keys(dashboardChoices || {})) {
+            let nestedChoiceKeys = Object.keys(dashboardChoices[choiceKey].choices || {});
+            if (!nestedChoiceKeys.length) {
+                if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad) {
+                    return dashboardChoices[choiceKey];
+                }
+            } else {
+                let nestedDashboard = this.findAutoShowDashboard(dashboardChoices[choiceKey].choices);
+                if (nestedDashboard) {
+                    return nestedDashboard;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -333,11 +399,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
      * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
      */
-    getMaxColInUse(): number {
+    private getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
-            maxCol = Math.max(maxCol, (widgetGridItem.config.col + widgetGridItem.config.sizex - 1));
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
+            maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
         }
         return maxCol;
     }
@@ -346,11 +412,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
      * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
      */
-    getMaxRowInUse(): number {
+    private getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let widgetGridItem of this.widgetGridItems) {
-            maxRow = Math.max(maxRow, (widgetGridItem.config.row + widgetGridItem.config.sizey - 1));
+        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
+            maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
         }
         return maxRow;
     }
@@ -360,7 +426,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @return {number}
      */
-    getVisibleRowCount(): number {
+    private getVisibleRowCount(): number {
         let gridElement = this.getGridElement();
         if (this.grid && gridElement) {
             return Math.floor(gridElement.nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
@@ -373,9 +439,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
      */
-    handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
+    private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
         console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
+    }
+
+    private isFiltered(): boolean {
+        return !!this.filterService.getFilters().length;
     }
 
     /**
@@ -383,8 +453,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.row = this.getMaxRowInUse() + 1;
+    private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
     }
 
     /**
@@ -392,12 +462,23 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
-    moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.config.row = 1;
+    private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
+        eventMessage.widgetGridItem.row = 1;
     }
 
     ngAfterViewInit() {
-        // child is set
+        let gearContainer: HTMLElement = document.getElementById('gear');
+
+        gearContainer.setAttribute('style', 'display: none');
+        /* NOTE:
+         * The gear component is created when the app component is created because if it is created when
+         * a component sends its option object in the messenger channel, it is too late.
+         * The gear component is created too late to receive the option object in the meseenger channel,
+         * as a result you would have had to click the gear option in the component twice to see any
+         * object values.
+         * Another workaround might be sending the option object in the messenger channel after a feedback
+         * from the app component after the toggleGear is received.
+         */
         /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
@@ -409,12 +490,26 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // Do nothing.
+        this.messageReceiver.unsubscribeAll();
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe('showVisShortcut', (message) => this.updateShowVisShortcut(message));
-        this.messenger.subscribe('showFiltersComponentIcon', (message) => this.updateShowFiltersComponentIcon(message));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.openOptionMenu.bind(this));
+        this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
+        this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_DELETE, this.deleteWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_CONTRACT, this.contractWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_EXPAND, this.expandWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_BOTTOM, this.moveWidgetToBottom.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
     }
 
     onDragStop(i, event) {
@@ -432,13 +527,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     openCustomConnectionDialog() {
         let config = new MatDialogConfig();
-        config.panelClass = this.widgetService.getTheme();
         config.viewContainerRef = this.viewContainerRef;
 
         this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
         this.customConnectionDialogRef.afterClosed().subscribe(() => {
             this.customConnectionDialogRef = null;
         });
+    }
+
+    /**
+     * Opens the option menu.
+     *
+     * @private
+     */
+    private openOptionMenu() {
+        this.setPanel('gear', 'Component Settings');
+        this.sideNavRight.toggle();
     }
 
     toggleFiltersDialog() {
@@ -455,10 +559,20 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
+    toggleDashboardSelectorDialog(showSelector: boolean) {
+        this.showDashboardSelector = showSelector;
+        let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
+        if (this.showDashboardSelector && dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: show');
+        } else if (dashboardSelectorContainer) {
+            dashboardSelectorContainer.setAttribute('style', 'display: none');
+        }
+    }
+
     /**
      * Refreshes the grid.
      */
-    refreshDashboard() {
+    private refreshDashboard() {
         this.grid.triggerResize();
     }
 
@@ -467,15 +581,116 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
-    registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
+    private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }
     }
 
+    resetAllPanel() {
+        let aboutNeonContainer: HTMLElement = document.getElementById('aboutNeon');
+        let addVisContainer: HTMLElement = document.getElementById('addVis');
+        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboardLayouts');
+        let gearContainer: HTMLElement = document.getElementById('gear');
+        let savedStateContainer: HTMLElement = document.getElementById('savedState');
+        let settingsContainer: HTMLElement = document.getElementById('settings');
+
+        let containerList = [
+            aboutNeonContainer,
+            addVisContainer,
+            dashboardLayoutsContainer,
+            gearContainer,
+            savedStateContainer,
+            settingsContainer
+        ];
+
+        containerList.forEach((element) => {
+            if (element) {
+                element.setAttribute('style', 'display: none');
+            }
+        });
+    }
+
     setPanel(newPanel: string, newTitle: string) {
+        this.resetAllPanel();
+        let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
+
+        if (newPanel === 'aboutNeon' && !this.createAboutNeon) {
+            this.createAboutNeon = true;
+        } else if (newPanel === 'addVis' && !this.createAddVis) {
+            this.createAddVis = true;
+        } else if (newPanel === 'savedState' && !this.createSavedState) {
+            this.createSavedState = true;
+        } else if (newPanel === 'settings' && !this.createSettings) {
+            this.createSettings = true;
+        }
+
+        if (rightPanelContainer) {
+            rightPanelContainer.setAttribute('style', 'display: show');
+        }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
+    }
+
+    /**
+     * Shows the given dashboard using the given datastores and the given layout.
+     *
+     * @arg {{dashboard:Dashboard,datastores:Datastore[],layout:any[]}} eventMessage
+     * @private
+     */
+    private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+        // TODO THOR-1062 Permit multiple datastores.
+        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
+        this.datasetService.setCurrentDashboard(eventMessage.dashboard);
+
+        this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
+
+        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
+
+        // Should map the grid name to the layout list.
+        let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
+            '': eventMessage.dashboard.layoutObject
+        };
+
+        Object.keys(gridNameToLayout).forEach((gridName) => {
+            let layout = gridNameToLayout[gridName] || [];
+            layout.forEach((widgetGridItem) => {
+                if (!widgetGridItem.hide) {
+                    this.messageSender.publish(neonEvents.WIDGET_ADD, {
+                        gridName: gridName,
+                        widgetGridItem: widgetGridItem
+                    });
+                }
+            });
+        });
+
+        this.simpleFilter.updateSimpleFilterConfig();
+        this.toggleDashboardSelectorDialog(false);
+    }
+
+    /**
+     * Shows the dashboard state on page load, if any.
+     *
+     * @private
+     */
+    private showDashboardStateOnPageLoad() {
+        let parameterState: string = this.parameterService.findDashboardStateIdInUrl();
+
+        if (parameterState) {
+            this.parameterService.loadState(parameterState, this.parameterService.findFilterStateIdInUrl());
+        }
+
+        let parameterDataset: string = this.parameterService.findActiveDatasetInUrl();
+
+        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards.choices);
+
+        if (dashboard && (!parameterDataset || parameterDataset === dashboard.datastores[0].name)) {
+            this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
+                dashboard: dashboard
+            });
+        } else {
+            this.toggleDashboardSelectorDialog(true);
+        }
     }
 
     showItemLocation(event) {
@@ -495,24 +710,26 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      *
      * @arg {{id:string}} eventMessage
      */
-    unregisterWidget(eventMessage: { id: string }) {
+    private unregisterWidget(eventMessage: { id: string }) {
         this.widgets.delete(eventMessage.id);
     }
 
     /**
-     * Updates the showVisShortcut boolean value from the messenger channel
-     * @param message
+     * Updates the showVisualizationsShortcut boolean value from the messenger channel
+     *
+     * @arg {{show:boolean}} eventMessage
      */
-    updateShowVisShortcut(message) {
-        this.showVisShortcut = message.showVisShortcut;
+    private updateShowVisualizationsShortcut(eventMessage: { show: boolean }) {
+        this.showVisualizationsShortcut = eventMessage.show;
     }
 
     /**
-     * Updates the showFiltersComponentIcon boolean value from the messenger channel
-     * @param message
+     * Updates the showFilterTray boolean value from the messenger channel
+     *
+     * @arg {{show:boolean}} eventMessage
      */
-    updateShowFiltersComponentIcon(message) {
-        this.showFiltersComponentIcon = message.showFiltersComponentIcon;
+    private updateShowFilterTray(eventMessage: { show: boolean }) {
+        this.showFilterTray = eventMessage.show;
     }
 
     /**
@@ -520,13 +737,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * at the given row and column.  This function assumes the given widget has valid sizes.
      * @arg widgetGridItem The widget to place
      */
-    widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.widgetGridItems) {
+    private widgetFits(widgetGridItem: NeonGridItem) {
+        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
             if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -536,16 +752,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
      * @arg one the first widget
      * @arg two the second widget
      */
-    widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
-        if (one.config.col > (two.config.col + two.config.sizex - 1) ||
-            two.config.col > (one.config.col + one.config.sizex - 1)) {
+    private widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
+        if (one.col > (two.col + two.sizex - 1) || two.col > (one.col + one.sizex - 1)) {
             return false;
         }
-        if (one.config.row > (two.config.row + two.config.sizey - 1) ||
-            two.config.row > (one.config.row + one.config.sizey - 1)) {
+        if (one.row > (two.row + two.sizey - 1) || two.row > (one.row + one.sizey - 1)) {
             return false;
         }
-
         return true;
     }
 }

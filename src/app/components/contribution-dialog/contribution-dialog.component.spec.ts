@@ -13,48 +13,48 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { DatasetSelectorComponent } from './dataset-selector.component';
-import { ConnectionService } from '../../services/connection.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { FormsModule } from '@angular/forms';
+
+import { ContributionDialogComponent } from './contribution-dialog.component';
+import { FilterService } from '../../services/filter.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { ParameterService } from '../../services/parameter.service';
-import { FilterService } from '../../services/filter.service';
-
-import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-describe('Component: DatasetSelector', () => {
+describe('Component: ContributionDialogComponent', () => {
+    let fixture: ComponentFixture<ContributionDialogComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let fixture: ComponentFixture<DatasetSelectorComponent>;
-    let component: DatasetSelectorComponent;
+    let component: ContributionDialogComponent;
 
-    initializeTestBed({
+    initializeTestBed('ContributionDialogComponent', {
         declarations: [
-            DatasetSelectorComponent
+            ContributionDialogComponent
         ],
         providers: [
-            ConnectionService,
-            DatasetService,
-            ParameterService,
             FilterService,
-            { provide: 'config', useValue: testConfig }
+            DatasetService,
+            { provide: 'config', useValue: testConfig },
+            { provide: MatDialogRef, useValue: {} },
+            { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         imports: [
-            FormsModule,
             AppMaterialModule,
+            FormsModule,
             BrowserAnimationsModule
         ]
     });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(DatasetSelectorComponent);
+    it('should create an instance', (() => {
+        fixture = TestBed.createComponent(ContributionDialogComponent);
         component = fixture.componentInstance;
-    });
-
-    it('should create an instance', async(() => {
         expect(component).toBeTruthy();
+    }));
+
+    it('getEmailLink() returns expected string', (() => {
+        expect((component as any).getEmailLink('test@test.com')).toEqual('mailto:test@test.com');
     }));
 });

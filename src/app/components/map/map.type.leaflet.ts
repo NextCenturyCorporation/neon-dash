@@ -47,12 +47,11 @@ export class LeafletNeonMap extends AbstractMap {
                 minZoom: this.leafletOptions.minZoom,
                 attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             }),
-            monochrome = new L.TileLayer('https://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-                minZoom: this.leafletOptions.minZoom,
-                attribution: 'Imagery from <a href="https://giscience.uni-hd.de/">' +
-                'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
-                '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }),
+            monochrome = new L.TileLayer(
+                'https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                    minZoom: this.leafletOptions.minZoom,
+                    attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
+                }),
             baseLayers = {
                 Normal: baseTileLayer,
                 MonoChrome: monochrome
@@ -73,7 +72,7 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     makeSelectionInexact() {
-        return this.box && this.box.setStyle({color: this.getBoxColor()});
+        return this.box && this.box.setStyle({ color: this.getBoxColor() });
     }
 
     removeFilterBox() {
@@ -83,8 +82,16 @@ export class LeafletNeonMap extends AbstractMap {
         }
     }
 
-    addPoints(points: MapPoint[], layer?: any, cluster?: boolean) {
+    addPoints(points: MapPoint[], layer?: any, cluster?: boolean, layerTitle?: string) {
         let layerGroup = this.layerGroups.get(layer);
+
+        // if title is updated for an existing layerGroup, we need to
+        // remove and add layer back to the control layer with the new title
+        if (layerGroup && layerTitle) {
+            this.layerControl.removeLayer(layerGroup);
+            this.layerControl.addOverlay(layerGroup, layerTitle);
+        }
+
         if (!layerGroup) {
             layerGroup = !cluster ? new L.LayerGroup() : (<any> L).markerClusterGroup({
                 // Override default function to add neon-cluster class to cluster icons.
@@ -104,7 +111,7 @@ export class LeafletNeonMap extends AbstractMap {
                 }
             });
             this.layerGroups.set(layer, layerGroup);
-            this.layerControl.addOverlay(layerGroup, layer.title);
+            this.layerControl.addOverlay(layerGroup, layerTitle);
             this.map.addLayer(layerGroup);
         }
 
@@ -114,13 +121,14 @@ export class LeafletNeonMap extends AbstractMap {
 
             let circleOptions = {
                 // TODO Use theme color (color-text-main)
+                filters: point.filterList,
                 color: '#333',
                 colorByField: point.colorByField,
                 colorByValue: point.colorByValue,
                 fillColor: point.cssColorString,
-                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : .1) : 1,
-                opacity: mapIsSelected ? (pointIsSelected ? 0 : .2) : 1,
-                radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30), // Default is 10
+                fillOpacity: mapIsSelected ? (pointIsSelected ? 1 : 0.1) : 0.6,
+                opacity: mapIsSelected ? (pointIsSelected ? 0 : 0.2) : 1,
+                radius: Math.min(Math.floor(6 * Math.pow(point.count, 0.5)), 30), // Default is 10
                 stroke: mapIsSelected && pointIsSelected ? false : true,
                 weight: 1
             };
@@ -187,9 +195,9 @@ export class LeafletNeonMap extends AbstractMap {
 
         if (hiddenPoints) {
             let layerGroup = this.layerGroups.get(layer);
+
             hiddenPoints = hiddenPoints.filter((circle) => {
-                let matches = circle.options.colorByField === layer.colorField.columnName &&
-                        circle.options.colorByValue === value;
+                let matches = circle.options.colorByValue === value;
 
                 if (matches) {
                     layerGroup.addLayer(circle);
@@ -228,9 +236,9 @@ export class LeafletNeonMap extends AbstractMap {
         let bounds: L.LatLngBounds = event.boxZoomBounds;
         this.isDrawnFilterExact = true;
         if (!this.box) {
-            this.box = new L.Rectangle(bounds, {color: this.getBoxColor(), weight: 1, fill: false}).addTo(this.map);
+            this.box = new L.Rectangle(bounds, { color: this.getBoxColor(), weight: 1, fill: false }).addTo(this.map);
         } else {
-            this.box.setBounds(bounds).setStyle({color: this.getBoxColor()});
+            this.box.setBounds(bounds).setStyle({ color: this.getBoxColor() });
         }
         this.filterListener.filterByLocation(new BoundingBoxByDegrees(
             bounds.getSouth(),
@@ -247,7 +255,10 @@ export class LeafletNeonMap extends AbstractMap {
     private addClickEventListener(circle: L.CircleMarker) {
         return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
             let castEvent = event as L.LeafletMouseEvent;
-            this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
+            // The _preSpiderfyLatlng property will be attached to clusters.
+            let lat: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lat : castEvent.target._latlng.lat;
+            let lng: number = castEvent.target._preSpiderfyLatlng ? castEvent.target._preSpiderfyLatlng.lng : castEvent.target._latlng.lng;
+            this.filterListener.filterByMapPoint(castEvent.target.options.filters, lat, lng);
         });
     }
 

@@ -21,10 +21,8 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -32,7 +30,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { TransformedVisualizationData } from '../base-neon-component/base-neon.component';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -41,10 +38,9 @@ describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
-            DocumentViewerComponent,
-            ExportControlComponent
+            DocumentViewerComponent
         ],
         providers: [
             DatasetService,
@@ -83,17 +79,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('returns an empty string from getFilterText', () => {
-        expect(component.getFilterText({})).toBe('');
-        expect(component.getFilterText({
-            value: 'test value'
-        })).toBe('');
-    });
-
-    it('returns null from getFiltersToIgnore', () => {
-        expect(component.getFiltersToIgnore()).toBeNull();
     });
 
     it('returns the expectedvalue from validateVisualizationQuery', () => {
@@ -198,7 +183,8 @@ describe('Component: DocumentViewer', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
-        expect(actual.data).toEqual([]);
+        expect(component.documentViewerData).toEqual([]);
+        expect(actual).toEqual(0);
     });
 
     it('sets expected properties if transformVisualizationQueryResults returns data', () => {
@@ -225,7 +211,7 @@ describe('Component: DocumentViewer', () => {
             testIdField: 'id2'
         }]);
 
-        expect(actual.data).toEqual([{
+        expect(component.documentViewerData).toEqual([{
             data: {
                 testTextField: 'text1',
                 testDateField: 'date1',
@@ -258,6 +244,7 @@ describe('Component: DocumentViewer', () => {
                 text: 'id2'
             }]
         }]);
+        expect(actual).toEqual(2);
     });
 
     it('doesn\'t do anything in refreshVisualization', () => {
@@ -269,10 +256,6 @@ describe('Component: DocumentViewer', () => {
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
         expect(component.options.showText).toBe(false);
-    });
-
-    it('has setupFilters method that does nothing of substance', () => {
-        expect(component.setupFilters).toBeDefined();
     });
 
     it('createTableRowText given boolean field does return expected string', () => {
@@ -322,11 +305,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -334,11 +317,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('return when matching (1)');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('return when matching (1)');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -346,11 +329,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'match',
             value2: 'return when matching (2)'
         }], {
-            filterType: '=',
-            filterFor: ['match'],
-            filterOn: 'value1',
-            show: 'value2'
-        })).toEqual('return when matching (1), return when matching (2)');
+                filterType: '=',
+                filterFor: ['match'],
+                filterOn: 'value1',
+                show: 'value2'
+            })).toEqual('return when matching (1), return when matching (2)');
     });
 
     it('createTableRowText given an empty string, empty array, any object, or null does return empty string', () => {
@@ -368,7 +351,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        (component as any).layerIdToActiveData.set(component.options._id, new TransformedVisualizationData([{
+        (component as any).documentViewerData = [{
             data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
@@ -390,27 +373,23 @@ describe('Component: DocumentViewer', () => {
                 name: 'Test Metadata Field',
                 text: 'Second'
             }]
-        }]));
+        }];
         component.options.metadataFields = [{
             name: 'Test Metadata Field',
             field: 'testMetadataField'
         }];
-        fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-
-            let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
-            expect(buttons.length).toBe(2);
-            let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
-            expect(names.length).toBe(2);
-            let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
-            expect(texts.length).toBe(2);
-            expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(texts[0].nativeElement.textContent).toEqual('First');
-            expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(texts[1].nativeElement.textContent).toEqual('Second');
-        });
+        let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
+        expect(buttons.length).toBe(2);
+        let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
+        expect(names.length).toBe(2);
+        let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
+        expect(texts.length).toBe(2);
+        expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
+        expect(texts[0].nativeElement.textContent).toEqual('First');
+        expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
+        expect(texts[1].nativeElement.textContent).toEqual('Second');
     }));
 
     it('getElementRefs does return expected object', () => {
@@ -917,10 +896,9 @@ describe('Component: Document Viewer with Config', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Document Viewer', {
         declarations: [
-            DocumentViewerComponent,
-            ExportControlComponent
+            DocumentViewerComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
@@ -930,25 +908,26 @@ describe('Component: Document Viewer with Config', () => {
             Injector,
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'title', useValue: 'Document Viewer Title' },
-            { provide: 'database', useValue: 'testDatabase1' },
-            { provide: 'table', useValue: 'testTable1' },
+            { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
             { provide: 'dateField', useValue: 'testDateField' },
             { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'metadataFields', useValue: [
-                [{
-                    name: 'Single Item Metadata Row',
-                    field: 'singleItemMetadataRow'
-                }],
-                [{
-                    name: 'First of Multiple Item Metadata Row',
-                    field: 'firstOfMultipleItemMetadataRow'
-                },
-                {
-                    name: 'Second of Multiple Item Metadata Row',
-                    field: 'secondOfMultipleItemMetadataRow'
-                }]
-            ]},
+            {
+                provide: 'metadataFields', useValue: [
+                    [{
+                        name: 'Single Item Metadata Row',
+                        field: 'singleItemMetadataRow'
+                    }],
+                    [{
+                        name: 'First of Multiple Item Metadata Row',
+                        field: 'firstOfMultipleItemMetadataRow'
+                    },
+                    {
+                        name: 'Second of Multiple Item Metadata Row',
+                        field: 'secondOfMultipleItemMetadataRow'
+                    }]
+                ]
+            },
             { provide: 'popoutFields', useValue: [] },
             { provide: 'limit', useValue: 25 }
         ],

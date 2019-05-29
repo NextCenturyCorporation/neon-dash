@@ -26,11 +26,11 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -40,9 +40,11 @@ import {
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
+    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
+import * as _ from 'lodash';
+import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-data-table',
@@ -62,20 +64,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     private DEFAULT_COLUMN_WIDTH: number = 150;
     private MINIMUM_COLUMN_WIDTH: number = 100;
 
-    public filters: {
-        id: string,
-        field: string,
-        value: string,
-        prettyField: string
-    }[] = [];
-
     public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public headers: any[] = [];
     public selected: any[] = [];
-    public showColumnSelector: string = 'hide';
     public styleRules: string[] = [];
     public styleSheet: any;
+    public tableData: any[] = null;
 
     public drag: {
         mousedown: boolean,
@@ -101,14 +96,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        ref: ChangeDetectorRef
+        ref: ChangeDetectorRef,
+        dialog: MatDialog
     ) {
         super(
             datasetService,
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.redrawOnResize = true;
@@ -137,8 +134,34 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false)
+            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
+            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false)
         ];
+    }
+
+    private createFilterDesignOnArrayValue(filters: FilterDesign[]): FilterDesign {
+        let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
+        return {
+            type: compoundFilterType,
+            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
+            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
+                CompoundFilterType.OR,
+            filters: filters
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnOneValue(field: FieldMetaData, value?: any): FilterDesign {
+        return {
+            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
+            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
+                CompoundFilterType.OR,
+            datastore: '',
+            database: this.options.database,
+            table: this.options.table,
+            field: field,
+            operator: '=',
+            value: value
+        } as SimpleFilterDesign;
     }
 
     /**
@@ -152,23 +175,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', true, [{
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.NoFalseYesTrue, this.optionsFilterable),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
             new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', false, [{
+            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
                 variable: 'show'
             }, {
                 prettyName: 'No',
                 variable: 'hide'
             }]),
+            // TODO THOR-1135 (Delete this) The allColumnStatus option is deprecated.  Please use showFields now.
             new WidgetSelectOption('allColumnStatus', 'Show Columns on Reload', 'show', [{
                 prettyName: 'Show All',
                 variable: 'show'
@@ -184,25 +208,41 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', []),
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', []),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
+            // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
     }
 
     /**
-     * Returns the list of fields to export.
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
      *
-     * @return {{ columnName: string, prettyName: string }[]}
+     * @return {FilterBehavior[]}
      * @override
      */
-    getExportFields(): { columnName: string, prettyName: string }[] {
-        return this.headers.filter((header) => header.active).map((header) => {
-            return {
-                columnName: header.prop,
-                prettyName: header.name
-            };
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        let behaviors: FilterBehavior[] = [];
+
+        this.options.filterFields.forEach((filterField) => {
+            behaviors.push({
+                // Match a single EQUALS filter on the specific filter field.
+                filterDesign: this.createFilterDesignOnOneValue(filterField),
+                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            } as FilterBehavior);
+
+            behaviors.push({
+                // Match a compound filter with one or more EQUALS filters on the specific filter field.
+                filterDesign: this.createFilterDesignOnArrayValue([this.createFilterDesignOnOneValue(filterField)]),
+                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
+                redrawCallback: () => { /* Do nothing */ }
+            } as FilterBehavior);
         });
+
+        return behaviors;
     }
 
     /**
@@ -225,12 +265,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Table';
     }
 
+    // TODO THOR-1135 (Delete this)
     initializeHeadersFromExceptionsToStatus() {
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let orderedHeaders = [];
         let unorderedHeaders = [];
-        let show = (this.options.allColumnStatus === 'show');
+
+        // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
+        // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
+        let show = this.options.showFields.length ? false : (this.options.allColumnStatus === 'show');
 
         for (let fieldObject of this.options.fields) {
             // If field is an exception, set active to oppositve of show status.
@@ -260,11 +304,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     initializeHeadersFromFieldsConfig() {
-        let existingFields = [];
+        let existingFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) => {
+            this.headers.push({
+                cellClass: this.getCellClassFunction(),
+                prop: fieldObject.columnName,
+                name: fieldObject.prettyName,
+                active: true,
+                style: {},
+                width: this.getColumnWidth(fieldObject.columnName)
+            });
+            return fieldObject.columnName;
+        });
+
+        // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
         for (let fieldConfig of this.options.fieldsConfig) {
-            let fieldObject = this.findField(this.options.fields, fieldConfig.name);
+            let fieldObject = this.options.findField(fieldConfig.name);
             if (fieldObject && fieldObject.columnName) {
-                existingFields.push(fieldObject.columnName);
+                existingFieldNames.push(fieldObject.columnName);
                 this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
@@ -275,13 +331,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             }
         }
+
+        // Create a header object for each field that was not in showFields.
         for (let fieldObject of this.options.fields) {
-            if (existingFields.indexOf(fieldObject.columnName) < 0) {
+            if (existingFieldNames.indexOf(fieldObject.columnName) < 0) {
                 this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
-                    active: (this.options.allColumnStatus === 'show'),
+                    // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
+                    // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
+                    active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
                     style: {},
                     width: this.getColumnWidth(fieldObject.name)
                 });
@@ -293,9 +353,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the custom width for a column (or default if not specified in the config)
      * @returns width for a specific column
      */
-    getColumnWidth(fieldName) {
+    getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            if (fieldName === miniArray[0]) {
+            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
+            if (fieldConfig === name) {
                 return miniArray[1];
             }
         }
@@ -328,19 +389,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     initializeProperties() {
-        if (this.options.fieldsConfig.length) {
+        // TODO THOR-1135 The fieldsConfig option is deprecated.  Please use showFields now.
+        if (this.options.fieldsConfig.length || this.options.showFields.length) {
             this.initializeHeadersFromFieldsConfig();
         } else {
+            // TODO THOR-1135 (Delete this)
             this.initializeHeadersFromExceptionsToStatus();
         }
-
         this.recalculateActiveHeaders();
     }
 
+    // TODO THOR-1135 (Delete this)
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.options.exceptionsToStatus) {
+        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
+        for (let exception of this.options.exceptionsToStatus) {
+            let name = this.datasetService.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -348,9 +413,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return false;
     }
 
+    // TODO THOR-1135 (Delete this)
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.options.exceptionsToStatus) {
+        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
+        for (let exception of this.options.exceptionsToStatus) {
+            let header = this.datasetService.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -418,7 +486,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     closeColumnSelector() {
-        this.showColumnSelector = 'hide';
+        this.options.showColumnSelector = 'hide';
+        this.refreshVisualization();
         this.changeDetection.detectChanges();
     }
 
@@ -436,23 +505,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             header.active = true;
         }
         this.changeDetection.detectChanges();
-    }
-
-    addLocalFilter(filter) {
-        this.filters = this.filters.concat(filter);
-    }
-
-    filterIsUnique(filter) {
-        for (let existingFilter of this.filters) {
-            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    getFilterText(filter) {
-        return filter.prettyField + ' = ' + filter.value;
     }
 
     /**
@@ -481,51 +533,38 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.sortField.columnName);
+        return !!(options.database.name && options.table.name);
     }
 
     /**
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filter: NeonFilterClause = this.searchService.buildFilterClause(options.sortField.columnName, '!=', null);
-
-        // Override the default query fields because we want to find all fields.
-        this.searchService.updateFieldsToMatchAll(query)
-            .updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filter)))
-            .updateSort(query, options.sortField.columnName, options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
-
-        return query;
-    }
-
-    /**
-     * Returns the list of filters for the visualization to ignore.
-     *
-     * @return {any[]}
-     * @override
-     */
-    getFiltersToIgnore() {
-        if (!this.options.ignoreSelf) {
-            return null;
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters = sharedFilters;
+        if (this.options.sortField.columnName) {
+            filters = [
+                ...filters,
+                this.searchService.buildFilterClause(options.sortField.columnName, '!=', null)
+            ];
         }
 
-        let ignoredFilterIds = this.options.filterFields.reduce((filterIds, filterField: any) => {
-            let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-                [filterField.columnName]);
+        // Override the default query fields because we want to find all fields.
+        this.searchService.updateFieldsToMatchAll(query);
 
-            let fieldFilterIds = neonFilters.map((neonFilter) => {
-                return neonFilter.id;
-            });
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
 
-            return filterIds.concat(fieldFilterIds);
-        }, []);
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
+        if (options.sortField.columnName) {
+            this.searchService.updateSort(query, options.sortField.columnName,
+                options.sortDescending ? SortOrder.DESCENDING : SortOrder.ASCENDING);
+        }
+
+        return query;
     }
 
     arrayToString(arr) {
@@ -562,15 +601,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData} results
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
-        let data = results.map((d) => {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
+        this.tableData = results.map((d) => {
             let row = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
@@ -579,27 +619,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
             return row;
         });
-        return new TransformedVisualizationData(data);
-    }
-
-    setupFilters() {
-        // Get neon filters
-        // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.options.filterFields.length ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, this.options.filterFields.map((fieldsObject) => fieldsObject.columnName)) : [];
-        this.filters = [];
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                this.addLocalFilter({
-                    id: neonFilter.id,
-                    field: field.columnName,
-                    value: value,
-                    prettyField: field.prettyName
-                });
-            }
-        }
+        return this.tableData.length;
     }
 
     isDragging(): boolean {
@@ -684,20 +704,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters() {
-        return this.filters;
-    }
-
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((element) => element.id !== filter.id);
-    }
-
-    /**
      * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
      *
@@ -725,62 +731,36 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.selected.push(...selected);
 
         if (this.options.filterable) {
-            let dataObject = this.getActiveData(this.options).data.filter((obj) =>
-                obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
+            let dataObject = (this.tableData || []).filter((obj) => _.isEqual(obj[this.options.idField.columnName],
+                selected[0][this.options.idField.columnName]))[0];
 
-            this.options.filterFields.forEach((filterField: any) => {
-                let filterFieldObject = this.findField(this.options.fields, filterField.columnName);
-                let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
-                    dataObject[filterFieldObject.columnName];
-                let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
+            this.options.filterFields.forEach((filterField) => {
+                if (filterField && filterField.columnName) {
+                    let rowValue = !this.options.idField.columnName ? selected[0][filterField.columnName] :
+                        dataObject[filterField.columnName];
 
-                if (typeof value === 'string' && value.indexOf('[') === 0 && value.indexOf(']') === (value.length - 1)) {
-                    value = value.substring(1, value.length - 1).split(',');
-                }
-
-                if (value instanceof Array) {
-                    if (this.options.arrayFilterOperator === 'and') {
-                        value.forEach((element) => {
-                            let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
-                            let whereClause = neon.query.where(filterFieldObject.columnName, '=', arrayFilter.value);
-                            this.addFilter(arrayFilter, whereClause);
-                        });
-                    } else {
-                        let clauses = value.map((element) => neon.query.where(filter.field, '=', element));
-                        let clause = neon.query.or.apply(neon.query, clauses);
-                        this.addFilter(filter, clause);
+                    if (typeof rowValue === 'string' && rowValue.indexOf('[') === 0 && rowValue.indexOf(']') === (rowValue.length - 1)) {
+                        rowValue = rowValue.substring(1, rowValue.length - 1).split(',');
                     }
-                } else {
-                    let clause = neon.query.where(filter.field, '=', filter.value);
-                    this.addFilter(filter, clause);
+
+                    let filterDesigns: FilterDesign[] = (Array.isArray(rowValue) ? rowValue : [rowValue]).map((value) =>
+                        this.createFilterDesignOnOneValue(filterField, value));
+
+                    let singleFilterDesign: FilterDesign = filterDesigns.length ? (filterDesigns.length === 1 ? filterDesigns[0] :
+                        this.createFilterDesignOnArrayValue(filterDesigns)) : null;
+
+                    if (singleFilterDesign) {
+                        if (this.options.singleFilter) {
+                            this.exchangeFilters([singleFilterDesign]);
+                        } else {
+                            this.toggleFilters([singleFilterDesign]);
+                        }
+                    }
                 }
             });
         }
 
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
-    }
-
-    createFilterObject(field: string, value: string, prettyField: string): any {
-        let filter = {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            field: field,
-            value: value,
-            prettyField: prettyField
-        };
-        return filter;
-    }
-
-    addFilter(filter, clause) {
-        if (this.filterIsUnique(filter)) {
-            if (this.filters.length && this.options.singleFilter) {
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(this.options, !this.options.ignoreSelf, filter, clause);
-            } else {
-                this.addLocalFilter(filter);
-                this.addNeonFilter(this.options, !this.options.ignoreSelf, filter, clause);
-            }
-        }
     }
 
     onTableResize(event) {
@@ -871,11 +851,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let self = this;
         return function(row): any {
             let rowClass: any = {};
-            rowClass.active = self.options.filterFields.some((filterField: any) => {
-                return self.filters.some((filter) => {
-                    return filterField.columnName && filterField.columnName === filter.field &&
-                        row[filterField.columnName] === filter.value;
-                });
+            rowClass.active = !self.options.filterFields.length ? false : self.options.filterFields.every((filterField: any) => {
+                if (filterField.columnName) {
+                    let dataFilterDesign: FilterDesign = self.createFilterDesignOnOneValue(filterField, row[filterField.columnName]);
+                    return self.isFiltered(dataFilterDesign) || self.isFiltered(self.createFilterDesignOnArrayValue([dataFilterDesign]));
+                }
+                return false;
             });
 
             if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
@@ -911,8 +892,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options.skinny ? 20 : 25;
     }
 
-    public getTableRowData(): any {
-        let activeData: TransformedVisualizationData = this.getActiveData(this.options);
-        return activeData ? activeData.data : [];
+    getShowColumnSelector(): boolean {
+        return this.options.showColumnSelector === 'show';
+    }
+
+    /**
+     * Updates elements and properties whenever the widget config is changed.
+     *
+     * @override
+     */
+    onChangeData(databaseOrTableChange?: boolean) {
+        // if database or table has been updated, need to update list of available headers/fields
+        if (databaseOrTableChange) {
+            let initialHeaderLimit = 25;
+            let unorderedHeaders = [];
+            let show = true; // show all columns up to the limit, since now the user will need to decide what to show/not show
+
+            for (let fieldObject of this.options.fields) {
+                unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: show && unorderedHeaders.length < initialHeaderLimit,
+                    style: {},
+                    width: this.getColumnWidth(fieldObject.columnName)
+                });
+            }
+            this.headers = unorderedHeaders;
+        }
+
+        // TODO THOR-1135 Must update this.headers if this.options.showFields changed.
     }
 }

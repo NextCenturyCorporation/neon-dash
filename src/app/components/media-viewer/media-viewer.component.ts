@@ -27,11 +27,11 @@ import {
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { AbstractSearchService, NeonFilterClause, NeonQueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent, TransformedVisualizationData } from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -43,7 +43,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as neon from 'neon-framework';
+import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
     // TODO Add a way for the user to select other items from the list.
@@ -79,6 +79,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected MEDIA_PADDING: number = 10;
     protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
+    protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -86,7 +87,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public mediaTypes: any = MediaTypes;
 
-    // TODO THOR-985
     public tabsAndMedia: MediaTab[] = [];
 
     public noDataId: string = undefined;
@@ -99,7 +99,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        dialog: MatDialog
     ) {
 
         super(
@@ -107,7 +108,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             filterService,
             searchService,
             injector,
-            ref
+            ref,
+            dialog
         );
 
         this.updateOnSelectId = true;
@@ -214,6 +216,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
+     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     *
+     * @return {FilterBehavior[]}
+     * @override
+     */
+    protected designEachFilterWithNoValues(): FilterBehavior[] {
+        // This visualization does not filter.
+        return [];
+    }
+
+    /**
      * Creates and returns an array of field options for the visualization.
      *
      * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
@@ -264,13 +278,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
-     * @arg {NeonQueryPayload} queryPayload
-     * @arg {NeonFilterClause[]} sharedFilters
-     * @return {NeonQueryPayload}
+     * @arg {QueryPayload} queryPayload
+     * @arg {FilterClause[]} sharedFilters
+     * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(options: any, query: NeonQueryPayload, sharedFilters: NeonFilterClause[]): NeonQueryPayload {
-        let filters: NeonFilterClause[] = options.linkFields.map((linkField) =>
+    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
+        let filters: FilterClause[] = options.linkFields.map((linkField) =>
             this.searchService.buildFilterClause(linkField.columnName, '!=', null)
         );
 
@@ -282,7 +296,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.searchService.updateSort(query, options.sortField.columnName, SortOrder.ASCENDING);
         }
 
-        this.searchService.updateFilter(query, this.searchService.buildBoolFilterClause(sharedFilters.concat(filters)));
+        this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)));
 
         return query;
     }
@@ -377,16 +391,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
-    }
-
-    /**
      * Returns the label for the data items that are currently shown in this visualization (Bars, Lines, Nodes, Points, Rows, Terms, ...).
      * Uses the given count to determine plurality.
      *
@@ -410,40 +414,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
-     */
-    getFilterText(filter: any): string {
-        return '';
-    }
-
-    /**
-     * Returns the list filters for the visualization to ignore.
-     *
-     * @return {array|null}
-     * @override
-     */
-    getFiltersToIgnore(): any[] {
-        // Ignore all the filters for the database and the table so it always shows the selected items.
-        if (!this.options.idField.columnName) {
-            return [];
-        }
-
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
-
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
-            return neonFilter.id;
-        });
-
-        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     /**
@@ -515,29 +485,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Transforms the given array of query results using the given options into the array of objects to be shown in the visualization.
+     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
+     * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
-     * @return {TransformedVisualizationData}
+     * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): TransformedVisualizationData {
+    transformVisualizationQueryResults(options: any, results: any[]): number {
         this.noDataId = options.id;
-        options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
-        if (options.clearMedia) {
-            let neonFilters = options.idField.columnName ? this.filterService.getFiltersForFields(options.database.name,
-                options.table.name, [options.idField.columnName]) : [];
-
-            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
-                this.errorMessage = 'No Data';
-                options.id = '_id';
-                return;
-            }
+        if (options.clearMedia && !this.isFiltered()) {
+            this.errorMessage = 'No Data';
+            options.id = '_id';
+            return;
         }
 
         results.forEach((result) => {
@@ -576,7 +541,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             });
         });
 
-        return new TransformedVisualizationData(this.tabsAndMedia);
+        return this.tabsAndMedia.length;
     }
 
     /**
@@ -623,27 +588,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.updateOnResize();
     }
 
-    /**
-     * Removes the given filter from the media viewer (does nothing because the media viewer does not filter).
-     *
-     * @arg {object} filter
-     * @override
-     */
-    removeFilter() {
-        // Do nothing.
-    }
-
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    /**
-     * Sets filters for the media viewer (does nothing because the media viewer does not filter).
-     *
-     * @override
-     */
-    setupFilters() {
-        // Do nothing.
     }
 
     /**
@@ -695,7 +641,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let videos = this.visualization.nativeElement.querySelectorAll('.video');
         let audios = this.visualization.nativeElement.querySelectorAll('.audio');
 
         if (!this.options.resize) {
@@ -706,10 +651,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             images.forEach((image) => {
                 image.style.maxHeight = '';
                 image.style.maxWidth = '';
-            });
-            videos.forEach((video) => {
-                video.style.maxHeight = '';
-                video.style.maxWidth = '';
             });
             audios.forEach((audio) => {
                 audio.style.maxHeight = '';
@@ -723,29 +664,45 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.mediaTypes.maskImage) ? this.SLIDER_HEIGHT : 0);
 
         frames.forEach((frame) => {
-            frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
+
             frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
             frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+
         });
 
         images.forEach((image) => {
-            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
-        videos.forEach((video) => {
-            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
         audios.forEach((audio) => {
-            audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            if (this.showContribution()) {
+                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.CONTRIBUTION_FOOTER_HEIGHT - this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            } else {
+                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
+                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
+            }
             audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
@@ -765,10 +722,5 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.addEventLinks(fields, metadata, name);
         }
-    }
-
-    protected clearVisualizationData(options: any): void {
-        // TODO THOR-985 Temporary function.
-        this.transformVisualizationQueryResults(options, []);
     }
 }
