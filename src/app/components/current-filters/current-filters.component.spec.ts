@@ -14,21 +14,61 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CurrentFiltersComponent } from './current-filters.component';
+import { CurrentFiltersComponent, FilterUtil } from './current-filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { ConfigService } from '../../services/config.service';
+import { CompoundFilterType } from '../../services/abstract.search.service';
+import { SearchService } from '../../services/search.service';
+import moment = require('moment');
+
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: CurrentFiltersComponent;
+    const search = new SearchService();
+
+    function simple(field: string, op: string, value: any) {
+        const out = new SimpleFilter('store',
+            {
+                name: 'base',
+                prettyName: 'Base',
+                tables: []
+            },
+            {
+                name: 'table',
+                prettyName: 'Table',
+                fields: [],
+                mappings: {},
+                labelOptions: {}
+            },
+            {
+                hide: false,
+                columnName: field.toLowerCase(),
+                prettyName: field.toUpperCase(),
+                type: value instanceof Date ? 'date' : typeof value === 'number' ? 'double' : typeof value,
+            },
+            op,
+            value,
+            search
+        );
+        return out;
+    }
+
+    function and(...filters: AbstractFilter[]) {
+        return new CompoundFilter(CompoundFilterType.AND,
+            filters,
+            search
+        );
+    }
 
     initializeTestBed('Current Filters', {
         providers: [
@@ -43,5 +83,71 @@ describe('Component: CurrentFiltersComponent', () => {
         fixture = TestBed.createComponent(CurrentFiltersComponent);
         component = fixture.componentInstance;
         expect(component).toBeTruthy();
+    }));
+
+    it('Simple computeFilter Should Produce Meaningful Text', (() => {
+        const eqs = FilterUtil.computeFilter(
+            simple('field', '=', 'value')
+        );
+        expect(eqs).toBeTruthy();
+        expect(eqs.field).toEqual('FIELD');
+        expect(eqs.text).toEqual('FIELD value');
+
+        const neqs = FilterUtil.computeFilter(
+            simple('field', '!=', 'value')
+        );
+        expect(neqs).toBeTruthy();
+        expect(neqs.field).toEqual('FIELD');
+        expect(neqs.text).toEqual('FIELD != value');
+    }));
+
+    it('Date computeFilter Should Produce Meaningful Text', (() => {
+        const now = new Date();
+
+        const before = FilterUtil.computeFilter(
+            simple('date', '<=', now)
+        );
+        expect(before).toBeTruthy();
+        expect(before.field).toEqual('DATE');
+        expect(before.text).toEqual(`DATE before ${moment(now).format('YYYY-MM-DD')}`);
+
+
+        const after = FilterUtil.computeFilter(
+            simple('date', '>=', now)
+        );
+        expect(after).toBeTruthy();
+        expect(after.field).toEqual('DATE');
+        expect(after.text).toEqual(`DATE after ${moment(now).format('YYYY-MM-DD')}`);
+
+        const range = FilterUtil.computeFilter(
+            and(simple('date', '<=', now), simple('date', '>=', now))
+        );
+
+        expect(range.field).toEqual('DATE');
+        expect(range.text).toEqual(`DATE between ${moment(now).format('YYYY-MM-DD')} and ${moment(now).format('YYYY-MM-DD')}`);
+    }));
+
+    it('Geo computeFilter Should Produce Meaningful Text', (() => {
+        const point = FilterUtil.computeFilter(
+            and(
+                simple('loc.lat', '=', 5.0),
+                simple('loc.lon', '=', 5.0)
+            )
+        );
+        expect(point).toBeTruthy();
+        expect(point.field).toEqual('LOC');
+        expect(point.text).toEqual(`LOC at (5.000, 5.000)`);
+
+        const area = FilterUtil.computeFilter(
+            and(
+                simple('loc.lat', '=', 5.0),
+                simple('loc.lon', '=', 5.0),
+                simple('loc.lat', '=', 15.0),
+                simple('loc.lon', '=', 15.0)
+            )
+        );
+
+        expect(area.field).toEqual('LOC');
+        expect(area.text).toEqual(`LOC from (5.000, 5.000) to (15.000, 15.000)`);
     }));
 });
