@@ -15,32 +15,21 @@
  */
 @import '../base-neon-component/base-neon.component';
 
-.delete-all-filters {
-    padding: 0 12px;
-}
-
-.current-filters-item {
-    margin-top: 15px;
-    margin-bottom: 15px;
-
-    div {
-        margin-left: 5px;
+:host {
+    display: block;
+    .group {
+        display: inline-block;
+        &.multi {
+            background: #ddd;
+            border-radius: 15px;        
+        }
+        margin: 3px 5px;
+        padding: 3px;
     }
-}
-
-.symbol {
-    background-color: var(--color-background-contrast, lightgrey);
-    border-radius: 15px;
-    margin-right: 5px;
-    text-align: center;
-
-    /* Same as mat-icon-button in src/styles.scss */
-    line-height: 20px;
-    height: 20px;
-    min-width: 20px;
-    padding: 5px;
-}
-
-.filter-text {
-    font-size: 14px;
+    .group-name {
+        padding: 0 .5em;
+    }
+    mat-chip-list {
+        display:inline-block;
+    }
 }

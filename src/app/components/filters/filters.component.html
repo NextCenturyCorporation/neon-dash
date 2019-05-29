@@ -4,11 +4,6 @@
             {{ getDefaultTitle() }}
         </div>
 
-        <mat-button-toggle-group class="neon-button-toggle-group-small view-toggle" [(ngModel)]="showFilterBuilderView">
-            <mat-button-toggle [value]="true">Filter Builder</mat-button-toggle>
-            <mat-button-toggle [value]="false">Active Filters</mat-button-toggle>
-        </mat-button-toggle-group>
-
         <span class="fill-remaining"></span>
 
         <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below"
@@ -19,6 +14,5 @@
 
     <div class="body-container">
         <app-filter-builder [hidden]="!showFilterBuilderView"></app-filter-builder>
-        <app-current-filters [hidden]="showFilterBuilderView"></app-current-filters>
     </div>
 </mat-sidenav-container>
