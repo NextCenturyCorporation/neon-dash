@@ -10,7 +10,7 @@ export class AbbreviatePipe implements PipeTransform {
     if (Number.isNaN(input)) {
       return null;
     } else if (input < 1000) {
-      return input;
+      return `${input}`;
     }
 
     const exp = Math.trunc(
