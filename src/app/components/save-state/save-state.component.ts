@@ -98,6 +98,7 @@ export class SaveStateComponent implements OnInit {
         // Don't modify the original dashboard object
         let clonedDashboard = _.cloneDeep(dashboard);
         clonedDashboard.options.connectOnLoad = true;
+        clonedDashboard.modified = false;
 
         // Customize the dashboard with the saved state name
         clonedDashboard.name = stateName;
