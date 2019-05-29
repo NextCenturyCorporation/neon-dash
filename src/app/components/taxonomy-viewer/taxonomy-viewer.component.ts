@@ -265,11 +265,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             return;
         }
 
-        let nodeClause: any,
-            nodeClauses = [],
-            sourceClause: any,
-            sourceClauses = [],
-            runQuery = !this.options.ignoreSelf;
+        let nodeClause: any;
+        let nodeClauses = [];
+        let sourceClause: any;
+        let sourceClauses = [];
+        let runQuery = !this.options.ignoreSelf;
 
         let nodeFilter = {
             id: undefined,
@@ -351,10 +351,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.taxonomyGroups = [];
 
         results.forEach((d) => {
-            let categories: string[],
-                types: string[],
-                subTypes: string[],
-                leafValue: string;
+            let categories: string[];
+            let types: string[];
+            let subTypes: string[];
+            let leafValue: string;
 
             categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
 
@@ -366,7 +366,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
             //TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
             if (this.options.subTypeField.columnName) {
-                subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                subTypes = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
             }
 
             //leaf value set in case it is needed for the taxonomy valueObject
@@ -382,7 +382,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 //If the parent(category) node does not exist in the tree, add it
                 if (!foundCategory.object) {
                     let parent = {
-                        id: counter++, name: category, lineage: category, children: [],
+                        id: counter++, name: category, lineage: category, children: [], level: 1,
                         description: this.options.categoryField.columnName, checked: true
                     };
 
@@ -414,7 +414,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         //creates subTypeObject to be added to the taxonomy if a subType exists
                         if (subTypeNeeded) {
                             subTypeObject = {
-                                id: counter++, name: type, children: [], lineage: category,
+                                id: counter++, name: type, children: [], lineage: category, level: 3,
                                 description: this.options.subTypeField.columnName ?
                                     this.options.subTypeField.columnName : this.options.typeField.columnName,
                                 checked: true
@@ -442,8 +442,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                                     }
                                 }
 
-                                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index]
-                                    .children[foundSubType.index].children);
+                                let subTypeChildren = this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                    .children[foundSubType.index].children;
+
+                                if (subTypeChildren && subTypeChildren.length) {
+                                    this.sortTaxonomyArrays(subTypeChildren);
+                                }
+
                             } else if (valueObject) {
                                 let foundValue = this.getTaxonomyObject(foundType.object.children, valueObject.name);
 
@@ -455,7 +460,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                             //If a child(type) node is not found, add a child. Then add a subChild or value to the child.
                             let setType = type.includes('.') ? type.split('.')[0] : type,
                                 typeObject = {
-                                    id: counter++, name: setType, children: [], lineage: category,
+                                    id: counter++, name: setType, children: [], lineage: category, level: 2,
                                     description: this.options.typeField.columnName, checked: true
                                 };
 
@@ -519,13 +524,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     lineage = neonUtilities.deepFind(d, this.options.categoryField.columnName),
                     id = neonUtilities.deepFind(d, this.options.idField.columnName);
 
-                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
-                        description instanceof String ? description.includes(group.name) : '';
+                let nameExists = this.valueExistsInGroup(description, group);
 
-                let lineageExists = lineage instanceof Array ?
-                    lineage.find((s) => (s === group.lineage)) : (lineage === group.lineage);
+                let lineageExists = Array.isArray(lineage) ?
+                    lineage.some((s) => (s === group.lineage)) : (lineage === group.lineage);
 
-                if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
+                if (nameExists && lineageExists && !group.nodeIds.includes(id)) {
                     let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
@@ -545,6 +549,27 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
+     * Checks to see if a value already exists in the provided group
+     *
+     * @arg {any} value
+     * @arg {any} group
+     */
+    valueExistsInGroup(value: any, group: any) {
+        let exists = false;
+        //if the node is level 2 or greater(subType), check if value is an exact match
+        if (group.level > 2) {
+            exists =  Array.isArray(value) ? value.some((s) => s === group.name) :
+                typeof value === 'string' ? value === group.name : false;
+        //Otherwise check if value includes group name
+        } else {
+            exists = Array.isArray(value) ? value.some((s) => s.includes(group.name)) :
+                typeof value === 'string' ? value.includes(group.name) : false;
+        }
+
+        return exists;
+    }
+
+    /**
      * Alphabetize the values added to the taxonomy
      *
      * @arg {any[]} array
@@ -559,12 +584,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getTaxonomyObject(group: any[], name: string) {
-        let foundIndex = 0,
-            foundObject = group.find((item, index) => {
-                let found = item.name === name;
-                foundIndex = index;
-                return found;
-            });
+        let foundIndex = 0;
+        let foundObject = group.find((item, index) => {
+            let found = item.name === name;
+            foundIndex = index;
+            return found;
+        });
 
         return {
             index: foundIndex,
@@ -573,8 +598,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     checkRelatedNodes(node: TreeNode, $event: any) {
-        let relatives = [],
-            tempFilters = this.filters.slice(0, this.filters.length); //array clone
+        let relatives = [];
+        let tempFilters = this.filters.slice(0, this.filters.length); //array clone
 
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
@@ -588,7 +613,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         //Gather the top level nodes in the taxonomy that are unchecked and add a != filter
-        if (node.parent.level === 0 && $event.target.checked === false) {
+        if (node.parent.level === 0 && !$event.target.checked) {
             this.createNodeFilter(node.data, []);
         } else if (node.parent.level > 0) {
             //Add parents' siblings if they exist
@@ -598,7 +623,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
             //Add siblings if they exist
             if (relatives.length) {
-                relatives.concat(this.retrieveUnselectedNodes(node.parent.data.children));
+                relatives = relatives.concat(this.retrieveUnselectedNodes(node.parent.data.children));
             } else {
                 relatives = this.retrieveUnselectedNodes(node.parent.data.children);
             }
@@ -613,7 +638,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
         let setNode = node.data || node;
         setNode.checked = checked;
-        if (checked === false && setNode.indeterminate) {
+        if (!checked && setNode.indeterminate) {
             setNode.indeterminate = checked;
         }
 
@@ -660,17 +685,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     retrieveUnselectedNodes(nodeArray: any[]) {
         let relatives = [];
         for (let node of nodeArray) {
-            //Ensures that only node child relatives(with checkboxes) are added and not the values listed(without checkboxes)
-            if (node.children && node.children.length && node.children[0].description !== this.options.valueField.columnName) {
+            //Ensures that only child nodes(with checkboxes) are added and not leaf nodes(without checkboxes)
+            if (node.children && node.children.length) {
                 for (let child of node.children) {
-                    if (child.checked === false && child.description !== this.options.valueField.columnName) {
+                    if ((!child.checked || child.indeterminate)
+                        && child.description !== this.options.valueField.columnName) {
                         relatives.push(child);
                     }
                 }
-            } else {
-                if (node.checked === false) {
-                    relatives.push(node);
-                }
+            }
+
+            if ((!node.checked || node.indeterminate)
+                && node.description !== this.options.valueField.columnName) {
+                relatives.push(node);
             }
         }
 

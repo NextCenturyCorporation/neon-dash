@@ -509,6 +509,65 @@ describe('Component: TaxonomyViewer', () => {
 
     }));
 
+    it('value exists within a taxonomy group', (() => {
+
+        //string value exact match of the group name
+        let group = {name: 'test1', level: 3};
+        let value: any = 'test1';
+        let result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(true);
+
+        //array value exact match of the group name
+        value = ['test1'];
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(true);
+
+        //string value includes group name
+        group = {name: 'test2', level: 1};
+        value = 'test2';
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(true);
+
+        //array value includes group name
+        group = {name: 'test2', level: 2};
+        value = ['test2Group'];
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(true);
+
+    }));
+
+    it('value does not exist within a taxonomy group', (() => {
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.subTypeField = new FieldMetaData('testSubTypeField');
+        component.options.valueField = new FieldMetaData('testValueField');
+
+        //string value not an exact match of the group name
+        let group = {name: 'test1Group', level: 3};
+        let value: any = 'test1';
+        let result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(false);
+
+        //array value not an exact match of the group name
+        value = ['test2'];
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(false);
+
+        //string value does not include group name
+        group = {name: 'test2', level: 1};
+        value = 'test1';
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(false);
+
+        //array value does not include group name
+        group = {name: 'test2Group', level: 2};
+        value = ['test2'];
+        result = component.valueExistsInGroup(value, group);
+        expect(result).toEqual(false);
+
+    }));
+
     it('removeFilter function does exist', (() => {
         expect(component.removeFilter).toBeDefined();
     }));
