@@ -27,6 +27,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     protected activeData: any[] = [];
     protected activeGroups: string[] = [];
     protected activeSort: string = '';
+    protected ignoreSelect: boolean = false;
     protected selectedData: {
         element: any,
         group: string,
@@ -38,9 +39,8 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, protected cannotSelect: boolean = false) {
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
         super(options, listener, elementRef);
     }
 
@@ -116,23 +116,6 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     }
 
     /**
-     * Deselects the given item or all the subcomponent elements.
-     *
-     * @arg {any} [item]
-     * @override
-     */
-    public deselect(item?: any) {
-        (item ? this.selectedData.filter((selectedItem) => {
-            return selectedItem.value === item;
-        }) : this.selectedData).forEach((selectedItem) => {
-            selectedItem.element.setAttribute('class', selectedItem.element.getAttribute('class').replace(' active', ''));
-        });
-        this.selectedData = item ? this.selectedData.filter((selectedItem) => {
-            return selectedItem.value !== item;
-        }) : [];
-    }
-
-    /**
      * Destroys all the subcomponent elements.
      *
      * @override
@@ -192,7 +175,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @private
      */
     protected handleClickEvent(event) {
-        if (this.cannotSelect) {
+        if (this.ignoreSelect) {
             return;
         }
 
@@ -206,7 +189,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             event.currentTarget.setAttribute('class', event.currentTarget.getAttribute('class') + ' active');
             let doNotReplace = !!(event.ctrlKey || event.metaKey);
             if (!doNotReplace) {
-                this.deselect();
+                this.select([]);
             }
             let selectedItem = {
                 element: event.currentTarget,
@@ -216,6 +199,15 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             this.selectedData = doNotReplace ? this.selectedData.concat(selectedItem) : [selectedItem];
             this.listener.subcomponentRequestsFilter(group, value, doNotReplace);
         }
+    }
+
+    /**
+     * Configures the visualization to ignore any of the user's "select" events.
+     *
+     * @override
+     */
+    public ignoreSelectEvents(): void {
+        this.ignoreSelect = true;
     }
 
     /**
@@ -249,5 +241,20 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
         this.initialize();
 
         this.createList(this.activeData, this.activeGroups, this.activeSort);
+    }
+
+    /**
+     * Selects the given items and deselects all other items.
+     *
+     * @arg {any[]} items
+     * @override
+     */
+    public select(items: any[]) {
+        this.selectedData.filter((selectedItem) => items.indexOf(selectedItem.value) < 0).forEach((selectedItem) => {
+            selectedItem.element.setAttribute('class', selectedItem.element.getAttribute('class').replace(' active', ''));
+        });
+        this.selectedData = this.selectedData.filter((selectedItem) => items.indexOf(selectedItem.value) >= 0);
+
+        // TODO THOR-1057 Select new items.
     }
 }

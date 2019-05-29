@@ -8,197 +8,20 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
-
-    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
-        <mat-card align="left">
-            <mat-card-content>
-                <div *ngIf="errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
-                        <span>{{ getButtonText() }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="options.database"
-                                required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true"
-                                (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
-                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField"
-                                required="false" (ngModelChange)="handleChangeData()"
-                                [disabled]="options.fields.length == 0">
-                        <mat-option [value]="createEmptyField()">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Initial Sort Field" [(ngModel)]="options.sortField"
-                                required="true" (ngModelChange)="handleChangeData()"
-                                [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <div mat-fill class="flex center">
-                    <mat-form-field>
-                        <input matInput placeholder="Row Limit" [(ngModel)]="newLimit" required="true" (keyup.enter)="handleChangeLimit()">
-                    </mat-form-field>
-
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below" (click)="handleChangeLimit()">
-                        <mat-icon>refresh</mat-icon>
-                    </button>
-                </div>
-                <p></p>
-
-                <span class="toggle-text">Allow Multiple Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.singleFilter" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="true">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Filterable:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.filterable">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Color Field" [(ngModel)]="options.colorField" required="false"
-                            (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Heatmap Field" [(ngModel)]="options.heatmapField" required="false"
-                            (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <div mat-fill class="flex center" *ngIf="options.heatmapField.columnName">
-                    <mat-form-field>
-                        <input matInput placeholder="Heatmap Divisor" [(ngModel)]="options.heatmapDivisor" required="false">
-                    </mat-form-field>
-                </div>
-                <p></p>
-
-                <span class="toggle-text">Ignore Own Filters:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Show Data Matching:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.arrayFilterOperator" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle value="and">All Filters</mat-button-toggle>
-                    <mat-button-toggle value="or">Any Filters</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Show Column Selector:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="showColumnSelector">
-                    <mat-button-toggle value="show">Yes</mat-button-toggle>
-                    <mat-button-toggle value="hide">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Make Columns Reorderable:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.reorderable">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Sort:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
-                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Table Style:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.skinny" (ngModelChange)="refreshVisualization()">
-                    <mat-button-toggle [value]="false">Normal</mat-button-toggle>
-                    <mat-button-toggle [value]="true">Skinny</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Filter Fields" [(ngModel)]="options.filterFields"
-                                (ngModelChange)="handleChangeFilterField()"
-                                [disabled]="!options.filterable"
-                                multiple>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
-                <p></p>
-
-                <app-export-control [widgets]="this"></app-export-control>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav>
 
     <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="datatable-filter-container">
-        <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, false)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-            <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
-        </div>
-    </div>
-
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="showPagination()">
+    <div class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
         <div class="table-container">
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
-                [rows]="getTableRowData()"
+                [rows]="tableData"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
                 [headerHeight]="getTableHeaderHeight()"
@@ -214,7 +37,7 @@
                 (select)="onSelect($event)">
             </ngx-datatable>
 
-            <div *ngIf="showColumnSelector=='show'" class="column-selector">
+            <div *ngIf="getShowColumnSelector()" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
                     <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below" (click)="closeColumnSelector()">
                       <mat-icon class="column-selector-close-icon">close</mat-icon>
@@ -240,16 +63,46 @@
         </div>
     </div>
 
-    <div class="footer" *ngIf="showPagination()">
+    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+    <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button" color="primary" (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                    (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button" color="primary"
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
                     (click)="goToNextPage()">
                 Next
             </button>
+        </div>
+    </div>
+
+    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                    (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
+                    (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
+        </div>
+    </div>
+
+    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
+        <div class="contribution-text-container">
+            <a (click)="openContributionDialog()">
+                {{ getContributorAbbreviations() }}
+            </a>
         </div>
     </div>
 </mat-sidenav-container>

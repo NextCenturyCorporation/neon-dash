@@ -16,9 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
-import * as neon from 'neon-framework';
 import { NetworkGraphComponent } from './network-graph.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { DatasetService } from '../../services/dataset.service';
 import { FieldMetaData } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
@@ -33,7 +31,6 @@ import { LegendComponent } from '../legend/legend.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: NetworkGraph', () => {
@@ -42,16 +39,15 @@ describe('Component: NetworkGraph', () => {
     let fixture: ComponentFixture<NetworkGraphComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    initializeTestBed({
+    initializeTestBed('Network Graph', {
         declarations: [
             LegendComponent,
             NetworkGraphComponent,
-            ExportControlComponent,
             UnsharedFilterComponent
         ],
         providers: [
             { provide: DatasetService, useClass: DatasetServiceMock },
-            { provide: FilterService, useClass: FilterServiceMock },
+            FilterService,
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
@@ -277,7 +273,7 @@ describe('Component: NetworkGraph', () => {
         options.isReified = false;
         options.limit = 3;
 
-        component.initializeProperties(); //need isMultiLayerWidget to be true
+        component.initializeProperties();
         component.transformVisualizationQueryResults(options.layers[0], [{
             testNodeIdField: 'nodeId1',
             testNodeNameField: 'nodeName1',
@@ -337,115 +333,43 @@ describe('Component: NetworkGraph', () => {
 
     }));
 
-    it('legendIsNeeded does not display a legend when display boolean is set to false', async(() => {
+    it('legendIsNeeded does not display a legend when display boolean is set to false', () => {
         component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.displayLegend = false;
         component.displayGraph = false;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).toBeNull();
-        });
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).toBeNull();
+    });
 
-    it('legendIsNeeded does not display a legend when edgeColorField is not set', async(() => {
+    it('legendIsNeeded does not display a legend when edgeColorField is not set', () => {
         component.options.edgeColorField = new FieldMetaData('');
+        component.options.displayLegend = true;
         component.displayGraph = true;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).toBeNull();
-        });
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).toBeNull();
+    });
 
-    it('legendIsNeeded displays a legend when display boolean is set to true and edgeColorField is set', async(() => {
+    it('legendIsNeeded displays a legend when display boolean is set to true and edgeColorField is set', () => {
         component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.displayLegend = true;
         component.displayGraph = true;
 
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
+        component.changeDetection.detectChanges();
 
-            let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
-            expect(container).not.toBeNull();
-        });
-    }));
-
-    it('does filter graph when filters are set', (() => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
-
-        getService(FilterService).addFilter(null, 'idA', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testTypeField', '=', 'testTypeValue'), 'testTypeFilter1');
-
-        getService(FilterService).addFilter(null, 'idB', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testTypeField', '=', 'testTypeValue4'), 'testTypeFilter2');
-
-        let spy = spyOn(component, 'resetGraphData');
-
-        component.transformVisualizationQueryResults(component.options, [{
-            testLinkField: 'testLinkValue',
-            testLinkNameField: 'testLinkNameValue',
-            testNodeField: 'testNodeValue',
-            testNodeNameField: 'testNodeNameValue',
-            testTypeField: 'testTypeValue',
-            testEdgeColorField: '#5f9365',
-            testXPositionField: 100,
-            testYPositionField: 215
-        },
-        {
-            testLinkField: 'testLinkValue2',
-            testLinkNameField: 'testLinkNameValue2',
-            testNodeField: 'testNodeValue2',
-            testNodeNameField: 'testNodeNameValue2',
-            testTypeField: 'testTypeValue2',
-            testEdgeColorField: '#5f9365',
-            testXPositionField: -858,
-            testYPositionField: 495
-        },
-        {
-            testLinkField: 'testLinkValue3',
-            testLinkNameField: 'testLinkNameValue3',
-            testNodeField: 'testNodeValue3',
-            testNodeNameField: 'testNodeNameValue3',
-            testTypeField: 'testTypeValue3',
-            testEdgeColorField: '#5f9365',
-            testXPositionField: -549,
-            testYPositionField: -656
-        },
-        {
-            testLinkField: 'testLinkValue4',
-            testLinkNameField: 'testLinkNameValue4',
-            testNodeField: 'testNodeValue4',
-            testNodeNameField: 'testNodeNameValue4',
-            testTypeField: 'testTypeValue4',
-            testEdgeColorField: '#5f9365',
-            testXPositionField: 191,
-            testYPositionField: -525
-        }]);
-
-        expect(component.neonFilters.length).toEqual(2);
-        expect(spy.calls.count()).toEqual(1);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    }));
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        expect(container).not.toBeNull();
+    });
 
     it('does create filter for graph when legend item is selected', (() => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
@@ -480,31 +404,74 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: 495
         }]);
 
-        component.legendItemSelected({ currentlyActive: true, fieldName: 'testTypeField', value: 'testTypeValue2' });
+        let spy = spyOn((component as any), 'toggleFilters');
 
-        let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-            component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
-        expect(filters.length).toEqual(1);
+        component.legendItemSelected({ currentlyActive: true, value: 'testTypeValue' });
 
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
+        expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue']]);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '!=',
+            value: 'testTypeValue'
+        }]]);
 
+        component.legendItemSelected({ currentlyActive: true, value: 'testTypeValue2' });
+
+        expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue'], ['testTypeField', 'testTypeValue2']]);
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '!=',
+            value: 'testTypeValue2'
+        }]]);
+
+        component.legendItemSelected({ currentlyActive: false, value: 'testTypeValue' });
+
+        expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue2']]);
+        expect(spy.calls.count()).toEqual(3);
+        expect(spy.calls.argsFor(2)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '!=',
+            value: 'testTypeValue'
+        }]]);
+
+        component.legendItemSelected({ currentlyActive: false, value: 'testTypeValue2' });
+
+        expect((component as any).disabledSet).toEqual([]);
+        expect(spy.calls.count()).toEqual(4);
+        expect(spy.calls.argsFor(3)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '!=',
+            value: 'testTypeValue2'
+        }]]);
     }));
 
-    it('does create filter for graph when graph node is selected', (() => {
+    it('does create simple filter for graph when graph node is selected', (() => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkNameField = new FieldMetaData('testLinkNameField');
         component.options.nodeNameField = new FieldMetaData('testNodeNameField');
         component.options.nodeField = new FieldMetaData('testNodeField');
         component.options.xPositionField = new FieldMetaData('testXPositionField');
         component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.filterFields = [DatasetServiceMock.TYPE_FIELD];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
         component.options.nodeShape = 'star';
         component.options.isReified = false;
-        component.options.filterFields = [new FieldMetaData('testTypeField')];
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
 
@@ -529,16 +496,486 @@ describe('Component: NetworkGraph', () => {
             testYPositionField: 495
         }]);
 
+        let spy = spyOn((component as any), 'toggleFilters');
+
+        component.onSelect({ nodes: ['testNodeValue'] });
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValue'
+        }]]);
+
         component.onSelect({ nodes: ['testNodeValue2'] });
 
-        let filters = getService(FilterService).getFiltersForFields(component.options.database.name, component.options.table.name,
-            component.options.filterFields.map((fieldsObject) => fieldsObject.columnName));
-        expect(filters.length).toEqual(1);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValue2'
+        }]]);
     }));
 
+    it('does create compound AND filter for graph when graph node with data list is selected', (() => {
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkNameField = new FieldMetaData('testLinkNameField');
+        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
+        component.options.nodeField = new FieldMetaData('testNodeField');
+        component.options.xPositionField = new FieldMetaData('testXPositionField');
+        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.filterFields = [DatasetServiceMock.TYPE_FIELD];
+        component.options.nodeColor = '#96f4f2';
+        component.options.edgeColor = '#93663e';
+        component.options.linkColor = '#938d8f';
+        component.options.nodeShape = 'star';
+        component.options.isReified = false;
+        component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'and';
+
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: ['testTypeValueA'],
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: ['testTypeValueB', 'testTypeValueC', 'testTypeValueD'],
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }]);
+
+        let spy = spyOn((component as any), 'toggleFilters');
+
+        component.onSelect({ nodes: ['testNodeValue'] });
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValueA'
+        }]]);
+
+        component.onSelect({ nodes: ['testNodeValue2'] });
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueB'
+            }, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueC'
+            }, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueD'
+            }]
+        }]]);
+    }));
+
+    it('does create compound OR filter for graph when graph node with data list is selected', (() => {
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkNameField = new FieldMetaData('testLinkNameField');
+        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
+        component.options.nodeField = new FieldMetaData('testNodeField');
+        component.options.xPositionField = new FieldMetaData('testXPositionField');
+        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.filterFields = [DatasetServiceMock.TYPE_FIELD];
+        component.options.nodeColor = '#96f4f2';
+        component.options.edgeColor = '#93663e';
+        component.options.linkColor = '#938d8f';
+        component.options.nodeShape = 'star';
+        component.options.isReified = false;
+        component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'or';
+
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: ['testTypeValueA'],
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: ['testTypeValueB', 'testTypeValueC', 'testTypeValueD'],
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }]);
+
+        let spy = spyOn((component as any), 'toggleFilters');
+
+        component.onSelect({ nodes: ['testNodeValue'] });
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValueA'
+        }]]);
+
+        component.onSelect({ nodes: ['testNodeValue2'] });
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            type: 'or',
+            filters: [{
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueB'
+            }, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueC'
+            }, {
+                datastore: '',
+                database: DatasetServiceMock.DATABASES[0],
+                table: DatasetServiceMock.TABLES[0],
+                field: DatasetServiceMock.TYPE_FIELD,
+                operator: '=',
+                value: 'testTypeValueD'
+            }]
+        }]]);
+    }));
+
+    it('does create simple filters on multiple filter fields for graph when graph node is selected', (() => {
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkNameField = new FieldMetaData('testLinkNameField');
+        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
+        component.options.nodeField = new FieldMetaData('testNodeField');
+        component.options.xPositionField = new FieldMetaData('testXPositionField');
+        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.filterFields = [DatasetServiceMock.ID_FIELD, DatasetServiceMock.TYPE_FIELD];
+        component.options.nodeColor = '#96f4f2';
+        component.options.edgeColor = '#93663e';
+        component.options.linkColor = '#938d8f';
+        component.options.nodeShape = 'star';
+        component.options.isReified = false;
+        component.options.limit = Infinity;
+        component.options.multiFilterOperator = 'and';
+
+        component.transformVisualizationQueryResults(component.options, [{
+            testIdField: 1,
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testIdField: 2,
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testEdgeColorField: '#5f9365',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }]);
+
+        let spy = spyOn((component as any), 'toggleFilters');
+
+        component.onSelect({ nodes: ['testNodeValue'] });
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 1
+        }, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValue'
+        }]]);
+
+        component.onSelect({ nodes: ['testNodeValue2'] });
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(1)).toEqual([[{
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.ID_FIELD,
+            operator: '=',
+            value: 2
+        }, {
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0],
+            table: DatasetServiceMock.TABLES[0],
+            field: DatasetServiceMock.TYPE_FIELD,
+            operator: '=',
+            value: 'testTypeValue2'
+        }]]);
+    }));
+
+    it('designEachFilterWithNoValues does return expected object', () => {
+        expect((component as any).designEachFilterWithNoValues()).toEqual([]);
+
+        component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(1);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('!=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        component.options.edgeColorField = new FieldMetaData();
+
+        component.options.nodeField = DatasetServiceMock.NAME_FIELD;
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(2);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[1].filterDesign as any).type).toEqual('or');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        component.options.nodeField = new FieldMetaData();
+
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(2);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[1].filterDesign as any).type).toEqual('or');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+
+        component.options.multiFilterOperator = 'and';
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(2);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[1].filterDesign as any).type).toEqual('and');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+
+        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(4);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[1].filterDesign as any).type).toEqual('and');
+        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[2].filterDesign as any).operator).toEqual('=');
+        expect((actual[2].filterDesign as any).value).toBeUndefined();
+        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[3].filterDesign as any).type).toEqual('and');
+        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+
+        component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
+        component.options.nodeField = DatasetServiceMock.NAME_FIELD;
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(7);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('!=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect((actual[1].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign as any).operator).toEqual('=');
+        expect((actual[1].filterDesign as any).value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[2].filterDesign as any).type).toEqual('and');
+        expect((actual[2].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[3].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign as any).operator).toEqual('=');
+        expect((actual[3].filterDesign as any).value).toBeUndefined();
+        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[4].filterDesign as any).type).toEqual('and');
+        expect((actual[4].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[4].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[4].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[5].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign as any).operator).toEqual('=');
+        expect((actual[5].filterDesign as any).value).toBeUndefined();
+        expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[6].filterDesign as any).type).toEqual('and');
+        expect((actual[6].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[6].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[6].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[6].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[6].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+    });
+
+    it('designEachFilterWithNoValues with layers does return expected object', () => {
+        component.options.layers = [{}];
+        component.options.edgeColorField = DatasetServiceMock.TYPE_FIELD;
+        component.options.layers[0].layerType = 'nodes';
+        component.options.layers[0].filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
+        component.options.layers[0].nodeField = DatasetServiceMock.NAME_FIELD;
+
+        let actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(7);
+        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign as any).operator).toEqual('!=');
+        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect((actual[1].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign as any).operator).toEqual('=');
+        expect((actual[1].filterDesign as any).value).toBeUndefined();
+        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[2].filterDesign as any).type).toEqual('or');
+        expect((actual[2].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[3].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign as any).operator).toEqual('=');
+        expect((actual[3].filterDesign as any).value).toBeUndefined();
+        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[4].filterDesign as any).type).toEqual('or');
+        expect((actual[4].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[4].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[4].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[5].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign as any).operator).toEqual('=');
+        expect((actual[5].filterDesign as any).value).toBeUndefined();
+        expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[6].filterDesign as any).type).toEqual('or');
+        expect((actual[6].filterDesign as any).filters.length).toEqual(1);
+        expect((actual[6].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[6].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[6].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign as any).filters[0].operator).toEqual('=');
+        expect((actual[6].filterDesign as any).filters[0].value).toBeUndefined();
+        expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+    });
 });

@@ -1,3 +1,4 @@
+<div class="query-bar-background">
 <div class="query-bar">
     <button mat-button mat-icon-button>
         <mat-icon mat-button>{{ 'search' }}</mat-icon>
@@ -10,8 +11,9 @@
                 <span [matTooltip]="option">{{ option }}</span>
             </mat-option>
         </mat-autocomplete>
-        <button mat-button *ngIf="queryBar.value" mat-icon-button aria-label="Clear" (click)="queryBar.value = ''; removeFilter()">
+        <button mat-button *ngIf="queryBar.value" mat-icon-button aria-label="Clear" (click)="queryBar.value = ''; removeFilters()">
             <mat-icon>close</mat-icon>
         </button>
     </mat-form-field>
+</div>
 </div>

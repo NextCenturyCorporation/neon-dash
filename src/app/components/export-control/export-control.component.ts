@@ -17,7 +17,7 @@ import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 
@@ -26,15 +26,13 @@ import { ConfigEditorComponent } from '../config-editor/config-editor.component'
 
 import { neonEvents } from '../../neon-namespaces';
 
-import * as neon from 'neon-framework';
-
 @Component({
   selector: 'app-export-control',
   templateUrl: './export-control.component.html',
   styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
-    @Input() widgets: BaseNeonComponent | Map<string, BaseNeonComponent>;
+    @Input() exportCallbacks: (() => { name: string, data: any }[])[];
 
     public exportFormatList: any[] = [{
         name: 'csv',
@@ -47,8 +45,8 @@ export class ExportControlComponent {
     public exportFormat: number = this.exportFormatList[0].value;
 
     constructor(
-        protected connectionService: ConnectionService,
         protected datasetService: DatasetService,
+        protected searchService: AbstractSearchService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
@@ -82,17 +80,17 @@ export class ExportControlComponent {
     }
 
     getExportButtonText(): string {
-        return (this.widgets instanceof Map) ? 'Export All Visualizations' : 'Export to File';
+        return (this.exportCallbacks.length > 1) ? 'Export All Visualizations' : 'Export to File';
     }
 
     handleExportClick() {
-        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datasetService.getDatastore(),
-            this.datasetService.getHostname());
+        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
+            this.datasetService.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
-            name: ((this.widgets instanceof Map) ? 'All_Widgets' : 'Export'),
+            name: ((this.exportCallbacks.length > 1) ? 'All_Widgets' : 'Export'),
             data: []
         };
 
@@ -101,8 +99,7 @@ export class ExportControlComponent {
             return;
         }
 
-        let widgetExportDataList: ({ name: string, data: any }[])[] = ((this.widgets instanceof Map) ? Array.from(this.widgets.values()) :
-            [this.widgets]).map((widget) => widget.createExportData());
+        let widgetExportDataList: ({ name: string, data: any }[])[] = this.exportCallbacks.map((callback) => callback());
 
         for (let widgetExportData of widgetExportDataList) {
             for (let widgetExportItem of widgetExportData) {
@@ -117,6 +114,6 @@ export class ExportControlComponent {
         if (data && data.data && data.data.length === 1) {
             data.name = data.data[0].name;
         }
-        connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportFormat);
+        connection.runExportQuery(data, this.exportFormat, this.exportSuccess.bind(this), this.exportFail.bind(this));
     }
 }

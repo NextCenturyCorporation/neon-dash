@@ -16,35 +16,36 @@
 import {
     AbstractSearchService,
     AggregationType,
-    BoolFilterType,
-    NeonFilterClause,
-    NeonQueryGroup,
-    NeonQueryPayload,
+    CompoundFilterType,
+    Connection,
+    FilterClause,
+    QueryGroup,
+    QueryPayload,
+    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { NeonRequest } from '../../app/connection';
 
 /**
  * Saves filter clauses and query payloads as JSON objects.
  */
 export class SearchServiceMock extends AbstractSearchService {
 
-    public buildBoolFilterClause(filterClauses: NeonFilterClause[], type: BoolFilterType = BoolFilterType.AND): NeonFilterClause {
-        return filterClauses.length === 1 ? filterClauses[0] : {
+    public buildCompoundFilterClause(filterClauses: FilterClause[], type: CompoundFilterType = CompoundFilterType.AND): FilterClause {
+        return filterClauses.length ? (filterClauses.length === 1 ? filterClauses[0] : {
             filters: filterClauses,
             type: '' + type
-        };
+        }) : null;
     }
 
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval): NeonQueryGroup {
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval): QueryGroup {
         return {
             field: groupField,
             type: '' + interval
         };
     }
 
-    public buildFilterClause(field: string, operator: string, value: string): NeonFilterClause {
+    public buildFilterClause(field: string, operator: string, value: string): FilterClause {
         return {
             field: field,
             operator: operator,
@@ -52,11 +53,11 @@ export class SearchServiceMock extends AbstractSearchService {
         };
     }
 
-    public buildQueryGroup(groupField: string): NeonQueryGroup {
+    public buildQueryGroup(groupField: string): QueryGroup {
         return groupField;
     }
 
-    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = ['*']): NeonQueryPayload {
+    public buildQueryPayload(databaseName: string, tableName: string, fieldNames: string[] = ['*']): QueryPayload {
         return {
             database: databaseName,
             table: tableName,
@@ -68,7 +69,11 @@ export class SearchServiceMock extends AbstractSearchService {
         return !!(datastoreType && datastoreHost);
     }
 
-    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryPayload): NeonRequest {
+    public createConnection(datastoreType: string, datastoreHost: string): Connection {
+        return null;
+    }
+
+    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryPayload): RequestWrapper {
         return {
             always: () => {
                 // Do nothing.
@@ -85,18 +90,36 @@ export class SearchServiceMock extends AbstractSearchService {
         };
     }
 
-    public transformQueryPayloadToExport(queryPayload: NeonQueryPayload): any {
-        return queryPayload;
+    public transformQueryPayloadToExport(
+        fields: { columnName: string, prettyName: string }[],
+        queryPayload: QueryPayload,
+        uniqueName: string
+    ): any {
+        return {
+            data: {
+                fields: fields.map((field) => ({ query: field.columnName, pretty: field.prettyName })),
+                ignoreFilters: undefined,
+                ignoredFilterIds: [],
+                name: uniqueName,
+                query: queryPayload,
+                selectionOnly: undefined,
+                type: 'query'
+            }
+        };
     }
 
-    public transformFilterClauseValues(queryPayload: NeonQueryPayload, keysToValuesToLabels:
-        { [key: string]: { [value: string]: string } }): NeonQueryPayload {
+    public transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
+        { [key: string]: { [value: string]: string } }): QueryPayload {
 
         this.transformFilterClauseValuesHelper((queryPayload as any).filter, keysToValuesToLabels);
         return queryPayload;
     }
 
     private transformFilterClauseValuesHelper(filter: any, keysToValuesToLabels: { [key: string]: { [value: string]: string } }): void {
+        if (!filter) {
+            return;
+        }
+
         if (!filter.type) {
             let keys = Object.keys(keysToValuesToLabels);
             let key = filter.lhs;
@@ -117,7 +140,7 @@ export class SearchServiceMock extends AbstractSearchService {
         }
     }
 
-    public updateAggregation(queryPayload: NeonQueryPayload, type: AggregationType, name: string, field: string): AbstractSearchService {
+    public updateAggregation(queryPayload: QueryPayload, type: AggregationType, name: string, field: string): AbstractSearchService {
         (queryPayload as any).aggregation = (queryPayload as any).aggregation || [];
         (queryPayload as any).aggregation.push({
             type: '' + type,
@@ -127,7 +150,7 @@ export class SearchServiceMock extends AbstractSearchService {
         return this;
     }
 
-    public updateFields(queryPayload: NeonQueryPayload, fields: string[]): AbstractSearchService {
+    public updateFields(queryPayload: QueryPayload, fields: string[]): AbstractSearchService {
         if (fields.length) {
             let existingFields = (queryPayload as any).fields || [];
             (queryPayload as any).fields = (existingFields.length === 1 && existingFields[0] === '*') ? fields :
@@ -136,32 +159,32 @@ export class SearchServiceMock extends AbstractSearchService {
         return this;
     }
 
-    public updateFieldsToMatchAll(queryPayload: NeonQueryPayload): AbstractSearchService {
+    public updateFieldsToMatchAll(queryPayload: QueryPayload): AbstractSearchService {
         (queryPayload as any).fields = ['*'];
         return this;
     }
 
-    public updateFilter(queryPayload: NeonQueryPayload, filterClause: NeonFilterClause): AbstractSearchService {
+    public updateFilter(queryPayload: QueryPayload, filterClause: FilterClause): AbstractSearchService {
         (queryPayload as any).filter = filterClause;
         return this;
     }
 
-    public updateGroups(queryPayload: NeonQueryPayload, groups: NeonQueryGroup[]): AbstractSearchService {
+    public updateGroups(queryPayload: QueryPayload, groups: QueryGroup[]): AbstractSearchService {
         (queryPayload as any).groups = groups;
         return this;
     }
 
-    public updateLimit(queryPayload: NeonQueryPayload, limit: number): AbstractSearchService {
+    public updateLimit(queryPayload: QueryPayload, limit: number): AbstractSearchService {
         (queryPayload as any).limit = limit;
         return this;
     }
 
-    public updateOffset(queryPayload: NeonQueryPayload, offset: number): AbstractSearchService {
+    public updateOffset(queryPayload: QueryPayload, offset: number): AbstractSearchService {
         (queryPayload as any).offset = offset;
         return this;
     }
 
-    public updateSort(queryPayload: NeonQueryPayload, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
+    public updateSort(queryPayload: QueryPayload, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
         (queryPayload as any).sort = {
             field: field,
             order: order === SortOrder.ASCENDING ? 1 : -1

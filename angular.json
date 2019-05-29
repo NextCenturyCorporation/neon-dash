@@ -19,8 +19,21 @@
             "assets": [
               "src/assets",
               "src/favicon.ico",
-              { "glob": "*.json", "input": "src/app/config", "output": "app/config/" },
-              { "glob": "*.yaml", "input": "src/app/config", "output": "app/config/" }
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-monaco-editor/assets/monaco",
+                "output": "assets/monaco"
+              },
+              {
+                "glob": "*.json",
+                "input": "src/app/config",
+                "output": "app/config/"
+              },
+              {
+                "glob": "*.yaml",
+                "input": "src/app/config",
+                "output": "app/config/"
+              }
             ],
             "styles": [
               "src/styles.scss",

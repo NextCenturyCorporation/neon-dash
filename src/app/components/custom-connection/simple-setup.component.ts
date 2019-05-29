@@ -15,9 +15,7 @@
  */
 import { Component } from '@angular/core';
 
-import * as neon from 'neon-framework';
-
-import { ConnectionService } from '../../services/connection.service';
+import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
@@ -42,24 +40,21 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     //Variables associated with selecting databases and tables.
     public selectedDatabase: {
-        database: DatabaseMetaData;
+        database: DatabaseMetaData,
         selectedTable: {
-            selected: boolean;
-            table: TableMetaData;
-        };
+            selected: boolean,
+            table: TableMetaData
+        }
     };
     public customDatabases: {
-        database: DatabaseMetaData;
+        database: DatabaseMetaData,
         customTables: {
-            selected: boolean;
-            table: TableMetaData;
-        }[];
+            selected: boolean,
+            table: TableMetaData
+        }[]
     }[];
 
-    constructor(
-        private connectionService: ConnectionService,
-        private datasetService: DatasetService
-    ) {
+    constructor(private datasetService: DatasetService, private searchService: AbstractSearchService) {
         super();
         this.selected = true;
         this.stepNumber = 1;
@@ -70,35 +65,24 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     isStepValid(): boolean {
-        return (
-            this.datasetNameIsValid &&
+        return this.datasetNameIsValid &&
             this.isConnected &&
             this.customDatabases.length > 0 &&
-            this.customDatabases[0].customTables.length > 0
-        );
+            this.customDatabases[0].customTables.length > 0;
     }
 
     onComplete(): void {
-        this.data.selectedDatabases = this.customDatabases.map(
-            (customDatabase) => {
-                let database = new DatabaseMetaData(
-                    customDatabase.database.name,
-                    customDatabase.database.prettyName
-                );
-                database.tables = customDatabase.customTables.map(
-                    (customTable) => customTable.table
-                );
-                return database;
-            }
-        );
+        this.data.selectedDatabases = this.customDatabases.map((customDatabase) => {
+            let database = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
+            database.tables = customDatabase.customTables.map((customTable) => customTable.table);
+            return database;
+        });
     }
 
     validateDatasetName(): void {
         this.datasetNameIsValid = this.data.datasetName !== '';
         this.datasetService.getDatasets().forEach((dataset) => {
-            this.datasetNameIsValid =
-                this.datasetNameIsValid &&
-                dataset.name !== this.data.datasetName;
+            this.datasetNameIsValid = this.datasetNameIsValid && (dataset.name !== this.data.datasetName);
         });
     }
 
@@ -111,83 +95,56 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     connectToServer(): void {
-        let connection = this.connectionService.createActiveConnection(
-            this.data.datastoreType,
-            this.data.datastoreHost
-        );
+        let connection: Connection = this.searchService.createConnection(this.data.datastoreType, this.data.datastoreHost);
         if (!connection) {
             return;
         }
         this.isLoading = true;
         this.data.allDatabases = [];
 
-        connection.getDatabaseNames(
-            (databaseNames) => {
-                databaseNames.forEach((databaseName) => {
-                    this.data.allDatabases.push(
-                        new DatabaseMetaData(databaseName, databaseName, [])
-                    );
-                });
-                this.updateDatabases(connection);
-            },
-            () => {
-                this.isLoading = false;
-                this.isConnected = false;
-                this.error = true;
-            }
-        );
+        connection.getDatabaseNames((databaseNames) => {
+            databaseNames.forEach((databaseName) => {
+                this.data.allDatabases.push(new DatabaseMetaData(databaseName, databaseName, []));
+            });
+            this.updateDatabases(connection);
+        }, () => {
+            this.isLoading = false;
+            this.isConnected = false;
+            this.error = true;
+        });
     }
 
-    updateDatabases(
-        connection: neon.query.Connection,
-        index: number = 0
-    ): void {
+    updateDatabases(connection: Connection, index: number = 0): void {
         let database = this.data.allDatabases[index];
-        connection.getTableNamesAndFieldNames(
-            database.name,
-            (tableNamesAndFieldNames) => {
-                let tableNames = Object.keys(tableNamesAndFieldNames);
-                let tablesDone = 0;
-                if (
-                    !tableNames.length ||
-                    (tableNames.length === 1 && tableNames[0] === null)
-                ) {
-                    this.tableDone(tablesDone, tableNames, connection, index);
-                }
-                tableNames.forEach((tableName) => {
-                    let table = new TableMetaData(tableName, tableName, []);
-                    tableNamesAndFieldNames[tableName].forEach((fieldName) => {
-                        table.fields.push(
-                            new FieldMetaData(fieldName, fieldName)
-                        );
-                    });
-                    database.tables.push(table);
-                    connection.getFieldTypes(
-                        database.name,
-                        table.name,
-                        (types) => {
-                            for (let f of table.fields) {
-                                if (types && types[f.columnName]) {
-                                    f.type = types[f.columnName];
-                                }
-                            }
-                            tablesDone++;
-                            this.tableDone(
-                                tablesDone,
-                                tableNames,
-                                connection,
-                                index
-                            );
-                        }
-                    );
-                });
-            },
-            () => {
-                this.isLoading = false;
-                this.isConnected = false;
-                this.error = true;
+        connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
+            let tableNames = Object.keys(tableNamesAndFieldNames);
+            let tablesDone = 0;
+            if (!tableNames.length || (tableNames.length === 1 && tableNames[0] === null)) {
+                this.tableDone(tablesDone, tableNames, connection, index);
+
             }
-        );
+            tableNames.forEach((tableName) => {
+                let table = new TableMetaData(tableName, tableName, []);
+                tableNamesAndFieldNames[tableName].forEach((fieldName) => {
+                    table.fields.push(new FieldMetaData(fieldName, fieldName));
+                });
+                database.tables.push(table);
+                connection.getFieldTypes(database.name, table.name, (types) => {
+                    for (let f of table.fields) {
+                        if (types && types[f.columnName]) {
+                            f.type = types[f.columnName];
+                        }
+                    }
+                    tablesDone++;
+                    this.tableDone(tablesDone, tableNames, connection, index);
+                });
+
+            });
+        }, () => {
+            this.isLoading = false;
+            this.isConnected = false;
+            this.error = true;
+        });
     }
 
     tableDone(tablesDone, tableNames, connection, index) {
@@ -214,16 +171,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     addNewCustomDatabase() {
-        let customDatabase = this.customDatabases.find(
-            (database) =>
-                database.database.name === this.selectedDatabase.database.name
-        );
+        let customDatabase = this.customDatabases.find((database) => database.database.name === this.selectedDatabase.database.name);
         if (customDatabase) {
-            let customTable = customDatabase.customTables.find(
-                (table) =>
-                    table.table.name ===
-                    this.selectedDatabase.selectedTable.table.name
-            );
+            let customTable = customDatabase.customTables.find((table) =>
+                table.table.name === this.selectedDatabase.selectedTable.table.name);
             if (!customTable) {
                 customDatabase.customTables.push({
                     selected: false,
@@ -233,12 +184,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         } else {
             let customDB = {
                 database: this.selectedDatabase.database,
-                customTables: [
-                    {
-                        selected: false,
-                        table: this.selectedDatabase.selectedTable.table
-                    }
-                ]
+                customTables: [{
+                    selected: false,
+                    table: this.selectedDatabase.selectedTable.table
+                }]
             };
             this.customDatabases.push(customDB);
         }
@@ -258,11 +207,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     removeCustomDatabases() {
         for (let index = this.customDatabases.length - 1; index >= 0; index--) {
             let customTableList = this.customDatabases[index].customTables;
-            for (
-                let tableIndex = customTableList.length - 1;
-                tableIndex >= 0;
-                tableIndex--
-            ) {
+            for (let tableIndex = customTableList.length - 1; tableIndex >= 0; tableIndex--) {
                 if (customTableList[tableIndex].selected === true) {
                     customTableList.splice(tableIndex, 1);
                 }
@@ -274,21 +219,9 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     removeButtonDisabled() {
-        for (
-            let dbIndex = this.customDatabases.length - 1;
-            dbIndex >= 0;
-            dbIndex--
-        ) {
-            for (
-                let tableIndex =
-                    this.customDatabases[dbIndex].customTables.length - 1;
-                tableIndex >= 0;
-                tableIndex--
-            ) {
-                if (
-                    this.customDatabases[dbIndex].customTables[tableIndex]
-                        .selected === true
-                ) {
+        for (let dbIndex = this.customDatabases.length - 1; dbIndex >= 0; dbIndex--) {
+            for (let tableIndex = this.customDatabases[dbIndex].customTables.length - 1; tableIndex >= 0; tableIndex--) {
+                if (this.customDatabases[dbIndex].customTables[tableIndex].selected === true) {
                     return false;
                 }
             }

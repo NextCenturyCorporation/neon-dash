@@ -11,131 +11,20 @@
             </span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
-            (click)="optionsMenu.toggle();">
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
-
-    <mat-sidenav #optionsMenu position="end" class="visualization-sidenav-options">
-        <mat-card align="left">
-            <mat-card-content>
-                <div *ngIf="errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
-                        <mat-icon class="neon-icon-small">info</mat-icon>
-                        <span>{{ getButtonText() }}</span>
-                    </label>
-                    <p></p>
-                </div>
-
-                <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()"
-                        [disabled]="options.databases.length < 2">
-                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()"
-                        [disabled]="options.tables.length < 2">
-                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <!-- TODO Do you need fields?  Are they required or optional? -->
-                <mat-form-field>
-                    <mat-select placeholder="Sample Required Field" [(ngModel)]="options.sampleRequiredField" required="true"
-                        (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Sample Optional Field" [(ngModel)]="options.sampleOptionalField" required="false"
-                        (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
-                        <mat-option [value]="createEmptyField()">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <!-- TODO Do you need a limit? -->
-                <div mat-fill class="flex center">
-                    <mat-form-field>
-                        <input matInput placeholder="Sample Limit" [(ngModel)]="newLimit" required="true"
-                            (keyup.enter)="handleChangeLimit()">
-                    </mat-form-field>
-
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" matTooltipPosition="below"
-                        (click)="handleChangeLimit()">
-                        <mat-icon>refresh</mat-icon>
-                    </button>
-                </div>
-                <p></p>
-
-                <!-- Do you need a subcomponent type selector? -->
-                <mat-form-field>
-                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.subcomponentType" required="true"
-                        (ngModelChange)="handleChangeSubcomponentType($event)">
-                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <span class="toggle-text">Sort:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
-                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
-                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <!-- TODO Do you need an unshared filter? -->
-                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()"
-                    (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
-                <p></p>
-
-                <app-export-control [widgets]="this"></app-export-control>
-            </mat-card-content>
-        </mat-card>
-    </mat-sidenav>
 
     <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
         <mat-spinner></mat-spinner>
     </div>
 
-    <!-- TODO Do you need a header for filters or other components (like a legend)? -->
-    <div class="filter-container" *ngIf="showFilterContainer()">
-        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
-                [matTooltip]="'Delete Filter ' + getFilterText(filter)" tooltip-position="below"
-                (click)="removeLocalFilterFromLocalAndNeon(options, filter, true, true)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
-        </div>
-    </div>
-
-    <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
-    <div class="body-container" [class.with-filter]="showFilterContainer()">
+    <div class="body-container">
 
         <!-- TODO Replace with your visualization components! -->
-        <div *ngIf="getActiveData(options) != null">
-            <div class="data-item" *ngFor="let item of getActiveData(options).data">
+        <div *ngIf="visualizationData != null">
+            <div class="data-item" *ngFor="let item of visualizationData">
                 <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
                     {{ item.label }}: {{ item.count }}
                 </span>

@@ -23,13 +23,14 @@ import { BehaviorSubject } from 'rxjs';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { DatasetOptions, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
+import { neonEvents } from '../../neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DatasetService } from '../../services/dataset.service';
 
 import * as _ from 'lodash';
-import * as neon from 'neon-framework';
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-settings',
@@ -46,16 +47,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     };
 
     public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
-    public options;
+    public messenger: eventing.Messenger;
+
+    public fields: FieldMetaData[] = [];
     public searchField: FieldMetaData;
-    public showFiltersComponentIcon: boolean = true;
+
+    public showFilterTray: boolean = true;
     public showSimpleSearch: boolean;
-    public showVisShortcut: boolean = true;
-    public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
-    public simpleSearch = {};
-    public simpleSearchField = {};
-    public tableField: TableMetaData;
-    public messenger: neon.eventing.Messenger;
+    public showVisualizationsShortcut: boolean = true;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -66,19 +65,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ) {
         this.datasetService = datasetService;
         this.injector = injector;
-        this.messenger = new neon.eventing.Messenger();
+        this.messenger = new eventing.Messenger();
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setActiveDatasetSimpleFilterFieldName(this.searchField);
+        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
     }
 
-    checkSimpleFilter() {
-        if (this.simpleFilter && this.showSimpleSearch !== false) {
-            this.showSimpleSearch = true;
-        } else {
-            this.showSimpleSearch = false;
-        }
+    getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
+        return Array.from(widgets.values()).map((widget) => widget.createExportData.bind(widget));
     }
 
     ngOnDestroy() {
@@ -87,24 +82,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.formData.currentTheme = this.widgetService.getTheme();
-        this.checkSimpleFilter();
-        this.validateDatasetService();
 
-        this.messenger.subscribe('showFiltersComponentIcon', (message) => {
-            this.showFiltersComponentIcon = message.showFiltersComponentIcon;
-        });
-        this.messenger.subscribe('showSimpleSearch', (message) => {
-            this.showSimpleSearch = message.showSimpleSearch;
+        this.updateSimpleSearchFilter();
+
+        this.messenger.subscribe(neonEvents.TOGGLE_FILTER_TRAY, (message) => {
+            this.showFilterTray = message.show;
         });
 
-        this.messenger.subscribe('showVisShortcut', (message) => {
-            this.showVisShortcut = message.showVisShortcut;
+        this.messenger.subscribe(neonEvents.TOGGLE_SIMPLE_SEARCH, (message) => {
+            this.showSimpleSearch = message.show;
         });
 
-        this.messenger.subscribe('simpleFilter', (message) => {
-            this.options.searchField = message.searchField;
-            this.options.tableField = message.tableField;
+        this.messenger.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, (message) => {
+            this.showVisualizationsShortcut = message.show;
         });
+
+        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateSimpleSearchFilter.bind(this));
+
         this.changeDetection.detectChanges();
     }
 
@@ -113,30 +107,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
             height: '80%',
             width: '80%',
             hasBackdrop: true,
-            disableClose: true,
-            panelClass: this.widgetService.getTheme()
+            disableClose: true
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
     }
 
-    publishShowFiltersComponentIcon() {
-        this.showFiltersComponentIcon = !this.showFiltersComponentIcon;
-        this.messenger.publish('showFiltersComponentIcon', {
-            showFiltersComponentIcon: this.showFiltersComponentIcon
+    publishShowFilterTray() {
+        this.showFilterTray = !this.showFilterTray;
+        this.messenger.publish(neonEvents.TOGGLE_FILTER_TRAY, {
+            show: this.showFilterTray
         });
     }
 
     publishShowSimpleSearch() {
         this.showSimpleSearch = !this.showSimpleSearch;
-        this.messenger.publish('showSimpleSearch', {
-            showSimpleSearch: this.showSimpleSearch
+        this.messenger.publish(neonEvents.TOGGLE_SIMPLE_SEARCH, {
+            show: this.showSimpleSearch
         });
     }
 
-    publishShowVisShortcut() {
-        this.showVisShortcut = !this.showVisShortcut;
-        this.messenger.publish('showVisShortcut', {
-            showVisShortcut: this.showVisShortcut
+    publishShowVisualizationsShortcut() {
+        this.showVisualizationsShortcut = !this.showVisualizationsShortcut;
+        this.messenger.publish(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, {
+            show: this.showVisualizationsShortcut
         });
     }
 
@@ -146,18 +139,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
     }
 
-    validateDatasetService() {
-        if (this.datasetService.getActiveDatasetOptions()) {
-            this.simpleSearch = this.datasetService.getActiveDatasetOptions();
-        }
-        if (this.datasetService.getActiveFields()) {
-            this.options = this.datasetService.getActiveFields();
-        }
+    private updateSimpleSearchFilter() {
+        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
 
-        if (this.datasetService.getActiveDatasetSimpleFilterFieldName()) {
-            this.searchField = new FieldMetaData(this.datasetService.getActiveDatasetSimpleFilterFieldName(),
-                this.datasetService.getActiveDatasetSimpleFilterFieldName());
+        if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
+            let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
+            let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+            let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+                simpleFilter.fieldName);
+
+            this.fields = table.fields;
+            this.searchField = field;
+            this.showSimpleSearch = true;
+        } else {
+            this.fields = this.datasetService.getActiveFields();
         }
     }
-
 }

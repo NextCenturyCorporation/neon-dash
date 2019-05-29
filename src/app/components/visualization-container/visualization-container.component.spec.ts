@@ -18,9 +18,9 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
+import { DataMessageComponent } from '../data-message/data-message.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { MapComponent } from '../map/map.component';
@@ -56,15 +56,15 @@ describe('Component: VisualizationContainer', () => {
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 
-    initializeTestBed({
+    initializeTestBed('Visualization Container', {
         declarations: [
             AnnotationViewerComponent,
             AggregationComponent,
             CardThumbnailSubComponent,
+            DataMessageComponent,
             DataTableComponent,
             DetailsThumbnailSubComponent,
             DocumentViewerComponent,
-            ExportControlComponent,
             FilterBuilderComponent,
             LegendComponent,
             MapComponent,

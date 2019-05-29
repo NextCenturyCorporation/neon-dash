@@ -13,9 +13,4 @@
  * limitations under the License.
  *
  */
-export interface NeonRequest {
-    abort(): void;
-    always(callback: Function): void;
-    done(callback: Function): void;
-    fail(callback: Function): void;
-}
+export * from './dashboard-selector.component';
