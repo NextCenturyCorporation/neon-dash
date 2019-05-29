@@ -65,7 +65,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
-    public updatedData = false;
+    public updatedData = 0;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -493,7 +493,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messageReceiver.subscribe((eventing as any).channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
+        this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
@@ -575,7 +575,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Refreshes all of the visualizations in the dashboard.
      */
     public refreshDashboard() {
-        this.updatedData = false;
+        this.updatedData = 0;
         this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
     }
 
@@ -589,8 +589,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Indicates to the dashboard that there is new data available
      */
-    dataAvailableDashboard() {
-        this.updatedData = true;
+    dataAvailableDashboard(event: { message: MessageEvent }) {
+        this.updatedData += (JSON.parse(event.message.data).count || 1);
     }
 
     /**
