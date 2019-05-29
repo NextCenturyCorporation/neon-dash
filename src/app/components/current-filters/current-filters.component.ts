@@ -25,6 +25,7 @@ import { eventing } from 'neon-framework';
 
 interface FilterDisplay {
     full: FilterDesign;
+    text?: string;
     field?: string;
     op?: string;
     value?: any;
@@ -33,7 +34,6 @@ interface FilterDisplay {
 interface FilterGroup {
     name?: string;
     multi?: boolean;
-    full: FilterDesign;
     filters?: FilterDisplay[];
 }
 
@@ -73,11 +73,11 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         );
     }
 
-    computeFilter(x: AbstractFilter) {
+    computeFilter(x: AbstractFilter): FilterDisplay {
+        let ret: Partial<FilterDisplay>;
         if (x instanceof SimpleFilter) {
             const isDate = /date/i.test(x.field.type);
-            return {
-                full: x.toDesign(),
+            ret = {
                 field: x.field.prettyName,
                 value: x.value,
                 op: isDate ?
@@ -99,35 +99,46 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
             if (x.filters.length === 2) {
                 if (dates.length === 2) {
-                    return {
+                    ret = {
                         field: dates[0].field.prettyName,
                         op: 'between',
                         value: `${moment(dates[0].value).format('YYYY-MM-DD')} and ${moment(dates[1].value).format('YYYY-MM-DD')}`,
-                        full: x.toDesign()
                     };
                 } else if (latLongs.length === 2) {
-                    return {
-                        full: x.toDesign(),
+                    ret = {
                         field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/, ''),
                         op: 'at',
                         value: `(${latLongs[0].value.toFixed(3)}, ${latLongs[1].value.toFixed(3)})`
                     };
                 }
             } else if (x.filters.length === 4) {
-
                 if (latLongs.length === 4) {
-                    return {
-                        full: x.toDesign(),
+                    ret = {
                         field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/, ''),
                         op: 'from',
                         value: `(${latLongs[0].value.toFixed(3)}, ${latLongs[1].value.toFixed(3)}) to (${latLongs[2].value.toFixed(3)}, ${latLongs[3].value.toFixed(3)})`
                     };
                 }
             }
+            if (!ret) {
+                const values = x.filters
+                    .map((v) => this.computeFilter(v).text)
+                    .join(` ${x.type} `.toUpperCase());
+
+                ret = { text: `(${values})` };
+            }
         }
-        return {
-            full: x.toDesign()
-        };
+        if (!ret.full) {
+            ret.full = x.toDesign();
+        }
+        if (!ret.text) {
+            if (ret.field) {
+                ret.text = `${ret.field} ${ret.op} ${ret.value}`;
+            } else {
+                ret.text = ret.full.name;
+            }
+        }
+        return ret as FilterDisplay;
     }
 
     updateFilters() {
@@ -138,7 +149,6 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 const grp = this.groups.find((g) => g.name === filter.field);
                 if (!grp) {
                     this.groups.push({
-                        full: x.toDesign(),
                         name: filter.field,
                         filters: [filter]
                     });
@@ -148,7 +158,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 }
             } else {
                 this.groups.push({
-                    full: x.toDesign()
+                    filters: [filter]
                 });
             }
         }

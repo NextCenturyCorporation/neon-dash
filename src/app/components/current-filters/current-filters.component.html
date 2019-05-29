@@ -1,11 +1,11 @@
 <div *ngIf="groups && groups.length">
-    <span *ngFor="let group of groups" [class.multi]="group.name" class="group">
-        <span class="group-name" *ngIf="group.name">{{group.name}}</span>
+    <span *ngFor="let group of groups" class="group">
+        <span class="group-name">{{group.name || 'Complex'}}</span>
         <mat-chip-list>
             <mat-chip *ngFor="let filter of group.filters" color="primary" selected>
                 <span [title]="filter.full.name">
                     <span *ngIf="filter.field">{{filter.op}} {{filter.value}}</span>
-                    <span *ngIf="!filter.field">{{filter.full.name}}</span>
+                    <span *ngIf="!filter.field">{{filter.text}}</span>
                 </span>
                 <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
             </mat-chip>
