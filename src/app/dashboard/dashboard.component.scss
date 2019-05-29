@@ -15,14 +15,25 @@
 */
 @import '../neon-properties';
 
-:host {
+:host, mat-sidenav-container {
     display: block;
     width: 100vw;
     height: 100vh;
     padding: 0;
     margin: 0;
-    overflow-y: auto;
+    overflow: hidden;
 }
+
+
+mat-sidenav-container /deep/ mat-sidenav-content {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas: 
+        'header'
+        'filters'
+        'grid';
+}
+
 
 .neon-sidenav {
     height: 100%;
@@ -46,15 +57,18 @@
     }
 }
 
-.neon-dash {
-    background-color: var(--color-background, white);
-    /* 60 = 50 px toolbar + 10 px padding */
-    height: calc(100% - 60px);
-    overflow-y: auto;
+app-current-filtesr {
+    grid-area: filters;
+}
 
-    .grid {
-        width: calc(100% - 5px) !important;
-    }
+mat-toolbar {
+    grid-area: header;
+}
+
+.neon-dash {
+    grid-area: grid;
+    background-color: var(--color-background, white);
+    overflow-y: auto;
 }
 
 .header-toggle-container {
@@ -76,6 +90,7 @@
         }
     }
 }
+
 
 [mat-icon-button] {
     &.notify {

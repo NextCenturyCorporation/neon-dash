@@ -1,18 +1,19 @@
-<div *ngIf="groups && groups.length">
+<div class="group remove-all">
+    <button mat-icon-button mat-raised-button (click)="removeAll()" color="warn">
+        <mat-icon (click)="removeAll()">clear_all</mat-icon>
+    </button>
+</div>
+<div class="groupings">
     <span *ngFor="let group of groups" class="group">
-        <span class="group-name">{{group.name || 'Complex'}}</span>
+        <span class="group-name">{{group.name}}</span>
         <mat-chip-list>
             <mat-chip *ngFor="let filter of group.filters" color="primary" selected>
                 <span [title]="filter.full.name">
                     <span *ngIf="filter.field">{{filter.op}} {{filter.value}}</span>
-                    <span *ngIf="!filter.field">{{filter.text}}</span>
+                    <span *ngIf="!filter.field">{{filter.text.length > 40 ? filter.text.substring(0, 40) + '...' : filter.text}}</span>
                 </span>
                 <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>
     </span>
-    <mat-chip *ngIf="groups.length > 1 || groups[0].filters.length > 1" (click)="removeAll()" selected color="warn">
-        Remove All
-        <mat-icon matChipRemove (click)="removeAll()">cancel</mat-icon>
-    </mat-chip>
 </div>

@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,16 +16,30 @@
 @import '../base-neon-component/base-neon.component';
 
 :host {
-    display: block;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    
+    .remove-all {
+        align-self: flex-start;
+    }
+
     .group {
         display: inline-block;
         background: #ddd;
-        border-radius: 15px;        
+        border-radius: 30px;        
         margin: 3px 5px;
         padding: 3px;
     }
     .group-name {
         padding: 0 .5em;
+    }
+    .group.remove-all {
+        padding: 0;
+        background: none;
+        margin: 3px 5px;
+        button {
+            border-radius: 50% !important;
+        }
     }
     mat-chip-list {
         display:inline-block;
