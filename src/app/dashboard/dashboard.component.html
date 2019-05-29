@@ -19,7 +19,7 @@
                 </div>
                 <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
                     <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
-                        [inputs]="{sidenav: sidenavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets}">
+                        [inputs]="{sidenav: sidenavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets, current: currentDashboard}">
                     </wt-lazy>
                 </div>
                 <div id="settings" class="setting-container" *ngIf="createSettings">

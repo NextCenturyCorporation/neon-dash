@@ -22,7 +22,7 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | angular2-grid@3.0.0 | [MIT](https://github.com/BTMorton/angular2-grid/raw/master/LICENSE) |
 | chart.js@2.8.0 | [MIT](https://github.com/chartjs/Chart.js/raw/master/LICENSE.md) |
 | classlist.js@1.1.20150312 | [Dedicated to the public domain](https://github.com/eligrey/classList.js/raw/master/LICENSE.md) |
-| core-js@2.6.8 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
+| core-js@2.6.9 | [MIT](https://github.com/zloirock/core-js/raw/master/LICENSE) |
 | d3-shape@1.3.5 | [BSD-3-Clause](https://github.com/d3/d3-shape/raw/master/LICENSE) |
 | d3-transition@1.2.0 | [BSD-3-Clause](https://github.com/d3/d3-transition/raw/master/LICENSE) |
 | d3@3.5.17 | [BSD-3-Clause](https://github.com/mbostock/d3/raw/master/LICENSE) |
