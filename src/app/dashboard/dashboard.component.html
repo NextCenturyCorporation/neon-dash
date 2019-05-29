@@ -32,7 +32,7 @@
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <div *ngIf="currentDashboard">
             <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!currentDashboard.modified"
-                matBadgeColor="accent" matBadgeSize="small">
+                matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
                 {{ currentDashboard.name }}
                 <small *ngIf="currentDashboard.fullTitle">- {{ currentDashboard.fullTitle }}</small>
             </div>
