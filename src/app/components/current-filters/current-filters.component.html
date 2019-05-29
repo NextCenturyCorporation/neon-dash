@@ -1,29 +1,18 @@
-<div class="delete-all-filters" *ngIf="filters.length">
-    <button mat-icon-button aria-label="Reset" title="Remove All Filters"
-        (click)="filterService.deleteFilters('FilterList', searchService)">
-        <mat-icon>delete_sweep</mat-icon>
-    </button>
-    <div class="filter-text" style="display: inline-block; padding-left: 10px;">
-        {{ filters.length }} {{ 'Filter' + (filters.length == 1 ? '' : 's') }}
-    </div>
-</div>
-
-<div>
-    <div mat-fill>
-        <mat-list>
-            <mat-list-item *ngFor="let filter of filters" class="current-filters-item filter-text">
-                <button mat-icon-button title="Remove Filter" (click)="this.filterService.deleteFilter('FilterList', filter)">
-                    <mat-icon>delete</mat-icon>
-                </button>
-                <div class="symbol" title="AND" *ngIf="filter.root === COMPOUND_FILTER_TYPE.AND">&</div>
-                <div class="symbol" title="OR" *ngIf="!filter.root || filter.root === COMPOUND_FILTER_TYPE.OR">|</div>
-                <div [title]="filter.name">{{ filter.name }}</div>
-            </mat-list-item>
-            <mat-list-item *ngIf="!filters.length" class="filter-text">No Filters</mat-list-item>
-        </mat-list>
-    </div>
-
-    <div mat-fill class="flex">
-        <span class="fill-remaining"></span>
-    </div>
+<div *ngIf="groups && groups.length">
+    <span *ngFor="let group of groups" [class.multi]="group.name" class="group">
+        <span class="group-name" *ngIf="group.name">{{group.name}}</span>
+        <mat-chip-list>
+            <mat-chip *ngFor="let filter of group.filters" color="primary" selected>
+                <span [title]="filter.full.name">
+                    <span *ngIf="filter.field">{{filter.op}} {{filter.value}}</span>
+                    <span *ngIf="!filter.field">{{filter.full.name}}</span>
+                </span>
+                <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
+            </mat-chip>
+        </mat-chip-list>
+    </span>
+    <mat-chip *ngIf="groups.length > 1 || groups[0].filters.length > 1" (click)="removeAll()" selected color="warn">
+        Remove All
+        <mat-icon matChipRemove (click)="removeAll()">cancel</mat-icon>
+    </mat-chip>
 </div>

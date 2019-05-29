@@ -17,9 +17,25 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { neonEvents } from '../../neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
-import { FilterDesign, FilterService } from '../../services/filter.service';
+import { FilterDesign, FilterService, AbstractFilter, SimpleFilter, CompoundFilter } from '../../services/filter.service';
+
+import * as moment from 'moment';
 
 import { eventing } from 'neon-framework';
+
+interface FilterDisplay {
+    full: FilterDesign;
+    field?: string;
+    op?: string;
+    value?: any;
+}
+
+interface FilterGroup {
+    name?: string;
+    multi?: boolean;
+    full: FilterDesign;
+    filters?: FilterDisplay[];
+}
 
 @Component({
     selector: 'app-current-filters',
@@ -31,7 +47,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public COMPOUND_FILTER_TYPE = CompoundFilterType;
 
-    public filters: FilterDesign[] = [];
+    public groups: FilterGroup[] = [];
 
     constructor(public filterService: FilterService) {
         this.messenger = new eventing.Messenger();
@@ -45,8 +61,97 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         this.updateFilters();
     }
 
+    remove(filter: FilterDisplay) {
+        this.filterService.deleteFilter('FilterList', filter.full);
+    }
+
+    removeAll() {
+        this.filterService.deleteFilters('FilterList', null as any,
+            this.groups
+                .reduce((acc, g) => acc.concat(g.filters), [] as FilterDisplay[])
+                .map(f => f.full)
+        );
+    }
+
+    computeFilter(x: AbstractFilter) {
+        if (x instanceof SimpleFilter) {
+            const isDate = /date/i.test(x.field.type);
+            return {
+                full: x.toDesign(),
+                field: x.field.prettyName,
+                value: x.value,
+                op: isDate ?
+                    x.operator
+                        .replace(/<=?/, 'before')
+                        .replace(/>=?/, 'after') :
+                    x.operator
+                        .replace(/=/g, '')
+            };
+        } else if (x instanceof CompoundFilter) {
+            const latLongs = x.filters
+                .filter((y) => y instanceof SimpleFilter && y.field.type === 'double' && /[.](lat|lon)$/.test(y.field.prettyName))
+                .map((y) => (y as SimpleFilter));
+
+            const dates = x.filters
+                .filter((y) => y instanceof SimpleFilter && y.field.type === 'date')
+                .map((y) => (y as SimpleFilter));
+
+
+            if (x.filters.length === 2) {
+                if (dates.length === 2) {
+                    return {
+                        field: dates[0].field.prettyName,
+                        op: 'between',
+                        value: `${moment(dates[0].value).format('YYYY-MM-DD')} and ${moment(dates[1].value).format('YYYY-MM-DD')}`,
+                        full: x.toDesign()
+                    };
+                } else if (latLongs.length === 2) {
+                    return {
+                        full: x.toDesign(),
+                        field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/, ''),
+                        op: 'at',
+                        value: `(${latLongs[0].value.toFixed(3)}, ${latLongs[1].value.toFixed(3)})`
+                    };
+                }
+            } else if (x.filters.length === 4) {
+
+                if (latLongs.length === 4) {
+                    return {
+                        full: x.toDesign(),
+                        field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/, ''),
+                        op: 'from',
+                        value: `(${latLongs[0].value.toFixed(3)}, ${latLongs[1].value.toFixed(3)}) to (${latLongs[2].value.toFixed(3)}, ${latLongs[3].value.toFixed(3)})`
+                    };
+                }
+            }
+        }
+        return {
+            full: x.toDesign()
+        };
+    }
+
     updateFilters() {
-        this.filters = this.filterService.getFilters();
+        this.groups = [];
+        for (const x of this.filterService.getRawFilters()) {
+            const filter = this.computeFilter(x);
+            if (filter.field) {
+                const grp = this.groups.find((g) => g.name === filter.field);
+                if (!grp) {
+                    this.groups.push({
+                        full: x.toDesign(),
+                        name: filter.field,
+                        filters: [filter]
+                    });
+                } else {
+                    grp.multi = true;
+                    grp.filters!.push(filter);
+                }
+            } else {
+                this.groups.push({
+                    full: x.toDesign()
+                });
+            }
+        }
     }
 
     ngOnDestroy() {
