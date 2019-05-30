@@ -29,6 +29,7 @@ export namespace neonEvents {
     export const TOGGLE_SIMPLE_SEARCH = 'TOGGLE_SIMPLE_SEARCH';
     export const TOGGLE_VISUALIZATIONS_SHORTCUT = 'TOGGLE_VISUALIZATIONS_SHORTCUT';
     export const WIDGET_ADD = 'WIDGET_ADD';
+    export const WIDGET_CONFIGURED = 'WIDGET_CONFIGURED';
     export const WIDGET_DELETE = 'WIDGET_DELETE';
     export const WIDGET_CONTRACT = 'WIDGET_CONTRACT';
     export const WIDGET_EXPAND = 'WIDGET_EXPAND';

@@ -1,51 +1,68 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+* Copyright 2016 Next Century Corporation
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
 @import '../base-neon-component/base-neon.component';
 
-.fake-dropdown-arrow {
-    right: 25px;
-    position: relative;
+:host {
+    display: grid;
+    grid-template-rows: repeat(12, auto);
+    grid-gap: 0.5em;
+    padding: 1em;
 }
 
-.fake-dropdown-menu {
-    width: 200px;
-}
-
-.add-margin-right {
-    margin-right: 20px;
-}
-
-.btn-open-config-edit {
-    margin: 10px;
-}
-
-.radio-container > * > * { // sass-lint:disable-line no-universal-selectors
-    margin: 0 5px;
+form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    grid-gap: 1em;
+    margin-bottom: 0.5em;
 }
 
 .option-row {
-    display: flex;
+    display: grid;
     align-items: center;
-}
+    grid-template-areas:
+    'name actions'
+    'time none';
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
 
-input {
-    width: 200px;
-}
+    a {
+        cursor: pointer;
+    }
 
-.save-state-container {
-    width: 410px;
-    padding: 15px 15px 0;
+
+    .actions {
+        grid-area: actions;
+    }
+
+    .date {
+        grid-area: time;
+        font-size: 0.8em;
+        color: #555555;
+    }
+
+    .state-name {
+        font-size: 1.2em;
+        grid-area: name;
+
+        /deep/ .mat-badge-active {
+            color: transparent !important;
+            width: 10px;
+            height: 10px;
+            top: 3px !important;
+        }
+    }
 }
