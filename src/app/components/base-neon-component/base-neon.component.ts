@@ -790,6 +790,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.showingZeroOrMultipleElementsPerResult = false;
 
         this.onChangeData(databaseOrTableChange);
+        this.messenger.publish(neonEvents.WIDGET_CONFIGURED, {});
 
         if (!options) {
             this.executeAllQueryChain();

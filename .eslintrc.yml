@@ -58,9 +58,6 @@ rules:
     eol-last: error
     eqeqeq: error
     func-call-spacing: error
-    func-names: error
-        #- error
-        #- never
     func-style:
         - error
         - declaration

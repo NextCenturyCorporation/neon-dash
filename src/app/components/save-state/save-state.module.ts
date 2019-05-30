@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { SaveStateComponent } from './save-state.component';
 import {
     MatMenuModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatDialogModule, MatSnackBarModule, MatButtonModule
+    MatInputModule, MatDialogModule, MatSnackBarModule, MatButtonModule, MatBadgeModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
@@ -27,6 +27,7 @@ import { FormsModule } from '@angular/forms';
     exports: [SaveStateComponent],
     entryComponents: [SaveStateComponent],
     imports: [
+        MatBadgeModule,
         MatDialogModule,
         MatMenuModule,
         MatButtonModule,
