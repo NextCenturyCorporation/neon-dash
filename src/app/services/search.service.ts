@@ -79,15 +79,16 @@ export class NeonConnection implements Connection {
     }
 
     /**
-     * Returns the saved dashboard state names.
+     * Returns the saved dashboard states.
      *
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}
      * @override
      */
-    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.getAllStateNames(onSuccess, onError);
+    public listStates(limit: number, offset: number, onSuccess: (response: any) => void,
+        onError?: (response: any) => void): RequestWrapper {
+        return this.connection.listStates(limit, offset, onSuccess, onError);
     }
 
     /**

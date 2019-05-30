@@ -19,7 +19,7 @@
                 </div>
                 <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
                     <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
-                        [inputs]="{sidenav: sidenavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets}">
+                        [inputs]="{sidenav: sideNavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets, current: currentDashboard}">
                     </wt-lazy>
                 </div>
                 <div id="settings" class="setting-container" *ngIf="createSettings">
@@ -30,13 +30,40 @@
     </mat-sidenav>
 
     <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
-        <mat-toolbar-row>
-            <span>{{ datasetService.getCurrentDashboardTitle() || "Choose Dashboard..." }}</span>
-            <span class="fill-remaining"></span>
-            <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" matBadgePosition="above after"
-                [matBadgeHidden]="!updatedData" matBadgeColor="warn" matBadge="x" matBadgeSize="small" (click)="refreshDashboard()"
-                matTooltip="Refresh Data" tooltip-position="below">
-                <mat-icon class="neon-icon-large">notifications</mat-icon>
+        <div *ngIf="currentDashboard">
+            <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!currentDashboard.modified"
+                matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
+                {{ currentDashboard.name }}
+                <small *ngIf="currentDashboard.fullTitle">- {{ currentDashboard.fullTitle }}</small>
+            </div>
+        </div>
+        <div *ngIf="!currentDashboard">Choose Dashboard...</div>
+        <span class="fill-remaining"></span>
+        <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" matBadgePosition="above before"
+            [matBadgeHidden]="updatedData === 0" matBadgeColor="warn" [matBadge]="updatedData | abbreviate: 1" matBadgeSize="large"
+            (click)="refreshDashboard()" matTooltip="Refresh Data" tooltip-position="below">
+            <mat-icon class="neon-icon-large">notifications</mat-icon>
+        </button>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+            id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
+            (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisualizationsShortcut">
+            <mat-icon class="neon-icon-large">add_circle</mat-icon>
+        </button>
+        <div class="simple-search-container">
+            <app-simple-filter #simpleFilter></app-simple-filter>
+        </div>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
+            matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
+            <mat-icon class="neon-icon-large">dashboard</mat-icon>
+        </button>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
+            matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
+        </button>
+
+        <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
+            <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
+                <mat-icon color="secondary">add_circle</mat-icon>Visualizations
             </button>
             <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
                 id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
@@ -50,8 +77,8 @@
                 matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
-                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
+                matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
             </button>
 
@@ -73,7 +100,7 @@
             <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
                 <mat-icon class="neon-icon-large">menu</mat-icon>
             </button>
-        </mat-toolbar-row>
+            </mat-toolbar-row>
     </mat-toolbar>
 
     <app-current-filters></app-current-filters>
