@@ -628,7 +628,7 @@ export class FilterService {
      * @return {FilterDesign[]}
      */
     public getFilters(filterDataSourceList?: FilterDataSource[]): FilterDesign[] {
-        return this.getRawFilters().map(filter => filter.toDesign());
+        return this.getRawFilters(filterDataSourceList).map(filter => filter.toDesign());
     }
 
     /**
