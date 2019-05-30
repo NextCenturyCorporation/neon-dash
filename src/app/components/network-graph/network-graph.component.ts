@@ -52,7 +52,7 @@ import {
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
-import * as vis from 'vis/dist/vis-network.min';
+import * as vis from 'vis/index-network';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;

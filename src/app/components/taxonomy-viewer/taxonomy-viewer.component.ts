@@ -434,7 +434,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.taxonomyGroups = group.children as TaxonomyGroup[];
         this.dataSource.data = group.children;
         this.treeControl.dataNodes = group.children;
-        return this.taxonomyGroups.length;
+        return this.taxonomyGroups.reduce((acc, v) => acc + v.count, 0);
     }
 
     private findUnselectedGroups(group: any): any[] {
