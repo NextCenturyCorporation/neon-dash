@@ -46,7 +46,7 @@ export class ConfigService {
         return new ConfigService(null).set(config);
     }
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     handleConfigFileError(error, file?: any) {
         if (error.status === 404) {
@@ -73,7 +73,7 @@ export class ConfigService {
     }
 
     loadConfigFromLocal(path): Observable<NeonGTDConfig | undefined> {
-        return this.http.get(path, { responseType: 'text' })
+        return this.http.get(path, { responseType: 'text', params: { rnd: `${Math.random() * 1000000}.${Date.now()}` } })
             .pipe(map((response: any) => yaml.load(response) as NeonGTDConfig))
             .pipe(catchError((e) => this.handleConfigFileError(e)));
     }
