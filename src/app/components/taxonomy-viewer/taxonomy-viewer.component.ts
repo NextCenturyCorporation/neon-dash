@@ -20,13 +20,11 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation,
-    Injector,
-    ChangeDetectorRef
+    ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterType, FilterClause, QueryPayload, SortOrder, AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign, FilterService } from '../../services/filter.service';
+import { CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
@@ -38,9 +36,8 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { MatTreeNestedDataSource, MatDialog } from '@angular/material';
+import { MatTreeNestedDataSource } from '@angular/material';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { DatasetService } from '../../services/dataset.service';
 
 export interface TaxonomyNode {
     id: string;
@@ -62,6 +59,7 @@ export interface TaxonomyGroup extends TaxonomyNode {
     childrenMap?: { [key: string]: TaxonomyGroup | TaxonomyNode };
     nodeIds: Set<string>;
     children?: (TaxonomyGroup | TaxonomyNode)[];
+    leafCount?: number;
 }
 
 @Component({
@@ -88,20 +86,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public treeControl = new NestedTreeControl<TaxonomyNode | TaxonomyGroup>((node) => 'children' in node && node.children);
     public dataSource = new MatTreeNestedDataSource<TaxonomyGroup | TaxonomyNode>();
 
-    constructor(
-        datasetService: DatasetService,
-        filterService: FilterService,
-        searchService: AbstractSearchService,
-        injector: Injector,
-        changeDetection: ChangeDetectorRef,
-        dialog: MatDialog
-    ) {
-        super(datasetService, filterService, searchService, injector, changeDetection, dialog);
-    }
-
-    hasChild = (_: number, node: TaxonomyGroup) => {
-        return !!node.children && node.children.length; // && node.children.some((x) => 'children' in x);
-    }
+    hasChild = (_: number, node: TaxonomyGroup) => !!node.children && node.children.length;
 
     private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
         list.push({
@@ -280,18 +265,20 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return !!(options.database.name && options.table.name && options.idField.columnName && options.categoryField.columnName);
     }
 
-    mergeTaxonomyData(group: TaxonomyGroup, lineage: { category: string | string[], type: string | string[], subtype?: string | string[] },
+    mergeTaxonomyData(
+        group: TaxonomyGroup,
+        lineage: { category: string | string[], type: string | string[], subtype?: string | string[] },
         child: TaxonomyNode
     ) {
         let currentGroup = group;
         let toArray = (el: string | string[]) => Array.isArray(el) ? el : (el ? el.split('.') : []);
 
         // Compose all layers into single array of [name, type][]
-        const segments = [
+        const segments: [string[], string][] = [
             [toArray(lineage.category), 'category'],
             [toArray(lineage.type), 'type'],
             [toArray(lineage.subtype), 'subtype']
-        ] as [string[], string][];
+        ];
 
         let pos = 0;
         for (const [segment, ptype] of segments) {
@@ -334,6 +321,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // If new node, walk back up to parent, recording counts
         if (!(child.externalId in currentGroup.childrenMap)) {
             currentGroup.childrenMap[child.externalId] = child;
+            currentGroup.leafCount += 1;
 
             if (child.name !== child.externalId) {
                 currentGroup.children.push(child);
@@ -371,7 +359,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
                 this.sortTaxonomies(group.children[i]);
             }
-
         }
     }
 
@@ -390,7 +377,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             children: []
         } as TaxonomyGroup;
 
-        let find = (d: any, field: string) =>
+        const find = (d: any, field: string) =>
             this.options[field].columnName ?
                 neonUtilities.deepFind(d, this.options[field].columnName) :
                 null;
@@ -404,27 +391,25 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 types = Array.isArray(val) ? val : [val];
             }
 
-            //leaf value set in case it is needed for the taxonomy valueObject
+            // Leaf value set in case it is needed for the taxonomy valueObject
             // If a value is not found for the leafValue, id will be used
+            const name = find(d, 'valueField') || find(d, 'idField');
             const child = {
                 description: this.options.valueField,
-                name: find(d, 'valueField') || find(d, 'idField'),
+                name,
                 sourceIds: find(d, 'sourceIdField'),
-                externalId: find(d, 'idField')
+                externalId: find(d, 'idField'),
+                externalName: name
             };
 
             // Loop, categories[] -> types[] -> subTypes?[]
             for (const category of categories) {
                 for (const type of types) {
-
-                    // const [typeMajor, ...subTypes] = type.split('.');
-                    // const lineage = { category, type: typeMajor, subtype: subTypes.join('.') };
                     const lineage = { category, type };
 
                     this.mergeTaxonomyData(group, lineage, {
                         ...child,
                         id: `${this.counter++}`,
-                        externalName: child.name,
                         checked: !this.isTaxonomyNodeFiltered(this.options.typeField, lineage.type)
                     });
                 }
