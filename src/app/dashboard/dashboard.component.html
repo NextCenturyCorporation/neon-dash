@@ -65,42 +65,20 @@
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
                 <mat-icon color="secondary">add_circle</mat-icon>Visualizations
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
-                id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
-                (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()" *ngIf="showVisualizationsShortcut">
-                <mat-icon class="neon-icon-large">add_circle</mat-icon>
+            <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
+                <mat-icon color="secondary">save</mat-icon>Saved States
             </button>
-            <div class="simple-search-container">
-                <app-simple-filter #simpleFilter></app-simple-filter>
-            </div>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
-                matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
-                <mat-icon class="neon-icon-large">dashboard</mat-icon>
+            <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
+                <mat-icon color="secondary">settings</mat-icon>Settings
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
-                matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
-                <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
+            <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
+                <mat-icon color="secondary">info</mat-icon>About
             </button>
+        </mat-menu>
 
-            <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
-                <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
-                    <mat-icon color="secondary">add_circle</mat-icon>Visualizations
-                </button>
-                <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
-                    <mat-icon color="secondary">save</mat-icon>Saved States
-                </button>
-                <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
-                    <mat-icon color="secondary">settings</mat-icon>Settings
-                </button>
-                <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
-                    <mat-icon color="secondary">info</mat-icon>About
-                </button>
-            </mat-menu>
-
-            <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
-                <mat-icon class="neon-icon-large">menu</mat-icon>
-            </button>
-            </mat-toolbar-row>
+        <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+            <mat-icon class="neon-icon-large">menu</mat-icon>
+        </button>
     </mat-toolbar>
 
     <app-current-filters></app-current-filters>
