@@ -90,7 +90,7 @@ export class CustomConnectionComponent implements AfterViewInit {
         // TODO: THOR-1056: make enough information available to set entire currentDashboard here.
 
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
-        //this.datasetService.setCurrentDashboard(??)
+        // this.datasetService.setCurrentDashboard(??)
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
         this.messenger.publish(neonEvents.DASHBOARD_RESET, {});

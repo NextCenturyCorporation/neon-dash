@@ -36,13 +36,13 @@ export class UnsharedFilterComponent {
      * This should be bound to the 'meta' component from the BaseNeonComponent class
      */
     @Input() public meta: {
-        databases: DatabaseMetaData[],
-        database: DatabaseMetaData,
-        tables: TableMetaData[],
-        table: TableMetaData,
-        unsharedFilterField: FieldMetaData,
-        unsharedFilterValue: string,
-        fields: FieldMetaData[]
+        databases: DatabaseMetaData[];
+        database: DatabaseMetaData;
+        tables: TableMetaData[];
+        table: TableMetaData;
+        unsharedFilterField: FieldMetaData;
+        unsharedFilterValue: string;
+        fields: FieldMetaData[];
     };
 
     /**
@@ -50,16 +50,19 @@ export class UnsharedFilterComponent {
      * @type {EventEmitter<FieldMetaData>}
      */
     @Output() unsharedFilterFieldChanged = new EventEmitter<FieldMetaData>();
+
     /**
      * Triggered when the filter has been cleared
      * @type {EventEmitter<void>}
      */
     @Output() unsharedFilterRemoved = new EventEmitter<void>();
+
     /**
      * Triggered when the filter value has changed
      * @type {EventEmitter<string>}
      */
     @Output() unsharedFilterValueChanged = new EventEmitter<string>();
+
     /**
      * Triggered when either the filter's field or value has changed.
      * Either bind to this, or to the filter/value change events. Both events will be triggered either way.

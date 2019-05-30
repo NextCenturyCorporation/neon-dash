@@ -24,8 +24,6 @@ import { MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
-import * as _ from 'lodash';
-
 @Component({
     selector: 'app-data-message',
     templateUrl: 'data-message.component.html',

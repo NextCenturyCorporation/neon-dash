@@ -38,7 +38,6 @@ let configErrors = [];
 
 @Injectable()
 export class ConfigService {
-
     private source = new ReplaySubject<NeonGTDConfig>(1);
 
     $source: Observable<NeonGTDConfig>;
@@ -47,9 +46,7 @@ export class ConfigService {
         return new ConfigService(null).set(config);
     }
 
-    constructor(private http: HttpClient) {
-
-    }
+    constructor(private http: HttpClient) {}
 
     handleConfigFileError(error, file?: any) {
         if (error.status === 404) {
@@ -90,9 +87,8 @@ export class ConfigService {
         const next = all.find((el) => !!el);
         if (next) {
             return of(next);
-        } else {
-            return this.loadConfigFromPropertyService();
         }
+        return this.loadConfigFromPropertyService();
     }
 
     finalizeConfig(c: NeonGTDConfig) {
@@ -120,7 +116,7 @@ export class ConfigService {
             .pipe(
                 switchMap(this.takeFirstLoadedOrFetchDefault.bind(this)),
                 map(this.finalizeConfig.bind(this))
-            ) as Observable<NeonGTDConfig>;
+            );
     }
 
     initSource() {
@@ -141,7 +137,7 @@ export class ConfigService {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
             this.fetchConfig(environment.config)
-                .subscribe((el) => this.source.next(el));
+                .subscribe((el) => this.source.next(el as NeonGTDConfig));
         }
         return this.$source;
     }

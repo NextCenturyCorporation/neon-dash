@@ -38,7 +38,6 @@ import { ConfigService } from '../../services/config.service';
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Text Cloud', {
         providers: [
@@ -142,11 +141,11 @@ describe('Component: TextCloud', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
     });
 
@@ -244,9 +243,7 @@ describe('Component: TextCloud', () => {
             value: 'value2'
         }];
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.value === 'key2';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.value === 'key2');
 
         (component as any).redrawText();
 
@@ -361,9 +358,5 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(actual1).toEqual(3);
-    });
-
-    it('has a requestExport method that does nothing', () => {
-        expect(component.requestExport).toBeDefined();
     });
 });

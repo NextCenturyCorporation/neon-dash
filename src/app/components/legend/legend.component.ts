@@ -36,7 +36,8 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
     selector: 'app-legend',
     templateUrl: './legend.component.html',
     styleUrls: ['./legend.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.Default
 })
 export class LegendComponent implements OnInit {
     /**
@@ -124,7 +125,6 @@ export class LegendComponent implements OnInit {
             currentlyActive: !this.isDisabled(setName, key)
         });
         this.stopPropagation($event);
-
     }
 
     /**
@@ -158,17 +158,15 @@ export class LegendComponent implements OnInit {
             return 'stop';
         } else if (this.isDisabled(setName, key)) {
             return 'check_box_outline_blank';
-        } else {
-            return 'check_box';
         }
+        return 'check_box';
     }
 
     getTextDecoration(setName: string, key: string): string {
         if (this.isDisabled(setName, key)) {
             return 'line-through';
-        } else {
-            return '';
         }
+        return '';
     }
 
     onMenuOpen() {

@@ -8,7 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -19,6 +20,7 @@
 
     <div class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
         <div class="table-container">
+            <!-- beautify ignore:start -->
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
                 [rows]="tableData"
@@ -36,15 +38,17 @@
                 (resize)="onTableResize($event)"
                 (select)="onSelect($event)">
             </ngx-datatable>
+            <!-- beautify ignore:end -->
 
             <div *ngIf="getShowColumnSelector()" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
-                    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below" (click)="closeColumnSelector()">
-                      <mat-icon class="column-selector-close-icon">close</mat-icon>
+                    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below"
+                        (click)="closeColumnSelector()">
+                        <mat-icon class="column-selector-close-icon">close</mat-icon>
                     </button>
 
                 </div>
-                <div  class="button-row">
+                <div class="button-row">
                     <button mat-raised-button class="neon-button-small" (click)="deactivateAllHeaders()">
                         <span class="mat-button-wrapper">Uncheck All</span>
                     </button>
@@ -54,9 +58,11 @@
                 </div>
                 <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
                     <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
-                        (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
+                        (mouseleave)="onMouseLeaveItem(i)"
+                        [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                        <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
+                        <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}
+                        </mat-checkbox>
                     </mat-list-item>
                 </mat-list>
             </div>
@@ -67,12 +73,11 @@
     <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                    (click)="goToPreviousPage()">
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                    (click)="goToNextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>
@@ -81,12 +86,11 @@
     <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                    (click)="goToPreviousPage()">
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                    (click)="goToNextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>

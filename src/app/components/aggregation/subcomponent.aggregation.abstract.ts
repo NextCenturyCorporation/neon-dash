@@ -19,6 +19,7 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 
 export interface AggregationSubcomponentListener {
+
     /**
      * Returns the hidden canvas element reference for the subcomponent.
      *
@@ -219,6 +220,7 @@ export abstract class AbstractAggregationSubcomponent {
             case 'year':
                 return dateObject.format('YYYY');
         }
+        return '';
     }
 
     /**

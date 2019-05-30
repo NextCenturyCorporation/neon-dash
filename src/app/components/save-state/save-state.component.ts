@@ -145,7 +145,7 @@ export class SaveStateComponent implements OnInit {
         if (isOverwrite) {
             this.openConfirmationDialog(
                 'Save Changes',
-                `Looks like you have made changes to the current saved state.  Would you like to save these changes?`,
+                'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
                 'Save',
                 'Discard'
             )
@@ -153,7 +153,6 @@ export class SaveStateComponent implements OnInit {
                     if (result) {
                         this.saveState(name, false);
                     }
-
                 });
             return;
         }
@@ -215,7 +214,6 @@ export class SaveStateComponent implements OnInit {
                     if (result) {
                         this.deleteState(name, false);
                     }
-
                 });
             return;
         }
@@ -346,7 +344,7 @@ export class SaveStateComponent implements OnInit {
 
     private validateName(stateName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9\.\_\-\+\=\,]/g, '');
+        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 
     private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {

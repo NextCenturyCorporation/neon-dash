@@ -20,12 +20,12 @@ import { MatListModule } from '@angular/material';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [DocumentViewerComponent],
-  exports: [DocumentViewerComponent],
-  imports: [
-    CommonWidgetModule,
-    MatListModule,
-    CommonModule
-  ]
+    declarations: [DocumentViewerComponent],
+    exports: [DocumentViewerComponent],
+    imports: [
+        CommonWidgetModule,
+        MatListModule,
+        CommonModule
+    ]
 })
 export class DocumentViewerModule { }

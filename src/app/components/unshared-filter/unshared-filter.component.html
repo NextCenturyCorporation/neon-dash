@@ -3,9 +3,8 @@
 </mat-toolbar>
 
 <mat-form-field>
-    <mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField"
-                required="false" [disabled]="meta.fields.length === 0"
-                (ngModelChange)="handleChangeUnsharedFilterField()">
+    <mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
+        (ngModelChange)="handleChangeUnsharedFilterField()">
         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
     </mat-select>
 </mat-form-field>
@@ -14,7 +13,7 @@
 <div mat-fill class="flex center">
     <mat-form-field>
         <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
-              [disabled]="!(meta.unsharedFilterField.columnName)" (keyup.enter)="handleChangeUnsharedFilterValue()">
+            [disabled]="!(meta.unsharedFilterField.columnName)" (keyup.enter)="handleChangeUnsharedFilterValue()">
     </mat-form-field>
 
     <button mat-icon-button matTooltip="Remove Unshared Filter" matTooltipPosition="below" (click)="handleRemoveUnsharedFilter()"

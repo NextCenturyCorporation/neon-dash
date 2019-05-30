@@ -167,11 +167,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
         // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldMetaData objects.
-        let fields = neonUtilities.flatten(options.metadataFields).map((item) => {
-            return item.field;
-        }).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
-            return item.field;
-        }));
+        let fields = neonUtilities.flatten(options.metadataFields).map((item) => item.field)
+            .concat(neonUtilities.flatten(options.popoutFields).map((item) => item.field));
 
         if (fields.length) {
             this.searchService.updateFields(query, fields);
@@ -218,29 +215,24 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
-            neonUtilities.flatten(options.popoutFields));
+            neonUtilities.flatten(options.popoutFields)
+        );
 
-        if (!configFields.some((configField) => {
-            return configField.field === options.dataField.columnName;
-        })) {
+        if (!configFields.some((configField) => configField.field === options.dataField.columnName)) {
             configFields.splice(0, 0, {
                 field: options.dataField.columnName,
                 name: options.dataField.prettyName
             });
         }
 
-        if (options.dateField.columnName && !configFields.some((configField) => {
-            return configField.field === options.dateField.columnName;
-        })) {
+        if (options.dateField.columnName && !configFields.some((configField) => configField.field === options.dateField.columnName)) {
             configFields.push({
                 field: options.dateField.columnName,
                 name: options.dateField.prettyName
             });
         }
 
-        if (options.idField.columnName && !configFields.some((configField) => {
-            return configField.field === options.idField.columnName;
-        })) {
+        if (options.idField.columnName && !configFields.some((configField) => configField.field === options.idField.columnName)) {
             configFields.push({
                 field: options.idField.columnName,
                 name: options.idField.prettyName
@@ -276,7 +268,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     populateActiveItem(activeItem: { data: any, rows: { name: string, text: string }[] }, responseItem: any,
         configFields: { name?: string, field: string, arrayFilter?: any }[], field: string, name: string = '', arrayFilter: any = null,
         nested: boolean = false) {
-
         let activeItemData = neonUtilities.deepFind(responseItem, field);
         if (!nested) {
             activeItem.data[field] = activeItemData;
@@ -297,9 +288,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
                 // Must validate the nested property of the item.
                 if (activeItemData.hasOwnProperty(property)) {
                     // Ignore properties that are defined in the config.
-                    let existsInConfig = configFields.some((configField) => {
-                        return configField.field === field + '.' + property;
-                    });
+                    let existsInConfig = configFields.some((configField) => configField.field === field + '.' + property);
                     if (!existsInConfig) {
                         this.populateActiveItem(activeItem, responseItem, configFields, field + '.' + property, '', arrayFilter, true);
                     }
@@ -374,7 +363,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         if (filter && filter.filterType === '!=') {
-            let matches = true;
             for (let item of filter.filterFor) {
                 let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? record : record[filter.filterOn];
                 if (fieldToFilter === item) {

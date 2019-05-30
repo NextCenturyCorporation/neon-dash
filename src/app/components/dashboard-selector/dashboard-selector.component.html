@@ -4,12 +4,12 @@
     </button>
     <div class="dashboard-selector-container">
         <div class="neon-form-field">
-            <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards"
-                (selectionChange)="setDashboardChoice($event)">
+            <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards" (selectionChange)="setDashboardChoice($event)">
             </app-dashboard-dropdown>
         </div>
         <div class="neon-form-field button-row">
-            <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply </button>
+            <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply
+            </button>
         </div>
     </div>
 </mat-sidenav-container>

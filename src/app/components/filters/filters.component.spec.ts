@@ -76,8 +76,10 @@ describe('Component: Filters', () => {
     it('closeFiltersDialog() emits boolean when called', (() => {
         spyOn(component.closeDialog, 'emit');
         component.closeFiltersDialog();
+        /* eslint-disable @typescript-eslint/unbound-method */
         expect(component.closeDialog.emit).toHaveBeenCalled();
         expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
+        /* eslint-enable @typescript-eslint/unbound-method */
     }));
 
     it('filter-builder is shown when showFilterBuilderView is true', (() => {

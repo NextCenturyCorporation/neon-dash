@@ -13,7 +13,6 @@
  * limitations under the License.
  *
  */
-import { NgGridItemConfig } from 'angular2-grid';
 
 /**
  * The config options of an individual widget for the angular2-grid.

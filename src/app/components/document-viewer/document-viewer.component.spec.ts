@@ -186,15 +186,6 @@ describe('Component: DocumentViewer', () => {
         component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         component.options.dateField = DatasetServiceMock.DATE_FIELD;
         component.options.idField = DatasetServiceMock.ID_FIELD;
-        let response = {
-            data: [
-            ]
-        };
-        let docCountResponse = {
-            data: [{
-                _docCount: 2
-            }]
-        };
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testTextField: 'text1',
@@ -268,7 +259,8 @@ describe('Component: DocumentViewer', () => {
     it('createTableRowText given string field does return expected string', () => {
         expect(component.createTableRowText('A')).toEqual('A');
         expect(component.createTableRowText('The quick brown fox jumps over the lazy dog.')).toEqual(
-            'The quick brown fox jumps over the lazy dog.');
+            'The quick brown fox jumps over the lazy dog.'
+        );
     });
 
     it('createTableRowText given date field does return expected string', () => {
@@ -300,11 +292,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -312,11 +304,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('return when matching (1)');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1)');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -324,11 +316,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('return when matching (1), return when matching (2)');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1), return when matching (2)');
     });
 
     it('createTableRowText given an empty string, empty array, any object, or null does return empty string', () => {
@@ -905,7 +897,8 @@ describe('Component: Document Viewer with Config', () => {
             { provide: 'dateField', useValue: 'testDateField' },
             { provide: 'idField', useValue: 'testIdField' },
             {
-                provide: 'metadataFields', useValue: [
+                provide: 'metadataFields',
+                useValue: [
                     [{
                         name: 'Single Item Metadata Row',
                         field: 'singleItemMetadataRow'

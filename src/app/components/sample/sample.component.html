@@ -28,12 +28,13 @@
                 <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
                     {{ item.label }}: {{ item.count }}
                 </span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
-                    [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter" [matTooltip]="'Add Filter on ' + item.value"
+                    tooltip-position="below" (click)="filterOnItem(item, false)">
                     <mat-icon class="neon-icon-small">search</mat-icon>
                 </button>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
-                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
+                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below"
+                    (click)="filterOnItem(item, true)">
                     <mat-icon class="neon-icon-small">find_replace</mat-icon>
                 </button>
             </div>

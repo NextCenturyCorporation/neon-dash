@@ -1,11 +1,12 @@
-@import '~@angular/material/_theming';
+@import '~@angular/material/_theming'; // sass-lint:disable-line clean-import-paths
 @import 'themes/neon-dark-theme';
 @import 'themes/neon-green-theme';
 @import 'themes/neon-teal-theme';
 
-@include mat-core();
+@include mat-core(); // sass-lint:disable-line empty-args
 
-html, body {
+html,
+body {
     padding: 0;
     margin: 0;
 }
@@ -15,7 +16,7 @@ body {
     height: 100%;
     background-color: var(--color-background, white);
     color: var(--color-text-main, dimgrey);
-    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
 .app-loading {
@@ -30,6 +31,7 @@ body {
     width: 100vw;
     top: 0;
     left: 0;
+
     .spinner {
         height: 200px;
         width: 200px;
@@ -38,11 +40,12 @@ body {
         position: absolute;
         left: calc(50vw - 100px);
         top: calc(50vh - 100px);
+
         .path {
             stroke-dasharray: 89, 200;
             stroke-dashoffset: -35px;
             stroke-linecap: round;
-            stroke: #ddd;
+            stroke: #DDDDDD;
         }
     }
 }
@@ -55,10 +58,10 @@ body {
 
 @font-face {
     font-family: 'Material Icons';
-    src: url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2); /* For IE6-8 */
-    src: local('Material Icons'),
-      local('MaterialIcons-Regular'),
-      url(assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
+    src: url('assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2'); /* For IE6-8 */
+    src: local('Material Icons'), /* sass-lint:disable-line no-duplicate-properties */
+    local('MaterialIcons-Regular'),
+    url('assets/Material/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2') format('woff2');
 }
 
 .material-icons {
@@ -84,24 +87,24 @@ body {
 
     /* Support for IE. */
     font-feature-settings: 'liga';
-}
 
-/* Rules for using icons as black on a light background. */
-.material-icons.mat-dark {
-    color: rgba(0, 0, 0, 0.54);
-}
+    /* Rules for using icons as black on a light background. */
+    &.mat-dark {
+        color: rgba(0, 0, 0, 0.54);
 
-.material-icons.mat-dark.mat-inactive {
-    color: rgba(0, 0, 0, 0.26);
-}
+        &.mat-inactive {
+            color: rgba(0, 0, 0, 0.26);
+        }
+    }
 
-/* Rules for using icons as white on a dark background. */
-.material-icons.mat-light {
-    color: rgba(255, 255, 255, 1);
-}
+    /* Rules for using icons as white on a dark background. */
+    &.mat-light {
+        color: rgba(255, 255, 255, 1);
 
-.material-icons.mat-light.mat-inactive {
-    color: rgba(255, 255, 255, 0.3);
+        &.mat-inactive {
+            color: rgba(255, 255, 255, 0.3);
+        }
+    }
 }
 
 /* General layout styles. */
@@ -126,10 +129,10 @@ body {
 .grid-item {
     border-radius: 5px;
     background-color: inherit !important;
-}
 
-.grid-item.moving {
-    z-index: z-index + 1;
+    &.moving {
+        z-index: z-index + 1;
+    }
 }
 
 .placeholder {
@@ -156,7 +159,7 @@ body {
     margin: 5px;
 }
 
-.neon-icon-navBar {
+.neon-icon-navBar { // sass-lint:disable-line class-name-format
     display: inline-block;
     vertical-align: middle;
     width: 25px;
@@ -173,7 +176,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0,0,0,.1);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 100;
 }
 
@@ -195,7 +198,7 @@ body {
     min-width: unset !important;
     padding: 5px 10px !important;
 
-    > * {
+    > * { // sass-lint:disable-line no-universal-selectors
         vertical-align: bottom !important;
     }
 
@@ -240,8 +243,12 @@ body {
             border-radius: 0 10px 10px 0 !important;
         }
 
-        &:hover:not(.mat-button-toggle-checked):not(.mat-button-toggle-disabled) {
-            background-color: var(--color-accent, lightgrey) !important;
+        &:hover {
+            &:not(.mat-button-toggle-checked) {
+                &:not(.mat-button-toggle-disabled) {
+                    background-color: var(--color-accent, lightgrey) !important;
+                }
+            }
         }
     }
 
@@ -367,7 +374,7 @@ body {
     height: 40px !important;
 
     &.mat-2-line {
-      height: 50px !important;
+        height: 50px !important;
     }
 }
 
@@ -386,8 +393,10 @@ body {
     padding: 5px 10px !important;
 }
 
-.mat-nav-list .mat-list-item-content {
-    padding: 5px 20px !important;
+.mat-nav-list {
+    .mat-list-item-content {
+        padding: 5px 20px !important;
+    }
 }
 
 
@@ -396,8 +405,10 @@ body {
     background-color: white;
     color: #333333;
 
-    .mat-option:hover {
-        background-color: #999999;
+    .mat-option {
+        &:hover {
+            background-color: #999999;
+        }
     }
 }
 
@@ -431,7 +442,7 @@ body {
     padding: 5px 10px !important;
 }
 
-.mat-tab-label:hover,
+.mat-tab-label:hover, // sass-lint:disable-line force-pseudo-nesting
 .mat-tab-label-active {
     background-color: var(--color-background-contrast);
 }
@@ -475,7 +486,7 @@ body {
     padding: 5px;
 }
 
-.simpleSnackBar {
+.simpleSnackBar { // sass-lint:disable-line class-name-format
     background-color: var(--color-accent, grey) !important;
     color: var(--color-accent-contrast, white);
 

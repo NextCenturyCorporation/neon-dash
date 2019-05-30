@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -27,17 +27,14 @@ import { FilterService } from '../../services/filter.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: DataTable', () => {
-    let component: DataTableComponent,
-        fixture: ComponentFixture<DataTableComponent>,
-        getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
-        getService = (type: any) => fixture.debugElement.injector.get(type);
+    let component: DataTableComponent;
+    let fixture: ComponentFixture<DataTableComponent>;
 
     initializeTestBed('Data Table', {
         providers: [
@@ -64,62 +61,62 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
 
         component.options.arrayFilterOperator = 'or';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
 
         component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[2].filterDesign as any).operator).toEqual('=');
-        expect((actual[2].filterDesign as any).value).toBeUndefined();
-        expect((actual[3].filterDesign as any).type).toEqual('or');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[2].filterDesign).operator).toEqual('=');
+        expect((actual[2].filterDesign).value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('or');
+        expect((actual[3].filterDesign).filters.length).toEqual(1);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
     });
 
     it('onResize does call refreshVisualization', () => {
@@ -212,7 +209,6 @@ describe('Component: DataTable', () => {
         expect(component.headers[3].style).toEqual({});
         expect(component.headers[3].cellClass).toBeDefined();
         expect(component.headers[3].width).toEqual(150);
-
     });
 
     it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
@@ -303,9 +299,9 @@ describe('Component: DataTable', () => {
             style: {},
             cellClass: ''
         }];
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[0]['width'] = 50000;
-        /* tslint:enable:no-string-literal */
 
         component.headers = [{
             prop: 'createdDate',
@@ -326,20 +322,24 @@ describe('Component: DataTable', () => {
         expect(component.headers[0].active).toBeTruthy();
         expect(component.headers[0].style).toEqual({});
         expect(component.headers[0].cellClass).toEqual('');
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         expect(component.headers[0]['width']).toBeLessThan(50000);
+        /* eslint-disable-next-line dot-notation */
         expect(component.headers[0]['$$oldWidth']).toBeLessThan(50000);
-        /* tslint:enable:no-string-literal */
+
         expect(component.activeHeaders.length).toBe(1);
         expect(component.activeHeaders[0].prop).toEqual('createdDate');
         expect(component.activeHeaders[0].name).toEqual('Date Created');
         expect(component.activeHeaders[0].active).toBeTruthy();
         expect(component.activeHeaders[0].style).toEqual({});
         expect(component.activeHeaders[0].cellClass).toEqual('');
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         expect(component.activeHeaders[0]['width']).toBeLessThan(50000);
+        /* eslint-disable-next-line dot-notation */
         expect(component.activeHeaders[0]['$$oldWidth']).toBeLessThan(50000);
-        /* tslint:enable:no-string-literal */
+
         expect(component.headerWidths.get('createdDate')).toBeLessThan(50000);
         expect(spy).toHaveBeenCalled();
     });
@@ -664,7 +664,7 @@ describe('Component: DataTable', () => {
     });
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is 1', () => {
-        component.options.fields = component.options.fields = [
+        component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
@@ -681,7 +681,7 @@ describe('Component: DataTable', () => {
     });
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
-        component.options.fields = component.options.fields = [
+        component.options.fields = [
             new FieldMetaData('_id', 'id', false, 'number'),
             new FieldMetaData('category', 'Category', false, 'string'),
             new FieldMetaData('testField', 'Test Field', false, 'string')
@@ -1217,7 +1217,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1278,7 +1278,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1339,7 +1339,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1393,10 +1393,11 @@ describe('Component: DataTable', () => {
             style: {},
             cellClass: ''
         }];
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[0]['width'] = 75;
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[1]['width'] = 150;
-        /* tslint:enable:no-string-literal */
 
         component.onTableResize({ column: { prop: 'someField', width: 100 }, newValue: 50 });
 
@@ -1603,11 +1604,9 @@ describe('Component: DataTable', () => {
             active: false
         });
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === DatasetServiceMock.FILTER_FIELD && filterDesign.operator === '=' &&
-                (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.database === component.options.database &&
+            filterDesign.table === component.options.table && filterDesign.field === DatasetServiceMock.FILTER_FIELD &&
+            filterDesign.operator === '=' && (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'
@@ -1641,13 +1640,11 @@ describe('Component: DataTable', () => {
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'and';
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.type === 'and' && filterDesign.filters && filterDesign.filters.length === 1 &&
-                filterDesign.filters[0].database === component.options.database &&
-                filterDesign.filters[0].table === component.options.table &&
-                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
-                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'and' && filterDesign.filters &&
+            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
+            filterDesign.filters[0].table === component.options.table &&
+            filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
+            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'
@@ -1681,13 +1678,11 @@ describe('Component: DataTable', () => {
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'or';
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.type === 'or' && filterDesign.filters && filterDesign.filters.length === 1 &&
-                filterDesign.filters[0].database === component.options.database &&
-                filterDesign.filters[0].table === component.options.table &&
-                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
-                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'or' && filterDesign.filters &&
+            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
+            filterDesign.filters[0].table === component.options.table &&
+            filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
+            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'

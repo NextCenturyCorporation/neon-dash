@@ -130,15 +130,9 @@ describe('WidgetOptionCollection', () => {
     it('findField does work as expected if given an array index', () => {
         options.fields = DatasetServiceMock.FIELDS;
 
-        let dateIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
-            return fieldObject.columnName === 'testDateField';
-        });
-        let nameIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
-            return fieldObject.columnName === 'testNameField';
-        });
-        let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => {
-            return fieldObject.columnName === 'testSizeField';
-        });
+        let dateIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testDateField');
+        let nameIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testNameField');
+        let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testSizeField');
 
         expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
         expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
@@ -322,12 +316,10 @@ describe('WidgetOptionCollection with custom fields', () => {
     });
 
     beforeEach(() => {
-        options = new WidgetOptionCollection(() => {
-            return [
-                new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-                new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
-            ];
-        }, ReflectiveInjector.resolveAndCreate([]));
+        options = new WidgetOptionCollection(() => [
+            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
+        ], ReflectiveInjector.resolveAndCreate([]));
     });
 
     it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
@@ -401,12 +393,10 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
     });
 
     beforeEach(() => {
-        options = new WidgetOptionCollection(() => {
-            return [
-                new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-                new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
-            ];
-        }, ReflectiveInjector.resolveAndCreate([{
+        options = new WidgetOptionCollection(() => [
+            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
+        ], ReflectiveInjector.resolveAndCreate([{
             provide: 'tableKey',
             useValue: 'table_key_2'
         }, {

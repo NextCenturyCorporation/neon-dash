@@ -17,24 +17,24 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UnsharedFilterComponent } from './unshared-filter.component';
 import {
-  MatFormFieldModule, MatSelectModule, MatInputModule,
-  MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule
+    MatFormFieldModule, MatSelectModule, MatInputModule,
+    MatToolbarModule, MatTooltipModule, MatIconModule, MatButtonModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [UnsharedFilterComponent],
-  exports: [UnsharedFilterComponent],
-  imports: [
-    MatFormFieldModule,
-    MatButtonModule,
-    MatInputModule,
-    MatIconModule,
-    MatSelectModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [UnsharedFilterComponent],
+    exports: [UnsharedFilterComponent],
+    imports: [
+        MatFormFieldModule,
+        MatButtonModule,
+        MatInputModule,
+        MatIconModule,
+        MatSelectModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class UnsharedFilterModule { }

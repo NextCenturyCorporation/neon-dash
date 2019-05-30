@@ -19,14 +19,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { AboutNeonComponent } from './about-neon.component';
 
 @NgModule({
-  declarations: [
-    AboutNeonComponent
-  ],
-  entryComponents: [AboutNeonComponent],
-  exports: [AboutNeonComponent],
-  imports: [
-    HttpClientModule,
-    CommonModule
-  ]
+    declarations: [
+        AboutNeonComponent
+    ],
+    entryComponents: [AboutNeonComponent],
+    exports: [AboutNeonComponent],
+    imports: [
+        HttpClientModule,
+        CommonModule
+    ]
 })
 export class AboutNeonModule { }

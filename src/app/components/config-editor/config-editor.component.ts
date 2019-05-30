@@ -21,7 +21,6 @@ import { NeonGTDConfig } from './../../neon-gtd-config';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
 
-import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import { ConfigService } from '../../services/config.service';
 
@@ -33,7 +32,6 @@ import { ConfigService } from '../../services/config.service';
     ]
 })
 export class ConfigEditorComponent implements OnInit {
-
     public CONFIG_PROP_NAME: string = 'config';
     public currentConfig: NeonGTDConfig;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
@@ -63,7 +61,7 @@ export class ConfigEditorComponent implements OnInit {
         const json = JSON.stringify(settings);
 
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, json,
-            (response) => {
+            (_response) => {
                 this.configService.set(settings);
                 this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
@@ -75,26 +73,26 @@ export class ConfigEditorComponent implements OnInit {
                 });
                 console.warn('Error attempting to save configuration:');
                 console.warn(response);
-            }
-        );
+            });
     }
 
     public delete() {
+        // TODO Replace confirm with angular component
+        /* eslint-disable-next-line no-alert */
         if (window.confirm('Are you sure you want to delete this?')) {
-            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
+            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (_response) => {
                 this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
                     'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
-                        duration: this.DEFAULT_SNACK_BAR_DURATION
-                    }
-                );
-            },
-                (response) => {
-                    this.snackBar.open('Error attempting to delete property configuration', 'OK', {
-                        duration: this.DEFAULT_SNACK_BAR_DURATION
-                    });
-                    console.warn('Error attempting to delete property configuration:');
-                    console.warn(response);
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
+            },
+            (response) => {
+                this.snackBar.open('Error attempting to delete property configuration', 'OK', {
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                });
+                console.warn('Error attempting to delete property configuration:');
+                console.warn(response);
+            });
         }
     }
 
