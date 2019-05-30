@@ -497,7 +497,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
-        // this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.openOptionMenu.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
