@@ -1,0 +1,291 @@
+parser: '@typescript-eslint/parser'
+parserOptions:
+    project: './tsconfig.json'
+env:
+    browser: true
+    es6: true
+    jasmine: true
+    node: true
+plugins:
+    - '@typescript-eslint'
+extends: 
+    # ESLint rules https://eslint.org/docs/rules/
+    - 'eslint:recommended'
+    # Typescript rules https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
+    - 'plugin:@typescript-eslint/recommended'
+rules:
+    # ESLint recommended rules
+    no-console:
+        - error
+        - allow:
+            - warn
+            - error
+    no-inner-declarations: off
+
+    # ESLint other rules
+    array-callback-return: error
+    array-bracket-newline:
+        - error
+        - consistent
+    array-bracket-spacing: error
+    array-element-newline:
+        - error
+        - consistent
+    arrow-body-style: error
+    arrow-parens: error
+    arrow-spacing: error
+    block-scoped-var: error
+    block-spacing: error
+    brace-style: error
+    capitalized-comments:
+        - error
+        - always
+        - ignoreConsecutiveComments: true
+    # class-methods-use-this: error # TODO THOR-1210
+    comma-dangle: error
+    comma-spacing: error
+    comma-style: error
+    complexity:
+        - error
+        - 25 # TODO THOR-1205 This should probably be less...
+    computed-property-spacing: error
+    consistent-return: error
+    curly: error
+    dot-location:
+        - error
+        - property
+    # dot-notation: error # TODO THOR-1212
+    eol-last: error
+    eqeqeq: error
+    func-call-spacing: error
+    func-style:
+        - error
+        - declaration
+        - allowArrowFunctions: true
+    function-paren-newline:
+        - error
+        - consistent
+    generator-star-spacing: error
+    guard-for-in: error
+    key-spacing: error
+    keyword-spacing: error
+    linebreak-style: error
+    lines-around-comment:
+        - error
+        - beforeBlockComment: true
+          allowArrayStart: true
+          allowBlockStart: true
+          allowClassStart: true
+          allowObjectStart: true
+    lines-between-class-members:
+        - error
+        - always
+        - exceptAfterSingleLine: true
+    max-len:
+        - error
+        - code: 140
+          ignoreComments: false
+          ignoreUrls: false
+          ignoreStrings: false
+          ignoreTemplateLiterals: false
+          ignoreRegExpLiterals: false
+    max-statements-per-line: error
+    # new-cap: error # Can't have this rule because of Angular annotations
+    new-parens: error
+    no-alert: error
+    no-array-constructor: error
+    no-await-in-loop: error
+    no-bitwise: error
+    no-caller: error
+    no-continue: error
+    no-div-regex: error
+    no-duplicate-imports: error
+    no-else-return: error
+    no-empty-function:
+        - error
+        - allow:
+            - constructors
+    no-eq-null: error
+    no-eval: error
+    no-extend-native: error
+    no-extra-bind: error
+    no-extra-label: error
+    no-floating-decimal: error
+    no-implied-eval: error
+    no-invalid-this: error
+    no-iterator: error
+    no-label-var: error
+    no-labels: error
+    no-lone-blocks: error
+    no-lonely-if: error
+    no-loop-func: error
+    no-multi-assign: error
+    no-multi-spaces: error
+    no-multi-str: error
+    no-multiple-empty-lines:
+        - error
+        - max: 1
+    no-new: error
+    no-new-func: error
+    no-new-object: error
+    no-new-wrappers: error
+    no-octal-escape: error
+    no-param-reassign: error
+    no-proto: error
+    no-restricted-globals: error
+    no-return-assign: error
+    no-return-await: error
+    no-script-url: error
+    no-self-compare: error
+    no-sequences: error
+    no-shadow:
+        - error
+        - hoist: never
+    no-shadow-restricted-names: error
+    no-tabs: error
+    no-template-curly-in-string: error
+    no-throw-literal: error
+    no-trailing-spaces: error
+    no-unmodified-loop-condition: error
+    no-undef-init: error
+    no-unneeded-ternary: error
+    no-unused-expressions: error
+    no-useless-call: error
+    no-useless-catch: error
+    no-useless-computed-key: error
+    no-useless-concat: error
+    no-useless-rename: error
+    no-useless-return: error
+    no-var: error
+    no-void: error
+    no-whitespace-before-property: error
+    no-with: error
+    object-curly-newline: error
+    object-curly-spacing:
+        - error
+        - always
+    object-property-newline:
+        - error
+        - allowAllPropertiesOnSameLine: true
+    one-var:
+        - error
+        - never
+    operator-assignment: error
+    operator-linebreak:
+        - error
+        - after
+    padded-blocks:
+        - error
+        - never
+    # padding-line-between-statements # TODO THOR-1206 Should we have this?
+    prefer-arrow-callback:
+        - error
+        - allowNamedFunctions: true
+    prefer-numeric-literals: error
+    prefer-object-spread: error
+    prefer-promise-reject-errors: error
+    quote-props:
+        - error
+        - 'consistent-as-needed'
+    quotes:
+        - error
+        - single
+    radix: error
+    require-atomic-updates: error
+    require-await: error
+    semi: error
+    semi-spacing: error
+    semi-style: error
+    # sort-imports: # TODO THOR-1207
+    # - error
+    # - ignoreCase: true
+    space-before-blocks: error
+    space-before-function-paren:
+        - error
+        - never
+    space-in-parens: error
+    space-infix-ops: error
+    space-unary-ops: error
+    spaced-comment: error
+    switch-colon-spacing: error
+    symbol-description: error
+    template-curly-spacing: error
+    template-tag-spacing: error
+    unicode-bom: error
+    vars-on-top: error
+    wrap-iife: error
+    wrap-regex: error
+    yield-star-spacing: error
+    yoda: error
+
+    # Typescript recommended rules
+    '@typescript-eslint/camelcase':
+        - error
+        - allow:
+            - '.*key.*'
+            - '.*id.*'
+            # Angular2-Grid properties
+            - auto_resize
+            - auto_style
+            - fix_to_grid
+            - limit_to_screen
+            - maintain_ratio
+            - max_cols
+            - max_rows
+            - min_cols
+            - min_height
+            - min_rows
+            - min_width
+            - resize_directions
+            - row_height
+            # Custom
+            - saved_state
+    '@typescript-eslint/explicit-function-return-type': off # TODO THOR-1208
+    '@typescript-eslint/explicit-member-accessibility': off # TODO THOR-1208
+    '@typescript-eslint/member-delimiter-style':
+        - error
+        - multiline:
+            delimiter: semi
+            requireLast: true
+          singleline:
+            delimiter: comma
+            requireLast: false
+    '@typescript-eslint/no-explicit-any': off # TODO THOR-1211
+    '@typescript-eslint/no-inferrable-types': error
+    '@typescript-eslint/no-namespace': off
+    '@typescript-eslint/no-object-literal-type-assertion': off
+    '@typescript-eslint/no-parameter-properties': off
+    '@typescript-eslint/no-unused-vars':
+        - error
+        - vars: all
+          args: none
+          ignoreRestSiblings: false
+          argsIgnorePattern: '^_'
+    '@typescript-eslint/no-use-before-define': off
+
+    # Typescript other rules
+    '@typescript-eslint/await-thenable': error
+    '@typescript-eslint/ban-ts-ignore': error
+    '@typescript-eslint/func-call-spacing': error
+    '@typescript-eslint/generic-type-naming': error
+    #'@typescript-eslint/member-naming': error # TODO THOR-1209
+    '@typescript-eslint/member-ordering':
+        - error
+        - default:
+            - static-field
+            - instance-field
+            - static-method
+            - constructor
+            - instance-method
+    '@typescript-eslint/no-for-in-array': error
+    '@typescript-eslint/no-require-imports': error
+    '@typescript-eslint/no-this-alias': error
+    '@typescript-eslint/no-unnecessary-qualifier': error
+    '@typescript-eslint/no-unnecessary-type-assertion': error
+    '@typescript-eslint/no-useless-constructor': error
+    '@typescript-eslint/prefer-for-of': error
+    '@typescript-eslint/prefer-function-type': error
+    '@typescript-eslint/prefer-regexp-exec': error
+    '@typescript-eslint/semi': error
+    '@typescript-eslint/unbound-method': error
+    '@typescript-eslint/unified-signatures': error

@@ -1,6 +1,7 @@
 <form class="gear-container" #optionsFOrm="ngForm">
     <mat-form-field class="option-container">
-        <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title" (ngModelChange)="updateOnChange('title')" [name]="modifiedOptions._id + '_title'" required="false">
+        <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title" (ngModelChange)="updateOnChange('title')"
+            [name]="modifiedOptions._id + '_title'" required="false">
     </mat-form-field>
 
     <!-- MultiLayer Support-->
@@ -15,13 +16,15 @@
             <mat-toolbar class="subheader tappable" color="primary" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="spacer" *ngIf="modifiedOptions.layers.length > 1"></span>
-                <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1" (click)="handleDeleteLayer(layer)">delete</mat-icon>
+                <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1" (click)="handleDeleteLayer(layer)">delete
+                </mat-icon>
                 <span class="spacer"></span>
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
             <div class="option-well" [hidden]="layerHidden.get(layer._id)">
                 <mat-form-field class="option-container">
-                    <input matInput placeholder="Title" [(ngModel)]="layer.title" (ngModelChange)="updateOnChange('title')" [name]="layer._id + '_title'" required="false">
+                    <input matInput placeholder="Title" [(ngModel)]="layer.title" (ngModelChange)="updateOnChange('title')"
+                        [name]="layer._id + '_title'" required="false">
                 </mat-form-field>
 
                 <mat-form-field class="option-container">
@@ -38,7 +41,8 @@
                     </mat-select>
                 </mat-form-field>
 
-                <app-options-list [options]=layer [fields]=layer.fields [bindingsList]=getLayerList(layer) [updateOnChange]=updateOnChange.bind(this) [index]=i>
+                <app-options-list [options]=layer [fields]=layer.fields [bindingsList]=getLayerList(layer)
+                    [updateOnChange]=updateOnChange.bind(this) [index]=i>
                 </app-options-list>
             </div>
         </div>
@@ -51,8 +55,9 @@
     <!-- Non MultiLayer Support-->
     <div class="option-well">
         <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
-            <mat-select placeholder="Database" [(ngModel)]="modifiedOptions.database" required="true" [name]="modifiedOptions._id + '_database'"
-                (ngModelChange)="handleChangeDatabase(modifiedOptions)" [disabled]="modifiedOptions.databases.length < 2">
+            <mat-select placeholder="Database" [(ngModel)]="modifiedOptions.database" required="true"
+                [name]="modifiedOptions._id + '_database'" (ngModelChange)="handleChangeDatabase(modifiedOptions)"
+                [disabled]="modifiedOptions.databases.length < 2">
                 <mat-option *ngFor="let database of modifiedOptions.databases" [value]="database">{{ database.prettyName }}</mat-option>
             </mat-select>
         </mat-form-field>
@@ -65,11 +70,13 @@
         </mat-form-field>
 
         <!-- Required Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredList [updateOnChange]=updateOnChange.bind(this)>
+        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredList
+            [updateOnChange]=updateOnChange.bind(this)>
         </app-options-list>
 
         <!-- Required Non-Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredListNonField [updateOnChange]=updateOnChange.bind(this)>
+        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredListNonField
+            [updateOnChange]=updateOnChange.bind(this)>
         </app-options-list>
     </div>
 
@@ -81,11 +88,13 @@
 
     <div class="option-well" [hidden]="collapseOptionalOptions">
         <!-- Optional Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalList [updateOnChange]=updateOnChange.bind(this)>
+        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalList
+            [updateOnChange]=updateOnChange.bind(this)>
         </app-options-list>
 
         <!-- Optional Non-Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalListNonField [updateOnChange]=updateOnChange.bind(this)>
+        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalListNonField
+            [updateOnChange]=updateOnChange.bind(this)>
         </app-options-list>
     </div>
 
@@ -93,12 +102,12 @@
 </form>
 
 <div class="button-footer" align="right">
-    <button mat-raised-button class="neon-button-large" color="primary"
-    matTooltipPosition="below" matTooltip="Cancel all field changes" (click)="resetOptionsAndClose()">
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Cancel all field changes"
+        (click)="resetOptionsAndClose()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary"
-    matTooltipPosition="below" matTooltip="Apply all field changes" [disabled]="!changeMade" (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Apply all field changes"
+        [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>

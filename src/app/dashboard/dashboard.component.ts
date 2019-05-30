@@ -25,7 +25,6 @@ import {
     ViewContainerRef
 } from '@angular/core';
 
-import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
 import * as uuidv4 from 'uuid/v4';
 
@@ -43,7 +42,6 @@ import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { ParameterService } from '../services/parameter.service';
-import { SaveStateComponent } from '../components/save-state/save-state.component';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
@@ -59,7 +57,6 @@ export function DashboardModified() {
             }
             return fn.call(this, ...args);
         };
-        return;
     };
 }
 
@@ -80,14 +77,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
     @ViewChild('sideNavRight') sideNavRight: MatSidenav;
 
-    public updatedData = false;
+    public updatedData = 0;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFiltersComponent: boolean = false;
     public showFilterTray: boolean = false;
 
-    //Toolbar
+    // Toolbar
     public showVisualizationsShortcut: boolean = true;
     public showDashboardSelector: boolean = false;
 
@@ -99,7 +96,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public createGear: boolean = true;
     public createSavedState: boolean = false;
     public createSettings: boolean = false;
-    public createFiltersComponent: boolean = false; //This is used to create the Filters Component later
+    public createFiltersComponent: boolean = false; // This is used to create the Filters Component later
 
     public dashboards: Dashboard;
     public currentDashboard: Dashboard;
@@ -107,8 +104,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public selectedTabIndex = 0;
     public tabbedGrid: {
-        list: NeonGridItem[],
-        name: string
+        list: NeonGridItem[];
+        name: string;
     }[] = [{
         list: [],
         name: ''
@@ -126,7 +123,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         min_width: 50,
         min_height: 50,
         row_height: 54,
-        maintain_ratio: false, //NOTE!!!!! I changed this to false because it messes with the row height when it is true
+        maintain_ratio: false, // NOTE!!!!! I changed this to false because it messes with the row height when it is true
         auto_style: true,
         auto_resize: true,
         cascade: 'up',
@@ -294,10 +291,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     changeFavicon() {
-        let favicon = document.createElement('link'),
-            faviconShortcut = document.createElement('link'),
-            title = document.createElement('title'),
-            head = document.querySelector('head');
+        let favicon = document.createElement('link');
+        let faviconShortcut = document.createElement('link');
+        let title = document.createElement('title');
+        let head = document.querySelector('head');
 
         favicon.setAttribute('rel', 'icon');
         favicon.setAttribute('type', 'image/x-icon');
@@ -415,9 +412,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @private
      */
     private getGridElement() {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         return this.grid['_ngEl'];
-        /* tslint:enable:no-string-literal */
     }
 
     /**
@@ -497,6 +493,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let gearContainer: HTMLElement = document.getElementById('gear');
 
         gearContainer.setAttribute('style', 'display: none');
+
         /* NOTE:
          * The gear component is created when the app component is created because if it is created when
          * a component sends its option object in the messenger channel, it is too late.
@@ -521,11 +518,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messageReceiver.subscribe((eventing as any).channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
+        this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
-        this.messageReceiver.subscribe(neonEvents.DASHBOARD_REFRESH, this.refreshDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.openOptionMenu.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
@@ -544,7 +540,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @DashboardModified()
     onDragStop(i, event) {
-        this.showItemLocation(event);
+        // Do nothing.
     }
 
     onResizeStart(i, event) {
@@ -553,7 +549,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @DashboardModified()
     onResizeStop(i, event) {
-        this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
     }
 
@@ -608,7 +603,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Refreshes all of the visualizations in the dashboard.
      */
     public refreshDashboard() {
-        this.updatedData = false;
+        this.updatedData = 0;
         this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
     }
 
@@ -622,8 +617,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Indicates to the dashboard that there is new data available
      */
-    dataAvailableDashboard() {
-        this.updatedData = true;
+    dataAvailableDashboard(event: { message: MessageEvent }) {
+        this.updatedData += (JSON.parse(event.message.data).count || 1);
     }
 
     /**
@@ -750,18 +745,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         } else {
             this.toggleDashboardSelectorDialog(true);
         }
-    }
-
-    showItemLocation(event) {
-        /**
-         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
-         * as you move grid items.  It should not be in production code.
-         * if (event == null) {
-         *   return;
-         * }
-         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
-         * console.log(str);
-         */
     }
 
     /**

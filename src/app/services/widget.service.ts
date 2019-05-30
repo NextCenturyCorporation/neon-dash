@@ -15,7 +15,6 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
-import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { Color, ColorSet } from '../color';
 import { DatasetService } from './dataset.service';
 import { neonEvents } from '../neon-namespaces';
@@ -44,7 +43,7 @@ export class NeonTheme implements Theme {
 export class WidgetService extends AbstractWidgetService {
     public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
     public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
-        public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
+    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
@@ -174,7 +173,6 @@ export class WidgetService extends AbstractWidgetService {
                 });
             });
         }
-
     }
 
     /**

@@ -106,7 +106,7 @@ export class GearComponent implements OnInit, OnDestroy {
         let requiredFieldList: WidgetOption[] = [];
         let optionalFieldList: WidgetOption[] = [];
 
-        optionList.forEach(function(element) {
+        optionList.forEach((element) => {
             if (element.isRequired) {
                 requiredList.push(element);
             } else {
@@ -114,14 +114,14 @@ export class GearComponent implements OnInit, OnDestroy {
             }
         });
 
-        requiredList.forEach(function(element) {
+        requiredList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 requiredFieldList.push(element);
                 requiredList.splice(requiredList.indexOf(element), 1);
             }
         });
 
-        optionalList.forEach(function(element) {
+        optionalList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 optionalFieldList.push(element);
                 optionalList.splice(optionalList.indexOf(element), 1);
@@ -301,25 +301,19 @@ export class GearComponent implements OnInit, OnDestroy {
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.bindingKey !== bindingKey;
-        });
+        newList = newList.filter((field) => field.bindingKey !== bindingKey);
         return newList;
     }
 
     private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.enableInMenu !== enableInMenu;
-        });
+        newList = newList.filter((field) => field.enableInMenu !== enableInMenu);
         return newList;
     }
 
     private removeOptionsByType(list: any[], optionType: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.optionType !== optionType;
-        });
+        newList = newList.filter((field) => field.optionType !== optionType);
         return newList;
     }
 
@@ -399,5 +393,4 @@ export class GearComponent implements OnInit, OnDestroy {
         this.resetOptions();
         this.constructOptions();
     }
-
 }

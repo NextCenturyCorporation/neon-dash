@@ -23,15 +23,15 @@ import { CommonWidgetModule } from '../../common-widget.module';
 import { MatButtonToggleModule } from '@angular/material';
 
 @NgModule({
-  declarations: [FiltersComponent],
-  exports: [FiltersComponent],
-  imports: [
-    CommonWidgetModule,
-    MatButtonToggleModule,
-    FormsModule,
-    FilterBuilderModule,
-    CurrentFiltersModule,
-    CommonModule
-  ]
+    declarations: [FiltersComponent],
+    exports: [FiltersComponent],
+    imports: [
+        CommonWidgetModule,
+        MatButtonToggleModule,
+        FormsModule,
+        FilterBuilderModule,
+        CurrentFiltersModule,
+        CommonModule
+    ]
 })
 export class FiltersModule { }

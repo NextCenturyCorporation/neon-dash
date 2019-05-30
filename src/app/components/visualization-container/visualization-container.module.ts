@@ -20,17 +20,17 @@ import { VisualizationInjectorModule } from '../visualization-injector/visualiza
 import { VisualizationContainerComponent } from './visualization-container.component';
 
 @NgModule({
-  declarations: [
-    VisualizationContainerComponent
-  ],
-  exports: [
-    VisualizationContainerComponent
-  ],
-  imports: [
-    VisualizationInjectorModule,
-    MatIconModule,
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [
+        VisualizationContainerComponent
+    ],
+    exports: [
+        VisualizationContainerComponent
+    ],
+    imports: [
+        VisualizationInjectorModule,
+        MatIconModule,
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class VisualizationContainerModule { }

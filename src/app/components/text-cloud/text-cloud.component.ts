@@ -133,7 +133,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount)
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this))
         ];
     }
 
@@ -253,7 +253,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Term' + (count === 1 ? '' : 's');
     }
 
-    private redrawText(filterDesigns: FilterDesign[]): void {
+    private redrawText(_filterDesigns: FilterDesign[]): void {
         this.textCloudData = this.textCloudData.map((item) => {
             let itemCopy = {
                 color: item.color,

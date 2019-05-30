@@ -8,7 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu"
+            tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -30,12 +31,13 @@
                     <!-- TODO Move into a subcomponent shared with the single-tab behavior -->
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                         <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" [id]="'medium' + i"
-                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
-                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i" [hidden]="!tab.loaded"
-                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+                            [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
+                            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
+                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
+                            [hidden]="!tab.loaded"
+                            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
                         <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                                    (input)="onSliderChange($event.value)"></mat-slider>
+                            (input)="onSliderChange($event.value)"></mat-slider>
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
@@ -51,7 +53,8 @@
             </mat-tab>
         </mat-tab-group>
 
-        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected" [class.with-contribution]="showContribution()">
+        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected"
+            [class.with-contribution]="showContribution()">
             <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
             <div *ngFor="let tab of tabsAndMedia">
                 <div class="viewer-text">{{ tab.name }}</div>
@@ -59,12 +62,12 @@
                     <!-- TODO Move into a subcomponent shared with the multiple-tab behavior -->
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                         <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
-                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
-                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
+                            [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
+                            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
                         <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" id="mask0" [hidden]="!tab.loaded"
-                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+                            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
                         <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                                    (input)="onSliderChange($event.value)"></mat-slider>
+                            (input)="onSliderChange($event.value)"></mat-slider>
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">

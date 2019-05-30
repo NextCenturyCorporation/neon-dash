@@ -20,13 +20,13 @@ import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [MapComponent],
-  exports: [MapComponent],
-  entryComponents: [MapComponent],
-  imports: [
-    CommonWidgetModule,
-    LegendModule,
-    CommonModule
-  ]
+    declarations: [MapComponent],
+    exports: [MapComponent],
+    entryComponents: [MapComponent],
+    imports: [
+        CommonWidgetModule,
+        LegendModule,
+        CommonModule
+    ]
 })
 export class MapModule { }

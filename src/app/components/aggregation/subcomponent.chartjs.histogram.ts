@@ -15,8 +15,7 @@
  */
 import { ElementRef } from '@angular/core';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { ChartJsBarSubcomponent, ChartJsBarDataset } from './subcomponent.chartjs.bar';
-import { Color } from '../../color';
+import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { SelectMode } from './subcomponent.chartjs.abstract';
 
 export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
@@ -29,7 +28,6 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected horizontal: boolean = false) {
-
         super(options, listener, elementRef, horizontal, SelectMode.DOMAIN);
     }
 

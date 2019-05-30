@@ -172,9 +172,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
-                this.optionsBorderIsPercentCompareOrValueCompare),
+                this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
             new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
-                this.optionsBorderIsPercentCompareOrPercentField),
+                this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
             new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
                 prettyName: 'None',
                 variable: ''
@@ -210,7 +210,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', {value: false, length: 0}),
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
             new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 
         ];
@@ -392,8 +392,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
 
         results.forEach((d) => {
-            let item = {},
-                links = [];
+            let item = {};
+            let links = [];
 
             if (options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
@@ -534,12 +534,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     refreshVisualization() {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         if (!this.changeDetection['destroyed']) {
             this.changeDetection.detectChanges();
         }
-        /* tslint:enable:no-string-literal */
-
         this.createMediaThumbnail();
         this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
@@ -573,79 +571,81 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private createMediaThumbnail() {
-        //todo: when canvases lose focus the images disappear. May need to go back to div
+        // Todo: when canvases lose focus the images disappear. May need to go back to div
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view');
 
-        this.gridArray.map((grid, index) => {
-            let link = grid[this.options.linkField.columnName],
-                fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase(),
-                type = this.getMediaType(grid),
-                objectId = grid[this.options.objectIdField.columnName],
-                percentage = grid[this.options.percentField.columnName],
-                comparison = grid[this.options.compareField.columnName],
-                categoryId = grid[this.options.categoryField.columnName],
-                thumbnail = canvases[index].getContext('2d');
+        // TODO Move this code into separate functions
+        /* eslint-disable-next-line complexity */
+        this.gridArray.forEach((grid, index) => {
+            let link = grid[this.options.linkField.columnName];
+            let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
+            let type = this.getMediaType(grid);
+            let objectId = grid[this.options.objectIdField.columnName];
+            let percentage = grid[this.options.percentField.columnName];
+            let comparison = grid[this.options.compareField.columnName];
+            let categoryId = grid[this.options.categoryField.columnName];
+            let thumbnail = canvases[index].getContext('2d');
 
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
             if (link && link !== 'n/a' && !this.options.ignoreMediaTypes.includes(grid[this.options.typeField.columnName])) {
                 switch (type) {
-                    case this.mediaTypes.image : {
+                    case this.mediaTypes.image: {
                         let image: HTMLImageElement = new Image();
                         image.src = link;
                         image.onload = () => {
                             switch (this.options.cropAndScale) {
-                                case 'both' : {
+                                case 'both': {
                                     // Use the MIN to crop the scale
                                     let size = Math.min(image.width, image.height);
                                     let multiplier = this.options.canvasSize / size;
                                     thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                     break;
                                 }
-                                case 'crop' : {
+                                case 'crop': {
                                     thumbnail.drawImage(image, 0, 0, image.width, image.height);
                                     break;
                                 }
-                                case 'scale' : {
+                                case 'scale': {
                                     // Use the MAX to scale
                                     let size = Math.max(image.width, image.height);
                                     let multiplier = this.options.canvasSize / size;
                                     thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                     break;
                                 }
-                                default : {
+                                default: {
                                     thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
                                 }
                             }
                         };
                         break;
                     }
-                    case this.mediaTypes.video : {
+                    case this.mediaTypes.video: {
                         let video: HTMLVideoElement = document.createElement('video');
-                        video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+                        video.src = link + '#t=1,1.1'; // 1 second starting place for video screenshot
 
                         video.onloadeddata = () => {
                             switch (this.options.cropAndScale) {
-                                case 'both' : {
+                                case 'both': {
                                     // Use the MIN to crop the scale
                                     let size = Math.min(video.width, video.height);
                                     let multiplier = this.options.canvasSize / size;
                                     thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                     break;
                                 }
-                                case 'crop' : {
+                                case 'crop': {
                                     thumbnail.drawImage(video, 0, 0, video.width, video.height);
                                     break;
                                 }
-                                case 'scale' : {
+                                case 'scale': {
                                     // Use the MAX to scale
                                     let size = Math.max(video.width, video.height);
                                     let multiplier = this.options.canvasSize / size;
                                     thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                     break;
                                 }
-                                default : {
+                                default: {
                                     thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
                                 }
                             }
@@ -663,7 +663,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                         break;
                     }
-                    case this.mediaTypes.audio : {
+                    case this.mediaTypes.audio: {
                         let image: HTMLImageElement = new Image();
                         image.src = '/assets/images/volume_up.svg';
                         image.onclick = () => this.displayMediaTab(grid);
@@ -673,12 +673,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                         break;
                     }
-                    default : {
-                        // todo: get thumbnails of documents, pdf, and other similar types of media.
+                    default: {
+                        // Todo: get thumbnails of documents, pdf, and other similar types of media.
                         thumbnail.fillStyle = '#111111';
                         thumbnail.font = '20px Helvetica Neue';
                         thumbnail.fillText(fileType.toUpperCase(), 10, 30);
-
                     }
                 }
             } else {
@@ -687,10 +686,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                 img.onload = () => {
                     if (this.options.viewType === ViewType.CARD) {
-                        thumbnail.drawImage(img, this.options.canvasSize * .41, this.options.canvasSize * .25,
+                        thumbnail.drawImage(img, this.options.canvasSize * 0.41, this.options.canvasSize * 0.25,
                             img.width + 2, img.height + 6);
                     } else {
-                        thumbnail.drawImage(img, this.options.canvasSize * .37, this.options.canvasSize * .35,
+                        thumbnail.drawImage(img, this.options.canvasSize * 0.37, this.options.canvasSize * 0.35,
                             img.width - 4, img.height);
                     }
                 };
@@ -741,7 +740,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
 
             if (borderColor) {
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + borderColor);
+                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' border-mat-' + borderColor);
             }
         });
     }
@@ -763,7 +762,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * returns the media type for the thumbnail
+     * Returns the media type for the thumbnail
      * @arg {object} item
      * @return string
      */
@@ -774,16 +773,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * checks to see if the media type is valid and a thumbnail image will be displayed
+     * Checks to see if the media type is valid and a thumbnail image will be displayed
      * @arg {object} item
      * @return boolean
      */
     isValidMediaType(item) {
         if (this.getMediaType(item)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

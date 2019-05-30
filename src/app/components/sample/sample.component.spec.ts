@@ -41,6 +41,7 @@ import { ConfigService } from '../../services/config.service';
 
 // Helper functions.
 
+/*
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
     expect(element.componentInstance.placeholder).toEqual(name);
@@ -67,6 +68,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
     expect(element.nativeElement.textContent).toContain(content);
     expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
 };
+*/
 
 // Must define the test component.
 @Component({
@@ -77,6 +79,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
+/* eslint-disable @typescript-eslint/no-useless-constructor */
 class TestSampleComponent extends SampleComponent {
     constructor(
         datasetService: DatasetService,
@@ -86,7 +89,6 @@ class TestSampleComponent extends SampleComponent {
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
-
         super(
             datasetService,
             filterService,
@@ -99,12 +101,13 @@ class TestSampleComponent extends SampleComponent {
 
     // TODO Add any needed custom functions here.
 }
+/* eslint-enable @typescript-eslint/no-useless-constructor */
 
 // TODO Create a test implementation of your subcomponent so you can test its behavior.
 
-/* tslint:disable:component-class-suffix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 class TestSubcomponent extends AbstractSubcomponent {
-    buildElements(elementRef: ElementRef) {
+    buildElements(_elementRef: ElementRef) {
         // TODO
     }
 
@@ -112,16 +115,15 @@ class TestSubcomponent extends AbstractSubcomponent {
         // TODO
     }
 
-    updateData(data: any[]) {
+    updateData(_data: any[]) {
         // TODO
     }
 }
-/* tslint:enable:component-class-suffix */
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 describe('Component: Sample', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
@@ -176,11 +178,11 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DatasetServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
@@ -451,8 +453,6 @@ describe('Component: Sample', () => {
     });
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
-
         let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
@@ -522,7 +522,6 @@ describe('Component: Sample', () => {
 describe('Component: Sample with config', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
@@ -598,7 +597,7 @@ describe('Component: Sample with config', () => {
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
-        // expect(component.subcomponentElementRef).toBeDefined();
+        // TODO expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
     });
 

@@ -19,12 +19,12 @@ import { SnackBarComponent } from './snack-bar.component';
 import { MatButtonModule } from '@angular/material';
 
 @NgModule({
-  declarations: [SnackBarComponent],
-  exports: [SnackBarComponent],
-  entryComponents: [SnackBarComponent],
-  imports: [
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [SnackBarComponent],
+    exports: [SnackBarComponent],
+    entryComponents: [SnackBarComponent],
+    imports: [
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class SnackBarModule { }

@@ -21,18 +21,18 @@ import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [AggregationComponent],
-  exports: [
-    AggregationComponent
-  ],
-  entryComponents: [
-    AggregationComponent
-  ],
-  imports: [
-    DataMessageModule,
-    LegendModule,
-    CommonWidgetModule,
-    CommonModule
-  ]
+    declarations: [AggregationComponent],
+    exports: [
+        AggregationComponent
+    ],
+    entryComponents: [
+        AggregationComponent
+    ],
+    imports: [
+        DataMessageModule,
+        LegendModule,
+        CommonWidgetModule,
+        CommonModule
+    ]
 })
 export class AggregationModule { }

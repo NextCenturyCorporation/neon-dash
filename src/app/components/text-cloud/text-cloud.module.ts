@@ -20,13 +20,13 @@ import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [TextCloudComponent],
-  exports: [TextCloudComponent],
-  entryComponents: [TextCloudComponent],
-  imports: [
-    CommonWidgetModule,
-    DataMessageModule,
-    CommonModule
-  ]
+    declarations: [TextCloudComponent],
+    exports: [TextCloudComponent],
+    entryComponents: [TextCloudComponent],
+    imports: [
+        CommonWidgetModule,
+        DataMessageModule,
+        CommonModule
+    ]
 })
 export class TextCloudModule { }

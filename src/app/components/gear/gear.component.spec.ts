@@ -37,12 +37,9 @@ import { GearModule } from './gear.module';
 import { ConfigService } from '../../services/config.service';
 import { WidgetOptionCollection, WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../widget-option';
 
-/* tslint:disable:component-class-suffix */
-
 describe('Component: Gear Component', () => {
     let component: GearComponent;
     let fixture: ComponentFixture<GearComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('gear component', {
         providers: [

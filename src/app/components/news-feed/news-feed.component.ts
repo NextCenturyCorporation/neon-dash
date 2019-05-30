@@ -32,7 +32,6 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -42,7 +41,6 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
 /**
@@ -137,7 +135,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
         ];
@@ -174,7 +172,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-
         let filters = sharedFilters;
 
         if (this.options.sortField.columnName) {
@@ -296,7 +293,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     isSelected(item) {
         return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item[this.options.filterField.columnName])));
+            item[this.options.filterField.columnName]
+        )));
     }
 
     /**

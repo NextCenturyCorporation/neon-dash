@@ -17,26 +17,26 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterBuilderComponent } from './filter-builder.component';
 import {
-  MatButtonToggleModule, MatFormFieldModule, MatSelectModule,
-  MatIconModule, MatTooltipModule, MatDialogModule, MatInputModule, MatButtonModule
+    MatButtonToggleModule, MatFormFieldModule, MatSelectModule,
+    MatIconModule, MatTooltipModule, MatDialogModule, MatInputModule, MatButtonModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [FilterBuilderComponent],
-  exports: [FilterBuilderComponent],
-  entryComponents: [FilterBuilderComponent],
-  imports: [
-    MatButtonToggleModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatSelectModule,
-    MatDialogModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [FilterBuilderComponent],
+    exports: [FilterBuilderComponent],
+    entryComponents: [FilterBuilderComponent],
+    imports: [
+        MatButtonToggleModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatSelectModule,
+        MatDialogModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class FilterBuilderModule { }

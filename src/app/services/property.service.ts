@@ -15,7 +15,6 @@
  */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as _ from 'lodash';
 
 @Injectable()
 export class PropertyService {

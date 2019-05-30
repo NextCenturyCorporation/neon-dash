@@ -19,20 +19,20 @@ import { CurrentFiltersComponent } from './current-filters.component';
 import { MatListModule, MatIconModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
-  declarations: [
-    CurrentFiltersComponent
-  ],
-  exports: [
-    CurrentFiltersComponent
-  ],
-  entryComponents: [
-    CurrentFiltersComponent
-  ],
-  imports: [
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [
+        CurrentFiltersComponent
+    ],
+    exports: [
+        CurrentFiltersComponent
+    ],
+    entryComponents: [
+        CurrentFiltersComponent
+    ],
+    imports: [
+        MatListModule,
+        MatIconModule,
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class CurrentFiltersModule { }

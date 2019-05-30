@@ -31,10 +31,8 @@ export class Color {
         }
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        let hex = inputHex.replace(shorthandRegex, function(m, r, g, b) {
-            return r + r + g + g + b + b;
-        });
-        let hexArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        let hex = inputHex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+        let hexArray = (/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i).exec(hex);
         if (hexArray) {
             let rgb = parseInt(hexArray[1], 16) + ',' + parseInt(hexArray[2], 16) + ',' + parseInt(hexArray[3], 16);
             return new Color((inputHex.indexOf('#') === 0 ? inputHex : ('#' + inputHex)), 'rgba(' + rgb + ',0.66)',
@@ -86,12 +84,10 @@ export class Color {
     /**
      * @constructor
      * @arg {string} css
-     * @arg {string} transparencyMedium
+     * @arg {string} hoverColor
      * @arg {string} transparencyHigh
      */
-    constructor(private css: string, private transparencyMedium: string, private transparencyHigh: string) {
-        // Do nothing.
-    }
+    constructor(private css: string, private hoverColor: string, private transparencyHigh: string) {}
 
     /**
      * Returns the computed CSS for the color using the given ElementRef object to find custom CSS properties like "--variable".
@@ -103,12 +99,12 @@ export class Color {
     }
 
     /**
-     * Returns the CSS for the medium transparency color using the given ElementRef object to find custom CSS properties like "--variable".
+     * Returns the CSS for the hover color using the given ElementRef object to find custom CSS properties like "--variable".
      * @arg {ElementRef} elementRef
      * @return {string}
      */
-    public getComputedCssTransparencyMedium(elementRef: ElementRef): string {
-        return this.computeColor(this.transparencyMedium, elementRef);
+    public getComputedCssHoverColor(elementRef: ElementRef): string {
+        return this.computeColor(this.hoverColor, elementRef);
     }
 
     /**
@@ -129,11 +125,11 @@ export class Color {
     }
 
     /**
-     * Returns the CSS for the color with medium transparency.
+     * Returns the CSS for the hover color.
      * @return {string}
      */
-    public getCssTransparencyMedium(): string {
-        return this.transparencyMedium;
+    public getHoverColor(): string {
+        return this.hoverColor;
     }
 
     /**
@@ -168,31 +164,24 @@ export class Color {
  */
 export class ColorSet {
     private colors: Color[] = [
-        new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)'),
-        new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)'),
-        new Color('var(--color-set-3)', 'var(--color-set-3-transparency-medium)', 'var(--color-set-3-transparency-high)'),
-        new Color('var(--color-set-4)', 'var(--color-set-4-transparency-medium)', 'var(--color-set-4-transparency-high)'),
-        new Color('var(--color-set-5)', 'var(--color-set-5-transparency-medium)', 'var(--color-set-5-transparency-high)'),
-        new Color('var(--color-set-6)', 'var(--color-set-6-transparency-medium)', 'var(--color-set-6-transparency-high)'),
-        new Color('var(--color-set-7)', 'var(--color-set-7-transparency-medium)', 'var(--color-set-7-transparency-high)'),
-        new Color('var(--color-set-8)', 'var(--color-set-8-transparency-medium)', 'var(--color-set-8-transparency-high)'),
-        new Color('var(--color-set-light-1)', 'var(--color-set-light-1-transparency-medium)', 'var(--color-set-light-1-transparency-high)'),
-        new Color('var(--color-set-light-2)', 'var(--color-set-light-2-transparency-medium)', 'var(--color-set-light-2-transparency-high)'),
-        new Color('var(--color-set-light-3)', 'var(--color-set-light-3-transparency-medium)', 'var(--color-set-light-3-transparency-high)'),
-        new Color('var(--color-set-light-4)', 'var(--color-set-light-4-transparency-medium)', 'var(--color-set-light-4-transparency-high)'),
-        new Color('var(--color-set-light-5)', 'var(--color-set-light-5-transparency-medium)', 'var(--color-set-light-5-transparency-high)'),
-        new Color('var(--color-set-light-6)', 'var(--color-set-light-6-transparency-medium)', 'var(--color-set-light-6-transparency-high)'),
-        new Color('var(--color-set-light-7)', 'var(--color-set-light-7-transparency-medium)', 'var(--color-set-light-7-transparency-high)'),
-        new Color('var(--color-set-light-8)', 'var(--color-set-light-8-transparency-medium)', 'var(--color-set-light-8-transparency-high)'),
-        new Color('var(--color-set-dark-1)', 'var(--color-set-dark-1-transparency-medium)', 'var(--color-set-dark-1-transparency-high)'),
-        new Color('var(--color-set-dark-2)', 'var(--color-set-dark-2-transparency-medium)', 'var(--color-set-dark-2-transparency-high)'),
-        new Color('var(--color-set-dark-3)', 'var(--color-set-dark-3-transparency-medium)', 'var(--color-set-dark-3-transparency-high)'),
-        new Color('var(--color-set-dark-4)', 'var(--color-set-dark-4-transparency-medium)', 'var(--color-set-dark-4-transparency-high)'),
-        new Color('var(--color-set-dark-5)', 'var(--color-set-dark-5-transparency-medium)', 'var(--color-set-dark-5-transparency-high)'),
-        new Color('var(--color-set-dark-6)', 'var(--color-set-dark-6-transparency-medium)', 'var(--color-set-dark-6-transparency-high)'),
-        new Color('var(--color-set-dark-7)', 'var(--color-set-dark-7-transparency-medium)', 'var(--color-set-dark-7-transparency-high)'),
-        new Color('var(--color-set-dark-8)', 'var(--color-set-dark-8-transparency-medium)', 'var(--color-set-dark-8-transparency-high)')
+        new Color('var(--color-set-1)', 'var(--color-set-dark-1)', 'var(--color-set-1-transparency-high)'),
+        new Color('var(--color-set-2)', 'var(--color-set-dark-2)', 'var(--color-set-2-transparency-high)'),
+        new Color('var(--color-set-3)', 'var(--color-set-dark-3)', 'var(--color-set-3-transparency-high)'),
+        new Color('var(--color-set-4)', 'var(--color-set-dark-4)', 'var(--color-set-4-transparency-high)'),
+        new Color('var(--color-set-5)', 'var(--color-set-dark-5)', 'var(--color-set-5-transparency-high)'),
+        new Color('var(--color-set-6)', 'var(--color-set-dark-6)', 'var(--color-set-6-transparency-high)'),
+        new Color('var(--color-set-7)', 'var(--color-set-dark-7)', 'var(--color-set-7-transparency-high)'),
+        new Color('var(--color-set-8)', 'var(--color-set-dark-8)', 'var(--color-set-8-transparency-high)'),
+        new Color('var(--color-set-light-1)', 'var(--color-set-1)', 'var(--color-set-light-1-transparency-high)'),
+        new Color('var(--color-set-light-2)', 'var(--color-set-2)', 'var(--color-set-light-2-transparency-high)'),
+        new Color('var(--color-set-light-3)', 'var(--color-set-3)', 'var(--color-set-light-3-transparency-high)'),
+        new Color('var(--color-set-light-4)', 'var(--color-set-4)', 'var(--color-set-light-4-transparency-high)'),
+        new Color('var(--color-set-light-5)', 'var(--color-set-5)', 'var(--color-set-light-5-transparency-high)'),
+        new Color('var(--color-set-light-6)', 'var(--color-set-6)', 'var(--color-set-light-6-transparency-high)'),
+        new Color('var(--color-set-light-7)', 'var(--color-set-7)', 'var(--color-set-light-7-transparency-high)'),
+        new Color('var(--color-set-light-8)', 'var(--color-set-8)', 'var(--color-set-light-8-transparency-high)')
     ];
+
     private currentIndex: number = 0;
 
     /**
@@ -204,10 +193,7 @@ export class ColorSet {
      * @arg {Map<string, Color>} [valueToColor=new Map<string, Color>()]
      */
     constructor(private colorKey: string, private databaseName: string, private tableName: string, private fieldName: string,
-        private valueToColor: Map<string, Color> = new Map<string, Color>()) {
-
-        // Do nothing.
-    }
+        private valueToColor: Map<string, Color> = new Map<string, Color>()) {}
 
     /**
      * Returns the color field.

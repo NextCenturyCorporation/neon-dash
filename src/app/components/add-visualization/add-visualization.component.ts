@@ -48,9 +48,7 @@ export class AddVisualizationComponent implements OnInit {
 
     ngOnInit() {
         // Ignore the sample visualization.
-        this.visualizations = neonVisualizations.filter((visualization) => {
-            return visualization.type !== 'sample';
-        });
+        this.visualizations = neonVisualizations.filter((visualization) => visualization.type !== 'sample');
         this.messenger.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
     }
 

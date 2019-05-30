@@ -36,7 +36,7 @@ export class ExportControlComponent {
         value: 1
     }];
 
-    public exportFormat: number = this.exportFormatList[0].value;
+    public exportFormat: number;
 
     constructor(
         protected datasetService: DatasetService,
@@ -44,10 +44,14 @@ export class ExportControlComponent {
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
+        this.exportFormat = this.exportFormatList[0].value;
+
+        // TODO Why is this needed?
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         this.handleExportClick = this.handleExportClick.bind(this);
     }
 
-    setExportFormat(value: number) {
+    setExportFormat(_value: number) {
         // Do nothing.
     }
 

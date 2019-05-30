@@ -13,17 +13,14 @@
  * limitations under the License.
  *
  */
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData, MediaTypes } from '../../dataset';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { } from 'jasmine-core';
 
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { MediaViewerComponent } from './media-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -39,7 +36,6 @@ import { ConfigService } from '../../services/config.service';
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
     let fixture: ComponentFixture<MediaViewerComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Media Viewer', {
         providers: [
@@ -171,7 +167,6 @@ describe('Component: MediaViewer', () => {
         names = ['a', 'b', 'c', 'd'];
         index = 2;
         expect(component.getTabLabel(names, index)).toBe('c');
-
     }));
 
     it('validateVisualizationQuery does return expected result', (() => {
@@ -724,9 +719,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    /************************************************************/
-    /**** TODO Test transformVisualizationQueryResults if oneTabPerArray is true ****/
-    /************************************************************/
+    /** TODO Test transformVisualizationQueryResults if oneTabPerArray is true **/
 
     it('refreshVisualization does call changeDetection.detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -737,7 +730,8 @@ describe('Component: MediaViewer', () => {
     it('sanitize function cleans url', (() => {
         component.options.url = 'https://kafka.apache.org/intro';
         expect(component.sanitize(component.options.url).toString()).toBe(
-            'SafeValue must use [property]=binding: https://kafka.apache.org/intro (see http://g.co/ng/security#xss)');
+            'SafeValue must use [property]=binding: https://kafka.apache.org/intro (see http://g.co/ng/security#xss)'
+        );
     }));
 
     it('does show toolbar', (() => {
@@ -794,14 +788,14 @@ describe('Component: MediaViewer', () => {
         expect(spinner).not.toBeNull();
     }));
 
-    it('does hide tabs if tabsAndMedia is empty', inject([DomSanitizer], (sanitizer) => {
+    it('does hide tabs if tabsAndMedia is empty', () => {
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
         let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
         expect(slider.length).toBe(0);
-    }));
+    });
 
-    it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show tabs if tabsAndMedia is not empty', () => {
         component.tabsAndMedia = [{
             loaded: false,
             name: 'testTabName1',
@@ -850,9 +844,9 @@ describe('Component: MediaViewer', () => {
 
         let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
         expect(slider.length).toBe(0);
-    })));
+    });
 
-    it('does show single image tag according to the image type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single image tag according to the image type', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
@@ -878,9 +872,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<img');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    })));
+    });
 
-    it('does show multiple image tags in tabs according to the image type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show multiple image tags in tabs according to the image type', () => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
             loaded: false,
@@ -925,9 +919,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<img');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    })));
+    });
 
-    it('does show single audio tag according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single audio tag according to the audio type', () => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
@@ -953,9 +947,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<audio');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    })));
+    });
 
-    it('does show multiple audio tags in tabs according to the audio type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show multiple audio tags in tabs according to the audio type', () => {
         let audSrc = './assets/audio/test-audio.wav';
         component.tabsAndMedia = [{
             loaded: false,
@@ -1000,9 +994,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<audio');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    })));
+    });
 
-    it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single iframe tag according to the empty type', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
@@ -1028,9 +1022,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<iframe');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    })));
+    });
 
-    it('does show multiple iframe tags in tabs according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show multiple iframe tags in tabs according to the empty type', () => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
             loaded: false,
@@ -1075,9 +1069,9 @@ describe('Component: MediaViewer', () => {
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<iframe');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    })));
+    });
 
-    it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show two tabs and slider', () => {
         component.tabsAndMedia = [{
             loaded: false,
             name: 'testTabName1',
@@ -1132,9 +1126,9 @@ describe('Component: MediaViewer', () => {
 
         let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
         expect(slider.length).toBe(1);
-    })));
+    });
 
-    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show two images and slider', () => {
         let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
@@ -1166,7 +1160,7 @@ describe('Component: MediaViewer', () => {
 
         let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
         expect(slider.length).toBe(1);
-    })));
+    });
 });
 
 describe('Component: MediaViewer with config', () => {

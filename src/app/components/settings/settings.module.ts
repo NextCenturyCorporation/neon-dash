@@ -21,18 +21,18 @@ import { ExportControlModule } from '../export-control/export-control.module';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [SettingsComponent],
-  exports: [SettingsComponent],
-  entryComponents: [SettingsComponent],
-  imports: [
-    MatDividerModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    ExportControlModule,
-    FormsModule,
-    CommonModule
-  ]
+    declarations: [SettingsComponent],
+    exports: [SettingsComponent],
+    entryComponents: [SettingsComponent],
+    imports: [
+        MatDividerModule,
+        MatRadioModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        ExportControlModule,
+        FormsModule,
+        CommonModule
+    ]
 })
 export class SettingsModule { }

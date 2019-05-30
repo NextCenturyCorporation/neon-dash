@@ -14,34 +14,28 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData, SelectMode } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../color';
-
-import * as _ from 'lodash';
 
 // http://www.chartjs.org/docs/latest/charts/doughnut.html#dataset-properties
 export class ChartJsPieDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
-    public borderColor: string;
-    public borderWidth: number = 3;
-    public hoverBackgroundColor: string;
-    public hoverBorderColor: string;
-    public hoverBorderWidth: number = 3;
+    public hoverBackgroundColor: string[] = [];
     public slices: any[] = [];
 
     constructor(elementRef: ElementRef, color: Color, label: string, xList: any[], public xSelected: any[]) {
         super(elementRef, color, label, xList);
-        this.borderColor = this.getColorSelected();
-        this.hoverBackgroundColor = this.getColorSelected();
-        this.hoverBorderColor = this.getColorSelected();
     }
 
     public finalizeData() {
         Array.from(this.xToY.keys()).forEach((x) => {
             let yList = this.xToY.get(x);
             (yList.length ? yList : [null]).forEach((y) => {
-                this.backgroundColor.push(this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
+                this.backgroundColor.push(this.xSelected.length > 0 &&
+                    this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
                 this.slices.push(x);
                 this.data.push(y);
             });

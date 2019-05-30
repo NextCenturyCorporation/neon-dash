@@ -35,13 +35,29 @@ This will start the Neon Dashboard on http://localhost:4200 and should auto-relo
 
 To see anything useful, you will need to ingest data into your datastore(s).
 
+## Unit Test and Lint
+
+To start the unit tests and linters, run: `npm test`
+
 ## Unit Test
 
-To start the unit tests, run: `npm test`
+To start just the unit tests, run: `npm run-script unit-test`
+
+The unit tests are run using a [Karma config file](./karma.conf.js).  The unit tests are written with [Jasmine](https://jasmine.github.io/).
 
 ## Lint
 
-To lint the code, run: `npm lint --fix`
+To start just the linters, run: `npm run-script lint`
+
+The linters use the following libraries:
+- [ESLint](https://eslint.org/) and [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint)
+- [JS Beautify](https://github.com/beautify-web/js-beautify) (HTML only)
+- [Sass Lint](https://github.com/sasstools/sass-lint) and [Sass Lint Auto Fix](https://github.com/srowhani/sass-lint-auto-fix)
+
+The linters are run using the following files:
+- [.eslintrc.yml](./.eslintrc.yml)
+- [.jsbeautifyrc](./.jsbeautifyrc)
+- [sass-lint.yaml](./sass-lint.yaml) and [sass-lint-auto-fix.yaml](./sass-lint-auto-fix.yaml)
 
 ## Deploy as WAR
 

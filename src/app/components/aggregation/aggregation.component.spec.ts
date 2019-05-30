@@ -21,13 +21,8 @@ import { } from 'jasmine-core';
 import { AggregationModule } from './aggregation.module';
 
 import { AggregationComponent } from './aggregation.component';
-import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
-import { DataMessageComponent } from '../data-message/data-message.component';
-import { LegendComponent } from '../legend/legend.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -46,10 +41,9 @@ import { ConfigService } from '../../services/config.service';
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
     let fixture: ComponentFixture<AggregationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-1-transparency-medium)', 'var(--color-set-1-transparency-high)');
-    let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-2-transparency-medium)', 'var(--color-set-2-transparency-high)');
+    let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-dark-1)', 'var(--color-set-1-transparency-high)');
+    let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-dark-2)', 'var(--color-set-2-transparency-high)');
 
     initializeTestBed('Aggregation', {
         providers: [
@@ -207,18 +201,18 @@ describe('Component: Aggregation', () => {
         expect(actual[1].filterDesign.operator).toEqual('=');
         expect(actual[1].filterDesign.value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
-        expect((actual[2].filterDesign as any).type).toEqual('and');
-        expect((actual[2].filterDesign as any).filters.length).toEqual(2);
-        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('>=');
-        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[2].filterDesign as any).filters[1].operator).toEqual('<=');
-        expect((actual[2].filterDesign as any).filters[1].value).toBeUndefined();
+        expect((actual[2].filterDesign).type).toEqual('and');
+        expect((actual[2].filterDesign).filters.length).toEqual(2);
+        expect((actual[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
+        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
+        expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
 
         component.options.yField = DatasetServiceMock.Y_FIELD;
@@ -236,41 +230,41 @@ describe('Component: Aggregation', () => {
         expect(actual[1].filterDesign.operator).toEqual('=');
         expect(actual[1].filterDesign.value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
-        expect((actual[2].filterDesign as any).type).toEqual('and');
-        expect((actual[2].filterDesign as any).filters.length).toEqual(2);
-        expect((actual[2].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[2].filterDesign as any).filters[0].operator).toEqual('>=');
-        expect((actual[2].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[2].filterDesign as any).filters[1].operator).toEqual('<=');
-        expect((actual[2].filterDesign as any).filters[1].value).toBeUndefined();
+        expect((actual[2].filterDesign).type).toEqual('and');
+        expect((actual[2].filterDesign).filters.length).toEqual(2);
+        expect((actual[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
+        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
+        expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
-        expect((actual[3].filterDesign as any).type).toEqual('and');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(4);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('>=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual[3].filterDesign as any).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
-        expect((actual[3].filterDesign as any).filters[1].operator).toEqual('<=');
-        expect((actual[3].filterDesign as any).filters[1].value).toBeUndefined();
-        expect((actual[3].filterDesign as any).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[2].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual[3].filterDesign as any).filters[2].operator).toEqual('>=');
-        expect((actual[3].filterDesign as any).filters[2].value).toBeUndefined();
-        expect((actual[3].filterDesign as any).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[3].field).toEqual(DatasetServiceMock.Y_FIELD);
-        expect((actual[3].filterDesign as any).filters[3].operator).toEqual('<=');
-        expect((actual[3].filterDesign as any).filters[3].value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('and');
+        expect((actual[3].filterDesign).filters.length).toEqual(4);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('>=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[3].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual[3].filterDesign).filters[1].operator).toEqual('<=');
+        expect((actual[3].filterDesign).filters[1].value).toBeUndefined();
+        expect((actual[3].filterDesign).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[2].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign).filters[2].operator).toEqual('>=');
+        expect((actual[3].filterDesign).filters[2].value).toBeUndefined();
+        expect((actual[3].filterDesign).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[3].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign).filters[3].operator).toEqual('<=');
+        expect((actual[3].filterDesign).filters[3].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawBounds.bind(component).toString());
     });
 
@@ -786,7 +780,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('onChangeData does work as expected', () => {
-        component.colorKeys = ['red', 'blue' , 'green'];
+        component.colorKeys = ['red', 'blue', 'green'];
         component.legendActiveGroups = ['a'];
         component.legendDisabledGroups = ['b'];
         component.legendGroups = ['a', 'b'];
@@ -2233,7 +2227,10 @@ describe('Component: Aggregation', () => {
         component.options.savePrevious = true;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
+        component.xList = ['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -2258,8 +2255,11 @@ describe('Component: Aggregation', () => {
             x: '2018-01-04T00:00:00.000Z',
             y: 4
         }]);
-        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
-            '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z',
+            '2018-01-05T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 4]);
     });
 
@@ -2348,7 +2348,9 @@ describe('Component: Aggregation', () => {
             x: '2018-01-04T00:00:00.000Z',
             y: 5
         }]);
-        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 3, 4, 5]);
     });
@@ -2424,7 +2426,9 @@ describe('Component: Aggregation', () => {
             x: '2018-01-04T00:00:00.000Z',
             y: 5
         }]);
-        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
             '2018-01-04T00:00:00.000Z']);
         expect(component.yList).toEqual([2, 0, 4, 3, 5]);
     });
@@ -2437,7 +2441,10 @@ describe('Component: Aggregation', () => {
         component.options.timeFill = true;
         component.options.xField = DatasetServiceMock.DATE_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
+        component.xList = ['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z',
             '2018-01-05T00:00:00.000Z'];
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -2477,8 +2484,11 @@ describe('Component: Aggregation', () => {
             x: '2018-01-05T00:00:00.000Z',
             y: 0
         }]);
-        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
-            '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z',
+            '2018-01-02T00:00:00.000Z',
+            '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z',
+            '2018-01-05T00:00:00.000Z']);
         expect(component.yList).toEqual([0, 2, 4]);
     });
 
@@ -3422,6 +3432,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         });
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(0);
     });
 
     it('subcomponentRequestsFilterOnBounds does call exchangeFilters or toggleFilters if notFilterable=true', () => {
@@ -3579,6 +3591,8 @@ describe('Component: Aggregation', () => {
             x: 2,
             y: 1
         });
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(0);
     });
 
     it('subcomponentRequestsFilterOnDomain does not call exchangeFilters or toggleFilters if notFilterable=true', () => {
@@ -3934,8 +3948,6 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
-
         let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
@@ -4057,13 +4069,15 @@ describe('Component: Aggregation', () => {
         let container = fixture.debugElement.query(By.css('.body-container .subcomponent-container'));
         expect(container).not.toBeNull();
         let element = fixture.debugElement.query(By.css(
-            '.body-container .subcomponent-container .subcomponent-element'));
+            '.body-container .subcomponent-container .subcomponent-element'
+        ));
         expect(element).not.toBeNull();
     });
 
     it('does not show subcomponent-selection if selectedArea is null', () => {
         let selection = fixture.debugElement.query(By.css(
-            '.body-container .subcomponent-container .subcomponent-selection'));
+            '.body-container .subcomponent-container .subcomponent-selection'
+        ));
         expect(selection).toBeNull();
     });
 
@@ -4086,7 +4100,6 @@ describe('Component: Aggregation', () => {
 describe('Component: Aggregation with config', () => {
     let component: AggregationComponent;
     let fixture: ComponentFixture<AggregationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
         providers: [
@@ -4189,7 +4202,6 @@ describe('Component: Aggregation with config', () => {
 describe('Component: Aggregation with XY config', () => {
     let component: AggregationComponent;
     let fixture: ComponentFixture<AggregationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
         providers: [
@@ -4292,7 +4304,6 @@ describe('Component: Aggregation with XY config', () => {
 describe('Component: Aggregation with date config', () => {
     let component: AggregationComponent;
     let fixture: ComponentFixture<AggregationComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Aggregation', {
         providers: [

@@ -1,21 +1,23 @@
 <div class="legend-container" #legend>
     <button mat-button [mat-menu-trigger-for]="menu" (onMenuClose)="onMenuClose()" (onMenuOpen)="onMenuOpen()" class="legend-button">
-      <span class="legend-text">Legend</span><mat-icon class="neon-icon-small legend-text">{{ menuIcon }}</mat-icon>
+        <span class="legend-text">Legend</span>
+        <mat-icon class="neon-icon-small legend-text">{{ menuIcon }}</mat-icon>
     </button>
 
     <mat-menu #menu="matMenu" [backdropClass]="widgetService.getTheme()" [overlapTrigger]="false">
         <div *ngFor="let colorSet of colorSets">
             <div *ngIf="filteringOn">
-            <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="keySelected($event, colorSet.getColorField(), key)">
-                <mat-icon [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
-                <span [ngStyle]="{'text-decoration': getTextDecoration(colorSet.getColorField(), key)}">{{ key }}</span>
-            </button>
-        </div>
+                <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()"
+                    (click)="keySelected($event, colorSet.getColorField(), key)">
+                    <mat-icon [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
+                    <span [ngStyle]="{'text-decoration': getTextDecoration(colorSet.getColorField(), key)}">{{ key }}</span>
+                </button>
+            </div>
             <div *ngIf="!filteringOn">
                 <button class="resize-icon" mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="stopPropagation($event)">
-                    <mat-icon  [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
-                <span >{{ key }}</span>
-            </button>
+                    <mat-icon [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(colorSet.getColorField(), key) }}</mat-icon>
+                    <span>{{ key }}</span>
+                </button>
             </div>
         </div>
     </mat-menu>

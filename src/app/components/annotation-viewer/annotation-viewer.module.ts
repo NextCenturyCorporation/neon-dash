@@ -22,20 +22,20 @@ import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [
-    AnnotationViewerComponent
-  ],
-  exports: [
-    AnnotationViewerComponent
-  ],
-  entryComponents: [
-    AnnotationViewerComponent
-  ],
-  imports: [
-    LegendModule,
-    CommonWidgetModule,
-    MatListModule,
-    CommonModule
-  ]
+    declarations: [
+        AnnotationViewerComponent
+    ],
+    exports: [
+        AnnotationViewerComponent
+    ],
+    entryComponents: [
+        AnnotationViewerComponent
+    ],
+    imports: [
+        LegendModule,
+        CommonWidgetModule,
+        MatListModule,
+        CommonModule
+    ]
 })
 export class AnnotationViewerModule { }

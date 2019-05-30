@@ -18,15 +18,14 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import { AbstractSearchService, Connection } from './abstract.search.service';
-import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
+import { Datastore } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';
-import { neonEvents, neonMappings } from '../neon-namespaces';
+import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 
 @Injectable()
 export class ParameterService {
-
     // The Dataset Service may ask the visualizations to update their data.
     public static FILTER_KEY_PREFIX: string = 'dashboard';
 
@@ -130,11 +129,12 @@ export class ParameterService {
      * @method addFiltersFromUrl
      */
     addFiltersFromUrl(ignoreDashboardState?: boolean) {
+
+        /* TODO THOR-1076
         if (!this.datasetService.hasDataset()) {
             return;
         }
 
-        /* TODO THOR-1076
         let customMappings: any = {};
         this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
             database.tables.forEach((table: TableMetaData) => {
@@ -256,6 +256,7 @@ export class ParameterService {
         };
 
         if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
+
             /* TODO FIXME THOR-1076
             let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
                 ' ' + (args.operator || '=') + ' ' + parameterValue;
@@ -280,6 +281,7 @@ export class ParameterService {
      * @param {String} filterStateId
      */
     loadState(dashboardStateId: string | number, filterStateId: string | number) {
+
         /* TODO THOR-1131
         let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
@@ -324,7 +326,7 @@ export class ParameterService {
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
                     // TODO THOR-1024 Do not expect filters within the dataset.
-                    this.filterService.setFiltersFromConfig((dataset as any).filters || [], this.datasetService, this.searchService);
+                    this.filterService.setFiltersFromConfig((dataset).filters || [], this.datasetService, this.searchService);
 
                     for (let i = 0; i < dataset.databases.length; i++) {
                         for (let j = 0; j < dataset.databases[i].tables.length; j++) {
@@ -359,10 +361,10 @@ export class ParameterService {
     private cleanValue(value: string, operator: string): number | string {
         let retVal: number | string = value;
 
-        if (/^-?\d+(.\d+)?$/.test(`${value}`) && operator !== 'contains') {
+        if ((/^-?\d+(.\d+)?$/).test(`${value}`) && operator !== 'contains') {
             retVal = parseFloat(value);
         } else if (value && ((value.charAt(0) === '"' && value.charAt(value.length - 1) === '"') ||
-            (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) {
+            (value.charAt(0) === '\'' && value.charAt(value.length - 1) === '\''))) {
             retVal = value.substring(1, value.length - 1);
         }
         return retVal;
@@ -425,9 +427,7 @@ export class ParameterService {
      * @return {Boolean}
      */
     private isDatasetValid(dataset: any, mappings: string[]): boolean {
-        return dataset.database && dataset.table && dataset.fields && mappings.every((mapping) => {
-            return (dataset.fields[mapping] !== undefined);
-        });
+        return dataset.database && dataset.table && dataset.fields && mappings.every((mapping) => (dataset.fields[mapping] !== undefined));
     }
 
     /**
