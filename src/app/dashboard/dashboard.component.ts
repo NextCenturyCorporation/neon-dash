@@ -22,8 +22,7 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef,
-    HostBinding
+    ViewContainerRef
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';

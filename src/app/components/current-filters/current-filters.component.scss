@@ -19,7 +19,7 @@
     background-color: var(--color-background, white);
     display: grid;
     grid-template-columns: auto 1fr;
-    border-bottom: 2px solid #bbb;
+    border-bottom: 2px solid #BBBBBB;
     
     .remove-all {
         align-self: flex-start;
@@ -28,23 +28,27 @@
     .group {        
         zoom: .8;
         display: inline-block;
-        background: var(--color-primary-transparent, #ddd);
+        background: var(--color-primary-transparent, #DDDDDD);
         border-radius: 30px;        
         margin: 3px 5px;
         padding: 3px;
     }
+
     .group-name {
         padding: 0 .5em;
     }
+
     .group.remove-all {
         padding: 3px;
         background: none;
         margin: 3px 5px;
+
         button {
             border-radius: 50% !important;
         }
     }
+    
     mat-chip-list {
-        display:inline-block;
+        display: inline-block;
     }
 }

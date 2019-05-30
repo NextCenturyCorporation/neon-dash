@@ -28,13 +28,12 @@
 mat-sidenav-container /deep/ mat-sidenav-content {
     display: grid;
     grid-template-rows: auto auto auto 1fr;
-    grid-template-areas: 
-        'header'
-        'panel'
-        'filters'
-        'grid';
+    grid-template-areas:
+    'header'
+    'panel'
+    'filters'
+    'grid';
 }
-
 
 .neon-sidenav {
     height: 100%;
@@ -70,15 +69,15 @@ mat-toolbar {
     grid-area: grid;
     background-color: var(--color-background, white);
     overflow-y: auto;
+
     .neon-grid {
         width: calc(100vw - 15px);
-
     }
 }
 
 .header-toggle-container {
     grid-area: panel;
-    padding: .5em;
+    padding: 0.5em;
 
     .filters-container,
     .dashboard-selector-container {

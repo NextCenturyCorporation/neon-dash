@@ -37,7 +37,7 @@ interface FilterGroup {
     filters?: FilterDisplay[];
 }
 
-export class FilterUtil {
+export class FilterDisplayUtil {
     static cleanValue(type: string, val: any) {
         switch (type) {
             case 'date': return moment(val).format('YYYY-MM-DD');
@@ -54,28 +54,28 @@ export class FilterUtil {
     }
 
     static isGeo(type: string, name: string) {
-        return type === 'double' && /[.](lat|lon)$/i.test(name);
+        return type === 'double' && (/[.](lat|lon)$/i).test(name);
     }
 
-    static computeFilter(x: AbstractFilter): FilterDisplay {
+    static computeFilter(filter: AbstractFilter): FilterDisplay {
         let ret: Partial<FilterDisplay>;
-        if (x instanceof SimpleFilter) {
+        if (filter instanceof SimpleFilter) {
             ret = {
-                field: x.field.prettyName,
-                value: this.cleanValue(x.field.type, x.value),
-                op: this.translateOperator(x.field.type, x.operator)
+                field: filter.field.prettyName,
+                value: this.cleanValue(filter.field.type, filter.value),
+                op: this.translateOperator(filter.field.type, filter.operator)
             };
-        } else if (x instanceof CompoundFilter) {
-            const simples = x.filters.filter((y) => y instanceof SimpleFilter) as SimpleFilter[];
+        } else if (filter instanceof CompoundFilter) {
+            const simples = filter.filters.filter((y) => y instanceof SimpleFilter) as SimpleFilter[];
             const latLongs = simples.filter((y) => this.isGeo(y.field.type, y.field.prettyName));
             const dates = simples.filter((y) => y.field.type === 'date');
 
-            if (x.filters.length === 2) {
+            if (filter.filters.length === 2) {
                 if (dates.length === 2) {
                     ret = {
                         field: dates[0].field.prettyName,
                         op: 'between',
-                        value: `${this.cleanValue('date', dates[0].value)} and ${this.cleanValue('date', dates[1].value)}`,
+                        value: `${this.cleanValue('date', dates[0].value)} and ${this.cleanValue('date', dates[1].value)}`
                     };
                 } else if (latLongs.length === 2) {
                     ret = {
@@ -84,25 +84,28 @@ export class FilterUtil {
                         value: `(${this.cleanValue('geo', latLongs[0].value)}, ${this.cleanValue('geo', latLongs[1].value)})`
                     };
                 }
-            } else if (x.filters.length === 4) {
+            } else if (filter.filters.length === 4) {
                 if (latLongs.length === 4) {
                     ret = {
                         field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/i, ''),
                         op: 'from',
-                        value: `(${this.cleanValue('geo', latLongs[0].value)}, ${this.cleanValue('geo', latLongs[1].value)}) to (${this.cleanValue('geo', latLongs[2].value)}, ${this.cleanValue('geo', latLongs[3].value)})`
+                        value: [
+                            `(${this.cleanValue('geo', latLongs[0].value)}, ${this.cleanValue('geo', latLongs[1].value)})`,
+                            `(${this.cleanValue('geo', latLongs[2].value)}, ${this.cleanValue('geo', latLongs[3].value)})`
+                        ].join(' to ')
                     };
                 }
             }
             if (!ret) {
-                const values = x.filters
+                const values = filter.filters
                     .map((v) => this.computeFilter(v).text)
-                    .join(` ${x.type} `.toUpperCase());
+                    .join(` ${filter.type} `.toUpperCase());
 
                 ret = { text: `(${values})` };
             }
         }
         if (!ret.full) {
-            ret.full = x.toDesign();
+            ret.full = filter.toDesign();
         }
         if (!ret.text) {
             if (ret.field) {
@@ -113,8 +116,6 @@ export class FilterUtil {
         }
         return ret as FilterDisplay;
     }
-
-
 }
 
 @Component({
@@ -123,7 +124,6 @@ export class FilterUtil {
     styleUrls: ['./current-filters.component.scss']
 })
 export class CurrentFiltersComponent implements OnInit, OnDestroy {
-
     private messenger: eventing.Messenger;
 
     public COMPOUND_FILTER_TYPE = CompoundFilterType;
@@ -155,15 +155,13 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         this.filterService.deleteFilters('FilterList', null as any,
             this.groups
                 .reduce((acc, g) => acc.concat(g.filters), [] as FilterDisplay[])
-                .map(f => f.full)
-        );
+                .map((f) => f.full));
     }
-
 
     updateFilters() {
         this.groups = [];
         for (const x of this.filterService.getRawFilters()) {
-            const filter = FilterUtil.computeFilter(x);
+            const filter = FilterDisplayUtil.computeFilter(x);
             if (filter.field) {
                 const grp = this.groups.find((g) => g.name === filter.field);
                 if (!grp) {
@@ -173,7 +171,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                     });
                 } else {
                     grp.multi = true;
-                    grp.filters!.push(filter);
+                    grp.filters.push(filter);
                 }
             } else {
                 this.groups.push({
