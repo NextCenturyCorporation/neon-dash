@@ -30,7 +30,7 @@ import { ConfigService } from '../../services/config.service';
 import { CompoundFilterType } from '../../services/abstract.search.service';
 import { SearchService } from '../../services/search.service';
 
-describe('Component: CurrentFiltersComponent', () => {
+fdescribe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: CurrentFiltersComponent;
@@ -91,7 +91,7 @@ describe('Component: CurrentFiltersComponent', () => {
         );
         expect(eqs).toBeTruthy();
         expect(eqs.field).toEqual('FIELD');
-        expect(eqs.text).toEqual('FIELD value');
+        expect(eqs.text).toEqual('FIELD is value');
 
         const neqs = FilterDisplayUtil.computeFilter(
             simple('field', '!=', 'value')
@@ -148,5 +148,24 @@ describe('Component: CurrentFiltersComponent', () => {
 
         expect(area.field).toEqual('LOC');
         expect(area.text).toEqual('LOC from (5.000, 5.000) to (15.000, 15.000)');
+    }));
+
+    it('Complex/Custom computeFilter Should Produce Meaningful Text', (() => {
+        const point = FilterDisplayUtil.computeFilter(
+            and(
+                and(
+                    simple('loc.lat', '=', 5.0),
+                    simple('age', '>=', 5.0)
+                ),
+                and(
+                    simple('year', '<=', 1999),
+                    simple('name', '=', 'name')
+                )
+            )
+        );
+        expect(point).toBeTruthy();
+        expect(point.field).toBeUndefined();
+        expect(point.text).toEqual('((LOC.LAT is 5 AND AGE >= 5) AND (YEAR <= 1999 AND NAME is name))');
+        expect(point.full.name.match(/base\s*\/\s*table\s*\/\s*/gi).length).toEqual(4);
     }));
 });

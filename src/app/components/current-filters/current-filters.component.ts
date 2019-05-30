@@ -32,7 +32,7 @@ interface FilterDisplay {
 }
 
 interface FilterGroup {
-    name?: string;
+    name: string;
     multi?: boolean;
     filters?: FilterDisplay[];
 }
@@ -49,7 +49,7 @@ export class FilterDisplayUtil {
     static translateOperator(type: string, op: string) {
         switch (type) {
             case 'date': return op.replace(/^<=?$/, 'before').replace(/^>=?$/, 'after');
-            default: return op.replace(/^=$/g, '');
+            default: return op.replace(/^=$/g, 'is');
         }
     }
 
@@ -172,6 +172,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 } else {
                     grp.multi = true;
                     grp.filters.push(filter);
+                    grp.filters.sort((a, b) => `${a.value}`.localeCompare(`${b.value}`));
                 }
             } else {
                 this.groups.push({
@@ -180,6 +181,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 });
             }
         }
+        this.groups.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     ngOnDestroy() {

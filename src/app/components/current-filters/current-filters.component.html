@@ -9,7 +9,7 @@
         <mat-chip-list>
             <mat-chip *ngFor="let filter of group.filters" selected color="primary">
                 <span [title]="filter.full.name">
-                    <span *ngIf="filter.field">{{filter.op}} {{filter.value}}</span>
+                    <span *ngIf="filter.field">{{filter.op === 'is' ? '' : filter.op}} {{filter.value}}</span>
                     <span *ngIf="!filter.field">{{filter.text.length > 40 ? filter.text.substring(0, 40) + '...' : filter.text}}</span>
                 </span>
                 <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
