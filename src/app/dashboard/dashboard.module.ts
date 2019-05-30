@@ -27,9 +27,10 @@ import { DashboardComponent } from './dashboard.component';
 import { CommonWidgetModule } from '../common-widget.module';
 import { MatBadgeModule, MatMenuModule, MatSnackBarModule, MatTabsModule } from '@angular/material';
 import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+import { AbbreviatePipe } from './abbreviate.pipe';
 
 @NgModule({
-    declarations: [DashboardComponent],
+    declarations: [DashboardComponent, AbbreviatePipe],
     exports: [DashboardComponent],
     imports: [
         CommonWidgetModule,
