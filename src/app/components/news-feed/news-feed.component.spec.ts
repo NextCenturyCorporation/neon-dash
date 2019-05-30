@@ -282,54 +282,6 @@ describe('Component: NewsFeed', () => {
         }]);
     });
 
-    // For isSelectable method
-    it('isSelectable does return expected boolean', () => {
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
-
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.idField = new FieldMetaData();
-    });
-
-    // For isSelected method
-    it('isSelected does return expected boolean', () => {
-        expect(component.isSelected({})).toEqual(false);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
-            filterDesign.table === component.options.table && filterDesign.field === component.options.filterField &&
-            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(true);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue2'
-        })).toEqual(false);
-
-        expect(component.isSelected({
-            testNotAFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = new FieldMetaData();
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-    });
-
     // For refreshVisualization method
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
