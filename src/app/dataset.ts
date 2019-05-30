@@ -107,6 +107,10 @@ export class Datastore {
  * Class to represent dashboards object from the config file.
  */
 export class Dashboard {
+    public fileName?: string;
+    public lastModified?: number;
+    public modified?: boolean;
+
     public name?: string = '';
     // Exist in Dashboards that are not terminal nodes.
     public category?: string = '';

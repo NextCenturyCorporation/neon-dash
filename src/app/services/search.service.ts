@@ -79,15 +79,16 @@ export class NeonConnection implements Connection {
     }
 
     /**
-     * Returns the saved dashboard state names.
+     * Returns the saved dashboard states.
      *
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}
      * @override
      */
-    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.getAllStateNames(onSuccess, onError);
+    public listStates(limit: number, offset: number, onSuccess: (response: any) => void,
+        onError?: (response: any) => void): RequestWrapper {
+        return this.connection.listStates(limit, offset, onSuccess, onError);
     }
 
     /**
@@ -505,7 +506,7 @@ export class SearchService extends AbstractSearchService {
         switch (wherePredicate.type) {
             case 'and':
             case 'or':
-                for (let nestedWherePredicate of (wherePredicate as query.BooleanClause).whereClauses) {
+                for (let nestedWherePredicate of (wherePredicate).whereClauses) {
                     this.transformWherePredicateNestedValues(nestedWherePredicate, keysToValuesToLabels);
                 }
                 break;
@@ -520,13 +521,13 @@ export class SearchService extends AbstractSearchService {
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }
     ): void {
         let keys = Object.keys(keysToValuesToLabels);
-        let key = (wherePredicate as query.WhereClause).lhs;
+        let key = (wherePredicate).lhs;
         if (keys.includes(key)) {
             let valuesToLabels = keysToValuesToLabels[key];
             let values = Object.keys(valuesToLabels);
             for (let value of values) {
-                if (valuesToLabels[value] === (wherePredicate as query.WhereClause).rhs) {
-                    (wherePredicate as query.WhereClause).rhs = value;
+                if (valuesToLabels[value] === (wherePredicate).rhs) {
+                    (wherePredicate).rhs = value;
                 }
             }
         }

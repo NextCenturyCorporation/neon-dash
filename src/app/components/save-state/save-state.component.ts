@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, Input, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
@@ -24,7 +24,7 @@ import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { Dashboard } from '../../dataset';
+import { Dashboard, Datastore } from '../../dataset';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -32,6 +32,15 @@ import * as _ from 'lodash';
 
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
+import { tap } from 'rxjs/operators';
+
+interface State {
+    fileName: string;
+    lastModified: number;
+    dashboards: Dashboard;
+    datastores: Datastore;
+    layouts: any;
+}
 
 @Component({
     selector: 'app-save-state',
@@ -45,17 +54,12 @@ export class SaveStateComponent implements OnInit {
 
     @Input() public widgetGridItems: NeonGridItem[] = [];
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
-
-    public formData: any = {
-        newStateName: '',
-        stateToLoad: '',
-        stateToDelete: ''
-    };
+    @Input() public current: Dashboard;
 
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
-    public stateNames: string[] = [];
+    public states: { total: number, results: State[] } = { total: 0, results: [] };
 
     constructor(
         protected datasetService: DatasetService,
@@ -63,14 +67,13 @@ export class SaveStateComponent implements OnInit {
         protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
         private snackBar: MatSnackBar,
-        private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog
     ) {
         this.messenger = new eventing.Messenger();
     }
 
     ngOnInit() {
-        this.loadStateNames();
+        this.fetchStates();
     }
 
     private closeSidenav() {
@@ -95,6 +98,7 @@ export class SaveStateComponent implements OnInit {
         // Don't modify the original dashboard object
         let clonedDashboard = _.cloneDeep(dashboard);
         clonedDashboard.options.connectOnLoad = true;
+        clonedDashboard.modified = false;
 
         // Customize the dashboard with the saved state name
         clonedDashboard.name = stateName;
@@ -137,7 +141,21 @@ export class SaveStateComponent implements OnInit {
      *
      * @arg {string} name
      */
-    public saveState(name: string): void {
+    public saveState(name: string, isOverwrite = false): void {
+        if (isOverwrite) {
+            this.openConfirmationDialog(
+                'Save Changes',
+                'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
+                'Save',
+                'Discard'
+            )
+                .subscribe((result) => {
+                    if (result) {
+                        this.saveState(name, false);
+                    }
+                });
+            return;
+        }
         let connection = this.openConnection();
         if (connection) {
             let validStateName = this.validateName(name);
@@ -151,6 +169,10 @@ export class SaveStateComponent implements OnInit {
             };
 
             connection.saveState(stateData, (response) => {
+                if (this.current) {
+                    this.current.name = name;
+                    this.current.fileName = `${validStateName}.yaml`;
+                }
                 this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
                 this.handleStateFailure(response, validStateName);
@@ -181,7 +203,20 @@ export class SaveStateComponent implements OnInit {
      * Deletes the state for the name choosen.
      * @method deleteState
      */
-    public deleteState(name: string) {
+    public deleteState(name: string, verify = false) {
+        if (verify) {
+            this.openConfirmationDialog(
+                'Delete Changes',
+                `Are you sure you want to delete '${name}' ?`,
+                'Delete'
+            )
+                .subscribe((result) => {
+                    if (result) {
+                        this.deleteState(name, false);
+                    }
+                });
+            return;
+        }
         let connection = this.openConnection();
         if (connection) {
             let validStateName = this.validateName(name);
@@ -191,7 +226,6 @@ export class SaveStateComponent implements OnInit {
                 this.handleStateFailure(response, validStateName);
             });
         }
-        this.closeSidenav();
     }
 
     getDefaultOptionTitle() {
@@ -203,21 +237,22 @@ export class SaveStateComponent implements OnInit {
     }
 
     private handleDeleteStateSuccess(response: any, name: string) {
-        this.formData.stateToDelete = '';
-        this.loadStateNames();
+        this.fetchStates();
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: any, name: string) {
-        this.formData.stateToLoad = '';
+    private handleLoadStateSuccess(response: State, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
             let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
                 response.datastores, response.layouts);
             // Dashboard choices should be set by wrapInSavedStateDashboard
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
+                const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
+                dash.fileName = response.fileName;
+                dash.lastModified = response.lastModified;
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                    dashboard: dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]
+                    dashboard: dash
                 });
                 this.openNotification(name, 'loaded');
             } else {
@@ -235,8 +270,10 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     private handleSaveStateSuccess(response: any, name: string) {
-        this.formData.stateToSave = '';
-        this.loadStateNames();
+        this.current.modified = false;
+        this.current.lastModified = Date.now();
+
+        this.fetchStates();
         this.openNotification(name, 'saved');
     }
 
@@ -254,20 +291,18 @@ export class SaveStateComponent implements OnInit {
     }
 
     /**
-     * Updates the list of available dashboard state names.
+     * Updates the list of available dashboard states.
      *
      * @private
      */
-    private loadStateNames() {
-        this.formData.stateToDelete = '';
-        this.formData.stateToLoad = '';
+    private fetchStates(limit = 100, offset = 0) {
         this.isLoading = true;
-        this.stateNames = [];
+        this.states = { total: 0, results: [] };
         let connection = this.openConnection();
         if (connection) {
-            connection.getStateNames((stateNames) => {
+            connection.listStates(limit, offset, (states) => {
                 this.isLoading = false;
-                this.stateNames = stateNames;
+                this.states = states;
             }, (response) => {
                 this.isLoading = false;
                 this.handleStateFailure(response, 'load states');
@@ -275,33 +310,24 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
-    public setStateToLoad(name: string) {
-        this.formData.stateToLoad = name;
-    }
-
-    public setStateToDelete(name: string) {
-        this.formData.stateToDelete = name;
-    }
-
-    openConfirmationDialog() {
+    public openConfirmationDialog(title: string, message: string, confirmText = 'Ok', cancelText = 'Cancel') {
         this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'confirmation-dialog',
-                confirmMessage: 'Are you sure you want to delete ',
-                confirmText: 'Delete',
-                target: this.formData.stateToDelete
+                title,
+                confirmMessage: message,
+                confirmText,
+                cancelText
             },
-            height: '130px',
+            height: 'auto',
             width: '500px',
             disableClose: false
         });
 
-        this.confirmDialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.deleteState(this.formData.stateToDelete);
-            }
-            this.confirmDialogRef = null;
-        });
+        return this.confirmDialogRef.afterClosed()
+            .pipe(tap(() => {
+                this.confirmDialogRef = null;
+            }));
     }
 
     private openConnection(): any {
