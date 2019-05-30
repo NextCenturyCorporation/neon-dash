@@ -30,7 +30,7 @@ import { ConfigService } from '../../services/config.service';
 import { CompoundFilterType } from '../../services/abstract.search.service';
 import { SearchService } from '../../services/search.service';
 
-fdescribe('Component: CurrentFiltersComponent', () => {
+describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: CurrentFiltersComponent;
