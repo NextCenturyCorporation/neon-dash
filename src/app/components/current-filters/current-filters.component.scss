@@ -16,8 +16,10 @@
 @import '../base-neon-component/base-neon.component';
 
 :host {
+    background-color: var(--color-background, white);
     display: grid;
     grid-template-columns: auto 1fr;
+    border-bottom: 2px solid #bbb;
     
     .remove-all {
         align-self: flex-start;
@@ -26,7 +28,7 @@
     .group {        
         zoom: .8;
         display: inline-block;
-        background: #ddd;
+        background: var(--color-primary-transparent, #ddd);
         border-radius: 30px;        
         margin: 3px 5px;
         padding: 3px;
