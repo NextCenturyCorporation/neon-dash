@@ -603,10 +603,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         if (this.widgets.get(eventMessage.id) === undefined) {
             this.widgets.set(eventMessage.id, eventMessage.widget);
         }
-        setTimeout(() => {
-            this.grid.triggerResize();
-            console.log('Resizing');
-        }, 1000);
     }
 
     resetAllPanel() {
