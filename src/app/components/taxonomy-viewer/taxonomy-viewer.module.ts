@@ -20,15 +20,15 @@ import { MatTreeModule, MatIconModule, MatButtonModule } from '@angular/material
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
-  declarations: [TaxonomyViewerComponent],
-  exports: [TaxonomyViewerComponent],
-  entryComponents: [TaxonomyViewerComponent],
-  imports: [
-    CommonWidgetModule,
-    MatTreeModule,
-    MatIconModule,
-    MatButtonModule,
-    CommonModule
-  ]
+    declarations: [TaxonomyViewerComponent],
+    exports: [TaxonomyViewerComponent],
+    entryComponents: [TaxonomyViewerComponent],
+    imports: [
+        CommonWidgetModule,
+        MatTreeModule,
+        MatIconModule,
+        MatButtonModule,
+        CommonModule
+    ]
 })
 export class TaxonomyViewerModule { }

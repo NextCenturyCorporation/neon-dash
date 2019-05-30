@@ -231,11 +231,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     /**
      * Returns the default limit for the visualization.
-     *
-     * @return {string}
      * @override
      */
-    getVisualizationDefaultLimit(): number {
+    getVisualizationDefaultLimit() {
         return 10000;
     }
 
@@ -245,7 +243,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @return {string}
      * @override
      */
-    getVisualizationDefaultTitle(): string {
+    getVisualizationDefaultTitle() {
         return 'Taxonomy Viewer';
     }
 
