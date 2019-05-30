@@ -65,6 +65,70 @@
 
 }
 
+mat-accordion mat-expansion-panel {
+    margin: 0;
+    box-shadow: unset;
+
+    mat-expansion-panel-header {
+        padding: 0 12px;
+
+        &.mat-expanded {
+            background-color: var(--color-primary-transparent, #EEEEEE);
+        }
+
+        mat-panel-title {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            overflow: hidden;
+            align-items: center;
+            grid-gap: 0.5em;
+
+            .text {
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                height: 1.1em;
+                line-height: 1.1em;
+                overflow: hidden;
+                color: var(--color-header-text, #333333);
+            }
+
+            .date {
+                font-size: 0.7em;
+                opacity: 0.8;
+                text-align: left;
+            }
+        }
+    }
+
+    mat-panel-description {
+        div {
+            width: 100%;
+        }
+        
+        dl {
+            padding: 0;
+            margin-bottom: 10px;
+
+            dd, dt {
+                display: inline;
+            }
+
+            dd {
+                margin-inline-start: unset;
+                padding-left: 0.5em;
+            }
+
+            dt {
+                color: var(--color-header-text, #333333);
+            }
+        }
+
+        .date {
+            text-align: right;
+            font-size: 0.7em;
+        }
+    }
+}
 
 .content-ellipses {
     text-overflow: ellipsis;

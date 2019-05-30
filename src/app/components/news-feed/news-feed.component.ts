@@ -43,6 +43,8 @@ import {
 } from '../../widget-option';
 import { MatDialog } from '@angular/material';
 
+import * as moment from 'moment';
+
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
  */
@@ -93,6 +95,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('altContentField', 'Alt Content Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
@@ -101,6 +104,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false)
         ];
+    }
+
+    relativeTime(date: Date) {
+        if (moment(date).diff(Date.now(), 'd', true) < -3) {
+            return moment(date).format('YYYY/MM/DD');
+        }
+        return moment(date).fromNow();
     }
 
     /**
@@ -136,7 +146,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
-            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('id', 'ID', null),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
         ];
     }
@@ -177,8 +187,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
+                // This.searchService.buildFilterClause(options.idField.columnName, '!=', '')
             ];
         }
 
@@ -277,27 +287,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns whether items are selectable (filterable).
-     *
-     * @return {boolean}
-     */
-    isSelectable() {
-        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
-    }
-
-    /**
-     * Returns whether the given item is selected (filtered).
-     *
-     * @arg {object} item
-     * @return {boolean}
-     */
-    isSelected(item) {
-        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item[this.options.filterField.columnName]
-        )));
-    }
-
-    /**
      * Initializes any visualization properties when the widget is created.
      *
      * @override
@@ -316,18 +305,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
-    }
-
-    /**
-     * Returns multiple values as an array
-     *
-     * @arg {any} value
-     * @private
-     */
-    private getArrayValues(value) {
-        return Array.isArray(value) ?
-            value : value.toString().search(/,/g) > -1 ?
-                value.toString().split(',') : [value];
     }
 
     /**

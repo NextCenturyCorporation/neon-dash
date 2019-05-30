@@ -10,8 +10,7 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -20,27 +19,35 @@
     </div>
 
     <div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
-        <div class="news-feed-container" *ngIf="newsFeedData != null" [hidden]="!newsFeedData.length">
-            <div class="news-feed-div" *ngFor="let item of newsFeedData" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
-                [class.selected]="isSelected(item)">
-                <div class="content-details">
-                    <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>
-                    <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">
-                        {{ item[options.contentField.columnName] }}</div>
-                    <div class="content-footer">
-                        <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
-                        <p [hidden]="!item[options.secondaryTitleField.columnName]">{{ item[options.secondaryTitleField.columnName] }}</p>
+        <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat">
+            <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" (click)="selectGridItem(item)">
+                <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'">
+                    <mat-panel-title>
+                        <span class="date">{{ relativeTime(item[options.dateField.columnName]) }}</span>
+                        <span class="text">{{ item[options.contentField.columnName] }}</span>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-panel-description>
+                    <div>
+                        <dl>
+                            <dt>Text</dt>
+                            <dd>{{ item[options.contentField.columnName] }}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Original</dt>
+                            <dd>{{ item[options.altContentField.columnName] }}</dd>
+                        </dl>
+                        <p class="date">{{ item[options.dateField.columnName] }}</p>
                     </div>
-                </div>
-            </div>
-        </div>
+                </mat-panel-description>
+            </mat-expansion-panel>
+        </mat-accordion>
     </div>
 
     <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
     <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
@@ -52,8 +59,7 @@
 
     <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>

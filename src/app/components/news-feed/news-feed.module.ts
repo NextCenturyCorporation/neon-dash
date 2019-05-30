@@ -17,12 +17,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewsFeedComponent } from './news-feed.component';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { MatExpansionModule } from '@angular/material';
 
 @NgModule({
     declarations: [NewsFeedComponent],
     exports: [NewsFeedComponent],
     entryComponents: [NewsFeedComponent],
     imports: [
+        MatExpansionModule,
         CommonWidgetModule,
         CommonModule
     ]
