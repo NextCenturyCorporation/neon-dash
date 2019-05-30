@@ -628,7 +628,7 @@ export class FilterService {
      * @return {FilterDesign[]}
      */
     public getFilters(filterDataSourceList?: FilterDataSource[]): FilterDesign[] {
-        return this.getRawFilters(filterDataSourceList).map(filter => filter.toDesign());
+        return this.getRawFilters(filterDataSourceList).map((filter) => filter.toDesign());
     }
 
     /**
@@ -637,7 +637,7 @@ export class FilterService {
      * @arg {FilterDataSource[]} [filterDataSourceList]
      * @return {AbstractFilter[]}
      */
-    public getRawFilters(filterDataSourceList?: FilterDataSource[]) {
+    public getRawFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
         if (filterDataSourceList) {
             return this.filterCollection.getFilters(filterDataSourceList);
         }
@@ -1153,19 +1153,27 @@ export class CompoundFilter extends AbstractFilter {
             // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
             // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
             // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
-            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
-                compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
-                compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
-                    nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
-                        compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
+            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
+                compoundFilterDesign.type === this.type &&
+                compoundFilterDesign.filters &&
+                compoundFilterDesign.filters.length === this.filters.length &&
+                compoundFilterDesign.filters.every((nestedDesign) =>
+                    this.filters.some((nestedFilter) =>
+                        nestedFilter.isCompatibleWithDesign(nestedDesign))) &&
+                this.filters.every((nestedFilter) =>
+                    compoundFilterDesign.filters.some((nestedDesign) =>
+                        nestedFilter.isCompatibleWithDesign(nestedDesign)));
         }
 
         // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
         // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
         // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
-            compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
-                nestedFilter.isCompatibleWithDesign(nestedDesign)));
+        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
+            compoundFilterDesign.type === this.type &&
+            compoundFilterDesign.filters &&
+            compoundFilterDesign.filters.every((nestedDesign) =>
+                this.filters.some((nestedFilter) =>
+                    nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
 
     /**
