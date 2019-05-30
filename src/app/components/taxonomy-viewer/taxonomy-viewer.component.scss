@@ -61,6 +61,7 @@
         }
     }
     input[type=checkbox] {
+        vertical-align: bottom;
         margin-right: .5em;
     }
 }
@@ -82,11 +83,39 @@ mat-nested-tree-node {
     .children {
         padding-left: 10px;
     }
+
     .scrollable {
+        &.children {
+            padding-left: unset;
+            margin-left: 20px;
+            .mat-tree-node {            
+                margin-left: 0px;
+                padding-left: 5px;
+            }
+        }
+
+        :nth-child(even) {
+            background-color: var(--color-background, #eee); 
+        }
+
+        border: 1px solid #ddd;
+
         max-height: 16em;
         overflow-y: auto;
         background-color: var(--color-background-white, white);
+        // Handle nested scrollables
         .scrollable {
+            &.children {
+                padding-left: 10px;           
+                margin-left: unset;
+                .mat-tree-node {
+                    margin-left: 20px;
+                    padding-left: 10px;
+                }
+            }
+
+            border: unset;
+            background-color: unset;
             max-height: unset;
             overflow: unset;
         }

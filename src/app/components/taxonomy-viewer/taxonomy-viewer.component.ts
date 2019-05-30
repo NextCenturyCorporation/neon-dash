@@ -20,11 +20,13 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Injector,
+    ChangeDetectorRef
 } from '@angular/core';
 
-import { CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterType, FilterClause, QueryPayload, SortOrder, AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign, FilterService } from '../../services/filter.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
@@ -36,8 +38,9 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../widget-option';
-import { MatTreeNestedDataSource } from '@angular/material';
+import { MatTreeNestedDataSource, MatDialog } from '@angular/material';
 import { NestedTreeControl } from '@angular/cdk/tree';
+import { DatasetService } from '../../services/dataset.service';
 
 export interface TaxonomyNode {
     id: string;
@@ -85,6 +88,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     public treeControl = new NestedTreeControl<TaxonomyNode | TaxonomyGroup>((node) => 'children' in node && node.children);
     public dataSource = new MatTreeNestedDataSource<TaxonomyGroup | TaxonomyNode>();
+
+    constructor(
+        protected datasetService: DatasetService,
+        protected filterService: FilterService,
+        protected searchService: AbstractSearchService,
+        protected injector: Injector,
+        public changeDetection: ChangeDetectorRef,
+        public dialog: MatDialog
+    ) {
+        super(datasetService, filterService, searchService, injector, changeDetection, dialog);
+    }
 
     hasChild = (_: number, node: TaxonomyGroup) => !!node.children && node.children.length;
 
@@ -300,6 +314,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         nodeIds: new Set(),
                         level: pos + 1,
                         count: 0,
+                        leafCount: 0,
                         children: [],
                         childrenMap: {}
                     };
