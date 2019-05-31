@@ -726,18 +726,6 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'filter1'
         }]);
     });
-
-    it('isValideMediaType does return true if a MediaType is valid', () => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        let random = {
-            testLinkField: 'random'
-        };
-        let correctMedia = {
-            testLinkField: 'img'
-        };
-        expect(component.isValidMediaType(random)).toEqual(false);
-        expect(component.isValidMediaType(correctMedia)).toEqual(true);
-    });
 });
 
 describe('Component: ThumbnailGrid with config', () => {
