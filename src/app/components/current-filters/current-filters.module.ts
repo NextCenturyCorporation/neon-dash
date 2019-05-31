@@ -16,7 +16,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CurrentFiltersComponent } from './current-filters.component';
-import { MatListModule, MatIconModule, MatButtonModule } from '@angular/material';
+import { MatChipsModule, MatBadgeModule, MatIconModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
     declarations: [
@@ -29,7 +29,8 @@ import { MatListModule, MatIconModule, MatButtonModule } from '@angular/material
         CurrentFiltersComponent
     ],
     imports: [
-        MatListModule,
+        MatChipsModule,
+        MatBadgeModule,
         MatIconModule,
         MatButtonModule,
         CommonModule
