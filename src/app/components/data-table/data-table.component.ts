@@ -438,8 +438,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // width) is not bigger than the visualization, reduce the width of the columns to try to fit the table inside the visualization.
         if ((visualizationWidth < tableWidth) && (visualizationWidth > this.activeHeaders.length * this.MINIMUM_COLUMN_WIDTH)) {
             // Start with the last column and work backward.
-            for (let i = this.activeHeaders.length - 1; i >= 0; --i) {
-                let header: any = this.activeHeaders[i];
+            for (let index = this.activeHeaders.length - 1; index >= 0; --index) {
+                let header: any = this.activeHeaders[index];
                 let oldHeaderWidth = this.headerWidths.get(header.prop) || 0;
                 let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), this.MINIMUM_COLUMN_WIDTH);
                 this.headerWidths.set(header.prop, newHeaderWidth);
@@ -603,11 +603,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        this.tableData = results.map((d) => {
+        this.tableData = results.map((result) => {
             let row = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
                 }
             }
             return row;
@@ -620,21 +620,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     // Mouse up in a drag and drop element
-    onMouseUp(i) {
+    onMouseUp(index) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
             let length = this.headers.length;
-            if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
+            if (this.drag.downIndex >= length || index >= length || this.drag.downIndex < 0 || index < 0) {
                 // Do nothing
             } else {
-                let h = this.headers;
+                let headers = this.headers;
                 let si = this.drag.downIndex; // StartIndex
-                let ei = i; // EndIndex
+                let ei = index; // EndIndex
                 let dir = (si > ei ? -1 : 1);
-                let moved = h[si];
+                let moved = headers[si];
                 for (let ci = si; ci !== ei; ci += dir) {
-                    h[ci] = h[ci + dir];
+                    headers[ci] = headers[ci + dir];
                 }
-                h[ei] = moved;
+                headers[ei] = moved;
                 this.recalculateActiveHeaders();
             }
         }
@@ -644,33 +644,33 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     // Clicks on a drag and drop icon of an element
-    onMouseDown(i) {
-        if (i >= 0) {
-            this.drag.downIndex = i;
+    onMouseDown(index) {
+        if (index >= 0) {
+            this.drag.downIndex = index;
             this.drag.mousedown = true;
-            this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'grey dashed 1px');
+            this.setStyle(index, 'backgroundColor', 'rgba(0, 0, 0, .2)');
+            this.setStyle(index, 'border', 'grey dashed 1px');
         }
     }
 
     // Enters a NEW drag and drop element
-    onMouseEnter(i) {
+    onMouseEnter(index) {
         if (this.isDragging()) {
-            this.drag.currentIndex = i;
+            this.drag.currentIndex = index;
             let style = 'thick solid grey';
-            if (i < this.drag.downIndex) {
-                this.setStyle(i, 'borderTop', style);
-            } else if (i > this.drag.downIndex) {
-                this.setStyle(i, 'borderBottom', style);
+            if (index < this.drag.downIndex) {
+                this.setStyle(index, 'borderTop', style);
+            } else if (index > this.drag.downIndex) {
+                this.setStyle(index, 'borderBottom', style);
             }
         }
     }
 
-    onMouseLeaveItem(i) {
+    onMouseLeaveItem(index) {
         if (this.isDragging()) {
-            if (i !== this.drag.downIndex) {
-                this.setStyle(i, 'borderBottom', null);
-                this.setStyle(i, 'borderTop', null);
+            if (index !== this.drag.downIndex) {
+                this.setStyle(index, 'borderBottom', null);
+                this.setStyle(index, 'borderTop', null);
             }
         }
     }

@@ -300,30 +300,30 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         // TODO Move this code into separate functions
         /* eslint-disable-next-line complexity */
-        results.forEach((d) => {
+        results.forEach((result) => {
             let categories: string[];
             let types: string[];
             let subTypes: string[];
             let leafValue: string;
 
-            categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
+            categories = neonUtilities.deepFind(result, this.options.categoryField.columnName);
 
             if (this.options.typeField.columnName) {
-                types = neonUtilities.deepFind(d, this.options.typeField.columnName) instanceof Array ?
-                    neonUtilities.deepFind(d, this.options.typeField.columnName) :
-                    [neonUtilities.deepFind(d, this.options.typeField.columnName)];
+                types = neonUtilities.deepFind(result, this.options.typeField.columnName) instanceof Array ?
+                    neonUtilities.deepFind(result, this.options.typeField.columnName) :
+                    [neonUtilities.deepFind(result, this.options.typeField.columnName)];
             }
 
             // TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
             if (this.options.subTypeField.columnName) {
-                subTypes = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                subTypes = neonUtilities.deepFind(result, this.options.typeField.columnName);
             }
 
             // Leaf value set in case it is needed for the taxonomy valueObject
             // If a value is not found for the leafValue, id will be used
-            leafValue = neonUtilities.deepFind(d, this.options.valueField.columnName) ?
-                neonUtilities.deepFind(d, this.options.valueField.columnName) :
-                neonUtilities.deepFind(d, this.options.idField.columnName);
+            leafValue = neonUtilities.deepFind(result, this.options.valueField.columnName) ?
+                neonUtilities.deepFind(result, this.options.valueField.columnName) :
+                neonUtilities.deepFind(result, this.options.idField.columnName);
 
             for (let category of categories) {
                 // Checks if there are any parent(category) nodes in the tree
@@ -474,19 +474,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             group.nodeIds = [];
             group.sourceIds = [];
 
-            data.forEach((d) => {
-                let description = neonUtilities.deepFind(d, group.description.columnName);
-                let lineage = neonUtilities.deepFind(d, this.options.categoryField.columnName);
-                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
+            data.forEach((result) => {
+                let description = neonUtilities.deepFind(result, group.description.columnName);
+                let lineage = neonUtilities.deepFind(result, this.options.categoryField.columnName);
+                let id = neonUtilities.deepFind(result, this.options.idField.columnName);
 
-                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
+                let nameExists = description instanceof Array ? description.find((text) => text.includes(group.name)) :
                     description.includes(group.name);
 
                 let lineageExists = lineage instanceof Array ?
-                    lineage.find((s) => (s === group.lineage)) : (lineage === group.lineage);
+                    lineage.find((text) => (text === group.lineage)) : (lineage === group.lineage);
 
                 if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
-                    let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
+                    let sourceIds = neonUtilities.deepFind(result, this.options.sourceIdField.columnName);
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
                     count++;

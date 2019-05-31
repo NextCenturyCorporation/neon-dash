@@ -67,6 +67,9 @@ rules:
         - consistent
     generator-star-spacing: error
     guard-for-in: error
+    id-length:
+        - error
+        - properties: never
     key-spacing: error
     keyword-spacing: error
     linebreak-style: error

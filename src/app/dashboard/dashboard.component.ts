@@ -237,9 +237,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
         if (eventMessage.gridName) {
             // Find the correct tab, or create a new one if needed.
-            this.tabbedGrid.forEach((grid, i) => {
+            this.tabbedGrid.forEach((grid, gridIndex) => {
                 if (grid.name === eventMessage.gridName) {
-                    index = i;
+                    index = gridIndex;
                 }
             });
 
@@ -273,18 +273,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
 
         // Find the first empty space for the widget.
-        let x = 1;
-        let y = 1;
+        let xValue = 1;
+        let yValue = 1;
         let found = false;
-        while (y <= maxRow && !found) {
-            x = 1;
-            while (x <= maxCol && !found) {
-                widgetGridItem.col = x;
-                widgetGridItem.row = y;
+        while (yValue <= maxRow && !found) {
+            xValue = 1;
+            while (xValue <= maxCol && !found) {
+                widgetGridItem.col = xValue;
+                widgetGridItem.row = yValue;
                 found = this.widgetFits(widgetGridItem);
-                x++;
+                xValue++;
             }
-            y++;
+            yValue++;
         }
 
         this.tabbedGrid[index].list.push(widgetGridItem);
@@ -348,11 +348,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
-            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
+        for (let index = 0; index < this.tabbedGrid[this.selectedTabIndex].list.length; index++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[index].id === eventMessage.id) {
                 // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
-                this.tabbedGrid[this.selectedTabIndex].list[i].hide = true;
-                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
+                this.tabbedGrid[this.selectedTabIndex].list[index].hide = true;
+                this.tabbedGrid[this.selectedTabIndex].list.splice(index, 1);
             }
         }
     }
@@ -539,17 +539,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onDragStop(i, event) {
+    onDragStop(index, event) {
         // Do nothing.
     }
 
-    onResizeStart(i, event) {
-        this.visualizations.toArray()[i].onResizeStart();
+    onResizeStart(index, event) {
+        this.visualizations.toArray()[index].onResizeStart();
     }
 
     @DashboardModified()
-    onResizeStop(i, event) {
-        this.visualizations.toArray()[i].onResizeStop();
+    onResizeStop(index, event) {
+        this.visualizations.toArray()[index].onResizeStop();
     }
 
     openCustomConnectionDialog() {

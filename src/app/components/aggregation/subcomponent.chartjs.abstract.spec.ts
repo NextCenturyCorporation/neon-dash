@@ -53,12 +53,12 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
 
 class TestChartJsDataset extends AbstractChartJsDataset {
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((x) => {
-            let yList = this.xToY.get(x);
-            (yList.length ? yList : [null]).forEach((y) => {
+        Array.from(this.xToY.keys()).forEach((xValue) => {
+            let yList = this.xToY.get(xValue);
+            (yList.length ? yList : [null]).forEach((yValue) => {
                 this.data.push({
-                    x: x,
-                    y: y
+                    x: xValue,
+                    y: yValue
                 });
             });
         });

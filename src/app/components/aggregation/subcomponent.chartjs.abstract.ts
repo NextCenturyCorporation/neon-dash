@@ -25,14 +25,14 @@ export abstract class AbstractChartJsDataset {
     public xToY: Map<any, any> = new Map<any, any[]>();
 
     constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
-        xList.forEach((x) => {
-            this.xToY.set(x, []);
+        xList.forEach((xValue) => {
+            this.xToY.set(xValue, []);
         });
     }
 
-    public addPoint(x: any, y: any) {
+    public addPoint(xValue: any, yValue: any) {
         // All X values should already exist in the Map (if not, show an error).
-        this.xToY.set(x, this.xToY.get(x).concat(y));
+        this.xToY.set(xValue, this.xToY.get(xValue).concat(yValue));
     }
 
     public abstract finalizeData();
