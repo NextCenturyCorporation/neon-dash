@@ -81,16 +81,18 @@
         </button>
     </mat-toolbar>
 
-    <div class="header-toggle-container">
-        <div class="filters-container" id="filters" *ngIf="createFiltersComponent">
+    <app-current-filters></app-current-filters>
+
+    <div class="header-toggle-container" id="filters" *ngIf="createFiltersComponent">
+        <div class="filters-container">
             <app-filters (closeDialog)="toggleFiltersDialog()"></app-filters>
             <div class="header-toggle-footer">
             </div>
         </div>
     </div>
 
-    <div class="header-toggle-container">
-        <div class="dashboard-selector-container" id="dashboard.selector">
+    <div class="header-toggle-container" id="dashboard.selector">
+        <div class="dashboard-selector-container">
             <app-dashboard-selector [dashboards]="dashboards"></app-dashboard-selector>
             <div class="header-toggle-footer"></div>
         </div>

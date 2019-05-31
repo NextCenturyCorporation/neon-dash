@@ -27,6 +27,7 @@ import { DashboardComponent } from './dashboard.component';
 import { CommonWidgetModule } from '../common-widget.module';
 import { MatBadgeModule, MatMenuModule, MatSnackBarModule, MatTabsModule } from '@angular/material';
 import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-loader';
+import { CurrentFiltersModule } from '../components/current-filters/current-filters.module';
 import { AbbreviatePipe } from './abbreviate.pipe';
 
 @NgModule({
@@ -44,6 +45,7 @@ import { AbbreviatePipe } from './abbreviate.pipe';
         VisualizationContainerModule,
         DashboardSelectorModule,
         FiltersModule,
+        CurrentFiltersModule,
         SimpleFilterModule
     ]
 })
