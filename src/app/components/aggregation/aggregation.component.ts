@@ -904,7 +904,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
             // Remove each X from the list that does not exist in the data unless the subcomponent is a histogram.
             if (options.type !== 'histogram') {
-                xList = xList.filter((x) => xExists.get(x));
+                xList = xList.filter((xValue) => xExists.get(xValue));
             }
         } else {
             // Transform non-date data.
@@ -1388,14 +1388,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Selects the given area.  From SubcomponentListener.
      *
-     * @arg {any} x
-     * @arg {any} y
+     * @arg {any} xValue
+     * @arg {any} yValue
      * @arg {any} width
      * @arg {any} height
      *
      * @override
      */
-    subcomponentRequestsSelect(x: number, y: number, width: number, height: number) {
+    subcomponentRequestsSelect(xValue: number, yValue: number, width: number, height: number) {
         this.selectedAreaOffset = {
             x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0', 10),
             y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0', 10)
@@ -1403,8 +1403,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.selectedArea = {
             height: height,
             width: width,
-            x: x,
-            y: y
+            x: xValue,
+            y: yValue
         };
     }
 

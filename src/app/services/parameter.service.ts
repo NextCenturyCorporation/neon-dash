@@ -328,9 +328,10 @@ export class ParameterService {
                     // TODO THOR-1024 Do not expect filters within the dataset.
                     this.filterService.setFiltersFromConfig((dataset).filters || [], this.datasetService, this.searchService);
 
-                    for (let i = 0; i < dataset.databases.length; i++) {
-                        for (let j = 0; j < dataset.databases[i].tables.length; j++) {
-                            dataset.databases[i].tables[j].mappings = dashboardState.dataset.databases[i].tables[j].mappings;
+                    for (let databaseIndex = 0; databaseIndex < dataset.databases.length; databaseIndex++) {
+                        for (let tableIndex = 0; tableIndex < dataset.databases[databaseIndex].tables.length; tableIndex++) {
+                            dataset.databases[databaseIndex].tables[tableIndex].mappings =
+                                dashboardState.dataset.databases[databaseIndex].tables[tableIndex].mappings;
                         }
                     }
 

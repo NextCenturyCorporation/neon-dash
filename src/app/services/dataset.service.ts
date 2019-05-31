@@ -422,9 +422,9 @@ export class DatasetService {
      */
     // TODO: THOR-1062: may need to change to account for multiple datastores later
     private updateDataset(): void {
-        for (let i = 0; i < this.datasets.length; ++i) {
-            if (this.datasets[i].name === this.dataset.name) {
-                this.datasets[i] = _.cloneDeep(this.dataset);
+        for (let index = 0; index < this.datasets.length; ++index) {
+            if (this.datasets[index].name === this.dataset.name) {
+                this.datasets[index] = _.cloneDeep(this.dataset);
             }
         }
     }
@@ -828,13 +828,13 @@ export class DatasetService {
 
         let fields = _.cloneDeep(table.fields).filter((field) => (ignoreHiddenFields ? !field.hide : true));
 
-        fields.sort((x, y) => {
-            if (!x.prettyName || !y.prettyName) {
+        fields.sort((field1, field2) => {
+            if (!field1.prettyName || !field2.prettyName) {
                 return 0;
             }
             // Compare field pretty names and ignore case.
-            return (x.prettyName.toUpperCase() < y.prettyName.toUpperCase()) ?
-                -1 : ((x.prettyName.toUpperCase() > y.prettyName.toUpperCase()) ? 1 : 0);
+            return (field1.prettyName.toUpperCase() < field2.prettyName.toUpperCase()) ?
+                -1 : ((field1.prettyName.toUpperCase() > field2.prettyName.toUpperCase()) ? 1 : 0);
         });
 
         return fields;
@@ -967,9 +967,9 @@ export class DatasetService {
      */
     private getFieldTypes(connection: Connection, database: DatabaseMetaData, table: TableMetaData): Promise<FieldMetaData[]> {
         return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
-            for (let f of table.fields) {
-                if (types && types[f.columnName]) {
-                    f.type = types[f.columnName];
+            for (let field of table.fields) {
+                if (types && types[field.columnName]) {
+                    field.type = types[field.columnName];
                 }
             }
             resolve(table.fields);

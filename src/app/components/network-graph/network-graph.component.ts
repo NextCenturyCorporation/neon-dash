@@ -716,11 +716,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         } else {
             this.responseData = results;
 
-            this.responseData.forEach((d) => {
+            this.responseData.forEach((result) => {
                 for (let field of options.fields) {
                     if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName) &&
                         options.cleanLegendLabels && options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, field.columnName);
+                        let types = neonUtilities.deepFind(result, field.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedNodeLabels.push(this.labelCleanUp(value));
@@ -731,7 +731,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                     if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels &&
                         options.displayLegend) {
-                        let types = neonUtilities.deepFind(d, options.edgeColorField.columnName);
+                        let types = neonUtilities.deepFind(result, options.edgeColorField.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
@@ -923,8 +923,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             // Create a new node for each unique nodeId
             let nodes = this.getArray(id);
             let nodeNames = !name ? nodes : this.getArray(name);
-            for (let j = 0; j < nodes.length && ret.length < this.options.limit; j++) {
-                let nodeEntry = nodes[j];
+            for (let index = 0; index < nodes.length && ret.length < this.options.limit; index++) {
+                let nodeEntry = nodes[index];
                 if (this.isUniqueNode(nodeEntry)) {
                     // If legend labels have been modified, override the node color
                     if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && colorMapVal && colorMapVal !== '') {
@@ -938,7 +938,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         }
                     }
 
-                    ret.push(new Node(nodeEntry, nodeNames[j], colorMapVal, 1, color, false, { color: this.options.fontColor },
+                    ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, { color: this.options.fontColor },
                         this.options.nodeShape, xPosition, yPosition, filterFieldData));
                 }
             }
@@ -967,10 +967,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
         // let edgeWidth = this.options.edgeWidth;
 
-        for (let i = 0; i < destinations.length; i++) {
+        for (let index = 0; index < destinations.length; index++) {
             // If legend labels have been modified, override the edgeColor and edgeColorObject
-            if (this.prettifiedEdgeLabels.length > 0 && this.options.displayLegend && names[i] && names[i] !== '') {
-                let shortName = this.labelCleanUp(names[i]);
+            if (this.prettifiedEdgeLabels.length > 0 && this.options.displayLegend && names[index] && names[index] !== '') {
+                let shortName = this.labelCleanUp(names[index]);
                 for (const edgeLabel of this.prettifiedEdgeLabels) {
                     if (edgeLabel === shortName) {
                         colorMapVal = edgeLabel;
@@ -982,7 +982,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            ret.push(new Edge(source, destinations[i], names[i], { to: this.options.isDirected }, 1, colorObject, colorMapVal,
+            ret.push(new Edge(source, destinations[index], names[index], { to: this.options.isDirected }, 1, colorObject, colorMapVal,
                 edgeTextObject));
         }
         return ret;
@@ -1126,11 +1126,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let arraySize = this.existingNodeNames.length - 1;
         let list = this.existingNodeNames;
 
-        let i: number;
-        for (i = arraySize; i >= 0 && list[i] > element; i--) {
-            list[i + 1] = list[i];
+        let index: number;
+        for (index = arraySize; index >= 0 && list[index] > element; index--) {
+            list[index + 1] = list[index];
         }
-        list[i + 1] = element;
+        list[index + 1] = element;
     }
 
     /**

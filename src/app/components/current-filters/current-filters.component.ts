@@ -66,9 +66,9 @@ export class FilterDisplayUtil {
                 op: this.translateOperator(filter.field.type, filter.operator)
             };
         } else if (filter instanceof CompoundFilter) {
-            const simples = filter.filters.filter((y) => y instanceof SimpleFilter) as SimpleFilter[];
-            const latLongs = simples.filter((y) => this.isGeo(y.field.type, y.field.prettyName));
-            const dates = simples.filter((y) => y.field.type === 'date');
+            const simples = filter.filters.filter((nestedFilter) => nestedFilter instanceof SimpleFilter) as SimpleFilter[];
+            const latLongs = simples.filter((nestedFilter) => this.isGeo(nestedFilter.field.type, nestedFilter.field.prettyName));
+            const dates = simples.filter((nestedFilter) => nestedFilter.field.type === 'date');
 
             if (filter.filters.length === 2) {
                 if (dates.length === 2) {
@@ -98,7 +98,7 @@ export class FilterDisplayUtil {
             }
             if (!ret) {
                 const values = filter.filters
-                    .map((v) => this.computeFilter(v).text)
+                    .map((nestedFilter) => this.computeFilter(nestedFilter).text)
                     .join(` ${filter.type} `.toUpperCase());
 
                 ret = { text: `(${values})` };
@@ -154,25 +154,25 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     removeAll() {
         this.filterService.deleteFilters('FilterList', null as any,
             this.groups
-                .reduce((acc, g) => acc.concat(g.filters), [] as FilterDisplay[])
-                .map((f) => f.full));
+                .reduce((acc, group) => acc.concat(group.filters), [] as FilterDisplay[])
+                .map((filter) => filter.full));
     }
 
     updateFilters() {
         this.groups = [];
-        for (const x of this.filterService.getRawFilters()) {
-            const filter = FilterDisplayUtil.computeFilter(x);
+        for (const rawFilter of this.filterService.getRawFilters()) {
+            const filter = FilterDisplayUtil.computeFilter(rawFilter);
             if (filter.field) {
-                const grp = this.groups.find((g) => g.name === filter.field);
-                if (!grp) {
+                const fieldGroup = this.groups.find((group) => group.name === filter.field);
+                if (!fieldGroup) {
                     this.groups.push({
                         name: filter.field,
                         filters: [filter]
                     });
                 } else {
-                    grp.multi = true;
-                    grp.filters.push(filter);
-                    grp.filters.sort((a, b) => `${a.value}`.localeCompare(`${b.value}`));
+                    fieldGroup.multi = true;
+                    fieldGroup.filters.push(filter);
+                    fieldGroup.filters.sort((group1, group2) => `${group1.value}`.localeCompare(`${group2.value}`));
                 }
             } else {
                 this.groups.push({
@@ -181,7 +181,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
                 });
             }
         }
-        this.groups.sort((a, b) => a.name.localeCompare(b.name));
+        this.groups.sort((group1, group2) => group1.name.localeCompare(group2.name));
     }
 
     ngOnDestroy() {

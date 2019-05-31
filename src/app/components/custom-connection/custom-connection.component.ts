@@ -58,7 +58,7 @@ export class CustomConnectionComponent implements AfterViewInit {
 
     ngAfterViewInit() {
         this.steps = this.stepQueryList.toArray();
-        this.steps.sort((a, b) => a.stepNumber - b.stepNumber);
+        this.steps.sort((step1, step2) => step1.stepNumber - step2.stepNumber);
         this.currentStep = this.steps[0];
     }
 

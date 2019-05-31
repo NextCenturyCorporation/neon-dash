@@ -251,11 +251,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        this.newsFeedData = results.map((d) => {
+        this.newsFeedData = results.map((result) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(d, field.columnName);
+                    let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
