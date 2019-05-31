@@ -147,7 +147,7 @@ describe('dateBucketizer', () => {
         expect(bucketizer.getBucketIndex(nextHour)).toBe(1);
     });
 
-    it('daily bucket index of start date plus one day', () => {
+    it('daily bucket index of start date plus one day if given hours', () => {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
         bucketizer.setGranularity(DateBucketizer.HOUR);

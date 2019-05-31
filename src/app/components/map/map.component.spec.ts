@@ -72,6 +72,7 @@ class TestMapComponent extends MapComponent {
     }
 
     spyOnTestMap(functionName: string) {
+        /* eslint-disable-next-line jasmine/no-unsafe-spy */
         return spyOn(this.mapObject, functionName);
     }
 }
@@ -203,7 +204,7 @@ describe('Component: Map', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected options', () => {
+    it('does have expected default options', () => {
         expect(component.options.clusterPixelRange).toEqual(15);
         expect(component.options.customServer).toEqual(null);
         expect(component.options.disableCtrlZoom).toEqual(false);
@@ -227,7 +228,7 @@ describe('Component: Map', () => {
         expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
     });
 
-    it('does have expected layers', () => {
+    it('does have expected default layers', () => {
         expect(component.options.layers[0].databases).toEqual([]);
         expect(component.options.layers[0].database).toEqual(new DatabaseMetaData());
         expect(component.options.layers[0].tables).toEqual([]);

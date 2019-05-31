@@ -77,7 +77,6 @@ describe('Component: Filters', () => {
         spyOn(component.closeDialog, 'emit');
         component.closeFiltersDialog();
         /* eslint-disable @typescript-eslint/unbound-method */
-        expect(component.closeDialog.emit).toHaveBeenCalled();
         expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
         /* eslint-enable @typescript-eslint/unbound-method */
     }));

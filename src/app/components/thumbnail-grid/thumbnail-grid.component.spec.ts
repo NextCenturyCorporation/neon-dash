@@ -57,7 +57,7 @@ describe('Component: ThumbnailGrid', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected class options properties', () => {
+    it('does have expected default class options properties', () => {
         expect(component.options.border).toEqual('');
         expect(component.options.borderCompareValue).toEqual('');
         expect(component.options.borderPercentThreshold).toEqual(0.5);
@@ -735,8 +735,8 @@ describe('Component: ThumbnailGrid', () => {
         let correctMedia = {
             testLinkField: 'img'
         };
-        expect(!component.isValidMediaType(random));
-        expect(component.isValidMediaType(correctMedia));
+        expect(component.isValidMediaType(random)).toEqual(false);
+        expect(component.isValidMediaType(correctMedia)).toEqual(true);
     });
 });
 

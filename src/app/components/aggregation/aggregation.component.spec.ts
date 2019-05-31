@@ -4151,7 +4151,7 @@ describe('Component: Aggregation with config', () => {
         fixture.detectChanges();
     });
 
-    it('class options properties are set to expected values from config', () => {
+    it('custom class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
@@ -4247,7 +4247,7 @@ describe('Component: Aggregation with XY config', () => {
         ]
     });
 
-    it('class options properties are set to expected values from config', () => {
+    it('custom XY class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
@@ -4288,7 +4288,7 @@ describe('Component: Aggregation with XY config', () => {
         expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
     });
 
-    it('does show header in toolbar with visualization title from config', () => {
+    it('does show header in toolbar with visualization title from config with XY subcomponent', () => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
@@ -4355,7 +4355,7 @@ describe('Component: Aggregation with date config', () => {
         fixture.detectChanges();
     });
 
-    it('class options properties are set to expected values from config', () => {
+    it('custom date class options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
@@ -4396,7 +4396,7 @@ describe('Component: Aggregation with date config', () => {
         expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
     });
 
-    it('does show header in toolbar with visualization title from config', () => {
+    it('does show header in toolbar with visualization title from config with date fields', () => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
