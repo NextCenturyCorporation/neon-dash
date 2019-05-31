@@ -128,7 +128,7 @@ export class ParameterService {
      * @param {Boolean} [ignoreDashboardState] Whether to ignore any saved dashboard states given in the parameters
      * @method addFiltersFromUrl
      */
-    addFiltersFromUrl(ignoreDashboardState?: boolean) {
+    addFiltersFromUrl(__ignoreDashboardState?: boolean) {
 
         /* TODO THOR-1076
         if (!this.datasetService.hasDataset()) {
@@ -280,7 +280,7 @@ export class ParameterService {
      * @param {String} dashboardStateId
      * @param {String} filterStateId
      */
-    loadState(dashboardStateId: string | number, filterStateId: string | number) {
+    loadState(__dashboardStateId: string | number, __filterStateId: string | number) {
 
         /* TODO THOR-1131
         let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),

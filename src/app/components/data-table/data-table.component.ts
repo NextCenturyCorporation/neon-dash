@@ -578,11 +578,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return '[' + modArr + ']';
     }
 
-    objectToString(_base) {
+    objectToString(__base) {
         return '';
     }
 
-    toCellString(base, _type) {
+    toCellString(base, __type) {
         if (base === null) {
             return '';
         } else if (Array.isArray(base)) {

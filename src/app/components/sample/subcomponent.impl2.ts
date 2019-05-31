@@ -23,7 +23,7 @@ export class SubcomponentImpl2 extends AbstractSubcomponent {
      * @arg {ElementRef} elementRef
      * @override
      */
-    buildElements(_elementRef: ElementRef) {
+    buildElements(__elementRef: ElementRef) {
         // TODO
     }
 
@@ -42,7 +42,7 @@ export class SubcomponentImpl2 extends AbstractSubcomponent {
      * @arg {array} data
      * @override
      */
-    updateData(_data: any[]) {
+    updateData(__data: any[]) {
         // TODO
     }
 }

@@ -236,7 +236,7 @@ export class SaveStateComponent implements OnInit {
         return this.widgets.get(id);
     }
 
-    private handleDeleteStateSuccess(response: any, name: string) {
+    private handleDeleteStateSuccess(__response: any, name: string) {
         this.fetchStates();
         this.openNotification(name, 'deleted');
     }
@@ -269,7 +269,7 @@ export class SaveStateComponent implements OnInit {
      * @arg {Object} response
      * @private
      */
-    private handleSaveStateSuccess(response: any, name: string) {
+    private handleSaveStateSuccess(__response: any, name: string) {
         this.current.modified = false;
         this.current.lastModified = Date.now();
 

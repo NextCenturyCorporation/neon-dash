@@ -410,7 +410,7 @@ export class QueryBarComponent extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionAddFilter(text: string, fields: any, array: any[]): FilterDesign {
+    private extensionAddFilter(__text: string, fields: any, array: any[]): FilterDesign {
         let filters: FilterDesign[] = array.map((element) => {
             let value: any = ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element);
             return this.createFilterDesignOnExtensionField(fields.database, fields.table, fields.idField, value);
@@ -440,7 +440,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         return false;
     }
 
-    private updateQueryBarText(_filters: FilterDesign[]) {
+    private updateQueryBarText(__filters: FilterDesign[]) {
         // TODO AIDA-754
     }
 }

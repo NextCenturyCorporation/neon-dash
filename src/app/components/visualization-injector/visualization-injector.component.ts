@@ -66,7 +66,7 @@ export class VisualizationInjectorComponent {
     constructor(private loader: ReactiveComponentLoader) {}
 
     findVisualizationComponent(type: string) {
-        const id = type.replace(/([a-z])([A-Z])/g, (all, left, right) => `${left}-${right.toLowerCase()}`);
+        const id = type.replace(/([a-z])([A-Z])/g, (__all, left, right) => `${left}-${right.toLowerCase()}`);
         return this.loader.getComponentRecipe({
             moduleId: id,
             selector: `app-${id}`

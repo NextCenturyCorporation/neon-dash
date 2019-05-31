@@ -264,9 +264,9 @@ rules:
     '@typescript-eslint/no-unused-vars':
         - error
         - vars: all
-          args: none
+          args: all
           ignoreRestSiblings: false
-          argsIgnorePattern: '^_'
+          argsIgnorePattern: '^__'
     '@typescript-eslint/no-use-before-define': off
 
     # Typescript other rules

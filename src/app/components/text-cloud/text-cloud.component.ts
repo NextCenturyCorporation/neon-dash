@@ -253,7 +253,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Term' + (count === 1 ? '' : 's');
     }
 
-    private redrawText(_filterDesigns: FilterDesign[]): void {
+    private redrawText(__filterDesigns: FilterDesign[]): void {
         this.textCloudData = this.textCloudData.map((item) => {
             let itemCopy = {
                 color: item.color,

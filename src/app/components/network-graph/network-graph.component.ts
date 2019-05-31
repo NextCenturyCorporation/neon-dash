@@ -690,11 +690,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return cleanLabel;
     }
 
-    private redrawFilteredNodes(_filters: FilterDesign[]): void {
+    private redrawFilteredNodes(__filters: FilterDesign[]): void {
         // TODO AIDA-752
     }
 
-    private redrawLegend(_filters: FilterDesign[]): void {
+    private redrawLegend(__filters: FilterDesign[]): void {
         // TODO AIDA-751
     }
 
@@ -785,15 +785,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // Do nothing ?
     }
 
-    select(_data) {
+    select(__data) {
         // Do nothing ?
     }
 
-    onLegendLabelClick(_entry) {
+    onLegendLabelClick(__entry) {
         // Do nothing ?
     }
 
-    toggleExpand(_node) {
+    toggleExpand(__node) {
         // Do nothing ?
     }
 

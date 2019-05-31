@@ -78,11 +78,11 @@ class TestMapComponent extends MapComponent {
 }
 
 class TestMap extends AbstractMap {
-    addPoints(_points: MapPoint[], _layer?: any, _cluster?: boolean, _layerTitle?: string) {
+    addPoints(__points: MapPoint[], __layer?: any, __cluster?: boolean, __layerTitle?: string) {
         /* NO-OP */
     }
 
-    clearLayer(_layer: any) {
+    clearLayer(__layer: any) {
         /* NO-OP */
     }
 
@@ -90,11 +90,11 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
-    doCustomInitialization(_mapContainer: ElementRef) {
+    doCustomInitialization(__mapContainer: ElementRef) {
         /* NO-OP */
     }
 
-    hidePoints(_layer: any, _value: string) {
+    hidePoints(__layer: any, __value: string) {
         /* NO-OP */
     }
 
@@ -106,11 +106,11 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
-    unhidePoints(_layer: any, _value: string) {
+    unhidePoints(__layer: any, __value: string) {
         /* NO-OP */
     }
 
-    unhideAllPoints(_layer: any) {
+    unhideAllPoints(__layer: any) {
         /* NO-OP */
     }
 

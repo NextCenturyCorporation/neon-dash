@@ -39,7 +39,7 @@ export class ElasticsearchLogger {
             (res) => {
                 console.log(res);
             },
-            (_error) => {
+            (__error) => {
                 console.log('Error occured!! ');
             }
         );

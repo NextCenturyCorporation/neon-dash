@@ -902,7 +902,7 @@ export class DatasetService {
         let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
-        return Promise.all(promiseArray).then((_response) => {
+        return Promise.all(promiseArray).then((__response) => {
             dataset.hasUpdatedFields = true;
             return dataset;
         });
@@ -918,7 +918,7 @@ export class DatasetService {
      */
     private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
         let promiseFields = [];
-        return new Promise<any>((resolve, _reject) => {
+        return new Promise<any>((resolve, __reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
                 Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
                     let table = _.find(database.tables, (item: TableMetaData) => item.name === tableName);
@@ -973,7 +973,7 @@ export class DatasetService {
                 }
             }
             resolve(table.fields);
-        }, (_error) => {
+        }, (__error) => {
             resolve([]);
         }));
     }
