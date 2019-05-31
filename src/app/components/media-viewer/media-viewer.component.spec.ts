@@ -758,7 +758,7 @@ describe('Component: MediaViewer', () => {
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
-        expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).toBeGreaterThanOrEqual(0);
+        expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).not.toEqual(-1);
     }));
 
     it('does show settings icon button in toolbar', (() => {
