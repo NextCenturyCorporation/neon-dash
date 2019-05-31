@@ -1999,7 +1999,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected option properties', () => {
+    it('does have expected advanced config option properties', () => {
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'testPublishId',
             fields: [{
@@ -2042,7 +2042,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
-    it('createCompleteVisualizationQuery does return expected query object', () => {
+    it('createCompleteVisualizationQuery on widget with advanced config does return expected query object', () => {
         expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
             database: 'testDatabase2',
             table: 'testTable2',
@@ -2071,7 +2071,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         });
     });
 
-    it('createSharedFilters does return expected array', () => {
+    it('createSharedFilters on widget with advanced config does return expected array', () => {
         expect(component.createSharedFilters(component.options)).toEqual([{
             field: 'testConfigField',
             operator: '!=',
@@ -2083,7 +2083,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         }]);
     });
 
-    it('getBindings does return expected object', () => {
+    it('getBindings on widget with advanced config does return expected object', () => {
         expect(component.getBindings()).toEqual({
             contributionKeys: ['organization1', 'organization2'],
             customEventsToPublish: [{
@@ -2127,7 +2127,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         });
     });
 
-    it('getExportFields does return expected array', () => {
+    it('getExportFields on widget with advanced config does return expected array', () => {
         expect(component.getExportFields()).toEqual([{
             columnName: 'testSizeField',
             prettyName: 'Test Size Field'
@@ -2146,7 +2146,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         }]);
     });
 
-    it('hasUnsharedFilter does return expected boolean', () => {
+    it('hasUnsharedFilter on widget with advanced config does return expected boolean', () => {
         expect(component['hasUnsharedFilter']()).toEqual(true);
     });
 

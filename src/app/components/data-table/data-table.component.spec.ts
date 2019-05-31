@@ -32,6 +32,9 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DataTableModule } from './data-table.module';
 import { ConfigService } from '../../services/config.service';
 
+// TODO Change toHaveBeenCalled to toHaveBeenCalledWith
+/* eslint-disable jasmine/prefer-toHaveBeenCalledWith */
+
 describe('Component: DataTable', () => {
     let component: DataTableComponent;
     let fixture: ComponentFixture<DataTableComponent>;

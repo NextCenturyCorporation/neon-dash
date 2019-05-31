@@ -79,10 +79,6 @@ describe('Component: DashboardDropdown with input', () => {
         component.dashboards = dashboards;
     });
 
-    it('should create an instance', (() => {
-        expect(component).toBeTruthy();
-    }));
-
     it('getDashboardKeys() should return an array of keys from dashboards object', (() => {
         expect(component.getDashboardKeys()).toEqual(['dash1', 'dash2']);
     }));
@@ -168,10 +164,6 @@ describe('Component: DashboardDropdown with no inputs', () => {
         fixture = TestBed.createComponent(DashboardDropdownComponent);
         component = fixture.componentInstance;
     });
-
-    it('should create an instance', (() => {
-        expect(component).toBeTruthy();
-    }));
 
     it('selectDashboardChoice() should populate dashboards and call emitSelectedDashboard()', (() => {
         let spy = spyOn(component, 'emitSelectedDashboard');

@@ -8,11 +8,14 @@ env:
     node: true
 plugins:
     - '@typescript-eslint'
+    - 'jasmine'
 extends: 
     # ESLint rules https://eslint.org/docs/rules/
     - 'eslint:recommended'
     # Typescript rules https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
     - 'plugin:@typescript-eslint/recommended'
+    # Jasmine rules https://github.com/tlvince/eslint-plugin-jasmine
+    - 'plugin:jasmine/recommended'
 rules:
     # ESLint recommended rules
     no-console:
@@ -292,3 +295,7 @@ rules:
     '@typescript-eslint/semi': error
     '@typescript-eslint/unbound-method': error
     '@typescript-eslint/unified-signatures': error
+
+    # Jasmine rules
+    'jasmine/missing-expect': off # TODO Enable once all unit tests are finished
+    'jasmine/new-line-before-expect': off

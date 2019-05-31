@@ -132,7 +132,7 @@ describe('Dashboard', () => {
 
     it('toggle filters component', async(() => {
         component.showFilterTray = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filters').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-filters').length).toEqual(0);
         component.showFilterTray = true;
         component.createFiltersComponent = true;
         component.toggleFiltersDialog();

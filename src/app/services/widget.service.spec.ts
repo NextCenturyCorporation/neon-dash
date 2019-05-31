@@ -77,8 +77,8 @@ describe('Service: Widget', () => {
     }));
 });
 
-describe('Service: Widget', () => {
-    initializeTestBed('Widget Service', {
+describe('ColorSet', () => {
+    initializeTestBed('Widget Service ColorSet', {
         providers: [
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
