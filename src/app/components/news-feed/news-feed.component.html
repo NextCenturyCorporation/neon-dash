@@ -24,18 +24,18 @@
                 <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'">
                     <mat-panel-title>
                         <span class="date">{{ relativeTime(item[options.dateField.columnName]) }}</span>
-                        <span class="text">{{ item[options.contentField.columnName] }}</span>
+                        <span class="text">{{ item[options.titleContentField.columnName] }}</span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-panel-description>
                     <div>
-                        <dl>
+                        <dl *ngIf="item[options.contentField.columnName]">
                             <dt>Text</dt>
-                            <dd>{{ item[options.contentField.columnName] }}</dd>
+                            <dd>{{item[options.contentField.columnName]}}</dd>
                         </dl>
-                        <dl>
+                        <dl *ngIf="item[options.sourceContentField.columnName]">
                             <dt>Original</dt>
-                            <dd>{{ item[options.altContentField.columnName] }}</dd>
+                            <dd>{{item[options.sourceContentField.columnName]}}</dd>
                         </dl>
                         <p class="date">{{ item[options.dateField.columnName] }}</p>
                     </div>
