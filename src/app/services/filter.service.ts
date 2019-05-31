@@ -505,7 +505,7 @@ export class FilterService {
      */
     public deleteFilters(
         callerId: string,
-        searchService: AbstractSearchService,
+        __searchService: AbstractSearchService,
         filterDesignListToDelete: FilterDesign[] = []
     ): Map<FilterDataSource[], FilterDesign[]> {
         // Find all filter collection keys matching the data source, if it is given; or find all filter collection keys otherwise.

@@ -74,7 +74,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
             },
             keys: {
-                [KEYS.ENTER]: (tree, node) => {
+                [KEYS.ENTER]: (__tree, node) => {
                     node.expandAll();
                 }
             }
@@ -293,7 +293,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(__options: any, results: any[]): number {
         let counter = 0;
 
         this.taxonomyGroups = [];
@@ -661,7 +661,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return relatives;
     }
 
-    private redrawTaxonomy(_filters: FilterDesign[]) {
+    private redrawTaxonomy(__filters: FilterDesign[]) {
         // TODO AIDA-753
     }
 

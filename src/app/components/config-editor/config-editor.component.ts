@@ -61,7 +61,7 @@ export class ConfigEditorComponent implements OnInit {
         const json = JSON.stringify(settings);
 
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, json,
-            (_response) => {
+            (__response) => {
                 this.configService.set(settings);
                 this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
@@ -80,7 +80,7 @@ export class ConfigEditorComponent implements OnInit {
         // TODO Replace confirm with angular component
         /* eslint-disable-next-line no-alert */
         if (window.confirm('Are you sure you want to delete this?')) {
-            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (_response) => {
+            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (__response) => {
                 this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
                     'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION

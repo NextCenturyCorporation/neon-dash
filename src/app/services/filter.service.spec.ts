@@ -5411,7 +5411,7 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         let calls = 0;
-        let testRedrawCallback = (_filters) => {
+        let testRedrawCallback = (__filters) => {
             calls++;
         };
 

@@ -153,8 +153,8 @@ export class NeonConnection implements Connection {
      */
     public runSearchQuery(
         queryPayload: NeonQueryWrapper,
-        _onSuccess: (response: any) => void,
-        _onError?: (response: any) => void
+        __onSuccess: (response: any) => void,
+        __onError?: (response: any) => void
     ): RequestWrapper {
         return this.connection.executeQuery((queryPayload).query, null);
     }

@@ -1306,7 +1306,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilter(group: string, value: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilter(__group: string, value: any, doNotReplace: boolean = false) {
         if (this.options.notFilterable) {
             return;
         }

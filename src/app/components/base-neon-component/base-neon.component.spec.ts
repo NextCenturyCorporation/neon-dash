@@ -114,14 +114,14 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return false;
     }
 
-    finalizeVisualizationQuery(options, query, filters) {
+    finalizeVisualizationQuery(__options, query, filters) {
         if (filters.length) {
             this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(filters));
         }
         return query;
     }
 
-    transformVisualizationQueryResults(_options, _results) {
+    transformVisualizationQueryResults(__options, __results) {
         return 0;
     }
 
@@ -500,7 +500,7 @@ describe('BaseNeonComponent', () => {
         component.options.layers[1].table = DatasetServiceMock.TABLES[1];
         // End setup
 
-        let spyExportFields = spyOn(component, 'getExportFields').and.callFake((options, _query) => {
+        let spyExportFields = spyOn(component, 'getExportFields').and.callFake((options, __query) => {
             if (options === component.options.layers[0]) {
                 return [{
                     columnName: 'export_1',
@@ -1137,7 +1137,7 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        spyOn(component['filterService'], 'getFiltersToSearch').and.callFake((datastore, database, table, search, ignoreList) => {
+        spyOn(component['filterService'], 'getFiltersToSearch').and.callFake((__datastore, __database, __table, __search, ignoreList) => {
             ++called;
             expect(ignoreList).toEqual([{
                 field: 'testField1',
@@ -1180,7 +1180,7 @@ describe('BaseNeonComponent', () => {
             }
             return [];
         });
-        spyOn(component['filterService'], 'getFiltersToSearch').and.callFake((datastore, database, table, search, ignoreList) => {
+        spyOn(component['filterService'], 'getFiltersToSearch').and.callFake((__datastore, __database, __table, __search, ignoreList) => {
             ++called;
             expect(ignoreList).toEqual([]);
             return [];
@@ -1489,7 +1489,7 @@ describe('BaseNeonComponent', () => {
             expect(elementCount).toEqual(10);
             done();
         };
-        let failureCallback = (_err: Error) => {
+        let failureCallback = (__err: Error) => {
             fail();
             done();
         };
@@ -1501,11 +1501,11 @@ describe('BaseNeonComponent', () => {
         let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        component.transformVisualizationQueryResults = (_options, _results) => {
+        component.transformVisualizationQueryResults = (__options, __results) => {
             throw expectedError;
         };
 
-        let successCallback = (_elementCount: number) => {
+        let successCallback = (__elementCount: number) => {
             fail();
             done();
         };

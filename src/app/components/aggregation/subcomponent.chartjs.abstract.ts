@@ -434,7 +434,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected findChartElementWidth(_item: any): number {
+    protected findChartElementWidth(__item: any): number {
         return this.DEFAULT_CHART_ELEMENT_WIDTH;
     }
 
@@ -567,7 +567,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickHeight(_axisType: string): number {
+    protected getMinimumTickHeight(__axisType: string): number {
         return 25;
     }
 
@@ -578,7 +578,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickWidth(_axisType: string): number {
+    protected getMinimumTickWidth(__axisType: string): number {
         return 50;
     }
 

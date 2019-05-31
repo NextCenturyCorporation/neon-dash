@@ -26,6 +26,9 @@ import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: Widget', () => {
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+    let service: WidgetService;
+
     initializeTestBed('Widget Service', {
         providers: [
             WidgetService,
@@ -36,45 +39,49 @@ describe('Service: Widget', () => {
         ]
     });
 
-    it('does have expected default theme and no existing ColorSets', inject([WidgetService], (service: WidgetService) => {
-        // TODO THOR-936
+    beforeEach(inject([WidgetService], (widgetService: WidgetService) => {
+        service = widgetService;
     }));
 
-    it('getColor does create new ColorSet', inject([WidgetService], (service: WidgetService) => {
+    it('does have expected default theme and no existing ColorSets', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getColor does use existing ColorSet', inject([WidgetService], (service: WidgetService) => {
+    it('getColor does create new ColorSet', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getColorKey does return expected string', inject([WidgetService], (service: WidgetService) => {
+    it('getColor does use existing ColorSet', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getColorSet does return expected ColorSet', inject([WidgetService], (service: WidgetService) => {
+    it('getColorKey does return expected string', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getTheme does return expected theme ID', inject([WidgetService], (service: WidgetService) => {
+    it('getColorSet does return expected ColorSet', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getThemes does return expected theme array', inject([WidgetService], (service: WidgetService) => {
+    it('getTheme does return expected theme ID', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getThemeAccentColorHex does return expected theme color', inject([WidgetService], (service: WidgetService) => {
+    it('getThemes does return expected theme array', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getThemeMainColorHex does return expected theme color', inject([WidgetService], (service: WidgetService) => {
+    it('getThemeAccentColorHex does return expected theme color', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('setTheme does update theme ID', inject([WidgetService], (service: WidgetService) => {
+    it('getThemeMainColorHex does return expected theme color', () => {
         // TODO THOR-936
-    }));
+    });
+
+    it('setTheme does update theme ID', () => {
+        // TODO THOR-936
+    });
 });
 
 describe('ColorSet', () => {
@@ -88,11 +95,11 @@ describe('ColorSet', () => {
         ]
     });
 
-    it('creates ColorSets for the colorMaps in the dataset', inject([WidgetService], (service: WidgetService) => {
+    it('creates ColorSets for the colorMaps in the dataset', () => {
         // TODO THOR-936
-    }));
+    });
 
-    it('getColor does use existing ColorSet from colorMaps', inject([WidgetService], (service: WidgetService) => {
+    it('getColor does use existing ColorSet from colorMaps', () => {
         // TODO THOR-936
-    }));
+    });
 });

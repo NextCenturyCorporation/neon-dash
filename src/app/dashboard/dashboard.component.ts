@@ -49,7 +49,7 @@ import { ConfigService } from '../services/config.service';
 import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
 
 export function DashboardModified() {
-    return (inst: any, prop: string | symbol, descriptor) => {
+    return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
             if (!this.pendingInitialRegistrations && this.currentDashboard) {
@@ -539,16 +539,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onDragStop(index, event) {
+    onDragStop(__index, __event) {
         // Do nothing.
     }
 
-    onResizeStart(index, event) {
+    onResizeStart(index, __event) {
         this.visualizations.toArray()[index].onResizeStart();
     }
 
     @DashboardModified()
-    onResizeStop(index, event) {
+    onResizeStop(index, __event) {
         this.visualizations.toArray()[index].onResizeStop();
     }
 
