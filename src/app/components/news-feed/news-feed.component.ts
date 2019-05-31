@@ -60,7 +60,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('newsFeed') newsFeed: ElementRef;
     @ViewChild('filter') filter: ElementRef;
 
     public newsFeedData: any[] = null;
@@ -101,8 +100,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
             new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
-            new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false)
         ];
     }
@@ -188,8 +185,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
-                // This.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
             ];
         }
 
@@ -216,7 +213,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText,
-            newsFeed: this.newsFeed,
             filter: this.filter
         };
     }
