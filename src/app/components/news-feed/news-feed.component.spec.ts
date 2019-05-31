@@ -59,15 +59,14 @@ describe('Component: NewsFeed', () => {
 
     // Checks if all class properties are there
     it('does have expected class options properties', () => {
-        expect(component.options.id).toEqual('');
+        expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.contentField).toEqual(new FieldMetaData());
+        expect(component.options.sourceContentField).toEqual(new FieldMetaData());
+        expect(component.options.titleContentField).toEqual(new FieldMetaData());
         expect(component.options.dateField).toEqual(new FieldMetaData());
         expect(component.options.filterField).toEqual(new FieldMetaData());
         expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
         expect(component.options.sortField).toEqual(new FieldMetaData());
     });
 
@@ -112,10 +111,10 @@ describe('Component: NewsFeed', () => {
         component.options.id = 'testId';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.sortField = new FieldMetaData('testSortField');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField');
         component.options.filterField = new FieldMetaData('testFilterField');
         component.options.contentField = new FieldMetaData('testContentField');
+        component.options.sourceContentField = new FieldMetaData('testContentField');
+        component.options.titleContentField = new FieldMetaData('testContentField');
         component.options.dateField = new FieldMetaData('testDateField');
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -145,16 +144,6 @@ describe('Component: NewsFeed', () => {
             filter: null
         });
     }));
-
-    // For getElementRefs method
-    it('getElementRefs does return expected object', () => {
-        let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.infoText).toBeDefined();
-        expect(refs.newsFeed).toBeDefined();
-        expect(refs.visualization).toBeDefined();
-        // TODO expect(refs.filter).toBeDefined();
-    });
 
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
