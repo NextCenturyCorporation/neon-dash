@@ -15,7 +15,8 @@
 */
 @import '../neon-properties';
 
-:host, mat-sidenav-container {
+:host,
+mat-sidenav-container {
     display: block;
     width: 100vw;
     height: 100vh;
@@ -23,7 +24,6 @@
     margin: 0;
     overflow: hidden;
 }
-
 
 mat-sidenav-container /deep/ mat-sidenav-content {
     display: grid;
@@ -92,7 +92,6 @@ mat-toolbar {
         }
     }
 }
-
 
 [mat-icon-button] {
     &.notify {
