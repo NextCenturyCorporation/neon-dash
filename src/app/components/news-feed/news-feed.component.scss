@@ -67,11 +67,12 @@
 
 mat-accordion mat-expansion-panel {
     margin: 0;
-    box-shadow: unset;
+    box-shadow: none;
+    border-bottom: 1px solid var(--color-background-contrast, #333);
 
     mat-expansion-panel-header {
         padding: 0 12px;
-
+        
         &.mat-expanded {
             background-color: var(--color-primary-transparent, #EEEEEE);
         }

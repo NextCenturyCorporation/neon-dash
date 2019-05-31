@@ -95,7 +95,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('altContentField', 'Alt Content Field', false),
+            new WidgetFieldOption('sourceContentField', 'Source Content Field', false),
+            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
