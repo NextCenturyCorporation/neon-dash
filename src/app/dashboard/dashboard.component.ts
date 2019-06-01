@@ -35,7 +35,7 @@ import { Dashboard } from '../dataset';
 import { DatasetService } from '../services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
 import { NeonGTDConfig } from '../neon-gtd-config';
@@ -46,7 +46,6 @@ import { SimpleFilterComponent } from '../components/simple-filter/simple-filter
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
-import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -92,6 +91,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public createAboutNeon: boolean = false;
     public createAddVis: boolean = false;
+    public createCustomConnection: boolean = false;
     public createDashboardLayouts: boolean = true;
     public createGear: boolean = true;
     public createSavedState: boolean = false;
@@ -135,10 +135,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
     public dashboardVersion: string = '';
-
-    /* A reference to the dialog for the custom connection dialog. */
-    private customConnectionDialogRef: MatDialogRef<DynamicDialogComponent>;
-
     public filtersIcon: string;
 
     // Use two messengers here because a single messager doesn't receive its own messages.
@@ -150,7 +146,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     constructor(
         public changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
-        public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
@@ -552,19 +547,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[index].onResizeStop();
     }
 
-    openCustomConnectionDialog() {
-        this.customConnectionDialogRef = this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'custom-connection'
-            },
-            viewContainerRef: this.viewContainerRef
-        });
-
-        this.customConnectionDialogRef.afterClosed().subscribe(() => {
-            this.customConnectionDialogRef = null;
-        });
-    }
-
     /**
      * Opens the option menu.
      *
@@ -668,6 +650,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.createAboutNeon = true;
         } else if (newPanel === 'addVis' && !this.createAddVis) {
             this.createAddVis = true;
+        } else if (newPanel === 'customConnection' && !this.createCustomConnection) {
+            this.createCustomConnection = true;
         } else if (newPanel === 'savedState' && !this.createSavedState) {
             this.createSavedState = true;
         } else if (newPanel === 'settings' && !this.createSettings) {
