@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
 
 import { Dashboard } from '../../dataset';
 import { neonEvents } from '../../neon-namespaces';
@@ -31,6 +31,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     @Input() dashboards: Dashboard;
 
+    @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
 
     private messenger: eventing.Messenger;
@@ -45,6 +47,13 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.messenger.unsubscribeAll();
+    }
+
+    /**
+     * Emits an event to close the component.
+     */
+    public emitCloseComponent() {
+        this.closeComponent.emit(true);
     }
 
     private onDashboardStateChange(eventMessage: { dashboard: Dashboard }): void {
