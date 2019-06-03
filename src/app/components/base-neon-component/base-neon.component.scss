@@ -25,10 +25,15 @@ $contribution-height: 20px;
     cursor: default;
     border-radius: 5px;
     display: grid;
-    grid-template-rows: $vis-title-expected-height 1fr auto auto;
-
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas: 
+        "header" 
+        "body" 
+        "footer" 
+        "contribution";
 
     .header {
+        grid-area: header;
         &.text {
             font-size: 14px;
             font-weight: 500;
@@ -58,6 +63,7 @@ $contribution-height: 20px;
 
 
     .body-container {
+        grid-area: body;
         position: relative;
         overflow-y: auto;
         width: 100%;
@@ -99,6 +105,7 @@ $contribution-height: 20px;
     }
 
     .footer {
+        grid-area: footer;
         border-top: 2px solid var(--color-accent, lightgrey);
         height: #{$footer-height};
     }
@@ -127,6 +134,7 @@ $contribution-height: 20px;
     }
 
     .contribution-text {
+        grid-area: contribution;
         border-top: 2px solid var(--color-accent, lightgrey);
         height: #{$contribution-height};
     }

@@ -20,8 +20,20 @@
         width: auto;
     }
 
-    app-legend {
-        display: inline-block;
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas: 
+        "header" 
+        "legend"
+        "body" 
+        "footer" 
+        "contribution";
+
+    .legend {
+        background-color: var(--color-background, white);
+        grid-area: legend;
+        app-legend {
+            display: inline-block;
+        }
     }
 }
 
