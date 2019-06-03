@@ -1,0 +1,176 @@
+.flex-grow {
+  flex: 1 auto;
+}
+
+.title-bold {
+  font-weight: bold;
+}
+
+.thumbnail-view {
+  width: auto;
+  height: fit-content;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  margin-right: 6px;
+}
+
+.thumbnail-details {
+  height: 1.6em;
+  width: 92%;
+  background-color: var(--color-background, white);
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7em;
+
+  p {
+      margin: 0.2em;
+      display: inline-flex;
+      flex-flow: row nowrap;
+  }
+
+  span {
+      white-space: nowrap;
+  }
+}
+
+
+.detail-ellipses {
+  flex: 1;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 75px;
+}
+
+.detail-percentage {
+  text-align: end;
+  width: 35px;
+}
+
+.with-border {
+  border: 3px solid transparent;
+}
+
+.border-mat-grey {
+  border: 3px solid #9E9E9E; /* mat-color-grey-500 */
+}
+
+.border-mat-blue {
+  border: 3px solid #2196F3; /* mat-color-blue-500 */
+}
+
+.border-mat-red {
+  border: 3px solid #F44336; /* mat-color-red-500 */
+}
+
+.selected .with-border, // sass-lint:disable-line force-element-nesting
+.selectable:hover .with-border, // sass-lint:disable-line force-element-nesting, force-pseudo-nesting
+.border-mat-yellow {
+  border: 3px solid #FFEB3B; /* mat-color-yellow-500 */
+}
+
+.thumbnail-flags {
+  display: flex;
+  border-bottom: solid 1px darkgray;
+  padding: 0 0 0.6em 0.4em;
+  flex: 1 1;
+  max-height: 113px;
+  flex-flow: row nowrap;
+  min-width: 250px;
+}
+
+.thumbnail-flag-details {
+  flex: auto;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+
+  p {
+      font-size: 0.8em;
+      margin: 4px;
+
+      &:first-child {
+          @extend .title-bold;
+          font-size: 0.9em;
+          color: #27607E;
+      }
+  }
+}
+
+.flag-ellipses {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  position: relative;
+  line-height: 1.2em;
+  /* max-height = line-height (1.2) * lines max number (2) */
+  max-height: 2.4em;
+  /* place for '...' */
+  margin-right: -1em;
+  padding-right: 1em;
+
+  &::before {
+      content: '...';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+  }
+
+  &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      width: 1em;
+      height: 1em;
+      margin-top: 0.2em;
+  }
+}
+
+.text-highlight {
+  color: #027276; /*#4dbec2;*/
+}
+
+.thumbnail-card {
+  display: flex;
+  background-color: #E8E8E8;
+  padding: 0 0 0.6em 0.4em;
+  flex: 1 1;
+  width: 224px;
+  flex-flow: column nowrap;
+}
+
+.thumbnail-card-title {
+  max-width: 80%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  text-align: center;
+  min-height: 60px;
+
+  p {
+      @extend .title-bold;
+      font-size: 0.9em;
+      color: #000000;
+  }
+}
+
+.thumbnail-card-details {
+  height: 80px;
+  width: 98%;
+  flex: auto;
+  overflow-y: scroll;
+  overflow: auto;
+
+  p {
+      font-size: 0.8em;
+      margin: 4px;
+  }
+}
+
+.thumbnail-card-canvas {
+  align-self: center;
+  margin-bottom: 1em;
+}
