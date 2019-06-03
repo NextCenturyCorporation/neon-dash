@@ -77,7 +77,6 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -103,7 +102,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
