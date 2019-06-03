@@ -15,6 +15,16 @@
  */
 @import '../base-neon-component/base-neon.component';
 
+:host {
+    .body-container {
+        width: auto;
+    }
+
+    app-legend {
+        display: inline-block;
+    }
+}
+
 .subcomponent-container {
     height: 100%;
     min-height: 100px;
