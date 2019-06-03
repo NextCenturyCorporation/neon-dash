@@ -33,7 +33,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     ],
     imports: [
         FormsModule,
-        MonacoEditorModule.forRoot(),
+        MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         MatDialogModule,
         MatButtonModule,
         MatSnackBarModule,
