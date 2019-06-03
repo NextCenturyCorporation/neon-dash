@@ -32,7 +32,7 @@ import { query } from 'neon-framework';
 
 // Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
 export class NeonConnection implements Connection {
-    constructor(public connection: query.Connection) {}
+    constructor(public connection: query.Connection) { }
 
     /**
      * Deletes the saved dashboard state with the given name.
@@ -153,8 +153,8 @@ export class NeonConnection implements Connection {
      */
     public runSearchQuery(
         queryPayload: NeonQueryWrapper,
-        _onSuccess: (response: any) => void,
-        _onError?: (response: any) => void
+        __onSuccess: (response: any) => void,
+        __onError?: (response: any) => void
     ): RequestWrapper {
         return this.connection.executeQuery((queryPayload).query, null);
     }
@@ -178,16 +178,16 @@ export class NeonConnection implements Connection {
 }
 
 export class NeonGroupWrapper implements QueryGroup {
-    constructor(public group: string | query.GroupByFunctionClause) {}
+    constructor(public group: string | query.GroupByFunctionClause) { }
 }
 
 export class NeonQueryWrapper implements QueryPayload {
     /* eslint-disable-next-line no-shadow */
-    constructor(public query: query.Query) {}
+    constructor(public query: query.Query) { }
 }
 
 export class NeonWhereWrapper implements FilterClause {
-    constructor(public where: query.WherePredicate) {}
+    constructor(public where: query.WherePredicate) { }
 }
 
 interface ExportField {
@@ -336,11 +336,18 @@ export class SearchService extends AbstractSearchService {
         let isWildcard: boolean = (exportQuery.fields.length === 1 && exportQuery.fields[0] === '*');
 
         // Save each activeField that is a field from the exportQuery in the export fields.
-        let queryFields: ExportField[] = (isWildcard ? activeFields : activeFields.filter((activeField) =>
-            exportQuery.fields.some((exportFieldName) => exportFieldName === activeField.columnName))).map((activeField) => ({
-            query: activeField.columnName,
-            pretty: activeField.prettyName
-        } as ExportField));
+        let queryFields: ExportField[] =
+            (
+                isWildcard ?
+                    activeFields :
+                    activeFields.filter((activeField) =>
+                        exportQuery.fields.some((exportFieldName) =>
+                            exportFieldName === activeField.columnName))
+            )
+                .map((activeField) => ({
+                    query: activeField.columnName,
+                    pretty: activeField.prettyName
+                } as ExportField));
 
         // Save each group function from the exportQuery in the export fields.
         let groupFields: ExportField[] = exportQuery.groupByClauses.filter((group) => group.type === 'function').map((group) => {
@@ -506,7 +513,7 @@ export class SearchService extends AbstractSearchService {
         switch (wherePredicate.type) {
             case 'and':
             case 'or':
-                for (let nestedWherePredicate of (wherePredicate).whereClauses) {
+                for (let nestedWherePredicate of wherePredicate.whereClauses) {
                     this.transformWherePredicateNestedValues(nestedWherePredicate, keysToValuesToLabels);
                 }
                 break;
@@ -521,13 +528,13 @@ export class SearchService extends AbstractSearchService {
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }
     ): void {
         let keys = Object.keys(keysToValuesToLabels);
-        let key = (wherePredicate).lhs;
+        let key = wherePredicate.lhs;
         if (keys.includes(key)) {
             let valuesToLabels = keysToValuesToLabels[key];
             let values = Object.keys(valuesToLabels);
             for (let value of values) {
-                if (valuesToLabels[value] === (wherePredicate).rhs) {
-                    (wherePredicate).rhs = value;
+                if (valuesToLabels[value] === wherePredicate.rhs) {
+                    wherePredicate.rhs = value;
                 }
             }
         }

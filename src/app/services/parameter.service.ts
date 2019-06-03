@@ -128,7 +128,7 @@ export class ParameterService {
      * @param {Boolean} [ignoreDashboardState] Whether to ignore any saved dashboard states given in the parameters
      * @method addFiltersFromUrl
      */
-    addFiltersFromUrl(ignoreDashboardState?: boolean) {
+    addFiltersFromUrl(__ignoreDashboardState?: boolean) {
 
         /* TODO THOR-1076
         if (!this.datasetService.hasDataset()) {
@@ -280,7 +280,7 @@ export class ParameterService {
      * @param {String} dashboardStateId
      * @param {String} filterStateId
      */
-    loadState(dashboardStateId: string | number, filterStateId: string | number) {
+    loadState(__dashboardStateId: string | number, __filterStateId: string | number) {
 
         /* TODO THOR-1131
         let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
@@ -328,9 +328,10 @@ export class ParameterService {
                     // TODO THOR-1024 Do not expect filters within the dataset.
                     this.filterService.setFiltersFromConfig((dataset).filters || [], this.datasetService, this.searchService);
 
-                    for (let i = 0; i < dataset.databases.length; i++) {
-                        for (let j = 0; j < dataset.databases[i].tables.length; j++) {
-                            dataset.databases[i].tables[j].mappings = dashboardState.dataset.databases[i].tables[j].mappings;
+                    for (let databaseIndex = 0; databaseIndex < dataset.databases.length; databaseIndex++) {
+                        for (let tableIndex = 0; tableIndex < dataset.databases[databaseIndex].tables.length; tableIndex++) {
+                            dataset.databases[databaseIndex].tables[tableIndex].mappings =
+                                dashboardState.dataset.databases[databaseIndex].tables[tableIndex].mappings;
                         }
                     }
 

@@ -221,7 +221,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(_options: any, _results: any[]): number {
+    transformVisualizationQueryResults(__options: any, __results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
         return 0;
     }

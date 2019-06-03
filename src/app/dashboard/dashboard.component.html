@@ -13,6 +13,10 @@
                     <wt-lazy [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}">
                     </wt-lazy>
                 </div>
+                <div id="addVis" class="add-visualization-container" *ngIf="createCustomConnection">
+                    <wt-lazy [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
+                    </wt-lazy>
+                </div>
                 <div id="gear" class="gear-container" *ngIf="createGear">
                     <wt-lazy [location]="{moduleId:'gear', selector: 'app-gear'}" [inputs]="{sideNavRight: sideNavRight}">
                     </wt-lazy>
@@ -71,6 +75,11 @@
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
                 <mat-icon color="secondary">settings</mat-icon>Settings
             </button>
+            <!-- TODO THOR-1056
+            <button mat-menu-item (click)="setPanel('customConnection', 'Custom Data Source')" *ngIf="showCustomConnectionButton">
+                <mat-icon color="secondary">storage</mat-icon>Custom Data Source
+            </button>
+            -->
             <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
                 <mat-icon color="secondary">info</mat-icon>About
             </button>
@@ -81,17 +90,19 @@
         </button>
     </mat-toolbar>
 
-    <div class="header-toggle-container">
-        <div class="filters-container" id="filters" *ngIf="createFiltersComponent">
+    <app-current-filters></app-current-filters>
+
+    <div class="header-toggle-container" id="filters" *ngIf="createFiltersComponent">
+        <div class="filters-container">
             <app-filters (closeDialog)="toggleFiltersDialog()"></app-filters>
             <div class="header-toggle-footer">
             </div>
         </div>
     </div>
 
-    <div class="header-toggle-container">
-        <div class="dashboard-selector-container" id="dashboard.selector">
-            <app-dashboard-selector [dashboards]="dashboards"></app-dashboard-selector>
+    <div class="header-toggle-container" id="dashboard.selector">
+        <div class="dashboard-selector-container">
+            <app-dashboard-selector [dashboards]="dashboards" (closeComponent)="toggleDashboardSelectorDialog()"></app-dashboard-selector>
             <div class="header-toggle-footer"></div>
         </div>
     </div>

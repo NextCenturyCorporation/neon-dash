@@ -100,7 +100,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 }
             },
             keys: {
-                [KEYS.ENTER]: (tree, node) => {
+                [KEYS.ENTER]: (__tree, node) => {
                     node.expandAll();
                 }
             }
@@ -418,48 +418,149 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
-        const group = {
-            childrenMap: {},
-            children: []
-        } as TaxonomyGroup;
+    transformVisualizationQueryResults(__options: any, results: any[]): number {
+        let counter = 0;
 
         const find = (d: any, field: string) =>
             this.options[field].columnName ?
                 neonUtilities.deepFind(d, this.options[field].columnName) :
                 null;
 
-        for (const d of results) {
+        // TODO Move this code into separate functions
+        /* eslint-disable-next-line complexity */
+        results.forEach((result) => {
+            let categories: string[];
             let types: string[];
-            const categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
+            let subTypes: string[];
+            let leafValue: string;
+
+            categories = neonUtilities.deepFind(result, this.options.categoryField.columnName);
 
             if (this.options.typeField.columnName) {
-                const val = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                types = Array.isArray(val) ? val : [val];
+                types = neonUtilities.deepFind(result, this.options.typeField.columnName) instanceof Array ?
+                    neonUtilities.deepFind(result, this.options.typeField.columnName) :
+                    [neonUtilities.deepFind(result, this.options.typeField.columnName)];
+            }
+
+            // TODO: Not fully implemented because subTypes do not currently exist, but might need to be in the future THOR-908
+            if (this.options.subTypeField.columnName) {
+                subTypes = neonUtilities.deepFind(result, this.options.typeField.columnName);
             }
 
             // Leaf value set in case it is needed for the taxonomy valueObject
             // If a value is not found for the leafValue, id will be used
-            const name = find(d, 'valueField') || find(d, 'idField');
-            const child = {
-                description: this.options.valueField,
-                name,
-                sourceIds: find(d, 'sourceIdField'),
-                externalId: find(d, 'idField'),
-                externalName: name
-            };
+            leafValue = neonUtilities.deepFind(result, this.options.valueField.columnName) ?
+                neonUtilities.deepFind(result, this.options.valueField.columnName) :
+                neonUtilities.deepFind(result, this.options.idField.columnName);
 
-            // Loop, categories[] -> types[] -> subTypes?[]
-            for (const category of categories) {
-                for (const type of types) {
-                    const lineage = { category, type };
+            for (let category of categories) {
+                // Checks if there are any parent(category) nodes in the tree
+                let foundCategory = this.getTaxonomyObject(this.taxonomyGroups, category);
 
-                    this.mergeTaxonomyData(group, lineage, {
-                        ...child,
-                        type: 'leaf',
-                        id: `${this.counter++}`,
-                        checked: !this.isTaxonomyNodeFiltered(this.options.typeField, lineage.type)
-                    });
+                // If the parent(category) node does not exist in the tree, add it
+                if (!foundCategory.object) {
+                    let parent = {
+                        id: counter++,
+                        name: category,
+                        lineage: category,
+                        children: [],
+                        description: this.options.categoryField,
+                        checked: !this.isTaxonomyNodeFiltered(this.options.categoryField, category)
+                    };
+
+                    this.taxonomyGroups.push(parent);
+                    foundCategory.object = this.taxonomyGroups[this.taxonomyGroups.length - 1];
+                    foundCategory.index = this.taxonomyGroups.length - 1;
+                }
+
+                // Creates valueObject to be added to the taxonomy if a value field exists
+                let valueObject = this.options.valueField.columnName ? {
+                    id: counter++,
+                    name: leafValue,
+                    lineage: category,
+                    description: this.options.valueField
+                } : null;
+
+                if (types) {
+                    for (let type of types) {
+                        // Checks if a subChild node will be needed based on if dot notation exists
+                        // within the child node string
+                        let subTypeNeeded = type.includes('.') || (subTypes && types !== subTypes);
+                        let foundType = null;
+                        let subTypeObject = null;
+
+                        // Checks if child(type) node exists in the tree and if not, adds it
+                        if (foundCategory.object.children) {
+                            foundType = this.getTaxonomyObject(foundCategory.object.children,
+                                type.includes('.') ? type.split('.')[0] : type);
+                        }
+
+                        // Creates subTypeObject to be added to the taxonomy if a subType exists
+                        if (subTypeNeeded) {
+                            subTypeObject = {
+                                id: counter++,
+                                name: type,
+                                children: [],
+                                lineage: category,
+                                description: this.options.subTypeField.columnName ?
+                                    this.options.subTypeField : this.options.typeField
+                            };
+                            subTypeObject.checked = !this.isTaxonomyNodeFiltered(subTypeObject.description, type);
+
+                            if (valueObject) {
+                                subTypeObject.children.push(valueObject);
+                            }
+                        }
+
+                        // If a child(type) node is found, add the subChild or value to the child if they exist
+                        if (foundType && foundType.object) {
+                            if (subTypeNeeded) {
+                                let foundSubType = this.getTaxonomyObject(foundType.object.children, type);
+
+                                if (!foundSubType.object) {
+                                    this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
+                                } else if (valueObject) {
+                                    let foundValue = this.getTaxonomyObject(foundSubType.object.children, valueObject.name);
+
+                                    if (!foundValue.object) {
+                                        this.taxonomyGroups[foundCategory.index].children[foundType.index].children[foundSubType.index]
+                                            .children.push(valueObject);
+                                    }
+                                }
+
+                                this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index]
+                                    .children[foundSubType.index].children);
+                            } else if (valueObject) {
+                                let foundValue = this.getTaxonomyObject(foundType.object.children, valueObject.name);
+
+                                if (!foundValue.object) {
+                                    this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(valueObject);
+                                }
+                            }
+                        } else {
+                            // If a child(type) node is not found, add a child. Then add a subChild or value to the child.
+                            let setType = type.includes('.') ? type.split('.')[0] : type;
+                            let typeObject = {
+                                id: counter++,
+                                name: setType,
+                                children: [],
+                                lineage: category,
+                                description: this.options.typeField,
+                                checked: !this.isTaxonomyNodeFiltered(this.options.typeField, setType)
+                            };
+
+                            this.taxonomyGroups[foundCategory.index].children.push(typeObject);
+                            foundType.index = this.taxonomyGroups[foundCategory.index].children.length - 1;
+
+                            if (subTypeNeeded) {
+                                this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(subTypeObject);
+                            } else if (valueObject) {
+                                this.taxonomyGroups[foundCategory.index].children[foundType.index].children.push(valueObject);
+                            }
+                        }
+
+                        this.sortTaxonomyArrays(this.taxonomyGroups[foundCategory.index].children[foundType.index].children);
+                    }// End types loop
                 }
             }
         }
@@ -660,19 +761,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             group.nodeIds = [];
             group.sourceIds = [];
 
-            data.forEach((d) => {
-                let description = neonUtilities.deepFind(d, group.description.columnName);
-                let lineage = neonUtilities.deepFind(d, this.options.categoryField.columnName);
-                let id = neonUtilities.deepFind(d, this.options.idField.columnName);
+            data.forEach((result) => {
+                let description = neonUtilities.deepFind(result, group.description.columnName);
+                let lineage = neonUtilities.deepFind(result, this.options.categoryField.columnName);
+                let id = neonUtilities.deepFind(result, this.options.idField.columnName);
 
-                let nameExists = description instanceof Array ? description.find((s) => s.includes(group.name)) :
+                let nameExists = description instanceof Array ? description.find((text) => text.includes(group.name)) :
                     description.includes(group.name);
 
                 let lineageExists = lineage instanceof Array ?
-                    lineage.find((s) => (s === group.lineage)) : (lineage === group.lineage);
+                    lineage.find((text) => (text === group.lineage)) : (lineage === group.lineage);
 
                 if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
-                    let sourceIds = neonUtilities.deepFind(d, this.options.sourceIdField.columnName);
+                    let sourceIds = neonUtilities.deepFind(result, this.options.sourceIdField.columnName);
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
                     count++;
@@ -847,7 +948,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return relatives;
     }
 
-    private redrawTaxonomy(_filters: FilterDesign[]) {
+    private redrawTaxonomy(__filters: FilterDesign[]) {
         // TODO AIDA-753
     }
 

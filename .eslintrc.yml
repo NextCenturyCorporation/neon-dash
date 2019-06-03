@@ -8,11 +8,14 @@ env:
     node: true
 plugins:
     - '@typescript-eslint'
+    - 'jasmine'
 extends: 
     # ESLint rules https://eslint.org/docs/rules/
     - 'eslint:recommended'
     # Typescript rules https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
     - 'plugin:@typescript-eslint/recommended'
+    # Jasmine rules https://github.com/tlvince/eslint-plugin-jasmine
+    - 'plugin:jasmine/recommended'
 rules:
     # ESLint recommended rules
     no-console:
@@ -67,6 +70,9 @@ rules:
         - consistent
     generator-star-spacing: error
     guard-for-in: error
+    id-length:
+        - error
+        - properties: never
     key-spacing: error
     keyword-spacing: error
     linebreak-style: error
@@ -258,9 +264,9 @@ rules:
     '@typescript-eslint/no-unused-vars':
         - error
         - vars: all
-          args: none
+          args: all
           ignoreRestSiblings: false
-          argsIgnorePattern: '^_'
+          argsIgnorePattern: '^__'
     '@typescript-eslint/no-use-before-define': off
 
     # Typescript other rules
@@ -289,3 +295,7 @@ rules:
     '@typescript-eslint/semi': error
     '@typescript-eslint/unbound-method': error
     '@typescript-eslint/unified-signatures': error
+
+    # Jasmine rules
+    'jasmine/missing-expect': off # TODO Enable once all unit tests are finished
+    'jasmine/new-line-before-expect': off

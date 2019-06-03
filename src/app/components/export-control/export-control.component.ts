@@ -51,7 +51,7 @@ export class ExportControlComponent {
         this.handleExportClick = this.handleExportClick.bind(this);
     }
 
-    setExportFormat(_value: number) {
+    setExportFormat(__value: number) {
         // Do nothing.
     }
 

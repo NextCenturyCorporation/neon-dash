@@ -160,7 +160,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {QueryPayload}
      * @override
      */
-    finalizeVisualizationQuery(_options: any, _query: QueryPayload, _sharedFilters: FilterClause[]): QueryPayload {
+    finalizeVisualizationQuery(__options: any, __query: QueryPayload, __sharedFilters: FilterClause[]): QueryPayload {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return null;
     }
@@ -214,7 +214,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {FilterClauseMetaData} filterClause
      */
-    public handleChangeDataOfClause(_filterClause: FilterClauseMetaData): void {
+    public handleChangeDataOfClause(__filterClause: FilterClauseMetaData): void {
         // Do nothing.
     }
 
@@ -313,7 +313,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(_options: any, _results: any[]): number {
+    transformVisualizationQueryResults(__options: any, __results: any[]): number {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return 0;
     }
@@ -347,7 +347,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      * @override
      */
-    validateVisualizationQuery(_options: any): boolean {
+    validateVisualizationQuery(__options: any): boolean {
         // TODO THOR-994 The Filter Builder does not run a visualization query.
         return false;
     }

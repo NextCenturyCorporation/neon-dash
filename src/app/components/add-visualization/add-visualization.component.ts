@@ -52,7 +52,7 @@ export class AddVisualizationComponent implements OnInit {
         this.messenger.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
     }
 
-    public onItemSelected(shiftKey: boolean, index: number) {
+    public onItemSelected(__shiftKey: boolean, index: number) {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }

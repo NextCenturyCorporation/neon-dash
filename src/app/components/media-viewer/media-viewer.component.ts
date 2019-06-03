@@ -122,7 +122,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any} metadata
      * @arg {string} name
      */
-    addEventLinks(fields: any[], metadata: any, _name: string) {
+    addEventLinks(fields: any[], metadata: any, __name: string) {
         let tabIndex = this.tabsAndMedia.length;
 
         let links = [];

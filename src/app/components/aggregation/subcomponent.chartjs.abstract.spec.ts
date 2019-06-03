@@ -30,35 +30,35 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
         // Do nothing.
     }
 
-    subcomponentRequestsFilter(_group: string, _value: any, _doNotReplace?: boolean) {
+    subcomponentRequestsFilter(__group: string, __value: any, __doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsFilterOnBounds(_beginX: any, _beginY: any, _endX: any, _endY: any, _doNotReplace?: boolean) {
+    subcomponentRequestsFilterOnBounds(__beginX: any, __beginY: any, __endX: any, __endY: any, __doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsFilterOnDomain(_beginX: any, _endX: any, _doNotReplace?: boolean) {
+    subcomponentRequestsFilterOnDomain(__beginX: any, __endX: any, __doNotReplace?: boolean) {
         // Do nothing.
     }
 
-    subcomponentRequestsRedraw(_event?) {
+    subcomponentRequestsRedraw(__event?) {
         // Do nothing.
     }
 
-    subcomponentRequestsSelect(_x: number, _y: number, _width: number, _height: number) {
+    subcomponentRequestsSelect(__x: number, __y: number, __width: number, __height: number) {
         // Do nothing.
     }
 }
 
 class TestChartJsDataset extends AbstractChartJsDataset {
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((x) => {
-            let yList = this.xToY.get(x);
-            (yList.length ? yList : [null]).forEach((y) => {
+        Array.from(this.xToY.keys()).forEach((xValue) => {
+            let yList = this.xToY.get(xValue);
+            (yList.length ? yList : [null]).forEach((yValue) => {
                 this.data.push({
-                    x: x,
-                    y: y
+                    x: xValue,
+                    y: yValue
                 });
             });
         });
@@ -82,7 +82,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
         return this.axisTypeY;
     }
 
-    protected finalizeChartOptions(chartOptions: any, _meta: any): any {
+    protected finalizeChartOptions(chartOptions: any, __meta: any): any {
         chartOptions.test = true;
         return chartOptions;
     }

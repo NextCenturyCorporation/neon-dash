@@ -156,9 +156,9 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                         database.name,
                         table.name,
                         (types) => {
-                            for (let f of table.fields) {
-                                if (types && types[f.columnName]) {
-                                    f.type = types[f.columnName];
+                            for (let field of table.fields) {
+                                if (types && types[field.columnName]) {
+                                    field.type = types[field.columnName];
                                 }
                             }
                             tablesDone++;

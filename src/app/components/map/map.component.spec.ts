@@ -72,16 +72,17 @@ class TestMapComponent extends MapComponent {
     }
 
     spyOnTestMap(functionName: string) {
+        /* eslint-disable-next-line jasmine/no-unsafe-spy */
         return spyOn(this.mapObject, functionName);
     }
 }
 
 class TestMap extends AbstractMap {
-    addPoints(_points: MapPoint[], _layer?: any, _cluster?: boolean, _layerTitle?: string) {
+    addPoints(__points: MapPoint[], __layer?: any, __cluster?: boolean, __layerTitle?: string) {
         /* NO-OP */
     }
 
-    clearLayer(_layer: any) {
+    clearLayer(__layer: any) {
         /* NO-OP */
     }
 
@@ -89,11 +90,11 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
-    doCustomInitialization(_mapContainer: ElementRef) {
+    doCustomInitialization(__mapContainer: ElementRef) {
         /* NO-OP */
     }
 
-    hidePoints(_layer: any, _value: string) {
+    hidePoints(__layer: any, __value: string) {
         /* NO-OP */
     }
 
@@ -105,11 +106,11 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
-    unhidePoints(_layer: any, _value: string) {
+    unhidePoints(__layer: any, __value: string) {
         /* NO-OP */
     }
 
-    unhideAllPoints(_layer: any) {
+    unhideAllPoints(__layer: any) {
         /* NO-OP */
     }
 
@@ -203,7 +204,7 @@ describe('Component: Map', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected options', () => {
+    it('does have expected default options', () => {
         expect(component.options.clusterPixelRange).toEqual(15);
         expect(component.options.customServer).toEqual(null);
         expect(component.options.disableCtrlZoom).toEqual(false);
@@ -227,7 +228,7 @@ describe('Component: Map', () => {
         expect(component.filterVisible.get(component.options.layers[0]._id)).toEqual(true);
     });
 
-    it('does have expected layers', () => {
+    it('does have expected default layers', () => {
         expect(component.options.layers[0].databases).toEqual([]);
         expect(component.options.layers[0].database).toEqual(new DatabaseMetaData());
         expect(component.options.layers[0].tables).toEqual([]);

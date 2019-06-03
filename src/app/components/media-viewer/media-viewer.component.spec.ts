@@ -61,7 +61,7 @@ describe('Component: MediaViewer', () => {
         expect(component).toBeTruthy();
     });
 
-    it('does have expected class options properties', () => {
+    it('does have expected default class options properties', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.resize).toEqual(true);
@@ -75,7 +75,7 @@ describe('Component: MediaViewer', () => {
         expect(component.options.autoplay).toEqual(false);
     });
 
-    it('does have expected class properties', () => {
+    it('does have expected default class properties', () => {
         expect(component.tabsAndMedia).toEqual([]);
         expect(component.mediaTypes).toEqual(MediaTypes);
     });
@@ -758,7 +758,7 @@ describe('Component: MediaViewer', () => {
 
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
-        expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message') >= 0).toBe(true);
+        expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).not.toEqual(-1);
     }));
 
     it('does show settings icon button in toolbar', (() => {

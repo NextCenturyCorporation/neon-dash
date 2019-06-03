@@ -29,15 +29,15 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     }
 
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((x) => {
-            let yList = this.xToY.get(x);
-            (yList.length ? yList : [null]).forEach((y) => {
+        Array.from(this.xToY.keys()).forEach((xValue) => {
+            let yList = this.xToY.get(xValue);
+            (yList.length ? yList : [null]).forEach((yValue) => {
                 this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
+                    this.xSelected.indexOf(xValue) < 0 ? this.getColorSelected() : this.getColorHover());
                 this.backgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
-                this.slices.push(x);
-                this.data.push(y);
+                    this.xSelected.indexOf(xValue) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.slices.push(xValue);
+                this.data.push(yValue);
             });
         });
     }

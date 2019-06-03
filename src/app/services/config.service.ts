@@ -46,7 +46,7 @@ export class ConfigService {
         return new ConfigService(null).set(config);
     }
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     handleConfigFileError(error, file?: any) {
         if (error.status === 404) {
@@ -73,14 +73,14 @@ export class ConfigService {
     }
 
     loadConfigFromLocal(path): Observable<NeonGTDConfig | undefined> {
-        return this.http.get(path, { responseType: 'text' })
+        return this.http.get(path, { responseType: 'text', params: { rnd: `${Math.random() * 1000000}.${Date.now()}` } })
             .pipe(map((response: any) => yaml.load(response) as NeonGTDConfig))
-            .pipe(catchError((e) => this.handleConfigFileError(e)));
+            .pipe(catchError((error) => this.handleConfigFileError(error)));
     }
 
     loadConfigFromPropertyService(): Observable<NeonGTDConfig | undefined> {
         return this.http.get<NeonGTDConfig | void>('../neon/services/propertyservice/config')
-            .pipe(catchError((e) => this.handleConfigPropertyServiceError(e)));
+            .pipe(catchError((error) => this.handleConfigPropertyServiceError(error)));
     }
 
     takeFirstLoadedOrFetchDefault(all: (NeonGTDConfig | null)[]) {
@@ -91,8 +91,8 @@ export class ConfigService {
         return this.loadConfigFromPropertyService();
     }
 
-    finalizeConfig(c: NeonGTDConfig) {
-        let config = c;
+    finalizeConfig(configInput: NeonGTDConfig) {
+        let config = configInput;
         if (config && config.neonServerUrl) {
             neon.setNeonServerUrl(config.neonServerUrl);
         }
@@ -112,7 +112,7 @@ export class ConfigService {
     }
 
     fetchConfig(configList: string[]) {
-        return combineLatest(...configList.map((c) => this.loadConfigFromLocal(c)))
+        return combineLatest(...configList.map((config) => this.loadConfigFromLocal(config)))
             .pipe(
                 switchMap(this.takeFirstLoadedOrFetchDefault.bind(this)),
                 map(this.finalizeConfig.bind(this))
@@ -121,7 +121,7 @@ export class ConfigService {
 
     initSource() {
         if (!this.$source) {
-            this.$source = this.source.asObservable().pipe(map((x) => JSON.parse(JSON.stringify(x))));
+            this.$source = this.source.asObservable().pipe(map((data) => JSON.parse(JSON.stringify(data))));
             return true;
         }
         return false;

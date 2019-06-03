@@ -379,33 +379,33 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
             switch (this.options.granularity) {
                 case 'minute':
-                    return previousItems.find((o) => {
-                        let minDate = new Date(new Date(o.origDate).setUTCSeconds(0));
-                        let maxDate = new Date(new Date(o.origDate).setUTCSeconds(59));
-                        return (minDate <= currentDate && currentDate <= maxDate) ? o : undefined;
+                    return previousItems.find((item) => {
+                        let minDate = new Date(new Date(item.origDate).setUTCSeconds(0));
+                        let maxDate = new Date(new Date(item.origDate).setUTCSeconds(59));
+                        return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
                 case 'hour':
-                    return previousItems.find((o) => {
-                        let minDate = new Date(new Date(o.origDate).setUTCMinutes(0));
-                        let maxDate = new Date(new Date(o.origDate).setUTCMinutes(59));
-                        return (minDate <= currentDate && currentDate <= maxDate) ? o : undefined;
+                    return previousItems.find((item) => {
+                        let minDate = new Date(new Date(item.origDate).setUTCMinutes(0));
+                        let maxDate = new Date(new Date(item.origDate).setUTCMinutes(59));
+                        return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
                 case 'day':
-                    return previousItems.find((o) => {
-                        let minDate = new Date(new Date(o.origDate).setUTCHours(0));
-                        let maxDate = new Date(new Date(o.origDate).setUTCHours(23));
-                        return (minDate <= currentDate && currentDate <= maxDate) ? o : undefined;
+                    return previousItems.find((item) => {
+                        let minDate = new Date(new Date(item.origDate).setUTCHours(0));
+                        let maxDate = new Date(new Date(item.origDate).setUTCHours(23));
+                        return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
                 case 'month':
-                    return previousItems.find((o) => {
-                        let prevMonth = new Date(o.origDate).getUTCMonth();
-                        let prevYear = new Date(o.origDate).getUTCFullYear();
-                        return (prevMonth === currentMonth && prevYear === currentYear) ? o : undefined;
+                    return previousItems.find((item) => {
+                        let prevMonth = new Date(item.origDate).getUTCMonth();
+                        let prevYear = new Date(item.origDate).getUTCFullYear();
+                        return (prevMonth === currentMonth && prevYear === currentYear) ? item : undefined;
                     });
                 case 'year':
-                    return previousItems.find((o) => {
-                        let prevYear = new Date(o.origDate).getUTCFullYear();
-                        return (prevYear === currentYear) ? o : undefined;
+                    return previousItems.find((item) => {
+                        let prevYear = new Date(item.origDate).getUTCFullYear();
+                        return (prevYear === currentYear) ? item : undefined;
                     });
             }
         }
@@ -443,9 +443,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.timelineData.bucketizer.setEndDate(series.endDate);
 
                 let numBuckets = this.timelineData.bucketizer.getNumBuckets();
-                for (let i = 0; i < numBuckets; i++) {
-                    let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
-                    series.data[i] = {
+                for (let index = 0; index < numBuckets; index++) {
+                    let bucketDate = this.timelineData.bucketizer.getDateForBucket(index);
+                    series.data[index] = {
                         date: bucketDate,
                         value: 0,
                         filters: []

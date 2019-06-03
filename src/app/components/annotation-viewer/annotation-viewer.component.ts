@@ -255,7 +255,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {Array}
      * @private m
      */
-    getValidAnnotations(_data) {
+    getValidAnnotations(__data) {
         //
     }
 
@@ -333,7 +333,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {Object}
      * @private
      */
-    findDocument(_dataItem) { /*
+    findDocument(__dataItem) { /*
         Let document;
 
         if (!this.options.anootationsInAnotherTable) {
@@ -352,13 +352,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @param {Object} document
      * @private
      */
-    saveAnnotations(_dataItem, _document) { /*
+    saveAnnotations(__dataItem, __document) { /*
         This.getValidAnnotations().forEach(function(annotation) {
             //
         });*/
     }
 
-    addAnnotation(_annotation) {
+    addAnnotation(__annotation) {
         // This.annotations
     }
 
@@ -369,7 +369,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @param {Object} document
      * @private
      */
-    addAnnotationToDocument(_annotation, _document) { /*
+    addAnnotationToDocument(__annotation, __document) { /*
         Let index = _.findIndex(document.annotations, function(annotationItem) {
             return annotationItem.label === annotation.label;
         });
@@ -395,7 +395,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @param {Object} annotation
      * @private
      */
-    addAnnotationTypeToDocumentAnnotation(_type, _annotation) { /*
+    addAnnotationTypeToDocumentAnnotation(__type, __annotation) { /*
         Let index = _.findIndex(annotation.types, function(typeItem) {
             return typeItem.label === type;
         });*/
@@ -414,7 +414,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @param {Object} document
      * @private
      */
-    saveDetails(_dataItem, _document) {
+    saveDetails(__dataItem, __document) {
         // TODO
     }
 
