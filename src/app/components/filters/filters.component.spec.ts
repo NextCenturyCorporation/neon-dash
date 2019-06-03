@@ -77,25 +77,12 @@ describe('Component: Filters', () => {
         spyOn(component.closeDialog, 'emit');
         component.closeFiltersDialog();
         /* eslint-disable @typescript-eslint/unbound-method */
-        expect(component.closeDialog.emit).toHaveBeenCalled();
         expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
         /* eslint-enable @typescript-eslint/unbound-method */
     }));
 
     it('filter-builder is shown when showFilterBuilderView is true', (() => {
         expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-current-filters')).toBeTruthy();
         expect(debugElement.query(By.css('app-filter-builder')).nativeElement.hidden).toBeFalsy();
-        expect(debugElement.query(By.css('app-current-filters')).nativeElement.hidden).toBeTruthy();
-    }));
-
-    it('current-filters is shown when showFilterBuilderView is false', (() => {
-        component.showFilterBuilderView = false;
-        fixture.detectChanges();
-
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
-        expect(debugElement.nativeElement.querySelectorAll('app-current-filters')).toBeTruthy();
-        expect(debugElement.query(By.css('app-filter-builder')).nativeElement.hidden).toBeTruthy();
-        expect(debugElement.query(By.css('app-current-filters')).nativeElement.hidden).toBeFalsy();
     }));
 });

@@ -353,7 +353,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             mapPoints.push(new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, name, unique.lat, unique.lng,
                 unique.count, color, 'Count: ' + unique.count, unique.colorField, unique.colorValue, unique.hoverPopupMap));
         });
-        mapPoints.sort((a, b) => b.count - a.count);
+        mapPoints.sort((point1, point2) => point2.count - point1.count);
         return mapPoints;
     }
 
@@ -564,24 +564,24 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         };
     }
 
-    mouseWheelUp(e) {
-        if (this.shouldZoom(e)) {
+    mouseWheelUp(event) {
+        if (this.shouldZoom(event)) {
             this.mapObject.zoomIn();
         } else {
             this.overlay();
         }
     }
 
-    mouseWheelDown(e) {
-        if (this.shouldZoom(e)) {
+    mouseWheelDown(event) {
+        if (this.shouldZoom(event)) {
             this.mapObject.zoomOut();
         } else {
             this.overlay();
         }
     }
 
-    shouldZoom(e) {
-        const ctrlMetaPressed = e.ctrlKey || e.metaKey;
+    shouldZoom(event) {
+        const ctrlMetaPressed = event.ctrlKey || event.metaKey;
         const usingLeaflet = this.options.type === MapType.Leaflet;
         const ctrlZoomEnabled = !this.options.disableCtrlZoom;
         return (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet);

@@ -57,7 +57,7 @@ describe('Component: ThumbnailGrid', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected class options properties', () => {
+    it('does have expected default class options properties', () => {
         expect(component.options.border).toEqual('');
         expect(component.options.borderCompareValue).toEqual('');
         expect(component.options.borderPercentThreshold).toEqual(0.5);
@@ -725,18 +725,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.argsFor(0)).toEqual([{
             testFilterField: 'filter1'
         }]);
-    });
-
-    it('isValideMediaType does return true if a MediaType is valid', () => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        let random = {
-            testLinkField: 'random'
-        };
-        let correctMedia = {
-            testLinkField: 'img'
-        };
-        expect(!component.isValidMediaType(random));
-        expect(component.isValidMediaType(correctMedia));
     });
 });
 

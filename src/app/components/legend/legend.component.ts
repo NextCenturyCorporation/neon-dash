@@ -141,8 +141,8 @@ export class LegendComponent implements OnInit {
                         return true;
                     }
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (error) {
+                console.error(error);
                 // Let errors pass
             }
         }

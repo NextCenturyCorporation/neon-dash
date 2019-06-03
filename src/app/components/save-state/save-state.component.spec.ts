@@ -109,7 +109,7 @@ describe('Component: SaveStateComponent', () => {
                 successCallback();
                 expect(successSpy.calls.count()).toEqual(1);
             },
-            listStates: (data, callback) => {
+            listStates: (__data, callback) => {
                 listCalls += 1;
                 callback();
             }
@@ -127,7 +127,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            deleteState: (data, _successCallback) => {
+            deleteState: (data, __successCallback) => {
                 calls++;
                 expect(data).toEqual('folder.my-test.state_name1234');
             }
@@ -237,7 +237,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            loadState: (data, _successCallback) => {
+            loadState: (data, __successCallback) => {
                 calls++;
                 expect(data).toEqual('folder.my-test.state_name1234');
             }
@@ -507,7 +507,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            saveState: (data, _successCallback) => {
+            saveState: (data, __successCallback) => {
                 calls++;
                 expect(data.stateName).toEqual('folder.my-test.state_name1234');
             }

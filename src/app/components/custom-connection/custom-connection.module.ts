@@ -15,10 +15,10 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CommonWidgetModule } from '../../common-widget.module';
 import { CustomConnectionComponent } from './custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './simple-setup.component';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
     declarations: [
@@ -32,8 +32,7 @@ import { MatDialogModule, MatButtonModule } from '@angular/material';
         CustomConnectionComponent
     ],
     imports: [
-        MatDialogModule,
-        MatButtonModule,
+        CommonWidgetModule,
         FormsModule,
         CommonModule
     ]

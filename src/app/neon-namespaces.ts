@@ -61,9 +61,9 @@ export namespace neonUtilities {
     export function deepFind(item, pathString) {
         let itemToReturn = item;
         let path = (pathString ? pathString.split('.') : []);
-        for (let i = 0; i < path.length; i++) {
+        for (let index = 0; index < path.length; index++) {
             if (itemToReturn instanceof Array) {
-                let nestedPath = path.slice(i).join('.');
+                let nestedPath = path.slice(index).join('.');
                 let pieces = [];
                 for (let itemInList of itemToReturn) {
                     let entryValue = deepFind(itemInList, nestedPath);
@@ -74,7 +74,7 @@ export namespace neonUtilities {
                 }
                 return pieces;
             }
-            itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
+            itemToReturn = itemToReturn ? itemToReturn[path[index]] : undefined;
         }
         return itemToReturn;
     }
@@ -90,14 +90,14 @@ export namespace neonUtilities {
      */
 
     export function sortArrayOfObjects(array: any[], key: string, order: number = 1) {
-        return array.sort((a, b) => {
-            if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+        return array.sort((object1, object2) => {
+            if (!object1.hasOwnProperty(key) || !object2.hasOwnProperty(key)) {
                 // Property doesn't exist on either object
                 return 0;
             }
 
-            const varA = (typeof a[key] === 'string') ? a[key].toUpperCase() : a[key];
-            const varB = (typeof b[key] === 'string') ? b[key].toUpperCase() : b[key];
+            const varA = (typeof object1[key] === 'string') ? object1[key].toUpperCase() : object1[key];
+            const varB = (typeof object2[key] === 'string') ? object2[key].toUpperCase() : object2[key];
 
             let comparison = 0;
             if (varA > varB) {
@@ -140,9 +140,11 @@ export const neonCustomConnectionMappings: { name: string, prettyName: string }[
     prettyName: 'URL'
 }];
 
-export namespace neonVisualizationMinPixel { // jshint ignore:line
+export namespace neonVisualizationMinPixel {
+    /* eslint-disable id-length */
     export const x = 320;
     export const y = 240;
+    /* eslint-enable id-length */
 }
 
 export const neonVisualizations: any[] = [{

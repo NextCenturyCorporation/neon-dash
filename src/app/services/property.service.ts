@@ -34,10 +34,10 @@ export class PropertyService {
      * @method setProperty
      */
     setProperty(propertyName: string, value: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
-        let h = new HttpHeaders();
-        h.append('content-type', 'text/plain');
+        let header = new HttpHeaders();
+        header.append('content-type', 'text/plain');
         return this.http.post(this.baseUrl + propertyName, value, {
-            headers: h
+            headers: header
         })
             .toPromise().then(successCallback).catch(failureCallback);
     }
