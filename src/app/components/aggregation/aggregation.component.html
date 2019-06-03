@@ -22,13 +22,12 @@
     <app-data-message> </app-data-message>
 </div>
 
+<div class="legend" *ngIf="showLegend()">
+    <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
+    </app-legend>
+</div>
 
 <div class="body-container">
-    <div class="legend" *ngIf="showLegend()">
-        <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
-        </app-legend>
-    </div>
-
     <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
         [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
