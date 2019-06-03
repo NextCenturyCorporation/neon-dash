@@ -1,4 +1,4 @@
-<mat-sidenav-container class="visualization-sidenav">
+<div class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [matTooltip]="getDefaultTitle()" tooltip-position="below">
             {{ getDefaultTitle() }}
@@ -15,4 +15,4 @@
     <div class="body-container">
         <app-filter-builder [hidden]="!showFilterBuilderView"></app-filter-builder>
     </div>
-</mat-sidenav-container>
+</div>

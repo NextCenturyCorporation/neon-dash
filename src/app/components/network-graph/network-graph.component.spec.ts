@@ -327,7 +327,7 @@ describe('Component: NetworkGraph', () => {
 
         component.changeDetection.detectChanges();
 
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        let container = fixture.debugElement.query(By.css('.legend-container'));
         expect(container).toBeNull();
     });
 
@@ -338,7 +338,7 @@ describe('Component: NetworkGraph', () => {
 
         component.changeDetection.detectChanges();
 
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        let container = fixture.debugElement.query(By.css('.legend-container'));
         expect(container).toBeNull();
     });
 
@@ -349,7 +349,7 @@ describe('Component: NetworkGraph', () => {
 
         component.changeDetection.detectChanges();
 
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container .legend-container'));
+        let container = fixture.debugElement.query(By.css('.legend-container'));
         expect(container).not.toBeNull();
     });
 

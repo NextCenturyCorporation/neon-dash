@@ -129,42 +129,42 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show toolbar and sidenav', (() => {
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar'));
         expect(toolbar).not.toBeNull();
     }));
 
     it('does show header in toolbar with visualization name', (() => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Wiki Viewer');
     }));
 
     it('does hide error-message in toolbar and sidenav if errorMessage is undefined', (() => {
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
     it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
+        let button = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.visualization-sidenav .not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.visualization-sidenav .not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     }));
 
     it('does hide wiki-text tabs if active data is empty', () => {
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('.visualization-sidenav mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
 
-        let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
+        let text = fixture.debugElement.queryAll(By.css('.visualization-sidenav mat-tab-group .wiki-text'));
         expect(text.length).toBe(0);
     });
 });
@@ -388,7 +388,7 @@ describe('Component: WikiViewer with config', () => {
 
     it('does show header in toolbar with title from config', (() => {
         fixture.detectChanges();
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Test Title');
     }));

@@ -157,7 +157,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     static NODE_FONT_SIZE: number = 14;
 
     @ViewChild('graphElement') graphElement: ElementRef;
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -228,7 +227,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef,
     ) {
         super(
             datasetService,
