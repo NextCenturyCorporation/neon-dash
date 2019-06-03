@@ -21,6 +21,7 @@ $contribution-height: 20px;
 
 :host {
     height: 100%;
+    width: 100%;
     cursor: default;
     border-radius: 5px;    
     display: grid;
@@ -90,18 +91,7 @@ $contribution-height: 20px;
 
     .footer {
         border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
         height: #{$footer-height};
-        width: 100%;
-    }
-
-    .footer-with-contribution {
-        border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
-        height: calc(#{$footer-height} + #{$contribution-height});
-        width: 100%;
     }
 
     .footer-button-container {
@@ -129,10 +119,7 @@ $contribution-height: 20px;
 
     .contribution-text {
         border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
         height: #{$contribution-height};
-        width: 100%;
     }
 
     .contribution-text-container {
@@ -146,22 +133,6 @@ $contribution-height: 20px;
 
         &:hover {
             text-decoration: underline;
-        }
-    }
-
-    .visualization-sidenav-options {
-        max-width: calc(100% - 20px);
-
-        mat-card {
-            min-width: 240px;
-            max-width: 240px;
-        }
-
-        mat-form-field,
-        mat-input,
-        mat-select,
-        table {
-            width: 100%;
         }
     }
 
