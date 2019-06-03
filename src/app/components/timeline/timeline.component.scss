@@ -36,18 +36,24 @@ h3 {
     margin-top: 0;
 }
 
+.body-container {
+    display: grid;
+    grid-template-columns:  25px 1fr;
+    grid-template-rows: 1fr 25px;
+    grid-template-areas:
+        "yaxis chart"
+        "none xaxis";
+}
+
+
+
 .timeline-selector-chart {
     margin: 0;
     display: block;
     min-height: 150px;
+    grid-area: chart;
 
-    position: absolute;
-    bottom: 0;
-    top: 0;
-    right: 0;
-    left: 15px;
-
-    svg {
+    /deep/ svg {
         font-size: 10px;
         width: 100%;
         display: block;
@@ -187,23 +193,23 @@ h3 {
 }
 
 .xlabel {
+    grid-area: xaxis;
     font-size: 12px;
     text-align: center;
-    position: absolute;
-    top: 90%;
-    left: 50%;
 }
 
 .ylabel {
+    grid-area: yaxis;
     font-size: 12px;
-    position: absolute;
-    transform: rotate(-90deg);
-    text-align: left;
-    left: 0;
-    top: 60%;
+    text-align: center;
+    writing-mode: vertical-rl;
 }
 
-#tl-tooltip-container {
+.xlabel, .ylabel {
+    padding: 5px;
+}
+
+/deep/ html #tl-tooltip-container {
     display: none;
     position: absolute;
     padding: 12px 15px;
