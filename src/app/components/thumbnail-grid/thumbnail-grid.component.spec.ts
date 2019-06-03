@@ -104,14 +104,14 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show toolbar', () => {
-        let container = fixture.debugElement.query(By.css('.visualization-sidenav'));
+        let container = fixture.debugElement;
         expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
-        let header = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Thumbnail Grid');
     });
@@ -122,11 +122,11 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .data-info'));
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
         expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Items');
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
@@ -136,25 +136,25 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .data-info'));
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).toBeNull();
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
 
     it('does show settings icon button in toolbar', () => {
-        let icon = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
     it('does hide loading overlay by default', () => {
         component.changeDetection.detectChanges();
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.visualization-sidenav .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('.visualization-sidenav .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     });
 
@@ -164,20 +164,20 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('.visualization-sidenav .loading-overlay'));
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
         expect(loadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('.visualization-sidenav .loading-overlay mat-spinner'));
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     }));
 
     it('does show body-container', () => {
-        let bodyContainer = fixture.debugElement.query(By.css('.visualization-sidenav .body-container'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container'));
         expect(bodyContainer).not.toBeNull();
     });
 
     it('does not show thumbnail-grid-div elements if gridArray is empty array', () => {
-        let elements = fixture.debugElement.queryAll(By.css('.visualization-sidenav .body-container .thumbnail-grid-div'));
+        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(0);
     });
 
@@ -208,7 +208,7 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let elements = fixture.debugElement.queryAll(By.css('.visualization-sidenav .body-container .thumbnail-grid-div'));
+        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(2);
 
         expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
@@ -217,16 +217,16 @@ describe('Component: ThumbnailGrid', () => {
         expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
         expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
 
-        let divElements = fixture.debugElement.queryAll(By.css('.visualization-sidenav .body-container .thumbnail-grid-div'));
+        let divElements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(divElements.length).toEqual(2);
     }));
 
     it('does not show footer-container or pagination-button elements by default', () => {
         component.changeDetection.detectChanges();
-        let footerContainer = fixture.debugElement.query(By.css('.visualization-sidenav .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.visualization-sidenav .body-container.with-footer'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
         expect(bodyContainer).toBeNull();
     });
 
@@ -239,14 +239,14 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('.visualization-sidenav .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.visualization-sidenav .body-container.with-footer'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            '.visualization-sidenav .footer .footer-button-container .pagination-button'
+            '.footer .footer-button-container .pagination-button'
         ));
         expect(footerButtons.length).toEqual(2);
 
@@ -266,14 +266,14 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('.visualization-sidenav .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.visualization-sidenav .body-container.with-footer'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            '.visualization-sidenav .footer .footer-button-container .pagination-button'
+            '.footer .footer-button-container .pagination-button'
         ));
         expect(footerButtons.length).toEqual(2);
 
@@ -293,14 +293,14 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('.visualization-sidenav .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.visualization-sidenav .body-container.with-footer'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
         expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            '.visualization-sidenav .footer .footer-button-container .pagination-button'
+            '.footer .footer-button-container .pagination-button'
         ));
         expect(footerButtons.length).toEqual(2);
 
@@ -834,7 +834,7 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does show header in toolbar with visualization title from config', () => {
-        let header = fixture.debugElement.query(By.css('.visualization-sidenav mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });

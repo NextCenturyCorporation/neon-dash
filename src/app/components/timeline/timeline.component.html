@@ -1,34 +1,32 @@
-<div #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
-    </mat-toolbar>
+        <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+    </span>
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="toggleGear();">
+        <mat-icon>settings</mat-icon>
+    </button>
+</mat-toolbar>
 
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
-    </div>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
 
-    <div class="body-container" [class.with-contribution]="showContribution()">
-        <!-- Timeline chart div -->
-        <div #svg class="timeline-selector-chart"></div>
-        <div class="xlabel"> {{ options.granularity }}</div>
-        <div class="ylabel">{{ options.yLabel }}</div>
-    </div>
+<div class="body-container" [class.with-contribution]="showContribution()">
+    <!-- Timeline chart div -->
+    <div #svg class="timeline-selector-chart"></div>
+    <div class="xlabel"> {{ options.granularity }}</div>
+    <div class="ylabel">{{ options.yLabel }}</div>
+</div>
 
-    <div class="contribution-text" *ngIf="showContribution()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
 </div>

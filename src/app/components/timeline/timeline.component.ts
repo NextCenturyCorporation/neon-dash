@@ -74,7 +74,6 @@ import * as d3 from 'd3';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -101,7 +100,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -293,19 +293,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
-                // Falls through
+            // Falls through
             case 'hour':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
-                // Falls through
+            // Falls through
             case 'day':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
-                // Falls through
+            // Falls through
             case 'month':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
-                // Falls through
+            // Falls through
             case 'year':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
-                // Falls through
+            // Falls through
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
