@@ -52,11 +52,16 @@ $contribution-height: 20px;
         }
     }
 
-    .body-container {
+    .body-container, .footer, .contribution-text-container {
         background-color: var(--color-background, white);
+    }
+
+
+    .body-container {
         position: relative;
         overflow-y: auto;
         width: 100%;
+        max-width: 100%;
 
         .chart-container {
             height: 100%;
@@ -81,6 +86,10 @@ $contribution-height: 20px;
 
     %filter-container-shared {
         app-legend {
+            // z-index: 2;
+            // position: absolute;
+            // top: $vis-title-expected-height;
+            // left: 5px;
             float: left;
         }
     }
