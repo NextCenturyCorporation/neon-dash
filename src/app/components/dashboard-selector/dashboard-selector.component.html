@@ -1,25 +1,23 @@
-<div #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [matTooltip]="'Dashboards'" tooltip-position="below">
-            Dashboards
-        </div>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div class="header text pull-left" [matTooltip]="'Dashboards'" tooltip-position="below">
+        Dashboards
+    </div>
 
-        <span class="fill-remaining"></span>
+    <span class="fill-remaining"></span>
 
-        <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below"
-            (click)="emitCloseComponent()">
-            <mat-icon class="column-selector-close-icon">close</mat-icon>
+    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below"
+        (click)="emitCloseComponent()">
+        <mat-icon class="column-selector-close-icon">close</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div class="dashboard-selector-container">
+    <div class="neon-form-field">
+        <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards" (selectionChange)="setDashboardChoice($event)">
+        </app-dashboard-dropdown>
+    </div>
+    <div class="neon-form-field button-row">
+        <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply
         </button>
-    </mat-toolbar>
-
-    <div class="dashboard-selector-container">
-        <div class="neon-form-field">
-            <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards" (selectionChange)="setDashboardChoice($event)">
-            </app-dashboard-dropdown>
-        </div>
-        <div class="neon-form-field button-row">
-            <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply
-            </button>
-        </div>
     </div>
 </div>
