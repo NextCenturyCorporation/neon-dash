@@ -103,7 +103,7 @@
 
         <div class="header-toggle-container" id="dashboard.selector">
             <div class="dashboard-selector-container">
-                <app-dashboard-selector [dashboards]="dashboards" (closeComponent)="toggleDashboardSelectorDialog()"></app-dashboard-selector>
+                <app-dashboard-selector [dashboards]="dashboards" (closeComponent)="toggleDashboardSelectorDialog(!showDashboardSelector)"></app-dashboard-selector>
                 <div class="header-toggle-footer"></div>
             </div>
         </div>
