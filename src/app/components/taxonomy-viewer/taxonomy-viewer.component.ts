@@ -46,6 +46,7 @@ let styleImport: any;
 
 export interface TaxonomyNode {
     id: string;
+    type: 'leaf' | 'group';
     externalId?: string;
     duplicateLabel?: boolean;
     hidden?: boolean;
@@ -60,6 +61,7 @@ export interface TaxonomyNode {
 }
 
 export interface TaxonomyGroup extends TaxonomyNode {
+    type: 'group';
     nodeCount: number;
     childrenMap?: { [key: string]: TaxonomyGroup | TaxonomyNode };
     nodeIds: Set<string>;
@@ -336,6 +338,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     // Build new object
                     const node: TaxonomyGroup = {
                         id: `${this.counter++}`,
+                        type: 'group',
                         description: fieldToCheck,
                         name: pcat,
                         externalName: segment.slice(0, subPos + 1).join('.'),
@@ -392,7 +395,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     sortTaxonomies(group: TaxonomyGroup | TaxonomyNode) {
         if ('children' in group) {
-            group.children.sort((a, b) => a.name.localeCompare(b.name));
+            group.children.sort((a, b) => `${(a ? a.name : a)}`.localeCompare(`${b ? b.name : b}`));
             group.checked = !group.children.find((x) => x.checked === false);
             for (let i = 0; i < group.children.length; i++) {
                 if (i > 0) {
@@ -453,6 +456,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                     this.mergeTaxonomyData(group, lineage, {
                         ...child,
+                        type: 'leaf',
                         id: `${this.counter++}`,
                         checked: !this.isTaxonomyNodeFiltered(this.options.typeField, lineage.type)
                     });
