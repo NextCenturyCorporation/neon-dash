@@ -418,7 +418,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData(data: any[]) {
         let series: TimelineSeries = {
-            color: this.widgetService.getThemeMainColorHex(),
+            color: this.widgetService.getThemeAccentColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},

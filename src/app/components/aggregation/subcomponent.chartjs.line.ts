@@ -66,11 +66,12 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {string} [textColorHex]
      * @arg {boolean} [selectMode=DOMAIN]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        selectMode: SelectMode = SelectMode.DOMAIN) {
-        super(options, listener, elementRef, selectMode);
+        textColorHex?: string, selectMode: SelectMode = SelectMode.DOMAIN) {
+        super(options, listener, elementRef, textColorHex, selectMode);
     }
 
     /**

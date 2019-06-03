@@ -8,7 +8,8 @@
             </app-dashboard-dropdown>
         </div>
         <div class="neon-form-field button-row">
-            <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply
+            <button class="neon-button-large" mat-raised-button [disabled]="!dashboardChoice"
+                (click)="updateDashboardState(dashboardChoice)"> Apply
             </button>
         </div>
     </div>
