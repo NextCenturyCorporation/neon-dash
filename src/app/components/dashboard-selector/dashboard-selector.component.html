@@ -1,7 +1,17 @@
 <mat-sidenav-container #visualization class="visualization-sidenav">
-    <button mat-icon-button class="dashboard-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below">
-        <mat-icon class="column-selector-close-icon">close</mat-icon>
-    </button>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div class="header text pull-left" [matTooltip]="'Dashboards'" tooltip-position="below">
+            Dashboards
+        </div>
+
+        <span class="fill-remaining"></span>
+
+        <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below"
+            (click)="emitCloseComponent()">
+            <mat-icon class="column-selector-close-icon">close</mat-icon>
+        </button>
+    </mat-toolbar>
+
     <div class="dashboard-selector-container">
         <div class="neon-form-field">
             <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards" (selectionChange)="setDashboardChoice($event)">
