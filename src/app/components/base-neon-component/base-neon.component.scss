@@ -23,6 +23,9 @@ $contribution-height: 20px;
     height: 100%;
     cursor: default;
     border-radius: 5px;    
+    display: grid;
+    grid-template-rows: $vis-title-expected-height 1fr auto auto;
+
 
     .header {
         &.text {
@@ -49,36 +52,10 @@ $contribution-height: 20px;
     }
 
     .body-container {
-        height: calc(100% - #{$vis-title-expected-height});
+        background-color: var(--color-background, white);
+        position: relative;
         overflow-y: auto;
-        position: absolute;
-        top: calc(#{$vis-title-expected-height});
         width: 100%;
-
-        &.with-filter {
-            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
-            top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$contribution-height} - 10px);
-            }
-        }
-
-        &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
-
-            &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
-            }
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$contribution-height} - 5px);
-            }
-        }
-
-        &.with-contribution {
-            height: calc(100% - #{$vis-title-expected-height} - #{$contribution-height} - 5px);
-        }
 
         .chart-container {
             height: 100%;
