@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
+<div #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}
         </div>
@@ -11,8 +11,7 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -32,8 +31,8 @@
                                 (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
                                 [class.node-content-wrapper-focused]="node.isFocused">
                                 <div *ngIf="node.data.description != options.valueField.columnName">
-                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox"
-                                        [indeterminate]="node.data.indeterminate" [checked]="node.data.checked">
+                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                                        [checked]="node.data.checked">
                                     <span>{{ node.data.name }}
                                         <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
                                     </span>
@@ -57,4 +56,4 @@
             </a>
         </div>
     </div>
-</mat-sidenav-container>
+</div>

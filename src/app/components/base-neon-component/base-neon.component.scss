@@ -19,10 +19,10 @@ $filter-container-height: 40px;
 $footer-height: 35px;
 $contribution-height: 20px;
 
-.visualization-sidenav {
+:host {
     height: 100%;
     cursor: default;
-    border-radius: 5px;
+    border-radius: 5px;    
 
     .header {
         &.text {

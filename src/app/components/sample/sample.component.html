@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
+<div #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -10,8 +10,7 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below"
-            (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" matTooltipPosition="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -33,8 +32,7 @@
                     <mat-icon class="neon-icon-small">search</mat-icon>
                 </button>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
-                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below"
-                    (click)="filterOnItem(item, true)">
+                    [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
                     <mat-icon class="neon-icon-small">find_replace</mat-icon>
                 </button>
             </div>
@@ -44,4 +42,4 @@
             </div>
         </div>
     </div>
-</mat-sidenav-container>
+</div>

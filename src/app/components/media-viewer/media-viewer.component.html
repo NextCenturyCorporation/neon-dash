@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
+<div #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -8,8 +8,8 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu"
-            tooltip-position="below" (click)="toggleGear();">
+        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+            (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -33,8 +33,7 @@
                         <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" [id]="'medium' + i"
                             [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
-                            [hidden]="!tab.loaded"
+                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i" [hidden]="!tab.loaded"
                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
                         <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
                             (input)="onSliderChange($event.value)"></mat-slider>
@@ -95,4 +94,4 @@
             </a>
         </div>
     </div>
-</mat-sidenav-container>
+</div>

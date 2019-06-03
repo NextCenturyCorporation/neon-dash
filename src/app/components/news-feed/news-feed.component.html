@@ -1,4 +1,4 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
+<div #visualization class="visualization-sidenav">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
@@ -10,8 +10,7 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -39,8 +38,7 @@
     <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
     <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
@@ -52,8 +50,7 @@
 
     <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
@@ -76,4 +73,4 @@
             </a>
         </div>
     </div>
-</mat-sidenav-container>
+</div>
