@@ -33,7 +33,7 @@ import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
 import { ConfigService } from '../../services/config.service';
 
-fdescribe('Component: TaxonomyViewer', () => {
+describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
     let fixture: ComponentFixture<TaxonomyViewerComponent>;
 
