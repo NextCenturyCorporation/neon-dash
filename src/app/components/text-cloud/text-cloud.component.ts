@@ -65,8 +65,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     public textCloudData: any[] = [];
 
-    public textColor: string = '#111';
-
     constructor(
         datasetService: DatasetService,
         filterService: FilterService,
@@ -94,9 +92,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
-
-        // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.widgetService.getThemeMainColorHex();
     }
 
     /**
@@ -105,7 +100,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     constructVisualization() {
-        this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
+        let accentColorHex = this.widgetService.getThemeAccentColorHex();
+        let textColorHex = this.widgetService.getThemeTextColorHex();
+        this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
     }
 
     refreshVisualization() {

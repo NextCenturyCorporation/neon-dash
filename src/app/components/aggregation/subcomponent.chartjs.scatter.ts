@@ -34,10 +34,12 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {string} [textColorHex]
      * @arg {boolean} [domainOnly=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, domainOnly: boolean = false) {
-        super(options, listener, elementRef, (domainOnly ? SelectMode.BOUNDS_DOMAIN : SelectMode.BOUNDS));
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, textColorHex?: string,
+        domainOnly: boolean = false) {
+        super(options, listener, elementRef, textColorHex, (domainOnly ? SelectMode.BOUNDS_DOMAIN : SelectMode.BOUNDS));
     }
 
     /**

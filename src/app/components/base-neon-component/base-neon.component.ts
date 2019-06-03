@@ -126,7 +126,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
-            // Don't pass the event message as an argument to handleChangeData.
+            this.destroyVisualization();
+            this.constructVisualization();
             this.handleChangeData();
         });
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
