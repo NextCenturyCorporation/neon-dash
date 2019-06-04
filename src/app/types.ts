@@ -71,12 +71,12 @@ export class Dataset {
 export interface Dashboard extends NeonDashboardConfig<Dashboard> {
     layout: string;
     filters: any[];
-    visualizationTitles?: { [key: string]: string };
+    visualizationTitles?: Record<string, string>;
 
     fullTitle: string; // Added to dashboard in validateDashboards()
     pathFromTop: string[]; // Added to dashboard in validateDashboards() - contains keys
     // The datastores and layoutObject properties are assigned by the DashboardService.
-    layoutObject: (any[] | { [key: string]: any[] });
+    layoutObject: any[] | Record<string, any[]>;
 }
 
 export class Dashboard {

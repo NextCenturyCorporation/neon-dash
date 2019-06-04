@@ -25,7 +25,7 @@ export interface NeonTableMetaData {
     prettyName: string;
     fields: NeonFieldMetaData[];
     mappings: Record<string, string>;
-    labelOptions: Record<string, Record<string, any>>;
+    labelOptions: Record<string, any | Record<string, any>>;
 }
 
 export interface NeonDatabaseMetaData {

@@ -45,7 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { Dashboard, Datastore } from '../types';
+import { Dashboard } from '../types';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;

@@ -287,7 +287,6 @@ export class WidgetTableOption extends WidgetOption {
  */
 export class WidgetOptionCollection {
 
-
     // An object containing strings mapped to WidgetOption objects.
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
@@ -298,8 +297,6 @@ export class WidgetOptionCollection {
     public layers: WidgetOptionCollection[] = [];
     public table: TableMetaData = null;
     public tables: TableMetaData[] = [];
-
-    [key: string]: any;
 
     /**
      * @constructor
@@ -317,6 +314,8 @@ export class WidgetOptionCollection {
         this.append(new WidgetDatabaseOption(), new DatabaseMetaData());
         this.append(new WidgetTableOption(), new TableMetaData());
     }
+
+    [key: string]: any; // Ordering demands it be placed here
 
     /**
      * Returns the option with the given binding key.

@@ -34,7 +34,7 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { NeonGTDConfig, NeonDashboardConfig } from '../../neon-gtd-config';
+import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutGridConfig } from '../../neon-gtd-config';
 
 @Component({
     selector: 'app-save-state',
@@ -110,13 +110,13 @@ export class SaveStateComponent implements OnInit {
         return clonedDashboard;
     }
 
-    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): { [key: string]: any } {
-        let layouts: { [key: string]: any } = {};
+    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): Record<string, NeonGridItem[]> {
+        let layouts: Record<string, NeonGridItem[]> = {};
 
         layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
             let widget = this.getWidgetById(widgetGridItem.id);
 
-            let widgetConfig: { [key: string]: any } = {
+            let widgetConfig: NeonGridItem = {
                 type: widgetGridItem.type,
                 col: widgetGridItem.col,
                 row: widgetGridItem.row,
