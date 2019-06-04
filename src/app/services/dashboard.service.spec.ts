@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../types';
+import { Dashboard, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../types';
 import { DashboardService } from './dashboard.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 
@@ -735,7 +735,7 @@ describe('Service: DashboardService with Mock Data', () => {
         let dashboard: Dashboard = new Dashboard();
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';
-        dashboard.options = new DashboardOptions();
+        dashboard.options = {};
         dashboard.visualizationTitles = {
             dataTableTitle: 'Documents'
         };

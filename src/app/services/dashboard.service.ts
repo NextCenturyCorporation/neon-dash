@@ -17,14 +17,14 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import {
-    Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
-    TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
+    Datastore, Dashboard, DatabaseMetaData,
+    TableMetaData, FieldMetaData, SingleField
 } from '../types';
 import { Subscription, Observable } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonGTDConfig, NeonDashboardConfig } from '../neon-gtd-config';
 import { ConnectionService, Connection } from './connection.service';
 
 @Injectable()
@@ -367,11 +367,11 @@ export class DashboardService {
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.datasets = {};
         this.messenger = new eventing.Messenger();
-        this.configService.$source.subscribe((config) => {
+        this.configService.$source.subscribe((config: NeonGTDConfig) => {
             this.config = config;
 
             this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
-                { category: 'No Dashboards', choices: {} });
+                { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig);
 
             this.datasets = DashboardService.appendDatastoresFromConfig(config.datastores || {}, {});
 
@@ -524,11 +524,11 @@ export class DashboardService {
         if (!this.currentDashboard.options.simpleFilter) {
             let tableKey = Object.keys(this.currentDashboard.tables)[0];
 
-            this.currentDashboard.options.simpleFilter = new SimpleFilter(
-                this.getDatabaseNameFromCurrentDashboardByKey(tableKey),
-                this.getTableNameFromCurrentDashboardByKey(tableKey),
-                ''
-            );
+            this.currentDashboard.options.simpleFilter = {
+                databaseName: this.getDatabaseNameFromCurrentDashboardByKey(tableKey),
+                tableName: this.getTableNameFromCurrentDashboardByKey(tableKey),
+                fieldName: ''
+            };
         }
     }
 
@@ -828,7 +828,7 @@ export class DashboardService {
      * @param {String} The table name
      * @return {Object} The mappings if a match exists or an empty object otherwise.
      */
-    public getMappings(databaseName: string, tableName: string): TableMappings {
+    public getMappings(databaseName: string, tableName: string): TableMetaData['mappings'] {
         let table = this.getTableWithName(databaseName, tableName);
 
         if (!table) {
@@ -1001,7 +1001,7 @@ export class DashboardService {
      * @return {Object}
      *
      */
-    public getCurrentDashboardOptions(): DashboardOptions {
+    public getCurrentDashboardOptions(): Dashboard['options'] {
         return this.currentDashboard ? this.currentDashboard.options : null;
     }
 

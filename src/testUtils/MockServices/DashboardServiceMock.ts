@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/types';
+import { Dashboard, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/types';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 import { ConfigService } from '../../app/services/config.service';
@@ -110,7 +110,7 @@ export class DashboardServiceMock extends DashboardService {
 
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';
-        dashboard.options = new DashboardOptions();
+        dashboard.options = {};
         this.setCurrentDashboard(dashboard);
     }
 }

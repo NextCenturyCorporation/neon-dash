@@ -1,3 +1,5 @@
+import { NeonDashboardOptions, NeonContributor, NeonDashboardConfig } from './neon-gtd-config';
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +31,7 @@ export class TableMetaData {
         public name: string = '',
         public prettyName: string = '',
         public fields: FieldMetaData[] = [],
-        public mappings: TableMappings = {},
+        public mappings: Record<string, string> = {},
         public labelOptions: any = {}
     ) { }
 }
@@ -38,33 +40,7 @@ export class DatabaseMetaData {
     constructor(
         public name: string = '',
         public prettyName: string = '',
-        public tables: { [key: string]: TableMetaData } = {}
-    ) { }
-}
-
-export interface TableMappings {
-    [key: string]: string;
-}
-
-export class RelationTableMetaData {
-    table: TableMetaData;
-    field: FieldMetaData;
-}
-
-export class RelationMetaData {
-    database: DatabaseMetaData;
-    customRelationTables: RelationTableMetaData[];
-}
-
-export class SimpleFilter {
-    constructor(
-        public databaseName: string,
-        public tableName: string,
-        public fieldName: string,
-        public placeHolder?: string,
-        public icon?: string,
-        public tableKey?: string,
-        public fieldKey?: string
+        public tables: Record<string, TableMetaData> = {}
     ) { }
 }
 
@@ -106,48 +82,16 @@ export class Datastore {
 /**
  * Class to represent dashboards object from the config file.
  */
-export class Dashboard {
-    public fileName?: string;
-    public lastModified?: number;
-    public modified?: boolean;
-
-    public name?: string = '';
-    // Exist in Dashboards that are not terminal nodes.
-    public category?: string = '';
-    public choices?: { [key: string]: Dashboard } = {};
-    // Exist in Dashboards that are terminal nodes.
+export class Dashboard implements NeonDashboardConfig {
     public layout?: string = '';
-    public tables?: { [key: string]: string } = {};
-    public fields?: { [key: string]: string } = {};
     public filters?: any[] = [];
     public visualizationTitles?: { [key: string]: string } = {};
-    public options?: DashboardOptions = new DashboardOptions();
+
     public fullTitle?: string; // Added to dashboard in validateDashboards()
     public pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
-    // (sans choices object references) needed to traverse back up Dashboard object
-    public relations?: (string | string[])[][];
-    public contributors?: { [key: string]: Contributor } = {};
     // The datastores and layoutObject properties are assigned by the DashboardService.
-    public datastores?: { [key: string]: Datastore } = {};
-    public layoutObject?: (any[] | { [key: string]: any[] }) = [];
-}
-
-/**
- * Class to represent additional dashboard options specified in the last level of nesting.
- */
-export class DashboardOptions {
-    public connectOnLoad?: boolean = false;
-    public colorMaps?: Record<string, any>;
-    public simpleFilter?: SimpleFilter;
-}
-
-export class Contributor {
-    public orgName: string;
-    public abbreviation: string;
-    public contactName: string;
-    public contactEmail: string;
-    public website: string;
-    public logo: string;
+    public datastores?: { [key: string]: Datastore };
+    public layoutObject?: (any[] | { [key: string]: any[] });
 }
 
 export const MediaTypes = {
