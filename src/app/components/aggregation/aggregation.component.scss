@@ -15,6 +15,28 @@
  */
 @import '../base-neon-component/base-neon.component';
 
+:host {
+    .body-container {
+        width: auto;
+    }
+
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas: 
+        "header" 
+        "legend"
+        "body" 
+        "footer" 
+        "contribution";
+
+    .legend {
+        background-color: var(--color-background, white);
+        grid-area: legend;
+        app-legend {
+            display: inline-block;
+        }
+    }
+}
+
 .subcomponent-container {
     height: 100%;
     min-height: 100px;

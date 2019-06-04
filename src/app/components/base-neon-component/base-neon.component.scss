@@ -19,10 +19,18 @@ $filter-container-height: 40px;
 $footer-height: 35px;
 $contribution-height: 20px;
 
-.visualization-sidenav {
+:host {
     height: 100%;
+    width: 100%;
     cursor: default;
     border-radius: 5px;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas: 
+        "header" 
+        "body" 
+        "footer" 
+        "contribution";
 
     .text {
         color: var(--color-text, dimgrey);
@@ -34,42 +42,26 @@ $contribution-height: 20px;
         text-overflow: ellipsis;
         white-space: nowrap;
 
+        &.header {
+            color: var(--color-header, dimgrey);
+            grid-area: header;
+        }
+
         &.info {
             text-align: right;
         }
     }
 
+    .body-container, .footer, .contribution-text-container {
+        background-color: var(--color-background, white);
+    }
+
     .body-container {
-        height: calc(100% - #{$vis-title-expected-height});
+        grid-area: body;
+        position: relative;
         overflow-y: auto;
-        position: absolute;
-        top: calc(#{$vis-title-expected-height});
         width: 100%;
-
-        &.with-filter {
-            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
-            top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$contribution-height} - 10px);
-            }
-        }
-
-        &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
-
-            &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
-            }
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$contribution-height} - 5px);
-            }
-        }
-
-        &.with-contribution {
-            height: calc(100% - #{$vis-title-expected-height} - #{$contribution-height} - 5px);
-        }
+        max-width: 100%;
 
         .chart-container {
             height: 100%;
@@ -98,24 +90,20 @@ $contribution-height: 20px;
         }
     }
 
+    .legend-container {
+        position: absolute;
+        z-index: 1000;
+        top: $vis-title-expected-height;
+    }    
+
     .filter-container {
         @extend %filter-container-shared;
     }
 
     .footer {
+        grid-area: footer;
         border-top: 2px solid var(--color-border, lightgrey);
-        position: absolute;
-        bottom: 0;
         height: #{$footer-height};
-        width: 100%;
-    }
-
-    .footer-with-contribution {
-        border-top: 2px solid var(--color-border, lightgrey);
-        position: absolute;
-        bottom: 0;
-        height: calc(#{$footer-height} + #{$contribution-height});
-        width: 100%;
     }
 
     .footer-button-container {
@@ -136,11 +124,9 @@ $contribution-height: 20px;
     }
 
     .contribution-text {
+        grid-area: contribution;
         border-top: 2px solid var(--color-border, lightgrey);
-        position: absolute;
-        bottom: 0;
         height: #{$contribution-height};
-        width: 100%;
     }
 
     .contribution-text-container {

@@ -15,7 +15,7 @@
  */
 @import '../base-neon-component/base-neon.component';
 
-.visualization-sidenav {
+:host {
     .document-viewer-list-item {
         padding: 0 5px 5px;
         width: calc(100% - 10px);

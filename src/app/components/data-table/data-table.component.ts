@@ -53,7 +53,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -79,13 +78,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number;
         y: number;
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
 
     public duplicateNumber = 0;
     public seenValues = [];
@@ -96,7 +95,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,

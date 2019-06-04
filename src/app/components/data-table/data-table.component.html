@@ -1,26 +1,24 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+<mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
-    </mat-toolbar>
+        <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+    </span>
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <mat-icon>settings</mat-icon>
+    </button>
+</mat-toolbar>
 
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
-    </div>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
 
-    <div class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
-        <div class="table-container">
-            <!-- beautify ignore:start -->
+<div class="body-container">
+    <div class="table-container">
+        <!-- beautify ignore:start -->
             <ngx-datatable #table class="material table"[class.skinny]="this.options.skinny"
                 [class.selectable]="options.filterable || options.idField.columnName"
                 [rows]="tableData"
@@ -40,71 +38,70 @@
             </ngx-datatable>
             <!-- beautify ignore:end -->
 
-            <div *ngIf="getShowColumnSelector()" class="column-selector">
-                <div class="column-selector-header"><span> Columns </span>
-                    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below"
-                        (click)="closeColumnSelector()">
-                        <mat-icon class="column-selector-close-icon">close</mat-icon>
-                    </button>
+        <div *ngIf="getShowColumnSelector()" class="column-selector">
+            <div class="column-selector-header"><span> Columns </span>
+                <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below"
+                    (click)="closeColumnSelector()">
+                    <mat-icon class="column-selector-close-icon">close</mat-icon>
+                </button>
 
-                </div>
-                <div class="button-row">
-                    <button mat-raised-button class="neon-button-small" (click)="deactivateAllHeaders()">
-                        <span class="mat-button-wrapper">Uncheck All</span>
-                    </button>
-                    <button mat-raised-button class="neon-button-small" (click)="activateAllHeaders()">
-                        <span class="mat-button-wrapper">Check All</span>
-                    </button>
-                </div>
-                <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
-                    <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
-                        (mouseleave)="onMouseLeaveItem(i)"
-                        [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
-                        <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                        <mat-checkbox [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}
-                        </mat-checkbox>
-                    </mat-list-item>
-                </mat-list>
             </div>
+            <div class="button-row">
+                <button mat-raised-button class="neon-button-small" (click)="deactivateAllHeaders()">
+                    <span class="mat-button-wrapper">Uncheck All</span>
+                </button>
+                <button mat-raised-button class="neon-button-small" (click)="activateAllHeaders()">
+                    <span class="mat-button-wrapper">Check All</span>
+                </button>
+            </div>
+            <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
+                <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                    (mouseleave)="onMouseLeaveItem(i)"
+                    [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
+                    <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
+                    <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}
+                    </mat-checkbox>
+                </mat-list-item>
+            </mat-list>
         </div>
     </div>
+</div>
 
-    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-    <div class="footer" *ngIf="showPagination() && !showContribution()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="neon-button-large pagination-button" (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="neon-button-large pagination-button" (click)="goToNextPage()">
-                Next
-            </button>
-        </div>
+<!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+<div class="footer" *ngIf="showPagination() && !showContribution()">
+    <div class="footer-button-container">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
+            Previous
+        </button>
+        <span class="pagination-button-spacer"></span>
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
+            Next
+        </button>
+    </div>
+</div>
+
+<div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
+    <div class="footer-button-container">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
+            Previous
+        </button>
+        <span class="pagination-button-spacer"></span>
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
+            Next
+        </button>
     </div>
 
-    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="neon-button-large pagination-button" (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="neon-button-large pagination-button" (click)="goToNextPage()">
-                Next
-            </button>
-        </div>
-
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
+</div>
 
-    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
+<div class="contribution-text" *ngIf="showContribution() && !showPagination()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
-</mat-sidenav-container>
+</div>
