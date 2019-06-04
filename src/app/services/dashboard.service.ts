@@ -17,28 +17,28 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import {
-    Datastore, Dashboard, DatabaseMetaData,
+    Dashboard, DatabaseMetaData,
     TableMetaData, FieldMetaData, SingleField
 } from '../types';
 import { Subscription, Observable } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { NeonGTDConfig, NeonDashboardConfig } from '../neon-gtd-config';
+import { NeonGTDConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../neon-gtd-config';
 import { ConnectionService, Connection } from './connection.service';
 
 @Injectable()
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    protected datasets: { [key: string]: Datastore } = {};
+    protected datasets: Record<string, NeonDatastoreConfig> = {};
 
     private config: NeonGTDConfig;
 
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
     // since a dashboard can reference multiple datastores.
-    protected dataset: Datastore = new Datastore();
+    protected dataset: NeonDatastoreConfig = { host: '', name: '', databases: {}, type: '' };
 
     protected dashboards: Dashboard;
 
@@ -62,14 +62,14 @@ export class DashboardService {
     // STATIC METHODS
     // --
 
-    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: { [key: string]: Datastore }): { [key: string]: Datastore } {
+    static appendDatastoresFromConfig(configDatastores: Record<string, NeonDatastoreConfig>, existingDatastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
-            let configDatastore: any = configDatastores[datastoreKey] || {};
-            let outputDatastore: Datastore = new Datastore(datastoreKey, configDatastore.host, configDatastore.type);
+            let configDatastore = configDatastores[datastoreKey] || { host: '', type: '', name: '', databases: {} };
+            let outputDatastore: NeonDatastoreConfig = { name: datastoreKey, host: configDatastore.host, type: configDatastore.type, databases: {} };
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            outputDatastore.hasUpdatedFields = !!configDatastore.hasUpdatedFields;
+            outputDatastore['hasUpdatedFields'] = !!configDatastore['hasUpdatedFields'];
 
             let configDatabases: any = configDatastore.databases || {};
             outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
@@ -131,7 +131,7 @@ export class DashboardService {
      * @arg {Dashboard} dashboard
      * @arg {Datastore[]} datastores
      */
-    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: { [key: string]: Datastore }): void {
+    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: Record<string, NeonDatastoreConfig>): void {
         if (dashboard.tables) {
             // Assume table keys have format:  datastore.database.table
             let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
@@ -142,7 +142,7 @@ export class DashboardService {
                 .reduce((acc, store) => {
                     acc[store.name] = store;
                     return acc;
-                }, {} as { [key: string]: Datastore });
+                }, {} as Record<string, NeonDatastoreConfig>);
         }
 
         if (dashboard.choices) {
@@ -194,7 +194,7 @@ export class DashboardService {
         }
     }
 
-    static validateDatabases(dataset: Datastore): void {
+    static validateDatabases(dataset: NeonDatastoreConfig): void {
         for (const key of Object.keys(dataset.databases)) {
             const database = dataset.databases[key];
             if (!(database.name || database.tables || database.tables.length)) {
@@ -438,7 +438,7 @@ export class DashboardService {
     /**
      * Returns the list of datasets maintained by this service
      */
-    public getDatasets(): { [key: string]: Datastore } {
+    public getDatasets(): Record<string, NeonDatastoreConfig> {
         return this.datasets;
     }
 
@@ -446,7 +446,7 @@ export class DashboardService {
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset: Datastore): { [key: string]: Datastore } {
+    public addDataset(dataset: NeonDatastoreConfig): Record<string, NeonDatastoreConfig> {
         DashboardService.validateDatabases(dataset);
         this.datasets[dataset.name] = dataset;
         return this.datasets;
@@ -462,7 +462,7 @@ export class DashboardService {
      */
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
-    public setActiveDataset(dataset: Datastore): void {
+    public setActiveDataset(dataset: NeonDatastoreConfig): void {
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
@@ -553,7 +553,7 @@ export class DashboardService {
      * Returns the active dataset object
      * @return {Object}
      */
-    public getDataset(): Datastore {
+    public getDataset(): NeonDatastoreConfig {
         return this.getDatasetWithName(this.dataset.name) || this.dataset;
     }
 
@@ -627,7 +627,7 @@ export class DashboardService {
      * @param {String} The dataset name
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
-    public getDatasetWithName(datasetName: string): Datastore {
+    public getDatasetWithName(datasetName: string): NeonDatastoreConfig {
         return this.datasets[datasetName];
     }
 
@@ -880,12 +880,12 @@ export class DashboardService {
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: Datastore, connection: Connection): any {
-        let promiseArray = dataset.hasUpdatedFields ? [] : Object.values(dataset.databases).map((database) =>
+    public updateDatabases(dataset: NeonDatastoreConfig, connection: Connection): any {
+        let promiseArray = dataset['hasUpdatedFields'] ? [] : Object.values(dataset.databases).map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
         return Promise.all(promiseArray).then((__response) => {
-            dataset.hasUpdatedFields = true;
+            dataset['hasUpdatedFields'] = true;
             return dataset;
         });
     }
@@ -1175,7 +1175,7 @@ export class DashboardService {
     public getDatastoresInConfigFormat(): { [key: string]: any } {
         return Object.values(this.datasets).reduce((datastores, datastore) => {
             datastores[datastore.name] = {
-                hasUpdatedFields: datastore.hasUpdatedFields,
+                hasUpdatedFields: datastore['hasUpdatedFields'],
                 host: datastore.host,
                 type: datastore.type,
                 databases: Object.values(datastore.databases).reduce((databases, database) => {

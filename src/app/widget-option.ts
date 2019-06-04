@@ -286,6 +286,8 @@ export class WidgetTableOption extends WidgetOption {
  * Manages configurable options for all widgets.
  */
 export class WidgetOptionCollection {
+
+
     // An object containing strings mapped to WidgetOption objects.
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
@@ -296,6 +298,8 @@ export class WidgetOptionCollection {
     public layers: WidgetOptionCollection[] = [];
     public table: TableMetaData = null;
     public tables: TableMetaData[] = [];
+
+    [key: string]: any;
 
     /**
      * @constructor

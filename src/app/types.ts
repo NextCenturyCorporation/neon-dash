@@ -1,4 +1,4 @@
-import { NeonDashboardOptions, NeonContributor, NeonDashboardConfig } from './neon-gtd-config';
+import { NeonDashboardConfig } from './neon-gtd-config';
 
 /*
  * Copyright 2017 Next Century Corporation
@@ -66,23 +66,9 @@ export class Dataset {
 }*/
 
 /**
- * Represents a single datastore from the datastores key/value pairs in the config file.
- */
-export class Datastore {
-    public databases: { [key: string]: DatabaseMetaData } = {};
-    public hasUpdatedFields: boolean = false;
-
-    constructor(
-        public name: string = '',
-        public host: string = '', // Formerly hostname
-        public type: string = '' // Type of datastore (mongo, elasticsearch, etc.)
-    ) { }
-}
-
-/**
  * Class to represent dashboards object from the config file.
  */
-export class Dashboard implements NeonDashboardConfig {
+export class Dashboard {
     public layout?: string = '';
     public filters?: any[] = [];
     public visualizationTitles?: { [key: string]: string } = {};
@@ -90,9 +76,10 @@ export class Dashboard implements NeonDashboardConfig {
     public fullTitle?: string; // Added to dashboard in validateDashboards()
     public pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
     // The datastores and layoutObject properties are assigned by the DashboardService.
-    public datastores?: { [key: string]: Datastore };
     public layoutObject?: (any[] | { [key: string]: any[] });
 }
+
+export interface Dashboard extends NeonDashboardConfig { }
 
 export const MediaTypes = {
     image: 'img',

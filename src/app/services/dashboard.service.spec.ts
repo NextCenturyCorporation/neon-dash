@@ -240,7 +240,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
         expect(input).toEqual({ [datastore1.name]: datastore1 });
@@ -333,7 +333,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
 
@@ -352,7 +352,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
-        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
         datastore2.hasUpdatedFields = false;
 
@@ -414,7 +414,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = true;
         expect(input).toEqual({ [datastore1.name]: datastore1 });
@@ -436,7 +436,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
         let input = { [datastore1.name]: datastore1 };
@@ -493,7 +493,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
-        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
         datastore2.hasUpdatedFields = false;
         expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
@@ -515,7 +515,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
         let input = { [datastore1.name]: datastore1 };
@@ -576,7 +576,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
 
         let dashboard1 = new Dashboard();
@@ -604,7 +604,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = new Datastore('datastore1', 'host1', 'type1');
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
 
         let table2 = new TableMetaData('table2', 'Table 2');
@@ -622,7 +622,7 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
-        let datastore2 = new Datastore('datastore2', 'host2', 'type2');
+        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
 
         let dashboard1 = new Dashboard();
@@ -725,7 +725,7 @@ describe('Service: DashboardService with Mock Data', () => {
     }));
 
     it('should have active datastore at creation', () => {
-        let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
+        let datastore: Datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', hasUpdatedFields: false, databases: {} };
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;
         expect(datasetService.getDataset()).toEqual(datastore);

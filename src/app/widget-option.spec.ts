@@ -35,7 +35,7 @@ import { DashboardServiceMock } from '../testUtils/MockServices/DashboardService
 import * as _ from 'lodash';
 
 describe('WidgetOptionCollection', () => {
-    let options: WidgetOptionCollection & { [key: string]: any };
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
@@ -307,7 +307,7 @@ describe('WidgetOptionCollection', () => {
 });
 
 describe('WidgetOptionCollection with custom fields', () => {
-    let options: WidgetOptionCollection & { [key: string]: any };
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
@@ -385,7 +385,7 @@ describe('WidgetOptionCollection with custom fields', () => {
 });
 
 describe('WidgetOptionCollection with bindings and custom fields', () => {
-    let options: WidgetOptionCollection & { [key: string]: any };
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
