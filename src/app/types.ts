@@ -68,18 +68,29 @@ export class Dataset {
 /**
  * Class to represent dashboards object from the config file.
  */
-export class Dashboard {
-    public layout?: string = '';
-    public filters?: any[] = [];
-    public visualizationTitles?: { [key: string]: string } = {};
+export interface Dashboard extends NeonDashboardConfig<Dashboard> {
+    layout: string;
+    filters: any[];
+    visualizationTitles?: { [key: string]: string };
 
-    public fullTitle?: string; // Added to dashboard in validateDashboards()
-    public pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
+    fullTitle: string; // Added to dashboard in validateDashboards()
+    pathFromTop: string[]; // Added to dashboard in validateDashboards() - contains keys
     // The datastores and layoutObject properties are assigned by the DashboardService.
-    public layoutObject?: (any[] | { [key: string]: any[] });
+    layoutObject: (any[] | { [key: string]: any[] });
 }
 
-export interface Dashboard extends NeonDashboardConfig { }
+export class Dashboard {
+    static get(): Dashboard {
+        return {
+            layout: '',
+            filters: [],
+            visualizationTitles: {},
+            fullTitle: '',
+            pathFromTop: [],
+            layoutObject: {}
+        };
+    }
+}
 
 export const MediaTypes = {
     image: 'img',

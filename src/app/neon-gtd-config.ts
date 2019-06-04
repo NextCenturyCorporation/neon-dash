@@ -59,7 +59,7 @@ export interface NeonContributor {
     logo: string;
 }
 
-export interface NeonDashboardConfig {
+export interface NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
     fileName?: string;
     lastModified?: number;
     modified?: boolean;
@@ -67,7 +67,7 @@ export interface NeonDashboardConfig {
     name?: string;
     // Interior
     category?: string;
-    choices?: Record<string, NeonDashboardConfig>;
+    choices?: Record<string, T>;
 
     // Leaf
     layout?: string;
@@ -101,11 +101,11 @@ export interface NeonDatastoreConfig {
     databases: Record<string, NeonDatabaseMetaData>;
 }
 
-export interface NeonGTDConfig {
+export interface NeonGTDConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
     projectTitle: string;
     projectIcon: string;
     datastores: Record<string, NeonDatastoreConfig>;
-    dashboards: NeonDashboardConfig;
+    dashboards: NeonDashboardConfig<T>;
     layouts: Record<string, NeonLayoutConfig>;
     errors: string[];
     neonServerUrl: string;

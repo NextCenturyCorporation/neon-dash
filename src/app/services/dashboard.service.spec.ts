@@ -88,7 +88,7 @@ describe('Service: DashboardService Static Functions', () => {
 
     it('assignDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
         let input = {};
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
@@ -100,7 +100,7 @@ describe('Service: DashboardService Static Functions', () => {
 
     it('assignDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
         let input = {};
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test1: {
@@ -119,12 +119,12 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
-        let previousDashboard = new Dashboard();
+        let previousDashboard = Dashboard.get();
         previousDashboard.name = 'previous';
         let input = {
             prev: previousDashboard
         };
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
@@ -136,7 +136,7 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
-        let previousDashboard = new Dashboard();
+        let previousDashboard = Dashboard.get();
         previousDashboard.name = 'previous';
         let input = {
             test1: {
@@ -145,7 +145,7 @@ describe('Service: DashboardService Static Functions', () => {
                 }
             }
         };
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test1: {
@@ -165,12 +165,12 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
-        let previousDashboard = new Dashboard();
+        let previousDashboard = Dashboard.get();
         previousDashboard.name = 'previous';
         let input = {
             prev: previousDashboard
         };
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             prev: dashboard
@@ -579,7 +579,7 @@ describe('Service: DashboardService Static Functions', () => {
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
 
-        let dashboard1 = new Dashboard();
+        let dashboard1 = Dashboard.get();
         dashboard1.tables = {
             key1: 'datastore1.database1.table1'
         };
@@ -625,15 +625,15 @@ describe('Service: DashboardService Static Functions', () => {
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
 
-        let dashboard1 = new Dashboard();
+        let dashboard1 = Dashboard.get();
         dashboard1.tables = {
             key1: 'datastore1.database1.table1'
         };
-        let dashboard2 = new Dashboard();
+        let dashboard2 = Dashboard.get();
         dashboard2.tables = {
             key1: 'datastore2.database2.table2'
         };
-        let dashboard3 = new Dashboard();
+        let dashboard3 = Dashboard.get();
         dashboard3.choices = {
             choice1: dashboard1,
             choice2: dashboard2
@@ -650,7 +650,7 @@ describe('Service: DashboardService Static Functions', () => {
             layout2: [4, 5, 6]
         };
 
-        let dashboard1 = new Dashboard();
+        let dashboard1 = Dashboard.get();
         dashboard1.layout = 'layout1';
 
         DashboardService.updateLayoutInDashboards(dashboard1, layout);
@@ -663,11 +663,11 @@ describe('Service: DashboardService Static Functions', () => {
             layout2: [4, 5, 6]
         };
 
-        let dashboard1 = new Dashboard();
+        let dashboard1 = Dashboard.get();
         dashboard1.layout = 'layout1';
-        let dashboard2 = new Dashboard();
+        let dashboard2 = Dashboard.get();
         dashboard2.layout = 'layout2';
-        let dashboard3 = new Dashboard();
+        let dashboard3 = Dashboard.get();
         dashboard3.choices = {
             choice1: dashboard1,
             choice2: dashboard2
@@ -691,14 +691,14 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('validateDashboards should add root dashboard if needed to given dashboards', () => {
-        let argument = new Dashboard();
+        let argument = Dashboard.get();
         argument.layout = 'layout1';
         argument.name = 'dashboard1';
         argument.tables = {
             key1: 'datastore1.database1.table1'
         };
 
-        let expected = new Dashboard();
+        let expected = Dashboard.get();
         expected.category = (DashboardService as any).DASHBOARD_CATEGORY_DEFAULT;
         expected.choices = {
             dashboard1: argument
@@ -732,7 +732,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active dashboard at creation', () => {
-        let dashboard: Dashboard = new Dashboard();
+        let dashboard: Dashboard = Dashboard.get();
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';
         dashboard.options = {};
