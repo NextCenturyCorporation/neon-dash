@@ -93,7 +93,7 @@ export class Dataset {
  * Represents a single datastore from the datastores key/value pairs in the config file.
  */
 export class Datastore {
-    public databases: DatabaseMetaData[] = [];
+    public databases: { [key: string]: DatabaseMetaData } = {};
     public hasUpdatedFields: boolean = false;
 
     constructor(
@@ -128,7 +128,7 @@ export class Dashboard {
     public relations?: (string | string[])[][];
     public contributors?: { [key: string]: Contributor } = {};
     // The datastores and layoutObject properties are assigned by the DashboardService.
-    public datastores?: Datastore[] = [];
+    public datastores?: { [key: string]: Datastore } = {};
     public layoutObject?: (any[] | { [key: string]: any[] }) = [];
 }
 

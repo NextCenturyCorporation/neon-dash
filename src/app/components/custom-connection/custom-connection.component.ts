@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { Datastore } from '../../types';
+import { Datastore, DatabaseMetaData } from '../../types';
 import { FilterService } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -79,7 +79,10 @@ export class CustomConnectionComponent implements AfterContentInit {
 
     createDataset() {
         let dataset = new Datastore(this.data.datasetName, this.data.datastoreHost, this.data.datastoreType);
-        dataset.databases = this.data.selectedDatabases;
+        dataset.databases = this.data.selectedDatabases.reduce((acc, db) => {
+            acc[db.name] = db;
+            return acc;
+        }, {} as { [key: string]: DatabaseMetaData });
         this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
 
