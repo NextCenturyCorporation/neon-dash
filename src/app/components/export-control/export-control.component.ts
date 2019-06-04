@@ -17,8 +17,8 @@ import { Component, ViewContainerRef, Input } from '@angular/core';
 
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
-import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { ConnectionService } from '../../services/connection.service';
 
 @Component({
     selector: 'app-export-control',
@@ -40,7 +40,7 @@ export class ExportControlComponent {
 
     constructor(
         protected datasetService: DashboardService,
-        protected searchService: AbstractSearchService,
+        protected connectionService: ConnectionService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
@@ -82,7 +82,7 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
+        let connection = this.connectionService.connect(this.datasetService.getDatastoreType(),
             this.datasetService.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;

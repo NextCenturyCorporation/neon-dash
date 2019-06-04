@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
-import { SearchService, NeonConnection, NeonGroupWrapper, NeonQueryWrapper, NeonWhereWrapper } from './search.service';
+import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -133,33 +133,6 @@ describe('Service: Search', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
-    });
-
-    it('createConnection does return a new connection', () => {
-        let connection = new query.Connection();
-        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
-        let spy = spyOn(connection, 'connect');
-
-        let output = service.createConnection('elasticsearchrest', 'localhost');
-
-        expect(output.connection).toEqual(connection);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost']);
-    });
-
-    it('createConnection does return an existing connection', () => {
-        let existingNeonConnection = new NeonConnection(new query.Connection());
-        (service as any).connections.set('elasticsearchrest', new Map<string, any>());
-        (service as any).connections.get('elasticsearchrest').set('localhost', existingNeonConnection);
-
-        let connection = new query.Connection();
-        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
-        let spy = spyOn(connection, 'connect');
-
-        let output = service.createConnection('elasticsearchrest', 'localhost');
-
-        expect(output).toEqual(existingNeonConnection);
-        expect(spy.calls.count()).toEqual(0);
     });
 
     it('runSearch does call expected function', () => {

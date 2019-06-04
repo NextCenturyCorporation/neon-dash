@@ -33,6 +33,7 @@ import * as _ from 'lodash';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
+import { ConnectionService } from '../../services/connection.service';
 
 interface State {
     fileName: string;
@@ -64,6 +65,7 @@ export class SaveStateComponent implements OnInit {
     constructor(
         protected datasetService: DashboardService,
         protected filterService: FilterService,
+        protected connectionService: ConnectionService,
         protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
         private snackBar: MatSnackBar,
@@ -331,7 +333,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     private openConnection(): any {
-        return this.searchService.createConnection(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
+        return this.connectionService.connect(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
     }
 
     public openNotification(stateName: string, actionName: string) {

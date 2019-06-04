@@ -19,8 +19,7 @@ import {
     AbstractSearchService,
     AggregationType,
     FilterClause,
-    QueryPayload,
-    RequestWrapper
+    QueryPayload
 } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -47,6 +46,7 @@ import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { RequestWrapper } from '../../services/connection.service';
 
 /**
  * @class BaseNeonComponent
