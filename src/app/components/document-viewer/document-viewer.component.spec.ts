@@ -820,7 +820,7 @@ describe('Component: DocumentViewer', () => {
         component.options.databases = DashboardServiceMock.DATABASES;
         component.options.database = DashboardServiceMock.DATABASES[0];
         component.options.tables = DashboardServiceMock.TABLES;
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.fields = DashboardServiceMock.FIELDS;
 
         let activeItem = {

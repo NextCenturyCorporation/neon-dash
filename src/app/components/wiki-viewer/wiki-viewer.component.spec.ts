@@ -375,7 +375,7 @@ describe('Component: WikiViewer with config', () => {
     it('does set expected superclass options properties', (() => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[0]);
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
