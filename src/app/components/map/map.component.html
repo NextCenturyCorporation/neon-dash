@@ -16,6 +16,12 @@
     <mat-spinner></mat-spinner>
 </div>
 
+<div class=" legend-container ">
+    <div *ngIf="!options.singleColor">
+        <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
+    </div>
+</div>
+
 <div class="body-container" (click)="stopEventPropagation($event)">
     <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)"
         (mouseWheelDown)="mouseWheelDown($event)">
@@ -23,12 +29,6 @@
         <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
         <div class="map-selection" *ngIf="false"
             [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
-    </div>
-
-    <div class=" legend-container ">
-        <div *ngIf="!options.singleColor">
-            <app-legend [colorKeys]="colorKeys" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
-        </div>
     </div>
 </div>
 

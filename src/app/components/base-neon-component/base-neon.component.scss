@@ -100,6 +100,12 @@ $contribution-height: 20px;
         }
     }
 
+    .legend-container {
+        position: absolute;
+        z-index: 1000;
+        top: $vis-title-expected-height;
+    }    
+
     .filter-container {
         @extend %filter-container-shared;
     }
