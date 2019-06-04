@@ -242,9 +242,6 @@ describe('Component: ThumbnailGrid', () => {
         let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
-
         let footerButtons = fixture.debugElement.queryAll(By.css(
             '.footer .footer-button-container .pagination-button'
         ));
@@ -269,9 +266,6 @@ describe('Component: ThumbnailGrid', () => {
         let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
-
         let footerButtons = fixture.debugElement.queryAll(By.css(
             '.footer .footer-button-container .pagination-button'
         ));
@@ -295,9 +289,6 @@ describe('Component: ThumbnailGrid', () => {
 
         let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
 
         let footerButtons = fixture.debugElement.queryAll(By.css(
             '.footer .footer-button-container .pagination-button'
