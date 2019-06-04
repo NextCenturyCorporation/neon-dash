@@ -1,7 +1,7 @@
 import { query } from 'neon-framework';
 
 import { ConnectionService, NeonConnection } from './connection.service';
-import { inject } from '@angular/core';
+import { inject } from '@angular/core/testing';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -14,13 +14,13 @@ describe('ConnectionService', () => {
         ]
     });
 
-    beforeEach(() => {
-        service = inject(ConnectionService);
-    });
+    beforeEach(inject([ConnectionService], (svc) => {
+        service = svc;
+    }));
 
     it('createConnection does return a new connection', () => {
         let connection = new query.Connection();
-        spyOn(service, 'createNeonConnection').and.returnValue(connection);
+        spyOn(service, 'neonConnection').and.returnValue(connection);
         let spy = spyOn(connection, 'connect');
 
         let output = service.connect('elasticsearchrest', 'localhost');
@@ -36,7 +36,7 @@ describe('ConnectionService', () => {
         service['connections'].get('elasticsearchrest').set('localhost', existingNeonConnection);
 
         let connection = new query.Connection();
-        spyOn(service, 'createNeonConnection').and.returnValue(connection);
+        spyOn(service, 'neonConnection').and.returnValue(connection);
         let spy = spyOn(connection, 'connect');
 
         let output = service.connect('elasticsearchrest', 'localhost');
