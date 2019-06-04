@@ -38,6 +38,9 @@ dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
 let choices: { [key: string]: Dashboard } = {};
 choices.dash1 = {
+    layoutObject: {},
+    filters: [],
+    fullTitle: '',
     pathFromTop: ['dash1'],
     name: 'Test Discovery Config',
     layout: 'DISCOVERY',
@@ -47,10 +50,17 @@ choices.dash1 = {
 };
 choices.dash2 = {
     name: 'Other Config',
+    layoutObject: {},
+    layout: '',
+    filters: [],
+    fullTitle: '',
     pathFromTop: ['dash2'],
     category: 'Select an option...',
     choices: {
         nextChoice: {
+            layoutObject: {},
+            filters: [],
+            fullTitle: '',
             pathFromTop: ['dash2', 'nextChoice'],
             name: 'Last Config',
             layout: 'layout3',
@@ -61,8 +71,13 @@ choices.dash2 = {
     }
 };
 
-let dashboards = {
+let dashboards: Dashboard = {
     category: 'Choose an option',
+    layoutObject: {},
+    filters: [],
+    fullTitle: '',
+    layout: '',
+    pathFromTop: [],
     choices: choices
 };
 

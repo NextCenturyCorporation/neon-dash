@@ -13,9 +13,9 @@
  * limitations under the License.
  *
  */
-import { Dashboard, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/types';
+import { Dashboard, DatabaseMetaData, FieldMetaData, TableMetaData } from '../../app/types';
 import { DashboardService } from '../../app/services/dashboard.service';
-import { NeonGTDConfig } from '../../app/neon-gtd-config';
+import { NeonGTDConfig, NeonDatastoreConfig } from '../../app/neon-gtd-config';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
 
@@ -79,9 +79,9 @@ export class DashboardServiceMock extends DashboardService {
 
     constructor() {
         super(new ConfigService(null).set(NeonGTDConfig.get()), new MockConnectionService());
-        let datastore: Datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
+        let datastore: NeonDatastoreConfig = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
         datastore.databases = DashboardServiceMock.DATABASES;
-        datastore.hasUpdatedFields = true;
+        datastore['hasUpdatedFields'] = true;
         this.dataset = datastore;
         this.datasets = { [datastore.name]: datastore };
 
