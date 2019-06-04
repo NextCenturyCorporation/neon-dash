@@ -193,7 +193,7 @@ describe('Component: TaxonomyViewer', () => {
 
     it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.idField = DashboardServiceMock.ID_FIELD;
         component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
@@ -249,7 +249,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.ascending = true;
 
         component.transformVisualizationQueryResults(component.options, responseData);
@@ -488,7 +488,7 @@ describe('Component: TaxonomyViewer', () => {
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
@@ -496,7 +496,7 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
@@ -506,7 +506,7 @@ describe('Component: TaxonomyViewer', () => {
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
@@ -514,13 +514,13 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[2].filterDesign).operator).toEqual('!=');
         expect((actual[2].filterDesign).value).toBeUndefined();
@@ -528,7 +528,7 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[3].filterDesign).type).toEqual('and');
         expect((actual[3].filterDesign).filters.length).toEqual(1);
         expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
@@ -538,7 +538,7 @@ describe('Component: TaxonomyViewer', () => {
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(6);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
@@ -546,13 +546,13 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[2].filterDesign).operator).toEqual('!=');
         expect((actual[2].filterDesign).value).toBeUndefined();
@@ -560,13 +560,13 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[3].filterDesign).type).toEqual('and');
         expect((actual[3].filterDesign).filters.length).toEqual(1);
         expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[4].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[4].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[4].filterDesign).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((actual[4].filterDesign).operator).toEqual('!=');
         expect((actual[4].filterDesign).value).toBeUndefined();
@@ -574,7 +574,7 @@ describe('Component: TaxonomyViewer', () => {
         expect((actual[5].filterDesign).type).toEqual('and');
         expect((actual[5].filterDesign).filters.length).toEqual(1);
         expect((actual[5].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((actual[5].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[5].filterDesign).filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((actual[5].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[5].filterDesign).filters[0].value).toBeUndefined();
@@ -599,7 +599,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
@@ -608,14 +608,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
@@ -625,14 +625,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
@@ -667,7 +667,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: 'testTypeA'
@@ -676,14 +676,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
@@ -691,7 +691,7 @@ describe('Component: TaxonomyViewer', () => {
         } as CompoundFilterDesign], [{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
@@ -726,21 +726,21 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: 'testSubType1'
         } as SimpleFilterDesign], [{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
@@ -780,14 +780,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryII'
@@ -797,28 +797,28 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeC'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeD'
@@ -828,14 +828,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
@@ -873,7 +873,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryII'
@@ -882,21 +882,21 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeC'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeD'
@@ -906,14 +906,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
@@ -952,21 +952,21 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
@@ -1002,21 +1002,21 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
@@ -1051,21 +1051,21 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
@@ -1097,7 +1097,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
@@ -1124,7 +1124,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
@@ -1133,14 +1133,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
@@ -1210,21 +1210,21 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI.testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI.testTypeB'
@@ -1234,14 +1234,14 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
@@ -1307,7 +1307,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
             database: DashboardServiceMock.DATABASES[0],
-            table: DashboardServiceMock.TABLES[0],
+            table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
@@ -1316,28 +1316,28 @@ describe('Component: TaxonomyViewer', () => {
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA.testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA.testSubType2'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES[0],
-                table: DashboardServiceMock.TABLES[0],
+                table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'

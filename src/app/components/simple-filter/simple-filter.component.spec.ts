@@ -61,7 +61,7 @@ describe('Component: SimpleFilter', () => {
         filterService = fixture.debugElement.injector.get(FilterService);
         fixture.debugElement.injector.get(DashboardService).getCurrentDashboardOptions().simpleFilter = {
             databaseName: DashboardServiceMock.DATABASES[0].name,
-            tableName: DashboardServiceMock.TABLES[0].name,
+            tableName: DashboardServiceMock.TABLES.testTable1.name,
             fieldName: DashboardServiceMock.TEXT_FIELD.columnName
         };
         fixture.detectChanges();
@@ -79,7 +79,7 @@ describe('Component: SimpleFilter', () => {
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with click');
@@ -100,7 +100,7 @@ describe('Component: SimpleFilter', () => {
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('replace filter with click');
@@ -118,7 +118,7 @@ describe('Component: SimpleFilter', () => {
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with enter');

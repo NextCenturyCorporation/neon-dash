@@ -219,7 +219,7 @@ describe('Component: MediaViewer', () => {
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         component.options.clearMedia = true;
         (component as any).isFiltered = () => false;
@@ -255,7 +255,7 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         component.options.clearMedia = false;
         (component as any).isFiltered = () => true;
@@ -272,7 +272,7 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         (component as any).isFiltered = () => true;
 
         component.transformVisualizationQueryResults(component.options, [{
@@ -308,7 +308,7 @@ describe('Component: MediaViewer', () => {
         component.options.nameField = DashboardServiceMock.NAME_FIELD;
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         (component as any).isFiltered = () => true;
 
@@ -365,7 +365,7 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         (component as any).isFiltered = () => true;
 
         component.transformVisualizationQueryResults(component.options, [{
@@ -419,7 +419,7 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         (component as any).isFiltered = () => true;
 
         component.transformVisualizationQueryResults(component.options, [{
@@ -470,7 +470,7 @@ describe('Component: MediaViewer', () => {
         component.options.idField = DashboardServiceMock.ID_FIELD;
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testTabName';
         (component as any).isFiltered = () => true;
 
@@ -487,7 +487,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
         component.options.border = 'grey';
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         (component as any).isFiltered = () => true;
 
@@ -521,7 +521,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
         component.options.linkPrefix = 'linkPrefix/';
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         (component as any).isFiltered = () => true;
 
@@ -621,7 +621,7 @@ describe('Component: MediaViewer', () => {
             wav: 'aud'
         };
         component.options.database = DashboardServiceMock.DATABASES[0];
-        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
         (component as any).isFiltered = () => true;
 
@@ -1202,7 +1202,7 @@ describe('Component: MediaViewer with config', () => {
     it('does set expected superclass options properties', () => {
         expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[0]);
         expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.title).toEqual('Test Title');

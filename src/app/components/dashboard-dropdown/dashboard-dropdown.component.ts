@@ -37,7 +37,7 @@ export class DashboardDropdownComponent {
 
     public selectedDashboard: Dashboard;
 
-    constructor(public changeDetection: ChangeDetectorRef) {}
+    constructor(public changeDetection: ChangeDetectorRef) { }
 
     /**
      * Returns all keys for current dashboard choices.
@@ -45,7 +45,7 @@ export class DashboardDropdownComponent {
      * @return {String[]}
      */
     getDashboardKeys() {
-        return this.dashboards ? Object.keys(this.dashboards.choices) : null;
+        return this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : null;
     }
 
     /**
