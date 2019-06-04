@@ -1,4 +1,3 @@
-import { TestBed } from '@angular/core/testing';
 import { query } from 'neon-framework';
 
 import { ConnectionService, NeonConnection } from './connection.service';
