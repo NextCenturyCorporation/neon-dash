@@ -312,7 +312,7 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
@@ -487,14 +487,14 @@ describe('Component: ThumbnailGrid', () => {
         component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
@@ -552,7 +552,7 @@ describe('Component: ThumbnailGrid', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -782,10 +782,10 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[1]);
-        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.limit).toEqual(10);
         expect(component.options.title).toEqual('Test Title');

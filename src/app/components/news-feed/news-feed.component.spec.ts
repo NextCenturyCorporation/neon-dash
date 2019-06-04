@@ -85,7 +85,7 @@ describe('Component: NewsFeed', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -99,7 +99,7 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DashboardServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
@@ -159,7 +159,7 @@ describe('Component: NewsFeed', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DashboardServiceMock.TABLES.testTable1;

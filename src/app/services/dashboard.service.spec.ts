@@ -51,12 +51,18 @@ describe('Service: DashboardService', () => {
     it('should return datastores by name', () => {
         datasetService.addDataset({
             name: 'd1',
-            databases: []
+            host: '',
+            type: '',
+            hasUpdatedFields: false,
+            databases: {}
         });
 
         expect(datasetService.getDatasetWithName('d1')).toEqual({
             name: 'd1',
-            databases: []
+            host: '',
+            type: '',
+            hasUpdatedFields: false,
+            databases: {}
         });
     });
 
@@ -175,13 +181,13 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
-        let input = [];
-        DashboardService.appendDatastoresFromConfig({}, input);
-        expect(input).toEqual([]);
+        let input = {};
+        DashboardService.appendDatastoresFromConfig({}, {});
+        expect(input).toEqual({});
     });
 
     it('appendDatastoresFromConfig with config and no existing datastores should update given datastores', () => {
-        let input = [];
+        let input = {};
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: {
@@ -235,13 +241,13 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
-        expect(input).toEqual([datastore1]);
+        expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
     it('appendDatastoresFromConfig with config of multiple datastores and no existing datastores should update given datastores', () => {
-        let input = [];
+        let input = {};
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: {
@@ -328,7 +334,7 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
 
         let table2 = new TableMetaData('table2', 'Table 2');
@@ -347,14 +353,14 @@ describe('Service: DashboardService Static Functions', () => {
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
-        datastore2.databases = [database2];
+        datastore2.databases = { [database2.name]: database2 };
         datastore2.hasUpdatedFields = false;
 
-        expect(input).toEqual([datastore1, datastore2]);
+        expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
     });
 
     it('appendDatastoresFromConfig does keep updated fields if config hasUpdatedFields', () => {
-        let input = [];
+        let input = {};
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: {
@@ -409,9 +415,9 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = true;
-        expect(input).toEqual([datastore1]);
+        expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
     it('appendDatastoresFromConfig with config and existing datastores should update given datastores', () => {
@@ -431,12 +437,13 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
-        let input = [datastore1];
+        let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
             datastore2: {
+                name: 'datastore2',
                 host: 'host2',
                 type: 'type2',
                 databases: {
@@ -487,9 +494,9 @@ describe('Service: DashboardService Static Functions', () => {
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
-        datastore2.databases = [database2];
+        datastore2.databases = { [database2.name]: database2 };
         datastore2.hasUpdatedFields = false;
-        expect(input).toEqual([datastore1, datastore2]);
+        expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
     });
 
     it('appendDatastoresFromConfig with same datastore in config and existing datastores should not update given datastores', () => {
@@ -509,12 +516,13 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
-        let input = [datastore1];
+        let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: {
+                name: 'datastore1',
                 host: 'host1',
                 type: 'type1',
                 databases: {
@@ -549,7 +557,7 @@ describe('Service: DashboardService Static Functions', () => {
             }
         }, input);
 
-        expect(input).toEqual([datastore1]);
+        expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
     it('updateDatastoresInDashboards should set datastores property in given dashboards with tables', () => {
@@ -569,15 +577,15 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
 
         let dashboard1 = new Dashboard();
         dashboard1.tables = {
             key1: 'datastore1.database1.table1'
         };
 
-        DashboardService.updateDatastoresInDashboards(dashboard1, [datastore1]);
-        expect(dashboard1.datastores).toEqual([datastore1]);
+        DashboardService.updateDatastoresInDashboards(dashboard1, { [datastore1.name]: datastore1 });
+        expect(dashboard1.datastores).toEqual({ [datastore1.name]: datastore1 });
     });
 
     it('updateDatastoresInDashboards should set datastores property in given dashboards with choices', () => {
@@ -597,7 +605,7 @@ describe('Service: DashboardService Static Functions', () => {
         let database1 = new DatabaseMetaData('database1', 'Database 1');
         database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
-        datastore1.databases = [database1];
+        datastore1.databases = { [database1.name]: database1 };
 
         let table2 = new TableMetaData('table2', 'Table 2');
         table2.fields = [
@@ -615,7 +623,7 @@ describe('Service: DashboardService Static Functions', () => {
         let database2 = new DatabaseMetaData('database2', 'Database 2');
         database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
-        datastore2.databases = [database2];
+        datastore2.databases = { [database2.name]: database2 };
 
         let dashboard1 = new Dashboard();
         dashboard1.tables = {
@@ -631,9 +639,9 @@ describe('Service: DashboardService Static Functions', () => {
             choice2: dashboard2
         };
 
-        DashboardService.updateDatastoresInDashboards(dashboard3, [datastore1, datastore2]);
-        expect(dashboard1.datastores).toEqual([datastore1]);
-        expect(dashboard2.datastores).toEqual([datastore2]);
+        DashboardService.updateDatastoresInDashboards(dashboard3, { [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
+        expect(dashboard1.datastores).toEqual({ [datastore1.name]: datastore1 });
+        expect(dashboard2.datastores).toEqual({ [datastore2.name]: datastore2 });
     });
 
     it('updateLayoutInDashboards should set layoutObject property in given dashboards with layout', () => {
@@ -764,13 +772,13 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }]
@@ -778,13 +786,13 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }]
@@ -810,13 +818,13 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }]
@@ -824,23 +832,23 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }, {
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }, {
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }]
@@ -860,13 +868,13 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_A
                 }]
@@ -874,13 +882,13 @@ describe('Service: DashboardService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[0],
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES[1],
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }]
@@ -938,7 +946,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('getCurrentDatabase does return expected object', () => {
-        expect(datasetService.getCurrentDatabase()).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(datasetService.getCurrentDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
     });
 
     it('getDatastoresInConfigFormat does return expected object', () => {

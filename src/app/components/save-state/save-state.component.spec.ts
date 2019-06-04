@@ -190,8 +190,8 @@ describe('Component: SaveStateComponent', () => {
         expect(spyDashboardService.calls.argsFor(0)).toEqual([expectedDashboard, {
             datastore1: {}
         }, {
-            layout1: []
-        }]);
+                layout1: []
+            }]);
         expect(spyMessengerPublish.calls.count()).toEqual(1);
         const [type, { dashboard: { lastModified, ...dashboard } }] = spyMessengerPublish.calls.argsFor(0);
         expect([type, { dashboard }]).toEqual([neonEvents.DASHBOARD_STATE, {
@@ -273,7 +273,7 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let dashboard = new Dashboard();
-        dashboard.datastores = [];
+        dashboard.datastores = {};
         dashboard.fullTitle = 'Full Title';
         dashboard.layout = 'layoutName';
         dashboard.layoutObject = [];

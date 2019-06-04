@@ -723,7 +723,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards.choices);
 
-        if (dashboard && (!parameterDataset || parameterDataset === dashboard.datastores[0].name)) {
+        const firstDataStore = dashboard && Object.values(dashboard.datastores)[0];
+
+        if (dashboard && firstDataStore && (!parameterDataset || parameterDataset === firstDataStore.name)) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
                 dashboard: dashboard
             });

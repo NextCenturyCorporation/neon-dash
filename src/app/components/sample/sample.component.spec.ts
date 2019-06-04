@@ -178,7 +178,7 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DashboardServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
@@ -186,7 +186,7 @@ describe('Component: Sample', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
@@ -210,7 +210,7 @@ describe('Component: Sample', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
@@ -272,7 +272,7 @@ describe('Component: Sample', () => {
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -294,7 +294,7 @@ describe('Component: Sample', () => {
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -344,7 +344,7 @@ describe('Component: Sample', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -559,7 +559,7 @@ describe('Component: Sample with config', () => {
     });
 
     it('superclass options properties are set to expected values from config', () => {
-        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');

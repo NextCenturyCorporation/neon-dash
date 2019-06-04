@@ -325,8 +325,8 @@ describe('Dashboard', () => {
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
         let widgetGridItem1: NeonGridItem = {
-            col: 0, row: 0, sizex: 1, sizey: 1
-        };
+            col: 0, row: 0
+        } as any;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1
@@ -343,8 +343,8 @@ describe('Dashboard', () => {
         }]);
 
         let widgetGridItem2: NeonGridItem = {
-            col: 0, row: 0, sizex: 1, sizey: 1
-        };
+            col: 0, row: 0
+        } as any;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem2
@@ -369,8 +369,8 @@ describe('Dashboard', () => {
         }]);
 
         let widgetGridItem3: NeonGridItem = {
-            col: 0, row: 0, sizex: 1, sizey: 1
-        };
+            col: 0, row: 0
+        } as any;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem3
@@ -403,8 +403,8 @@ describe('Dashboard', () => {
         }]);
 
         let widgetGridItem4: NeonGridItem = {
-            col: 0, row: 0, sizex: 1, sizey: 1
-        };
+            col: 0, row: 0
+        } as any;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem4
@@ -481,8 +481,8 @@ describe('Dashboard', () => {
         }];
 
         let widgetGridItem1: NeonGridItem = {
-            col: 0, row: 0, sizex: 1, sizey: 1
-        };
+            col: 0, row: 0
+        } as any;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1
@@ -880,7 +880,7 @@ describe('Dashboard', () => {
         let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
         let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
         let testDashboard: Dashboard = new Dashboard();
-        testDashboard.datastores = [testDatastore1, testDatastore2];
+        testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = [{
             name: 'a'
         }, {
@@ -943,7 +943,7 @@ describe('Dashboard', () => {
         let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
         let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
         let testDashboard: Dashboard = new Dashboard();
-        testDashboard.datastores = [testDatastore1, testDatastore2];
+        testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = {
             tab1: [{
                 name: 'a'
@@ -1041,7 +1041,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.datastores = { testDataStoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1069,7 +1069,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.datastores = { testDatastoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1098,7 +1098,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = [new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1')];
+        showDashboard.datastores = { testDatastoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
         showDashboard.options = {
             connectOnLoad: true
         };

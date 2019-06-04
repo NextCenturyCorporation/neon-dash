@@ -818,7 +818,7 @@ describe('Component: DocumentViewer', () => {
 
     it('populateActiveItem does use field pretty name if no name is given', () => {
         component.options.databases = DashboardServiceMock.DATABASES;
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.tables = DashboardServiceMock.TABLES;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.fields = DashboardServiceMock.FIELDS;

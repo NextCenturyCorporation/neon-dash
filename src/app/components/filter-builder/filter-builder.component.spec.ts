@@ -60,16 +60,16 @@ describe('Component: Filter Builder', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.filterClauses.length).toEqual(1);
-        expect(component.filterClauses[0].databases).toEqual(DashboardServiceMock.DATABASES);
-        expect(component.filterClauses[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect(component.filterClauses[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.filterClauses[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.filterClauses[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.filterClauses[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.filterClauses[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.filterClauses[0].field).toEqual(new FieldMetaData());
         expect(component.filterClauses[0].operator.value).toEqual('contains');
         expect(component.filterClauses[0].value).toEqual('');
         expect(component.filterClauses[0]._id).toBeDefined();
-        expect(component.filterClauses[0].changeDatabase).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.filterClauses[0].changeDatabase).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.filterClauses[0].changeTable).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[0].changeField).toEqual(new FieldMetaData());
 
@@ -85,16 +85,16 @@ describe('Component: Filter Builder', () => {
         component.addBlankFilterClause();
 
         expect(component.filterClauses.length).toEqual(2);
-        expect(component.filterClauses[1].databases).toEqual(DashboardServiceMock.DATABASES);
-        expect(component.filterClauses[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
-        expect(component.filterClauses[1].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.filterClauses[1].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.filterClauses[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.filterClauses[1].tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.filterClauses[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[1].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.filterClauses[1].field).toEqual(new FieldMetaData());
         expect(component.filterClauses[1].operator.value).toEqual('contains');
         expect(component.filterClauses[1].value).toEqual('');
         expect(component.filterClauses[1]._id).toBeDefined();
-        expect(component.filterClauses[1].changeDatabase).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.filterClauses[1].changeDatabase).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.filterClauses[1].changeTable).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[1].changeField).toEqual(new FieldMetaData());
     });

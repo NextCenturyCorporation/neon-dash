@@ -141,7 +141,7 @@ describe('Component: TextCloud', () => {
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
@@ -150,7 +150,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('onClick does call toggleFilters with expected object', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         let spy = spyOn((component as any), 'toggleFilters');
@@ -163,7 +163,7 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
@@ -180,7 +180,7 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
