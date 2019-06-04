@@ -24,7 +24,7 @@ import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { Dashboard, Datastore } from '../../types';
+import { Dashboard } from '../../types';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -34,14 +34,7 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-
-interface State {
-    fileName: string;
-    lastModified: number;
-    dashboards: Dashboard;
-    datastores: Datastore;
-    layouts: any;
-}
+import { NeonGTDConfig } from '../../neon-gtd-config';
 
 @Component({
     selector: 'app-save-state',
@@ -60,7 +53,7 @@ export class SaveStateComponent implements OnInit {
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
-    public states: { total: number, results: State[] } = { total: 0, results: [] };
+    public states: { total: number, results: NeonGTDConfig[] } = { total: 0, results: [] };
 
     constructor(
         protected datasetService: DashboardService,
@@ -243,7 +236,7 @@ export class SaveStateComponent implements OnInit {
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: State, name: string) {
+    private handleLoadStateSuccess(response: NeonGTDConfig, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
             let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
                 response.datastores, response.layouts);
@@ -251,8 +244,8 @@ export class SaveStateComponent implements OnInit {
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
                 const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
-                dash.fileName = response.fileName;
-                dash.lastModified = response.lastModified;
+                dash.fileName = response['fileName'];  // TODO: Reconcile
+                dash.lastModified = response['lastModified'];
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dash
                 });

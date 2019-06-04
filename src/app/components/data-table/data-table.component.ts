@@ -79,13 +79,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number;
         y: number;
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
 
     public duplicateNumber = 0;
     public seenValues = [];
@@ -342,7 +342,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
                     active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.getColumnWidth(fieldObject.name)
+                    width: this.getColumnWidth(fieldObject['name']) // TODO: Investigate
                 });
             }
         }

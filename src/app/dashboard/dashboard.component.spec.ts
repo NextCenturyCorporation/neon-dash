@@ -877,8 +877,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
-        let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+        let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
+        let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
         let testDashboard: Dashboard = new Dashboard();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = [{
@@ -940,8 +940,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: Datastore = new Datastore('testName1', 'testHost1', 'testType1');
-        let testDatastore2: Datastore = new Datastore('testName2', 'testHost2', 'testType2');
+        let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
+        let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
         let testDashboard: Dashboard = new Dashboard();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = {
@@ -1041,7 +1041,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = { testDataStoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
+        showDashboard.datastores = { testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1069,7 +1069,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = { testDatastoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
+        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1098,7 +1098,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = new Dashboard();
-        showDashboard.datastores = { testDatastoreName1: new Datastore('testDatastoreName1', 'testDatastoreHost1', 'testDatastoreType1') };
+        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };

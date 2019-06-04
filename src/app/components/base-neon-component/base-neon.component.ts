@@ -91,8 +91,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected page: number = 1;
     protected savedPages: Map<string, number> = new Map<string, number>();
 
-    // A WidgetOptionCollection object.  Must use "any" type to avoid typescript errors.
-    public options: any;
+    public options: WidgetOptionCollection;
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
 
@@ -1160,9 +1159,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                undefined
-        });
+                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                    undefined
+            });
     }
 
     /**

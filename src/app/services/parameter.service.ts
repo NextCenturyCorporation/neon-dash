@@ -17,7 +17,6 @@ import { Injectable } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { Datastore } from '../types';
 import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { neonEvents } from '../neon-namespaces';
@@ -317,7 +316,7 @@ export class ParameterService {
             if (dashboardStateId) {
                 // TODO: THOR-1065: This should open a Dashboard (not a single Datastore). Then it should
                 // create Connections to each Datastore in the Dashboard and call updateDatabases of each Datastore.
-                let matchingDataset: Datastore = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
+                let matchingDataset = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
                 if (!matchingDataset) {
                     this.datasetService.addDataset(dashboardState.dataset);
                     matchingDataset = dashboardState.dataset;

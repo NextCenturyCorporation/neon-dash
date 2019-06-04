@@ -139,7 +139,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             field: this.options.documentTextField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as FilterDesign;
     }
 
     /**
