@@ -47,6 +47,11 @@
 }
 
 /deep/ .node-content-wrapper {
+    &.node-content-wrapper-active {
+        background: var(--color-data-item-selected, lightgrey) !important;
+        color: var(--color-data-item-selected-text, dimgrey) !important;
+    }
+
     &:hover {
         background: var(--color-data-item-selectable, lightgrey) !important;
         color: var(--color-data-item-selectable-text, dimgrey) !important;
