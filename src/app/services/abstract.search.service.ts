@@ -14,7 +14,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { Dashboard, Datastore } from '../dataset';
+import { Dashboard, Datastore } from '../types';
 
 export enum AggregationType {
     AVG = 'avg',

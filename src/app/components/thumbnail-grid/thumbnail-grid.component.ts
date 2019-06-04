@@ -28,11 +28,11 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
+import { FieldMetaData, MediaTypes } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -73,7 +73,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public view: any = ViewType;
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

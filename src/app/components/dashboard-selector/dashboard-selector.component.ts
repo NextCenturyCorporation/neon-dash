@@ -15,7 +15,7 @@
  */
 import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
 
-import { Dashboard } from '../../dataset';
+import { Dashboard } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 

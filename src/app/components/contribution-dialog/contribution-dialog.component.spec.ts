@@ -20,7 +20,7 @@ import { ContributionDialogModule } from './contribution-dialog.module';
 
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
@@ -33,7 +33,7 @@ describe('Component: ContributionDialogComponent', () => {
     initializeTestBed('ContributionDialogComponent', {
         providers: [
             FilterService,
-            DatasetService,
+            DashboardService,
             { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }

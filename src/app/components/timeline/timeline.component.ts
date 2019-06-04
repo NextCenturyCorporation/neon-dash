@@ -35,7 +35,7 @@ import {
     TimeInterval
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -59,7 +59,7 @@ import {
 } from '../../widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -95,7 +95,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public timelineQueryResults: { value: number, date: Date }[] = null;
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

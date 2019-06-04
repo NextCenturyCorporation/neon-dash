@@ -15,7 +15,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -25,10 +25,10 @@ import { } from 'jasmine-core';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
@@ -42,7 +42,7 @@ describe('Component: WikiViewer', () => {
 
     initializeTestBed('Wiki Viewer', {
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -176,7 +176,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
 
     initializeTestBed('Wiki Viewer', {
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -349,7 +349,7 @@ describe('Component: WikiViewer with config', () => {
 
     initializeTestBed('Wiki Viewer', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -373,11 +373,11 @@ describe('Component: WikiViewer with config', () => {
     });
 
     it('does set expected superclass options properties', (() => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
     it('does set expected options properties', () => {

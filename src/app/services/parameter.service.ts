@@ -18,8 +18,8 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import { AbstractSearchService, Connection } from './abstract.search.service';
-import { Datastore } from '../dataset';
-import { DatasetService } from './dataset.service';
+import { Datastore } from '../types';
+import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
@@ -51,7 +51,7 @@ export class ParameterService {
     public parameters: any = {};
 
     constructor(
-        private datasetService: DatasetService,
+        private datasetService: DashboardService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {

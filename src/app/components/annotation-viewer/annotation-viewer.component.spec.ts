@@ -22,12 +22,12 @@ import { AnnotationViewerComponent } from './annotation-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { FieldMetaData } from '../../dataset';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FieldMetaData } from '../../types';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -42,7 +42,7 @@ describe('Component: AnnotationViewer', () => {
     initializeTestBed('Annotation Viewer', {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,

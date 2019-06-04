@@ -19,7 +19,7 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { WidgetOption } from '../../widget-option';
 
 @Component({

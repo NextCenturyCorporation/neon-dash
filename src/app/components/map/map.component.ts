@@ -28,7 +28,7 @@ import {
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -48,7 +48,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonUtilities } from '../../neon-namespaces';
 import {
@@ -97,7 +97,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

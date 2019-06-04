@@ -16,27 +16,27 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../dataset';
-import { DatasetService } from './dataset.service';
+import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../types';
+import { DashboardService } from './dashboard.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
-describe('Service: DatasetService', () => {
-    let datasetService: DatasetService;
+describe('Service: DashboardService', () => {
+    let datasetService: DashboardService;
 
-    initializeTestBed('Dataset Service', {
+    initializeTestBed('Dashboard Service', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            DatasetService,
+            DashboardService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ]
     });
 
-    beforeEach(inject([DatasetService], (_datasetService: DatasetService) => {
+    beforeEach(inject([DashboardService], (_datasetService: DashboardService) => {
         datasetService = _datasetService;
     }));
 
@@ -65,18 +65,18 @@ describe('Service: DatasetService', () => {
     });
 });
 
-describe('Service: DatasetService Static Functions', () => {
-    initializeTestBed('Dataset Service Static Functions', {
+describe('Service: DashboardService Static Functions', () => {
+    initializeTestBed('Dashboard Service Static Functions', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 
     it('assignDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
         let input = {};
-        DatasetService.assignDashboardChoicesFromConfig(input, {});
+        DashboardService.assignDashboardChoicesFromConfig(input, {});
         expect(input).toEqual({});
     });
 
@@ -84,7 +84,7 @@ describe('Service: DatasetService Static Functions', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.assignDashboardChoicesFromConfig(input, {
+        DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -96,7 +96,7 @@ describe('Service: DatasetService Static Functions', () => {
         let input = {};
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.assignDashboardChoicesFromConfig(input, {
+        DashboardService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -120,7 +120,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.assignDashboardChoicesFromConfig(input, {
+        DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
         });
         expect(input).toEqual({
@@ -141,7 +141,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.assignDashboardChoicesFromConfig(input, {
+        DashboardService.assignDashboardChoicesFromConfig(input, {
             test1: {
                 choices: {
                     test2: dashboard
@@ -166,7 +166,7 @@ describe('Service: DatasetService Static Functions', () => {
         };
         let dashboard = new Dashboard();
         dashboard.name = 'name';
-        DatasetService.assignDashboardChoicesFromConfig(input, {
+        DashboardService.assignDashboardChoicesFromConfig(input, {
             prev: dashboard
         });
         expect(input).toEqual({
@@ -176,14 +176,14 @@ describe('Service: DatasetService Static Functions', () => {
 
     it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
         let input = [];
-        DatasetService.appendDatastoresFromConfig({}, input);
+        DashboardService.appendDatastoresFromConfig({}, input);
         expect(input).toEqual([]);
     });
 
     it('appendDatastoresFromConfig with config and no existing datastores should update given datastores', () => {
         let input = [];
 
-        DatasetService.appendDatastoresFromConfig({
+        DashboardService.appendDatastoresFromConfig({
             datastore1: {
                 host: 'host1',
                 type: 'type1',
@@ -243,7 +243,7 @@ describe('Service: DatasetService Static Functions', () => {
     it('appendDatastoresFromConfig with config of multiple datastores and no existing datastores should update given datastores', () => {
         let input = [];
 
-        DatasetService.appendDatastoresFromConfig({
+        DashboardService.appendDatastoresFromConfig({
             datastore1: {
                 host: 'host1',
                 type: 'type1',
@@ -356,7 +356,7 @@ describe('Service: DatasetService Static Functions', () => {
     it('appendDatastoresFromConfig does keep updated fields if config hasUpdatedFields', () => {
         let input = [];
 
-        DatasetService.appendDatastoresFromConfig({
+        DashboardService.appendDatastoresFromConfig({
             datastore1: {
                 hasUpdatedFields: true,
                 host: 'host1',
@@ -435,7 +435,7 @@ describe('Service: DatasetService Static Functions', () => {
         datastore1.hasUpdatedFields = false;
         let input = [datastore1];
 
-        DatasetService.appendDatastoresFromConfig({
+        DashboardService.appendDatastoresFromConfig({
             datastore2: {
                 host: 'host2',
                 type: 'type2',
@@ -513,7 +513,7 @@ describe('Service: DatasetService Static Functions', () => {
         datastore1.hasUpdatedFields = false;
         let input = [datastore1];
 
-        DatasetService.appendDatastoresFromConfig({
+        DashboardService.appendDatastoresFromConfig({
             datastore1: {
                 host: 'host1',
                 type: 'type1',
@@ -576,7 +576,7 @@ describe('Service: DatasetService Static Functions', () => {
             key1: 'datastore1.database1.table1'
         };
 
-        DatasetService.updateDatastoresInDashboards(dashboard1, [datastore1]);
+        DashboardService.updateDatastoresInDashboards(dashboard1, [datastore1]);
         expect(dashboard1.datastores).toEqual([datastore1]);
     });
 
@@ -631,7 +631,7 @@ describe('Service: DatasetService Static Functions', () => {
             choice2: dashboard2
         };
 
-        DatasetService.updateDatastoresInDashboards(dashboard3, [datastore1, datastore2]);
+        DashboardService.updateDatastoresInDashboards(dashboard3, [datastore1, datastore2]);
         expect(dashboard1.datastores).toEqual([datastore1]);
         expect(dashboard2.datastores).toEqual([datastore2]);
     });
@@ -645,7 +645,7 @@ describe('Service: DatasetService Static Functions', () => {
         let dashboard1 = new Dashboard();
         dashboard1.layout = 'layout1';
 
-        DatasetService.updateLayoutInDashboards(dashboard1, layout);
+        DashboardService.updateLayoutInDashboards(dashboard1, layout);
         expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
     });
 
@@ -665,7 +665,7 @@ describe('Service: DatasetService Static Functions', () => {
             choice2: dashboard2
         };
 
-        DatasetService.updateLayoutInDashboards(dashboard3, layout);
+        DashboardService.updateLayoutInDashboards(dashboard3, layout);
         expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
         expect(dashboard2.layoutObject).toEqual([4, 5, 6]);
     });
@@ -691,34 +691,34 @@ describe('Service: DatasetService Static Functions', () => {
         };
 
         let expected = new Dashboard();
-        expected.category = (DatasetService as any).DASHBOARD_CATEGORY_DEFAULT;
+        expected.category = (DashboardService as any).DASHBOARD_CATEGORY_DEFAULT;
         expected.choices = {
             dashboard1: argument
         };
 
-        let actual = DatasetService.validateDashboards(argument);
+        let actual = DashboardService.validateDashboards(argument);
         expect(actual).toEqual(expected);
     });
 });
 
-describe('Service: DatasetService with Mock Data', () => {
-    let datasetService: DatasetService;
+describe('Service: DashboardService with Mock Data', () => {
+    let datasetService: DashboardService;
 
-    initializeTestBed('Dataset Service with Mock Data', {
+    initializeTestBed('Dashboard Service with Mock Data', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ]
     });
 
-    beforeEach(inject([DatasetService], (_datasetService: DatasetService) => {
+    beforeEach(inject([DashboardService], (_datasetService: DashboardService) => {
         datasetService = _datasetService;
     }));
 
     it('should have active datastore at creation', () => {
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
-        datastore.databases = DatasetServiceMock.DATABASES;
+        datastore.databases = DashboardServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;
         expect(datasetService.getDataset()).toEqual(datastore);
     });
@@ -764,29 +764,29 @@ describe('Service: DatasetService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }]
             ],
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
         ]);
@@ -810,39 +810,39 @@ describe('Service: DatasetService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }]
             ],
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }, {
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }, {
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
         ]);
@@ -860,29 +860,29 @@ describe('Service: DatasetService with Mock Data', () => {
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_A
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }]
             ],
             [
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DatasetServiceMock.DATABASES[1],
-                    table: DatasetServiceMock.TABLES[1],
-                    field: DatasetServiceMock.RELATION_FIELD_B
+                    database: DashboardServiceMock.DATABASES[1],
+                    table: DashboardServiceMock.TABLES[1],
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
         ]);
@@ -938,7 +938,7 @@ describe('Service: DatasetService with Mock Data', () => {
     });
 
     it('getCurrentDatabase does return expected object', () => {
-        expect(datasetService.getCurrentDatabase()).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(datasetService.getCurrentDatabase()).toEqual(DashboardServiceMock.DATABASES[0]);
     });
 
     it('getDatastoresInConfigFormat does return expected object', () => {
@@ -953,7 +953,7 @@ describe('Service: DatasetService with Mock Data', () => {
                         tables: {
                             testTable1: {
                                 prettyName: 'Test Table 1',
-                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                fields: DashboardServiceMock.FIELDS.map((field) => ({
                                     columnName: field.columnName,
                                     prettyName: field.prettyName,
                                     hide: field.hide,
@@ -964,7 +964,7 @@ describe('Service: DatasetService with Mock Data', () => {
                             },
                             testTable2: {
                                 prettyName: 'Test Table 2',
-                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                fields: DashboardServiceMock.FIELDS.map((field) => ({
                                     columnName: field.columnName,
                                     prettyName: field.prettyName,
                                     hide: field.hide,
@@ -980,7 +980,7 @@ describe('Service: DatasetService with Mock Data', () => {
                         tables: {
                             testTable1: {
                                 prettyName: 'Test Table 1',
-                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                fields: DashboardServiceMock.FIELDS.map((field) => ({
                                     columnName: field.columnName,
                                     prettyName: field.prettyName,
                                     hide: field.hide,
@@ -991,7 +991,7 @@ describe('Service: DatasetService with Mock Data', () => {
                             },
                             testTable2: {
                                 prettyName: 'Test Table 2',
-                                fields: DatasetServiceMock.FIELDS.map((field) => ({
+                                fields: DashboardServiceMock.FIELDS.map((field) => ({
                                     columnName: field.columnName,
                                     prettyName: field.prettyName,
                                     hide: field.hide,

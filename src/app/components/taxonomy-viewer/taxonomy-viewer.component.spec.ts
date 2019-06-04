@@ -20,10 +20,10 @@ import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -78,26 +78,26 @@ describe('Component: TaxonomyViewer', () => {
     let createTestTaxonomyGroups = () => {
         let taxonomyGroups = [{
             checked: true,
-            description: DatasetServiceMock.CATEGORY_FIELD,
+            description: DashboardServiceMock.CATEGORY_FIELD,
             indeterminate: false,
             level: 1,
             name: 'testCategoryI',
             children: [{
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeA',
                 children: [{
                     checked: true,
-                    description: DatasetServiceMock.NAME_FIELD,
+                    description: DashboardServiceMock.NAME_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testSubType1',
                     children: []
                 }, {
                     checked: true,
-                    description: DatasetServiceMock.NAME_FIELD,
+                    description: DashboardServiceMock.NAME_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testSubType2',
@@ -105,7 +105,7 @@ describe('Component: TaxonomyViewer', () => {
                 }]
             }, {
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeB',
@@ -113,20 +113,20 @@ describe('Component: TaxonomyViewer', () => {
             }]
         }, {
             checked: true,
-            description: DatasetServiceMock.CATEGORY_FIELD,
+            description: DashboardServiceMock.CATEGORY_FIELD,
             indeterminate: false,
             level: 1,
             name: 'testCategoryII',
             children: [{
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeC',
                 children: []
             }, {
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeD',
@@ -134,7 +134,7 @@ describe('Component: TaxonomyViewer', () => {
             }]
         }, {
             checked: true,
-            description: DatasetServiceMock.CATEGORY_FIELD,
+            description: DashboardServiceMock.CATEGORY_FIELD,
             indeterminate: false,
             level: 1,
             name: 'testCategoryIII',
@@ -152,7 +152,7 @@ describe('Component: TaxonomyViewer', () => {
 
     initializeTestBed('Taxonomy', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -192,11 +192,11 @@ describe('Component: TaxonomyViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
         component.options.ascending = true;
@@ -237,19 +237,19 @@ describe('Component: TaxonomyViewer', () => {
         component.options.table = new TableMetaData('testTable');
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
     it('transformVisualizationQueryResults does load the Taxonomy', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         component.options.ascending = true;
 
         component.transformVisualizationQueryResults(component.options, responseData);
@@ -266,9 +266,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does create filter when a parent node in the taxonomy is unselected', async(() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
@@ -289,9 +289,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does remove parent filter and create a new filter when a child node in the taxonomy is selected', async(() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
@@ -314,9 +314,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does remove and create a new filter when a child node in the taxonomy is unselected', async(() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
@@ -338,9 +338,9 @@ describe('Component: TaxonomyViewer', () => {
 
     it('does select child nodes when a parent nodes is selected in the taxonomy', async(() => {
         let refs = component.getElementRefs();
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
@@ -357,9 +357,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does update parent node when child node is selected in the taxonomy', async(() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
@@ -376,9 +376,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does add leaf values under a type when value field exists', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.valueField = new FieldMetaData('testValueField');
 
@@ -411,9 +411,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('does not add leaf values under a type when value field does not exist', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.valueField = new FieldMetaData('testValueField');
 
@@ -437,9 +437,9 @@ describe('Component: TaxonomyViewer', () => {
     }));
 
     it('leaf node class is set based on position in tree', (() => {
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.options.subTypeField = new FieldMetaData('testSubTypeField');
         component.options.valueField = new FieldMetaData('testValueField');
 
@@ -484,98 +484,98 @@ describe('Component: TaxonomyViewer', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
 
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[2].filterDesign).operator).toEqual('!=');
         expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[3].filterDesign).type).toEqual('and');
         expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
 
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(6);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[2].filterDesign).operator).toEqual('!=');
         expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[3].filterDesign).type).toEqual('and');
         expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[4].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[4].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[4].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[4].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[4].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[4].filterDesign).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((actual[4].filterDesign).operator).toEqual('!=');
         expect((actual[4].filterDesign).value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
         expect((actual[5].filterDesign).type).toEqual('and');
         expect((actual[5].filterDesign).filters.length).toEqual(1);
-        expect((actual[5].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[5].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[5].filterDesign).filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual[5].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[5].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[5].filterDesign).filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((actual[5].filterDesign).filters[0].operator).toEqual('!=');
         expect((actual[5].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
@@ -584,9 +584,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a category does call exchangeFilters with category / type / subtype filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
 
         component.checkRelatedNodes(component.taxonomyGroups[0], {
@@ -598,25 +598,25 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
             } as SimpleFilterDesign]
@@ -624,16 +624,16 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
             } as SimpleFilterDesign]
@@ -652,9 +652,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a type does call exchangeFilters with type / subtype filters and remove category filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
 
         component.checkRelatedNodes(component.taxonomyGroups[0].children[0], {
@@ -666,33 +666,33 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: 'testTypeA'
         } as SimpleFilterDesign, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
@@ -711,9 +711,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a subtype does call exchangeFilters with subtype filters and remove category / type filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
 
         component.checkRelatedNodes(component.taxonomyGroups[0].children[0].children[0], {
@@ -725,23 +725,23 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: 'testSubType1'
         } as SimpleFilterDesign], [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
@@ -760,9 +760,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a category with other unselected categories does call exchangeFilters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
         component.taxonomyGroups[1].checked = false;
         component.taxonomyGroups[1].children[0].checked = false;
@@ -779,16 +779,16 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryII'
             } as SimpleFilterDesign]
@@ -796,30 +796,30 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeC'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeD'
             } as SimpleFilterDesign]
@@ -827,16 +827,16 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
             } as SimpleFilterDesign]
@@ -855,9 +855,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a type with other unselected types does call exchangeFilters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
         component.taxonomyGroups[1].checked = false;
         component.taxonomyGroups[1].children[0].checked = false;
@@ -872,32 +872,32 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryII'
         } as SimpleFilterDesign, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeC'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeD'
             } as SimpleFilterDesign]
@@ -905,16 +905,16 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
             } as SimpleFilterDesign]
@@ -934,9 +934,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to select a category does call exchangeFilters and remove category / type / subtype filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
         component.taxonomyGroups[0].checked = false;
         component.taxonomyGroups[0].children[0].checked = false;
@@ -951,23 +951,23 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
@@ -985,9 +985,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to select a type does call exchangeFilters and remove all category / type / subtype filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
         component.taxonomyGroups[0].children[0].checked = false;
         component.taxonomyGroups[0].children[0].children[0].checked = false;
@@ -1001,23 +1001,23 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
@@ -1035,9 +1035,9 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to select a subtype does call exchangeFilters and remove all category / type / subtype filters', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
         component.taxonomyGroups[0].children[0].children[0].checked = false;
 
@@ -1050,23 +1050,23 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[], [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
@@ -1084,7 +1084,7 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a category does call exchangeFilters (with no typeField or subTypeField)', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
 
         component.checkRelatedNodes(component.taxonomyGroups[0], {
@@ -1096,9 +1096,9 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
         } as SimpleFilterDesign], []]);
@@ -1110,8 +1110,8 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes to deselect a category does call exchangeFilters (with no subTypeField)', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
         component.taxonomyGroups = createTestTaxonomyGroups();
 
         component.checkRelatedNodes(component.taxonomyGroups[0], {
@@ -1123,25 +1123,25 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
             } as SimpleFilterDesign]
@@ -1158,31 +1158,31 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes does ignore unselected types if typeField equals categoryField', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.subTypeField = DashboardServiceMock.NAME_FIELD;
         component.taxonomyGroups = [{
             checked: true,
-            description: DatasetServiceMock.CATEGORY_FIELD,
+            description: DashboardServiceMock.CATEGORY_FIELD,
             indeterminate: false,
             level: 1,
             name: 'testCategoryI',
             children: [{
                 checked: true,
-                description: DatasetServiceMock.CATEGORY_FIELD,
+                description: DashboardServiceMock.CATEGORY_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testCategoryI.testTypeA',
                 children: [{
                     checked: true,
-                    description: DatasetServiceMock.NAME_FIELD,
+                    description: DashboardServiceMock.NAME_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testSubType1',
                     children: []
                 }, {
                     checked: true,
-                    description: DatasetServiceMock.NAME_FIELD,
+                    description: DashboardServiceMock.NAME_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testSubType2',
@@ -1190,7 +1190,7 @@ describe('Component: TaxonomyViewer', () => {
                 }]
             }, {
                 checked: true,
-                description: DatasetServiceMock.CATEGORY_FIELD,
+                description: DashboardServiceMock.CATEGORY_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testCategoryI.testTypeB',
@@ -1209,23 +1209,23 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI.testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '!=',
                 value: 'testCategoryI.testTypeB'
             } as SimpleFilterDesign]
@@ -1233,16 +1233,16 @@ describe('Component: TaxonomyViewer', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testSubType2'
             } as SimpleFilterDesign]
@@ -1257,31 +1257,31 @@ describe('Component: TaxonomyViewer', () => {
     it('checkRelatedNodes does ignore unselected subtypes if subTypeField equals typeField', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.subTypeField = DatasetServiceMock.TYPE_FIELD;
+        component.options.categoryField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.subTypeField = DashboardServiceMock.TYPE_FIELD;
         component.taxonomyGroups = [{
             checked: true,
-            description: DatasetServiceMock.CATEGORY_FIELD,
+            description: DashboardServiceMock.CATEGORY_FIELD,
             indeterminate: false,
             level: 1,
             name: 'testCategoryI',
             children: [{
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeA',
                 children: [{
                     checked: true,
-                    description: DatasetServiceMock.TYPE_FIELD,
+                    description: DashboardServiceMock.TYPE_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testTypeA.testSubType1',
                     children: []
                 }, {
                     checked: true,
-                    description: DatasetServiceMock.TYPE_FIELD,
+                    description: DashboardServiceMock.TYPE_FIELD,
                     indeterminate: false,
                     level: 3,
                     name: 'testTypeA.testSubType2',
@@ -1289,7 +1289,7 @@ describe('Component: TaxonomyViewer', () => {
                 }]
             }, {
                 checked: true,
-                description: DatasetServiceMock.TYPE_FIELD,
+                description: DashboardServiceMock.TYPE_FIELD,
                 indeterminate: false,
                 level: 2,
                 name: 'testTypeB',
@@ -1306,39 +1306,39 @@ describe('Component: TaxonomyViewer', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: 'testCategoryI'
         } as SimpleFilterDesign, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA.testSubType1'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeA.testSubType2'
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '!=',
                 value: 'testTypeB'
             } as SimpleFilterDesign]

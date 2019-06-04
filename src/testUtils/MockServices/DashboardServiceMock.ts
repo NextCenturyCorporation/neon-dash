@@ -13,13 +13,13 @@
  * limitations under the License.
  *
  */
-import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/dataset';
-import { DatasetService } from '../../app/services/dataset.service';
+import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../../app/types';
+import { DashboardService } from '../../app/services/dashboard.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 import { ConfigService } from '../../app/services/config.service';
 import { SearchServiceMock } from './SearchServiceMock';
 
-export class DatasetServiceMock extends DatasetService {
+export class DashboardServiceMock extends DashboardService {
     public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
     public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field', false, 'date');
     public static FIELD_KEY_FIELD = new FieldMetaData('testFieldKeyField', 'Test Field Key Field', false, 'string');
@@ -39,38 +39,38 @@ export class DatasetServiceMock extends DatasetService {
 
     // Keep in alphabetical order.
     public static FIELDS: FieldMetaData[] = [
-        DatasetServiceMock.CATEGORY_FIELD,
-        DatasetServiceMock.DATE_FIELD,
-        DatasetServiceMock.FIELD_KEY_FIELD,
-        DatasetServiceMock.FILTER_FIELD,
-        DatasetServiceMock.ID_FIELD,
-        DatasetServiceMock.LINK_FIELD,
-        DatasetServiceMock.NAME_FIELD,
-        DatasetServiceMock.RELATION_FIELD_A,
-        DatasetServiceMock.RELATION_FIELD_B,
-        DatasetServiceMock.SIZE_FIELD,
-        DatasetServiceMock.SORT_FIELD,
-        DatasetServiceMock.TEXT_FIELD,
-        DatasetServiceMock.TYPE_FIELD,
-        DatasetServiceMock.X_FIELD,
-        DatasetServiceMock.Y_FIELD,
-        DatasetServiceMock.ES_ID_FIELD
+        DashboardServiceMock.CATEGORY_FIELD,
+        DashboardServiceMock.DATE_FIELD,
+        DashboardServiceMock.FIELD_KEY_FIELD,
+        DashboardServiceMock.FILTER_FIELD,
+        DashboardServiceMock.ID_FIELD,
+        DashboardServiceMock.LINK_FIELD,
+        DashboardServiceMock.NAME_FIELD,
+        DashboardServiceMock.RELATION_FIELD_A,
+        DashboardServiceMock.RELATION_FIELD_B,
+        DashboardServiceMock.SIZE_FIELD,
+        DashboardServiceMock.SORT_FIELD,
+        DashboardServiceMock.TEXT_FIELD,
+        DashboardServiceMock.TYPE_FIELD,
+        DashboardServiceMock.X_FIELD,
+        DashboardServiceMock.Y_FIELD,
+        DashboardServiceMock.ES_ID_FIELD
     ];
 
     public static TABLES: TableMetaData[] = [
-        new TableMetaData('testTable1', 'Test Table 1', DatasetServiceMock.FIELDS),
-        new TableMetaData('testTable2', 'Test Table 2', DatasetServiceMock.FIELDS)
+        new TableMetaData('testTable1', 'Test Table 1', DashboardServiceMock.FIELDS),
+        new TableMetaData('testTable2', 'Test Table 2', DashboardServiceMock.FIELDS)
     ];
 
     public static DATABASES: DatabaseMetaData[] = [
-        new DatabaseMetaData('testDatabase1', 'Test Database 1', DatasetServiceMock.TABLES),
-        new DatabaseMetaData('testDatabase2', 'Test Database 2', DatasetServiceMock.TABLES)
+        new DatabaseMetaData('testDatabase1', 'Test Database 1', DashboardServiceMock.TABLES),
+        new DatabaseMetaData('testDatabase2', 'Test Database 2', DashboardServiceMock.TABLES)
     ];
 
     constructor() {
         super(new ConfigService(null).set(new NeonGTDConfig()), new SearchServiceMock());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
-        datastore.databases = DatasetServiceMock.DATABASES;
+        datastore.databases = DashboardServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;
         this.dataset = datastore;
         this.datasets = [datastore];

@@ -27,7 +27,7 @@ import {
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { Dashboard, Datastore } from '../dataset';
+import { Dashboard, Datastore } from '../types';
 import { query } from 'neon-framework';
 
 // Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.

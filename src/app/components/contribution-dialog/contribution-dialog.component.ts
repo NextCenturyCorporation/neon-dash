@@ -16,7 +16,7 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { Contributor } from '../../../app/dataset';
+import { Contributor } from '../../types';
 
 @Component({
     selector: 'app-contribution-dialog',

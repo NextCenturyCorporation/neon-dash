@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { DatasetService } from './dataset.service';
+import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
 
@@ -33,7 +33,7 @@ describe('Service: Parameter', () => {
         providers: [
             ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 

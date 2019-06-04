@@ -32,12 +32,12 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -78,7 +78,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     /* eslint-disable @typescript-eslint/no-useless-constructor */
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

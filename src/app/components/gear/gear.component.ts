@@ -29,7 +29,7 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { OptionType, WidgetOption } from '../../widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
@@ -79,7 +79,7 @@ export class GearComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();

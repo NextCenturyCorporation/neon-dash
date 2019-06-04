@@ -24,13 +24,13 @@ import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -50,16 +50,16 @@ let validateSelect = (element: any, name: string, required: boolean = false, dis
 
 let validateSelectFields = (element: any, required: boolean = false, selected: string = '') => {
     let options = element.componentInstance.options.toArray();
-    expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + (required ? 0 : 1));
+    expect(options.length).toEqual(DashboardServiceMock.FIELDS.length + (required ? 0 : 1));
     if (!required) {
         // Check for the empty field!
         expect(options[0].getLabel()).toEqual('(None)');
     }
     // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-    for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+    for (let i = 0; i < DashboardServiceMock.FIELDS.length; ++i) {
         let index = (required ? i : (i + 1));
-        expect(options[index].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-        expect(options[index].selected).toEqual(selected ? (DatasetServiceMock.FIELDS[i].columnName === selected) : false);
+        expect(options[index].getLabel()).toEqual(DashboardServiceMock.FIELDS[i].prettyName);
+        expect(options[index].selected).toEqual(selected ? (DashboardServiceMock.FIELDS[i].columnName === selected) : false);
     }
 };
 
@@ -82,7 +82,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 class TestSampleComponent extends SampleComponent {
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -130,7 +130,7 @@ describe('Component: Sample', () => {
             TestSampleComponent
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -175,19 +175,19 @@ describe('Component: Sample', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.sampleRequiredField = DatasetServiceMock.FILTER_FIELD;
+        component.options.sampleRequiredField = DashboardServiceMock.FILTER_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -210,8 +210,8 @@ describe('Component: Sample', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
 
@@ -265,16 +265,16 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DatasetServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FILTER_FIELD,
             value: 'testFilterValue'
         }, true);
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -286,7 +286,7 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DatasetServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FILTER_FIELD,
             value: 'testFilterValue'
         });
 
@@ -294,9 +294,9 @@ describe('Component: Sample', () => {
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -344,10 +344,10 @@ describe('Component: Sample', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES[0];
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
@@ -528,7 +528,7 @@ describe('Component: Sample with config', () => {
             TestSampleComponent
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
@@ -559,11 +559,11 @@ describe('Component: Sample with config', () => {
     });
 
     it('superclass options properties are set to expected values from config', () => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
-        expect(component.options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'test_publish_event',
@@ -585,8 +585,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('class options properties are set to expected values from config', () => {
-        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.subcomponentTypes).toEqual(['Impl1', 'Impl2']);

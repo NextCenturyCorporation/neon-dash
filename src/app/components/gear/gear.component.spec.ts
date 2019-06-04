@@ -21,16 +21,16 @@ import { GearComponent } from '../gear/gear.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../neon-namespaces';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { GearModule } from './gear.module';
@@ -43,7 +43,7 @@ describe('Component: Gear Component', () => {
 
     initializeTestBed('gear component', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
@@ -129,16 +129,16 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions.updateDatabases((component as any).datasetService);
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.testOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect(component.modifiedOptions.testOption).toEqual('testText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.testOption).toEqual('testText');
         expect(calledChangeData).toEqual(1);
         expect(calledChangeFilterData).toEqual(0);
@@ -172,19 +172,19 @@ describe('Component: Gear Component', () => {
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DatasetServiceMock.NAME_FIELD);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.NAME_FIELD);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.testField).toEqual(new FieldMetaData());
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(calledChangeData).toEqual(0);
         expect(calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
@@ -216,16 +216,16 @@ describe('Component: Gear Component', () => {
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.database = DatasetServiceMock.DATABASES[1];
+        component.modifiedOptions.database = DashboardServiceMock.DATABASES[1];
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect(calledChangeData).toEqual(0);
         expect(calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
@@ -257,16 +257,16 @@ describe('Component: Gear Component', () => {
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.table = DatasetServiceMock.TABLES[1];
+        component.modifiedOptions.table = DashboardServiceMock.TABLES[1];
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[1]);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[1]);
         expect(calledChangeData).toEqual(0);
         expect(calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
@@ -311,17 +311,17 @@ describe('Component: Gear Component', () => {
         layer.updateDatabases((component as any).datasetService);
         component.modifiedOptions.layers.push(layer);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(0);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
         expect(calledChangeData).toEqual(1);
@@ -373,20 +373,20 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
         expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
         expect(component.modifiedOptions.layers[0].testNestedOption).toEqual('testNestedText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
         expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('testNestedText');
@@ -436,17 +436,17 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases((component as any).datasetService);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect(component.modifiedOptions.layers.length).toEqual(0);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.layers.length).toEqual(0);
         expect(calledChangeData).toEqual(1);
         expect(calledChangeFilterData).toEqual(0);
@@ -491,10 +491,10 @@ describe('Component: Gear Component', () => {
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.database = DatasetServiceMock.DATABASES[1];
-        component.modifiedOptions.table = DatasetServiceMock.TABLES[1];
+        component.modifiedOptions.database = DashboardServiceMock.DATABASES[1];
+        component.modifiedOptions.table = DashboardServiceMock.TABLES[1];
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DatasetServiceMock.NAME_FIELD);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.NAME_FIELD);
 
         let layer: any = new WidgetOptionCollection(() => []);
         layer.updateDatabases((component as any).datasetService);
@@ -503,26 +503,26 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[0]);
         expect((component as any).originalOptions.testOption).toEqual('');
         expect((component as any).originalOptions.testField).toEqual(new FieldMetaData());
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
         expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES[1]);
         expect(component.modifiedOptions.testOption).toEqual('testText');
-        expect(component.modifiedOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
         expect(component.modifiedOptions.layers[0].testNestedOption).toEqual('testNestedText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect((component as any).originalOptions.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect((component as any).originalOptions.table).toEqual(DashboardServiceMock.TABLES[1]);
         expect((component as any).originalOptions.testOption).toEqual('testText');
-        expect((component as any).originalOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((component as any).originalOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((component as any).originalOptions.layers.length).toEqual(1);
         expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
         expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('testNestedText');

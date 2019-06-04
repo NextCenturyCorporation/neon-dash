@@ -28,11 +28,11 @@ import {
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import {
     OptionChoices,
@@ -47,7 +47,7 @@ import {
 } from '../../widget-option';
 import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../neon-namespaces';
@@ -69,7 +69,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     // It's not a useless constructor!  Silly linter!
     /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -191,7 +191,7 @@ describe('BaseNeonComponent', () => {
             FormsModule
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -240,14 +240,14 @@ describe('BaseNeonComponent', () => {
         expect(component.options).toBeDefined();
         expect(component.options.customEventsToPublish).toEqual([]);
         expect(component.options.customEventsToReceive).toEqual([]);
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.filter).toEqual(null);
         expect(component.options.hideUnfiltered).toEqual(false);
         expect(component.options.limit).toEqual(1000);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
         expect(component.options.title).toEqual('Mock Superclass');
         expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
         expect(component.options.unsharedFilterValue).toEqual('');
@@ -305,11 +305,11 @@ describe('BaseNeonComponent', () => {
         component.addLayer(component.options);
         expect(component.options.layers.length).toEqual(1);
         expect(component.options.layers[0].title).toEqual('Layer 1');
-        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.options.layers[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component['layerIdToQueryIdToQueryObject'].get(component.options.layers[0]._id)).toEqual(new Map<string, any>());
         expect(spyPostAddLayer.calls.count()).toEqual(1);
         expect(spyPostAddLayer.calls.argsFor(0)).toEqual([component.options.layers[0]]);
@@ -322,11 +322,11 @@ describe('BaseNeonComponent', () => {
         component.addLayer(inputOptions);
         expect(inputOptions.layers.length).toEqual(1);
         expect(inputOptions.layers[0].title).toEqual('Layer 1');
-        expect(inputOptions.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(inputOptions.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(inputOptions.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(inputOptions.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(inputOptions.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(inputOptions.layers[0].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(inputOptions.layers[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(inputOptions.layers[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(inputOptions.layers[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(inputOptions.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[0]._id)).toEqual(new Map<string, any>());
         expect(spyPostAddLayer.calls.count()).toEqual(1);
         expect(spyPostAddLayer.calls.argsFor(0)).toEqual([inputOptions.layers[0]]);
@@ -340,11 +340,11 @@ describe('BaseNeonComponent', () => {
         component.addLayer(inputOptions);
         expect(inputOptions.layers.length).toEqual(2);
         expect(inputOptions.layers[1].title).toEqual('Layer 1');
-        expect(inputOptions.layers[1].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(inputOptions.layers[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(inputOptions.layers[1].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(inputOptions.layers[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(inputOptions.layers[1].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(inputOptions.layers[1].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(inputOptions.layers[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(inputOptions.layers[1].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(inputOptions.layers[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(inputOptions.layers[1].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[1]._id)).toEqual(new Map<string, any>());
         expect(spyPostAddLayer.calls.count()).toEqual(1);
         expect(spyPostAddLayer.calls.argsFor(0)).toEqual([inputOptions.layers[1]]);
@@ -366,12 +366,12 @@ describe('BaseNeonComponent', () => {
         });
         expect(inputOptions.layers.length).toEqual(1);
         expect(inputOptions.layers[0].title).toEqual('Title Binding');
-        expect(inputOptions.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(inputOptions.layers[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(inputOptions.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(inputOptions.layers[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(inputOptions.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(inputOptions.layers[0].testField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(inputOptions.layers[0].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(inputOptions.layers[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(inputOptions.layers[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(inputOptions.layers[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(inputOptions.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(inputOptions.layers[0].testField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect(inputOptions.layers[0].testValue).toEqual('value binding');
         expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[0]._id)).toEqual(new Map<string, any>());
         expect(spyPostAddLayer.calls.count()).toEqual(1);
@@ -387,9 +387,9 @@ describe('BaseNeonComponent', () => {
     });
 
     it('createCompleteVisualizationQuery with advanced options does return expected query object', () => {
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.table = DatasetServiceMock.TABLES[1];
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES[1];
+        component.options.table = DashboardServiceMock.TABLES[1];
+        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
         component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
@@ -397,10 +397,10 @@ describe('BaseNeonComponent', () => {
             rhs: 'testIdValue'
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
+        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
         component.options.append(
             new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
-            [DatasetServiceMock.X_FIELD, DatasetServiceMock.Y_FIELD]
+            [DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]
         );
         component.options.customEventsToPublish = [{
             fields: [{
@@ -496,8 +496,8 @@ describe('BaseNeonComponent', () => {
         expect(component.options.layers.length).toEqual(2);
         expect(component.options.layers[0].title).toEqual('Layer 1');
         expect(component.options.layers[1].title).toEqual('Layer 2');
-        component.options.layers[1].database = DatasetServiceMock.DATABASES[1];
-        component.options.layers[1].table = DatasetServiceMock.TABLES[1];
+        component.options.layers[1].database = DashboardServiceMock.DATABASES[1];
+        component.options.layers[1].table = DashboardServiceMock.TABLES[1];
         // End setup
 
         let spyExportFields = spyOn(component, 'getExportFields').and.callFake((options, __query) => {
@@ -571,11 +571,11 @@ describe('BaseNeonComponent', () => {
         let layerOptions = component['createLayer'](component.options);
         expect(component.options.layers.length).toEqual(1);
         expect(component.options.layers[0].title).toEqual('Layer 1');
-        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(component.options.layers[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.layers[0]).toEqual(layerOptions);
     });
 
@@ -586,11 +586,11 @@ describe('BaseNeonComponent', () => {
         });
         expect(component.options.layers.length).toEqual(1);
         expect(component.options.layers[0].title).toEqual('Title Binding');
-        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.options.layers[0].tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.layers[0]).toEqual(layerOptions);
     });
 
@@ -819,9 +819,9 @@ describe('BaseNeonComponent', () => {
     });
 
     it('executeQueryChain with advanced options does call executeQuery', () => {
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.table = DatasetServiceMock.TABLES[1];
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES[1];
+        component.options.table = DashboardServiceMock.TABLES[1];
+        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
         component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
@@ -829,9 +829,9 @@ describe('BaseNeonComponent', () => {
             rhs: 'testIdValue'
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DatasetServiceMock.CATEGORY_FIELD);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-            DatasetServiceMock.Y_FIELD]);
+        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
+        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.X_FIELD,
+            DashboardServiceMock.Y_FIELD]);
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -1067,11 +1067,11 @@ describe('BaseNeonComponent', () => {
         expect(component.getExportFields()).toEqual([]);
 
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
-        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DatasetServiceMock.NAME_FIELD);
-        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DatasetServiceMock.TYPE_FIELD);
-        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DatasetServiceMock.NAME_FIELD);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DatasetServiceMock.X_FIELD,
-            DatasetServiceMock.Y_FIELD]);
+        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.NAME_FIELD);
+        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.TYPE_FIELD);
+        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DashboardServiceMock.NAME_FIELD);
+        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.X_FIELD,
+            DashboardServiceMock.Y_FIELD]);
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testNameField',
@@ -1518,7 +1518,7 @@ describe('BaseNeonComponent', () => {
 
     it('hasUnsharedFilter does return expected boolean', () => {
         expect(component['hasUnsharedFilter']()).toEqual(false);
-        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
         expect(component['hasUnsharedFilter']()).toEqual(false);
         component.options.unsharedFilterValue = '';
         expect(component['hasUnsharedFilter']()).toEqual(false);
@@ -1536,22 +1536,22 @@ describe('BaseNeonComponent', () => {
     it('hasUnsharedFilter with options argument does return expected boolean', () => {
         expect(component['hasUnsharedFilter']({})).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DatasetServiceMock.FILTER_FIELD
+            unsharedFilterField: DashboardServiceMock.FILTER_FIELD
         })).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
             unsharedFilterValue: ''
         })).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
             unsharedFilterValue: 0
         })).toEqual(true);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
             unsharedFilterValue: false
         })).toEqual(true);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DatasetServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
             unsharedFilterValue: 'value'
         })).toEqual(true);
 
@@ -1920,7 +1920,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    let datasetService = new DatasetServiceMock();
+    let datasetService = new DashboardServiceMock();
     datasetService.getCurrentDashboard().contributors = {
         organization1: {
             orgName: 'Organization 1',
@@ -1948,7 +1948,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             MatDialogModule
         ],
         providers: [
-            { provide: DatasetService, useValue: datasetService },
+            { provide: DashboardService, useValue: datasetService },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -2014,9 +2014,9 @@ describe('Advanced BaseNeonComponent with config', () => {
                 type: 'testReceiveType'
             }]
         }]);
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.filter).toEqual({
             lhs: 'testConfigField',
             operator: '!=',
@@ -2024,21 +2024,21 @@ describe('Advanced BaseNeonComponent with config', () => {
         });
         expect(component.options.hideUnfiltered).toEqual(true);
         expect(component.options.limit).toEqual(10);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
         expect(component.options.testArray).toEqual([4, 3, 2, 1]);
         expect(component.options.testFreeText).toEqual('the quick brown fox jumps over the lazy dog');
-        expect(component.options.testMultipleFields).toEqual([DatasetServiceMock.X_FIELD, DatasetServiceMock.Y_FIELD]);
+        expect(component.options.testMultipleFields).toEqual([DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]);
         expect(component.options.testMultipleSelect).toEqual(['b', 'c']);
         expect(component.options.testObject).toEqual({
             key: 'value'
         });
-        expect(component.options.testOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(component.options.testRequiredField).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(component.options.testOptionalField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component.options.testRequiredField).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(component.options.testSelect).toEqual('z');
         expect(component.options.testToggle).toEqual(true);
         expect(component.options.title).toEqual('VisualizationTitle');
-        expect(component.options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
     });
 

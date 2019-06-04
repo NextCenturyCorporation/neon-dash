@@ -20,7 +20,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -72,7 +72,7 @@ describe('Component: CurrentFiltersComponent', () => {
 
     initializeTestBed('Current Filters', {
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ],

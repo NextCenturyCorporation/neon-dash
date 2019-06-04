@@ -127,7 +127,7 @@ export class Dashboard {
     // (sans choices object references) needed to traverse back up Dashboard object
     public relations?: (string | string[])[][];
     public contributors?: { [key: string]: Contributor } = {};
-    // The datastores and layoutObject properties are assigned by the DatasetService.
+    // The datastores and layoutObject properties are assigned by the DashboardService.
     public datastores?: Datastore[] = [];
     public layoutObject?: (any[] | { [key: string]: any[] }) = [];
 }

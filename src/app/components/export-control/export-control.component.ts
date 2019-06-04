@@ -18,7 +18,7 @@ import { Component, ViewContainerRef, Input } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
     selector: 'app-export-control',
@@ -39,7 +39,7 @@ export class ExportControlComponent {
     public exportFormat: number;
 
     constructor(
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         protected searchService: AbstractSearchService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef

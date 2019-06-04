@@ -15,7 +15,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -24,9 +24,9 @@ import { } from 'jasmine-core';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
@@ -39,7 +39,7 @@ describe('Component: ThumbnailGrid', () => {
 
     initializeTestBed('Thumbnail Grid', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -312,8 +312,8 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
@@ -484,19 +484,19 @@ describe('Component: ThumbnailGrid', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FILTER_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
     });
@@ -520,7 +520,7 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -552,10 +552,10 @@ describe('Component: ThumbnailGrid', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES[0];
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -635,7 +635,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
@@ -645,7 +645,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
@@ -716,7 +716,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
 
         component.selectGridItem({
             testFilterField: 'filter1'
@@ -734,7 +734,7 @@ describe('Component: ThumbnailGrid with config', () => {
 
     initializeTestBed('Thumbnail Grid', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
@@ -782,11 +782,11 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.limit).toEqual(10);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({

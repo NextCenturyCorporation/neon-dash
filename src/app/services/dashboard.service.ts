@@ -20,7 +20,7 @@ import { AbstractSearchService, Connection } from './abstract.search.service';
 import {
     Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
-} from '../dataset';
+} from '../types';
 import { Subscription, Observable } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
@@ -28,7 +28,7 @@ import { ConfigService } from './config.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 
 @Injectable()
-export class DatasetService {
+export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
     protected datasets: Datastore[] = [];
@@ -109,7 +109,7 @@ export class DatasetService {
 
             if (exists) {
                 oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
-                DatasetService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
+                DashboardService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
             } else {
                 oldChoices[newChoiceId] = newChoices[newChoiceId];
             }
@@ -137,7 +137,7 @@ export class DatasetService {
 
         if (dashboard.choices) {
             Object.keys(dashboard.choices).forEach((key) =>
-                DatasetService.updateDatastoresInDashboards(dashboard.choices[key], datastores));
+                DashboardService.updateDatastoresInDashboards(dashboard.choices[key], datastores));
         }
     }
 
@@ -153,7 +153,7 @@ export class DatasetService {
         }
 
         if (dashboard.choices) {
-            Object.keys(dashboard.choices).forEach((key) => DatasetService.updateLayoutInDashboards(dashboard.choices[key], layouts));
+            Object.keys(dashboard.choices).forEach((key) => DashboardService.updateLayoutInDashboards(dashboard.choices[key], layouts));
         }
     }
 
@@ -179,7 +179,7 @@ export class DatasetService {
                 table.fields = table.fields || [];
                 table.mappings = table.mappings || {};
                 table.labelOptions = table.labelOptions || {};
-                DatasetService.validateFields(table);
+                DashboardService.validateFields(table);
             }
         });
         this.removeFromArray(database.tables, indexListToRemove);
@@ -192,7 +192,7 @@ export class DatasetService {
                 indexListToRemove.push(index);
             } else {
                 database.prettyName = database.prettyName || database.name;
-                DatasetService.validateTables(database);
+                DashboardService.validateTables(database);
             }
         });
         this.removeFromArray(dataset.databases, indexListToRemove);
@@ -362,19 +362,19 @@ export class DatasetService {
         this.configService.$source.subscribe((config) => {
             this.config = config;
 
-            this.dashboards = DatasetService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+            this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
                 { category: 'No Dashboards', choices: {} });
 
-            this.datasets = DatasetService.appendDatastoresFromConfig(config.datastores || {}, []);
+            this.datasets = DashboardService.appendDatastoresFromConfig(config.datastores || {}, []);
 
             this.layouts = _.cloneDeep(config.layouts || {});
 
-            DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-            DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+            DashboardService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+            DashboardService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
             let loaded = 0;
             this.datasets.forEach((dataset) => {
-                DatasetService.validateDatabases(dataset);
+                DashboardService.validateDatabases(dataset);
 
                 let callback = () => {
                     this.messenger.publish(neonEvents.DASHBOARD_READY, {});
@@ -396,19 +396,19 @@ export class DatasetService {
     }
 
     public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
-        let validatedDashboard: Dashboard = DatasetService.validateDashboards(dashboard);
+        let validatedDashboard: Dashboard = DashboardService.validateDashboards(dashboard);
 
-        DatasetService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
+        DashboardService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
 
-        DatasetService.appendDatastoresFromConfig(datastores, this.datasets);
+        DashboardService.appendDatastoresFromConfig(datastores, this.datasets);
 
         Object.keys(layouts).forEach((layout) => {
             this.layouts[layout] = layouts[layout];
         });
 
-        DatasetService.updateDatastoresInDashboards(this.dashboards, this.datasets);
+        DashboardService.updateDatastoresInDashboards(this.dashboards, this.datasets);
 
-        DatasetService.updateLayoutInDashboards(this.dashboards, this.layouts);
+        DashboardService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
         return this.dashboards;
     }
@@ -442,7 +442,7 @@ export class DatasetService {
      * @return {Array}
      */
     public addDataset(dataset): Datastore[] {
-        DatasetService.validateDatabases(dataset);
+        DashboardService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
     }
@@ -998,7 +998,7 @@ export class DatasetService {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
                 for (const tableKey of tableKeys) {
-                    let databaseName = DatasetService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+                    let databaseName = DashboardService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
 
                     if (databaseName === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
@@ -1101,9 +1101,9 @@ export class DatasetService {
                 [configRelationFilterFields];
 
             return relationFilterFields.map((item) => {
-                let databaseName = DatasetService.getDatabaseNameFromCompleteFieldName(item);
-                let tableName = DatasetService.getTableNameFromCompleteFieldName(item);
-                let fieldName = DatasetService.getFieldNameFromCompleteFieldName(item);
+                let databaseName = DashboardService.getDatabaseNameFromCompleteFieldName(item);
+                let tableName = DashboardService.getTableNameFromCompleteFieldName(item);
+                let fieldName = DashboardService.getFieldNameFromCompleteFieldName(item);
                 return {
                     // TODO THOR-1062 THOR-1078 Set the datastore name too!
                     datastore: '',
@@ -1153,7 +1153,7 @@ export class DatasetService {
      */
     public getDatabaseNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DatasetService.getDatabaseNameByKey(currentConfig, key) : null;
+        return currentConfig ? DashboardService.getDatabaseNameByKey(currentConfig, key) : null;
     }
 
     /**
@@ -1163,7 +1163,7 @@ export class DatasetService {
      */
     public getTableNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DatasetService.getTableNameByKey(currentConfig, key) : null;
+        return currentConfig ? DashboardService.getTableNameByKey(currentConfig, key) : null;
     }
 
     /**
@@ -1173,7 +1173,7 @@ export class DatasetService {
      */
     public getFieldNameFromCurrentDashboardByKey(key: string): string {
         let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DatasetService.getFieldNameByKey(currentConfig, key) : null;
+        return currentConfig ? DashboardService.getFieldNameByKey(currentConfig, key) : null;
     }
 
     /**

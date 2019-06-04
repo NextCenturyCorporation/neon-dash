@@ -14,7 +14,7 @@
  *
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
 
 /**
  * Component for managing the unshared filter of a visualization.
