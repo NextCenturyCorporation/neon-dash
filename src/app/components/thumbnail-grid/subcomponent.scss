@@ -97,7 +97,7 @@
         &:first-child {
             @extend .title-bold;
             font-size: 0.9em;
-            color: var(--color-header, dimgrey);
+            color: var(--color-bolded, dimgrey);
         }
     }
 }
@@ -153,7 +153,7 @@
     p {
         @extend .title-bold;
         font-size: 0.9em;
-        color: var(--color-header, dimgrey);
+        color: var(--color-bolded, dimgrey);
     }
 }
 
