@@ -25,7 +25,7 @@ mat-sidenav-container {
     overflow: hidden;
 }
 
-mat-sidenav-container /deep/ mat-sidenav-content {
+mat-sidenav-content {
     display: grid;
     grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
