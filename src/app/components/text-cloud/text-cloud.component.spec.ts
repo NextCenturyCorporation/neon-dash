@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
 
 import { Injector } from '@angular/core';
 
@@ -22,14 +22,14 @@ import { TextCloudComponent } from './text-cloud.component';
 
 import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { TextCloudModule } from './text-cloud.module';
@@ -43,8 +43,8 @@ describe('Component: TextCloud', () => {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
+                provide: DashboardService,
+                useClass: DashboardServiceMock
             },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -138,21 +138,21 @@ describe('Component: TextCloud', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
     });
 
     it('onClick does call toggleFilters with expected object', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.table = DashboardServiceMock.TABLES[0];
+        component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         let spy = spyOn((component as any), 'toggleFilters');
 
         component.onClick({
@@ -163,9 +163,9 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText1'
         }]]);
@@ -180,9 +180,9 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText2'
         }]]);

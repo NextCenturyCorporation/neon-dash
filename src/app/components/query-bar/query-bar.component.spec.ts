@@ -18,7 +18,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
@@ -26,7 +26,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { QueryBarComponent } from './query-bar.component';
-import { DatasetOptions, SimpleFilter } from '../../dataset';
+import { DatasetOptions, SimpleFilter } from '../../types';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { query } from 'neon-framework';
@@ -36,7 +36,7 @@ const databaseName = 'database';
 const tableName = 'table';
 const fieldName = 'field';
 
-class MockDatasetService extends DatasetService {
+class MockDashboardService extends DashboardService {
     options = new DashboardOptions();
     constructor() {
         super(new NeonGTDConfig());
@@ -52,7 +52,7 @@ class queryBarTester {
     fixture: ComponentFixture<QueryBarComponent>;
     component: QueryBarComponent;
     filterService: FilterService;
-    datasetService: DatasetService;
+    datasetService: DashboardService;
     element: DebugElement;
 
     constructor(mockDataset = true) {
@@ -63,7 +63,7 @@ class queryBarTester {
             providers: [
                 { provide: FilterService, useClass: MockFilterService },
                 { provide: AbstractWidgetService, useClass: WidgetService },
-                { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
+                { provide: DashboardService, useClass: mockDataset ? MockDashboardService : DashboardService },
                 { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 
             ],

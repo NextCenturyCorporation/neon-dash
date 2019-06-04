@@ -31,8 +31,8 @@ import * as uuidv4 from 'uuid/v4';
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { Dashboard } from '../dataset';
-import { DatasetService } from '../services/dataset.service';
+import { Dashboard } from '../types';
+import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
@@ -145,7 +145,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(
         public changeDetection: ChangeDetectorRef,
-        public datasetService: DatasetService,
+        public datasetService: DashboardService,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
@@ -184,7 +184,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.snackBar = snackBar;
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
-            // The dashboards are read from the config file in the DatasetService's constructor.
+            // The dashboards are read from the config file in the DashboardService's constructor.
             this.dashboards = this.datasetService.getDashboards();
             this.dashboardVersion = neonConfig.version || '';
 

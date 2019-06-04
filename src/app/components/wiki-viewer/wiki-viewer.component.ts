@@ -29,7 +29,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -66,7 +66,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     public wikiViewerData: any[] = [];
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

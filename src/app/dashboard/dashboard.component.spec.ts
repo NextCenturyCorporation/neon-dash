@@ -26,12 +26,12 @@ import { neonEvents } from '../neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
-import { DatasetService } from '../services/dataset.service';
+import { DashboardService } from '../services/dashboard.service';
 import { FilterService } from '../services/filter.service';
 import { ParameterService } from '../services/parameter.service';
 import { WidgetService } from '../services/widget.service';
 
-import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -45,7 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { Dashboard, Datastore } from '../dataset';
+import { Dashboard, Datastore } from '../types';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
@@ -63,7 +63,7 @@ describe('Dashboard', () => {
         providers: [
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
             { provide: APP_BASE_HREF, useValue: '/' },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -1224,11 +1224,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 2,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(false);
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(false);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1236,11 +1236,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 1,
-            row: 2,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(false);
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(false);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1248,11 +1248,11 @@ describe('Dashboard', () => {
             sizex: 2,
             sizey: 1
         }, {
-            col: 2,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(true);
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(true);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1260,11 +1260,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 2
         }, {
-            col: 1,
-            row: 2,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(true);
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(true);
 
         expect(component['widgetOverlaps']({
             col: 2,
@@ -1272,11 +1272,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(false);
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(false);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1284,11 +1284,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(false);
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(false);
 
         expect(component['widgetOverlaps']({
             col: 2,
@@ -1296,11 +1296,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 1,
-            row: 1,
-            sizex: 2,
-            sizey: 1
-        })).toEqual(true);
+                col: 1,
+                row: 1,
+                sizex: 2,
+                sizey: 1
+            })).toEqual(true);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1308,11 +1308,11 @@ describe('Dashboard', () => {
             sizex: 1,
             sizey: 1
         }, {
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 2
-        })).toEqual(true);
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 2
+            })).toEqual(true);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1320,11 +1320,11 @@ describe('Dashboard', () => {
             sizex: 4,
             sizey: 4
         }, {
-            col: 2,
-            row: 2,
-            sizex: 1,
-            sizey: 1
-        })).toEqual(true);
+                col: 2,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            })).toEqual(true);
 
         expect(component['widgetOverlaps']({
             col: 1,
@@ -1332,10 +1332,10 @@ describe('Dashboard', () => {
             sizex: 4,
             sizey: 4
         }, {
-            col: 3,
-            row: 3,
-            sizex: 4,
-            sizey: 4
-        })).toEqual(true);
+                col: 3,
+                row: 3,
+                sizex: 4,
+                sizey: 4
+            })).toEqual(true);
     });
 });

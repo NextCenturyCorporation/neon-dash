@@ -16,10 +16,10 @@
 import { Component } from '@angular/core';
 
 import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
+import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../types';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
 
@@ -55,7 +55,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         }[];
     }[];
 
-    constructor(private datasetService: DatasetService, private searchService: AbstractSearchService) {
+    constructor(private datasetService: DashboardService, private searchService: AbstractSearchService) {
         super();
         this.selected = true;
         this.stepNumber = 1;

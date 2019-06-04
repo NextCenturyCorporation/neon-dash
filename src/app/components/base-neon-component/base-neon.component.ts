@@ -22,14 +22,14 @@ import {
     QueryPayload,
     RequestWrapper
 } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     FilterBehavior,
     FilterCollection,
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -97,7 +97,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
 
     constructor(
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
@@ -1160,9 +1160,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                undefined
-        });
+                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                    undefined
+            });
     }
 
     /**

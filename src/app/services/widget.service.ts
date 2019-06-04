@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
 import { Color, ColorSet } from '../color';
-import { DatasetService } from './dataset.service';
+import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 import { eventing } from 'neon-framework';
 
@@ -50,7 +50,7 @@ export class WidgetService extends AbstractWidgetService {
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
     private messenger: eventing.Messenger;
 
-    constructor(protected datasetService: DatasetService) {
+    constructor(protected datasetService: DashboardService) {
         super();
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));

@@ -19,12 +19,12 @@ import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/mater
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { Dashboard, Datastore } from '../../dataset';
+import { Dashboard, Datastore } from '../../types';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -62,7 +62,7 @@ export class SaveStateComponent implements OnInit {
     public states: { total: number, results: State[] } = { total: 0, results: [] };
 
     constructor(
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,

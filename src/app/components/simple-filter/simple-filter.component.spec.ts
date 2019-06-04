@@ -16,14 +16,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { SimpleFilterModule } from './simple-filter.module';
 import { ConfigService } from '../../services/config.service';
@@ -46,7 +46,7 @@ describe('Component: SimpleFilter', () => {
     initializeTestBed('Simple Filter', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],
@@ -59,10 +59,10 @@ describe('Component: SimpleFilter', () => {
         fixture = TestBed.createComponent(SimpleFilterComponent);
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(FilterService);
-        fixture.debugElement.injector.get(DatasetService).getCurrentDashboardOptions().simpleFilter = {
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName
+        fixture.debugElement.injector.get(DashboardService).getCurrentDashboardOptions().simpleFilter = {
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName
         };
         fixture.detectChanges();
     });
@@ -78,9 +78,9 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with click');
     });
@@ -99,9 +99,9 @@ describe('Component: SimpleFilter', () => {
 
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('replace filter with click');
     });
@@ -117,9 +117,9 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filters[0] as SimpleFilterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with enter');
     });
@@ -185,7 +185,7 @@ describe('Component: SimpleFilter unconfigured', () => {
     initializeTestBed('Simple Filter', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DatasetService, useClass: DatasetService },
+            { provide: DashboardService, useClass: DashboardService },
             FilterService,
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
         ],

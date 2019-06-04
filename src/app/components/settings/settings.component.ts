@@ -19,11 +19,11 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
@@ -52,7 +52,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService

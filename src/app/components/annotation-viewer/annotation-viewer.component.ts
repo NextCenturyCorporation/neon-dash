@@ -27,11 +27,11 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -111,7 +111,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     constructor(
         protected widgetService: AbstractWidgetService,
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

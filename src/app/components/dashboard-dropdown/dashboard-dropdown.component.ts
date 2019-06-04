@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { Dashboard } from '../../dataset';
+import { Dashboard } from '../../types';
 import * as _ from 'lodash';
 
 @Component({

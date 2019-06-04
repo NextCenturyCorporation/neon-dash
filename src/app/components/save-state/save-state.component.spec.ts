@@ -21,18 +21,18 @@ import { SaveStateComponent } from './save-state.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { Dashboard } from '../../dataset';
+import { Dashboard } from '../../types';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -49,7 +49,7 @@ describe('Component: SaveStateComponent', () => {
             SaveStateModule
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
@@ -148,7 +148,7 @@ describe('Component: SaveStateComponent', () => {
     });
 
     it('handleLoadStateSuccess does reset stateToLoad and publish dashboard state event', () => {
-        let spyDatasetService = spyOn(component['datasetService'], 'appendDatasets').and.returnValue({
+        let spyDashboardService = spyOn(component['datasetService'], 'appendDatasets').and.returnValue({
             choices: {
                 saved_state: {
                     choices: {
@@ -186,8 +186,8 @@ describe('Component: SaveStateComponent', () => {
             saved_state: savedStateDashboard
         };
 
-        expect(spyDatasetService.calls.count()).toEqual(1);
-        expect(spyDatasetService.calls.argsFor(0)).toEqual([expectedDashboard, {
+        expect(spyDashboardService.calls.count()).toEqual(1);
+        expect(spyDashboardService.calls.argsFor(0)).toEqual([expectedDashboard, {
             datastore1: {}
         }, {
             layout1: []

@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Dashboard } from './dataset';
+import { Dashboard } from './types';
 
 export class NeonGTDConfig {
     projectTitle: string;

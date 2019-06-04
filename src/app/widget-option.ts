@@ -15,8 +15,8 @@
  */
 import { Injector } from '@angular/core';
 import { AggregationType } from './services/abstract.search.service';
-import { DatasetService } from './services/dataset.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
+import { DashboardService } from './services/dashboard.service';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
@@ -57,7 +57,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) {}
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -384,11 +384,11 @@ export class WidgetOptionCollection {
     /**
      * Returns the field object for the given binding key or an empty field object.
      *
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      * @arg {string} bindingKey
      * @return {FieldMetaData}
      */
-    public findFieldObject(datasetService: DatasetService, bindingKey: string): FieldMetaData {
+    public findFieldObject(datasetService: DashboardService, bindingKey: string): FieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
         return this.findField(datasetService.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
     }
@@ -396,11 +396,11 @@ export class WidgetOptionCollection {
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      *
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      * @arg {string} bindingKey
      * @return {FieldMetaData[]}
      */
-    public findFieldObjects(datasetService: DatasetService, bindingKey: string): FieldMetaData[] {
+    public findFieldObjects(datasetService: DashboardService, bindingKey: string): FieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(datasetService.translateFieldKeyToValue(
             fieldKey
@@ -431,9 +431,9 @@ export class WidgetOptionCollection {
     /**
      * Updates all the databases, tables, and fields in the options.
      *
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      */
-    public updateDatabases(datasetService: DatasetService): void {
+    public updateDatabases(datasetService: DashboardService): void {
         this.databases = datasetService.getDatabases();
         this.database = datasetService.getCurrentDatabase() || this.databases[0] || this.database;
 
@@ -462,9 +462,9 @@ export class WidgetOptionCollection {
     /**
      * Updates all the fields in the options.
      *
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      */
-    public updateFields(datasetService: DatasetService): void {
+    public updateFields(datasetService: DashboardService): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
             this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true)
@@ -485,9 +485,9 @@ export class WidgetOptionCollection {
     /**
      * Updates all the tables and fields in the options.
      *
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      */
-    public updateTables(datasetService: DatasetService): void {
+    public updateTables(datasetService: DashboardService): void {
         this.tables = this.database ? datasetService.getTables(this.database.name) : [];
         this.table = this.tables[0] || this.table;
 

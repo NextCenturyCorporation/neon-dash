@@ -15,8 +15,8 @@
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { Datastore } from '../../dataset';
+import { DashboardService } from '../../services/dashboard.service';
+import { Datastore } from '../../types';
 import { FilterService } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -42,7 +42,7 @@ export class CustomConnectionComponent implements AfterContentInit {
     private currentStepIndex: number;
 
     constructor(
-        private datasetService: DatasetService,
+        private datasetService: DashboardService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {

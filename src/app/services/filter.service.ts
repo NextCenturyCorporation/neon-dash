@@ -15,8 +15,8 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../dataset';
-import { DatasetService } from './dataset.service';
+import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../types';
+import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
@@ -164,7 +164,7 @@ export namespace FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    export function createFilterDesignFromJsonObject(filterObject: any, datasetService: DatasetService): FilterDesign {
+    export function createFilterDesignFromJsonObject(filterObject: any, datasetService: DashboardService): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
             let database: DatabaseMetaData = datasetService.getDatabaseWithName(filterObject.database);
@@ -739,10 +739,10 @@ export class FilterService {
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      *
      * @arg {any[]} filtersFromConfig
-     * @arg {DatasetService} datasetService
+     * @arg {DashboardService} datasetService
      * @arg {AbstractSearchService} searchService
      */
-    public setFiltersFromConfig(filtersFromConfig: any[], datasetService: DatasetService, searchService: AbstractSearchService) {
+    public setFiltersFromConfig(filtersFromConfig: any[], datasetService: DashboardService, searchService: AbstractSearchService) {
         let collection: FilterCollection = new FilterCollection();
         filtersFromConfig.forEach((filterFromConfig) => {
             let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, datasetService);

@@ -15,8 +15,8 @@
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetService } from '../../services/dataset.service';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
@@ -36,10 +36,10 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        protected datasetService: DashboardService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService
-    ) {}
+    ) { }
 
     public addFilter(term: string): void {
         if (!term.length) {

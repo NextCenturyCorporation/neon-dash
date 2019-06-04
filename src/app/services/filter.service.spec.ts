@@ -18,7 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { AbstractSearchService, CompoundFilterType } from './abstract.search.service';
-import { DatasetService } from './dataset.service';
+import { DashboardService } from './dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -29,11 +29,11 @@ import {
     SimpleFilterDesign
 } from './filter.service';
 
-import { FieldMetaData } from '../dataset';
+import { FieldMetaData } from '../types';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { neonEvents } from '../neon-namespaces';
 
-import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';
@@ -272,9 +272,9 @@ describe('FilterUtil', () => {
     it('createFilterDataSourceListFromDesign should return expected array', () => {
         expect(FilterUtil.createFilterDataSourceListFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId'
         } as SimpleFilterDesign)).toEqual([{
@@ -289,16 +289,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 20
             } as SimpleFilterDesign]
@@ -320,16 +320,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.Y_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign]
@@ -351,25 +351,25 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId'
             } as SimpleFilterDesign, {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 10
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.Y_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.Y_FIELD,
                     operator: '=',
                     value: 20
                 } as SimpleFilterDesign]
@@ -400,16 +400,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId2'
             } as SimpleFilterDesign]
@@ -427,16 +427,16 @@ describe('FilterUtil', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 10
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.Y_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.Y_FIELD,
                     operator: '=',
                     value: 20
                 } as SimpleFilterDesign]
@@ -444,16 +444,16 @@ describe('FilterUtil', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 30
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.Y_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.Y_FIELD,
                     operator: '=',
                     value: 40
                 } as SimpleFilterDesign]
@@ -478,16 +478,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 20
             } as SimpleFilterDesign]
@@ -505,16 +505,16 @@ describe('FilterUtil', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 10
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.Y_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.Y_FIELD,
                     operator: '=',
                     value: 20
                 } as SimpleFilterDesign]
@@ -522,16 +522,16 @@ describe('FilterUtil', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '!=',
                     value: 30
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.Y_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.Y_FIELD,
                     operator: '!=',
                     value: 40
                 } as SimpleFilterDesign]
@@ -554,9 +554,9 @@ describe('FilterUtil', () => {
     it('isCompoundFilterDesign should return expected boolean', () => {
         expect(FilterUtil.isCompoundFilterDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId'
         } as SimpleFilterDesign)).toEqual(false);
@@ -565,16 +565,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId2'
             } as SimpleFilterDesign]
@@ -584,9 +584,9 @@ describe('FilterUtil', () => {
     it('isSimpleFilterDesign should return expected boolean', () => {
         expect(FilterUtil.isSimpleFilterDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId'
         } as SimpleFilterDesign)).toEqual(true);
@@ -595,16 +595,16 @@ describe('FilterUtil', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '=',
                 value: 'testId2'
             } as SimpleFilterDesign]
@@ -623,7 +623,7 @@ describe('FilterCollection', () => {
 
     initializeTestBed('Single List Filter Collection', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
 
@@ -638,39 +638,39 @@ describe('FilterCollection', () => {
         searchService = _searchService;
         source1 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
         source2 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '>'
         } as FilterDataSource, {
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '<'
         } as FilterDataSource];
         filter1A = FilterUtil.createFilterFromDesign({
             root: CompoundFilterType.AND,
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId1'
         } as SimpleFilterDesign, searchService);
         filter1B = FilterUtil.createFilterFromDesign({
             root: CompoundFilterType.OR,
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId2'
         } as SimpleFilterDesign, searchService);
@@ -680,17 +680,17 @@ describe('FilterCollection', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '<',
                 value: 20
             } as SimpleFilterDesign]
@@ -708,9 +708,9 @@ describe('FilterCollection', () => {
     it('findFilterDataSources should return data source from collection', () => {
         expect(filterCollection.findFilterDataSources({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId1'
         } as SimpleFilterDesign)).toEqual(source1);
@@ -719,16 +719,16 @@ describe('FilterCollection', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '<',
                 value: 20
             } as SimpleFilterDesign]
@@ -738,18 +738,18 @@ describe('FilterCollection', () => {
     it('findFilterDataSources should return new data source and add to collection', () => {
         let actual = filterCollection.findFilterDataSources({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '!=',
             value: 'testId1'
         } as SimpleFilterDesign);
 
         expect(actual).toEqual([{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '!='
         } as FilterDataSource]);
 
@@ -761,9 +761,9 @@ describe('FilterCollection', () => {
 
         let testDataSource = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '!='
         } as FilterDataSource];
 
@@ -776,60 +776,60 @@ describe('FilterCollection', () => {
         // Different datastore
         let testDataSource1 = [{
             datastoreName: 'testDatastore2',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different database
         let testDataSource2 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[1].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[1].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different table
         let testDataSource3 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[1].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[1].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different field
         let testDataSource4 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different operator
         let testDataSource5 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '!='
         } as FilterDataSource];
 
         // Different operators (compound)
         let testDataSource6 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '='
         } as FilterDataSource, {
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '!='
         } as FilterDataSource];
 
@@ -856,23 +856,23 @@ describe('FilterCollection', () => {
     it('getFilters should return array from similar data source object in collection', () => {
         let testDataSource1 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
         let testDataSource2 = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '>'
         } as FilterDataSource, {
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '<'
         } as FilterDataSource];
 
@@ -886,17 +886,17 @@ describe('FilterCollection', () => {
     it('setFilters should save filters with input data source if it is not in collection', () => {
         let testDataSource = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '!='
         } as FilterDataSource];
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '!=',
             value: 'testId'
         } as SimpleFilterDesign, searchService);
@@ -917,9 +917,9 @@ describe('FilterCollection', () => {
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId'
         } as SimpleFilterDesign, searchService);
@@ -934,9 +934,9 @@ describe('FilterCollection', () => {
     it('setFilters should save filters with similar data source object in collection', () => {
         let testDataSource = [{
             datastoreName: 'testDatastore1',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -950,9 +950,9 @@ describe('FilterCollection', () => {
 
         let testFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId'
         } as SimpleFilterDesign, searchService);
@@ -981,9 +981,9 @@ describe('SimpleFilter', () => {
         searchService = _searchService;
         simpleFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -993,9 +993,9 @@ describe('SimpleFilter', () => {
 
     it('does have expected simple filter properties', () => {
         expect(simpleFilter.datastore).toEqual('testDatastore1');
-        expect(simpleFilter.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(simpleFilter.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(simpleFilter.field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(simpleFilter.database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(simpleFilter.table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(simpleFilter.field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(simpleFilter.operator).toEqual('=');
         expect(simpleFilter.value).toEqual('testName1');
 
@@ -1009,13 +1009,13 @@ describe('SimpleFilter', () => {
     it('createRelationFilter on simple filter should return null if substitue has bad data', () => {
         let actual = simpleFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], [{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
             field: new FieldMetaData()
         }], searchService);
         expect(actual).toEqual(null);
@@ -1026,21 +1026,21 @@ describe('SimpleFilter', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TEXT_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.TEXT_FIELD
         }];
 
         actual = simpleFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], testSubstituteList, searchService);
         expect(actual.datastore).toEqual('testDatastore2');
-        expect(actual.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(actual.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(actual.operator).toEqual('=');
         expect(actual.value).toEqual('testName1');
         expect(actual.root).toEqual(CompoundFilterType.AND);
@@ -1051,21 +1051,21 @@ describe('SimpleFilter', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TEXT_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.TEXT_FIELD
         }];
 
         let actual = simpleFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], testSubstituteList, searchService);
         expect(actual.datastore).toEqual('testDatastore2');
-        expect(actual.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(actual.database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(actual.operator).toEqual('=');
         expect(actual.value).toEqual('testName1');
         expect(actual.root).toEqual(CompoundFilterType.OR);
@@ -1082,9 +1082,9 @@ describe('SimpleFilter', () => {
         // Correct, with value
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         })).toEqual(true);
@@ -1092,18 +1092,18 @@ describe('SimpleFilter', () => {
         // Correct
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '='
         })).toEqual(true);
 
         // Correct, with custom root filter type
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             root: CompoundFilterType.AND
         })).toEqual(true);
@@ -1111,54 +1111,54 @@ describe('SimpleFilter', () => {
         // Different datastore
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '='
         })).toEqual(false);
 
         // Different database
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '='
         })).toEqual(false);
 
         // Different table
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '='
         })).toEqual(false);
 
         // Different field
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '='
         })).toEqual(false);
 
         // Different operator
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!='
         })).toEqual(false);
 
         // Different custom root filter type
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             root: CompoundFilterType.OR
         })).toEqual(false);
@@ -1166,9 +1166,9 @@ describe('SimpleFilter', () => {
         // Different value
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName2'
         })).toEqual(false);
@@ -1178,9 +1178,9 @@ describe('SimpleFilter', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             }]
         })).toEqual(false);
@@ -1190,9 +1190,9 @@ describe('SimpleFilter', () => {
         // Different datastore
         let testFilter1 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1200,9 +1200,9 @@ describe('SimpleFilter', () => {
         // Different database
         let testFilter2 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1210,9 +1210,9 @@ describe('SimpleFilter', () => {
         // Different table
         let testFilter3 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1220,9 +1220,9 @@ describe('SimpleFilter', () => {
         // Different field
         let testFilter4 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1230,9 +1230,9 @@ describe('SimpleFilter', () => {
         // Different operator
         let testFilter5 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '!=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1240,9 +1240,9 @@ describe('SimpleFilter', () => {
         // Different value
         let testFilter6 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName2'
         } as SimpleFilterDesign, searchService);
@@ -1251,9 +1251,9 @@ describe('SimpleFilter', () => {
         let testFilter7 = FilterUtil.createFilterFromDesign({
             root: CompoundFilterType.OR,
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1263,9 +1263,9 @@ describe('SimpleFilter', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign]
@@ -1274,9 +1274,9 @@ describe('SimpleFilter', () => {
         // Correct
         let testFilter9 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign, searchService);
@@ -1300,9 +1300,9 @@ describe('SimpleFilter', () => {
             name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
             root: CompoundFilterType.AND,
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 'testName1'
         } as SimpleFilterDesign);
@@ -1334,53 +1334,53 @@ describe('SimpleFilter (Falsey Values)', () => {
     it('filter on zero', () => {
         let filter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 0
         } as SimpleFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
         (filter as any).datastore = 'testDatastore1';
 
-        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(0);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 0
         } as SimpleFilterDesign)).toEqual(true);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: ''
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: false
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: null
         } as SimpleFilterDesign)).toEqual(false);
@@ -1389,53 +1389,53 @@ describe('SimpleFilter (Falsey Values)', () => {
     it('filter on empty string', () => {
         let filter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: ''
         } as SimpleFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
         (filter as any).datastore = 'testDatastore1';
 
-        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual('');
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 0
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: ''
         } as SimpleFilterDesign)).toEqual(true);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: false
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: null
         } as SimpleFilterDesign)).toEqual(false);
@@ -1444,53 +1444,53 @@ describe('SimpleFilter (Falsey Values)', () => {
     it('filter on false', () => {
         let filter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: false
         } as SimpleFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
         (filter as any).datastore = 'testDatastore1';
 
-        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 0
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: ''
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: false
         } as SimpleFilterDesign)).toEqual(true);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: null
         } as SimpleFilterDesign)).toEqual(false);
@@ -1499,53 +1499,53 @@ describe('SimpleFilter (Falsey Values)', () => {
     it('filter on null', () => {
         let filter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: null
         } as SimpleFilterDesign, searchService);
         // TODO THOR-1078 Remove this line
         (filter as any).datastore = 'testDatastore1';
 
-        expect((filter as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((filter as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((filter as any).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect((filter as any).field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(null);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: 0
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: ''
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: false
         } as SimpleFilterDesign)).toEqual(false);
 
         expect(filter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '=',
             value: null
         } as SimpleFilterDesign)).toEqual(true);
@@ -1568,9 +1568,9 @@ describe('SimpleFilter and CompoundFilter (Date Fields)', () => {
 
         simpleFilter = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.DATE_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.DATE_FIELD,
             operator: '=',
             value: new Date(0)
         } as SimpleFilterDesign, searchService);
@@ -1581,16 +1581,16 @@ describe('SimpleFilter and CompoundFilter (Date Fields)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.DATE_FIELD,
                 operator: '>',
                 value: new Date(0)
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.DATE_FIELD,
                 operator: '<',
                 // One year + one month + one day
                 value: new Date(34300800000)
@@ -1628,16 +1628,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -1659,15 +1659,15 @@ describe('CompoundFilter (One Field)', () => {
 
         expect(compoundFilter.filters.length).toEqual(2);
         expect(compoundFilter.filters[0].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(compoundFilter.filters[0].operator).toEqual('>');
         expect(compoundFilter.filters[0].value).toEqual(-100);
         expect(compoundFilter.filters[1].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(compoundFilter.filters[1].operator).toEqual('<');
         expect(compoundFilter.filters[1].value).toEqual(100);
     });
@@ -1675,13 +1675,13 @@ describe('CompoundFilter (One Field)', () => {
     it('createRelationFilter on compound filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], [{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
             field: new FieldMetaData()
         }], searchService);
         expect(actual).toEqual(null);
@@ -1692,30 +1692,30 @@ describe('CompoundFilter (One Field)', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.Y_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.Y_FIELD
         }];
 
         actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.AND);
         expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[0].operator).toEqual('>');
         expect(actual.filters[0].value).toEqual(-100);
         expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[1].operator).toEqual('<');
         expect(actual.filters[1].value).toEqual(100);
     });
@@ -1725,30 +1725,30 @@ describe('CompoundFilter (One Field)', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.Y_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.Y_FIELD
         }];
 
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.AND);
         expect(actual.root).toEqual(CompoundFilterType.OR);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[0].operator).toEqual('>');
         expect(actual.filters[0].value).toEqual(-100);
         expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[1].operator).toEqual('<');
         expect(actual.filters[1].value).toEqual(100);
     });
@@ -1766,16 +1766,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -1786,15 +1786,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -1805,15 +1805,15 @@ describe('CompoundFilter (One Field)', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -1823,15 +1823,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -1841,15 +1841,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1859,15 +1859,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[1],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1877,15 +1877,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[1],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1895,15 +1895,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.Y_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1913,15 +1913,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1932,15 +1932,15 @@ describe('CompoundFilter (One Field)', () => {
             root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1950,16 +1950,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: 1
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1969,15 +1969,15 @@ describe('CompoundFilter (One Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -1987,21 +1987,21 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2013,15 +2013,15 @@ describe('CompoundFilter (One Field)', () => {
                 type: 'and',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '>'
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '<'
                 } as SimpleFilterDesign]
             } as CompoundFilterDesign]
@@ -2030,9 +2030,9 @@ describe('CompoundFilter (One Field)', () => {
         // Different structure
         expect(compoundFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD,
             operator: '>'
         } as SimpleFilterDesign)).toEqual(false);
     });
@@ -2043,16 +2043,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2063,16 +2063,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[1],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2083,16 +2083,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[1],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2103,16 +2103,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.Y_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2123,16 +2123,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2143,16 +2143,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: 1
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2164,16 +2164,16 @@ describe('CompoundFilter (One Field)', () => {
             root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2184,16 +2184,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2204,16 +2204,16 @@ describe('CompoundFilter (One Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2245,9 +2245,9 @@ describe('CompoundFilter (One Field)', () => {
                 name: 'Test Database 1 / Test Table 1 / Test X Field > -100',
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '>',
                 value: -100
             } as SimpleFilterDesign, {
@@ -2255,9 +2255,9 @@ describe('CompoundFilter (One Field)', () => {
                 name: 'Test Database 1 / Test Table 1 / Test X Field < 100',
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '<',
                 value: 100
             } as SimpleFilterDesign]
@@ -2291,16 +2291,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2322,15 +2322,15 @@ describe('CompoundFilter (Multi-Field)', () => {
 
         expect(compoundFilter.filters.length).toEqual(2);
         expect(compoundFilter.filters[0].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(compoundFilter.filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[0].value).toEqual('testName1');
         expect(compoundFilter.filters[1].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(compoundFilter.filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[1].value).toEqual(10);
     });
@@ -2338,13 +2338,13 @@ describe('CompoundFilter (Multi-Field)', () => {
     it('createRelationFilter on compound multi-field filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], [{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
             field: new FieldMetaData()
         }], searchService);
         expect(actual).toEqual(null);
@@ -2355,37 +2355,37 @@ describe('CompoundFilter (Multi-Field)', () => {
 
         actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }, {
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], [{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD
         }], searchService);
         expect(actual).toEqual(null);
 
         actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], [{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TYPE_FIELD
         }, {
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.Y_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.Y_FIELD
         }], searchService);
         expect(actual).toEqual(null);
     });
@@ -2395,30 +2395,30 @@ describe('CompoundFilter (Multi-Field)', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.TYPE_FIELD
         }];
 
         actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
         expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect(actual.filters[0].operator).toEqual('=');
         expect(actual.filters[0].value).toEqual('testName1');
         expect(actual.filters[1].datastore).toEqual('testDatastore1');
-        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual.filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual.filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(actual.filters[1].operator).toEqual('=');
         expect(actual.filters[1].value).toEqual(10);
     });
@@ -2428,40 +2428,40 @@ describe('CompoundFilter (Multi-Field)', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.TYPE_FIELD
         }, {
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.Y_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.Y_FIELD
         }];
 
         actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }, {
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
         expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect(actual.filters[0].operator).toEqual('=');
         expect(actual.filters[0].value).toEqual('testName1');
         expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[1].operator).toEqual('=');
         expect(actual.filters[1].value).toEqual(10);
     });
@@ -2471,40 +2471,40 @@ describe('CompoundFilter (Multi-Field)', () => {
 
         let testSubstituteList = [{
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.TYPE_FIELD
         }, {
             datastore: 'testDatastore2',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.Y_FIELD
+            database: DashboardServiceMock.DATABASES[1],
+            table: DashboardServiceMock.TABLES[1],
+            field: DashboardServiceMock.Y_FIELD
         }];
 
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD
         }, {
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.X_FIELD
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.X_FIELD
         }], testSubstituteList, searchService);
         expect(actual.type).toEqual(CompoundFilterType.OR);
         expect(actual.root).toEqual(CompoundFilterType.OR);
         expect(actual.filters.length).toEqual(2);
         expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[0].field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[0].field).toEqual(DashboardServiceMock.TYPE_FIELD);
         expect(actual.filters[0].operator).toEqual('=');
         expect(actual.filters[0].value).toEqual('testName1');
         expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(actual.filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(actual.filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES[1]);
+        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES[1]);
+        expect(actual.filters[1].field).toEqual(DashboardServiceMock.Y_FIELD);
         expect(actual.filters[1].operator).toEqual('=');
         expect(actual.filters[1].value).toEqual(10);
     });
@@ -2522,16 +2522,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2542,15 +2542,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -2561,15 +2561,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -2579,15 +2579,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -2597,15 +2597,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2615,15 +2615,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[1],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2633,15 +2633,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[1],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2651,15 +2651,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2669,15 +2669,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2688,15 +2688,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2706,16 +2706,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 1
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2725,15 +2725,15 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2743,21 +2743,21 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -2769,15 +2769,15 @@ describe('CompoundFilter (Multi-Field)', () => {
                 type: 'and',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.NAME_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.NAME_FIELD,
                     operator: '='
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '='
                 } as SimpleFilterDesign]
             } as CompoundFilterDesign]
@@ -2786,9 +2786,9 @@ describe('CompoundFilter (Multi-Field)', () => {
         // Different structure
         expect(compoundFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.NAME_FIELD,
             operator: '='
         } as SimpleFilterDesign)).toEqual(false);
     });
@@ -2799,16 +2799,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2819,16 +2819,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[1],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2839,16 +2839,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[1],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2859,16 +2859,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.TYPE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.TYPE_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2879,16 +2879,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '!=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2899,16 +2899,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'and',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 1
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2920,16 +2920,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             root: CompoundFilterType.OR,
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2940,16 +2940,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -2960,16 +2960,16 @@ describe('CompoundFilter (Multi-Field)', () => {
             type: 'or',
             filters: [{
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -3001,9 +3001,9 @@ describe('CompoundFilter (Multi-Field)', () => {
                 name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.NAME_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.NAME_FIELD,
                 operator: '=',
                 value: 'testName1'
             } as SimpleFilterDesign, {
@@ -3011,9 +3011,9 @@ describe('CompoundFilter (Multi-Field)', () => {
                 name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
                 root: CompoundFilterType.AND,
                 datastore: 'testDatastore1',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.X_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -3049,16 +3049,16 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 10
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 20
                 } as SimpleFilterDesign]
@@ -3066,16 +3066,16 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                 type: 'or',
                 filters: [{
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.NAME_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.NAME_FIELD,
                     operator: '=',
                     value: 'testName1'
                 } as SimpleFilterDesign, {
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.NAME_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.NAME_FIELD,
                     operator: '=',
                     value: 'testName2'
                 } as SimpleFilterDesign]
@@ -3102,29 +3102,29 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
         expect(compoundFilter.filters[0].type).toEqual(CompoundFilterType.OR);
         expect(compoundFilter.filters[0].filters.length).toEqual(2);
         expect(compoundFilter.filters[0].filters[0].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[0].filters[0].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].filters[0].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(compoundFilter.filters[0].filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[0].filters[0].value).toEqual(10);
         expect(compoundFilter.filters[0].filters[1].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[0].filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect(compoundFilter.filters[0].filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[0].filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[0].filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
         expect(compoundFilter.filters[0].filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[0].filters[1].value).toEqual(20);
         expect(compoundFilter.filters[1].type).toEqual(CompoundFilterType.OR);
         expect(compoundFilter.filters[1].filters.length).toEqual(2);
         expect(compoundFilter.filters[1].filters[0].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[1].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[1].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[1].filters[0].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[1].filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(compoundFilter.filters[1].filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[1].filters[0].value).toEqual('testName1');
         expect(compoundFilter.filters[1].filters[1].datastore).toEqual('testDatastore1');
-        expect(compoundFilter.filters[1].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(compoundFilter.filters[1].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(compoundFilter.filters[1].filters[1].field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(compoundFilter.filters[1].filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(compoundFilter.filters[1].filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(compoundFilter.filters[1].filters[1].field).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(compoundFilter.filters[1].filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[1].filters[1].value).toEqual('testName2');
     });
@@ -3147,9 +3147,9 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                     name: 'Test Database 1 / Test Table 1 / Test X Field = 10',
                     root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 10
                 } as SimpleFilterDesign, {
@@ -3157,9 +3157,9 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                     name: 'Test Database 1 / Test Table 1 / Test X Field = 20',
                     root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.X_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.X_FIELD,
                     operator: '=',
                     value: 20
                 } as SimpleFilterDesign]
@@ -3174,9 +3174,9 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                     name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
                     root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.NAME_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.NAME_FIELD,
                     operator: '=',
                     value: 'testName1'
                 } as SimpleFilterDesign, {
@@ -3184,9 +3184,9 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                     name: 'Test Database 1 / Test Table 1 / Test Name Field = testName2',
                     root: CompoundFilterType.AND,
                     datastore: 'testDatastore1',
-                    database: DatasetServiceMock.DATABASES[0],
-                    table: DatasetServiceMock.TABLES[0],
-                    field: DatasetServiceMock.NAME_FIELD,
+                    database: DashboardServiceMock.DATABASES[0],
+                    table: DashboardServiceMock.TABLES[0],
+                    field: DashboardServiceMock.NAME_FIELD,
                     operator: '=',
                     value: 'testName2'
                 } as SimpleFilterDesign]
@@ -3200,7 +3200,7 @@ describe('FilterService with no filters', () => {
 
     initializeTestBed('Filter Service with no filters', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
@@ -3228,7 +3228,7 @@ describe('FilterService with no filters', () => {
 });
 
 describe('FilterService with filters', () => {
-    let datasetService: DatasetService;
+    let datasetService: DashboardService;
     let filterService: FilterService;
     let searchService: AbstractSearchService;
     let source1: FilterDataSource[];
@@ -3252,72 +3252,72 @@ describe('FilterService with filters', () => {
 
     initializeTestBed('Filter Service with filters', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: 'config', useValue: new NeonGTDConfig() }
         ]
     });
 
-    beforeEach(inject([DatasetService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
+    beforeEach(inject([DashboardService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
         datasetService = _datasetService;
         filterService = _filterService;
         searchService = _searchService;
 
         source1 = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
         source2 = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '>'
         } as FilterDataSource, {
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '<'
         } as FilterDataSource];
 
         design1A = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId1'
         } as SimpleFilterDesign;
         design1B = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId2'
         } as SimpleFilterDesign;
         design1C = {
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId3'
         } as SimpleFilterDesign;
         design1D = {
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId4'
         } as SimpleFilterDesign;
@@ -3327,17 +3327,17 @@ describe('FilterService with filters', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '<',
                 value: 20
             } as SimpleFilterDesign]
@@ -3388,34 +3388,34 @@ describe('FilterService with filters', () => {
     let generateRelationFilters = () => {
         relationSource1 = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.RELATION_FIELD_A.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.RELATION_FIELD_A.columnName,
             operator: '='
         } as FilterDataSource];
         relationSource2 = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.RELATION_FIELD_B.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.RELATION_FIELD_B.columnName,
             operator: '='
         } as FilterDataSource];
 
         relationDesign1 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_A,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_A,
             operator: '=',
             value: 'testRelation'
         } as SimpleFilterDesign;
         relationDesign2 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_B,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_B,
             operator: '=',
             value: 'testRelation'
         } as SimpleFilterDesign;
@@ -3434,15 +3434,15 @@ describe('FilterService with filters', () => {
         spyOn(datasetService, 'findRelationDataList').and.returnValue([[
             [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.RELATION_FIELD_A
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.RELATION_FIELD_A
             }],
             [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.RELATION_FIELD_B
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.RELATION_FIELD_B
             }]
         ]]);
     };
@@ -3572,9 +3572,9 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilters('testCaller', searchService, [{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '='
         } as SimpleFilterDesign]);
 
@@ -3582,9 +3582,9 @@ describe('FilterService with filters', () => {
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource]]);
         expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
@@ -3600,18 +3600,18 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText'
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -3622,9 +3622,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
@@ -3651,9 +3651,9 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId5'
         } as SimpleFilterDesign;
@@ -3662,9 +3662,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(source1);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testId5');
 
@@ -3692,18 +3692,18 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText'
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -3714,9 +3714,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
@@ -3749,9 +3749,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_A);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
@@ -3760,9 +3760,9 @@ describe('FilterService with filters', () => {
 
         listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_B);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
@@ -3792,9 +3792,9 @@ describe('FilterService with filters', () => {
         let testDesign2 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_B,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_B,
             operator: '=',
             value: 'testExchangeRelation'
         } as SimpleFilterDesign;
@@ -3806,9 +3806,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_A);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testExchangeRelation');
 
@@ -3817,18 +3817,18 @@ describe('FilterService with filters', () => {
             name: listComplete[0].name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_A,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_A,
             operator: '=',
             value: 'testExchangeRelation'
         } as SimpleFilterDesign;
 
         listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_B);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testExchangeRelation');
 
@@ -3919,9 +3919,9 @@ describe('FilterService with filters', () => {
         expect(filterService.getFilters(source2)).toEqual([design2A]);
         expect(filterService.getFilters([{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.ID_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.ID_FIELD.columnName,
             operator: '!='
         } as FilterDataSource])).toEqual([]);
     });
@@ -3931,36 +3931,36 @@ describe('FilterService with filters', () => {
             name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId1'
         }, {
             name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId2'
         }, {
             name: design1C.name,
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId3'
         }, {
             name: design1D.name,
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId4'
         }, {
@@ -3971,18 +3971,18 @@ describe('FilterService with filters', () => {
                 name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '>',
                 value: 10
             }, {
                 name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '<',
                 value: 20
             }]
@@ -4115,18 +4115,18 @@ describe('FilterService with filters', () => {
             name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId1'
         }], datasetService, searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
         actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(1);
-        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
@@ -4135,63 +4135,63 @@ describe('FilterService with filters', () => {
             name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId1'
         }, {
             name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId2'
         }, {
             name: design1C.name,
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId3'
         }, {
             name: design1D.name,
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId4'
         }], datasetService, searchService);
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
         actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(4);
-        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
-        expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[1].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
         expect(actual[1].root).toEqual(CompoundFilterType.AND);
-        expect(actual[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[2].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[2].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[2].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[2].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[2].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[2].operator).toEqual('=');
         expect(actual[2].value).toEqual('testId3');
         expect(actual[2].root).toEqual(CompoundFilterType.OR);
-        expect(actual[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[3].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[3].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[3].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[3].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[3].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[3].operator).toEqual('=');
         expect(actual[3].value).toEqual('testId4');
         expect(actual[3].root).toEqual(CompoundFilterType.OR);
@@ -4204,18 +4204,18 @@ describe('FilterService with filters', () => {
                 name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '>',
                 value: 10
             }, {
                 name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '<',
                 value: 20
             }]
@@ -4226,14 +4226,14 @@ describe('FilterService with filters', () => {
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
-        expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].filters[0].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].filters[0].field).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(actual[0].filters[0].operator).toEqual('>');
         expect(actual[0].filters[0].value).toEqual(10);
-        expect(actual[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].filters[1].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].filters[1].field).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(actual[0].filters[1].operator).toEqual('<');
         expect(actual[0].filters[1].value).toEqual(20);
 
@@ -4241,18 +4241,18 @@ describe('FilterService with filters', () => {
             name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId1'
         }, {
             name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0].name,
-            table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.ID_FIELD.columnName,
+            database: DashboardServiceMock.DATABASES[0].name,
+            table: DashboardServiceMock.TABLES[0].name,
+            field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId2'
         }, {
@@ -4263,18 +4263,18 @@ describe('FilterService with filters', () => {
                 name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '>',
                 value: 10
             }, {
                 name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0].name,
-                table: DatasetServiceMock.TABLES[0].name,
-                field: DatasetServiceMock.SIZE_FIELD.columnName,
+                database: DashboardServiceMock.DATABASES[0].name,
+                table: DashboardServiceMock.TABLES[0].name,
+                field: DashboardServiceMock.SIZE_FIELD.columnName,
                 operator: '<',
                 value: 20
             }]
@@ -4282,15 +4282,15 @@ describe('FilterService with filters', () => {
         expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
         actual = (filterService as any).filterCollection.getFilters(source1);
         expect(actual.length).toEqual(2);
-        expect(actual[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
-        expect(actual[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[1].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[1].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
         expect(actual[1].root).toEqual(CompoundFilterType.AND);
@@ -4299,14 +4299,14 @@ describe('FilterService with filters', () => {
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
-        expect(actual[0].filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].filters[0].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].filters[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].filters[0].field).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(actual[0].filters[0].operator).toEqual('>');
         expect(actual[0].filters[0].value).toEqual(10);
-        expect(actual[0].filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(actual[0].filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(actual[0].filters[1].field).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(actual[0].filters[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(actual[0].filters[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(actual[0].filters[1].field).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(actual[0].filters[1].operator).toEqual('<');
         expect(actual[0].filters[1].value).toEqual(20);
     });
@@ -4317,9 +4317,9 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '=',
             value: 'testId5'
         } as SimpleFilterDesign;
@@ -4332,9 +4332,9 @@ describe('FilterService with filters', () => {
         expect(listComplete[1]).toEqual(filter1B);
         expect(listComplete[2]).toEqual(filter1C);
         expect(listComplete[3]).toEqual(filter1D);
-        expect(listComplete[4].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[4].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[4].field).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(listComplete[4].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[4].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[4].field).toEqual(DashboardServiceMock.ID_FIELD);
         expect(listComplete[4].operator).toEqual('=');
         expect(listComplete[4].value).toEqual('testId5');
 
@@ -4362,18 +4362,18 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText'
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -4384,9 +4384,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
@@ -4434,18 +4434,18 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText'
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -4456,9 +4456,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
@@ -4485,18 +4485,18 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '=',
             value: 'testText'
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -4507,9 +4507,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(testSource);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testText');
 
@@ -4542,9 +4542,9 @@ describe('FilterService with filters', () => {
 
         let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_A);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
@@ -4553,9 +4553,9 @@ describe('FilterService with filters', () => {
 
         listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[0].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[0].field).toEqual(DashboardServiceMock.RELATION_FIELD_B);
         expect(listComplete[0].operator).toEqual('=');
         expect(listComplete[0].value).toEqual('testRelation');
 
@@ -4585,9 +4585,9 @@ describe('FilterService with filters', () => {
         let testDesign2 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_B,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_B,
             operator: '=',
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
@@ -4600,9 +4600,9 @@ describe('FilterService with filters', () => {
         let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter1);
-        expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[1].field).toEqual(DatasetServiceMock.RELATION_FIELD_A);
+        expect(listComplete[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[1].field).toEqual(DashboardServiceMock.RELATION_FIELD_A);
         expect(listComplete[1].operator).toEqual('=');
         expect(listComplete[1].value).toEqual('testToggleRelation');
 
@@ -4611,9 +4611,9 @@ describe('FilterService with filters', () => {
             name: listComplete[1].name,
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_A,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_A,
             operator: '=',
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
@@ -4621,9 +4621,9 @@ describe('FilterService with filters', () => {
         listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter2);
-        expect(listComplete[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(listComplete[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(listComplete[1].field).toEqual(DatasetServiceMock.RELATION_FIELD_B);
+        expect(listComplete[1].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect(listComplete[1].table).toEqual(DashboardServiceMock.TABLES[0]);
+        expect(listComplete[1].field).toEqual(DashboardServiceMock.RELATION_FIELD_B);
         expect(listComplete[1].operator).toEqual('=');
         expect(listComplete[1].value).toEqual('testToggleRelation');
 
@@ -4678,18 +4678,18 @@ describe('FilterService with filters', () => {
         let testDesign1 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_A,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_A,
             operator: '=',
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
         let testDesign2 = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.RELATION_FIELD_B,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.RELATION_FIELD_B,
             operator: '=',
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
@@ -4766,9 +4766,9 @@ describe('FilterService with filters', () => {
         expect(filterService.isFiltered(testCollection, design2A)).toEqual(true);
         expect(filterService.isFiltered(testCollection, {
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.ID_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.ID_FIELD,
             operator: '!='
         } as SimpleFilterDesign)).toEqual(false);
     });
@@ -4780,17 +4780,17 @@ describe('FilterService with filters', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign]
@@ -4800,9 +4800,9 @@ describe('FilterService with filters', () => {
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -4814,15 +4814,15 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -4832,9 +4832,9 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -4844,21 +4844,21 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -4868,16 +4868,16 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign]
@@ -4888,16 +4888,16 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign]
@@ -4908,16 +4908,16 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 1
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign]
@@ -4931,33 +4931,33 @@ describe('FilterService with filters', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 40
             } as SimpleFilterDesign]
@@ -4967,15 +4967,15 @@ describe('FilterService with filters', () => {
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '='
         } as FilterDataSource, {
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.SIZE_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.SIZE_FIELD.columnName,
             operator: '!='
         } as FilterDataSource];
 
@@ -4987,27 +4987,27 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -5017,27 +5017,27 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(true);
@@ -5047,15 +5047,15 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -5065,33 +5065,33 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
@@ -5101,30 +5101,30 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 40
             } as SimpleFilterDesign]
@@ -5135,30 +5135,30 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 40
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign]
@@ -5169,30 +5169,30 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 40
             } as SimpleFilterDesign]
@@ -5203,30 +5203,30 @@ describe('FilterService with filters', () => {
             type: 'or',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 10
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '=',
                 value: 20
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 30
             } as SimpleFilterDesign, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.SIZE_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.SIZE_FIELD,
                 operator: '!=',
                 value: 50
             } as SimpleFilterDesign]
@@ -5355,9 +5355,9 @@ describe('FilterService with filters', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.ID_FIELD,
+                database: DashboardServiceMock.DATABASES[0],
+                table: DashboardServiceMock.TABLES[0],
+                field: DashboardServiceMock.ID_FIELD,
                 operator: '='
             } as SimpleFilterDesign]
         } as CompoundFilterDesign;
@@ -5396,17 +5396,17 @@ describe('FilterService with filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES[0],
+            table: DashboardServiceMock.TABLES[0],
+            field: DashboardServiceMock.TEXT_FIELD,
             operator: '='
         } as SimpleFilterDesign;
 
         let testSource = [{
             datastoreName: '',
-            databaseName: DatasetServiceMock.DATABASES[0].name,
-            tableName: DatasetServiceMock.TABLES[0].name,
-            fieldName: DatasetServiceMock.TEXT_FIELD.columnName,
+            databaseName: DashboardServiceMock.DATABASES[0].name,
+            tableName: DashboardServiceMock.TABLES[0].name,
+            fieldName: DashboardServiceMock.TEXT_FIELD.columnName,
             operator: '='
         } as FilterDataSource];
 

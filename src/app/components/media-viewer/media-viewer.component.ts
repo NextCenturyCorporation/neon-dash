@@ -28,11 +28,11 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../dataset';
+import { MediaTypes } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -94,7 +94,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public selectedTabIndex: number = 0;
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,

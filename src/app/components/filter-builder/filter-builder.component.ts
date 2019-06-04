@@ -24,11 +24,11 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../types';
 import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -63,7 +63,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public parentFilterIsOr: boolean = false;
 
     constructor(
-        datasetService: DatasetService,
+        datasetService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
