@@ -32,7 +32,7 @@ import { NetworkGraphModule } from './network-graph.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: NetworkGraph', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: NetworkGraphComponent;
     let fixture: ComponentFixture<NetworkGraphComponent>;
 

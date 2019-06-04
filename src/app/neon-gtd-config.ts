@@ -89,18 +89,21 @@ export interface NeonDashboardConfig {
     contributors?: Record<string, NeonContributor>;
 }
 
-export interface NeonLayoutConfig {
-    name: string;
-    type: string;
+export interface NeonLayoutGridConfig {
     col: number;
     row: number;
-    bindings: Record<string, any>;
+    bindings?: Record<string, any>;
     sizex: number;
     sizey: number;
     minPixelx?: number;
     minPixely?: number;
     minSizex?: number;
     minSizey?: number;
+}
+
+export interface NeonLayoutConfig extends NeonLayoutGridConfig {
+    name: string;
+    type: string;
 }
 
 export interface NeonDatastoreConfig {
@@ -118,4 +121,19 @@ export interface NeonGTDConfig {
     errors: string[];
     neonServerUrl: string;
     version: string;
+}
+
+export class NeonGTDConfig {
+    static get(): NeonGTDConfig {
+        return {
+            dashboards: {},
+            datastores: {},
+            errors: [],
+            layouts: {},
+            version: '',
+            neonServerUrl: '',
+            projectIcon: '',
+            projectTitle: ''
+        };
+    }
 }

@@ -39,7 +39,7 @@ const fieldName = 'field';
 class MockDashboardService extends DashboardService {
     options = new DashboardOptions();
     constructor() {
-        super(new NeonGTDConfig());
+        super(NeonGTDConfig.get());
         this.options.queryBar = new SimpleFilter(databaseName, tableName, fieldName);
     }
 
@@ -64,7 +64,7 @@ class queryBarTester {
                 { provide: FilterService, useClass: MockFilterService },
                 { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DashboardService, useClass: mockDataset ? MockDashboardService : DashboardService },
-                { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+                { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
             ],
             imports: [

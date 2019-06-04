@@ -177,7 +177,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
 }
 
 describe('BaseNeonComponent', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
@@ -1916,7 +1916,7 @@ describe('BaseNeonComponent', () => {
 });
 
 describe('Advanced BaseNeonComponent with config', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 

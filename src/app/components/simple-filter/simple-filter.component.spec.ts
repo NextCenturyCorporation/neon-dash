@@ -48,7 +48,7 @@ describe('Component: SimpleFilter', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ],
         imports: [
             SimpleFilterModule
@@ -187,7 +187,7 @@ describe('Component: SimpleFilter unconfigured', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardService },
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ],
         imports: [
             SimpleFilterModule

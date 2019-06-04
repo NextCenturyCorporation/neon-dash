@@ -24,7 +24,7 @@ import { DashboardSelectorModule } from './dashboard-selector.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: DashboardSelector', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 

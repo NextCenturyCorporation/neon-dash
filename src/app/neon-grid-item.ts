@@ -1,4 +1,4 @@
-import { NeonLayoutConfig } from './neon-gtd-config';
+import { NeonLayoutGridConfig } from './neon-gtd-config';
 
 /*
  * Copyright 2017 Next Century Corporation
@@ -19,10 +19,12 @@ import { NeonLayoutConfig } from './neon-gtd-config';
 /**
  * The config options of an individual widget for the angular2-grid.
  */
-export interface NeonGridItem extends NeonLayoutConfig {
+export interface NeonGridItem extends NeonLayoutGridConfig {
     hide?: boolean;
     id?: string;
     icon?: string;
+    type?: string;
+    name?: string;
 
     borderSize?: number;
     dragHandle?: string;

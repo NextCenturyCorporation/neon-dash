@@ -32,7 +32,7 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ]
     });
 
@@ -70,7 +70,7 @@ describe('Service: DashboardService Static Functions', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: 'config', useValue: NeonGTDConfig.get() }
         ]
     });
 
@@ -233,7 +233,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
         datastore1.hasUpdatedFields = false;
@@ -326,7 +326,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
         datastore1.hasUpdatedFields = false;
@@ -345,7 +345,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingD: 'fieldD'
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
-        database2.tables = [table2];
+        database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
         datastore2.databases = [database2];
         datastore2.hasUpdatedFields = false;
@@ -407,7 +407,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
         datastore1.hasUpdatedFields = true;
@@ -429,7 +429,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
         datastore1.hasUpdatedFields = false;
@@ -485,7 +485,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingD: 'fieldD'
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
-        database2.tables = [table2];
+        database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
         datastore2.databases = [database2];
         datastore2.hasUpdatedFields = false;
@@ -507,7 +507,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
         datastore1.hasUpdatedFields = false;
@@ -567,7 +567,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
 
@@ -595,7 +595,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingB: 'fieldB'
         };
         let database1 = new DatabaseMetaData('database1', 'Database 1');
-        database1.tables = [table1];
+        database1.tables = { [table1.name]: table1 };
         let datastore1 = new Datastore('datastore1', 'host1', 'type1');
         datastore1.databases = [database1];
 
@@ -613,7 +613,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingD: 'fieldD'
         };
         let database2 = new DatabaseMetaData('database2', 'Database 2');
-        database2.tables = [table2];
+        database2.tables = { [table2.name]: table2 };
         let datastore2 = new Datastore('datastore2', 'host2', 'type2');
         datastore2.databases = [database2];
 
@@ -708,7 +708,7 @@ describe('Service: DashboardService with Mock Data', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ]
     });
 

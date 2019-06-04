@@ -52,7 +52,7 @@ describe('Component: Aggregation', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ],
         imports: [
             AggregationModule
@@ -4108,7 +4108,7 @@ describe('Component: Aggregation with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4210,7 +4210,7 @@ describe('Component: Aggregation with XY config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4312,7 +4312,7 @@ describe('Component: Aggregation with date config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },

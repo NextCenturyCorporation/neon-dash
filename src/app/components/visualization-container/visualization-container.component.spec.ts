@@ -27,7 +27,7 @@ import { AppLazyModule } from '../../app-lazy.module';
 import { AboutNeonComponent } from '../about-neon/about-neon.component';
 
 describe('Component: VisualizationContainer', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 

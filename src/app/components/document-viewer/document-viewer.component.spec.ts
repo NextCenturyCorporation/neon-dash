@@ -49,7 +49,7 @@ describe('Component: DocumentViewer', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
         ],
         imports: [
             DocumentViewerModule
@@ -890,7 +890,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },

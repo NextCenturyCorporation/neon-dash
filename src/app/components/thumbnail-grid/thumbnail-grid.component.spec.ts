@@ -43,7 +43,7 @@ describe('Component: ThumbnailGrid', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ],
         imports: [
@@ -738,7 +738,7 @@ describe('Component: ThumbnailGrid with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },

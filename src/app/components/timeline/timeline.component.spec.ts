@@ -36,7 +36,7 @@ import { ConfigService } from '../../services/config.service';
 import { FieldMetaData } from '../../types';
 
 describe('Component: Timeline', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 

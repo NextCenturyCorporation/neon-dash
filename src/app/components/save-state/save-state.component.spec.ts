@@ -40,7 +40,7 @@ import { SaveStateModule } from './save-state.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: SaveStateComponent', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let fixture: ComponentFixture<SaveStateComponent>;
     let component: SaveStateComponent;
 

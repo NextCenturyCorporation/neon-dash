@@ -488,7 +488,11 @@ export class WidgetOptionCollection {
      * @arg {DashboardService} datasetService
      */
     public updateTables(datasetService: DashboardService): void {
-        this.tables = this.database ? datasetService.getTables(this.database.name) : [];
+        this.tables = this.database ?
+            Object
+                .values(datasetService.getTables(this.database.name))
+                .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
+            [];
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
