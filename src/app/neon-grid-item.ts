@@ -26,6 +26,11 @@ export interface NeonGridItem extends NeonLayoutGridConfig {
     type?: string;
     name?: string;
 
+    minPixelx?: number;
+    minPixely?: number;
+    minSizex?: number;
+    minSizey?: number;
+
     borderSize?: number;
     dragHandle?: string;
 

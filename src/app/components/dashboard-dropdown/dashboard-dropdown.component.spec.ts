@@ -17,7 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
-import { DashboardOptions, Dashboard } from '../../types';
+import { Dashboard } from '../../types';
 
 import { DashboardDropdownModule } from './dashboard-dropdown.module';
 
@@ -43,7 +43,7 @@ choices.dash1 = {
     layout: 'DISCOVERY',
     tables: dashboardTableKeys1,
     fields: dashboardFieldKeys1,
-    options: new DashboardOptions()
+    options: {}
 };
 choices.dash2 = {
     name: 'Other Config',
@@ -56,7 +56,7 @@ choices.dash2 = {
             layout: 'layout3',
             tables: dashboardTableKeys2,
             fields: dashboardFieldKeys2,
-            options: new DashboardOptions()
+            options: {}
         }
     }
 };

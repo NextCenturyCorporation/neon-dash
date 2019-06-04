@@ -34,16 +34,6 @@ export interface NeonDatabaseMetaData {
     tables: Record<string, NeonTableMetaData>;
 }
 
-export interface NeonRelationTableMetaData {
-    table: NeonTableMetaData;
-    field: NeonFieldMetaData;
-}
-
-export interface NeonRelationMetaData {
-    database: NeonDatabaseMetaData;
-    customRelationTables: NeonRelationTableMetaData[];
-}
-
 export interface NeonSimpleFilter {
     databaseName: string;
     tableName: string;
@@ -69,16 +59,13 @@ export interface NeonContributor {
     logo: string;
 }
 
-export interface NeonDashboardConfig {
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
+export interface NeonDashboardNodeConfig<T extends NeonDashboardNodeConfig<any>> {
     name?: string;
-    // Exist in Dashboards that are not terminal nodes.
+    // Interior
     category?: string;
-    choices?: Record<string, NeonDashboardConfig>;
-    // Exist in Dashboards that are terminal nodes.
+    choices?: Record<string, T>;
+
+    // Leaf
     layout?: string;
     tables?: Record<string, string>;
     fields?: Record<string, string>;
@@ -89,16 +76,18 @@ export interface NeonDashboardConfig {
     contributors?: Record<string, NeonContributor>;
 }
 
+export interface NeonDashboardConfig<T extends NeonDashboardNodeConfig<any> = NeonDashboardNodeConfig<any>> extends NeonDashboardNodeConfig<T> {
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
+};
+
 export interface NeonLayoutGridConfig {
     col: number;
     row: number;
     bindings?: Record<string, any>;
     sizex: number;
     sizey: number;
-    minPixelx?: number;
-    minPixely?: number;
-    minSizex?: number;
-    minSizey?: number;
 }
 
 export interface NeonLayoutConfig extends NeonLayoutGridConfig {
@@ -112,11 +101,11 @@ export interface NeonDatastoreConfig {
     databases: Record<string, NeonDatabaseMetaData>;
 }
 
-export interface NeonGTDConfig {
+export interface NeonGTDConfig<T extends NeonDashboardNodeConfig<any> = NeonDashboardNodeConfig<any>> {
     projectTitle: string;
     projectIcon: string;
     datastores: Record<string, NeonDatastoreConfig>;
-    dashboards: NeonDashboardConfig;
+    dashboards: NeonDashboardConfig<T>;
     layouts: Record<string, NeonLayoutConfig>;
     errors: string[];
     neonServerUrl: string;
