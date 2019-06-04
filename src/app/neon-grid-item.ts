@@ -1,3 +1,5 @@
+import { NeonLayoutConfig } from './neon-gtd-config';
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,21 +19,14 @@
 /**
  * The config options of an individual widget for the angular2-grid.
  */
-export interface NeonGridItem {
-    bindings?: any;
+export interface NeonGridItem extends NeonLayoutConfig {
     hide?: boolean;
     id?: string;
     icon?: string;
-    name?: string;
-    type?: string;
 
     borderSize?: number;
-    col?: number;
     dragHandle?: string;
-    row?: number;
-    sizex?: number;
-    sizey?: number;
 
     // The previous grid item config that is stored when the widget is expanded and restored the widget is contracted. */
-    previousConfig?: { col: number, row: number, sizex: number, sizey: number };
+    previousConfig?: Partial<NeonGridItem>;
 }
