@@ -35,7 +35,7 @@ describe('Service: Parameter', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ]
     });

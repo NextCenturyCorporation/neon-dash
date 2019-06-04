@@ -324,7 +324,9 @@ describe('Dashboard', () => {
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
-        let widgetGridItem1: NeonGridItem = {};
+        let widgetGridItem1: NeonGridItem = {
+            col: 0, row: 0, sizex: 1, sizey: 1
+        };
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1
@@ -340,7 +342,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem2: NeonGridItem = {};
+        let widgetGridItem2: NeonGridItem = {
+            col: 0, row: 0, sizex: 1, sizey: 1
+        };
 
         component['addWidget']({
             widgetGridItem: widgetGridItem2
@@ -364,7 +368,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem3: NeonGridItem = {};
+        let widgetGridItem3: NeonGridItem = {
+            col: 0, row: 0, sizex: 1, sizey: 1
+        };
 
         component['addWidget']({
             widgetGridItem: widgetGridItem3
@@ -396,7 +402,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem4: NeonGridItem = {};
+        let widgetGridItem4: NeonGridItem = {
+            col: 0, row: 0, sizex: 1, sizey: 1
+        };
 
         component['addWidget']({
             widgetGridItem: widgetGridItem4
@@ -472,7 +480,9 @@ describe('Dashboard', () => {
             sizey: 4
         }];
 
-        let widgetGridItem1: NeonGridItem = {};
+        let widgetGridItem1: NeonGridItem = {
+            col: 0, row: 0, sizex: 1, sizey: 1
+        };
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1

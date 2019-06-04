@@ -34,7 +34,7 @@ describe('Service: Widget', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ]
     });
@@ -90,7 +90,7 @@ describe('ColorSet', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ]
     });

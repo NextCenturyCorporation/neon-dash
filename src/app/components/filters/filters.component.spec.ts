@@ -34,7 +34,7 @@ import { FiltersModule } from './filters.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: FiltersComponent;
     let fixture: ComponentFixture<FiltersComponent>;
     let debugElement: DebugElement;

@@ -32,7 +32,7 @@ import { SearchService } from '../../services/search.service';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: CurrentFiltersComponent;
     const search = new SearchService(null as any);
 
@@ -41,7 +41,7 @@ describe('Component: CurrentFiltersComponent', () => {
             {
                 name: 'base',
                 prettyName: 'Base',
-                tables: []
+                tables: {}
             },
             {
                 name: 'table',

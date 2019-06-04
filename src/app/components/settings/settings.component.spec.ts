@@ -42,7 +42,7 @@ describe('Component: Settings', () => {
             SettingsComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }

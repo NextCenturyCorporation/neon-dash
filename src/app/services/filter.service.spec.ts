@@ -625,7 +625,7 @@ describe('FilterCollection', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ],
         imports: [
@@ -3203,7 +3203,7 @@ describe('FilterService with no filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
 
         ],
         imports: [
@@ -3255,7 +3255,7 @@ describe('FilterService with filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            { provide: 'config', useValue: NeonGTDConfig.get() }
         ]
     });
 

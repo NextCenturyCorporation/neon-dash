@@ -21,7 +21,7 @@ export class FieldMetaData {
         public prettyName: string = '',
         public hide: boolean = false,
         public type: string = ''
-    ) {}
+    ) { }
 }
 
 export class TableMetaData {
@@ -31,15 +31,15 @@ export class TableMetaData {
         public fields: FieldMetaData[] = [],
         public mappings: TableMappings = {},
         public labelOptions: any = {}
-    ) {}
+    ) { }
 }
 
 export class DatabaseMetaData {
     constructor(
         public name: string = '',
         public prettyName: string = '',
-        public tables: TableMetaData[] = []
-    ) {}
+        public tables: { [key: string]: TableMetaData } = {}
+    ) { }
 }
 
 export interface TableMappings {
@@ -65,7 +65,7 @@ export class SimpleFilter {
         public icon?: string,
         public tableKey?: string,
         public fieldKey?: string
-    ) {}
+    ) { }
 }
 
 /*
@@ -100,7 +100,7 @@ export class Datastore {
         public name: string = '',
         public host: string = '', // Formerly hostname
         public type: string = '' // Type of datastore (mongo, elasticsearch, etc.)
-    ) {}
+    ) { }
 }
 
 /**

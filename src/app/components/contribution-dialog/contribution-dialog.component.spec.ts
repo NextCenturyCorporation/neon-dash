@@ -27,7 +27,7 @@ import { ConfigService } from '../../services/config.service';
 
 describe('Component: ContributionDialogComponent', () => {
     let fixture: ComponentFixture<ContributionDialogComponent>;
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
     let component: ContributionDialogComponent;
 
     initializeTestBed('ContributionDialogComponent', {

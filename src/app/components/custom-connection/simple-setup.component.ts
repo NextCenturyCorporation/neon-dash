@@ -83,7 +83,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                 );
                 database.tables = customDatabase.customTables.map(
                     (customTable) => customTable.table
-                );
+                ).reduce((acc, table) => {
+                    acc[table.name] = table;
+                    return acc;
+                }, {} as { [key: string]: TableMetaData });
                 return database;
             }
         );
@@ -118,7 +121,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             (databaseNames) => {
                 databaseNames.forEach((databaseName) => {
                     this.data.allDatabases.push(
-                        new DatabaseMetaData(databaseName, databaseName, [])
+                        new DatabaseMetaData(databaseName, databaseName, {})
                     );
                 });
                 this.updateDatabases(connection);
@@ -151,7 +154,8 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                             new FieldMetaData(fieldName, fieldName)
                         );
                     });
-                    database.tables.push(table);
+                    database.tables[table.name] = table;
+
                     connection.getFieldTypes(
                         database.name,
                         table.name,

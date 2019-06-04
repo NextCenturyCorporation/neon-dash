@@ -77,7 +77,7 @@ export class DashboardService {
                 let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
 
                 let configTables: any = configDatabase.tables || {};
-                outputDatabase.tables = Object.keys(configTables).map((tableKey) => {
+                outputDatabase.tables = Object.keys(configTables).reduce((acc, tableKey) => {
                     let configTable = configTables[tableKey] || {};
                     let outputTable: TableMetaData = new TableMetaData(tableKey, configTable.prettyName);
 
@@ -88,8 +88,10 @@ export class DashboardService {
                     outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
                     outputTable.mappings = _.cloneDeep(configTable.mappings);
 
-                    return outputTable;
-                });
+                    acc[outputTable.name] = outputTable;
+
+                    return acc;
+                }, {} as { [key: string]: TableMetaData });
 
                 return outputDatabase;
             });
@@ -157,7 +159,7 @@ export class DashboardService {
         }
     }
 
-    static validateFields(table): void {
+    static validateFields(table: TableMetaData): void {
         let indexListToRemove = [];
         table.fields.forEach((field, index) => {
             if (!field.columnName) {
@@ -169,11 +171,11 @@ export class DashboardService {
         this.removeFromArray(table.fields, indexListToRemove);
     }
 
-    static validateTables(database): void {
-        let indexListToRemove = [];
-        database.tables.forEach((table, index) => {
+    static validateTables(database: DatabaseMetaData): void {
+        for (const key of Object.keys(database.tables)) {
+            const table = database.tables[key];
             if (!table.name) {
-                indexListToRemove.push(index);
+                delete database.tables[key];
             } else {
                 table.prettyName = table.prettyName || table.name;
                 table.fields = table.fields || [];
@@ -181,11 +183,10 @@ export class DashboardService {
                 table.labelOptions = table.labelOptions || {};
                 DashboardService.validateFields(table);
             }
-        });
-        this.removeFromArray(database.tables, indexListToRemove);
+        }
     }
 
-    static validateDatabases(dataset): void {
+    static validateDatabases(dataset: Datastore): void {
         let indexListToRemove = [];
         dataset.databases.forEach((database, index) => {
             if (!(database.name || database.tables || database.tables.length)) {
@@ -675,9 +676,9 @@ export class DashboardService {
      * @param {String} The database name
      * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
      */
-    public getTables(databaseName: string): TableMetaData[] {
+    public getTables(databaseName: string): { [key: string]: TableMetaData } {
         let database = this.getDatabaseWithName(databaseName);
-        return database ? database.tables : [];
+        return database ? database.tables : {};
     }
 
     /**
@@ -689,13 +690,7 @@ export class DashboardService {
      */
     public getTableWithName(databaseName: string, tableName: string): TableMetaData {
         let tables = this.getTables(databaseName);
-        for (let table of tables) {
-            if (table.name === tableName) {
-                return table;
-            }
-        }
-
-        return undefined;
+        return tables[tableName];
     }
 
     /**
@@ -728,8 +723,8 @@ export class DashboardService {
         for (let database of databases) {
             names[database.name] = [];
             let tables = this.getTables(database.name);
-            for (let table of tables) {
-                names[database.name].push(table.name);
+            for (const table of Object.values(tables)) {
+                names[database.name][table.name] = table;
             }
         }
         return names;
@@ -744,16 +739,11 @@ export class DashboardService {
      */
     public getFirstTableWithMappings(databaseName: string, keys: string[]): TableMetaData {
         let tables = this.getTables(databaseName);
-        for (let table of tables) {
-            let success = true;
+        for (const table of Object.values(tables)) {
             for (let key of keys) {
                 if (!(table.mappings[key])) {
-                    success = false;
-                    break;
+                    return table;
                 }
-            }
-            if (success) {
-                return table;
             }
         }
 
@@ -769,7 +759,7 @@ export class DashboardService {
      */
     public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
         for (let database of this.dataset.databases) {
-            for (let table of database.tables) {
+            for (let table of Object.values(database.tables)) {
                 let success = true;
                 let fields = {};
                 if (keys && keys.length > 0) {
@@ -1055,12 +1045,8 @@ export class DashboardService {
      */
     public getPrettyNameForTable(databaseName: string, tableName: string): string {
         let name = tableName;
-        this.getTables(databaseName).forEach((table) => {
-            if (table.name === tableName) {
-                name = table.prettyName;
-            }
-        });
-        return name;
+        const tbl = this.getTables(databaseName)[tableName];
+        return tbl ? tbl.prettyName : name;
     }
 
     /**
@@ -1208,7 +1194,7 @@ export class DashboardService {
                 databases: datastore.databases.reduce((databases, database) => {
                     databases[database.name] = {
                         prettyName: database.prettyName,
-                        tables: database.tables.reduce((tables, table) => {
+                        tables: Object.values(database.tables).reduce((tables, table) => {
                             tables[table.name] = {
                                 prettyName: table.prettyName,
                                 fields: table.fields.map((field) => ({

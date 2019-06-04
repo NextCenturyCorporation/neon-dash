@@ -63,10 +63,10 @@ export class DashboardServiceMock extends DashboardService {
         DashboardServiceMock.ES_ID_FIELD
     ];
 
-    public static TABLES: TableMetaData[] = [
-        new TableMetaData('testTable1', 'Test Table 1', DashboardServiceMock.FIELDS),
-        new TableMetaData('testTable2', 'Test Table 2', DashboardServiceMock.FIELDS)
-    ];
+    public static TABLES = {
+        testTable1: new TableMetaData('testTable1', 'Test Table 1', DashboardServiceMock.FIELDS),
+        testTable2: new TableMetaData('testTable2', 'Test Table 2', DashboardServiceMock.FIELDS)
+    };
 
     public static DATABASES: DatabaseMetaData[] = [
         new DatabaseMetaData('testDatabase1', 'Test Database 1', DashboardServiceMock.TABLES),
@@ -74,7 +74,7 @@ export class DashboardServiceMock extends DashboardService {
     ];
 
     constructor() {
-        super(new ConfigService(null).set(new NeonGTDConfig()), new MockConnectionService());
+        super(new ConfigService(null).set(NeonGTDConfig.get()), new MockConnectionService());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;
