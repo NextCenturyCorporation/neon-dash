@@ -118,7 +118,7 @@ describe('Service: Search', () => {
     });
 
     it('canRunSearch does return false with no active connection', () => {
-        let spy = spyOn(service, 'createConnection').and.returnValue(null);
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue(null);
 
         expect(service.canRunSearch('type', 'host')).toEqual(false);
 
@@ -127,7 +127,7 @@ describe('Service: Search', () => {
     });
 
     it('canRunSearch does return true with active connection', () => {
-        let spy = spyOn(service, 'createConnection').and.returnValue({});
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue({});
 
         expect(service.canRunSearch('type', 'host')).toEqual(true);
 
@@ -138,7 +138,7 @@ describe('Service: Search', () => {
     it('runSearch does call expected function', () => {
         let queryPayload = new NeonQueryWrapper(new query.Query());
         let called = 0;
-        let spy = spyOn(service, 'createConnection').and.returnValue({
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue({
             runSearchQuery: (queryInput, __options) => {
                 expect(queryInput).toEqual(queryPayload);
                 called++;

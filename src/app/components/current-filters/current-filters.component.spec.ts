@@ -34,7 +34,7 @@ describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: CurrentFiltersComponent;
-    const search = new SearchService();
+    const search = new SearchService(null as any);
 
     function simple(field: string, op: string, value: any) {
         const out = new SimpleFilter('store',
