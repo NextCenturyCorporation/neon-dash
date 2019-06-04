@@ -17,12 +17,13 @@ import { Injectable } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { AbstractSearchService, Connection } from './abstract.search.service';
 import { Datastore } from '../types';
 import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
+import { ConnectionService } from './connection.service';
+import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable()
 export class ParameterService {
@@ -53,6 +54,7 @@ export class ParameterService {
     constructor(
         private datasetService: DashboardService,
         private filterService: FilterService,
+        private connectionService: ConnectionService,
         private searchService: AbstractSearchService
     ) {
         this.messenger = new eventing.Messenger();
@@ -321,7 +323,7 @@ export class ParameterService {
                     matchingDataset = dashboardState.dataset;
                 }
 
-                let connection: Connection = this.searchService.createConnection(matchingDataset.type, matchingDataset.host);
+                let connection = this.connectionService.connect(matchingDataset.type, matchingDataset.host);
 
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {

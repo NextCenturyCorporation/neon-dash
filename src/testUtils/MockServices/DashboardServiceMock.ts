@@ -17,7 +17,13 @@ import { Dashboard, DashboardOptions, DatabaseMetaData, Datastore, FieldMetaData
 import { DashboardService } from '../../app/services/dashboard.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 import { ConfigService } from '../../app/services/config.service';
-import { SearchServiceMock } from './SearchServiceMock';
+import { ConnectionService } from '../../app/services/connection.service';
+
+class MockConnectionService extends ConnectionService {
+    public connect(__datastoreType: string, __datastoreHost: string) {
+        return null as any;
+    }
+}
 
 export class DashboardServiceMock extends DashboardService {
     public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
@@ -68,7 +74,7 @@ export class DashboardServiceMock extends DashboardService {
     ];
 
     constructor() {
-        super(new ConfigService(null).set(new NeonGTDConfig()), new SearchServiceMock());
+        super(new ConfigService(null).set(new NeonGTDConfig()), new MockConnectionService());
         let datastore: Datastore = new Datastore('datastore1', 'testHostname', 'testDatastore');
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore.hasUpdatedFields = true;

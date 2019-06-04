@@ -16,7 +16,6 @@
 import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
-import { AbstractSearchService, Connection } from './abstract.search.service';
 import {
     Datastore, Dashboard, DashboardOptions, DatabaseMetaData,
     TableMetaData, TableMappings, FieldMetaData, SimpleFilter, SingleField
@@ -26,6 +25,7 @@ import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { ConnectionService, Connection } from './connection.service';
 
 @Injectable()
 export class DashboardService {
@@ -356,7 +356,7 @@ export class DashboardService {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
-    constructor(private configService: ConfigService, private searchService: AbstractSearchService) {
+    constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.datasets = [];
         this.messenger = new eventing.Messenger();
         this.configService.$source.subscribe((config) => {
@@ -380,7 +380,7 @@ export class DashboardService {
                     this.messenger.publish(neonEvents.DASHBOARD_READY, {});
                 };
 
-                let connection: Connection = this.searchService.createConnection(dataset.type, dataset.host);
+                let connection = this.connectionService.connect(dataset.type, dataset.host);
                 if (connection) {
                     // Update the fields within each table to add any that weren't listed in the config file as well as field types.
                     this.updateDatabases(dataset, connection).then(() => {
