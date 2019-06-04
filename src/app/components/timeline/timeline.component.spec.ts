@@ -86,14 +86,14 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '<=',
@@ -132,14 +132,14 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '<=',
@@ -167,14 +167,14 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '<=',
@@ -184,7 +184,7 @@ describe('Component: Timeline', () => {
             // TODO NEON-36
             root: 'or',
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -223,14 +223,14 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.DATE_FIELD,
                 operator: '<=',
@@ -239,7 +239,7 @@ describe('Component: Timeline', () => {
         }, {
             root: 'or',
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -247,7 +247,7 @@ describe('Component: Timeline', () => {
         }, {
             root: 'or',
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -255,7 +255,7 @@ describe('Component: Timeline', () => {
         }, {
             root: 'or',
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FILTER_FIELD,
             operator: '=',
@@ -264,7 +264,7 @@ describe('Component: Timeline', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query without id and filter fields', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
 
@@ -332,7 +332,7 @@ describe('Component: Timeline', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query with id and filter fields', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
@@ -410,7 +410,7 @@ describe('Component: Timeline', () => {
     });
 
     it('transformVisualizationQueryResults does return expected data with id and filter fields', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
@@ -465,7 +465,7 @@ describe('Component: Timeline', () => {
     });
 
     it('transformVisualizationQueryResults does return expected data without id and filter fields', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
 
@@ -563,7 +563,7 @@ describe('Component: Timeline', () => {
     });
 
     it('findDateInPreviousItem does not return a previous item when the current item is not within range of granularity', () => {
-        component.options.database = DashboardServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');

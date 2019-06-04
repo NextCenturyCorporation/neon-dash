@@ -64,14 +64,14 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DashboardServiceMock.CATEGORY_FIELD];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual('and');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
@@ -80,14 +80,14 @@ describe('Component: DataTable', () => {
         component.options.arrayFilterOperator = 'or';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual('or');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
@@ -96,26 +96,26 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DashboardServiceMock.CATEGORY_FIELD, DashboardServiceMock.TEXT_FIELD];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual('or');
         expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((actual[2].filterDesign).operator).toEqual('=');
         expect((actual[2].filterDesign).value).toBeUndefined();
         expect((actual[3].filterDesign).type).toEqual('or');
         expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
@@ -1088,7 +1088,7 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '=',
@@ -1127,7 +1127,7 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DashboardServiceMock.DATABASES[0],
+            database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.CATEGORY_FIELD,
             operator: '=',
@@ -1172,7 +1172,7 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1180,7 +1180,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1188,7 +1188,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1233,7 +1233,7 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1241,7 +1241,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1249,7 +1249,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1293,7 +1293,7 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1301,7 +1301,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1309,7 +1309,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1354,7 +1354,7 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1362,7 +1362,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',
@@ -1370,7 +1370,7 @@ describe('Component: DataTable', () => {
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DashboardServiceMock.DATABASES[0],
+                database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.CATEGORY_FIELD,
                 operator: '=',

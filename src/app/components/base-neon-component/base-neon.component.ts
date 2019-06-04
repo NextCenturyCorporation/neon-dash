@@ -1029,7 +1029,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private getLabelOptions(options: any) {
         let dataset = this.datasetService.getDataset();
-        let matchingDatabase = _.find(dataset.databases, (database) => database.name === options.database.name);
+        let matchingDatabase = dataset.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }
@@ -1160,9 +1160,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                    undefined
-            });
+            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                undefined
+        });
     }
 
     /**

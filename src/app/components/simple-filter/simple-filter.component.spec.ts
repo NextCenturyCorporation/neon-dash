@@ -60,7 +60,7 @@ describe('Component: SimpleFilter', () => {
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(FilterService);
         fixture.debugElement.injector.get(DashboardService).getCurrentDashboardOptions().simpleFilter = {
-            databaseName: DashboardServiceMock.DATABASES[0].name,
+            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
             tableName: DashboardServiceMock.TABLES.testTable1.name,
             fieldName: DashboardServiceMock.TEXT_FIELD.columnName
         };
@@ -78,7 +78,7 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
@@ -99,7 +99,7 @@ describe('Component: SimpleFilter', () => {
 
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
@@ -117,7 +117,7 @@ describe('Component: SimpleFilter', () => {
         // Verify that filter is added to filterService
         let filters = filterService.getFilters();
         expect(filters.length).toEqual(1);
-        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES[0]);
+        expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');

@@ -31,7 +31,7 @@ import { ConnectionService, Connection } from './connection.service';
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    protected datasets: Datastore[] = [];
+    protected datasets: { [key: string]: Datastore } = {};
 
     private config: NeonGTDConfig;
 
@@ -62,7 +62,7 @@ export class DashboardService {
     // STATIC METHODS
     // --
 
-    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: Datastore[]): Datastore[] {
+    static appendDatastoresFromConfig(configDatastores: { [key: string]: any }, existingDatastores: { [key: string]: Datastore }): { [key: string]: Datastore } {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
             let configDatastore: any = configDatastores[datastoreKey] || {};
@@ -98,8 +98,8 @@ export class DashboardService {
             }, {} as { [key: string]: DatabaseMetaData });
 
             // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
-            if (!existingDatastores.some((existingDatastore) => existingDatastore.name === outputDatastore.name)) {
-                existingDatastores.push(outputDatastore);
+            if (!existingDatastores[outputDatastore.name]) {
+                existingDatastores[outputDatastore.name] = outputDatastore;
             }
         });
 
@@ -131,7 +131,7 @@ export class DashboardService {
      * @arg {Dashboard} dashboard
      * @arg {Datastore[]} datastores
      */
-    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: Datastore[]): void {
+    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: { [key: string]: Datastore }): void {
         if (dashboard.tables) {
             // Assume table keys have format:  datastore.database.table
             let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
@@ -365,7 +365,7 @@ export class DashboardService {
     }
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
-        this.datasets = [];
+        this.datasets = {};
         this.messenger = new eventing.Messenger();
         this.configService.$source.subscribe((config) => {
             this.config = config;
@@ -373,7 +373,7 @@ export class DashboardService {
             this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
                 { category: 'No Dashboards', choices: {} });
 
-            this.datasets = DashboardService.appendDatastoresFromConfig(config.datastores || {}, []);
+            this.datasets = DashboardService.appendDatastoresFromConfig(config.datastores || {}, {});
 
             this.layouts = _.cloneDeep(config.layouts || {});
 
@@ -381,7 +381,7 @@ export class DashboardService {
             DashboardService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
             let loaded = 0;
-            this.datasets.forEach((dataset) => {
+            Object.values(this.datasets).forEach((dataset) => {
                 DashboardService.validateDatabases(dataset);
 
                 let callback = () => {
@@ -392,7 +392,7 @@ export class DashboardService {
                 if (connection) {
                     // Update the fields within each table to add any that weren't listed in the config file as well as field types.
                     this.updateDatabases(dataset, connection).then(() => {
-                        if (++loaded === this.datasets.length) {
+                        if (++loaded === Object.keys(this.datasets).length) {
                             callback();
                         }
                     });
@@ -430,18 +430,15 @@ export class DashboardService {
      */
     // TODO: THOR-1062: may need to change to account for multiple datastores later
     private updateDataset(): void {
-        for (let index = 0; index < this.datasets.length; ++index) {
-            if (this.datasets[index].name === this.dataset.name) {
-                this.datasets[index] = _.cloneDeep(this.dataset);
-            }
+        for (const name of Object.keys(this.datasets)) {
+            this.datasets[name] = _.cloneDeep(this.datasets[name]);
         }
     }
 
     /**
      * Returns the list of datasets maintained by this service
-     * @return {Array}
      */
-    public getDatasets(): Datastore[] {
+    public getDatasets(): { [key: string]: Datastore } {
         return this.datasets;
     }
 
@@ -449,9 +446,9 @@ export class DashboardService {
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset: Datastore): Datastore[] {
+    public addDataset(dataset: Datastore): { [key: string]: Datastore } {
         DashboardService.validateDatabases(dataset);
-        this.datasets.push(dataset);
+        this.datasets[dataset.name] = dataset;
         return this.datasets;
     }
 
@@ -631,13 +628,7 @@ export class DashboardService {
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
     public getDatasetWithName(datasetName: string): Datastore {
-        for (let dataset of this.datasets) {
-            if (dataset.name === datasetName) {
-                return dataset;
-            }
-        }
-
-        return undefined;
+        return this.datasets[datasetName];
     }
 
     /**
@@ -1182,7 +1173,7 @@ export class DashboardService {
      * @return {{[key:string]:any}}
      */
     public getDatastoresInConfigFormat(): { [key: string]: any } {
-        return this.datasets.reduce((datastores, datastore) => {
+        return Object.values(this.datasets).reduce((datastores, datastore) => {
             datastores[datastore.name] = {
                 hasUpdatedFields: datastore.hasUpdatedFields,
                 host: datastore.host,
