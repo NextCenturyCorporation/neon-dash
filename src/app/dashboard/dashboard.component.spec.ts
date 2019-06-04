@@ -656,7 +656,7 @@ describe('Dashboard', () => {
     it('findAutoShowDashboard does return expected object', () => {
         expect(component['findAutoShowDashboard']({})).toEqual(null);
 
-        let noShowDashboard = new Dashboard();
+        let noShowDashboard = Dashboard.get();
 
         expect(component['findAutoShowDashboard']({
             noShow: noShowDashboard
@@ -670,7 +670,7 @@ describe('Dashboard', () => {
             noShow: noShowDashboard
         })).toEqual(null);
 
-        let showDashboard = new Dashboard();
+        let showDashboard = Dashboard.get();
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -679,7 +679,7 @@ describe('Dashboard', () => {
             show: showDashboard
         })).toEqual(showDashboard);
 
-        let parentDashboard = new Dashboard();
+        let parentDashboard = Dashboard.get();
         parentDashboard.choices = {
             show: showDashboard
         };
@@ -879,7 +879,7 @@ describe('Dashboard', () => {
 
         let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
         let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
-        let testDashboard: Dashboard = new Dashboard();
+        let testDashboard: Dashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = [{
             name: 'a'
@@ -942,7 +942,7 @@ describe('Dashboard', () => {
 
         let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
         let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
-        let testDashboard: Dashboard = new Dashboard();
+        let testDashboard: Dashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = {
             tab1: [{
@@ -1007,7 +1007,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
-        component['dashboards'] = new Dashboard();
+        component['dashboards'] = Dashboard.get();
 
         component['showDashboardStateOnPageLoad']();
 
@@ -1023,7 +1023,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue('testStateName');
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
-        component['dashboards'] = new Dashboard();
+        component['dashboards'] = Dashboard.get();
 
         component['showDashboardStateOnPageLoad']();
 
@@ -1040,12 +1040,12 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
-        let showDashboard = new Dashboard();
+        let showDashboard = Dashboard.get();
         showDashboard.datastores = { testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = new Dashboard();
+        let testDashboard = Dashboard.get();
         testDashboard.choices = {
             test: showDashboard
         };
@@ -1068,12 +1068,12 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue('testStateName');
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
-        let showDashboard = new Dashboard();
+        let showDashboard = Dashboard.get();
         showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = new Dashboard();
+        let testDashboard = Dashboard.get();
         testDashboard.choices = {
             test: showDashboard
         };
@@ -1097,12 +1097,12 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
-        let showDashboard = new Dashboard();
+        let showDashboard = Dashboard.get();
         showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = new Dashboard();
+        let testDashboard = Dashboard.get();
         testDashboard.choices = {
             test: showDashboard
         };

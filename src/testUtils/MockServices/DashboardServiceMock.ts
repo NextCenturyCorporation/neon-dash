@@ -85,7 +85,7 @@ export class DashboardServiceMock extends DashboardService {
         this.dataset = datastore;
         this.datasets = { [datastore.name]: datastore };
 
-        let dashboard: Dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
 
         let dashboardTableKeys: { [key: string]: string } = {};
         dashboardTableKeys.table_key_1 = 'datastore1.testDatabase1.testTable1';

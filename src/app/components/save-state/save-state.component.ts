@@ -34,7 +34,7 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonGTDConfig, NeonDashboardConfig } from '../../neon-gtd-config';
 
 @Component({
     selector: 'app-save-state',
@@ -238,13 +238,13 @@ export class SaveStateComponent implements OnInit {
 
     private handleLoadStateSuccess(response: NeonGTDConfig, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
-            let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards),
+            let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards as Dashboard),
                 response.datastores, response.layouts);
             // Dashboard choices should be set by wrapInSavedStateDashboard
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
                 const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
-                dash.fileName = response['fileName'];  // TODO: Reconcile
+                dash.fileName = response['fileName']; // TODO: Reconcile
                 dash.lastModified = response['lastModified'];
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dash
@@ -342,15 +342,15 @@ export class SaveStateComponent implements OnInit {
         return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 
-    private wrapInSavedStateDashboard(stateName: string, dashboard: Dashboard): Dashboard {
-        let savedStateDashboard: Dashboard = new Dashboard();
+    private wrapInSavedStateDashboard<T extends NeonDashboardConfig>(stateName: string, dashboard: T): T {
+        let savedStateDashboard: NeonDashboardConfig = Dashboard.get();
         savedStateDashboard.name = 'Saved State';
         savedStateDashboard.choices = {};
         savedStateDashboard.choices[stateName] = dashboard;
 
-        let rootDashboard: Dashboard = new Dashboard();
+        let rootDashboard: NeonDashboardConfig = Dashboard.get();
         rootDashboard.choices = {};
         rootDashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] = savedStateDashboard;
-        return rootDashboard;
+        return rootDashboard as T;
     }
 }

@@ -37,7 +37,7 @@ const tableName = 'table';
 const fieldName = 'field';
 
 class MockDashboardService extends DashboardService {
-    options = new DashboardOptions();
+    options = Dashboard.getOptions();
     constructor() {
         super(NeonGTDConfig.get());
         this.options.queryBar = new SimpleFilter(databaseName, tableName, fieldName);

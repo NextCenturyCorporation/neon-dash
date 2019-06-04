@@ -174,14 +174,14 @@ describe('Component: SaveStateComponent', () => {
             }
         }, 'testState');
 
-        let savedStateDashboard = new Dashboard();
+        let savedStateDashboard = Dashboard.get();
         savedStateDashboard.name = 'Saved State';
         savedStateDashboard.choices = {
             testState: {
                 name: 'dashboard1'
             }
         };
-        let expectedDashboard = new Dashboard();
+        let expectedDashboard = Dashboard.get();
         expectedDashboard.choices = {
             saved_state: savedStateDashboard
         };
@@ -204,7 +204,7 @@ describe('Component: SaveStateComponent', () => {
     });
 
     it('handleSaveStateSuccess does reset stateToSave and call fetchStates', () => {
-        component.current = new Dashboard();
+        component.current = Dashboard.get();
         component.current.lastModified = 0;
         component.current.modified = true;
         component['handleSaveStateSuccess']({}, 'testState');
@@ -272,7 +272,7 @@ describe('Component: SaveStateComponent', () => {
     it('saveState does call connection.saveState with expected data', () => {
         let spy = spyOn(component, 'closeSidenav');
 
-        let dashboard = new Dashboard();
+        let dashboard = Dashboard.get();
         dashboard.datastores = {};
         dashboard.fullTitle = 'Full Title';
         dashboard.layout = 'layoutName';
@@ -499,7 +499,7 @@ describe('Component: SaveStateComponent', () => {
 
     it('saveState does validate the state name', () => {
         spyOn(component, 'closeSidenav');
-        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(new Dashboard());
+        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(Dashboard.get());
         spyOn(component['datasetService'], 'getDatastoresInConfigFormat').and.returnValue([]);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
         spyOn(component, 'getWidgetById').and.returnValue(null);

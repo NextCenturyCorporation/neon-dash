@@ -213,11 +213,11 @@ export class DashboardService {
      * @arg {Dashboard} dashboard
      * @return {Dashboard}
      */
-    static validateDashboards(dashboard: Dashboard): Dashboard {
-        let rootDashboard: Dashboard = dashboard;
+    static validateDashboards<T extends NeonDashboardConfig<T>>(dashboard: T): Dashboard {
+        let rootDashboard: T = dashboard;
 
         if ((!dashboard.choices || !Object.keys(dashboard.choices).length) && dashboard.name) {
-            rootDashboard = new Dashboard();
+            rootDashboard = Dashboard.get() as any as T;
             rootDashboard.choices[dashboard.name] = dashboard;
         }
 
@@ -229,7 +229,7 @@ export class DashboardService {
 
         this.validateDashboardChoices(rootDashboard.choices, dashboardKeys);
 
-        return rootDashboard;
+        return rootDashboard as any as Dashboard;
     }
 
     /**
@@ -242,67 +242,68 @@ export class DashboardService {
      * @param {string} pathFromTop path to append to current dashboard object
      * @param {string} title title to append to current dashboard object
      */
-    static validateDashboardChoices(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
+    static validateDashboardChoices(dashboardChoices: Record<string, NeonDashboardConfig>, keys: string[],
         pathFromTop?: string[], title?: string): void {
         if (!keys.length) {
             return;
         }
 
         keys.forEach((choiceKey) => {
-            let fullTitle = (title ? (title + ' ') : '') + dashboardChoices[choiceKey].name;
+            const db = dashboardChoices[choiceKey] as Dashboard;
+            let fullTitle = (title ? (title + ' ') : '') + db.name;
             let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
 
-            dashboardChoices[choiceKey].fullTitle = dashboardChoices[choiceKey].fullTitle || fullTitle;
-            dashboardChoices[choiceKey].pathFromTop = fullPathFromTop;
+            db.fullTitle = db.fullTitle || fullTitle;
+            db.pathFromTop = fullPathFromTop;
 
-            let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
+            let nestedChoiceKeys = db.choices ? Object.keys(db.choices) : [];
 
             if (!nestedChoiceKeys.length) {
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
-                if (!dashboardChoices[choiceKey].layout || !dashboardChoices[choiceKey].tables) {
+                if (!db.layout || !db.tables) {
                     delete dashboardChoices[choiceKey];
                 }
             }
 
-            if (dashboardChoices[choiceKey]) {
-                if (!dashboardChoices[choiceKey].name) {
-                    dashboardChoices[choiceKey].name = choiceKey;
+            if (db) {
+                if (!db.name) {
+                    db.name = choiceKey;
                 }
 
                 // If simpleFilter present in config, make sure to translate keys to database, table, and
                 // field names.
-                if (dashboardChoices[choiceKey].options &&
-                    dashboardChoices[choiceKey].options.simpleFilter &&
-                    dashboardChoices[choiceKey].options.simpleFilter.tableKey) {
-                    let tableKey = dashboardChoices[choiceKey].options.simpleFilter.tableKey;
+                if (db.options &&
+                    db.options.simpleFilter &&
+                    db.options.simpleFilter.tableKey) {
+                    let tableKey = db.options.simpleFilter.tableKey;
 
-                    let databaseName = this.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
-                    let tableName = this.getTableNameByKey(dashboardChoices[choiceKey], tableKey);
+                    let databaseName = this.getDatabaseNameByKey(db, tableKey);
+                    let tableName = this.getTableNameByKey(db, tableKey);
 
-                    dashboardChoices[choiceKey].options.simpleFilter.databaseName = databaseName;
-                    dashboardChoices[choiceKey].options.simpleFilter.tableName = tableName;
+                    db.options.simpleFilter.databaseName = databaseName;
+                    db.options.simpleFilter.tableName = tableName;
 
-                    if (dashboardChoices[choiceKey].options.simpleFilter.fieldKey) {
-                        let fieldKey = dashboardChoices[choiceKey].options.simpleFilter.fieldKey;
-                        let fieldName = this.getFieldNameByKey(dashboardChoices[choiceKey], fieldKey);
+                    if (db.options.simpleFilter.fieldKey) {
+                        let fieldKey = db.options.simpleFilter.fieldKey;
+                        let fieldName = this.getFieldNameByKey(db, fieldKey);
 
-                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = fieldName;
+                        db.options.simpleFilter.fieldName = fieldName;
                     } else {
-                        dashboardChoices[choiceKey].options.simpleFilter.fieldName = '';
+                        db.options.simpleFilter.fieldName = '';
                     }
-                } else if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.simpleFilter) {
+                } else if (db.options && db.options.simpleFilter) {
                     // Delete simpleFilter from config if no tableKey present
-                    delete dashboardChoices[choiceKey].options.simpleFilter;
+                    delete db.options.simpleFilter;
                 }
 
                 // Only auto fill category if this is not the last level of nesting
-                if (!dashboardChoices[choiceKey].category && !dashboardChoices[choiceKey].tables) {
-                    dashboardChoices[choiceKey].category = this.DASHBOARD_CATEGORY_DEFAULT;
+                if (!db.category && !db.tables) {
+                    db.category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
 
-                this.validateDashboardChoices(dashboardChoices[choiceKey].choices, nestedChoiceKeys,
-                    fullPathFromTop, dashboardChoices[choiceKey].fullTitle);
+                this.validateDashboardChoices(db.choices, nestedChoiceKeys,
+                    fullPathFromTop, db.fullTitle);
             }
         });
     }
@@ -340,7 +341,7 @@ export class DashboardService {
      * @param {String} key
      * @return {String}
      */
-    static getDatabaseNameByKey(dashboard: Dashboard, key: string) {
+    static getDatabaseNameByKey(dashboard: NeonDashboardConfig, key: string) {
         return this.getDatabaseNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
@@ -350,7 +351,7 @@ export class DashboardService {
      * @param {String} key
      * @return {String}
      */
-    static getTableNameByKey(dashboard: Dashboard, key: string) {
+    static getTableNameByKey(dashboard: NeonDashboardConfig, key: string) {
         return this.getTableNameFromCompleteFieldName(dashboard.tables[key]);
     }
 
@@ -360,7 +361,7 @@ export class DashboardService {
      * @param {String} key
      * @return {String}
      */
-    static getFieldNameByKey(dashboard: Dashboard, key: string) {
+    static getFieldNameByKey(dashboard: NeonDashboardConfig, key: string) {
         return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
@@ -969,7 +970,7 @@ export class DashboardService {
      * @return {Promise}
      * @private
      */
-    private deleteInvalidDashboards(dashboardChoices: { [key: string]: Dashboard }, keys: string[],
+    private deleteInvalidDashboards(dashboardChoices: Record<string, NeonDashboardConfig>, keys: string[],
         invalidDatabaseName: string): any {
         if (!keys.length) {
             return Promise.resolve();
