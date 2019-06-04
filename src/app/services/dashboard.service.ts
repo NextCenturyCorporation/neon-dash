@@ -72,7 +72,7 @@ export class DashboardService {
             outputDatastore.hasUpdatedFields = !!configDatastore.hasUpdatedFields;
 
             let configDatabases: any = configDatastore.databases || {};
-            outputDatastore.databases = Object.keys(configDatabases).map((databaseKey) => {
+            outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
                 let configDatabase: any = configDatabases[databaseKey] || {};
                 let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
 
@@ -93,8 +93,9 @@ export class DashboardService {
                     return acc;
                 }, {} as { [key: string]: TableMetaData });
 
-                return outputDatabase;
-            });
+                dbs[outputDatabase.name] = outputDatabase;
+                return dbs;
+            }, {} as { [key: string]: DatabaseMetaData });
 
             // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
             if (!existingDatastores.some((existingDatastore) => existingDatastore.name === outputDatastore.name)) {
@@ -134,7 +135,14 @@ export class DashboardService {
         if (dashboard.tables) {
             // Assume table keys have format:  datastore.database.table
             let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
-            dashboard.datastores = datastores.filter((datastore) => datastoreNames.some((name) => name === datastore.name));
+            dashboard.datastores = Object
+                .values(datastores)
+                .filter((datastore) =>
+                    datastoreNames.some((name) => name === datastore.name))
+                .reduce((acc, store) => {
+                    acc[store.name] = store;
+                    return acc;
+                }, {} as { [key: string]: Datastore });
         }
 
         if (dashboard.choices) {
@@ -187,16 +195,15 @@ export class DashboardService {
     }
 
     static validateDatabases(dataset: Datastore): void {
-        let indexListToRemove = [];
-        dataset.databases.forEach((database, index) => {
+        for (const key of Object.keys(dataset.databases)) {
+            const database = dataset.databases[key];
             if (!(database.name || database.tables || database.tables.length)) {
-                indexListToRemove.push(index);
+                delete dataset.databases[key];
             } else {
                 database.prettyName = database.prettyName || database.name;
                 DashboardService.validateTables(database);
             }
-        });
-        this.removeFromArray(dataset.databases, indexListToRemove);
+        }
     }
 
     /**
@@ -442,7 +449,7 @@ export class DashboardService {
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset): Datastore[] {
+    public addDataset(dataset: Datastore): Datastore[] {
         DashboardService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
@@ -458,11 +465,11 @@ export class DashboardService {
      */
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
-    public setActiveDataset(dataset): void {
+    public setActiveDataset(dataset: Datastore): void {
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
-        this.dataset.databases = dataset.databases || [];
+        this.dataset.databases = dataset.databases || {};
     }
 
     /**
@@ -558,7 +565,7 @@ export class DashboardService {
      * @return {Boolean}
      */
     public hasDataset(): boolean {
-        return (this.dataset.type && this.dataset.host && (this.dataset.databases.length > 0));
+        return (this.dataset.type && this.dataset.host && (Object.keys(this.dataset.databases).length > 0));
     }
 
     /**
@@ -615,7 +622,7 @@ export class DashboardService {
      * @return {Array}
      */
     public getDatabases(): DatabaseMetaData[] {
-        return this.dataset.databases;
+        return Object.values(this.dataset.databases).sort((db1, db2) => db1.name.localeCompare(db2.name));
     }
 
     /**
@@ -640,13 +647,7 @@ export class DashboardService {
      * or undefined otherwise.
      */
     public getDatabaseWithName(databaseName: string): DatabaseMetaData {
-        for (let database of this.dataset.databases) {
-            if (database.name === databaseName) {
-                return database;
-            }
-        }
-
-        return undefined;
+        return this.dataset.databases[databaseName];
     }
 
     /**
@@ -758,7 +759,7 @@ export class DashboardService {
      * If no match was found, an empty object is returned instead.
      */
     public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
-        for (let database of this.dataset.databases) {
+        for (let database of Object.values(this.dataset.databases)) {
             for (let table of Object.values(database.tables)) {
                 let success = true;
                 let fields = {};
@@ -889,7 +890,7 @@ export class DashboardService {
      * @param {Number} index (optional)
      */
     public updateDatabases(dataset: Datastore, connection: Connection): any {
-        let promiseArray = dataset.hasUpdatedFields ? [] : dataset.databases.map((database) =>
+        let promiseArray = dataset.hasUpdatedFields ? [] : Object.values(dataset.databases).map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
         return Promise.all(promiseArray).then((__response) => {
@@ -1028,13 +1029,8 @@ export class DashboardService {
      * @return {String}
      */
     public getPrettyNameForDatabase(databaseName: string): string {
-        let name = databaseName;
-        this.dataset.databases.forEach((database) => {
-            if (database.name === databaseName) {
-                name = database.prettyName;
-            }
-        });
-        return name;
+        const db = this.dataset.databases[databaseName];
+        return db ? db.prettyName : databaseName;
     }
 
     /**
@@ -1191,7 +1187,7 @@ export class DashboardService {
                 hasUpdatedFields: datastore.hasUpdatedFields,
                 host: datastore.host,
                 type: datastore.type,
-                databases: datastore.databases.reduce((databases, database) => {
+                databases: Object.values(datastore.databases).reduce((databases, database) => {
                     databases[database.name] = {
                         prettyName: database.prettyName,
                         tables: Object.values(database.tables).reduce((tables, table) => {

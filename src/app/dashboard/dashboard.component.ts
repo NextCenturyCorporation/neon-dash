@@ -675,7 +675,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
+        const firstName = Object.keys(eventMessage.dashboard.datastores)[0];
+        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[firstName]);
         this.datasetService.setCurrentDashboard(eventMessage.dashboard);
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
