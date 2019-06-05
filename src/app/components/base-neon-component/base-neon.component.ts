@@ -1300,7 +1300,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.contributorsRef = this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'contribution-dialog',
-                ...this.getContributorsForComponent()
+                contributors: this.getContributorsForComponent()
             },
             width: '400px',
             minHeight: '200px'

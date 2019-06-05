@@ -2179,7 +2179,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     it('openContributionDialog() has expected behavior', fakeAsync(() => {
         expect(component['contributorsRef']).toBeUndefined();
         let contributors = component['getContributorsForComponent']();
-        let config = { data: { component: 'contribution-dialog', ...contributors }, width: '400px', minHeight: '200px' };
+        let config = { data: { component: 'contribution-dialog', contributors: contributors }, width: '400px', minHeight: '200px' };
         spyOn(component.dialog, 'open').and.returnValue({ afterClosed: () => of({ isSuccess: true }) });
 
         component['openContributionDialog']();
