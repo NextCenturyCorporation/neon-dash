@@ -991,7 +991,7 @@ describe('SimpleFilter', () => {
         simpleFilter.datastore = 'testDatastore1';
     }));
 
-    it('does have expected properties', () => {
+    it('does have expected simple filter properties', () => {
         expect(simpleFilter.datastore).toEqual('testDatastore1');
         expect(simpleFilter.database).toEqual(DatasetServiceMock.DATABASES[0]);
         expect(simpleFilter.table).toEqual(DatasetServiceMock.TABLES[0]);
@@ -1006,7 +1006,7 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.relations).toEqual([]);
     });
 
-    it('createRelationFilter should return null if substitue has bad data', () => {
+    it('createRelationFilter on simple filter should return null if substitue has bad data', () => {
         let actual = simpleFilter.createRelationFilter([{
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
@@ -1021,7 +1021,7 @@ describe('SimpleFilter', () => {
         expect(actual).toEqual(null);
     });
 
-    it('createRelationFilter should return expected object', () => {
+    it('createRelationFilter on simple filter should return expected object', () => {
         let actual;
 
         let testSubstituteList = [{
@@ -1046,7 +1046,7 @@ describe('SimpleFilter', () => {
         expect(actual.root).toEqual(CompoundFilterType.AND);
     });
 
-    it('createRelationFilter should work with custom root filter', () => {
+    it('createRelationFilter on simple filter should work with custom root filter', () => {
         simpleFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
@@ -1071,14 +1071,14 @@ describe('SimpleFilter', () => {
         expect(actual.root).toEqual(CompoundFilterType.OR);
     });
 
-    it('doesAffectSearch should return expected boolean', () => {
+    it('doesAffectSearch on simple filter should return expected boolean', () => {
         expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
         expect(simpleFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
         expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
         expect(simpleFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign should return expected boolean', () => {
+    it('isCompatibleWithDesign on simple filter should return expected boolean', () => {
         // Correct, with value
         expect(simpleFilter.isCompatibleWithDesign({
             datastore: 'testDatastore1',
@@ -1186,7 +1186,7 @@ describe('SimpleFilter', () => {
         })).toEqual(false);
     });
 
-    it('isEquivalentToFilter should return expected boolean', () => {
+    it('isEquivalentToFilter on simple filter should return expected boolean', () => {
         // Different datastore
         let testFilter1 = FilterUtil.createFilterFromDesign({
             datastore: 'testDatastore2',
@@ -1294,7 +1294,7 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
     });
 
-    it('toDesign should return expected object', () => {
+    it('toDesign on simple filter should return expected object', () => {
         expect(simpleFilter.toDesign()).toEqual({
             id: simpleFilter.id,
             name: 'Test Database 1 / Test Table 1 / Test Name Field = testName1',
@@ -1308,11 +1308,11 @@ describe('SimpleFilter', () => {
         } as SimpleFilterDesign);
     });
 
-    it('toString should return expected string', () => {
+    it('toString on simple filter should return expected string', () => {
         expect(simpleFilter.toString()).toEqual('Test Database 1 / Test Table 1 / Test Name Field = testName1');
     });
 
-    it('toString on filter with name property should return name property', () => {
+    it('toString on simple filter with name property should return name property', () => {
         simpleFilter.name = 'testName';
         expect(simpleFilter.toString()).toEqual('testName');
     });
@@ -1648,7 +1648,7 @@ describe('CompoundFilter (One Field)', () => {
         });
     }));
 
-    it('does have expected properties', () => {
+    it('does have expected compound filter properties', () => {
         expect(compoundFilter.filterClause).toBeDefined();
         expect(compoundFilter.id).toBeDefined();
         expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test X Field > -100) and ' +
@@ -1672,7 +1672,7 @@ describe('CompoundFilter (One Field)', () => {
         expect(compoundFilter.filters[1].value).toEqual(100);
     });
 
-    it('createRelationFilter should return null if substitue has bad data', () => {
+    it('createRelationFilter on compound filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
@@ -1687,7 +1687,7 @@ describe('CompoundFilter (One Field)', () => {
         expect(actual).toEqual(null);
     });
 
-    it('createRelationFilter should return expected object', () => {
+    it('createRelationFilter on compound filter should return expected object', () => {
         let actual;
 
         let testSubstituteList = [{
@@ -1720,7 +1720,7 @@ describe('CompoundFilter (One Field)', () => {
         expect(actual.filters[1].value).toEqual(100);
     });
 
-    it('createRelationFilter should work with custom root filter', () => {
+    it('createRelationFilter on compound filter should work with custom root filter', () => {
         compoundFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
@@ -1753,14 +1753,14 @@ describe('CompoundFilter (One Field)', () => {
         expect(actual.filters[1].value).toEqual(100);
     });
 
-    it('doesAffectSearch should return expected boolean', () => {
+    it('doesAffectSearch on compound filter should return expected boolean', () => {
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
         expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign should return expected boolean', () => {
+    it('isCompatibleWithDesign on compound filter should return expected boolean', () => {
         // Correct, with value
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'and',
@@ -2037,7 +2037,7 @@ describe('CompoundFilter (One Field)', () => {
         } as SimpleFilterDesign)).toEqual(false);
     });
 
-    it('isEquivalentToFilter should return expected boolean', () => {
+    it('isEquivalentToFilter on compound filter should return expected boolean', () => {
         // Different datastore
         let testFilter1 = FilterUtil.createFilterFromDesign({
             type: 'and',
@@ -2234,7 +2234,7 @@ describe('CompoundFilter (One Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
     });
 
-    it('toDesign should return expected object', () => {
+    it('toDesign on compound filter should return expected object', () => {
         expect(compoundFilter.toDesign()).toEqual({
             type: 'and',
             id: compoundFilter.id,
@@ -2264,12 +2264,12 @@ describe('CompoundFilter (One Field)', () => {
         } as CompoundFilterDesign);
     });
 
-    it('toString should return expected string', () => {
+    it('toString on compound filter should return expected string', () => {
         expect(compoundFilter.toString()).toEqual('(Test Database 1 / Test Table 1 / Test X Field > -100) and ' +
             '(Test Database 1 / Test Table 1 / Test X Field < 100)');
     });
 
-    it('toString on filter with name property should return name property', () => {
+    it('toString on compound filter with name property should return name property', () => {
         compoundFilter.name = 'testName';
         expect(compoundFilter.toString()).toEqual('testName');
     });
@@ -2311,7 +2311,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         });
     }));
 
-    it('does have expected properties', () => {
+    it('does have expected compound multi-field filter properties', () => {
         expect(compoundFilter.filterClause).toBeDefined();
         expect(compoundFilter.id).toBeDefined();
         expect(compoundFilter.name).toEqual('(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
@@ -2335,7 +2335,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(compoundFilter.filters[1].value).toEqual(10);
     });
 
-    it('createRelationFilter should return null if substitue has bad data', () => {
+    it('createRelationFilter on compound multi-field filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
             datastore: 'testDatastore1',
             database: DatasetServiceMock.DATABASES[0],
@@ -2466,7 +2466,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(actual.filters[1].value).toEqual(10);
     });
 
-    it('createRelationFilter should work with custom root filter', () => {
+    it('createRelationFilter on compound multi-field filter should work with custom root filter', () => {
         compoundFilter.root = CompoundFilterType.OR;
 
         let testSubstituteList = [{
@@ -2509,14 +2509,14 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(actual.filters[1].value).toEqual(10);
     });
 
-    it('doesAffectSearch should return expected boolean', () => {
+    it('doesAffectSearch on compound multi-field filter should return expected boolean', () => {
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable1')).toEqual(true);
         expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase2', 'testTable1')).toEqual(false);
         expect(compoundFilter.doesAffectSearch('testDatastore1', 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign should return expected boolean', () => {
+    it('isCompatibleWithDesign on compound multi-field filter should return expected boolean', () => {
         // Correct, with value
         expect(compoundFilter.isCompatibleWithDesign({
             type: 'or',
@@ -2793,7 +2793,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         } as SimpleFilterDesign)).toEqual(false);
     });
 
-    it('isEquivalentToFilter should return expected boolean', () => {
+    it('isEquivalentToFilter on compound multi-field filter should return expected boolean', () => {
         // Different datastore
         let testFilter1 = FilterUtil.createFilterFromDesign({
             type: 'and',
@@ -2990,7 +2990,7 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
     });
 
-    it('toDesign should return expected object', () => {
+    it('toDesign on compound multi-field filter should return expected object', () => {
         expect(compoundFilter.toDesign()).toEqual({
             type: 'or',
             id: compoundFilter.id,
@@ -3020,12 +3020,12 @@ describe('CompoundFilter (Multi-Field)', () => {
         } as CompoundFilterDesign);
     });
 
-    it('toString should return expected string', () => {
+    it('toString on compound multi-field filter should return expected string', () => {
         expect(compoundFilter.toString()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field = testName1) or ' +
             '(Test Database 1 / Test Table 1 / Test X Field = 10)');
     });
 
-    it('toString on filter with name property should return name property', () => {
+    it('toString on compound multi-field filter with name property should return name property', () => {
         compoundFilter.name = 'testName';
         expect(compoundFilter.toString()).toEqual('testName');
     });
@@ -3087,7 +3087,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
         }));
     }));
 
-    it('does have expected properties', () => {
+    it('does have expected compound nested filter properties', () => {
         expect(compoundFilter.filterClause).toBeDefined();
         expect(compoundFilter.id).toBeDefined();
         expect(compoundFilter.name).toEqual('((Test Database 1 / Test Table 1 / Test X Field = 10) or ' +
@@ -3129,7 +3129,7 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
         expect(compoundFilter.filters[1].filters[1].value).toEqual('testName2');
     });
 
-    it('toDesign should return expected object', () => {
+    it('toDesign on compound nested filters should return expected object', () => {
         expect(compoundFilter.toDesign()).toEqual({
             type: 'and',
             id: compoundFilter.id,
@@ -3216,13 +3216,13 @@ describe('FilterService with no filters', () => {
         filterService = _filterService;
     }));
 
-    it('should have expected properties', () => {
+    it('should have expected properties with no filters', () => {
         expect((filterService as any).filterCollection).toBeDefined();
         expect(((filterService as any).filterCollection).data.size).toEqual(0);
         expect((filterService as any).messenger).toBeDefined();
     });
 
-    it('getFilters should return expected array', () => {
+    it('getFilters with no filters should return expected array', () => {
         expect(filterService.getFilters()).toEqual([]);
     });
 });
@@ -3430,6 +3430,7 @@ describe('FilterService with filters', () => {
         relationDesign2.id = relationFilter2.id;
         relationDesign2.name = relationFilter2.name;
 
+        /* eslint-disable-next-line jasmine/no-unsafe-spy */
         spyOn(datasetService, 'findRelationDataList').and.returnValue([[
             [{
                 datastore: '',
@@ -5410,7 +5411,7 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         let calls = 0;
-        let testRedrawCallback = (_filters) => {
+        let testRedrawCallback = (__filters) => {
             calls++;
         };
 

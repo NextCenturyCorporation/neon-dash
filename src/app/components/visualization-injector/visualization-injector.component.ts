@@ -39,7 +39,7 @@ export class VisualizationInjectorComponent {
             this.currentComponent.destroy();
         }
 
-        this.findVisualizationComponent(data.type).subscribe((r) => {
+        this.findVisualizationComponent(data.type).subscribe((input) => {
             data.bindings = data.bindings || {};
             data.bindings._id = data.id;
 
@@ -54,8 +54,8 @@ export class VisualizationInjectorComponent {
             let injector = ReflectiveInjector.fromResolvedProviders(resolvedInputs, this.dynamicComponentContainer.parentInjector);
 
             // We create the component using the factory and the injector
-            this.currentComponent = r.ngModuleFactory.create(injector).componentFactoryResolver
-                .resolveComponentFactory(r.componentType)
+            this.currentComponent = input.ngModuleFactory.create(injector).componentFactoryResolver
+                .resolveComponentFactory(input.componentType)
                 .create(injector);
 
             // We insert the component into the dom container
@@ -66,7 +66,7 @@ export class VisualizationInjectorComponent {
     constructor(private loader: ReactiveComponentLoader) {}
 
     findVisualizationComponent(type: string) {
-        const id = type.replace(/([a-z])([A-Z])/g, (all, l, r) => `${l}-${r.toLowerCase()}`);
+        const id = type.replace(/([a-z])([A-Z])/g, (__all, left, right) => `${left}-${right.toLowerCase()}`);
         return this.loader.getComponentRecipe({
             moduleId: id,
             selector: `app-${id}`

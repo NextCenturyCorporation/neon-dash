@@ -15,13 +15,24 @@
 */
 @import '../neon-properties';
 
-:host {
+:host,
+mat-sidenav-container {
     display: block;
     width: 100vw;
     height: 100vh;
     padding: 0;
     margin: 0;
-    overflow-y: auto;
+    overflow: hidden;
+}
+
+mat-sidenav-content {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+    'header'
+    'panel'
+    'filters'
+    'grid';
 }
 
 .neon-sidenav {
@@ -46,29 +57,37 @@
     }
 }
 
+app-current-filtesr {
+    grid-area: filters;
+}
+
+mat-toolbar {
+    grid-area: header;
+}
+
 .neon-dash {
+    grid-area: grid;
     background-color: var(--color-background, white);
-    /* 60 = 50 px toolbar + 10 px padding */
-    height: calc(100% - 60px);
     overflow-y: auto;
 
-    .grid {
-        width: calc(100% - 5px) !important;
+    .neon-grid {
+        width: calc(100vw - 15px);
     }
 }
 
 .header-toggle-container {
-    z-index: 9999;
-    position: absolute;
-    /* Subtract 15px for the scrollbar.  Not an ideal fix since it also applies without the scrollbar present. */
-    width: calc(100% - 15px);
+    grid-area: panel;
+    padding: 0.5em;
+
+    .filters-container {
+        height: 200px;
+    }
 
     .filters-container,
     .dashboard-selector-container {
         padding-left: 10px;
         padding-right: 10px;
         width: 100%;
-        height: 200px;
 
         .header-toggle-footer {
             height: 1px;

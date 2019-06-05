@@ -216,8 +216,8 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
     get intermediateValue() {
         if (this._intermediateValue === undefined) {
             try {
-                const v = this.valueCurrent || this.valueDefault;
-                this._intermediateValue = _.isEmpty(v) ? '' : yaml.safeDump(v);
+                const value = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isEmpty(value) ? '' : yaml.safeDump(value);
             } catch {
                 // Consume error
             }
@@ -227,10 +227,10 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
         return this._intermediateValue;
     }
 
-    set intermediateValue(v: any) {
-        this._intermediateValue = v;
+    set intermediateValue(value: any) {
+        this._intermediateValue = value;
         try {
-            this.valueCurrent = _.isEmpty(v) ? undefined : yaml.safeLoad(this._intermediateValue);
+            this.valueCurrent = _.isEmpty(value) ? undefined : yaml.safeLoad(this._intermediateValue);
         } catch {
             // Ignore error
         }

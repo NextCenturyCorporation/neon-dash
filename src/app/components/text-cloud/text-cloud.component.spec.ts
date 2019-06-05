@@ -264,44 +264,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('redrawText does update textCloudData if some text is selected', () => {
-        component.textCloudData = [{
-            color: 'color1',
-            fontSize: 'fontSize1',
-            key: 'key1',
-            keyTranslated: 'keyTranslated1',
-            selected: false,
-            value: 'value1'
-        }, {
-            color: 'color2',
-            fontSize: 'fontSize2',
-            key: 'key2',
-            keyTranslated: 'keyTranslated2',
-            selected: false,
-            value: 'value2'
-        }];
-
-        spyOn((component as any), 'isFiltered').and.returnValue(true);
-
-        (component as any).redrawText();
-
-        expect(component.textCloudData).toEqual([{
-            color: 'color1',
-            fontSize: 'fontSize1',
-            key: 'key1',
-            keyTranslated: 'keyTranslated1',
-            selected: true,
-            value: 'value1'
-        }, {
-            color: 'color2',
-            fontSize: 'fontSize2',
-            key: 'key2',
-            keyTranslated: 'keyTranslated2',
-            selected: true,
-            value: 'value2'
-        }]);
-    });
-
     it('transformVisualizationQueryResults with no data does return expected data', () => {
         component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
 

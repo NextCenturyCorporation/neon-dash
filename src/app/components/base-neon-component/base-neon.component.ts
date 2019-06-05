@@ -162,7 +162,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
-    protected postAddLayer(_options: any): void {
+    protected postAddLayer(__options: any): void {
         // Override if needed.
     }
 
@@ -771,7 +771,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates elements and properties whenever the widget config is changed.
      * @arg {boolean} databaseOrTableChange
      */
-    protected onChangeData(_databaseOrTableChange?: boolean) {
+    protected onChangeData(__databaseOrTableChange?: boolean) {
         // Override if needed.
     }
 
@@ -950,7 +950,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any} id
      */
-    protected onSelectId(_options: any, _id: any) {
+    protected onSelectId(__options: any, __id: any) {
         // Override if needed.
     }
 

@@ -20,7 +20,7 @@ import { ThumbnailGridComponent } from './thumbnail-grid.component';
 @Component({
     selector: 'app-subcomponent-card-thumbnail',
     templateUrl: './subcomponent.card-view.html',
-    styleUrls: ['./thumbnail-grid.component.scss']
+    styleUrls: ['./subcomponent.scss']
 })
 
 export class CardThumbnailSubComponent {

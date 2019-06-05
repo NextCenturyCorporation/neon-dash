@@ -29,18 +29,18 @@ export class ChartJsBarDataset extends AbstractChartJsDataset {
     }
 
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((x) => {
-            let yList = this.xToY.get(x);
-            (yList.length ? yList : [null]).forEach((y) => {
+        Array.from(this.xToY.keys()).forEach((xValue) => {
+            let yList = this.xToY.get(xValue);
+            (yList.length ? yList : [null]).forEach((yValue) => {
                 this.backgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(x) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                    this.xSelected.indexOf(xValue) < 0 ? this.getColorDeselected() : this.getColorSelected());
 
                 this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(x) < 0 ? this.getColorSelected() : this.getColorHover());
+                    this.xSelected.indexOf(xValue) < 0 ? this.getColorSelected() : this.getColorHover());
 
                 this.data.push({
-                    x: this.horizontal ? y : x,
-                    y: this.horizontal ? x : y
+                    x: this.horizontal ? yValue : xValue,
+                    y: this.horizontal ? xValue : yValue
                 });
             });
         });

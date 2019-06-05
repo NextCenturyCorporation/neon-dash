@@ -322,27 +322,28 @@ describe('WidgetOptionCollection with custom fields', () => {
         ], ReflectiveInjector.resolveAndCreate([]));
     });
 
-    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = [];
-        options.database = new DatabaseMetaData();
-        options.tables = [];
-        options.table = new TableMetaData();
-        options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
+    it('updateDatabases does update databases, tables, and fields with custom fields', inject([DatasetService],
+        (datasetService: DatasetService) => {
+            options.databases = [];
+            options.database = new DatabaseMetaData();
+            options.tables = [];
+            options.table = new TableMetaData();
+            options.fields = [];
+            options.testCustomField = null;
+            options.testCustomFieldArray = null;
 
-        options.updateDatabases(datasetService);
+            options.updateDatabases(datasetService);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(new FieldMetaData());
-        expect(options.testCustomFieldArray).toEqual([]);
-    }));
+            expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+            expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+            expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+            expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
+            expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+            expect(options.testCustomField).toEqual(new FieldMetaData());
+            expect(options.testCustomFieldArray).toEqual([]);
+        }));
 
-    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
+    it('updateFields does update fields with custom fields', inject([DatasetService], (datasetService: DatasetService) => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = DatasetServiceMock.TABLES;
@@ -362,7 +363,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 
-    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
+    it('updateTables does update tables and fields with custom fields', inject([DatasetService], (datasetService: DatasetService) => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];
         options.tables = [];
@@ -408,27 +409,28 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         }]));
     });
 
-    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = [];
-        options.database = new DatabaseMetaData();
-        options.tables = [];
-        options.table = new TableMetaData();
-        options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
+    it('updateDatabases does update databases, tables, and fields with bindings',
+        inject([DatasetService], (datasetService: DatasetService) => {
+            options.databases = [];
+            options.database = new DatabaseMetaData();
+            options.tables = [];
+            options.table = new TableMetaData();
+            options.fields = [];
+            options.testCustomField = null;
+            options.testCustomFieldArray = null;
 
-        options.updateDatabases(datasetService);
+            options.updateDatabases(datasetService);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
-    }));
+            expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
+            expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+            expect(options.tables).toEqual(DatasetServiceMock.TABLES);
+            expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
+            expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+            expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
+            expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+        }));
 
-    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
+    it('updateFields does update fields with bindings', inject([DatasetService], (datasetService: DatasetService) => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[1];
         options.tables = DatasetServiceMock.TABLES;
@@ -448,7 +450,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
     }));
 
-    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
+    it('updateTables does update tables and fields with bindings', inject([DatasetService], (datasetService: DatasetService) => {
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[1];
         options.tables = [];

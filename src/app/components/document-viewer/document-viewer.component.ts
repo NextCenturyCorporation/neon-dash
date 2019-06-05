@@ -56,7 +56,6 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -72,7 +71,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,

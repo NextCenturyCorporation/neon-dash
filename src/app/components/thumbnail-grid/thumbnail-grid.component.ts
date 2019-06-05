@@ -62,7 +62,6 @@ export const ViewType = {
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private CANVAS_SIZE: number = 100.0;
 
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
@@ -79,7 +78,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -391,65 +391,65 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     transformVisualizationQueryResults(options: any, results: any[]): number {
         this.gridArray = [];
 
-        results.forEach((d) => {
+        results.forEach((result) => {
             let item = {};
             let links = [];
 
             if (options.linkField.columnName) {
-                links = this.getArrayValues(neonUtilities.deepFind(d, options.linkField.columnName) || '');
+                links = this.getArrayValues(neonUtilities.deepFind(result, options.linkField.columnName) || '');
             }
             if (options.categoryField.columnName) {
-                item[options.categoryField.columnName] = neonUtilities.deepFind(d, options.categoryField.columnName);
+                item[options.categoryField.columnName] = neonUtilities.deepFind(result, options.categoryField.columnName);
             }
             if (options.compareField.columnName) {
-                item[options.compareField.columnName] = neonUtilities.deepFind(d, options.compareField.columnName);
+                item[options.compareField.columnName] = neonUtilities.deepFind(result, options.compareField.columnName);
             }
             options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-                item[filterField.columnName] = neonUtilities.deepFind(d, filterField.columnName);
+                item[filterField.columnName] = neonUtilities.deepFind(result, filterField.columnName);
             });
             if (options.idField.columnName) {
-                item[options.idField.columnName] = neonUtilities.deepFind(d, options.idField.columnName);
+                item[options.idField.columnName] = neonUtilities.deepFind(result, options.idField.columnName);
             }
             if (options.nameField.columnName) {
-                item[options.nameField.columnName] = neonUtilities.deepFind(d, options.nameField.columnName);
+                item[options.nameField.columnName] = neonUtilities.deepFind(result, options.nameField.columnName);
             }
             if (options.objectIdField.columnName) {
-                item[options.objectIdField.columnName] = neonUtilities.deepFind(d, options.objectIdField.columnName);
+                item[options.objectIdField.columnName] = neonUtilities.deepFind(result, options.objectIdField.columnName);
             }
             if (options.objectNameField.columnName) {
-                item[options.objectNameField.columnName] = neonUtilities.deepFind(d, options.objectNameField.columnName);
+                item[options.objectNameField.columnName] = neonUtilities.deepFind(result, options.objectNameField.columnName);
             }
             if (options.percentField.columnName) {
-                item[options.percentField.columnName] = neonUtilities.deepFind(d, options.percentField.columnName);
+                item[options.percentField.columnName] = neonUtilities.deepFind(result, options.percentField.columnName);
             }
             if (options.predictedNameField.columnName) {
-                item[options.predictedNameField.columnName] = neonUtilities.deepFind(d, options.predictedNameField.columnName);
+                item[options.predictedNameField.columnName] = neonUtilities.deepFind(result, options.predictedNameField.columnName);
             }
             if (options.sortField.columnName) {
-                item[options.sortField.columnName] = neonUtilities.deepFind(d, options.sortField.columnName);
+                item[options.sortField.columnName] = neonUtilities.deepFind(result, options.sortField.columnName);
             }
             if (options.typeField.columnName) {
-                item[options.typeField.columnName] = neonUtilities.deepFind(d, options.typeField.columnName);
+                item[options.typeField.columnName] = neonUtilities.deepFind(result, options.typeField.columnName);
             }
             if (options.dateField.columnName) {
-                item[options.dateField.columnName] = neonUtilities.deepFind(d, options.dateField.columnName);
+                item[options.dateField.columnName] = neonUtilities.deepFind(result, options.dateField.columnName);
             }
             if (options.flagLabel.columnName) {
-                item[options.flagLabel.columnName] = neonUtilities.deepFind(d, options.flagLabel.columnName);
+                item[options.flagLabel.columnName] = neonUtilities.deepFind(result, options.flagLabel.columnName);
             }
             if (options.flagSubLabel1.columnName) {
-                item[options.flagSubLabel1.columnName] = neonUtilities.deepFind(d, options.flagSubLabel1.columnName);
+                item[options.flagSubLabel1.columnName] = neonUtilities.deepFind(result, options.flagSubLabel1.columnName);
             }
             if (options.flagSubLabel2.columnName) {
-                item[options.flagSubLabel2.columnName] = neonUtilities.deepFind(d, options.flagSubLabel2.columnName);
+                item[options.flagSubLabel2.columnName] = neonUtilities.deepFind(result, options.flagSubLabel2.columnName);
             }
             if (options.flagSubLabel3.columnName) {
-                item[options.flagSubLabel3.columnName] = neonUtilities.deepFind(d, options.flagSubLabel3.columnName);
+                item[options.flagSubLabel3.columnName] = neonUtilities.deepFind(result, options.flagSubLabel3.columnName);
             }
 
             options.customEventsToPublish.forEach((config) => {
                 (config.fields || []).forEach((fieldsConfig) => {
-                    item[fieldsConfig.columnName] = neonUtilities.deepFind(d, fieldsConfig.columnName);
+                    item[fieldsConfig.columnName] = neonUtilities.deepFind(result, fieldsConfig.columnName);
                 });
             });
 

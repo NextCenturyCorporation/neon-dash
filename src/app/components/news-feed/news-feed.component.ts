@@ -57,7 +57,6 @@ import * as moment from 'moment';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('filter') filter: ElementRef;
@@ -71,7 +70,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -267,11 +267,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        this.newsFeedData = results.map((d) => {
+        this.newsFeedData = results.map((result) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(d, field.columnName);
+                    let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }

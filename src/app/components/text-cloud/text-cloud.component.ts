@@ -57,7 +57,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -74,7 +73,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -253,7 +253,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Term' + (count === 1 ? '' : 's');
     }
 
-    private redrawText(_filterDesigns: FilterDesign[]): void {
+    private redrawText(__filterDesigns: FilterDesign[]): void {
         this.textCloudData = this.textCloudData.map((item) => {
             let itemCopy = {
                 color: item.color,

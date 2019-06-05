@@ -420,9 +420,9 @@ export class FilterService {
                     // Each item within the relationFilterFields must be equivalent to a FilterDataSource.
                     relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
                         this.isRelationEquivalent(relatedField, filterDataSource))) &&
-                            // Each FilterDataSource must be equivalent to an item within the relationFilterFields.
-                            filterDataSourceList.every((filterDataSource) => relationFilterFields.some((relatedField) =>
-                                this.isRelationEquivalent(relatedField, filterDataSource))));
+                    // Each FilterDataSource must be equivalent to an item within the relationFilterFields.
+                    filterDataSourceList.every((filterDataSource) => relationFilterFields.some((relatedField) =>
+                        this.isRelationEquivalent(relatedField, filterDataSource))));
 
                 // The length of equivalentRelationList should be either 0 or 1.
                 if (equivalentRelationList.length) {
@@ -505,7 +505,7 @@ export class FilterService {
      */
     public deleteFilters(
         callerId: string,
-        searchService: AbstractSearchService,
+        __searchService: AbstractSearchService,
         filterDesignListToDelete: FilterDesign[] = []
     ): Map<FilterDataSource[], FilterDesign[]> {
         // Find all filter collection keys matching the data source, if it is given; or find all filter collection keys otherwise.
@@ -628,12 +628,22 @@ export class FilterService {
      * @return {FilterDesign[]}
      */
     public getFilters(filterDataSourceList?: FilterDataSource[]): FilterDesign[] {
+        return this.getRawFilters(filterDataSourceList).map((filter) => filter.toDesign());
+    }
+
+    /**
+     * Returns the raw filters for the given data sources, or all filters if no data sources are given.
+     *
+     * @arg {FilterDataSource[]} [filterDataSourceList]
+     * @return {AbstractFilter[]}
+     */
+    public getRawFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
         if (filterDataSourceList) {
-            return this.filterCollection.getFilters(filterDataSourceList).map((filter) => filter.toDesign());
+            return this.filterCollection.getFilters(filterDataSourceList);
         }
         return this.filterCollection.getDataSources().reduce((returnList, globalDataSource) => returnList.concat(
             this.filterCollection.getFilters(globalDataSource)
-        ), [] as AbstractFilter[]).map((filter) => filter.toDesign());
+        ), [] as AbstractFilter[]);
     }
 
     /**
@@ -872,7 +882,7 @@ export class FilterService {
     }
 }
 
-abstract class AbstractFilter {
+export abstract class AbstractFilter {
     public id: string;
     public name: string;
     public root: CompoundFilterType = CompoundFilterType.AND;
@@ -952,7 +962,7 @@ abstract class AbstractFilter {
     }
 }
 
-class SimpleFilter extends AbstractFilter {
+export class SimpleFilter extends AbstractFilter {
     constructor(
         public datastore: string,
         public database: DatabaseMetaData,
@@ -1076,7 +1086,7 @@ class SimpleFilter extends AbstractFilter {
     }
 }
 
-class CompoundFilter extends AbstractFilter {
+export class CompoundFilter extends AbstractFilter {
     constructor(public type: CompoundFilterType, public filters: AbstractFilter[], searchService: AbstractSearchService) {
         super(searchService.buildCompoundFilterClause(filters.map((filter) => filter.filterClause), type));
         this.name = this.toString();
@@ -1143,19 +1153,27 @@ class CompoundFilter extends AbstractFilter {
             // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
             // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
             // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
-            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
-                compoundFilterDesign.filters && compoundFilterDesign.filters.length === this.filters.length &&
-                compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
-                    nestedFilter.isCompatibleWithDesign(nestedDesign))) && this.filters.every((nestedFilter) =>
-                compoundFilterDesign.filters.some((nestedDesign) => nestedFilter.isCompatibleWithDesign(nestedDesign)));
+            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
+                compoundFilterDesign.type === this.type &&
+                compoundFilterDesign.filters &&
+                compoundFilterDesign.filters.length === this.filters.length &&
+                compoundFilterDesign.filters.every((nestedDesign) =>
+                    this.filters.some((nestedFilter) =>
+                        nestedFilter.isCompatibleWithDesign(nestedDesign))) &&
+                this.filters.every((nestedFilter) =>
+                    compoundFilterDesign.filters.some((nestedDesign) =>
+                        nestedFilter.isCompatibleWithDesign(nestedDesign)));
         }
 
         // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
         // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
         // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root && compoundFilterDesign.type === this.type &&
-            compoundFilterDesign.filters && compoundFilterDesign.filters.every((nestedDesign) => this.filters.some((nestedFilter) =>
-            nestedFilter.isCompatibleWithDesign(nestedDesign)));
+        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
+            compoundFilterDesign.type === this.type &&
+            compoundFilterDesign.filters &&
+            compoundFilterDesign.filters.every((nestedDesign) =>
+                this.filters.some((nestedFilter) =>
+                    nestedFilter.isCompatibleWithDesign(nestedDesign)));
     }
 
     /**

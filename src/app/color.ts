@@ -31,7 +31,7 @@ export class Color {
         }
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        let hex = inputHex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+        let hex = inputHex.replace(shorthandRegex, (__m, red, green, blue) => red + red + green + green + blue + blue);
         let hexArray = (/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i).exec(hex);
         if (hexArray) {
             let rgb = parseInt(hexArray[1], 16) + ',' + parseInt(hexArray[2], 16) + ',' + parseInt(hexArray[3], 16);

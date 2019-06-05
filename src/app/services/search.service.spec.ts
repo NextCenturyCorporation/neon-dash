@@ -166,7 +166,7 @@ describe('Service: Search', () => {
         let queryPayload = new NeonQueryWrapper(new query.Query());
         let called = 0;
         let spy = spyOn(service, 'createConnection').and.returnValue({
-            runSearchQuery: (queryInput, _options) => {
+            runSearchQuery: (queryInput, __options) => {
                 expect(queryInput).toEqual(queryPayload);
                 called++;
             }

@@ -26,7 +26,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     imports: [
         MatFormFieldModule,
         MatInputModule,
-        MonacoEditorModule.forRoot(),
+        MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         MatSelectModule,
         FormsModule,
         CommonModule
