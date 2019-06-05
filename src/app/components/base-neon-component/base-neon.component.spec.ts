@@ -2184,7 +2184,7 @@ describe('Advanced BaseNeonComponent with config', () => {
 
         component['openContributionDialog']();
 
-        /* eslint-disable-next-line @typescript-eslint/unbond-method */
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(component.dialog.open).toHaveBeenCalledWith(DynamicDialogComponent, config);
         expect(component['contributorsRef']).toBeNull();
     }));
