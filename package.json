@@ -126,6 +126,7 @@
     "ajv": "^5.2.0",
     "ajv-keywords": "^1.5.1",
     "eslint": "^5.16.0",
+    "eslint-plugin-header": "^3.0.0",
     "eslint-plugin-jasmine": "^2.10.1",
     "glob": "^7.1.2",
     "grunt": "^1.0.1",
