@@ -70,7 +70,8 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination() && !showContribution()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
@@ -82,7 +83,8 @@
 
 <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
