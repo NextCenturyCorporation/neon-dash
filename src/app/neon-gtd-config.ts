@@ -92,7 +92,7 @@ export interface NeonLayoutGridConfig {
 }
 
 export interface NeonLayoutConfig extends NeonLayoutGridConfig {
-    name: string;
+    name?: string;
     type: string;
 }
 

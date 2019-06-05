@@ -27,7 +27,7 @@ import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
 import { Dashboard } from '../../types';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonGTDConfig, NeonDatastoreConfig } from '../../neon-gtd-config';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
@@ -169,9 +169,9 @@ describe('Component: SaveStateComponent', () => {
             },
             datastores: {
                 datastore1: {}
-            } as any,
+            } as any as Record<string, NeonDatastoreConfig>, // TODO: Verify typings
             layouts: {
-                layout1: null
+                layout1: []
             }
         }, 'testState');
 

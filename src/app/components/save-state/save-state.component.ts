@@ -119,7 +119,6 @@ export class SaveStateComponent implements OnInit {
             let widget = this.getWidgetById(widgetGridItem.id);
 
             let widgetConfig: NeonLayoutConfig = {
-                name: widgetGridItem.name,
                 type: widgetGridItem.type,
                 col: widgetGridItem.col,
                 row: widgetGridItem.row,
