@@ -414,7 +414,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            saveState: (data, successCallback) => {
+            saveState: (data: NeonGTDConfig<Dashboard>, successCallback) => {
                 calls++;
                 expect(data.dashboards.fullTitle).toEqual('Full Title');
                 expect(data.dashboards.layout).toEqual('testState');
@@ -466,30 +466,32 @@ describe('Component: SaveStateComponent', () => {
                     }]
                 }]);
                 expect(data.datastores).toEqual(datastores);
-                expect(data.layouts).toEqual({
-                    testState: [{
-                        col: 1,
-                        row: 2,
-                        sizex: 3,
-                        sizey: 4,
-                        type: 'type1',
-                        bindings: {
-                            binding1: 'a',
-                            binding2: 'b'
-                        }
-                    }, {
-                        col: 5,
-                        row: 6,
-                        sizex: 7,
-                        sizey: 8,
-                        type: 'type2',
-                        bindings: {
-                            binding3: 'c',
-                            binding4: 'd'
-                        }
-                    }]
-                });
-                expect(data.stateName).toEqual('testState');
+                expect(data.layouts).toEqual(
+                    {
+                        testState: [{
+                            col: 1,
+                            row: 2,
+                            sizex: 3,
+                            sizey: 4,
+                            type: 'type1',
+                            bindings: {
+                                binding1: 'a',
+                                binding2: 'b'
+                            }
+                        }, {
+                            col: 5,
+                            row: 6,
+                            sizex: 7,
+                            sizey: 8,
+                            type: 'type2',
+                            bindings: {
+                                binding3: 'c',
+                                binding4: 'd'
+                            }
+                        }]
+                    }
+                );
+                expect(data.projectTitle).toEqual('testState');
 
                 let successSpy = spyOn(component, 'handleSaveStateSuccess');
                 successCallback();
@@ -514,7 +516,7 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component, 'openConnection').and.callFake(() => ({
             saveState: (data, __successCallback) => {
                 calls++;
-                expect(data.stateName).toEqual('folder.my-test.state_name1234');
+                expect(data.projectTitle).toEqual('folder.my-test.state_name1234');
             }
         }));
 

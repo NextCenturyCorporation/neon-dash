@@ -92,7 +92,9 @@ export class SaveStateComponent implements OnInit {
     private createDashboard(stateName: string, dashboard: Dashboard, filters: any[]): Dashboard {
         // Don't modify the original dashboard object
         let clonedDashboard = _.cloneDeep(dashboard);
-        clonedDashboard.options.connectOnLoad = true;
+        clonedDashboard.options = {
+            connectOnLoad: true
+        };
         clonedDashboard.modified = false;
 
         // Customize the dashboard with the saved state name
@@ -157,6 +159,7 @@ export class SaveStateComponent implements OnInit {
             let validStateName = this.validateName(name);
             // Same format as the config file.
             let stateData: NeonGTDConfig = {
+                projectTitle: validStateName,
                 dashboards: this.createDashboard(validStateName, this.datasetService.getCurrentDashboard(),
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
