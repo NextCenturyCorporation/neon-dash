@@ -1,7 +1,7 @@
 <mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
     <mat-sidenav #sideNavRight class="neon-sidenav neon-sidenav-info" mat-fill position="end">
         <div>
-            <mat-toolbar class="title">
+            <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>
 
@@ -33,7 +33,7 @@
         </div>
     </mat-sidenav>
 
-    <mat-toolbar color="primary" class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
         <div *ngIf="currentDashboard">
             <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!currentDashboard.modified"
                 matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
@@ -67,21 +67,21 @@
 
         <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
             <button mat-menu-item (click)="setPanel('addVis', 'Visualization'); sideNavRight.toggle()">
-                <mat-icon>add_circle</mat-icon>Visualizations
+                <mat-icon color="secondary">add_circle</mat-icon>Visualizations
             </button>
             <button mat-menu-item (click)="setPanel('savedState', 'Save States'); sideNavRight.toggle()">
-                <mat-icon>save</mat-icon>Saved States
+                <mat-icon color="secondary">save</mat-icon>Saved States
             </button>
             <button mat-menu-item (click)="setPanel('settings', 'Settings'); sideNavRight.toggle()">
-                <mat-icon>settings</mat-icon>Settings
+                <mat-icon color="secondary">settings</mat-icon>Settings
             </button>
             <!-- TODO THOR-1056
             <button mat-menu-item (click)="setPanel('customConnection', 'Custom Data Source')" *ngIf="showCustomConnectionButton">
-                <mat-icon>storage</mat-icon>Custom Data Source
+                <mat-icon color="secondary">storage</mat-icon>Custom Data Source
             </button>
             -->
             <button mat-menu-item (click)="setPanel('aboutNeon', 'About Neon'); sideNavRight.toggle()">
-                <mat-icon>info</mat-icon>About
+                <mat-icon color="secondary">info</mat-icon>About
             </button>
         </mat-menu>
 

@@ -119,7 +119,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {SelectMode} [selectMode=NONE]
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected textColorHex: string = '#111', protected selectMode: SelectMode = SelectMode.NONE) {
+        protected selectMode: SelectMode = SelectMode.NONE) {
         super(options, listener, elementRef);
     }
 
@@ -205,7 +205,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     ticks: {
                         display: !this.options.hideGridTicks,
-                        fontColor: this.textColorHex,
                         maxRotation: 0,
                         minRotation: 0,
                         callback: this.formatAndTruncateTextX.bind(this)
@@ -227,7 +226,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     },
                     ticks: {
                         display: !this.options.hideGridTicks,
-                        fontColor: this.textColorHex,
                         maxRotation: 0,
                         minRotation: 0,
                         callback: this.formatAndTruncateTextY.bind(this)

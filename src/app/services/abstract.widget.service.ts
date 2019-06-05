@@ -90,12 +90,12 @@ export abstract class AbstractWidgetService {
     public abstract getThemeAccentColorHex(): string;
 
     /**
-     * Returns the hex for the text color for the current application theme.
+     * Returns the hex for the main color for the current application theme.
      *
      * @return {string}
      * @abstract
      */
-    public abstract getThemeTextColorHex(): string;
+    public abstract getThemeMainColorHex(): string;
 
     /**
      * Sets the current application theme to the theme with the given ID.

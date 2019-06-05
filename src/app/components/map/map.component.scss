@@ -33,6 +33,15 @@
     z-index: 1000; //required to show above leaflet
 }
 
+.map-selection {
+    border-color: var(--color-primary, grey);
+    border-width: 2px;
+    border-style: solid;
+    height: 10px;
+    width: 10px;
+    position: absolute;
+}
+
 #mapElement { // sass-lint:disable-line id-name-format
     position: absolute;
     top: 0;
@@ -61,9 +70,9 @@
 }
 
 /deep/ .neon-cluster {
-    background-color: var(--color-data-item-selectable, lightgrey);
-    border: 1px solid var(--color-data-item-selectable-text, dimgrey);
-    color: var(--color-data-item-selectable-text, dimgrey);
+    background-color: var(--color-accent);
+    border: 1px solid var(--color-text-main);
+    color: var(--color-text-main);
     margin-left: -14px !important;
     margin-top: -14px !important;
     height: 28px !important;

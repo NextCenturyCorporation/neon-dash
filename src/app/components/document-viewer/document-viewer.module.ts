@@ -22,7 +22,6 @@ import { CommonWidgetModule } from '../../common-widget.module';
 @NgModule({
     declarations: [DocumentViewerComponent],
     exports: [DocumentViewerComponent],
-    entryComponents: [DocumentViewerComponent],
     imports: [
         CommonWidgetModule,
         MatListModule,

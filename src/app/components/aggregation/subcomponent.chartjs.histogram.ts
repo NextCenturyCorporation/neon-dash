@@ -24,12 +24,11 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {string} [textColorHex]
      * @arg {boolean} [horizontal=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, textColorHex?: string,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected horizontal: boolean = false) {
-        super(options, listener, elementRef, textColorHex, horizontal, SelectMode.DOMAIN);
+        super(options, listener, elementRef, horizontal, SelectMode.DOMAIN);
     }
 
     /**

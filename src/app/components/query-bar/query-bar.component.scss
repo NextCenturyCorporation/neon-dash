@@ -20,9 +20,10 @@
     height: 100%;
 }
 
+
 .query-bar {
     background-color: var(--color-background, white);
-    color: var(--color-text, dimgrey);
+    color: var(--color-text-main, dimgrey);
     height: 100%;
     display: flex;
     max-width: 40%;
@@ -53,4 +54,11 @@
 
 .full-width {
     width: 100%;
+}
+
+.mat-option {
+    &:hover:not(.mat-option-disabled), // sass-lint:disable-line force-pseudo-nesting
+    &.mat-active {
+        background-color: var(--color-accent, lightgrey);
+    }
 }
