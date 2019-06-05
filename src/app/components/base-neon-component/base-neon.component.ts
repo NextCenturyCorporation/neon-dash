@@ -1279,7 +1279,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected getContributorsForComponent() {
         let allContributors = this.datasetService.getCurrentDashboard().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(this.datasetService.getCurrentDashboard().contributors);
+            Object.keys(allContributors);
 
         return contributorKeys.filter((key) => !!allContributors[key]).map((key) => allContributors[key]);
     }
@@ -1287,7 +1287,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected getContributorAbbreviations() {
         let contributors = this.datasetService.getCurrentDashboard().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
-            Object.keys(this.datasetService.getCurrentDashboard().contributors);
+            Object.keys(contributors);
 
         let contributorAbbreviations = contributorKeys.filter((key) =>
             !!(contributors[key] && contributors[key].abbreviation)).map((key) => contributors[key].abbreviation);

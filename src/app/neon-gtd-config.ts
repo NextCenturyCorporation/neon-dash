@@ -110,7 +110,7 @@ export interface NeonGTDConfig<T extends NeonDashboardConfig<any> = NeonDashboar
     lastModified?: number;
 
     datastores: Record<string, NeonDatastoreConfig>;
-    dashboards: NeonDashboardConfig<T>;
+    dashboards: T;
     layouts: Record<string, NeonLayoutConfig[]>;
     errors?: string[];
     neonServerUrl?: string;
