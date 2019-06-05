@@ -728,7 +728,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         // Create filters for all the unselected groups with valid fields (description properties).
         let filters: SimpleFilterDesign[] = unselectedGroups.filter((group) => group.description && group.description.columnName)
-            .map((group) => this.createFilterDesign(group.description, group.name));
+            .map((group) => this.createFilterDesign(group.description, group.externalName));
 
         let categoryFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName ===
             this.options.categoryField.columnName);
