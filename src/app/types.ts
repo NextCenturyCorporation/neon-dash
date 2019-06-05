@@ -85,10 +85,6 @@ export interface Dashboard extends NeonDashboardConfig<Dashboard> {
     pathFromTop: string[]; // Added to dashboard in validateDashboards() - contains keys
     // The datastores and layoutObject properties are assigned by the DashboardService.
     layoutObject: any[] | Record<string, any[]>;
-
-    lastModified?: number;
-    modified?: boolean;
-    fileName?: string;
 }
 
 export class Dashboard {
