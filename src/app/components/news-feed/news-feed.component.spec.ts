@@ -59,15 +59,14 @@ describe('Component: NewsFeed', () => {
 
     // Checks if all class properties are there
     it('does have expected class options properties', () => {
-        expect(component.options.id).toEqual('');
+        expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.contentField).toEqual(new FieldMetaData());
+        expect(component.options.secondaryContentField).toEqual(new FieldMetaData());
+        expect(component.options.titleContentField).toEqual(new FieldMetaData());
         expect(component.options.dateField).toEqual(new FieldMetaData());
         expect(component.options.filterField).toEqual(new FieldMetaData());
         expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
         expect(component.options.sortField).toEqual(new FieldMetaData());
     });
 
@@ -112,10 +111,10 @@ describe('Component: NewsFeed', () => {
         component.options.id = 'testId';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.sortField = new FieldMetaData('testSortField');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField');
         component.options.filterField = new FieldMetaData('testFilterField');
         component.options.contentField = new FieldMetaData('testContentField');
+        component.options.secondaryContentField = new FieldMetaData('testContentField');
+        component.options.titleContentField = new FieldMetaData('testContentField');
         component.options.dateField = new FieldMetaData('testDateField');
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -146,16 +145,6 @@ describe('Component: NewsFeed', () => {
         });
     }));
 
-    // For getElementRefs method
-    it('getElementRefs does return expected object', () => {
-        let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.infoText).toBeDefined();
-        expect(refs.newsFeed).toBeDefined();
-        expect(refs.visualization).toBeDefined();
-        // TODO expect(refs.filter).toBeDefined();
-    });
-
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
@@ -166,12 +155,17 @@ describe('Component: NewsFeed', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.contentField = new FieldMetaData('testContentField', 'Test Content Field');
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -205,7 +199,6 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -216,7 +209,6 @@ describe('Component: NewsFeed', () => {
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.limit = 1;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -250,7 +242,6 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -282,54 +273,6 @@ describe('Component: NewsFeed', () => {
         }]);
     });
 
-    // For isSelectable method
-    it('isSelectable does return expected boolean', () => {
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
-
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.idField = new FieldMetaData();
-    });
-
-    // For isSelected method
-    it('isSelected does return expected boolean', () => {
-        expect(component.isSelected({})).toEqual(false);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
-            filterDesign.table === component.options.table && filterDesign.field === component.options.filterField &&
-            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(true);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue2'
-        })).toEqual(false);
-
-        expect(component.isSelected({
-            testNotAFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = new FieldMetaData();
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-    });
-
     // For refreshVisualization method
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
@@ -344,14 +287,14 @@ describe('Component: NewsFeed', () => {
     it('selectGridItem does call publishSelectId if idField is set', () => {
         let spy = spyOn(component, 'publishSelectId');
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(0);
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(1);
@@ -361,14 +304,14 @@ describe('Component: NewsFeed', () => {
     it('selectGridItem does call createFilter if filterField is set', () => {
         let spy = spyOn(component, 'createFilter');
 
-        component.selectGridItem({
+        component.selectItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(0);
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
-        component.selectGridItem({
+        component.filterItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(1);

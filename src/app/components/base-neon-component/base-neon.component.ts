@@ -697,7 +697,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response.responseJSON.stackTrace,
+                    error: response && !!response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
                     message: 'FAILED ' + options.title + ' ' + queryId
                 });
                 this.changeDetection.detectChanges();
@@ -1160,9 +1160,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             bindings[option.bindingKey] = option.getValueToSaveInBindings();
             return bindings;
         }, {
-            layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                undefined
-        });
+                layers: (options || this.options).layers.length ? (options || this.options).layers.map((layer) => this.getBindings(layer)) :
+                    undefined
+            });
     }
 
     /**
