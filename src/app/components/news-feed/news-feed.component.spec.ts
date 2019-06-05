@@ -62,7 +62,7 @@ describe('Component: NewsFeed', () => {
         expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.contentField).toEqual(new FieldMetaData());
-        expect(component.options.sourceContentField).toEqual(new FieldMetaData());
+        expect(component.options.secondaryContentField).toEqual(new FieldMetaData());
         expect(component.options.titleContentField).toEqual(new FieldMetaData());
         expect(component.options.dateField).toEqual(new FieldMetaData());
         expect(component.options.filterField).toEqual(new FieldMetaData());
@@ -113,7 +113,7 @@ describe('Component: NewsFeed', () => {
         component.options.sortField = new FieldMetaData('testSortField');
         component.options.filterField = new FieldMetaData('testFilterField');
         component.options.contentField = new FieldMetaData('testContentField');
-        component.options.sourceContentField = new FieldMetaData('testContentField');
+        component.options.secondaryContentField = new FieldMetaData('testContentField');
         component.options.titleContentField = new FieldMetaData('testContentField');
         component.options.dateField = new FieldMetaData('testDateField');
 
@@ -155,12 +155,17 @@ describe('Component: NewsFeed', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.contentField = new FieldMetaData('testContentField', 'Test Content Field');
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -194,7 +199,6 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -205,7 +209,6 @@ describe('Component: NewsFeed', () => {
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.limit = 1;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -239,7 +242,6 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
