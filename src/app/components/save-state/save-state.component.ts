@@ -93,6 +93,7 @@ export class SaveStateComponent implements OnInit {
         // Don't modify the original dashboard object
         let clonedDashboard = _.cloneDeep(dashboard);
         clonedDashboard.options = {
+            ...(clonedDashboard.options || {}),
             connectOnLoad: true
         };
         clonedDashboard.modified = false;
@@ -328,7 +329,7 @@ export class SaveStateComponent implements OnInit {
             }));
     }
 
-    private openConnection(): any {
+    private openConnection() {
         return this.connectionService.connect(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
     }
 
