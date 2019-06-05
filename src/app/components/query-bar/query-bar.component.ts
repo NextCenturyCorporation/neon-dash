@@ -249,14 +249,14 @@ export class QueryBarComponent extends BaseNeonComponent {
             setValues = false;
         }
 
-        results.forEach((d) => {
+        results.forEach((result) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.columnName === options.filterField.columnName && setValues) {
-                    this.queryValues.push(neonUtilities.deepFind(d, options.filterField.columnName));
+                    this.queryValues.push(neonUtilities.deepFind(result, options.filterField.columnName));
                 }
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(d, field.columnName);
+                    let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
@@ -374,8 +374,8 @@ export class QueryBarComponent extends BaseNeonComponent {
             extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
             execute.done((response) => {
                 if (response && response.data && response.data.length) {
-                    response.data.forEach((d) => {
-                        let value = neonUtilities.deepFind(d, fields.idField);
+                    response.data.forEach((result) => {
+                        let value = neonUtilities.deepFind(result, fields.idField);
                         if (typeof value !== 'undefined') {
                             if (value instanceof Array) {
                                 for (let values of value) {
@@ -410,7 +410,7 @@ export class QueryBarComponent extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionAddFilter(text: string, fields: any, array: any[]): FilterDesign {
+    private extensionAddFilter(__text: string, fields: any, array: any[]): FilterDesign {
         let filters: FilterDesign[] = array.map((element) => {
             let value: any = ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element);
             return this.createFilterDesignOnExtensionField(fields.database, fields.table, fields.idField, value);
@@ -440,7 +440,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         return false;
     }
 
-    private updateQueryBarText(_filters: FilterDesign[]) {
+    private updateQueryBarText(__filters: FilterDesign[]) {
         // TODO AIDA-754
     }
 }

@@ -13,12 +13,11 @@
  * limitations under the License.
  *
  */
-import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DatasetService } from '../../services/dataset.service';
 import { Datastore } from '../../dataset';
 import { FilterService } from '../../services/filter.service';
-import { MatDialogRef } from '@angular/material';
 import { neonEvents } from '../../neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
@@ -31,9 +30,8 @@ import { eventing } from 'neon-framework';
     templateUrl: 'custom-connection.component.html',
     styleUrls: ['custom-connection.component.scss']
 })
-export class CustomConnectionComponent implements AfterViewInit {
+export class CustomConnectionComponent implements AfterContentInit {
     public data: CustomConnectionData = new CustomConnectionData();
-    public dialogRef: MatDialogRef<CustomConnectionComponent>;
     @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: eventing.Messenger;
@@ -46,20 +44,20 @@ export class CustomConnectionComponent implements AfterViewInit {
     constructor(
         private datasetService: DatasetService,
         private filterService: FilterService,
-        private searchService: AbstractSearchService,
-        dialogRef: MatDialogRef<CustomConnectionComponent>
+        private searchService: AbstractSearchService
     ) {
-        this.dialogRef = dialogRef;
         this.messenger = new eventing.Messenger();
 
         this.steps = [];
         this.currentStepIndex = 0;
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
+        /* TODO THOR-1056
         this.steps = this.stepQueryList.toArray();
-        this.steps.sort((a, b) => a.stepNumber - b.stepNumber);
+        this.steps.sort((step1, step2) => step1.stepNumber - step2.stepNumber);
         this.currentStep = this.steps[0];
+        */
     }
 
     previousStep() {
@@ -95,11 +93,10 @@ export class CustomConnectionComponent implements AfterViewInit {
         this.filterService.deleteFilters('CustomConnection', this.searchService);
         this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(dataset);
-        this.dialogRef.close();
     }
 
     close() {
-        this.dialogRef.close();
+        // TODO
     }
 
     validateStep() {

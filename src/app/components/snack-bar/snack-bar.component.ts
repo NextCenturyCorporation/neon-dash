@@ -33,10 +33,10 @@ export class SnackBarComponent {
             type: messageType,
             display: newMessages
         };
-        for (let e of this.messages) {
-            if (e.type === messageType) {
+        for (let error of this.messages) {
+            if (error.type === messageType) {
                 for (let msg of newMessages) {
-                    e.display.push(msg);
+                    error.display.push(msg);
                 }
                 return;
             }

@@ -36,13 +36,13 @@ export class TextCloud {
             lowest = data[0].value;
             highest = data[0].value;
         }
-        for (let d of data) {
-            let v = d.value;
-            if (v > highest) {
-                highest = v;
+        for (let item of data) {
+            let value = item.value;
+            if (value > highest) {
+                highest = value;
             }
-            if (v < lowest) {
-                lowest = v;
+            if (value < lowest) {
+                lowest = value;
             }
         }
         let range = highest - lowest;
@@ -72,7 +72,7 @@ export class TextCloud {
     }
 
     private colorIncrement(color: ColorOptions, range: number): number[] {
-        return this.toRGB(color.end).map((n, i) => (n - this.toRGB(color.start)[i]) / range);
+        return this.toRGB(color.end).map((element, index) => (element - this.toRGB(color.start)[index]) / range);
     }
 
     // Converts hex to an RGB array
@@ -82,8 +82,8 @@ export class TextCloud {
     }
 
     private tagColor(color: ColorOptions, increment: number[], weighting: number) {
-        let rgb = this.toRGB(color.start).map((n, i) => {
-            let ref = Math.round(n + (increment[i] * weighting));
+        let rgb = this.toRGB(color.start).map((element, index) => {
+            let ref = Math.round(element + (increment[index] * weighting));
             if (ref > 255) {
                 ref = 255;
             } else if (ref < 0) {
@@ -96,8 +96,8 @@ export class TextCloud {
 
     // Converts an RGB array to hex
     private toHex(ary: number[]): string {
-        return '#' + ary.map((i) => {
-            let hex = i.toString(16);
+        return '#' + ary.map((element) => {
+            let hex = element.toString(16);
             hex = (hex.length === 1) ? '0' + hex : hex;
             return hex;
         }).join('');

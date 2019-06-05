@@ -43,7 +43,7 @@ import {
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
-    constructor(public name: string, public text: SafeHtml) {}
+    constructor(public name: string, public text: SafeHtml) { }
 }
 
 /**
@@ -59,7 +59,6 @@ export class WikiData {
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -73,7 +72,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         ref: ChangeDetectorRef,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -221,7 +221,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(_options: any, _results: any[]): number {
+    transformVisualizationQueryResults(__options: any, __results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
         return 0;
     }

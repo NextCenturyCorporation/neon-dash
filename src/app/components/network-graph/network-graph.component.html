@@ -1,42 +1,39 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
-    </mat-toolbar>
+        <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+    </span>
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <mat-icon>settings</mat-icon>
+    </button>
+</mat-toolbar>
 
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
-    </div>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
 
-    <div class="body-container" (click)="stopEventPropagation($event)" [class.with-contribution]="showContribution()">
-        <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
-            <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
-            <div class="graph-selection" *ngIf="false"
-                [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
-        </div>
+<div class="body-container" (click)="stopEventPropagation($event)">
+    <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
+        <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
+        <div class="graph-selection" *ngIf="false"
+            [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
     </div>
+</div>
 
-    <div class="legend-container" *ngIf="legendIsNeeded()">
-        <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
-            [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
-        <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys" [filteringOn]="options.legendFiltering"></app-legend>
-    </div>
+<div class="legend-container" *ngIf="legendIsNeeded()">
+    <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
+        (itemSelected)="legendItemSelected($event)"></app-legend>
+    <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys" [filteringOn]="options.legendFiltering"></app-legend>
+</div>
 
-    <div class="contribution-text" *ngIf="showContribution()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
-</mat-sidenav-container>
+</div>

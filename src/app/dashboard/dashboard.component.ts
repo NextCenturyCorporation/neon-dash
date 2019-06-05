@@ -35,7 +35,7 @@ import { Dashboard } from '../dataset';
 import { DatasetService } from '../services/dataset.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
 import { NeonGTDConfig } from '../neon-gtd-config';
@@ -46,10 +46,9 @@ import { SimpleFilterComponent } from '../components/simple-filter/simple-filter
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
-import { DynamicDialogComponent } from '../components/dynamic-dialog/dynamic-dialog.component';
 
 export function DashboardModified() {
-    return (inst: any, prop: string | symbol, descriptor) => {
+    return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
             if (!this.pendingInitialRegistrations && this.currentDashboard) {
@@ -92,6 +91,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public createAboutNeon: boolean = false;
     public createAddVis: boolean = false;
+    public createCustomConnection: boolean = false;
     public createDashboardLayouts: boolean = true;
     public createGear: boolean = true;
     public createSavedState: boolean = false;
@@ -135,10 +135,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
     public dashboardVersion: string = '';
-
-    /* A reference to the dialog for the custom connection dialog. */
-    private customConnectionDialogRef: MatDialogRef<DynamicDialogComponent>;
-
     public filtersIcon: string;
 
     // Use two messengers here because a single messager doesn't receive its own messages.
@@ -150,7 +146,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     constructor(
         public changeDetection: ChangeDetectorRef,
         public datasetService: DatasetService,
-        public dialog: MatDialog,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
@@ -237,9 +232,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
         if (eventMessage.gridName) {
             // Find the correct tab, or create a new one if needed.
-            this.tabbedGrid.forEach((grid, i) => {
+            this.tabbedGrid.forEach((grid, gridIndex) => {
                 if (grid.name === eventMessage.gridName) {
-                    index = i;
+                    index = gridIndex;
                 }
             });
 
@@ -273,18 +268,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
 
         // Find the first empty space for the widget.
-        let x = 1;
-        let y = 1;
+        let xValue = 1;
+        let yValue = 1;
         let found = false;
-        while (y <= maxRow && !found) {
-            x = 1;
-            while (x <= maxCol && !found) {
-                widgetGridItem.col = x;
-                widgetGridItem.row = y;
+        while (yValue <= maxRow && !found) {
+            xValue = 1;
+            while (xValue <= maxCol && !found) {
+                widgetGridItem.col = xValue;
+                widgetGridItem.row = yValue;
                 found = this.widgetFits(widgetGridItem);
-                x++;
+                xValue++;
             }
-            y++;
+            yValue++;
         }
 
         this.tabbedGrid[index].list.push(widgetGridItem);
@@ -348,11 +343,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
-        for (let i = 0; i < this.tabbedGrid[this.selectedTabIndex].list.length; i++) {
-            if (this.tabbedGrid[this.selectedTabIndex].list[i].id === eventMessage.id) {
+        for (let index = 0; index < this.tabbedGrid[this.selectedTabIndex].list.length; index++) {
+            if (this.tabbedGrid[this.selectedTabIndex].list[index].id === eventMessage.id) {
                 // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
-                this.tabbedGrid[this.selectedTabIndex].list[i].hide = true;
-                this.tabbedGrid[this.selectedTabIndex].list.splice(i, 1);
+                this.tabbedGrid[this.selectedTabIndex].list[index].hide = true;
+                this.tabbedGrid[this.selectedTabIndex].list.splice(index, 1);
             }
         }
     }
@@ -539,30 +534,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onDragStop(i, event) {
+    onDragStop(__index, __event) {
         // Do nothing.
     }
 
-    onResizeStart(i, event) {
-        this.visualizations.toArray()[i].onResizeStart();
+    onResizeStart(index, __event) {
+        this.visualizations.toArray()[index].onResizeStart();
     }
 
     @DashboardModified()
-    onResizeStop(i, event) {
-        this.visualizations.toArray()[i].onResizeStop();
-    }
-
-    openCustomConnectionDialog() {
-        this.customConnectionDialogRef = this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'custom-connection'
-            },
-            viewContainerRef: this.viewContainerRef
-        });
-
-        this.customConnectionDialogRef.afterClosed().subscribe(() => {
-            this.customConnectionDialogRef = null;
-        });
+    onResizeStop(index, __event) {
+        this.visualizations.toArray()[index].onResizeStop();
     }
 
     /**
@@ -668,6 +650,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.createAboutNeon = true;
         } else if (newPanel === 'addVis' && !this.createAddVis) {
             this.createAddVis = true;
+        } else if (newPanel === 'customConnection' && !this.createCustomConnection) {
+            this.createCustomConnection = true;
         } else if (newPanel === 'savedState' && !this.createSavedState) {
             this.createSavedState = true;
         } else if (newPanel === 'settings' && !this.createSettings) {

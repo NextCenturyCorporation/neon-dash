@@ -67,4 +67,4 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
     entryComponents: [AppComponent, DynamicDialogComponent],
     bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
