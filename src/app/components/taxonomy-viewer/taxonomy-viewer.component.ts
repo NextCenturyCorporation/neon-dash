@@ -428,11 +428,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         for (const data of results) {
             let types: string[];
+            let subTypes: string[];
             const categories = neonUtilities.deepFind(data, options.categoryField.columnName);
 
             if (options.typeField.columnName) {
                 const val = neonUtilities.deepFind(data, options.typeField.columnName);
                 types = Array.isArray(val) ? val : [val];
+            }
+
+            if (options.subTypeField.columnName && options.subTypeField.columnName !== options.typeField.columnName) {
+                const val = neonUtilities.deepFind(data, options.subTypeField.columnName);
+                subTypes = Array.isArray(val) ? val : [val];
             }
 
             // Leaf value set in case it is needed for the taxonomy valueObject
@@ -450,12 +456,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             for (const category of categories) {
                 for (const type of types) {
                     const lineage = { category, type };
-
-                    this.mergeTaxonomyData(group, lineage, {
-                        ...child,
-                        id: `${this.counter++}`,
-                        checked: !this.isTaxonomyNodeFiltered(options.typeField, lineage.type)
-                    });
+                    if (subTypes) {
+                        for (const subtype of subTypes) {
+                            this.mergeTaxonomyData(group, { ...lineage, subtype }, {
+                                ...child,
+                                id: `${this.counter++}`,
+                                checked: !this.isTaxonomyNodeFiltered(options.subTypeField, subtype)
+                            });
+                        }
+                    } else {
+                        this.mergeTaxonomyData(group, lineage, {
+                            ...child,
+                            id: `${this.counter++}`,
+                            checked: !this.isTaxonomyNodeFiltered(options.typeField, type)
+                        });
+                    }
                 }
             }
         }
