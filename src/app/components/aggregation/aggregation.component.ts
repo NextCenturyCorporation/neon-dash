@@ -725,35 +725,36 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     initializeSubcomponent(elementRef: ElementRef, cannotSelect: boolean = false): AbstractAggregationSubcomponent {
         let subcomponentObject = null;
+        let textColorHex = this.widgetService.getThemeTextColorHex();
 
         switch (this.options.type) {
             case 'bar-h':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, true);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex, true);
                 break;
             case 'bar-v':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'doughnut':
-                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'histogram':
-                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'line':
             case 'line-xy':
-                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'list':
                 subcomponentObject = new ListSubcomponent(this.options, this, elementRef);
                 break;
             case 'pie':
-                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'scatter':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, true);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, textColorHex, true);
                 break;
             case 'scatter-xy':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
         }
 

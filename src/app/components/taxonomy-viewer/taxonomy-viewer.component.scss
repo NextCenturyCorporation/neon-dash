@@ -29,7 +29,6 @@
     overflow: unset;
 }
 
-
 .taxonomy-viewer-container {
     overflow-y: auto;
     overflow-x: auto;
@@ -40,11 +39,17 @@
 }
 
 /deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div {
-    border: 1px solid var(--color-text-header, grey);
+    border: 1px solid var(--color-text, dimgrey);
     max-height: 200px;
     overflow-y: auto;
     padding-left: 0;
     width: 92%;
 }
 
+/deep/ .node-content-wrapper {
+    &:hover {
+        background: var(--color-data-item-selectable, lightgrey) !important;
+        color: var(--color-data-item-selectable-text, dimgrey) !important;
+    }
+}
 
