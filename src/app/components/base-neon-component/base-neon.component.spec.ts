@@ -1918,7 +1918,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    let datasetService = Dashboard.getServiceMock();
+    let datasetService = new DashboardServiceMock();
     datasetService.getCurrentDashboard().contributors = {
         organization1: {
             orgName: 'Organization 1',

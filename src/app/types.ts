@@ -1,4 +1,4 @@
-import { NeonDashboardConfig } from './neon-gtd-config';
+import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from './neon-gtd-config';
 
 /*
  * Copyright 2017 Next Century Corporation
@@ -17,7 +17,7 @@ import { NeonDashboardConfig } from './neon-gtd-config';
  */
 // TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
 
-export class FieldMetaData {
+export class FieldMetaData implements NeonFieldMetaData {
     constructor(
         public columnName: string = '',
         public prettyName: string = '',
@@ -26,22 +26,30 @@ export class FieldMetaData {
     ) { }
 }
 
-export class TableMetaData {
+export class TableMetaData implements NeonTableMetaData {
+    public name?: string;
+
     constructor(
-        public name: string = '',
+        name: string = '',
         public prettyName: string = '',
         public fields: FieldMetaData[] = [],
         public mappings: Record<string, string> = {},
         public labelOptions: any = {}
-    ) { }
+    ) {
+        this.name = name;
+    }
 }
 
-export class DatabaseMetaData {
+export class DatabaseMetaData implements NeonDatabaseMetaData {
+    public name?: string;
+
     constructor(
-        public name: string = '',
+        name: string = '',
         public prettyName: string = '',
         public tables: Record<string, TableMetaData> = {}
-    ) { }
+    ) {
+        this.name = name;
+    }
 }
 
 /*
