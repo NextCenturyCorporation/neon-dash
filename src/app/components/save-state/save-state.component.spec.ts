@@ -162,6 +162,7 @@ describe('Component: SaveStateComponent', () => {
         let spyMessengerPublish = spyOn(component['messenger'], 'publish');
         component['handleLoadStateSuccess']({
             fileName: 'dashboard1',
+            version: '1',
             lastModified: Date.now(),
             dashboards: {
                 name: 'dashboard1'
@@ -170,7 +171,7 @@ describe('Component: SaveStateComponent', () => {
                 datastore1: {}
             } as any,
             layouts: {
-                layout1: []
+                layout1: null
             }
         }, 'testState');
 
@@ -180,18 +181,22 @@ describe('Component: SaveStateComponent', () => {
             testState: {
                 name: 'dashboard1'
             }
-        };
+        } as any as Record<string, Dashboard>; // TODO: Verify why this is what it is
         let expectedDashboard = Dashboard.get();
         expectedDashboard.choices = {
             saved_state: savedStateDashboard
         };
 
         expect(spyDashboardService.calls.count()).toEqual(1);
-        expect(spyDashboardService.calls.argsFor(0)).toEqual([expectedDashboard, {
-            datastore1: {}
-        }, {
+        expect(spyDashboardService.calls.argsFor(0)).toEqual([
+            expectedDashboard,
+            {
+                datastore1: {}
+            },
+            {
                 layout1: []
-            }]);
+            }
+        ]);
         expect(spyMessengerPublish.calls.count()).toEqual(1);
         const [type, { dashboard: { lastModified, ...dashboard } }] = spyMessengerPublish.calls.argsFor(0);
         expect([type, { dashboard }]).toEqual([neonEvents.DASHBOARD_STATE, {

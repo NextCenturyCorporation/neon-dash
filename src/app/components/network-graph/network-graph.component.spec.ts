@@ -30,6 +30,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { NetworkGraphModule } from './network-graph.module';
 import { ConfigService } from '../../services/config.service';
+import { WidgetOptionCollection } from '../../widget-option';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = NeonGTDConfig.get();
@@ -253,7 +254,7 @@ describe('Component: NetworkGraph', () => {
                 param2Field: new FieldMetaData('testEdgeDestinationIdField'),
                 filterFields: [new FieldMetaData('testFilterField')]
             }
-        ];
+        ] as any as WidgetOptionCollection[]; // TODO: Violating typing rules
         options.nodeColor = '#96f4f2';
         options.edgeColor = '#93663e';
         options.linkColor = '#938d8f';
@@ -908,7 +909,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
-        component.options.layers = [{}];
+        component.options.layers = [new WidgetOptionCollection(() => [])];
         component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
         component.options.layers[0].layerType = 'nodes';
         component.options.layers[0].filterFields = [DashboardServiceMock.CATEGORY_FIELD, DashboardServiceMock.TEXT_FIELD];
