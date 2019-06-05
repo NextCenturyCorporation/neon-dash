@@ -22,9 +22,11 @@
     <div class="thumbnail-grid-container" *ngIf="gridArray.length">
         <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
             [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-            <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item" [options]="options">
+            <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item"
+                [options]="options">
             </app-subcomponent-title-thumbnail>
-            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
+            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item"
+                [options]="options">
             </app-subcomponent-details-thumbnail>
             <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item" [options]="options">
             </app-subcomponent-card-thumbnail>
@@ -35,7 +37,8 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination() && !showContribution()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
@@ -47,7 +50,8 @@
 
 <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>

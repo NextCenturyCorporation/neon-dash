@@ -22,8 +22,7 @@ import {
     Injector,
     OnDestroy,
     OnInit,
-    ViewChild,
-    ViewEncapsulation
+    ViewChild
 } from '@angular/core';
 
 import {
