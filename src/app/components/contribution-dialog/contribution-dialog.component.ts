@@ -27,7 +27,7 @@ export class ContributionDialogComponent {
     public data: Contributor[];
 
     constructor(@Inject(MAT_DIALOG_DATA) data: Contributor[], public dialogRef: MatDialogRef<ContributionDialogComponent>) {
-        this.data = data;
+        this.data = data['contributors'];
     }
 
     protected getEmailLink(emailString: string) {
