@@ -59,7 +59,6 @@ import { MatDialog } from '@angular/material';
 })
 export class SampleComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -83,7 +82,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,

@@ -1,60 +1,56 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
-                {{ getButtonText() }}
-            </span>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
-    </mat-toolbar>
+        <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+            {{ getButtonText() }}
+        </span>
+    </span>
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <mat-icon>settings</mat-icon>
+    </button>
+</mat-toolbar>
 
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
+
+<div class="data-message-container" *ngIf="showNoData">
+    <app-data-message> </app-data-message>
+</div>
+
+<div class="legend" *ngIf="showLegend()">
+    <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
+    </app-legend>
+</div>
+
+<div class="body-container">
+    <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
+        [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
+
+        <div #subcomponentZoom class="subcomponent-element"></div>
     </div>
 
-    <div class="filter-container" *ngIf="showLegend()">
-        <app-legend [activeList]="legendActiveGroups" [colorKeys]="colorKeys" (itemSelected)="handleLegendItemSelected($event)">
-        </app-legend>
+    <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
+        [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
+
+        <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
+            [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
+            [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+
+        <div #subcomponentMain class="subcomponent-element"></div>
     </div>
+</div>
 
-    <div class="data-message-container" *ngIf="showNoData">
-        <app-data-message> </app-data-message>
+<canvas #hiddenCanvas class="hidden-canvas"></canvas>
+
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
-
-    <div class="body-container" id="body-container" [class.with-filter]="showLegend()" [class.with-contribution]="showContribution()">
-
-        <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
-            [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
-
-            <div #subcomponentZoom class="subcomponent-element"></div>
-        </div>
-
-        <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
-            [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
-
-            <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
-                [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
-                [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
-
-            <div #subcomponentMain class="subcomponent-element"></div>
-        </div>
-    </div>
-
-    <canvas #hiddenCanvas class="hidden-canvas"></canvas>
-
-    <div class="contribution-text" *ngIf="showContribution()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
-</mat-sidenav-container>
+</div>

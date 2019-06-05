@@ -81,7 +81,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected TAB_HEIGHT: number = 30;
     protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
 
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -100,7 +99,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,

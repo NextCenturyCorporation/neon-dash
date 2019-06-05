@@ -15,7 +15,7 @@
  */
 @import '../base-neon-component/base-neon.component';
 
-.visualization-sidenav {
+:host {
 
     .text-cloud {
         overflow-wrap: break-word;

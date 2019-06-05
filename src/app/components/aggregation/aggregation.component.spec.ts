@@ -3974,14 +3974,11 @@ describe('Component: Aggregation', () => {
     }));
 
     it('does show filter-container and legend on initialization because showLegend is true', async(() => {
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).not.toBeNull();
 
-        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
         expect(legend).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show filter-container and legend if type is line', async(() => {
@@ -3991,14 +3988,11 @@ describe('Component: Aggregation', () => {
         // Force the component to update all its elements.
         component.changeDetection.detectChanges();
 
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).not.toBeNull();
 
-        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
         expect(legend).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show filter-container and legend if type is scatter', async(() => {
@@ -4008,14 +4002,11 @@ describe('Component: Aggregation', () => {
         // Force the component to update all its elements.
         component.changeDetection.detectChanges();
 
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).not.toBeNull();
 
-        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
         expect(legend).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does not show filter-container with no filters or legend if type is not line or scatter', async(() => {
@@ -4025,11 +4016,8 @@ describe('Component: Aggregation', () => {
         // Force the component to update all its elements.
         component.changeDetection.detectChanges();
 
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).toBeNull();
     }));
 
     it('does not show filter-container if legendGroups is single-element array', async(() => {
@@ -4040,11 +4028,8 @@ describe('Component: Aggregation', () => {
         // Force the component to update all its elements.
         component.changeDetection.detectChanges();
 
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).toBeNull();
     }));
 
     it('does show filter-container and legend if legendGroups is multiple-element array', async(() => {
@@ -4055,14 +4040,11 @@ describe('Component: Aggregation', () => {
         // Force the component to update all its elements.
         component.changeDetection.detectChanges();
 
-        let filterContainer = fixture.debugElement.query(By.css('.filter-container'));
+        let filterContainer = fixture.debugElement.query(By.css('.legend'));
         expect(filterContainer).not.toBeNull();
 
-        let legend = fixture.debugElement.query(By.css('.filter-container app-legend'));
+        let legend = fixture.debugElement.query(By.css('.legend app-legend'));
         expect(legend).not.toBeNull();
-
-        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
     }));
 
     it('does show subcomponent-container and subcomponent-element', () => {

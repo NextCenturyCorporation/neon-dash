@@ -55,7 +55,6 @@ import { MatDialog } from '@angular/material';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('newsFeed') newsFeed: ElementRef;
@@ -70,7 +69,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,

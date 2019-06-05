@@ -62,7 +62,6 @@ export const ViewType = {
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private CANVAS_SIZE: number = 100.0;
 
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
@@ -79,7 +78,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
