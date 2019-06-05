@@ -1,34 +1,31 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
-    </mat-toolbar>
+        <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+    </span>
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+        <mat-icon>settings</mat-icon>
+    </button>
+</mat-toolbar>
 
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
+
+<mat-tab-group *ngIf="wikiViewerData != null" class="body-container">
+    <mat-tab *ngFor="let item of wikiViewerData" [label]="item.name">
+        <div class="wiki-text html" [innerHTML]="item.text"></div>
+    </mat-tab>
+</mat-tab-group>
+
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
     </div>
-
-    <mat-tab-group *ngIf="wikiViewerData != null" class="body-container" [class.with-contribution]="showContribution()">
-        <mat-tab *ngFor="let item of wikiViewerData" [label]="item.name">
-            <div class="wiki-text html" [innerHTML]="item.text"></div>
-        </mat-tab>
-    </mat-tab-group>
-
-    <div class="contribution-text" *ngIf="showContribution()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
-</mat-sidenav-container>
+</div>
