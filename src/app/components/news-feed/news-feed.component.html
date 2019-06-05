@@ -1,5 +1,5 @@
 <mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
@@ -24,11 +24,11 @@
             <div class="news-feed-div" *ngFor="let item of newsFeedData" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
                 [class.selected]="isSelected(item)">
                 <div class="content-details">
-                    <div class="header text">{{ item[options.primaryTitleField.columnName] }}</div>
+                    <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>
                     <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">
                         {{ item[options.contentField.columnName] }}</div>
                     <div class="content-footer">
-                        <p class="info text">{{ item[options.dateField.columnName] }}</p>
+                        <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
                         <p [hidden]="!item[options.secondaryTitleField.columnName]">{{ item[options.secondaryTitleField.columnName] }}</p>
                     </div>
                 </div>
@@ -39,11 +39,12 @@
     <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
     <div class="footer" *ngIf="showPagination() && !showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="neon-button-large pagination-button" (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="neon-button-large pagination-button" (click)="goToNextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>
@@ -51,11 +52,12 @@
 
     <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="neon-button-large pagination-button" (click)="goToPreviousPage()">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
+                (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="neon-button-large pagination-button" (click)="goToNextPage()">
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
                 Next
             </button>
         </div>

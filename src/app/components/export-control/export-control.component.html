@@ -5,7 +5,7 @@
             {{ (format.name) ? format.name.toUpperCase() : 'Invalid Type' }}
         </mat-radio-button>
     </mat-radio-group>
-    <button mat-raised-button class="neon-button-small" (click)="handleExportClick()">
+    <button mat-raised-button class="neon-button-small" color="primary" (click)="handleExportClick()">
         {{ getExportButtonText() }}
     </button>
 </div>

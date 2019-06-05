@@ -56,13 +56,12 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {string} [textColorHex]
      * @arg {boolean} [horizontal=false]
      * @arg {boolean} [selectMode=ITEM]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, textColorHex?: string,
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected horizontal: boolean = false, selectMode: SelectMode = SelectMode.ITEM) {
-        super(options, listener, elementRef, textColorHex, selectMode);
+        super(options, listener, elementRef, selectMode);
     }
 
     /**

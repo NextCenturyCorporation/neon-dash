@@ -6,14 +6,14 @@
 
     <!-- MultiLayer Support-->
     <div *ngIf="modifiedOptions.layers.length">
-        <mat-toolbar class="subheader tappable" (click)="handleCreateLayer()">
+        <mat-toolbar class="subheader tappable" color="primary" (click)="handleCreateLayer()">
             <mat-icon class="neon-icon-small">add_circle</mat-icon>
             <span class="spacer"></span>
             <div>Add Layer</div>
         </mat-toolbar>
 
         <div *ngFor="let layer of modifiedOptions.layers; let i = index;">
-            <mat-toolbar class="subheader tappable" (click)="toggleFilter(layer)">
+            <mat-toolbar class="subheader tappable" color="primary" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="spacer" *ngIf="modifiedOptions.layers.length > 1"></span>
                 <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1" (click)="handleDeleteLayer(layer)">delete
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <mat-toolbar class="subheader">
+    <mat-toolbar class="subheader" color="primary">
         <span>Required Config</span>
     </mat-toolbar>
 
@@ -80,7 +80,7 @@
         </app-options-list>
     </div>
 
-    <mat-toolbar class="subheader tappable" (click)="toggleOptionalOptions()">
+    <mat-toolbar class="subheader tappable" (click)="toggleOptionalOptions()" color="primary">
         <span>Optional Config</span>
         <span class="spacer"></span>
         <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
@@ -102,11 +102,11 @@
 </form>
 
 <div class="button-footer" align="right">
-    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Cancel all field changes"
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Cancel all field changes"
         (click)="resetOptionsAndClose()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes"
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Apply all field changes"
         [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
