@@ -314,15 +314,22 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Selects the given grid item.
+     * Selects the given item item.
      *
      * @arg {object} item
      * @private
      */
-    selectGridItem(item) {
+    selectItem(item) {
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
+    }
+
+    /**
+     * Filters by the given item
+     * @param item 
+     */
+    filterItem(item) {
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }

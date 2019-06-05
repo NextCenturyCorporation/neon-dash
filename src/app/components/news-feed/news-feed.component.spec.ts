@@ -287,14 +287,14 @@ describe('Component: NewsFeed', () => {
     it('selectGridItem does call publishSelectId if idField is set', () => {
         let spy = spyOn(component, 'publishSelectId');
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(0);
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(1);
@@ -304,14 +304,14 @@ describe('Component: NewsFeed', () => {
     it('selectGridItem does call createFilter if filterField is set', () => {
         let spy = spyOn(component, 'createFilter');
 
-        component.selectGridItem({
+        component.selectItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(0);
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
-        component.selectGridItem({
+        component.filterItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(1);
