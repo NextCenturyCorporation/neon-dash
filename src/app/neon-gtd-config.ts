@@ -108,6 +108,7 @@ export interface NeonGTDConfig<T extends NeonDashboardConfig<any> = NeonDashboar
     projectIcon?: string;
     fileName?: string;
     lastModified?: number;
+    modified?: boolean;
 
     datastores: Record<string, NeonDatastoreConfig>;
     dashboards: T;
