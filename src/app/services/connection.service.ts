@@ -87,7 +87,10 @@ export interface Connection<T extends { query: any } = { query: any }> {
      * @return {RequestWrapper}
      * @abstract
      */
-    runExportQuery(exportData: any, exportFormat: any, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
+    runExportQuery(
+        exportData: any,
+        exportFormat: any,
+        onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
 
     /**
      * Runs a search query with the given payload.
