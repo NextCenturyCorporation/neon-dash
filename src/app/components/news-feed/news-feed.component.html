@@ -24,7 +24,7 @@
                 <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'">
                     <mat-panel-title>
                         <span class="date">{{ relativeTime(item[options.dateField.columnName]) }}</span>
-                        <span class="text">{{ item[options.titleContentField.columnName] }}</span>
+                        <span class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-panel-description>

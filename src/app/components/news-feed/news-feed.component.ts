@@ -248,7 +248,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.idField.columnName);
+        return !!(
+            options.database.name &&
+            options.table.name &&
+            options.idField.columnName &&
+            options.dateField &&
+            options.contentField
+        );
     }
 
     /**
