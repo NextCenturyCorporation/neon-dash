@@ -95,12 +95,12 @@ h3 {
         }
 
         .highlight {
-            background-color: var(--color-accent, lightgrey);
-            fill: var(--color-accent, lightgrey);
+            background-color: var(--color-data-item-selectable-dark, dimgrey);
+            fill: var(--color-data-item-selectable-dark, dimgrey);
         }
 
         .multi-highlight {
-            fill: var(--color-accent, lightgrey);
+            fill: var(--color-data-item-selectable-dark, dimgrey);
             fill-opacity: 0.65;
         }
 
@@ -134,8 +134,8 @@ h3 {
         }
 
         .area {
-            fill: var(--color-primary, grey);
-            stroke: var(--color-primary, grey);
+            fill: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
+            stroke: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
             stroke-width: 1px;
             clip-path: url('#clip');
         }
@@ -153,8 +153,8 @@ h3 {
         }
 
         .bar {
-            fill: var(--color-primary, grey);
-            stroke: var(--color-primary, grey);
+            fill: var(--color-data-item-selectable, lightgrey);
+            stroke: var(--color-data-item-selectable, lightgrey);
             stroke-width: 1px;
         }
 
