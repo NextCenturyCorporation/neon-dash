@@ -21,7 +21,7 @@ export interface NeonFieldMetaData {
 }
 
 export interface NeonTableMetaData {
-    name: string;
+    name?: string;
     prettyName: string;
     fields: NeonFieldMetaData[];
     mappings: Record<string, string>;
@@ -29,7 +29,7 @@ export interface NeonTableMetaData {
 }
 
 export interface NeonDatabaseMetaData {
-    name: string;
+    name?: string;
     prettyName: string;
     tables: Record<string, NeonTableMetaData>;
 }
@@ -59,17 +59,8 @@ export interface NeonContributor {
     logo: string;
 }
 
-export interface NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
-    fileName?: string;
-    lastModified?: number;
-    modified?: boolean;
-
+export interface NeonDashboardLeafConfig {
     name?: string;
-    // Interior
-    category?: string;
-    choices?: Record<string, T>;
-
-    // Leaf
     layout?: string;
     datastores?: Record<string, NeonDatastoreConfig>;
     tables?: Record<string, string>;
@@ -80,6 +71,17 @@ export interface NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDa
     relations?: (string | string[])[][];
     contributors?: Record<string, NeonContributor>;
 }
+
+export interface NeonDashboardParentConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig> {
+    name?: string;
+    // Interior
+    category?: string;
+    choices?: Record<string, T>;
+
+}
+
+export type NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> =
+    NeonDashboardLeafConfig & NeonDashboardParentConfig<T>;
 
 export interface NeonLayoutGridConfig {
     col: number;
@@ -95,20 +97,23 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonDatastoreConfig {
-    name: string;
+    name?: string;
     host: string;
     type: string;
     databases: Record<string, NeonDatabaseMetaData>;
 }
 
 export interface NeonGTDConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
-    projectTitle: string;
-    projectIcon: string;
+    projectTitle?: string;
+    projectIcon?: string;
+    fileName?: string;
+    lastModified?: number;
+
     datastores: Record<string, NeonDatastoreConfig>;
     dashboards: NeonDashboardConfig<T>;
-    layouts: Record<string, NeonLayoutConfig>;
-    errors: string[];
-    neonServerUrl: string;
+    layouts: Record<string, NeonLayoutConfig[]>;
+    errors?: string[];
+    neonServerUrl?: string;
     version: string;
 }
 

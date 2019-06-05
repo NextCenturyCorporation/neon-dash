@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonGTDConfig, NeonDatastoreConfig } from '../neon-gtd-config';
 import { NeonGridItem } from '../neon-grid-item';
 import { neonEvents } from '../neon-namespaces';
 
@@ -877,8 +877,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
-        let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
+        let testDatastore1: NeonDatastoreConfig = { name: 'testName1', host: 'testHost1', type: 'testType1', databases: {} };
+        let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
         let testDashboard: Dashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = [{
@@ -940,9 +940,9 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: Datastore = { name: 'testName1', host: 'testHost1', type: 'testType1', hasUpdatedFields: false, databases: {} };
-        let testDatastore2: Datastore = { name: 'testName2', host: 'testHost2', type: 'testType2', hasUpdatedFields: false, databases: {} };
-        let testDashboard: Dashboard = Dashboard.get();
+        let testDatastore1: NeonDatastoreConfig = { name: 'testName1', host: 'testHost1', type: 'testType1', databases: {} };
+        let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
+        let testDashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         testDashboard.layoutObject = {
             tab1: [{
@@ -1041,7 +1041,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
+        showDashboard.datastores = { testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1069,7 +1069,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
+        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1098,7 +1098,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', hasUpdatedFields: false, databases: {} } };
+        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1228,77 +1228,89 @@ describe('Dashboard', () => {
     });
 
     it('widgetOverlaps does return expected boolean', () => {
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 2,
                 row: 1,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(false);
+            }
+        )).toEqual(false);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 1,
                 row: 2,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(false);
+            }
+        )).toEqual(false);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 2,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 2,
+                sizey: 1
+            }, {
                 col: 2,
                 row: 1,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(true);
+            }
+        )).toEqual(true);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 1,
-            sizey: 2
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 1,
+                sizey: 2
+            }, {
                 col: 1,
                 row: 2,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(true);
+            }
+        )).toEqual(true);
 
-        expect(component['widgetOverlaps']({
-            col: 2,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 1,
                 row: 1,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(false);
+            }
+        )).toEqual(false);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 2,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 1,
                 row: 1,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(false);
+            }
+        )).toEqual(false);
 
         expect(component['widgetOverlaps']({
             col: 2,
@@ -1312,40 +1324,46 @@ describe('Dashboard', () => {
                 sizey: 1
             })).toEqual(true);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 2,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 2,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 1,
                 row: 1,
                 sizex: 1,
                 sizey: 2
-            })).toEqual(true);
+            }
+        )).toEqual(true);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 4,
-            sizey: 4
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            }, {
                 col: 2,
                 row: 2,
                 sizex: 1,
                 sizey: 1
-            })).toEqual(true);
+            }
+        )).toEqual(true);
 
-        expect(component['widgetOverlaps']({
-            col: 1,
-            row: 1,
-            sizex: 4,
-            sizey: 4
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 1,
+                row: 1,
+                sizex: 4,
+                sizey: 4
+            }, {
                 col: 3,
                 row: 3,
                 sizex: 4,
                 sizey: 4
-            })).toEqual(true);
+            }
+        )).toEqual(true);
     });
 });

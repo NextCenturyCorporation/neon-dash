@@ -34,7 +34,7 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutGridConfig } from '../../neon-gtd-config';
+import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../neon-gtd-config';
 
 @Component({
     selector: 'app-save-state',
@@ -110,13 +110,14 @@ export class SaveStateComponent implements OnInit {
         return clonedDashboard;
     }
 
-    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): Record<string, NeonGridItem[]> {
-        let layouts: Record<string, NeonGridItem[]> = {};
+    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): Record<string, NeonLayoutConfig[]> {
+        let layouts: Record<string, NeonLayoutConfig[]> = {};
 
         layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
             let widget = this.getWidgetById(widgetGridItem.id);
 
-            let widgetConfig: NeonGridItem = {
+            let widgetConfig: NeonLayoutConfig = {
+                name: widgetGridItem.name,
                 type: widgetGridItem.type,
                 col: widgetGridItem.col,
                 row: widgetGridItem.row,
@@ -155,12 +156,12 @@ export class SaveStateComponent implements OnInit {
         if (connection) {
             let validStateName = this.validateName(name);
             // Same format as the config file.
-            let stateData: any = {
+            let stateData: NeonGTDConfig = {
                 dashboards: this.createDashboard(validStateName, this.datasetService.getCurrentDashboard(),
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(validStateName, this.widgetGridItems),
-                stateName: validStateName
+                version: '1'
             };
 
             connection.saveState(stateData, (response) => {
@@ -244,8 +245,8 @@ export class SaveStateComponent implements OnInit {
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
                 const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
-                dash.fileName = response['fileName']; // TODO: Reconcile
-                dash.lastModified = response['lastModified'];
+                dash.fileName = response.fileName; // TODO: Reconcile
+                dash.lastModified = response.lastModified;
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dash
                 });

@@ -16,9 +16,9 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { Dashboard, DatabaseMetaData, Datastore, FieldMetaData, TableMetaData } from '../types';
+import { Dashboard, DatabaseMetaData, FieldMetaData, TableMetaData } from '../types';
 import { DashboardService } from './dashboard.service';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonGTDConfig, NeonDatastoreConfig } from '../neon-gtd-config';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
@@ -41,7 +41,7 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(datasetService.getDataset()).toEqual(new Datastore());
+        expect(datasetService.getDataset()).toEqual({ name: '', host: '', type: '', databases: {} } as NeonDatastoreConfig);
     });
 
     it('should have no active dashboards at creation', () => {
@@ -53,7 +53,6 @@ describe('Service: DashboardService', () => {
             name: 'd1',
             host: '',
             type: '',
-            hasUpdatedFields: false,
             databases: {}
         });
 
@@ -61,7 +60,6 @@ describe('Service: DashboardService', () => {
             name: 'd1',
             host: '',
             type: '',
-            hasUpdatedFields: false,
             databases: {}
         });
     });
@@ -107,7 +105,7 @@ describe('Service: DashboardService Static Functions', () => {
                 choices: {
                     test2: dashboard
                 }
-            }
+            } as any as Dashboard // TODO: Typings verify
         });
         expect(input).toEqual({
             test1: {
@@ -144,7 +142,7 @@ describe('Service: DashboardService Static Functions', () => {
                     prev2: previousDashboard
                 }
             }
-        };
+        } as any as Dashboard['choices']; // TODO: Figure out why typings
         let dashboard = Dashboard.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
@@ -153,7 +151,8 @@ describe('Service: DashboardService Static Functions', () => {
                     test2: dashboard
                 }
             }
-        });
+        } as any as Dashboard['choices']); // TODO: Figure out why typings
+
         expect(input).toEqual({
             test1: {
                 choices: {
@@ -364,7 +363,7 @@ describe('Service: DashboardService Static Functions', () => {
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: {
-                hasUpdatedFields: true,
+                ...{ hasUpdatedFields: true },
                 host: 'host1',
                 type: 'type1',
                 databases: {
@@ -725,9 +724,9 @@ describe('Service: DashboardService with Mock Data', () => {
     }));
 
     it('should have active datastore at creation', () => {
-        let datastore: Datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', hasUpdatedFields: false, databases: {} };
+        let datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
         datastore.databases = DashboardServiceMock.DATABASES;
-        datastore.hasUpdatedFields = true;
+        datastore['hasUpdatedFields'] = true;
         expect(datasetService.getDataset()).toEqual(datastore);
     });
 
