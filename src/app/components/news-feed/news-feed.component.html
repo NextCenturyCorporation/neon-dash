@@ -19,7 +19,7 @@
     </div>
 
     <div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
-        <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat">
+        <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat" [multi]="options.multiOpen">
             <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" (click)="selectGridItem(item)">
                 <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'">
                     <mat-panel-title>
@@ -29,14 +29,14 @@
                 </mat-expansion-panel-header>
                 <mat-panel-description>
                     <div>
-                        <dl *ngIf="item[options.contentField.columnName]">
-                            <dt *ngIf="options.contentLabel">{{options.contentLabel}}</dt>
-                            <dd>{{item[options.contentField.columnName]}}</dd>
-                        </dl>
-                        <dl *ngIf="item[options.secondaryContentField.columnName]">
-                            <dt *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</dt>
-                            <dd>{{item[options.secondaryContentField.columnName]}}</dd>
-                        </dl>
+                        <div class="text" *ngIf="item[options.contentField.columnName]">
+                            <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
+                            <p>{{item[options.contentField.columnName]}}</p>
+                        </div>
+                        <div class="text" *ngIf="item[options.secondaryContentField.columnName]">
+                            <h4 *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</h4>
+                            <p>{{item[options.secondaryContentField.columnName]}}</p>
+                        </div>
                         <p class="date">{{ item[options.dateField.columnName] }}</p>
                     </div>
                 </mat-panel-description>

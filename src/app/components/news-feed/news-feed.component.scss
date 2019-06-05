@@ -105,26 +105,24 @@ mat-accordion mat-expansion-panel {
         div {
             width: 100%;
         }
+
+        div > .text {
+            margin-top: 1em;
+        }
         
-        dl {
-            padding: 0;
-            margin-bottom: 10px;
+        p {
+            margin: 0;
+            text-align: justify;
+        }
 
-            dd, dt {
-                display: inline;
-            }
-
-            dd {
-                margin-inline-start: unset;               
-            }
-
-            dt {
-                padding-right: 0.5em;
-                color: var(--color-header-text, #333333);
-            }
+        h4 {
+            color: var(--color-header-text, #333333);
+            padding-top: 0;
+            margin-bottom: 0.25em;
         }
 
         .date {
+            margin-top: 0.5em;
             text-align: right;
             font-size: 0.7em;
         }
