@@ -30,12 +30,12 @@
                 <mat-panel-description>
                     <div>
                         <dl *ngIf="item[options.contentField.columnName]">
-                            <dt>Text</dt>
+                            <dt *ngIf="options.contentLabel">{{options.contentLabel}}</dt>
                             <dd>{{item[options.contentField.columnName]}}</dd>
                         </dl>
-                        <dl *ngIf="item[options.sourceContentField.columnName]">
-                            <dt>Original</dt>
-                            <dd>{{item[options.sourceContentField.columnName]}}</dd>
+                        <dl *ngIf="item[options.secondaryContentField.columnName]">
+                            <dt *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</dt>
+                            <dd>{{item[options.secondaryContentField.columnName]}}</dd>
                         </dl>
                         <p class="date">{{ item[options.dateField.columnName] }}</p>
                     </div>

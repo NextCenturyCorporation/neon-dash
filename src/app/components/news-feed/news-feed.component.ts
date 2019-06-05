@@ -94,7 +94,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('sourceContentField', 'Source Content Field', false),
+            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
             new WidgetFieldOption('titleContentField', 'Title Content Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
@@ -143,6 +143,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
+            new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
+            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', null),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)

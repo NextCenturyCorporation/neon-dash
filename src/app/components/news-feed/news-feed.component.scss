@@ -115,11 +115,11 @@ mat-accordion mat-expansion-panel {
             }
 
             dd {
-                margin-inline-start: unset;
-                padding-left: 0.5em;
+                margin-inline-start: unset;               
             }
 
             dt {
+                padding-right: 0.5em;
                 color: var(--color-header-text, #333333);
             }
         }
