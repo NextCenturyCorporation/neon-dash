@@ -63,7 +63,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public parentFilterIsOr: boolean = false;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -71,7 +71,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -89,7 +89,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.datasetService);
+        filterClause.updateDatabases(this.activeDashboard);
         filterClause.field = this.createEmptyField();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -205,7 +205,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.datasetService);
+        filterClause.updateTables(this.activeDashboard);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -234,7 +234,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.datasetService);
+        filterClause.updateFields(this.activeDashboard);
     }
 
     /**
@@ -297,7 +297,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.datasetService.findRelationDataList(),
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.activeDashboard.findRelationDataList(),
                 this.searchService);
 
             this.clearEveryFilterClause();

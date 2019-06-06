@@ -91,7 +91,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public seenValues = [];
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -99,7 +99,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -354,7 +354,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
+            let name = this.activeDashboard.translateFieldKeyToValue(miniArray[0]);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -404,7 +404,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let pName = header.prettyName;
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.datasetService.translateFieldKeyToValue(exception);
+            let name = this.activeDashboard.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -417,7 +417,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let sorted = [];
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.datasetService.translateFieldKeyToValue(exception);
+            let header = this.activeDashboard.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);

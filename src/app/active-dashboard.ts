@@ -28,7 +28,7 @@ export class ActiveDashboard {
      * @return {String}
      */
     static deconstructFieldName(name: string) {
-        const [database, table, ...field] = name.split('.');
+        const [database, table, ...field] = (name || '').split('.');
         return {
             database,
             table,
@@ -36,11 +36,13 @@ export class ActiveDashboard {
         };
     }
 
-    constructor(
-        public dashboard: Dashboard,
-        public datastore: NeonDatastoreConfig,
-        public config: NeonGTDConfig<Dashboard>
-    ) { }
+    public dashboard: Dashboard = Dashboard.get();
+    public datastore: NeonDatastoreConfig = { databases: {}, type: '', host: '' };
+    public config: NeonGTDConfig<Dashboard> = { dashboards: {} as any, datastores: {}, layouts: {}, version: '' };
+
+    get() {
+        return this.dashboard;
+    }
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
@@ -63,7 +65,7 @@ export class ActiveDashboard {
      *
      * @param simpleField The new field for the simple search
      */
-    public setCurrentDashboardSimpleFilterFieldName(simpleField: FieldMetaData) {
+    public setSimpleFilterFieldName(simpleField: FieldMetaData) {
         this.createSimpleFilter();
         this.dashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
@@ -385,7 +387,7 @@ export class ActiveDashboard {
      * @return {Object}
      *
      */
-    public getCurrentDashboardOptions(): Dashboard['options'] {
+    public getOptions(): Dashboard['options'] {
         return this.dashboard.options;
     }
 

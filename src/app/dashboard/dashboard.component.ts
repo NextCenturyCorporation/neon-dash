@@ -52,7 +52,7 @@ export function DashboardModified() {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
             if (!this.pendingInitialRegistrations && this.currentDashboard) {
-                this.currentDashboard.modified = true;
+                this.currentDashboard['modified'] = true; // TODO : resolve
             }
             return fn.call(this, ...args);
         };
@@ -675,11 +675,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         // TODO THOR-1062 Permit multiple datastores.
         const firstName = Object.keys(eventMessage.dashboard.datastores)[0];
         this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[firstName]);
-        this.datasetService.setCurrentDashboard(eventMessage.dashboard);
+        this.datasetService.activeDashboard.dashboard = eventMessage.dashboard;
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
-        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
+        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService.activeDashboard, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
@@ -711,21 +711,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @private
      */
     private showDashboardStateOnPageLoad() {
-        let parameterState: string = this.parameterService.findDashboardStateIdInUrl();
-
-        if (parameterState) {
-            this.parameterService.loadState(parameterState, this.parameterService.findFilterStateIdInUrl());
-        }
-
-        let parameterDataset: string = this.parameterService.findActiveDatasetInUrl();
-
         let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards);
 
         const firstDataStore = dashboard && Object.values(dashboard.datastores)[0];
 
-        if (dashboard && firstDataStore && (!parameterDataset || parameterDataset === firstDataStore.name)) {
+        if (dashboard && firstDataStore) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard: dashboard
+                dashboard
             });
         } else {
             this.toggleDashboardSelectorDialog(true);

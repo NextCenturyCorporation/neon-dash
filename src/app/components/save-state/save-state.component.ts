@@ -35,6 +35,7 @@ import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
 import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../neon-gtd-config';
+import { ActiveDashboard } from 'src/app/active-dashboard';
 
 @Component({
     selector: 'app-save-state',
@@ -55,6 +56,8 @@ export class SaveStateComponent implements OnInit {
     private messenger: eventing.Messenger;
     public states: { total: number, results: NeonGTDConfig[] } = { total: 0, results: [] };
 
+    public readonly activeDashboard: ActiveDashboard;
+
     constructor(
         protected datasetService: DashboardService,
         protected filterService: FilterService,
@@ -65,6 +68,7 @@ export class SaveStateComponent implements OnInit {
         private dialog: MatDialog
     ) {
         this.messenger = new eventing.Messenger();
+        this.activeDashboard = datasetService.activeDashboard;
     }
 
     ngOnInit() {
@@ -96,7 +100,7 @@ export class SaveStateComponent implements OnInit {
             ...(clonedDashboard.options || {}),
             connectOnLoad: true
         };
-        clonedDashboard.modified = false;
+        // clonedDashboard.modified = false;
 
         // Customize the dashboard with the saved state name
         clonedDashboard.name = stateName;
@@ -160,7 +164,7 @@ export class SaveStateComponent implements OnInit {
             // Same format as the config file.
             let stateData: NeonGTDConfig = {
                 projectTitle: validStateName,
-                dashboards: this.createDashboard(validStateName, this.datasetService.getCurrentDashboard(),
+                dashboards: this.createDashboard(validStateName, this.activeDashboard.get(),
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(validStateName, this.widgetGridItems),
@@ -170,7 +174,7 @@ export class SaveStateComponent implements OnInit {
             connection.saveState(stateData, (response) => {
                 if (this.current) {
                     this.current.name = name;
-                    this.current.fileName = `${validStateName}.yaml`;
+                    // this.current.fileName = `${validStateName}.yaml`;
                 }
                 this.handleSaveStateSuccess(response, validStateName);
             }, (response) => {
@@ -248,8 +252,6 @@ export class SaveStateComponent implements OnInit {
             if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
                 dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
                 const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
-                dash.fileName = response.fileName; // TODO: Reconcile
-                dash.lastModified = response.lastModified;
                 this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                     dashboard: dash
                 });
@@ -269,8 +271,8 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     private handleSaveStateSuccess(__response: any, name: string) {
-        this.current.modified = false;
-        this.current.lastModified = Date.now();
+        // this.current.modified = false;
+        // this.current.lastModified = Date.now();
 
         this.fetchStates();
         this.openNotification(name, 'saved');
@@ -330,7 +332,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     private openConnection() {
-        return this.connectionService.connect(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost());
+        return this.connectionService.connect(this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost());
     }
 
     public openNotification(stateName: string, actionName: string) {

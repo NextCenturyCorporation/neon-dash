@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { Dashboard, ActiveDashboard } from '../../types';
+import { Dashboard } from '../../types';
 import * as _ from 'lodash';
 
 @Component({
@@ -102,7 +102,7 @@ export class DashboardDropdownComponent {
      * @arg {DashboardDropdownComponent} dropdown - dropdown component
      */
     selectDashboardChoice(
-        dashboard: ActiveDashboard,
+        dashboard: Dashboard,
         paths: string[],
         indexToUse: number,
         dropdown: DashboardDropdownComponent
@@ -115,10 +115,7 @@ export class DashboardDropdownComponent {
         if (this.hasMoreChoices()) {
             let newIndex = indexToUse + 1;
             this.nextDropdown.selectDashboardChoice(
-                {
-                    ...dashboard.choices[path],
-                    config: dashboard.config
-                },
+                dashboard.choices[path],
                 paths,
                 newIndex,
                 this.nextDropdown

@@ -27,6 +27,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { ActiveDashboard } from '../../active-dashboard';
 
 @Component({
     selector: 'app-settings',
@@ -49,19 +50,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public showFilterTray: boolean = true;
     public showSimpleSearch: boolean;
     public showVisualizationsShortcut: boolean = true;
+    public readonly activeDashboard: ActiveDashboard;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DashboardService,
+        dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService
     ) {
+        this.injector = injector;
         this.messenger = new eventing.Messenger();
+        this.activeDashboard = dashboardService.activeDashboard;
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
+        this.activeDashboard.setSimpleFilterFieldName(this.searchField);
     }
 
     getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
@@ -134,18 +138,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     private updateSimpleSearchFilter() {
-        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
+        let simpleFilter: any = (this.activeDashboard.getOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-            let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            let table: TableMetaData = this.activeDashboard.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+            let field: FieldMetaData = this.activeDashboard.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
 
             this.fields = table.fields;
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.datasetService.getActiveFields();
+            this.fields = this.activeDashboard.getActiveFields();
         }
     }
 }
