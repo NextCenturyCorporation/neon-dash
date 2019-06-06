@@ -175,30 +175,31 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.filtersIcon = 'filters';
+        this.showFilterTray = true;
+        this.showCustomConnectionButton = true;
+        this.snackBar = snackBar;
 
         this.configService.get().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
-            this.showFilterTray = true;
-            this.showCustomConnectionButton = true;
-            this.neonConfig = neonConfig;
-            this.snackBar = snackBar;
+
+            const config = neonConfig;
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
             // The dashboards are read from the config file in the DashboardService's constructor.
             this.dashboards = this.datasetService.getDashboards();
-            this.dashboardVersion = neonConfig.version || '';
+            this.dashboardVersion = config.version || '';
 
-            if (this.neonConfig) {
-                if (neonConfig.errors && neonConfig.errors.length > 0) {
+            if (config) {
+                if (config.errors && config.errors.length > 0) {
                     let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
                         viewContainerRef: this.viewContainerRef
                     });
                     snackBarRef.instance.snackBarRef = snackBarRef;
-                    snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
+                    snackBarRef.instance.addErrors('Configuration Errors', config.errors);
                 }
 
-                this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
-                this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
+                this.projectTitle = config.projectTitle ? config.projectTitle : this.projectTitle;
+                this.projectIcon = config.projectIcon ? config.projectIcon : this.projectIcon;
                 this.changeFavicon();
             }
         });
