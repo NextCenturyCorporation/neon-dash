@@ -20,7 +20,7 @@ import {
 import * as _ from 'lodash';
 import { NeonGTDConfig, NeonDatastoreConfig } from './neon-gtd-config';
 
-export class ActiveDashboard {
+export class DashboardState {
 
     /**
      * Returns database name from complete field name (datastore.database.table.field).
@@ -36,9 +36,11 @@ export class ActiveDashboard {
         };
     }
 
-    public dashboard: Dashboard = Dashboard.get();
-    public datastore: NeonDatastoreConfig = { databases: {}, type: '', host: '' };
-    public config: NeonGTDConfig<Dashboard> = { dashboards: {} as any, datastores: {}, layouts: {}, version: '' };
+    constructor(
+        public dashboard: Dashboard = Dashboard.get(),
+        public datastore: NeonDatastoreConfig = { databases: {}, type: '', host: '' },
+        public config: NeonGTDConfig<Dashboard> = { dashboards: {} as any, datastores: {}, layouts: {}, version: '' }
+    ) { }
 
     get() {
         return this.dashboard;
@@ -50,7 +52,7 @@ export class ActiveDashboard {
      * @return {String}
      */
     deconstructFieldName(key: string) {
-        return ActiveDashboard.deconstructFieldName(this.dashboard.tables[key]);
+        return DashboardState.deconstructFieldName(this.dashboard.tables[key]);
     }
 
     /**

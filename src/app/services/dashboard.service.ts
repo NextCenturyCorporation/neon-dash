@@ -25,28 +25,24 @@ import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { NeonGTDConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../neon-gtd-config';
 import { ConnectionService, Connection } from './connection.service';
-import { ActiveDashboard } from '../active-dashboard';
+import { DashboardState } from '../active-dashboard';
 
 @Injectable()
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    protected datasets: Record<string, NeonDatastoreConfig> = {};
+    private readonly config: NeonGTDConfig<Dashboard> = { dashboards: {} as Dashboard, layouts: {}, datastores: {}, version: '' };
 
-    public config: NeonGTDConfig<Dashboard>;
+    public readonly state = new DashboardState();
 
-    public readonly activeDashboard = new ActiveDashboard();
-
-    protected dashboards: Dashboard;
-
-    protected layouts: { [key: string]: any };
-
-    // The currently selected dashboard.
-    protected layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
-    private messenger: any;
+    private messenger: eventing.Messenger;
+
+    public get dashboards() { return this.config.dashboards; }
+    public get layouts() { return this.config.layouts; }
+    public get datastores() { return this.config.datastores; }
 
 
     // ---
@@ -149,10 +145,6 @@ export class DashboardService {
      * @arg {any} layouts
      */
     static updateLayoutInDashboards(dashboard: Dashboard, layouts: any): void {
-        if (dashboard.layout) {
-            dashboard.layoutObject = layouts[dashboard.layout] || [];
-        }
-
         if (dashboard.choices) {
             Object.keys(dashboard.choices).forEach((key) => DashboardService.updateLayoutInDashboards(dashboard.choices[key], layouts));
         }
@@ -269,14 +261,14 @@ export class DashboardService {
                     db.options.simpleFilter.tableKey) {
                     let tableKey = db.options.simpleFilter.tableKey;
 
-                    const { database, table } = ActiveDashboard.deconstructFieldName(db.tables[tableKey]);
+                    const { database, table } = DashboardState.deconstructFieldName(db.tables[tableKey]);
 
                     db.options.simpleFilter.databaseName = database;
                     db.options.simpleFilter.tableName = table;
 
                     if (db.options.simpleFilter.fieldKey) {
                         let fieldKey = db.options.simpleFilter.fieldKey;
-                        const { field: fieldName } = ActiveDashboard.deconstructFieldName(db.fields[fieldKey]);
+                        const { field: fieldName } = DashboardState.deconstructFieldName(db.fields[fieldKey]);
 
                         db.options.simpleFilter.fieldName = fieldName;
                     } else {
@@ -299,35 +291,24 @@ export class DashboardService {
     }
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
-        this.datasets = {};
         this.messenger = new eventing.Messenger();
         this.configService.$source.subscribe((config: NeonGTDConfig<Dashboard>) => {
-            this.config = config;
-            this.activeDashboard.config = config;
+            this.setConfig(config);
 
-            this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
-                { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig);
-
-            this.datasets = DashboardService.appendDatastoresFromConfig(config.datastores || {}, {});
-
-            this.layouts = _.cloneDeep(config.layouts || {});
-
-            DashboardService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-            DashboardService.updateLayoutInDashboards(this.dashboards, this.layouts);
 
             let loaded = 0;
-            Object.values(this.datasets).forEach((dataset) => {
-                DashboardService.validateDatabases(dataset);
+            Object.values(this.config.datastores).forEach((datastore) => {
+                DashboardService.validateDatabases(datastore);
 
                 let callback = () => {
                     this.messenger.publish(neonEvents.DASHBOARD_READY, {});
                 };
 
-                let connection = this.connectionService.connect(dataset.type, dataset.host);
+                let connection = this.connectionService.connect(datastore.type, datastore.host);
                 if (connection) {
                     // Update the fields within each table to add any that weren't listed in the config file as well as field types.
-                    this.updateDatabases(dataset, connection).then(() => {
-                        if (++loaded === Object.keys(this.datasets).length) {
+                    this.updateDatabases(datastore, connection).then(() => {
+                        if (++loaded === Object.keys(this.config.datastores).length) {
                             callback();
                         }
                     });
@@ -338,23 +319,19 @@ export class DashboardService {
         });
     }
 
-    public appendDatasets(dashboard: Dashboard, datastores: { [key: string]: any }, layouts: { [key: string]: any }): Dashboard {
-        let validatedDashboard: Dashboard = DashboardService.validateDashboards(dashboard);
-
-        DashboardService.assignDashboardChoicesFromConfig(this.dashboards.choices || {}, validatedDashboard.choices || {});
-
-        DashboardService.appendDatastoresFromConfig(datastores, this.datasets);
-
-        Object.keys(layouts).forEach((layout) => {
-            this.layouts[layout] = layouts[layout];
+    setConfig(config: NeonGTDConfig<Dashboard>) {
+        Object.assign(this.config, {
+            dashboards: DashboardService.validateDashboards(
+                config.dashboards ?
+                    _.cloneDeep(config.dashboards) :
+                    { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig
+            ),
+            datastores: DashboardService.appendDatastoresFromConfig(config.datastores || {}, {}),
+            layouts: _.cloneDeep(config.layouts || {})
         });
-
-        DashboardService.updateDatastoresInDashboards(this.dashboards, this.datasets);
-
-        DashboardService.updateLayoutInDashboards(this.dashboards, this.layouts);
-
-        return this.dashboards;
+        this.state.config = this.config;
     }
+
 
     // ---
     // PRIVATE METHODS
@@ -364,27 +341,19 @@ export class DashboardService {
      * Updates the dataset that matches the active dataset.
      */
     // TODO: THOR-1062: may need to change to account for multiple datastores later
-    private updateDataset(): void {
-        for (const name of Object.keys(this.datasets)) {
-            this.datasets[name] = _.cloneDeep(this.datasets[name]);
+    private cloneDatastores(): void {
+        for (const name of Object.keys(this.config.datastores)) {
+            this.config.datastores[name] = _.cloneDeep(this.config.datastores[name]);
         }
-    }
-
-    /**
-     * Returns the list of datasets maintained by this service
-     */
-    public getDatasets(): Record<string, NeonDatastoreConfig> {
-        return this.datasets;
     }
 
     /**
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset: NeonDatastoreConfig): Record<string, NeonDatastoreConfig> {
-        DashboardService.validateDatabases(dataset);
-        this.datasets[dataset.name] = dataset;
-        return this.datasets;
+    public addDatastore(datastore: NeonDatastoreConfig) {
+        DashboardService.validateDatabases(datastore);
+        this.config.datastores[datastore.name] = datastore;
     }
 
     /**
@@ -397,29 +366,13 @@ export class DashboardService {
      */
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
-    public setActiveDataset(dataset: NeonDatastoreConfig): void {
-        this.activeDashboard.datastore = {
+    public setActiveDatastore(datastore: NeonDatastoreConfig): void {
+        this.state.datastore = {
             name: 'Unknown Dataset',
             type: '',
             host: '',
-            ...dataset
+            ...datastore
         };
-    }
-
-    /**
-     * Returns all of the dashboards.
-     * @return {Dashboard}
-     */
-    public getDashboards(): Dashboard {
-        return this.dashboards;
-    }
-
-    /**
-     * Returns all of the layouts.
-     * @return {[key: string]: any}
-     */
-    public getLayouts(): { [key: string]: any } {
-        return this.layouts;
     }
 
     /**
@@ -427,24 +380,24 @@ export class DashboardService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
-        this.activeDashboard.dashboard.layout = layoutName; // TODO: Cleanup
-        this.updateDataset();
+        this.state.dashboard.layout = layoutName; // TODO: Cleanup
+        this.cloneDatastores();
     }
 
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
-     * @param {Object} dataset
+     * @param {Object} datastore
      * @param {Connection} connection
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(dataset: NeonDatastoreConfig, connection: Connection): any {
-        let promiseArray = dataset['hasUpdatedFields'] ? [] : Object.values(dataset.databases).map((database) =>
+    public updateDatabases(datastore: NeonDatastoreConfig, connection: Connection): any {
+        let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
         return Promise.all(promiseArray).then((__response) => {
-            dataset['hasUpdatedFields'] = true;
-            return dataset;
+            datastore['hasUpdatedFields'] = true;
+            return datastore;
         });
     }
 
@@ -538,7 +491,7 @@ export class DashboardService {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
                 for (const tableKey of tableKeys) {
-                    const { database } = ActiveDashboard.deconstructFieldName(dashboardChoices[choiceKey].tables[tableKey]);
+                    const { database } = DashboardState.deconstructFieldName(dashboardChoices[choiceKey].tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
@@ -568,7 +521,7 @@ export class DashboardService {
      * @return {{[key:string]:any}}
      */
     public getDatastoresInConfigFormat(): { [key: string]: any } {
-        return Object.values(this.datasets).reduce((datastores, datastore) => {
+        return Object.values(this.datastores).reduce((datastores, datastore) => {
             datastores[datastore.name] = {
                 hasUpdatedFields: datastore['hasUpdatedFields'],
                 host: datastore.host,

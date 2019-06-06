@@ -47,7 +47,7 @@ import * as _ from 'lodash';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
-import { ActiveDashboard } from '../../active-dashboard';
+import { DashboardState } from '../../active-dashboard';
 
 /**
  * @class BaseNeonComponent
@@ -95,7 +95,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public options: WidgetOptionCollection;
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
-    readonly activeDashboard: ActiveDashboard;
+    readonly dashboardState: DashboardState;
 
     constructor(
         protected dashboardService: DashboardService,
@@ -106,7 +106,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         public dialog: MatDialog
     ) {
         this.messenger = new eventing.Messenger();
-        this.activeDashboard = dashboardService.activeDashboard;
+        this.dashboardState = dashboardService.state;
     }
 
     /**
@@ -204,7 +204,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let layerOptions = new WidgetOptionCollection(this.createLayerFieldOptions.bind(this), undefined, layerBindings);
         layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
         layerOptions.inject(this.createLayerNonFieldOptions());
-        layerOptions.updateDatabases(this.activeDashboard);
+        layerOptions.updateDatabases(this.dashboardState);
         options.layers.push(layerOptions);
         return layerOptions;
     }
@@ -353,7 +353,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.activeDashboard.findRelationDataList(), this.searchService, filterDesignListToDelete);
+            this.dashboardState.findRelationDataList(), this.searchService, filterDesignListToDelete);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -376,7 +376,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.activeDashboard.findRelationDataList(), this.searchService);
+            this.dashboardState.findRelationDataList(), this.searchService);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -684,7 +684,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost(), query
+            this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), query
         ));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
@@ -714,7 +714,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: any): boolean {
-        return (!this.searchService.canRunSearch(this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost()) ||
+        return (!this.searchService.canRunSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost()) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
 
@@ -1030,7 +1030,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: any) {
-        let dataset = this.activeDashboard.datastore;
+        let dataset = this.dashboardState.datastore;
         let matchingDatabase = dataset.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
@@ -1111,7 +1111,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         options.inject(this.createNonFieldOptions());
 
-        options.updateDatabases(this.activeDashboard);
+        options.updateDatabases(this.dashboardState);
 
         this.injector.get('layers', []).forEach((layerBindings) => {
             this.addLayer(options, layerBindings);
@@ -1142,7 +1142,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     public getVisualizationTitle(configValue: any): string {
-        let currentDashboard = this.activeDashboard.get();
+        let currentDashboard = this.dashboardState.get();
 
         if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
             return currentDashboard.visualizationTitles[configValue];
@@ -1274,13 +1274,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
             (this.options.contributionKeys === null &&
-                this.activeDashboard.get() &&
-                this.activeDashboard.get().contributors &&
-                Object.keys(this.activeDashboard.get().contributors).length));
+                this.dashboardState.get() &&
+                this.dashboardState.get().contributors &&
+                Object.keys(this.dashboardState.get().contributors).length));
     }
 
     protected getContributorsForComponent() {
-        let allContributors = this.activeDashboard.get().contributors;
+        let allContributors = this.dashboardState.get().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
             Object.keys(allContributors);
 
@@ -1288,7 +1288,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected getContributorAbbreviations() {
-        let contributors = this.activeDashboard.get().contributors;
+        let contributors = this.dashboardState.get().contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
             Object.keys(contributors);
 

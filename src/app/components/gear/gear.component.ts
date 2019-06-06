@@ -35,7 +35,7 @@ import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { ActiveDashboard } from '../../active-dashboard';
+import { DashboardState } from '../../active-dashboard';
 
 @Component({
     selector: 'app-gear',
@@ -78,7 +78,7 @@ export class GearComponent implements OnInit, OnDestroy {
     public collapseOptionalOptions: boolean = true;
     public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
-    public readonly activeDashboard: ActiveDashboard;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -86,7 +86,7 @@ export class GearComponent implements OnInit, OnDestroy {
         protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();
-        this.activeDashboard = dashboardService.activeDashboard;
+        this.dashboardState = dashboardService.state;
     }
 
     private closeSidenav() {
@@ -241,7 +241,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeDatabase(options: WidgetOptionCollection): void {
-        options.updateTables(this.activeDashboard);
+        options.updateTables(this.dashboardState);
         this.changeMade = true;
     }
 
@@ -251,7 +251,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeTable(options: WidgetOptionCollection): void {
-        options.updateFields(this.activeDashboard);
+        options.updateFields(this.dashboardState);
         this.changeMade = true;
     }
 

@@ -99,9 +99,9 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         value?: any
     ): FilterDesign {
-        let database: DatabaseMetaData = this.activeDashboard.getDatabaseWithName(databaseName);
-        let table: TableMetaData = this.activeDashboard.getTableWithName(databaseName, tableName);
-        let field: FieldMetaData = this.activeDashboard.getFieldWithName(databaseName, tableName, fieldName);
+        let database: DatabaseMetaData = this.dashboardState.getDatabaseWithName(databaseName);
+        let table: TableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
+        let field: FieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
             datastore: '',
             database: database,
@@ -362,7 +362,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
             let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
             let queryFields = [fields.idField, fields.filterField];
-            let execute = this.searchService.runSearch(this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost(), {
+            let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
                 query: extensionQuery
             });
             let tempArray = [];

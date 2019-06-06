@@ -19,7 +19,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { ConnectionService } from '../../services/connection.service';
-import { ActiveDashboard } from '../../active-dashboard';
+import { DashboardState } from '../../active-dashboard';
 
 @Component({
     selector: 'app-export-control',
@@ -38,7 +38,7 @@ export class ExportControlComponent {
     }];
 
     public exportFormat: number;
-    public readonly activeDashboard: ActiveDashboard;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         dashboardService: DashboardService,
@@ -52,7 +52,7 @@ export class ExportControlComponent {
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         this.handleExportClick = this.handleExportClick.bind(this);
 
-        this.activeDashboard = dashboardService.activeDashboard;
+        this.dashboardState = dashboardService.state;
     }
     setExportFormat(__value: number) {
         // Do nothing.
@@ -85,8 +85,8 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection = this.connectionService.connect(this.activeDashboard.getDatastoreType(),
-            this.activeDashboard.getDatastoreHost());
+        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
+            this.dashboardState.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {

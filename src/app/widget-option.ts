@@ -20,7 +20,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
-import { ActiveDashboard } from './active-dashboard';
+import { DashboardState } from './active-dashboard';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string, variable: any }
@@ -388,17 +388,17 @@ export class WidgetOptionCollection {
     /**
      * Returns the field object for the given binding key or an empty field object.
      */
-    public findFieldObject(activeDashboard: ActiveDashboard, bindingKey: string): FieldMetaData {
+    public findFieldObject(dashboardState: DashboardState, bindingKey: string): FieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(activeDashboard.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
+        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      */
-    public findFieldObjects(activeDashboard: ActiveDashboard, bindingKey: string): FieldMetaData[] {
+    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): FieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(activeDashboard.translateFieldKeyToValue(
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
             fieldKey
         ))).filter((fieldsObject) => !!fieldsObject);
     }
@@ -427,17 +427,17 @@ export class WidgetOptionCollection {
     /**
      * Updates all the databases, tables, and fields in the options.
      */
-    public updateDatabases(activeDashboard: ActiveDashboard): void {
-        this.databases = activeDashboard.getDatabases();
-        this.database = activeDashboard.getCurrentDatabase() || this.databases[0] || this.database;
+    public updateDatabases(dashboardState: DashboardState): void {
+        this.databases = dashboardState.getDatabases();
+        this.database = dashboardState.getCurrentDatabase() || this.databases[0] || this.database;
 
         if (this.databases.length) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = activeDashboard.get();
+            let currentDashboard = dashboardState.get();
             let configDatabase: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = activeDashboard.deconstructFieldName(tableKey).database;
+                configDatabase = dashboardState.deconstructFieldName(tableKey).database;
 
                 if (configDatabase) {
                     for (let database of this.databases) {
@@ -450,25 +450,25 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateTables(activeDashboard);
+        return this.updateTables(dashboardState);
     }
 
     /**
      * Updates all the fields in the options.
      */
-    public updateFields(activeDashboard: ActiveDashboard): void {
+    public updateFields(dashboardState: DashboardState): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = activeDashboard.getSortedFields(this.database.name, this.table.name, true)
+            this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
                 .filter((field) => (field && field.columnName));
 
             // Create the field options and assign the default value as FieldMetaData objects.
             this.createFieldOptionsCallback().forEach((fieldsOption) => {
                 if (fieldsOption.optionType === OptionType.FIELD) {
-                    this.append(fieldsOption, this.findFieldObject(activeDashboard, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObject(dashboardState, fieldsOption.bindingKey));
                 }
                 if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
-                    this.append(fieldsOption, this.findFieldObjects(activeDashboard, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObjects(dashboardState, fieldsOption.bindingKey));
                 }
             });
         }
@@ -477,21 +477,21 @@ export class WidgetOptionCollection {
     /**
      * Updates all the tables and fields in the options.
      */
-    public updateTables(activeDashboard: ActiveDashboard): void {
+    public updateTables(dashboardState: DashboardState): void {
         this.tables = this.database ?
             Object
-                .values(activeDashboard.getTables(this.database.name))
+                .values(dashboardState.getTables(this.database.name))
                 .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
             [];
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = activeDashboard.get();
+            let currentDashboard = dashboardState.get();
             let configTable: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = activeDashboard.deconstructFieldName(tableKey).table;
+                configTable = dashboardState.deconstructFieldName(tableKey).table;
 
                 if (configTable) {
                     for (let table of this.tables) {
@@ -504,7 +504,7 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateFields(activeDashboard);
+        return this.updateFields(dashboardState);
     }
 }
 

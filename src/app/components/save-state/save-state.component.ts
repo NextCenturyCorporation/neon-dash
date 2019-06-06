@@ -35,7 +35,7 @@ import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
 import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../neon-gtd-config';
-import { ActiveDashboard } from 'src/app/active-dashboard';
+import { DashboardState } from '../../active-dashboard';
 
 @Component({
     selector: 'app-save-state',
@@ -56,7 +56,7 @@ export class SaveStateComponent implements OnInit {
     private messenger: eventing.Messenger;
     public states: { total: number, results: NeonGTDConfig[] } = { total: 0, results: [] };
 
-    public readonly activeDashboard: ActiveDashboard;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         protected datasetService: DashboardService,
@@ -68,7 +68,7 @@ export class SaveStateComponent implements OnInit {
         private dialog: MatDialog
     ) {
         this.messenger = new eventing.Messenger();
-        this.activeDashboard = datasetService.activeDashboard;
+        this.dashboardState = datasetService.state;
     }
 
     ngOnInit() {
@@ -111,7 +111,6 @@ export class SaveStateComponent implements OnInit {
 
         // Unset the properties that were set by the dataset service (but keep the fullTitle)
         clonedDashboard.datastores = undefined;
-        clonedDashboard.layoutObject = undefined;
         clonedDashboard.pathFromTop = undefined;
 
         return clonedDashboard;
@@ -164,7 +163,7 @@ export class SaveStateComponent implements OnInit {
             // Same format as the config file.
             let stateData: NeonGTDConfig = {
                 projectTitle: validStateName,
-                dashboards: this.createDashboard(validStateName, this.activeDashboard.get(),
+                dashboards: this.createDashboard(validStateName, this.dashboardState.get(),
                     this.filterService.getFiltersToSaveInConfig()),
                 datastores: this.datasetService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(validStateName, this.widgetGridItems),
@@ -244,21 +243,14 @@ export class SaveStateComponent implements OnInit {
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: NeonGTDConfig, name: string) {
+    private handleLoadStateSuccess(response: NeonGTDConfig<Dashboard>, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
-            let dashboard: Dashboard = this.datasetService.appendDatasets(this.wrapInSavedStateDashboard(name, response.dashboards as Dashboard),
-                response.datastores, response.layouts);
+            this.datasetService.setConfig(response);
             // Dashboard choices should be set by wrapInSavedStateDashboard
-            if (dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] &&
-                dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name]) {
-                const dash = dashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY].choices[name];
-                this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                    dashboard: dash
-                });
-                this.openNotification(name, 'loaded');
-            } else {
-                console.error('Dashboard does not have saved state ' + name, dashboard);
-            }
+            this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                dashboard: response.dashboards
+            });
+            this.openNotification(name, 'loaded');
         } else {
             this.openNotification(name, 'not loaded:  bad format');
         }
@@ -332,7 +324,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     private openConnection() {
-        return this.connectionService.connect(this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost());
+        return this.connectionService.connect(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost());
     }
 
     public openNotification(stateName: string, actionName: string) {
