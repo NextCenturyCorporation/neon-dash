@@ -90,6 +90,8 @@ export class Dashboard {
         return {
             layout: '',
             filters: [],
+            fields: {},
+            tables: {},
             visualizationTitles: {},
             contributors: {},
             choices: {},

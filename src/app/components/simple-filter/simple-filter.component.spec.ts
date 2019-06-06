@@ -59,7 +59,7 @@ describe('Component: SimpleFilter', () => {
         fixture = TestBed.createComponent(SimpleFilterComponent);
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(FilterService);
-        fixture.debugElement.injector.get(DashboardService).getCurrentDashboardOptions().simpleFilter = {
+        fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
             databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
             tableName: DashboardServiceMock.TABLES.testTable1.name,
             fieldName: DashboardServiceMock.TEXT_FIELD.columnName

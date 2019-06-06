@@ -1833,7 +1833,7 @@ describe('BaseNeonComponent', () => {
         let filters = [{}];
         component.exchangeFilters(filters);
 
-        let relations = component['datasetService'].findRelationDataList();
+        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService'], undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
@@ -1853,7 +1853,7 @@ describe('BaseNeonComponent', () => {
         let filters = [{}];
         component.exchangeFilters(filters);
 
-        let relations = component['datasetService'].findRelationDataList();
+        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService'], undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
@@ -1873,7 +1873,7 @@ describe('BaseNeonComponent', () => {
         let filters = [{}];
         component.toggleFilters(filters);
 
-        let relations = component['datasetService'].findRelationDataList();
+        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService']]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
@@ -1893,7 +1893,7 @@ describe('BaseNeonComponent', () => {
         let filters = [{}];
         component.toggleFilters(filters);
 
-        let relations = component['datasetService'].findRelationDataList();
+        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService']]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
