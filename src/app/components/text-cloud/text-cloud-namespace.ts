@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+//  Reimplemented from: jquery.tagcloud.js at https://github.com/addywaddy/jquery.tagcloud.js by Adam Groves Copyright 2008
+
 export class TextCloud {
     private size: SizeOptions;
     private color: ColorOptions;
