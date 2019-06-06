@@ -1,4 +1,4 @@
-import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from './neon-gtd-config';
+import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, NeonGTDConfig } from './neon-gtd-config';
 
 /*
  * Copyright 2017 Next Century Corporation
@@ -85,6 +85,10 @@ export interface Dashboard extends NeonDashboardConfig<Dashboard> {
     pathFromTop: string[]; // Added to dashboard in validateDashboards() - contains keys
     // The datastores and layoutObject properties are assigned by the DashboardService.
     layoutObject: any[] | Record<string, any[]>;
+}
+
+export interface ActiveDashboard extends Dashboard {
+    config: NeonGTDConfig<Dashboard>;
 }
 
 export class Dashboard {

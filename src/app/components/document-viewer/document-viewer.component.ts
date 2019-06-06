@@ -65,7 +65,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -75,7 +75,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         public dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

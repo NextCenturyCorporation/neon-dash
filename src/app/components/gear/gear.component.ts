@@ -30,7 +30,7 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption } from '../../widget-option';
+import { OptionType, WidgetOption, WidgetOptionCollection } from '../../widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
@@ -236,7 +236,7 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeDatabase(options: any): void {
+    public handleChangeDatabase(options: WidgetOptionCollection): void {
         options.updateTables(this.datasetService);
         this.changeMade = true;
     }
@@ -246,7 +246,7 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeTable(options: any): void {
+    public handleChangeTable(options: WidgetOptionCollection): void {
         options.updateFields(this.datasetService);
         this.changeMade = true;
     }

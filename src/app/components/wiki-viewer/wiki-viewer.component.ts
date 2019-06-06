@@ -43,7 +43,7 @@ import {
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
-    constructor(public name: string, public text: SafeHtml) {}
+    constructor(public name: string, public text: SafeHtml) { }
 }
 
 /**
@@ -66,7 +66,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     public wikiViewerData: any[] = [];
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -76,7 +76,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

@@ -33,8 +33,6 @@ export class DashboardService {
 
     protected datasets: Record<string, NeonDatastoreConfig> = {};
 
-    private config: NeonGTDConfig;
-
     // The active dataset.
     // TODO: THOR-1062: This will probably need to be an array/map of active datastores
     // since a dashboard can reference multiple datastores.
@@ -369,8 +367,6 @@ export class DashboardService {
         this.datasets = {};
         this.messenger = new eventing.Messenger();
         this.configService.$source.subscribe((config: NeonGTDConfig) => {
-            this.config = config;
-
             this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
                 { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig);
 

@@ -64,7 +64,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public newsFeedData: any[] = null;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -73,7 +73,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

@@ -383,21 +383,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @return {Dashboard}
      * @private
      */
-    private findAutoShowDashboard(dashboardChoices: { [key: string]: Dashboard }): Dashboard {
-        for (let choiceKey of Object.keys(dashboardChoices || {})) {
-            let nestedChoiceKeys = Object.keys(dashboardChoices[choiceKey].choices || {});
-            if (!nestedChoiceKeys.length) {
-                if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad) {
-                    return dashboardChoices[choiceKey];
-                }
-            } else {
-                let nestedDashboard = this.findAutoShowDashboard(dashboardChoices[choiceKey].choices);
+    private findAutoShowDashboard(dashboard: Dashboard): Dashboard {
+        if (dashboard.options && dashboard.options.connectOnLoad) {
+            return dashboard;
+        } else {
+            const choices = dashboard.choices || {};
+            for (let choiceKey of Object.keys(choices)) {
+                let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
                 if (nestedDashboard) {
                     return nestedDashboard;
                 }
             }
         }
-        return null;
     }
 
     /**
@@ -721,7 +718,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         let parameterDataset: string = this.parameterService.findActiveDatasetInUrl();
 
-        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards.choices);
+        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards);
 
         const firstDataStore = dashboard && Object.values(dashboard.datastores)[0];
 

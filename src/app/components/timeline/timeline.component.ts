@@ -95,7 +95,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public timelineQueryResults: { value: number, date: Date }[] = null;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -104,7 +104,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -293,19 +293,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
-                // Falls through
+            // Falls through
             case 'hour':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
-                // Falls through
+            // Falls through
             case 'day':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
-                // Falls through
+            // Falls through
             case 'month':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
-                // Falls through
+            // Falls through
             case 'year':
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
-                // Falls through
+            // Falls through
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))

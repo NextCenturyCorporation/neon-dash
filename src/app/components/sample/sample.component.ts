@@ -78,7 +78,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     /* eslint-disable @typescript-eslint/no-useless-constructor */
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -86,7 +86,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

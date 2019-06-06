@@ -60,7 +60,7 @@ export interface CompoundFilterDesign extends FilterDesign {
     filters: FilterDesign[];
 }
 
-export namespace FilterUtil {
+export class FilterUtil {
 
     /**
      * Returns if the given FilterDataSource objects are equivalent.
@@ -70,7 +70,7 @@ export namespace FilterUtil {
      * @arg {boolean} [ignoreOperator=false]
      * @return {boolean}
      */
-    export function areFilterDataSourcesEquivalent(
+    static areFilterDataSourcesEquivalent(
         item1: FilterDataSource,
         item2: FilterDataSource,
         ignoreOperator: boolean = false
@@ -87,12 +87,12 @@ export namespace FilterUtil {
      * @arg {FilterDataSource[]} list2
      * @return {boolean}
      */
-    export function areFilterDataSourceListsEquivalent(list1: FilterDataSource[], list2: FilterDataSource[]): boolean {
+    static areFilterDataSourceListsEquivalent(list1: FilterDataSource[], list2: FilterDataSource[]): boolean {
         return list1.length === list2.length &&
             // Each FilterDataSource in list1 must be equivalent to a FilterDataSource in list2.
-            list1.every((item1) => list2.some((item2) => areFilterDataSourcesEquivalent(item1, item2))) &&
+            list1.every((item1) => list2.some((item2) => this.areFilterDataSourcesEquivalent(item1, item2))) &&
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
-            list2.every((item2) => list2.some((item1) => areFilterDataSourcesEquivalent(item1, item2)));
+            list2.every((item2) => list2.some((item1) => this.areFilterDataSourcesEquivalent(item1, item2)));
     }
 
     /**
@@ -103,7 +103,7 @@ export namespace FilterUtil {
      * @arg {FieldMetaData} field
      * @return {string}
      */
-    export function createFilterName(database: DatabaseMetaData, table: TableMetaData, field: FieldMetaData, operator: string): string {
+    static createFilterName(database: DatabaseMetaData, table: TableMetaData, field: FieldMetaData, operator: string): string {
         return database.prettyName + ' / ' + table.prettyName + ' / ' + field.prettyName + ' ' + operator.toUpperCase();
     }
 
@@ -114,11 +114,11 @@ export namespace FilterUtil {
      * @arg {boolean} [ignoreOperator=false]
      * @return {FilterDataSource[]}
      */
-    export function createFilterDataSourceListFromDesign(
+    static createFilterDataSourceListFromDesign(
         filterDesign: FilterDesign,
         ignoreOperator: boolean = false
     ): FilterDataSource[] {
-        if (isSimpleFilterDesign(filterDesign)) {
+        if (this.isSimpleFilterDesign(filterDesign)) {
             let simpleFilterDesign = filterDesign;
 
             if (simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
@@ -133,17 +133,17 @@ export namespace FilterUtil {
             }
         }
 
-        if (isCompoundFilterDesign(filterDesign)) {
+        if (this.isCompoundFilterDesign(filterDesign)) {
             let compoundFilterDesign = filterDesign;
 
             let returnList: FilterDataSource[] = [];
 
             compoundFilterDesign.filters.forEach((nestedFilterDesign) => {
-                let nestedDataSourceList: FilterDataSource[] = createFilterDataSourceListFromDesign(nestedFilterDesign,
+                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromDesign(nestedFilterDesign,
                     ignoreOperator);
 
                 nestedDataSourceList.forEach((nestedDataSource) => {
-                    let exists = returnList.some((existingDataSource) => areFilterDataSourcesEquivalent(nestedDataSource,
+                    let exists = returnList.some((existingDataSource) => this.areFilterDataSourcesEquivalent(nestedDataSource,
                         existingDataSource, ignoreOperator));
 
                     if (!exists) {
@@ -164,7 +164,7 @@ export namespace FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    export function createFilterDesignFromJsonObject(filterObject: any, datasetService: DashboardService): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: any, datasetService: DashboardService): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
             let database: DatabaseMetaData = datasetService.getDatabaseWithName(filterObject.database);
@@ -188,7 +188,7 @@ export namespace FilterUtil {
                 root: filterObject.root,
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    createFilterDesignFromJsonObject(nestedObject, datasetService))
+                    this.createFilterDesignFromJsonObject(nestedObject, datasetService))
             } as CompoundFilterDesign;
         }
 
@@ -202,11 +202,11 @@ export namespace FilterUtil {
      * @arg {AbstractSearchService} searchService
      * @return {AbstractFilter}
      */
-    export function createFilterFromDesign(filterDesign: FilterDesign, searchService: AbstractSearchService): AbstractFilter {
+    static createFilterFromDesign(filterDesign: FilterDesign, searchService: AbstractSearchService): AbstractFilter {
         let filter: AbstractFilter = null;
-        let simpleFilterDesign: SimpleFilterDesign = isSimpleFilterDesign(filterDesign) ? (filterDesign) :
+        let simpleFilterDesign: SimpleFilterDesign = this.isSimpleFilterDesign(filterDesign) ? (filterDesign) :
             null;
-        let compoundFilterDesign: CompoundFilterDesign = isCompoundFilterDesign(filterDesign) ?
+        let compoundFilterDesign: CompoundFilterDesign = this.isCompoundFilterDesign(filterDesign) ?
             (filterDesign) : null;
 
         // TODO THOR-1078 Validate that datastore is non-empty.
@@ -220,7 +220,7 @@ export namespace FilterUtil {
 
         if (compoundFilterDesign && compoundFilterDesign.type && compoundFilterDesign.filters) {
             filter = new CompoundFilter(compoundFilterDesign.type, compoundFilterDesign.filters.map((nestedDesign) =>
-                createFilterFromDesign(nestedDesign, searchService)), searchService);
+                this.createFilterFromDesign(nestedDesign, searchService)), searchService);
         }
 
         if (filter) {
@@ -238,8 +238,8 @@ export namespace FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {any}
      */
-    export function createFilterJsonObjectFromDesign(filter: FilterDesign): any {
-        if (isSimpleFilterDesign(filter)) {
+    static createFilterJsonObjectFromDesign(filter: FilterDesign): any {
+        if (this.isSimpleFilterDesign(filter)) {
             return {
                 name: filter.name,
                 root: filter.root,
@@ -252,12 +252,12 @@ export namespace FilterUtil {
             };
         }
 
-        if (isCompoundFilterDesign(filter)) {
+        if (this.isCompoundFilterDesign(filter)) {
             return {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => createFilterJsonObjectFromDesign(nestedFilter))
+                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
             };
         }
 
@@ -271,7 +271,7 @@ export namespace FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {filterDesign is CompoundFilterDesign}
      */
-    export function isCompoundFilterDesign(filterDesign: FilterDesign): filterDesign is CompoundFilterDesign {
+    static isCompoundFilterDesign(filterDesign: FilterDesign): filterDesign is CompoundFilterDesign {
         return (filterDesign as CompoundFilterDesign).type !== undefined && (filterDesign as CompoundFilterDesign).filters !== undefined;
     }
 
@@ -282,7 +282,7 @@ export namespace FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {filterDesign is SimpleFilterDesign}
      */
-    export function isSimpleFilterDesign(filterDesign: FilterDesign): filterDesign is SimpleFilterDesign {
+    static isSimpleFilterDesign(filterDesign: FilterDesign): filterDesign is SimpleFilterDesign {
         return (filterDesign as SimpleFilterDesign).datastore !== undefined &&
             (filterDesign as SimpleFilterDesign).database !== undefined &&
             (filterDesign as SimpleFilterDesign).table !== undefined;
