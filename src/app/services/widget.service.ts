@@ -19,6 +19,7 @@ import { Color, ColorSet } from '../color';
 import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 import { eventing } from 'neon-framework';
+import { ActiveDashboard } from '../active-dashboard';
 
 /**
  * @class NeonTheme
@@ -31,7 +32,7 @@ export class NeonTheme implements Theme {
      * @arg {string} main The main color.
      * @arg {string} name The theme name.
      */
-    constructor(public accent: string, public id: string, public main: string, public name: string) {}
+    constructor(public accent: string, public id: string, public main: string, public name: string) { }
 }
 
 /**
@@ -50,11 +51,14 @@ export class WidgetService extends AbstractWidgetService {
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
     private messenger: eventing.Messenger;
 
-    constructor(protected datasetService: DashboardService) {
+    public readonly activeDashboard: ActiveDashboard;
+
+    constructor(dashboardService: DashboardService) {
         super();
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
-        document.body.className = this.currentThemeId;
+        document.body.className = this.currentThemeId
+        this.activeDashboard = dashboardService.activeDashboard;
     }
 
     /**
@@ -154,8 +158,8 @@ export class WidgetService extends AbstractWidgetService {
      */
     public resetColorMap() {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        if (this.datasetService.getCurrentDashboardOptions()) {
-            let dashboardOptions = this.datasetService.getCurrentDashboardOptions();
+        if (this.activeDashboard.getOptions()) {
+            let dashboardOptions = this.activeDashboard.getOptions();
             let colorMaps = dashboardOptions.colorMaps || {};
             Object.keys(colorMaps).forEach((databaseName) => {
                 Object.keys(colorMaps[databaseName]).forEach((tableName) => {

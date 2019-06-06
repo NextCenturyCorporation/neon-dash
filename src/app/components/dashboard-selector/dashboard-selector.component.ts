@@ -15,7 +15,7 @@
  */
 import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
 
-import { Dashboard, ActiveDashboard } from '../../types';
+import { Dashboard } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
@@ -27,9 +27,9 @@ import { eventing } from 'neon-framework';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-    public dashboardChoice: ActiveDashboard;
+    public dashboardChoice: Dashboard;
 
-    @Input() dashboards: ActiveDashboard;
+    @Input() dashboards: Dashboard;
 
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -56,7 +56,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.closeComponent.emit(true);
     }
 
-    private onDashboardStateChange(eventMessage: { dashboard: ActiveDashboard }): void {
+    private onDashboardStateChange(eventMessage: { dashboard: Dashboard }): void {
         // If the dashboard state is changed by an external source, update the dropdowns as needed.
         let paths = eventMessage.dashboard.pathFromTop;
         this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
@@ -67,14 +67,14 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * dashboardChoice to the appropriate value.
      * @param {any} event
      */
-    public setDashboardChoice($event: ActiveDashboard) {
+    public setDashboardChoice($event: Dashboard) {
         this.dashboardChoice = $event;
     }
 
     /**
      * Updates the current dashboard state to the selected dashboardChoice.
      */
-    public updateDashboardState(dashboard: ActiveDashboard) {
+    public updateDashboardState(dashboard: Dashboard) {
         if (dashboard) {
             this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                 dashboard

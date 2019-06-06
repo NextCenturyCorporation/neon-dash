@@ -33,12 +33,9 @@ export class DashboardService {
 
     protected datasets: Record<string, NeonDatastoreConfig> = {};
 
-    // The active dataset.
-    // TODO: THOR-1062: This will probably need to be an array/map of active datastores
-    // since a dashboard can reference multiple datastores.
-    protected dataset: NeonDatastoreConfig = { host: '', name: '', databases: {}, type: '' };
+    public config: NeonGTDConfig<Dashboard>;
 
-    protected activeDashboard: ActiveDashboard;
+    public readonly activeDashboard = new ActiveDashboard();
 
     protected dashboards: Dashboard;
 
@@ -304,7 +301,10 @@ export class DashboardService {
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.datasets = {};
         this.messenger = new eventing.Messenger();
-        this.configService.$source.subscribe((config: NeonGTDConfig) => {
+        this.configService.$source.subscribe((config: NeonGTDConfig<Dashboard>) => {
+            this.config = config;
+            this.activeDashboard.config = config;
+
             this.dashboards = DashboardService.validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
                 { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig);
 
@@ -398,10 +398,12 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDataset(dataset: NeonDatastoreConfig): void {
-        this.dataset.name = dataset.name || 'Unknown Dataset';
-        this.dataset.type = dataset.type || '';
-        this.dataset.host = dataset.host || '';
-        this.dataset.databases = dataset.databases || {};
+        this.activeDashboard.datastore = {
+            name: 'Unknown Dataset',
+            type: '',
+            host: '',
+            ...dataset
+        };
     }
 
     /**

@@ -20,6 +20,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
+import { ActiveDashboard } from './active-dashboard';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string, variable: any }
@@ -386,26 +387,18 @@ export class WidgetOptionCollection {
 
     /**
      * Returns the field object for the given binding key or an empty field object.
-     *
-     * @arg {DashboardService} datasetService
-     * @arg {string} bindingKey
-     * @return {FieldMetaData}
      */
-    public findFieldObject(datasetService: DashboardService, bindingKey: string): FieldMetaData {
+    public findFieldObject(activeDashboard: ActiveDashboard, bindingKey: string): FieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(datasetService.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
+        return this.findField(activeDashboard.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
-     *
-     * @arg {DashboardService} datasetService
-     * @arg {string} bindingKey
-     * @return {FieldMetaData[]}
      */
-    public findFieldObjects(datasetService: DashboardService, bindingKey: string): FieldMetaData[] {
+    public findFieldObjects(activeDashboard: ActiveDashboard, bindingKey: string): FieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(datasetService.translateFieldKeyToValue(
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(activeDashboard.translateFieldKeyToValue(
             fieldKey
         ))).filter((fieldsObject) => !!fieldsObject);
     }
@@ -433,20 +426,18 @@ export class WidgetOptionCollection {
 
     /**
      * Updates all the databases, tables, and fields in the options.
-     *
-     * @arg {DashboardService} datasetService
      */
-    public updateDatabases(datasetService: DashboardService): void {
-        this.databases = datasetService.getDatabases();
-        this.database = datasetService.getCurrentDatabase() || this.databases[0] || this.database;
+    public updateDatabases(activeDashboard: ActiveDashboard): void {
+        this.databases = activeDashboard.getDatabases();
+        this.database = activeDashboard.getCurrentDatabase() || this.databases[0] || this.database;
 
         if (this.databases.length) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = datasetService.getCurrentDashboard();
+            let currentDashboard = activeDashboard.get();
             let configDatabase: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = datasetService.getDatabaseNameFromCurrentDashboardByKey(tableKey);
+                configDatabase = activeDashboard.deconstructFieldName(tableKey).database;
 
                 if (configDatabase) {
                     for (let database of this.databases) {
@@ -459,27 +450,25 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateTables(datasetService);
+        return this.updateTables(activeDashboard);
     }
 
     /**
      * Updates all the fields in the options.
-     *
-     * @arg {DashboardService} datasetService
      */
-    public updateFields(datasetService: DashboardService): void {
+    public updateFields(activeDashboard: ActiveDashboard): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true)
+            this.fields = activeDashboard.getSortedFields(this.database.name, this.table.name, true)
                 .filter((field) => (field && field.columnName));
 
             // Create the field options and assign the default value as FieldMetaData objects.
             this.createFieldOptionsCallback().forEach((fieldsOption) => {
                 if (fieldsOption.optionType === OptionType.FIELD) {
-                    this.append(fieldsOption, this.findFieldObject(datasetService, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObject(activeDashboard, fieldsOption.bindingKey));
                 }
                 if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
-                    this.append(fieldsOption, this.findFieldObjects(datasetService, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObjects(activeDashboard, fieldsOption.bindingKey));
                 }
             });
         }
@@ -487,24 +476,22 @@ export class WidgetOptionCollection {
 
     /**
      * Updates all the tables and fields in the options.
-     *
-     * @arg {DashboardService} datasetService
      */
-    public updateTables(datasetService: DashboardService): void {
+    public updateTables(activeDashboard: ActiveDashboard): void {
         this.tables = this.database ?
             Object
-                .values(datasetService.getTables(this.database.name))
+                .values(activeDashboard.getTables(this.database.name))
                 .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
             [];
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = datasetService.getCurrentDashboard();
+            let currentDashboard = activeDashboard.get();
             let configTable: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = datasetService.getTableNameFromCurrentDashboardByKey(tableKey);
+                configTable = activeDashboard.deconstructFieldName(tableKey).table;
 
                 if (configTable) {
                     for (let table of this.tables) {
@@ -517,7 +504,7 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateFields(datasetService);
+        return this.updateFields(activeDashboard);
     }
 }
 

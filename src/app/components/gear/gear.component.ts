@@ -35,6 +35,7 @@ import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
+import { ActiveDashboard } from '../../active-dashboard';
 
 @Component({
     selector: 'app-gear',
@@ -77,12 +78,15 @@ export class GearComponent implements OnInit, OnDestroy {
     public collapseOptionalOptions: boolean = true;
     public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
+    public readonly activeDashboard: ActiveDashboard;
+
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DashboardService,
+        dashboardService: DashboardService,
         protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();
+        this.activeDashboard = dashboardService.activeDashboard;
     }
 
     private closeSidenav() {
@@ -237,7 +241,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeDatabase(options: WidgetOptionCollection): void {
-        options.updateTables(this.datasetService);
+        options.updateTables(this.activeDashboard);
         this.changeMade = true;
     }
 
@@ -247,7 +251,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeTable(options: WidgetOptionCollection): void {
-        options.updateFields(this.datasetService);
+        options.updateFields(this.activeDashboard);
         this.changeMade = true;
     }
 

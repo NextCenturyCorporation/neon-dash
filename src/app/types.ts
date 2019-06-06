@@ -87,10 +87,6 @@ export interface Dashboard extends NeonDashboardConfig<Dashboard> {
     layoutObject: any[] | Record<string, any[]>;
 }
 
-export interface ActiveDashboard extends Dashboard {
-    config: NeonGTDConfig<Dashboard>;
-}
-
 export class Dashboard {
     static get(): Dashboard {
         return {

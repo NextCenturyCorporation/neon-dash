@@ -60,7 +60,7 @@ export class QueryBarComponent extends BaseNeonComponent {
     private previousText: string = '';
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -69,7 +69,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -99,9 +99,9 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         value?: any
     ): FilterDesign {
-        let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(databaseName);
-        let table: TableMetaData = this.datasetService.getTableWithName(databaseName, tableName);
-        let field: FieldMetaData = this.datasetService.getFieldWithName(databaseName, tableName, fieldName);
+        let database: DatabaseMetaData = this.activeDashboard.getDatabaseWithName(databaseName);
+        let table: TableMetaData = this.activeDashboard.getTableWithName(databaseName, tableName);
+        let field: FieldMetaData = this.activeDashboard.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
             datastore: '',
             database: database,
@@ -362,7 +362,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
             let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
             let queryFields = [fields.idField, fields.filterField];
-            let execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
+            let execute = this.searchService.runSearch(this.activeDashboard.getDatastoreType(), this.activeDashboard.getDatastoreHost(), {
                 query: extensionQuery
             });
             let tempArray = [];
