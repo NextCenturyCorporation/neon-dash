@@ -45,7 +45,7 @@
     "postbuild-vmap": "cd dist && zip -r medifor-workbench.war * && sudo cp medifor-workbench.war ../../tomcat/webapps/medifor-workbench.war",
     "lint": "npm run-script lint-ts && npm run-script lint-html && npm run-script lint-sass",
     "lint-html": "./lint_html.sh",
-    "lint-sass": "sass-lint-auto-fix --config sass-lint-auto-fix.yaml --config-sass-lint sass-lint.yaml && sass-lint --config sass-lint.yaml -v",
+    "lint-sass": "sass-lint-auto-fix --config sass-lint-auto-fix.yaml --config-sass-lint .sass-lint.yml && sass-lint --config .sass-lint.yml -v",
     "lint-scss": "npm run-script lint-sass",
     "lint-ts": "eslint src/app --cache --ext .js,.ts --fix --max-warnings 0",
     "test": "npm run-script unit-test && npm run-script lint",
