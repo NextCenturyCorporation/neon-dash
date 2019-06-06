@@ -1232,7 +1232,7 @@ layouts:
           sizex: 3
           sizey: 6
           bindings:
-              title: Situation Needs
+              title: Situation Types
               type: bar-h
               tableKey: table_key_2
               xField: color_field_topic_key
@@ -1338,7 +1338,7 @@ layouts:
           sizex: 3
           sizey: 6
           bindings:
-              title: Situation Needs
+              title: Situation Types
               type: bar-h
               tableKey: table_key_2
               xField: color_field_topic_key
