@@ -327,7 +327,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
     /**
      * Filters by the given item
-     * @param item 
+     * @param item
      */
     filterItem(item) {
         if (this.options.filterField.columnName) {
