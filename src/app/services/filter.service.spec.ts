@@ -3217,9 +3217,9 @@ describe('FilterService with no filters', () => {
     }));
 
     it('should have expected properties with no filters', () => {
-        expect((filterService as any).filterCollection).toBeDefined();
-        expect(((filterService as any).filterCollection).data.size).toEqual(0);
-        expect((filterService as any).messenger).toBeDefined();
+        expect(filterService['filterCollection']).toBeDefined();
+        expect((filterService['filterCollection'])['data'].size).toEqual(0);
+        expect(filterService['messenger']).toBeDefined();
     });
 
     it('getFilters with no filters should return expected array', () => {
@@ -3364,13 +3364,13 @@ describe('FilterService with filters', () => {
         design2A.filters[1].id = filter2A.filters[1].id;
         design2A.filters[1].name = filter2A.filters[1].name;
 
-        (filterService as any).filterCollection.setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
-        (filterService as any).filterCollection.setFilters(source2, [filter2A]);
+        filterService['filterCollection'].setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
+        filterService['filterCollection'].setFilters(source2, [filter2A]);
     }));
 
     afterEach(() => {
         // Services are not recreated in each test so we must reset the internal data.
-        ((filterService as any).filterCollection).data.clear();
+        (filterService['filterCollection'])['data'].clear();
     });
 
     /**
@@ -3378,8 +3378,8 @@ describe('FilterService with filters', () => {
      */
     let activateRelationFilters = () => {
         generateRelationFilters();
-        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1]);
-        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2]);
+        filterService['filterCollection'].setFilters(relationSource1, [relationFilter1]);
+        filterService['filterCollection'].setFilters(relationSource2, [relationFilter2]);
     };
 
     /**
@@ -3448,19 +3448,19 @@ describe('FilterService with filters', () => {
     };
 
     it('should have expected properties', () => {
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
-        expect((filterService as any).messenger).toBeDefined();
+        expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['messenger']).toBeDefined();
     });
 
     it('deleteFilter should delete filter and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilter('testCaller', design1A);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -3478,12 +3478,12 @@ describe('FilterService with filters', () => {
     it('deleteFilter should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilter('testCaller', relationDesign1);
 
-        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -3501,12 +3501,12 @@ describe('FilterService with filters', () => {
     });
 
     it('deleteFilters should delete all filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilters('testCaller', searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -3522,12 +3522,12 @@ describe('FilterService with filters', () => {
     });
 
     it('deleteFilters with filter-list-to-delete should delete argument filters', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [design1A]);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -3545,12 +3545,12 @@ describe('FilterService with filters', () => {
     it('deleteFilters should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [relationDesign1]);
 
-        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -3568,7 +3568,7 @@ describe('FilterService with filters', () => {
     });
 
     it('deleteFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [{
             datastore: '',
@@ -3595,7 +3595,7 @@ describe('FilterService with filters', () => {
     });
 
     it('exchangeFilters should add new filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -3617,10 +3617,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3646,7 +3646,7 @@ describe('FilterService with filters', () => {
     });
 
     it('exchangeFilters should delete old filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -3660,7 +3660,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(source1);
+        let listComplete = filterService['filterCollection'].getFilters(source1) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3671,7 +3671,7 @@ describe('FilterService with filters', () => {
         testDesign.id = listComplete[0].id;
         testDesign.name = listComplete[0].name;
 
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -3687,7 +3687,7 @@ describe('FilterService with filters', () => {
     });
 
     it('exchangeFilters should work with custom root filters', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.OR,
@@ -3709,10 +3709,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3740,14 +3740,19 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should also add new relation filters', () => {
         generateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
-        let actual = filterService.exchangeFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.exchangeFilters(
+            'testCaller',
+            [relationDesign1],
+            datasetService.state.findRelationDataList(),
+            searchService
+        );
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3758,7 +3763,7 @@ describe('FilterService with filters', () => {
         relationDesign1.id = listComplete[0].id;
         relationDesign1.name = listComplete[0].name;
 
-        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        listComplete = filterService['filterCollection'].getFilters(relationSource2) as any[]; // TODO: Typings;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3787,7 +3792,7 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should also delete old relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
@@ -3799,12 +3804,12 @@ describe('FilterService with filters', () => {
             value: 'testExchangeRelation'
         } as SimpleFilterDesign;
 
-        let actual = filterService.exchangeFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.exchangeFilters('testCaller', [testDesign2], datasetService.state.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3824,7 +3829,7 @@ describe('FilterService with filters', () => {
             value: 'testExchangeRelation'
         } as SimpleFilterDesign;
 
-        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -3851,12 +3856,12 @@ describe('FilterService with filters', () => {
     });
 
     it('exchangeFilters with filter-list-to-delete should delete argument filters', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [design1A]);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -3874,12 +3879,12 @@ describe('FilterService with filters', () => {
     it('exchangeFilters with filter-list-to-delete should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [relationDesign1]);
 
-        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -3897,12 +3902,12 @@ describe('FilterService with filters', () => {
     });
 
     it('exchangeFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4108,8 +4113,8 @@ describe('FilterService with filters', () => {
     it('setFiltersFromConfig should change filterCollection', () => {
         let actual;
 
-        filterService.setFiltersFromConfig([], datasetService, searchService);
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([]);
+        filterService.setFiltersFromConfig([], datasetService.state, searchService);
+        expect(filterService['filterCollection'].getDataSources()).toEqual([]);
 
         filterService.setFiltersFromConfig([{
             name: design1A.name,
@@ -4120,9 +4125,9 @@ describe('FilterService with filters', () => {
             field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId1'
-        }], datasetService, searchService);
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
-        actual = (filterService as any).filterCollection.getFilters(source1);
+        }], datasetService.state, searchService);
+        expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
+        actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(1);
         expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4167,9 +4172,9 @@ describe('FilterService with filters', () => {
             field: DashboardServiceMock.ID_FIELD.columnName,
             operator: '=',
             value: 'testId4'
-        }], datasetService, searchService);
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1]);
-        actual = (filterService as any).filterCollection.getFilters(source1);
+        }], datasetService.state, searchService);
+        expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
+        actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(4);
         expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4219,9 +4224,9 @@ describe('FilterService with filters', () => {
                 operator: '<',
                 value: 20
             }]
-        }], datasetService, searchService);
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([source2]);
-        actual = (filterService as any).filterCollection.getFilters(source2);
+        }], datasetService.state, searchService);
+        expect(filterService['filterCollection'].getDataSources()).toEqual([source2]);
+        actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
@@ -4278,9 +4283,9 @@ describe('FilterService with filters', () => {
                 operator: '<',
                 value: 20
             }]
-        }], datasetService, searchService);
-        expect((filterService as any).filterCollection.getDataSources()).toEqual([source1, source2]);
-        actual = (filterService as any).filterCollection.getFilters(source1);
+        }], datasetService.state, searchService);
+        expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
+        actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(2);
         expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4294,7 +4299,7 @@ describe('FilterService with filters', () => {
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
         expect(actual[1].root).toEqual(CompoundFilterType.AND);
-        actual = (filterService as any).filterCollection.getFilters(source2);
+        actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
@@ -4312,7 +4317,7 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should add new filters to an existing data source and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4326,7 +4331,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(source1);
+        let listComplete = filterService['filterCollection'].getFilters(source1) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(5);
         expect(listComplete[0]).toEqual(filter1A);
         expect(listComplete[1]).toEqual(filter1B);
@@ -4341,7 +4346,7 @@ describe('FilterService with filters', () => {
         testDesign.id = listComplete[4].id;
         testDesign.name = listComplete[4].name;
 
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4357,7 +4362,7 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should add new filters to a new data source and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4379,10 +4384,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4408,12 +4413,12 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should delete old argument filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.toggleFilters('testCaller', [design1A, design1C], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -4429,7 +4434,7 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should add new argument filters, delete old argument filters, and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4451,10 +4456,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign, design1A], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4480,7 +4485,7 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should work with custom root filters', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign = {
             root: CompoundFilterType.OR,
@@ -4502,10 +4507,10 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(testSource);
+        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4533,14 +4538,19 @@ describe('FilterService with filters', () => {
     it('toggleFilters should also add new relation filters', () => {
         generateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
-        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.toggleFilters(
+            'testCaller',
+            [relationDesign1],
+            datasetService.state.findRelationDataList(),
+            searchService
+        );
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4551,7 +4561,7 @@ describe('FilterService with filters', () => {
         relationDesign1.id = listComplete[0].id;
         relationDesign1.name = listComplete[0].name;
 
-        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        listComplete = filterService['filterCollection'].getFilters(relationSource2) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
         expect(listComplete[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(listComplete[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -4580,7 +4590,7 @@ describe('FilterService with filters', () => {
     it('toggleFilters should keep old relation filters and add new relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
@@ -4592,12 +4602,12 @@ describe('FilterService with filters', () => {
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
 
-        let actual = filterService.toggleFilters('testCaller', [testDesign2], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.toggleFilters('testCaller', [testDesign2], datasetService.state.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
-        let listComplete = (filterService as any).filterCollection.getFilters(relationSource1);
+        let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter1);
         expect(listComplete[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -4618,7 +4628,7 @@ describe('FilterService with filters', () => {
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
 
-        listComplete = (filterService as any).filterCollection.getFilters(relationSource2);
+        listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
         expect(listComplete[0]).toEqual(relationFilter2);
         expect(listComplete[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -4648,14 +4658,19 @@ describe('FilterService with filters', () => {
     it('toggleFilters should also delete old relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
-        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.toggleFilters(
+            'testCaller',
+            [relationDesign1],
+            datasetService.state.findRelationDataList(),
+            searchService
+        );
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([]);
-        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
+        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4704,17 +4719,17 @@ describe('FilterService with filters', () => {
         testDesign2.id = testFilter2.id;
         testDesign2.name = testFilter2.name;
 
-        (filterService as any).filterCollection.setFilters(relationSource1, [relationFilter1, testFilter1]);
-        (filterService as any).filterCollection.setFilters(relationSource2, [relationFilter2, testFilter2]);
+        filterService['filterCollection'].setFilters(relationSource1, [relationFilter1, testFilter1]);
+        filterService['filterCollection'].setFilters(relationSource2, [relationFilter2, testFilter2]);
 
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
-        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.findRelationDataList(), searchService);
+        let actual = filterService.toggleFilters('testCaller', [relationDesign1], datasetService.state.findRelationDataList(), searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
-        expect((filterService as any).filterCollection.getFilters(relationSource1)).toEqual([testFilter1]);
-        expect((filterService as any).filterCollection.getFilters(relationSource2)).toEqual([testFilter2]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([testFilter1]);
+        expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([testFilter2]);
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -4732,12 +4747,12 @@ describe('FilterService with filters', () => {
     });
 
     it('toggleFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn((filterService as any).messenger, 'publish');
+        let spy = spyOn(filterService['messenger'], 'publish');
 
         let actual = filterService.toggleFilters('testCaller', [], [], searchService);
 
-        expect((filterService as any).filterCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect((filterService as any).filterCollection.getFilters(source2)).toEqual([filter2A]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
@@ -5319,7 +5334,7 @@ describe('FilterService with filters', () => {
 
     it('updateCollectionWithGlobalCompatibleFilters should remove existing filters', () => {
         // Remove filters.
-        (filterService as any).filterCollection.setFilters(source1, []);
+        filterService['filterCollection'].setFilters(source1, []);
 
         // Remove the filter value to make the design compatible with each filter of its data source
         design1A.value = undefined;

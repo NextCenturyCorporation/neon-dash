@@ -21,7 +21,6 @@ import * as _ from 'lodash';
 import { NeonGTDConfig, NeonDatastoreConfig } from './neon-gtd-config';
 
 export class DashboardState {
-
     /**
      * Returns database name from complete field name (datastore.database.table.field).
      * @param {String} name
@@ -171,7 +170,7 @@ export class DashboardState {
      * or undefined otherwise.
      * Dashboard name only includes part of the database pretty name
      */
-    public getCurrentDatabase(): DatabaseMetaData {
+    public getDatabase(): DatabaseMetaData {
         if (!this.dashboard) {
             return undefined;
         }

@@ -15,7 +15,6 @@
  */
 import { Injector } from '@angular/core';
 import { AggregationType } from './services/abstract.search.service';
-import { DashboardService } from './services/dashboard.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
@@ -287,7 +286,6 @@ export class WidgetTableOption extends WidgetOption {
  * Manages configurable options for all widgets.
  */
 export class WidgetOptionCollection {
-
     // An object containing strings mapped to WidgetOption objects.
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
@@ -421,7 +419,7 @@ export class WidgetOptionCollection {
      * @return {WidgetOption[]}
      */
     public list(): WidgetOption[] {
-        return Object.keys(this._collection).map((property) => this.access(property));
+        return Object.values(this._collection);
     }
 
     /**
@@ -429,7 +427,7 @@ export class WidgetOptionCollection {
      */
     public updateDatabases(dashboardState: DashboardState): void {
         this.databases = dashboardState.getDatabases();
-        this.database = dashboardState.getCurrentDatabase() || this.databases[0] || this.database;
+        this.database = dashboardState.getDatabase() || this.databases[0] || this.database;
 
         if (this.databases.length) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);

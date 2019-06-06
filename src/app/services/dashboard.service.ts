@@ -35,25 +35,38 @@ export class DashboardService {
 
     public readonly state = new DashboardState();
 
-
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
     private messenger: eventing.Messenger;
 
-    public get dashboards() { return this.config.dashboards; }
-    public get layouts() { return this.config.layouts; }
-    public get datastores() { return this.config.datastores; }
+    public get dashboards() {
+        return this.config.dashboards;
+    }
 
+    public get layouts() {
+        return this.config.layouts;
+    }
+
+    public get datastores() {
+        return this.config.datastores;
+    }
 
     // ---
     // STATIC METHODS
     // --
 
-    static appendDatastoresFromConfig(configDatastores: Record<string, NeonDatastoreConfig>, existingDatastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
+    static appendDatastoresFromConfig(
+        configDatastores: Record<string, NeonDatastoreConfig>, existingDatastores: Record<string, NeonDatastoreConfig>
+    ): Record<string, NeonDatastoreConfig> {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
             let configDatastore = configDatastores[datastoreKey] || { host: '', type: '', name: '', databases: {} };
-            let outputDatastore: NeonDatastoreConfig = { name: datastoreKey, host: configDatastore.host, type: configDatastore.type, databases: {} };
+            let outputDatastore: NeonDatastoreConfig = {
+                name: datastoreKey,
+                host: configDatastore.host,
+                type: configDatastore.type,
+                databases: {}
+            };
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
             outputDatastore['hasUpdatedFields'] = !!configDatastore['hasUpdatedFields'];
@@ -295,7 +308,6 @@ export class DashboardService {
         this.configService.$source.subscribe((config: NeonGTDConfig<Dashboard>) => {
             this.setConfig(config);
 
-
             let loaded = 0;
             Object.values(this.config.datastores).forEach((datastore) => {
                 DashboardService.validateDatabases(datastore);
@@ -331,7 +343,6 @@ export class DashboardService {
         });
         this.state.config = this.config;
     }
-
 
     // ---
     // PRIVATE METHODS

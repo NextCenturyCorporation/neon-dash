@@ -1278,7 +1278,7 @@ describe('BaseNeonComponent', () => {
         component['lastPage'] = false;
         component['page'] = 2;
         component['showingZeroOrMultipleElementsPerResult'] = true;
-        component.handleChangeData(options);
+        component.handleChangeData(options as WidgetOptionCollection); // TODO: Verify Typings
         expect(component['layerIdToElementCount'].get('testId')).toEqual(0);
         expect(component['errorMessage']).toEqual('');
         expect(component['lastPage']).toEqual(true);
@@ -1919,7 +1919,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let fixture: ComponentFixture<BaseNeonComponent>;
 
     let datasetService = new DashboardServiceMock();
-    datasetService.getCurrentDashboard().contributors = {
+    datasetService.state.dashboard.contributors = {
         organization1: {
             orgName: 'Organization 1',
             abbreviation: 'ORG ONE',

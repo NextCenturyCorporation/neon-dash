@@ -41,22 +41,22 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(datasetService.getDataset()).toEqual({ name: '', host: '', type: '', databases: {} } as NeonDatastoreConfig);
+        expect(datasetService.state.datastore).toEqual({ name: '', host: '', type: '', databases: {} } as NeonDatastoreConfig);
     });
 
     it('should have no active dashboards at creation', () => {
-        expect(datasetService.getCurrentDashboard()).not.toBeDefined();
+        expect(datasetService.state.dashboard).not.toBeDefined();
     });
 
     it('should return datastores by name', () => {
-        datasetService.addDataset({
+        datasetService.addDatastore({
             name: 'd1',
             host: '',
             type: '',
             databases: {}
         });
 
-        expect(datasetService.getDatasetWithName('d1')).toEqual({
+        expect(datasetService.datastores.d1).toEqual({
             name: 'd1',
             host: '',
             type: '',
@@ -65,11 +65,25 @@ describe('Service: DashboardService', () => {
     });
 
     it('getCurrentDatabase does return undefined', () => {
-        expect(datasetService.getCurrentDatabase()).not.toBeDefined();
+        expect(datasetService.state.getDatabase()).not.toBeDefined();
     });
 });
 
 describe('Service: DashboardService Static Functions', () => {
+    let datasetService: DashboardService;
+
+    initializeTestBed('Dashboard Service with Mock Data', {
+        providers: [
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+        ]
+    });
+
+    beforeEach(inject([DashboardService], (_datasetService: DashboardService) => {
+        datasetService = _datasetService;
+    }));
+
     initializeTestBed('Dashboard Service Static Functions', {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -644,37 +658,24 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('updateLayoutInDashboards should set layoutObject property in given dashboards with layout', () => {
-        let layout = {
+        datasetService['config'].layouts = {
             layout1: [1, 2, 3],
             layout2: [4, 5, 6]
-        };
-
-        let dashboard1 = Dashboard.get();
-        dashboard1.layout = 'layout1';
-
-        DashboardService.updateLayoutInDashboards(dashboard1, layout);
-        expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
+        } as any;
+        datasetService.setLayout('layout1');
+        expect(datasetService.layouts[datasetService.state.getLayout()]).toEqual([1, 2, 3]);
     });
 
     it('updateLayoutInDashboards should set layoutObject property in given dashboards with choices', () => {
-        let layout = {
+        datasetService['config'].layouts = {
             layout1: [1, 2, 3],
             layout2: [4, 5, 6]
-        };
+        } as any;
 
-        let dashboard1 = Dashboard.get();
-        dashboard1.layout = 'layout1';
-        let dashboard2 = Dashboard.get();
-        dashboard2.layout = 'layout2';
-        let dashboard3 = Dashboard.get();
-        dashboard3.choices = {
-            choice1: dashboard1,
-            choice2: dashboard2
-        };
-
-        DashboardService.updateLayoutInDashboards(dashboard3, layout);
-        expect(dashboard1.layoutObject).toEqual([1, 2, 3]);
-        expect(dashboard2.layoutObject).toEqual([4, 5, 6]);
+        datasetService.setLayout('layout1');
+        expect(datasetService.layouts[datasetService.state.getLayout()]).toEqual([1, 2, 3]);
+        datasetService.setLayout('layout2');
+        expect(datasetService.layouts[datasetService.state.getLayout()]).toEqual([4, 5, 6]);
     });
 
     it('validateDashboards should set category and fullTitle and pathFromTop properties in given dashboards', () => {
@@ -727,7 +728,7 @@ describe('Service: DashboardService with Mock Data', () => {
         let datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore['hasUpdatedFields'] = true;
-        expect(datasetService.getDataset()).toEqual(datastore);
+        expect(datasetService.state.datastore).toEqual(datastore);
     });
 
     it('should have active dashboard at creation', () => {
@@ -752,7 +753,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 ['datastore1.testDatabase2.testTable2.testRelationFieldB']
             ]
         ];
-        expect(datasetService.getCurrentDashboard()).toEqual(dashboard);
+        expect(datasetService.state.dashboard).toEqual(dashboard);
     });
 
     it('appendDatasets does add given dashboards, datastores, and layouts to existing dataset', () => {
@@ -767,7 +768,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(datasetService.findRelationDataList()).toEqual([
+        expect(datasetService.state.findRelationDataList()).toEqual([
             [
                 [{
                     datastore: '',
@@ -813,7 +814,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(datasetService.findRelationDataList()).toEqual([
+        expect(datasetService.state.findRelationDataList()).toEqual([
             [
                 [{
                     datastore: '',
@@ -863,7 +864,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(datasetService.findRelationDataList()).toEqual([
+        expect(datasetService.state.findRelationDataList()).toEqual([
             [
                 [{
                     datastore: '',
@@ -916,7 +917,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(datasetService.findRelationDataList()).toEqual([]);
+        expect(datasetService.state.findRelationDataList()).toEqual([]);
     });
 
     it('findRelationDataList does ignore relations with unequal filter fields', () => {
@@ -941,11 +942,11 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(datasetService.findRelationDataList()).toEqual([]);
+        expect(datasetService.state.findRelationDataList()).toEqual([]);
     });
 
     it('getCurrentDatabase does return expected object', () => {
-        expect(datasetService.getCurrentDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(datasetService.state.getDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
     });
 
     it('getDatastoresInConfigFormat does return expected object', () => {
@@ -1015,9 +1016,9 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('translateFieldKeyToValue does return expected string', () => {
-        expect(datasetService.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
-        expect(datasetService.translateFieldKeyToValue('testDateField')).toEqual('testDateField');
-        expect(datasetService.translateFieldKeyToValue('testNameField')).toEqual('testNameField');
-        expect(datasetService.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
+        expect(datasetService.state.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
+        expect(datasetService.state.translateFieldKeyToValue('testDateField')).toEqual('testDateField');
+        expect(datasetService.state.translateFieldKeyToValue('testNameField')).toEqual('testNameField');
+        expect(datasetService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
 });

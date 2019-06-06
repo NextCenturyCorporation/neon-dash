@@ -811,7 +811,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
      * @return {boolean}
      */
-    private hasUnsharedFilter(options?: WidgetOptionCollection): boolean {
+    private hasUnsharedFilter(options?: WidgetOptionCollection | { [key: string]: any }): boolean {
         return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
             typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
     }

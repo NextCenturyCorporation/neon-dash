@@ -75,10 +75,9 @@ export class FilterUtil {
         item2: FilterDataSource,
         ignoreOperator: boolean = false
     ): boolean {
-        return true; /*
-        Return !!(item1.datastoreName === item2.datastoreName && item1.databaseName === item2.databaseName &&
+        return !!(item1.datastoreName === item2.datastoreName && item1.databaseName === item2.databaseName &&
             item1.tableName === item2.tableName && item1.fieldName === item2.fieldName &&
-            (ignoreOperator ? true : item1.operator === item2.operator));*/
+            (ignoreOperator ? true : item1.operator === item2.operator));
     }
 
     /**

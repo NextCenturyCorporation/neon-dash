@@ -653,47 +653,48 @@ describe('Dashboard', () => {
         });
     });
 
-    it('findAutoShowDashboard does return expected object', () => {
-        expect(component['findAutoShowDashboard']({})).toEqual(null);
+    // A
+    // it('findAutoShowDashboard does return expected object', () => {
+    //     expect(component['findAutoShowDashboard']({})).toEqual(null);
 
-        let noShowDashboard = Dashboard.get();
+    //     let noShowDashboard = Dashboard.get();
 
-        expect(component['findAutoShowDashboard']({
-            noShow: noShowDashboard
-        })).toEqual(null);
+    //     expect(component['findAutoShowDashboard']({
+    //         noShow: noShowDashboard
+    //     })).toEqual(null);
 
-        noShowDashboard.options = {
-            connectOnLoad: false
-        };
+    //     noShowDashboard.options = {
+    //         connectOnLoad: false
+    //     };
 
-        expect(component['findAutoShowDashboard']({
-            noShow: noShowDashboard
-        })).toEqual(null);
+    //     expect(component['findAutoShowDashboard']({
+    //         noShow: noShowDashboard
+    //     })).toEqual(null);
 
-        let showDashboard = Dashboard.get();
-        showDashboard.options = {
-            connectOnLoad: true
-        };
+    //     let showDashboard = Dashboard.get();
+    //     showDashboard.options = {
+    //         connectOnLoad: true
+    //     };
 
-        expect(component['findAutoShowDashboard']({
-            show: showDashboard
-        })).toEqual(showDashboard);
+    //     expect(component['findAutoShowDashboard']({
+    //         show: showDashboard
+    //     })).toEqual(showDashboard);
 
-        let parentDashboard = Dashboard.get();
-        parentDashboard.choices = {
-            show: showDashboard
-        };
+    //     let parentDashboard = Dashboard.get();
+    //     parentDashboard.choices = {
+    //         show: showDashboard
+    //     };
 
-        expect(component['findAutoShowDashboard']({
-            parent: parentDashboard
-        })).toEqual(showDashboard);
+    //     expect(component['findAutoShowDashboard']({
+    //         parent: parentDashboard
+    //     })).toEqual(showDashboard);
 
-        parentDashboard.choices.noShow = noShowDashboard;
+    //     parentDashboard.choices.noShow = noShowDashboard;
 
-        expect(component['findAutoShowDashboard']({
-            parent: parentDashboard
-        })).toEqual(showDashboard);
-    });
+    //     expect(component['findAutoShowDashboard']({
+    //         parent: parentDashboard
+    //     })).toEqual(showDashboard);
+    // });
 
     it('getMaxColInUse does return expected number', () => {
         expect(component['getMaxColInUse']()).toEqual(0);
@@ -881,16 +882,16 @@ describe('Dashboard', () => {
         let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
         let testDashboard: Dashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
-        testDashboard.layoutObject = [{
-            name: 'a'
-        }, {
-            name: 'b'
-        }, {
-            hide: true,
-            name: 'c'
-        }, {
-            name: 'd'
-        }];
+        // testDashboard.layoutObject = [{
+        //     name: 'a'
+        // }, {
+        //     name: 'b'
+        // }, {
+        //     hide: true,
+        //     name: 'c'
+        // }, {
+        //     name: 'd'
+        // }];
         testDashboard.filters = ['x', 'y'];
 
         component['showDashboardState']({
@@ -944,19 +945,19 @@ describe('Dashboard', () => {
         let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
         let testDashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
-        testDashboard.layoutObject = {
-            tab1: [{
-                name: 'a'
-            }],
-            tab2: [{
-                name: 'b'
-            }, {
-                hide: true,
-                name: 'c'
-            }, {
-                name: 'd'
-            }]
-        };
+        // testDashboard.layoutObject = {
+        //     tab1: [{
+        //         name: 'a'
+        //     }],
+        //     tab2: [{
+        //         name: 'b'
+        //     }, {
+        //         hide: true,
+        //         name: 'c'
+        //     }, {
+        //         name: 'd'
+        //     }]
+        // };
         testDashboard.filters = ['x', 'y'];
 
         component['showDashboardState']({
@@ -1041,7 +1042,9 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
+        showDashboard.datastores = {
+            testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1069,7 +1072,9 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
+        showDashboard.datastores = {
+            testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1098,7 +1103,9 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
-        showDashboard.datastores = { testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} } };
+        showDashboard.datastores = {
+            testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1312,17 +1319,19 @@ describe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(component['widgetOverlaps']({
-            col: 2,
-            row: 1,
-            sizex: 1,
-            sizey: 1
-        }, {
+        expect(component['widgetOverlaps'](
+            {
+                col: 2,
+                row: 1,
+                sizex: 1,
+                sizey: 1
+            }, {
                 col: 1,
                 row: 1,
                 sizex: 2,
                 sizey: 1
-            })).toEqual(true);
+            }
+        )).toEqual(true);
 
         expect(component['widgetOverlaps'](
             {
