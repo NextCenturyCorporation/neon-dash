@@ -21,7 +21,7 @@ import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
-import { ActiveDashboard } from '../active-dashboard';
+import { DashboardState } from '../active-dashboard';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -165,12 +165,12 @@ export class FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: any, activeDashboard: ActiveDashboard): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: any, dashboardState: DashboardState): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
-            let database: DatabaseMetaData = activeDashboard.getDatabaseWithName(filterObject.database);
-            let table: TableMetaData = activeDashboard.getTableWithName(filterObject.database, filterObject.table);
-            let field: FieldMetaData = activeDashboard.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            let database: DatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
+            let table: TableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
+            let field: FieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
             return {
                 name: filterObject.name,
                 root: filterObject.root,
@@ -189,7 +189,7 @@ export class FilterUtil {
                 root: filterObject.root,
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    this.createFilterDesignFromJsonObject(nestedObject, activeDashboard))
+                    this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
             } as CompoundFilterDesign;
         }
 
@@ -739,10 +739,10 @@ export class FilterService {
     /**
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      */
-    public setFiltersFromConfig(filtersFromConfig: any[], activeDashboard: ActiveDashboard, searchService: AbstractSearchService) {
+    public setFiltersFromConfig(filtersFromConfig: any[], dashboardState: DashboardState, searchService: AbstractSearchService) {
         let collection: FilterCollection = new FilterCollection();
         filtersFromConfig.forEach((filterFromConfig) => {
-            let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, activeDashboard);
+            let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
             if (filterDesign) {
                 let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
                 let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);

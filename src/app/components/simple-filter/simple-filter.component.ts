@@ -20,7 +20,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { ActiveDashboard } from '../../active-dashboard';
+import { DashboardState } from '../../active-dashboard';
 
 @Component({
     selector: 'app-simple-filter',
@@ -34,7 +34,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     public showSimpleSearch: boolean = false;
 
     private messenger = new eventing.Messenger();
-    public readonly activeDashboard: ActiveDashboard;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
@@ -42,7 +42,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
         protected filterService: FilterService,
         protected searchService: AbstractSearchService
     ) {
-        this.activeDashboard = dashboardService.activeDashboard;
+        this.dashboardState = dashboardService.state;
     }
 
     public addFilter(term: string): void {
@@ -51,7 +51,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             return;
         }
 
-        let simpleFilter: any = (this.activeDashboard.getOptions() || {}).simpleFilter || {};
+        let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (!this.validateSimpleFilter(simpleFilter)) {
             return;
@@ -59,9 +59,9 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
         this.inputPlaceholder = simpleFilter.placeholder || '';
 
-        let database: DatabaseMetaData = this.activeDashboard.getDatabaseWithName(simpleFilter.databaseName);
-        let table: TableMetaData = this.activeDashboard.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-        let field: FieldMetaData = this.activeDashboard.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+        let database: DatabaseMetaData = this.dashboardState.getDatabaseWithName(simpleFilter.databaseName);
+        let table: TableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+        let field: FieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
         let filter: SimpleFilterDesign = {
@@ -73,7 +73,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             value: term
         } as SimpleFilterDesign;
 
-        this.filterService.exchangeFilters('SimpleFilter', [filter], this.activeDashboard.findRelationDataList(), this.searchService);
+        this.filterService.exchangeFilters('SimpleFilter', [filter], this.dashboardState.findRelationDataList(), this.searchService);
 
         this.cachedFilter = filter;
     }
@@ -103,7 +103,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     public updateSimpleFilterConfig(): void {
         this.updateShowSimpleSearch({
-            show: this.validateSimpleFilter((this.activeDashboard.getOptions() || {}).simpleFilter || {})
+            show: this.validateSimpleFilter((this.dashboardState.getOptions() || {}).simpleFilter || {})
         });
     }
 

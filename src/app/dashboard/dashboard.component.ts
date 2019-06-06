@@ -186,7 +186,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
             // The dashboards are read from the config file in the DashboardService's constructor.
-            this.dashboards = this.datasetService.getDashboards();
+            this.dashboards = this.datasetService.dashboards;
             this.dashboardVersion = config.version || '';
 
             if (config) {
@@ -673,20 +673,21 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        const firstName = Object.keys(eventMessage.dashboard.datastores)[0];
-        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[firstName]);
-        this.datasetService.activeDashboard.dashboard = eventMessage.dashboard;
+        const firstName = Object.keys(this.datasetService.datastores)[0];
+        this.datasetService.setActiveDatastore(this.datasetService.datastores[firstName]);
+
+        this.datasetService.state.dashboard = eventMessage.dashboard;
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
-        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService.activeDashboard, this.searchService);
+        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService.state, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
+        const layout = this.datasetService.layouts[this.datasetService.state.getLayout()];
+
         // Should map the grid name to the layout list.
-        let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
-            '': eventMessage.dashboard.layoutObject
-        };
+        let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
 
         Object.keys(gridNameToLayout).forEach((gridName) => {
             let layout = gridNameToLayout[gridName] || [];
@@ -713,7 +714,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private showDashboardStateOnPageLoad() {
         let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards);
 
-        const firstDataStore = dashboard && Object.values(dashboard.datastores)[0];
+        const firstDataStore = dashboard && Object.values(this.datasetService.datastores)[0];
 
         if (dashboard && firstDataStore) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {

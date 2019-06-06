@@ -89,7 +89,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.activeDashboard);
+        filterClause.updateDatabases(this.dashboardState);
         filterClause.field = this.createEmptyField();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -205,7 +205,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.activeDashboard);
+        filterClause.updateTables(this.dashboardState);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -234,7 +234,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.activeDashboard);
+        filterClause.updateFields(this.dashboardState);
     }
 
     /**
@@ -297,7 +297,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.activeDashboard.findRelationDataList(),
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
                 this.searchService);
 
             this.clearEveryFilterClause();

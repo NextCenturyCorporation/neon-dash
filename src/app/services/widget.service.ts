@@ -19,7 +19,7 @@ import { Color, ColorSet } from '../color';
 import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { ActiveDashboard } from '../active-dashboard';
+import { DashboardState } from '../active-dashboard';
 
 /**
  * @class NeonTheme
@@ -51,14 +51,14 @@ export class WidgetService extends AbstractWidgetService {
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
     private messenger: eventing.Messenger;
 
-    public readonly activeDashboard: ActiveDashboard;
+    public readonly dashboardState: DashboardState;
 
     constructor(dashboardService: DashboardService) {
         super();
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
         document.body.className = this.currentThemeId
-        this.activeDashboard = dashboardService.activeDashboard;
+        this.dashboardState = dashboardService.state;
     }
 
     /**
@@ -158,8 +158,8 @@ export class WidgetService extends AbstractWidgetService {
      */
     public resetColorMap() {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        if (this.activeDashboard.getOptions()) {
-            let dashboardOptions = this.activeDashboard.getOptions();
+        if (this.dashboardState.getOptions()) {
+            let dashboardOptions = this.dashboardState.getOptions();
             let colorMaps = dashboardOptions.colorMaps || {};
             Object.keys(colorMaps).forEach((databaseName) => {
                 Object.keys(colorMaps[databaseName]).forEach((tableName) => {

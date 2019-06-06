@@ -94,7 +94,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     validateDatasetName(): void {
         this.datasetNameIsValid = this.data.datasetName !== '';
-        Object.values(this.datasetService.getDatasets()).forEach((dataset) => {
+        Object.values(this.datasetService.datastores).forEach((dataset) => {
             this.datasetNameIsValid =
                 this.datasetNameIsValid &&
                 dataset.name !== this.data.datasetName;

@@ -79,13 +79,13 @@ export class CustomConnectionComponent implements AfterContentInit {
     }
 
     createDataset() {
-        let dataset: NeonDatastoreConfig = { name: this.data.datasetName, host: this.data.datastoreHost, type: this.data.datastoreType, databases: {} };
-        dataset.databases = this.data.selectedDatabases.reduce((acc, db) => {
+        let datastore: NeonDatastoreConfig = { name: this.data.datasetName, host: this.data.datastoreHost, type: this.data.datastoreType, databases: {} };
+        datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
             acc[db.name] = db;
             return acc;
         }, {} as { [key: string]: DatabaseMetaData });
-        this.datasetService.addDataset(dataset);
-        this.datasetService.setActiveDataset(dataset);
+        this.datasetService.addDatastore(datastore);
+        this.datasetService.setActiveDatastore(datastore);
 
         // TODO: THOR-825:
         // TODO: THOR-1056: fix so that the dashboard is added to existing list
@@ -96,7 +96,7 @@ export class CustomConnectionComponent implements AfterContentInit {
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
         this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
-        this.datasetCreated.emit(dataset);
+        this.datasetCreated.emit(datastore);
     }
 
     close() {
