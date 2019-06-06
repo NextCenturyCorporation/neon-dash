@@ -435,7 +435,7 @@ export class WidgetOptionCollection {
             let configDatabase: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = dashboardState.deconstructFieldName(tableKey).database;
+                configDatabase = dashboardState.deconstructTableName(tableKey).database;
 
                 if (configDatabase) {
                     for (let database of this.databases) {
@@ -481,6 +481,7 @@ export class WidgetOptionCollection {
                 .values(dashboardState.getTables(this.database.name))
                 .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
             [];
+
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
@@ -489,7 +490,7 @@ export class WidgetOptionCollection {
             let configTable: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = dashboardState.deconstructFieldName(tableKey).table;
+                configTable = dashboardState.deconstructTableName(tableKey).table;
 
                 if (configTable) {
                     for (let table of this.tables) {

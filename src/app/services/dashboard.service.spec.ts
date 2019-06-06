@@ -41,11 +41,11 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(datasetService.state.datastore).toEqual({ name: '', host: '', type: '', databases: {} } as NeonDatastoreConfig);
+        expect(datasetService.state.datastore).toEqual({ host: '', type: '', databases: {} } as NeonDatastoreConfig);
     });
 
     it('should have no active dashboards at creation', () => {
-        expect(datasetService.state.dashboard).not.toBeDefined();
+        expect(datasetService.state.dashboard.name).not.toBeDefined();
     });
 
     it('should return datastores by name', () => {
@@ -761,7 +761,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does work with relations in string list structure', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+        spyOn(datasetService.state, 'dashboard').and.returnValue({
             relations: [
                 ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
                 ['datastore1.testDatabase1.testTable1.testRelationFieldB', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
@@ -801,7 +801,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does work with relations in nested list structure', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+        spyOn(datasetService.state, 'dashboard').and.returnValue({
             relations: [
                 [
                     ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
@@ -857,7 +857,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does work with relations in both structures', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+        spyOn(datasetService.state, 'dashboard').and.returnValue({
             relations: [
                 ['datastore1.testDatabase1.testTable1.testRelationFieldA', ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
                 [['datastore1.testDatabase1.testTable1.testRelationFieldB'], 'datastore1.testDatabase2.testTable2.testRelationFieldB']
@@ -897,7 +897,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does ignore relations on databases/tables/fields that don\'t exist', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+        spyOn(datasetService.state, 'dashboard').and.returnValue({
             relations: [
                 ['datastore1.fakeDatabase1.testTable1.testRelationFieldA', 'datastore1.fakeDatabase2.testTable2.testRelationFieldA'],
                 ['datastore1.testDatabase1.fakeTable1.testRelationFieldA', 'datastore1.testDatabase2.fakeTable2.testRelationFieldA'],
@@ -921,7 +921,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does ignore relations with unequal filter fields', () => {
-        spyOn(datasetService, 'getCurrentDashboard').and.returnValue({
+        spyOn(datasetService.state, 'dashboard').and.returnValue({
             relations: [
                 [
                     ['datastore1.testDatabase1.testTable1.testRelationFieldA'],

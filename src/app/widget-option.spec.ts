@@ -464,7 +464,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.table.prettyName).toEqual(DashboardServiceMock.TABLES.testTable2.prettyName);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(options.testCustomField).toEqual(DashboardServiceMock.TEXT_FIELD);
         expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);

@@ -58,10 +58,6 @@ class TestMapComponent extends MapComponent {
         return this.mapObject;
     }
 
-    getDashboardService(): DashboardService {
-        return this.datasetService;
-    }
-
     getInjector(): Injector {
         return this.injector;
     }

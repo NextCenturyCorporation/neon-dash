@@ -22,13 +22,14 @@ import { NeonGTDConfig, NeonDatastoreConfig } from './neon-gtd-config';
 
 export class DashboardState {
     /**
-     * Returns database name from complete field name (datastore.database.table.field).
+     * Returns dotted reference in constituent parts(datastore.database.table.field).
      * @param {String} name
      * @return {String}
      */
-    static deconstructFieldName(name: string) {
-        const [database, table, ...field] = (name || '').split('.');
+    static deconstructDottedReference(name: string) {
+        const [datastore, database, table, ...field] = (name || '').split('.');
         return {
+            datastore,
             database,
             table,
             field: field.join('.')
@@ -50,8 +51,18 @@ export class DashboardState {
      * @param {String} key
      * @return {String}
      */
+    deconstructTableName(key: string) {
+        return DashboardState.deconstructDottedReference(this.dashboard.tables[key]);
+    }
+
+
+    /**
+     * Returns database name from matching table key within the dashboard passed in.
+     * @param {String} key
+     * @return {String}
+     */
     deconstructFieldName(key: string) {
-        return DashboardState.deconstructFieldName(this.dashboard.tables[key]);
+        return DashboardState.deconstructDottedReference(this.dashboard.fields[key]);
     }
 
     /**
@@ -78,7 +89,7 @@ export class DashboardState {
         if (!this.dashboard.options.simpleFilter) {
             let tableKey = Object.keys(this.dashboard.tables)[0];
 
-            const { database, table } = this.deconstructFieldName(tableKey);
+            const { database, table } = this.deconstructTableName(tableKey);
 
             this.dashboard.options.simpleFilter = {
                 databaseName: database,
@@ -92,7 +103,7 @@ export class DashboardState {
      * Returns the simple search field
      * @return {string}
      */
-    public getCurrentDashboardSimpleFilterFieldName(): string {
+    public getSimpleFilterFieldName(): string {
         this.createSimpleFilter();
         return this.dashboard.options.simpleFilter.fieldName;
     }
@@ -176,10 +187,10 @@ export class DashboardState {
         }
         let tableKeys = this.dashboard.tables;
 
-        let keyArray = Object.keys(tableKeys);
+        let keyArray = Object.keys(tableKeys || {});
 
         if (keyArray.length) {
-            const { database } = this.deconstructFieldName(keyArray[0]);
+            const { database } = this.deconstructTableName(keyArray[0]);
             return this.getDatabaseWithName(database);
         }
         return undefined;
@@ -462,7 +473,7 @@ export class DashboardState {
                 [configRelationFilterFields];
 
             return relationFilterFields.map((item) => {
-                const { database, table, field } = this.deconstructFieldName(item);
+                const { database, table, field } = this.deconstructTableName(item);
 
                 return {
                     // TODO THOR-1062 THOR-1078 Set the datastore name too!

@@ -3431,7 +3431,7 @@ describe('FilterService with filters', () => {
         relationDesign2.name = relationFilter2.name;
 
         /* eslint-disable-next-line jasmine/no-unsafe-spy */
-        spyOn(datasetService, 'findRelationDataList').and.returnValue([[
+        spyOn(datasetService.state, 'findRelationDataList').and.returnValue([[
             [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,

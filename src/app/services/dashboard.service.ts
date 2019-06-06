@@ -274,14 +274,14 @@ export class DashboardService {
                     db.options.simpleFilter.tableKey) {
                     let tableKey = db.options.simpleFilter.tableKey;
 
-                    const { database, table } = DashboardState.deconstructFieldName(db.tables[tableKey]);
+                    const { database, table } = DashboardState.deconstructDottedReference(db.tables[tableKey]);
 
                     db.options.simpleFilter.databaseName = database;
                     db.options.simpleFilter.tableName = table;
 
                     if (db.options.simpleFilter.fieldKey) {
                         let fieldKey = db.options.simpleFilter.fieldKey;
-                        const { field: fieldName } = DashboardState.deconstructFieldName(db.fields[fieldKey]);
+                        const { field: fieldName } = DashboardState.deconstructDottedReference(db.fields[fieldKey]);
 
                         db.options.simpleFilter.fieldName = fieldName;
                     } else {
@@ -365,6 +365,10 @@ export class DashboardService {
     public addDatastore(datastore: NeonDatastoreConfig) {
         DashboardService.validateDatabases(datastore);
         this.config.datastores[datastore.name] = datastore;
+    }
+
+    public setActiveDashboard(dashboard: Dashboard) {
+        this.state.dashboard = dashboard;
     }
 
     /**
@@ -502,7 +506,7 @@ export class DashboardService {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DashboardState.deconstructFieldName(dashboardChoices[choiceKey].tables[tableKey]);
+                    const { database } = DashboardState.deconstructDottedReference(dashboardChoices[choiceKey].tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];

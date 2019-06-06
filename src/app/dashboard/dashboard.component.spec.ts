@@ -872,8 +872,8 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardState does work as expected', () => {
-        let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
-        let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+        let spyDashboards = spyOn(component.datasetService, 'setActiveDashboard');
+        let spyDatastores = spyOn(component.datasetService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
@@ -935,8 +935,8 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardState does work with tabs', () => {
-        let spyDashboards = spyOn(component.datasetService, 'setCurrentDashboard');
-        let spyDatastores = spyOn(component.datasetService, 'setActiveDataset');
+        let spyDashboards = spyOn(component.datasetService, 'setActiveDashboard');
+        let spyDatastores = spyOn(component.datasetService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
@@ -1017,29 +1017,17 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardStateOnPageLoad with parameter state but no parameter dataset or auto-show dashboard does work as expected', () => {
-        let spyLoad = spyOn(component['parameterService'], 'loadState');
         let spySender = spyOn(component.messageSender, 'publish');
-
-        spyOn(component['parameterService'], 'findActiveDatasetInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue('testStateName');
-        spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
 
         component['dashboards'] = Dashboard.get();
 
         component['showDashboardStateOnPageLoad']();
 
-        expect(spyLoad.calls.count()).toEqual(1);
-        expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
         expect(spySender.calls.count()).toEqual(0);
     });
 
     it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
-        let spyLoad = spyOn(component['parameterService'], 'loadState');
         let spySender = spyOn(component.messageSender, 'publish');
-
-        spyOn(component['parameterService'], 'findActiveDatasetInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
         showDashboard.datastores = {
@@ -1056,7 +1044,6 @@ describe('Dashboard', () => {
 
         component['showDashboardStateOnPageLoad']();
 
-        expect(spyLoad.calls.count()).toEqual(0);
         expect(spySender.calls.count()).toEqual(1);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: showDashboard
@@ -1064,14 +1051,9 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
-        let spyLoad = spyOn(component['parameterService'], 'loadState');
         let spySender = spyOn(component.messageSender, 'publish');
-
-        spyOn(component['parameterService'], 'findActiveDatasetInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue('testStateName');
-        spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue('testFilterStateId');
-
         let showDashboard = Dashboard.get();
+
         showDashboard.datastores = {
             testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         };
@@ -1086,8 +1068,6 @@ describe('Dashboard', () => {
 
         component['showDashboardStateOnPageLoad']();
 
-        expect(spyLoad.calls.count()).toEqual(1);
-        expect(spyLoad.calls.argsFor(0)).toEqual(['testStateName', 'testFilterStateId']);
         expect(spySender.calls.count()).toEqual(1);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: showDashboard
@@ -1095,12 +1075,7 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
-        let spyLoad = spyOn(component['parameterService'], 'loadState');
         let spySender = spyOn(component.messageSender, 'publish');
-
-        spyOn(component['parameterService'], 'findActiveDatasetInUrl').and.returnValue('testDatastoreName1');
-        spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
         let showDashboard = Dashboard.get();
         showDashboard.datastores = {
@@ -1117,7 +1092,6 @@ describe('Dashboard', () => {
 
         component['showDashboardStateOnPageLoad']();
 
-        expect(spyLoad.calls.count()).toEqual(0);
         expect(spySender.calls.count()).toEqual(1);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
             dashboard: showDashboard

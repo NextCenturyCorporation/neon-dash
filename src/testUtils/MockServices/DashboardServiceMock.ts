@@ -82,8 +82,8 @@ export class DashboardServiceMock extends DashboardService {
         let datastore: NeonDatastoreConfig = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore['hasUpdatedFields'] = true;
-        this.dataset = datastore;
-        this.datasets = { [datastore.name]: datastore };
+        this.setActiveDatastore(datastore);
+        this.addDatastore(datastore);
 
         let dashboard = Dashboard.get();
 
@@ -111,6 +111,7 @@ export class DashboardServiceMock extends DashboardService {
         dashboard.name = 'Test Discovery Config';
         dashboard.layout = 'DISCOVERY';
         dashboard.options = {};
-        this.setCurrentDashboard(dashboard);
+
+        this.setActiveDashboard(dashboard);
     }
 }
