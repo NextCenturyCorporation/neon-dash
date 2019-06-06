@@ -94,7 +94,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public selectedTabIndex: number = 0;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -103,7 +103,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

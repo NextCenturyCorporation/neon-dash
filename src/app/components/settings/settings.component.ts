@@ -57,8 +57,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         public injector: Injector,
         public widgetService: AbstractWidgetService
     ) {
-        this.datasetService = datasetService;
-        this.injector = injector;
         this.messenger = new eventing.Messenger();
     }
 

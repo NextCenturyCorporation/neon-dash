@@ -68,7 +68,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textColor: string = '#111';
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -77,7 +77,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

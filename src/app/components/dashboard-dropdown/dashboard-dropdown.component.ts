@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { Dashboard } from '../../types';
+import { Dashboard, ActiveDashboard } from '../../types';
 import * as _ from 'lodash';
 
 @Component({
@@ -75,14 +75,12 @@ export class DashboardDropdownComponent {
 
     /**
      * Checks to see if there are more dashboard choices available from the selectedDashboard chosen.
-     *
-     * @return {Boolean}
      */
-    hasMoreChoices() {
+    hasMoreChoices(): boolean {
         return (
-            this.selectedDashboard &&
-            this.selectedDashboard.choices &&
-            _.findKey(this.dashboards.choices, this.selectedDashboard as any)
+            !!this.selectedDashboard &&
+            !!this.selectedDashboard.choices &&
+            !!_.findKey(this.dashboards.choices, this.selectedDashboard)
         );
     }
 
@@ -98,13 +96,13 @@ export class DashboardDropdownComponent {
     /**
      * Used to select correct choices from dropdown(s) if connectOnLoad is set to true for one of the dashboards in the config.
      *
-     * @arg {Dashboard} dashboard
+     * @arg  dashboard
      * @arg {string[]} paths - paths to use to access dashboard choices
      * @arg {number} indexToUse - index to use to access path within paths array
      * @arg {DashboardDropdownComponent} dropdown - dropdown component
      */
     selectDashboardChoice(
-        dashboard: Dashboard,
+        dashboard: ActiveDashboard,
         paths: string[],
         indexToUse: number,
         dropdown: DashboardDropdownComponent
@@ -117,7 +115,10 @@ export class DashboardDropdownComponent {
         if (this.hasMoreChoices()) {
             let newIndex = indexToUse + 1;
             this.nextDropdown.selectDashboardChoice(
-                dashboard.choices[path],
+                {
+                    ...dashboard.choices[path],
+                    config: dashboard.config
+                },
                 paths,
                 newIndex,
                 this.nextDropdown

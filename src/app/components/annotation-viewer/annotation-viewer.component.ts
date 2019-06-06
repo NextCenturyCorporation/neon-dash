@@ -111,7 +111,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     constructor(
         protected widgetService: AbstractWidgetService,
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -119,7 +119,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

@@ -82,7 +82,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     };
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -90,7 +90,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

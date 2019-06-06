@@ -73,7 +73,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public view: any = ViewType;
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -82,7 +82,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

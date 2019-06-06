@@ -1089,7 +1089,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options: any = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
+        let options = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));

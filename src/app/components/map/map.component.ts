@@ -97,7 +97,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
 
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -106,7 +106,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
