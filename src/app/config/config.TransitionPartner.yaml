@@ -629,20 +629,6 @@ dashboards:
                                     fieldKey: translated_text_key
                                     placeHolder: Search
                             contributors:
-                                rpi:
-                                    orgName: 'Rensselaer Polytechnic Institute'
-                                    abbreviation: 'RPI'
-                                    contactName: 'Heng Ji'
-                                    contactEmail: 'jih@rpi.edu'
-                                    website: 'http://nlp.cs.rpi.edu/'
-                                    logo: 'RPI-logo.png'
-                                isi:
-                                    orgName: 'University of Southern California, Information Sciences Institute'
-                                    abbreviation: 'USC/ISI'
-                                    contactName: 'Jonathan May'
-                                    contactEmail: 'jonmay@isi.edu'
-                                    website: 'https://www.isi.edu/'
-                                    logo: 'ISI-logo.png'
                                 ldc:
                                     orgName: 'Linguistic Data Consortium'
                                     abbreviation: 'LDC'
@@ -650,6 +636,20 @@ dashboards:
                                     contactEmail: 'strassel@ldc.upenn.edu'
                                     website: 'https://www.ldc.upenn.edu/language-resources'
                                     logo: 'LDC-logo.png'
+                                raytheon:
+                                    orgName: 'Raytheon BBN Technologies'
+                                    abbreviation: 'BBN'
+                                    contactName: 'Rabih Zbib'
+                                    contactEmail: 'rabih.zbib@raytheon.com'
+                                    website: 'https://www.raytheon.com/ourcompany/bbn'
+                                    logo: 'RaytheonBBN-logo.png'
+                                upenn:
+                                    orgName: 'University of Pennsylvania'
+                                    abbreviation: 'UPenn'
+                                    contactName: 'Dan Roth'
+                                    contactEmail: 'danroth@seas.upenn.edu'
+                                    website: 'https://www.upenn.edu/'
+                                    logo: 'UPenn-logo.jpg'
                 apan:
                     name: 'APAN'
                     category: 'Select a datastore...'
@@ -1291,8 +1291,6 @@ layouts:
               titleContentField: translated_text_key
               ignoreSelf: false
               limit: 100
-              contributionKeys:
-                - ldc
         - name: Map
           type: map
           icon: Map64
@@ -1319,8 +1317,6 @@ layouts:
               north: 25
               east: 78
               south: 5
-              contributionKeys:
-                - ldc
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -1334,8 +1330,6 @@ layouts:
               tableKey: table_key_2
               dataField: location_key
               preFilter: false
-              contributionKeys:
-                - ldc
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -1352,8 +1346,6 @@ layouts:
               groupField: color_field_topic_key
               sortByAggregation: true
               ignoreSelf: true
-              contributionKeys:
-                - ldc
         - name: Data Table
           type: dataTable
           icon: ViewData64
@@ -1380,8 +1372,6 @@ layouts:
                   - id_field_key_2
               singleFilter: true
               ignoreSelf: false
-              contributionKeys:
-                - ldc
     elisa_macedonia:
         - name: Data Table
           type: dataTable
