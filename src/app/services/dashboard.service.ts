@@ -18,14 +18,14 @@ import { eventing } from 'neon-framework';
 
 import {
     Dashboard, DatabaseMetaData,
-    TableMetaData, FieldMetaData, SingleField
+    TableMetaData, FieldMetaData
 } from '../types';
-import { Subscription, Observable } from 'rxjs';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { NeonGTDConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../neon-gtd-config';
 import { ConnectionService, Connection } from './connection.service';
+import { ActiveDashboard } from '../active-dashboard';
 
 @Injectable()
 export class DashboardService {
@@ -38,23 +38,19 @@ export class DashboardService {
     // since a dashboard can reference multiple datastores.
     protected dataset: NeonDatastoreConfig = { host: '', name: '', databases: {}, type: '' };
 
+    protected activeDashboard: ActiveDashboard;
+
     protected dashboards: Dashboard;
 
     protected layouts: { [key: string]: any };
 
     // The currently selected dashboard.
-    protected currentDashboard: Dashboard;
     protected layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
     private messenger: any;
 
-    // The active update interval if required by the current active dataset.
-    private updateInterval: Observable<number>;
-
-    // The subscription that fires on the update interval.
-    private updateSubscription: Subscription;
 
     // ---
     // STATIC METHODS
@@ -276,15 +272,14 @@ export class DashboardService {
                     db.options.simpleFilter.tableKey) {
                     let tableKey = db.options.simpleFilter.tableKey;
 
-                    let databaseName = this.getDatabaseNameByKey(db, tableKey);
-                    let tableName = this.getTableNameByKey(db, tableKey);
+                    const { database, table } = ActiveDashboard.deconstructFieldName(db.tables[tableKey]);
 
-                    db.options.simpleFilter.databaseName = databaseName;
-                    db.options.simpleFilter.tableName = tableName;
+                    db.options.simpleFilter.databaseName = database;
+                    db.options.simpleFilter.tableName = table;
 
                     if (db.options.simpleFilter.fieldKey) {
                         let fieldKey = db.options.simpleFilter.fieldKey;
-                        let fieldName = this.getFieldNameByKey(db, fieldKey);
+                        const { field: fieldName } = ActiveDashboard.deconstructFieldName(db.fields[fieldKey]);
 
                         db.options.simpleFilter.fieldName = fieldName;
                     } else {
@@ -304,63 +299,6 @@ export class DashboardService {
                     fullPathFromTop, db.fullTitle);
             }
         });
-    }
-
-    /**
-     * Returns database name from complete field name (datastore.database.table.field).
-     * @param {String} name
-     * @return {String}
-     */
-    static getDatabaseNameFromCompleteFieldName(name: string) {
-        return name.split('.')[1];
-    }
-
-    /**
-     * Returns table name from complete field name (datastore.database.table.field).
-     * @param {String} name
-     * @return {String}
-     */
-    static getTableNameFromCompleteFieldName(name: string) {
-        return name.split('.')[2];
-    }
-
-    /**
-     * Returns field name from complete field name (datastore.database.table.field).
-     * @param {String} name
-     * @return {String}
-     */
-    static getFieldNameFromCompleteFieldName(name: string) {
-        return name.split('.').slice(3).join('.');
-    }
-
-    /**
-     * Returns database name from matching table key within the dashboard passed in.
-     * @param {Dashboard} dashboard
-     * @param {String} key
-     * @return {String}
-     */
-    static getDatabaseNameByKey(dashboard: NeonDashboardConfig, key: string) {
-        return this.getDatabaseNameFromCompleteFieldName(dashboard.tables[key]);
-    }
-
-    /**
-     * Returns table name from matching table key within the dashboard passed in.
-     * @param {Dashboard} dashboard
-     * @param {String} key
-     * @return {String}
-     */
-    static getTableNameByKey(dashboard: NeonDashboardConfig, key: string) {
-        return this.getTableNameFromCompleteFieldName(dashboard.tables[key]);
-    }
-
-    /**
-     * Returns field name from matching field key within the dashboard passed in.
-     * @param {Dashboard} dashboard
-     * @param {String} key
-     * @return {String}
-     */
-    static getFieldNameByKey(dashboard: NeonDashboardConfig, key: string) {
-        return this.getFieldNameFromCompleteFieldName(dashboard.fields[key]);
     }
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
@@ -467,115 +405,11 @@ export class DashboardService {
     }
 
     /**
-     * Returns the current dashboard config title.
-     * @return {string}
-     */
-    public getCurrentDashboardTitle(): string {
-        return this.currentDashboard ? this.currentDashboard.fullTitle : null;
-    }
-
-    /**
-     * Sets the current dashboard config.
-     * @param {Dashboard} config
-     */
-    public setCurrentDashboard(config: Dashboard) {
-        this.currentDashboard = config;
-
-        // Shutdown any previous update intervals.
-        if (this.updateInterval) {
-            this.updateSubscription.unsubscribe();
-            delete this.updateSubscription;
-            delete this.updateInterval;
-        }
-    }
-
-    /**
-     * Returns the current dashboard config.
-     * @return {Dashboard}
-     */
-    public getCurrentDashboard(): Dashboard {
-        return this.currentDashboard;
-    }
-
-    /**
      * Returns all of the dashboards.
      * @return {Dashboard}
      */
     public getDashboards(): Dashboard {
         return this.dashboards;
-    }
-
-    /**
-     *
-     * @param simpleField The new field for the simple search
-     */
-    public setCurrentDashboardSimpleFilterFieldName(simpleField: FieldMetaData) {
-        this.createSimpleFilter();
-        this.currentDashboard.options.simpleFilter.fieldName = simpleField.columnName;
-    }
-
-    /**
-     * Creates a simpleFilter if it doesn't exist
-     */
-    public createSimpleFilter() {
-        if (!this.currentDashboard.options.simpleFilter) {
-            let tableKey = Object.keys(this.currentDashboard.tables)[0];
-
-            this.currentDashboard.options.simpleFilter = {
-                databaseName: this.getDatabaseNameFromCurrentDashboardByKey(tableKey),
-                tableName: this.getTableNameFromCurrentDashboardByKey(tableKey),
-                fieldName: ''
-            };
-        }
-    }
-
-    /**
-     * Returns the simple search field
-     * @return {string}
-     */
-    public getCurrentDashboardSimpleFilterFieldName(): string {
-        this.createSimpleFilter();
-        return this.currentDashboard.options.simpleFilter.fieldName;
-    }
-
-    /**
-     * Returns the active table fields
-     * @return {Object}
-     */
-    public getActiveFields() {
-        return this.dataset.databases[0].tables[0].fields;
-    }
-
-    /**
-     * Returns the active dataset object
-     * @return {Object}
-     */
-    public getDataset(): NeonDatastoreConfig {
-        return this.getDatasetWithName(this.dataset.name) || this.dataset;
-    }
-
-    /**
-     * Returns whether a dataset is active.
-     * @return {Boolean}
-     */
-    public hasDataset(): boolean {
-        return (this.dataset.type && this.dataset.host && (Object.keys(this.dataset.databases).length > 0));
-    }
-
-    /**
-     * Returns the name of the active dataset.
-     * @return {String}
-     */
-    public getName(): string {
-        return this.dataset.name;
-    }
-
-    /**
-     * Returns the layout name for the currently selected dashboard.
-     * @return {String}
-     */
-    public getLayout(): string {
-        return this.currentDashboard.layout;
     }
 
     /**
@@ -591,283 +425,8 @@ export class DashboardService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
-        this.currentDashboard.layout = layoutName;
+        this.activeDashboard.dashboard.layout = layoutName; // TODO: Cleanup
         this.updateDataset();
-    }
-
-    /**
-     * Returns the datastore type for the active datastore (elasticsearchrest, mongo, etc)
-     * @return {String}
-     */
-    public getDatastoreType(): string {
-        return this.dataset.type;
-    }
-
-    /**
-     * Returns the hostname for the active datastore.
-     * @return {String}
-     */
-    public getDatastoreHost(): string {
-        return this.dataset.host;
-    }
-
-    /**
-     * Returns the databases for the active dataset.
-     * @return {Array}
-     */
-    public getDatabases(): DatabaseMetaData[] {
-        return Object.values(this.dataset.databases).sort((db1, db2) => db1.name.localeCompare(db2.name));
-    }
-
-    /**
-     * Returns the dataset with the given name or undefined if no such dataset exists.
-     * @param {String} The dataset name
-     * @return {Object} The dataset object if a match exists or undefined otherwise.
-     */
-    public getDatasetWithName(datasetName: string): NeonDatastoreConfig {
-        return this.datasets[datasetName];
-    }
-
-    /**
-     * Returns the database with the given name or an Object with an empty name if no such database exists in the dataset.
-     * @param {String} The database name
-     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     */
-    public getDatabaseWithName(databaseName: string): DatabaseMetaData {
-        return this.dataset.databases[databaseName];
-    }
-
-    /**
-     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the dataset.
-     * @param {String} The dashboard name
-     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     * Dashboard name only includes part of the database pretty name
-     */
-    public getCurrentDatabase(): DatabaseMetaData {
-        if (!this.getCurrentDashboard()) {
-            return undefined;
-        }
-        let tableKeys = this.getCurrentDashboard().tables;
-
-        let keyArray = Object.keys(tableKeys);
-
-        if (keyArray.length) {
-            let databaseName = this.getDatabaseNameFromCurrentDashboardByKey(keyArray[0]);
-            return this.getDatabaseWithName(databaseName);
-        }
-        return undefined;
-    }
-
-    /**
-     * Returns the tables for the database with the given name in the active dataset.
-     * @param {String} The database name
-     * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
-     */
-    public getTables(databaseName: string): { [key: string]: TableMetaData } {
-        let database = this.getDatabaseWithName(databaseName);
-        return database ? database.tables : {};
-    }
-
-    /**
-     * Returns the table with the given name or an Object with an empty name if no such table exists in the database with the given name.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @return {Object} The table containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     */
-    public getTableWithName(databaseName: string, tableName: string): TableMetaData {
-        let tables = this.getTables(databaseName);
-        return tables[tableName];
-    }
-
-    /**
-     * Returns the field with the given name or an Object with an empty name if no such field exists in the database and table with the
-     * given names.
-     *
-     * @arg {string} databaseName The database name
-     * @arg {string} tableName The table name
-     * @arg {string} fieldName The field name
-     * @return {FieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
-     */
-    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): FieldMetaData {
-        let fields: FieldMetaData[] = this.getFields(databaseName, tableName);
-        for (let field of fields) {
-            if (field.columnName === fieldName) {
-                return field;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Returns a map of database names to an array of table names within that database.
-     * @return {Object}
-     */
-    public getDatabaseAndTableNames(): Record<string, any> {
-        let databases = this.getDatabases();
-        let names = {};
-        for (let database of databases) {
-            names[database.name] = [];
-            let tables = this.getTables(database.name);
-            for (const table of Object.values(tables)) {
-                names[database.name][table.name] = table;
-            }
-        }
-        return names;
-    }
-
-    /**
-     * Returns the the first table in the database with the given name containing all the given mappings.
-     * @param {String} The database name
-     * @param {Array} The array of mapping keys that the table must contain.
-     * @return {String} The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     */
-    public getFirstTableWithMappings(databaseName: string, keys: string[]): TableMetaData {
-        let tables = this.getTables(databaseName);
-        for (const table of Object.values(tables)) {
-            for (let key of keys) {
-                if (!(table.mappings[key])) {
-                    return table;
-                }
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Returns an object containing the first database, table, and fields found in the active dataset with all the given mappings.
-     * @param {Array} The array of mapping keys that the database and table must contain.
-     * @return {Object} An object containing {String} database, {String} table,
-     * and {Object} fields linking {String} mapping to {String} field.
-     * If no match was found, an empty object is returned instead.
-     */
-    public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
-        for (let database of Object.values(this.dataset.databases)) {
-            for (let table of Object.values(database.tables)) {
-                let success = true;
-                let fields = {};
-                if (keys && keys.length > 0) {
-                    for (let key of keys) {
-                        if (table.mappings[key]) {
-                            fields[key] = table.mappings[key];
-                        } else {
-                            success = false;
-                        }
-                    }
-                }
-
-                if (success) {
-                    return {
-                        database: database.name,
-                        table: table.name,
-                        fields: fields
-                    };
-                }
-            }
-        }
-
-        return {};
-    }
-
-    /**
-     * Returns the field objects for the database and table with the given names.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @return {Array} The array of field objects if a match exists or an empty array otherwise.
-     */
-    public getFields(databaseName: string, tableName: string): FieldMetaData[] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return [];
-        }
-
-        return table.fields;
-    }
-
-    /**
-     * Returns a sorted copy of the array of field objects for the database and table with the given names,
-     * ignoring hidden fields if specified.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {Boolean} Whether to ignore fields in the table marked as hidden (optional)
-     * @return {Array} The sorted copy of the array of field objects if a match exists or an empty array otherwise.
-     */
-    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): FieldMetaData[] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return [];
-        }
-
-        let fields = _.cloneDeep(table.fields).filter((field) => (ignoreHiddenFields ? !field.hide : true));
-
-        fields.sort((field1, field2) => {
-            if (!field1.prettyName || !field2.prettyName) {
-                return 0;
-            }
-            // Compare field pretty names and ignore case.
-            return (field1.prettyName.toUpperCase() < field2.prettyName.toUpperCase()) ?
-                -1 : ((field1.prettyName.toUpperCase() > field2.prettyName.toUpperCase()) ? 1 : 0);
-        });
-
-        return fields;
-    }
-
-    /**
-     * Returns the mappings for the table with the given name.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @return {Object} The mappings if a match exists or an empty object otherwise.
-     */
-    public getMappings(databaseName: string, tableName: string): TableMetaData['mappings'] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return {};
-        }
-
-        return table.mappings;
-    }
-
-    /**
-     * Returns the mapping for the table with the given name and the given key.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {String} The mapping key
-     * @return {String} The field name for the mapping at the given key if a match exists or an empty string
-     * otherwise.
-     */
-    public getMapping(databaseName: string, tableName: string, key: string): string {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return '';
-        }
-
-        return table.mappings[key];
-    }
-
-    /**
-     * Sets the mapping for the table with the given name at the given key to the given field name.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {String} The mapping key
-     * @param {String} The field name for the given mapping key
-     */
-    public setMapping(databaseName: string, tableName: string, key: string, fieldName: string): void {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return;
-        }
-
-        table.mappings[key] = fieldName;
     }
 
     /**
@@ -977,9 +536,9 @@ export class DashboardService {
                 let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
 
                 for (const tableKey of tableKeys) {
-                    let databaseName = DashboardService.getDatabaseNameByKey(dashboardChoices[choiceKey], tableKey);
+                    const { database } = ActiveDashboard.deconstructFieldName(dashboardChoices[choiceKey].tables[tableKey]);
 
-                    if (databaseName === invalidDatabaseName) {
+                    if (database === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
                     }
                 }
@@ -993,175 +552,12 @@ export class DashboardService {
     }
 
     /**
-     * Returns the options for the current dashboard.
-     * @method getCurrentDashboardOptions
-     * @return {Object}
-     *
-     */
-    public getCurrentDashboardOptions(): Dashboard['options'] {
-        return this.currentDashboard ? this.currentDashboard.options : null;
-    }
-
-    /**
      * Returns whether the given field object is valid.
      * @param {Object} fieldObject
      * @return {Boolean}
      */
     public isFieldValid(fieldObject: FieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
-    }
-
-    /**
-     * Returns the pretty name for the given database name.
-     * @param {String} databaseName
-     * @return {String}
-     */
-    public getPrettyNameForDatabase(databaseName: string): string {
-        const db = this.dataset.databases[databaseName];
-        return db ? db.prettyName : databaseName;
-    }
-
-    /**
-     * Returns the pretty name for the given table name in the given database.
-     * @param {String} databaseName
-     * @param {String} tableName
-     * @return {String}
-     */
-    public getPrettyNameForTable(databaseName: string, tableName: string): string {
-        let name = tableName;
-        const tbl = this.getTables(databaseName)[tableName];
-        return tbl ? tbl.prettyName : name;
-    }
-
-    /**
-     * Returns the list of relation data for the current dataset:  elements of the outer array are individual relations and elements of
-     * the inner array are specific fields within the relations.
-     *
-     * @return {SingleField[][][]}
-     */
-    public findRelationDataList(): SingleField[][][] {
-        // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
-        // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
-        let configRelationDataList: (string | string[])[][] = this.getCurrentDashboard().relations || [];
-
-        // Each element in the 1st (outermost) list is a separate relation.
-        // Each element in the 2nd list is a relation field.
-        // Each element in the 3rd (innermost) list is an ordered set of relation fields.  A filter must have each relation field within
-        // the ordered set for the relation to be applied.
-        //
-        // EX: [ // relation list
-        //       [ // single relation
-        //         [ // relation fields
-        //           'datastore1.database1.table1.fieldA',
-        //           'datastore1.database1.table1.fieldB'
-        //         ],
-        //         [ // relation fields
-        //           'datastore2.database2.table2.fieldX',
-        //           'datastore2.database2.table2.fieldY'
-        //         ]
-        //       ]
-        //     ]
-        // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
-        // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
-        // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
-        return configRelationDataList.map((configRelationData) => configRelationData.map((configRelationFilterFields) => {
-            // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
-            // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
-            let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
-                [configRelationFilterFields];
-
-            return relationFilterFields.map((item) => {
-                let databaseName = DashboardService.getDatabaseNameFromCompleteFieldName(item);
-                let tableName = DashboardService.getTableNameFromCompleteFieldName(item);
-                let fieldName = DashboardService.getFieldNameFromCompleteFieldName(item);
-                return {
-                    // TODO THOR-1062 THOR-1078 Set the datastore name too!
-                    datastore: '',
-                    database: this.getDatabaseWithName(databaseName),
-                    table: this.getTableWithName(databaseName, tableName),
-                    field: this.getFieldWithName(databaseName, tableName, fieldName)
-                } as SingleField;
-            }).filter((item) => item.database && item.table && item.field);
-        })).filter((relationData) => {
-            if (relationData.length > 1) {
-                // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
-                let size = relationData[0].length;
-                return size && relationData.every((relationFilterFields) => relationFilterFields.length === size);
-            }
-            return false;
-        });
-    }
-
-    // Used to link layouts with dashboards
-    /**
-     * Returns entire value of matching table key from current dashboard.
-     * @param {String} key
-     * @return {String}
-     */
-    public getTableFromCurrentDashboardByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? currentConfig.tables[key] : null;
-    }
-
-    /**
-     * Returns entire value of matching field key from current dashboard.
-     * @param {String} key
-     * @return {String}
-     */
-    public getFieldFromCurrentDashboardByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? currentConfig.fields[key] : null;
-    }
-
-    // TODO: THOR-1062: entire key may be more important later when
-    // connecting to multiple databases -- for now we can just
-    // use a partial key
-    /**
-     * Returns database name from matching table key from current dashboard.
-     * @param {String} key
-     * @return {String}
-     */
-    public getDatabaseNameFromCurrentDashboardByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DashboardService.getDatabaseNameByKey(currentConfig, key) : null;
-    }
-
-    /**
-     * Returns table name from matching table key from current dashboard.
-     * @param {String} key
-     * @return {String}
-     */
-    public getTableNameFromCurrentDashboardByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DashboardService.getTableNameByKey(currentConfig, key) : null;
-    }
-
-    /**
-     * Returns field name from matching field key from current dashboard.
-     * @param {String} key
-     * @return {String}
-     */
-    public getFieldNameFromCurrentDashboardByKey(key: string): string {
-        let currentConfig = this.getCurrentDashboard();
-        return currentConfig ? DashboardService.getFieldNameByKey(currentConfig, key) : null;
-    }
-
-    /**
-     * If field key is referenced in config file, find field value using current dashboard.
-     *
-     * @arg {string} fieldKey
-     * @return {string}
-     */
-    public translateFieldKeyToValue(fieldKey: string): string {
-        let currentDashboard = this.getCurrentDashboard();
-
-        // If the field key does exist in the dashboard...
-        if (fieldKey && currentDashboard && currentDashboard.fields && currentDashboard.fields[fieldKey]) {
-            return this.getFieldNameFromCurrentDashboardByKey(fieldKey);
-        }
-
-        // If the field key is just a field name or does not exist in the dashboard...
-        return fieldKey;
     }
 
     /**
