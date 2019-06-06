@@ -492,7 +492,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         let nodeClass = classString + node.level;
         // Adds a styling class for the values of types or subTypes
         if (this.options.valueField.columnName &&
-            ((node.level === 2 && node.hasChildren && !node.children[0].hasChildren) || node.level === 3)) {
+            ((node.level === 2 && node.hasChildren && !node.children[0].hasChildren) || node.level >= 3)) {
             nodeClass += ' leaf-node-level';
         }
 
@@ -568,9 +568,19 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         };
     }
 
-    private findUnselectedGroups(group: any): any[] {
-        return (group.checked ? [] : [group]).concat((group.children || []).reduce((array, child) =>
-            array.concat(this.findUnselectedGroups(child)), []));
+    private findUnselectedGroups(group: TaxonomyGroup | TaxonomyNode): TaxonomyNode[] {
+        const base = (!group.checked || (group.level > 1 && group.indeterminate) ? [group] : []);
+        const nested = [];
+        if ('children' in group) {
+            nested.push(...group.children);
+        }
+
+        return [
+            ...base,
+            ...nested
+                .map(child => this.findUnselectedGroups(child))
+                .reduce((acc, child) => acc.concat(child), [])
+        ];
     }
 
     checkRelatedNodes(node: TreeNode, $event: any) {
@@ -579,7 +589,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
-        let unselectedGroups: any[] = this.taxonomyGroups.reduce((array, group) => array.concat(this.findUnselectedGroups(group)), []);
+        let unselectedGroups = this.taxonomyGroups.reduce((array, group) =>
+            array.concat(this.findUnselectedGroups(group)), [] as TaxonomyNode[]);
 
         // Create filters for all the unselected groups with valid fields (description properties).
         let filters: SimpleFilterDesign[] = unselectedGroups.filter((group) => group.description && group.description.columnName)
