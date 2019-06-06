@@ -11,8 +11,7 @@
                 {{ getButtonText() }}
             </span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -32,8 +31,8 @@
                                 (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
                                 [class.node-content-wrapper-focused]="node.isFocused">
                                 <div *ngIf="node.data.description.columnName !== options.valueField.columnName">
-                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox"
-                                        [indeterminate]="node.data.indeterminate" [checked]="node.data.checked">
+                                    <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
+                                        [checked]="node.data.checked">
                                     <span>{{ node.data.name }}
                                         <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
                                     </span>
@@ -45,7 +44,8 @@
                                 </div>
                             </div>
                         </div>
-                        <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+                        <tree-node-children [class.leaf]="node.data.leafCount > node.data.nodeCount/2" [node]="node" [templates]="templates">
+                        </tree-node-children>
                     </div>
                 </ng-template>
             </tree-root>

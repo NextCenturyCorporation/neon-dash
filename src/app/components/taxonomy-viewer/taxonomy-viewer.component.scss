@@ -39,12 +39,17 @@
     font-size: 14px;
 }
 
-/deep/ tree-node-children > div > tree-node-collection > div > tree-node > .leaf-node-level > tree-node-children > div {
+/deep/ tree-node-children.leaf .tree-children {
     border: 1px solid var(--color-text-header, grey);
     max-height: 200px;
     overflow-y: auto;
-    padding-left: 0;
     width: 92%;
+
+    tree-node-children.leaf .tree-children {
+        max-height: unset;
+        width: unset;
+        border: unset;
+    }
 }
 
 
