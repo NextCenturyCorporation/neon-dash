@@ -62,7 +62,6 @@ export interface CompoundFilterDesign extends FilterDesign {
 }
 
 export class FilterUtil {
-
     /**
      * Returns if the given FilterDataSource objects are equivalent.
      *
@@ -76,9 +75,10 @@ export class FilterUtil {
         item2: FilterDataSource,
         ignoreOperator: boolean = false
     ): boolean {
-        return !!(item1.datastoreName === item2.datastoreName && item1.databaseName === item2.databaseName &&
+        return true; /*
+        Return !!(item1.datastoreName === item2.datastoreName && item1.databaseName === item2.databaseName &&
             item1.tableName === item2.tableName && item1.fieldName === item2.fieldName &&
-            (ignoreOperator ? true : item1.operator === item2.operator));
+            (ignoreOperator ? true : item1.operator === item2.operator));*/
     }
 
     /**

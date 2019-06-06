@@ -800,10 +800,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Handles any behavior needed whenever the subcomponent type is changed and
      * then runs the visualization query.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
      */
-    public handleChangeSubcomponentType(options?: WidgetOptionCollection) {
+    public handleChangeSubcomponentType(options?: WidgetOptionCollection | any) {
         this.handleChangeData(options);
     }
 
