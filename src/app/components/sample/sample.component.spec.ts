@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -87,7 +86,8 @@ class TestSampleComponent extends SampleComponent {
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -95,7 +95,8 @@ class TestSampleComponent extends SampleComponent {
             searchService,
             injector,
             ref,
-            dialog
+            dialog,
+            visualization
         );
     }
 
@@ -438,30 +439,30 @@ describe('Component: Sample', () => {
     });
 
     it('does show toolbarand body-container', () => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
+        let container = fixture.debugElement;
         expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container'));
         expect(bodyContainer).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
     it('does show settings icon button in toolbar', () => {
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
     it('does hide loading overlay by default', () => {
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     });
 
@@ -471,15 +472,15 @@ describe('Component: Sample', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
         expect(loadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     });
 
     it('does not show data-item elements if active data is empty array', () => {
-        let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
+        let dataItems = fixture.debugElement.queryAll(By.css('.body-container .data-item'));
         expect(dataItems.length).toEqual(0);
     });
 
@@ -497,19 +498,19 @@ describe('Component: Sample', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
+        let dataItems = fixture.debugElement.queryAll(By.css('.body-container .data-item'));
         expect(dataItems.length).toEqual(2);
 
-        let dataItemLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item .text'));
+        let dataItemLabels = fixture.debugElement.queryAll(By.css('.body-container .data-item .text'));
         expect(dataItemLabels.length).toEqual(2);
 
         expect(dataItemLabels[0].nativeElement.textContent).toContain('alpha: 2');
         expect(dataItemLabels[1].nativeElement.textContent).toContain('omega: 1');
 
-        let dataItemButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item button'));
+        let dataItemButtons = fixture.debugElement.queryAll(By.css('.body-container .data-item button'));
         expect(dataItemButtons.length).toEqual(4);
 
-        let dataItemIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item mat-icon'));
+        let dataItemIcons = fixture.debugElement.queryAll(By.css('.body-container .data-item mat-icon'));
         expect(dataItemIcons.length).toEqual(4);
 
         expect(dataItemIcons[0].nativeElement.textContent).toEqual('search');
@@ -602,7 +603,7 @@ describe('Component: Sample with config', () => {
     });
 
     it('does show header in toolbar with visualization title from config', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });

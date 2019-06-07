@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
@@ -2179,7 +2178,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     it('openContributionDialog() has expected behavior', fakeAsync(() => {
         expect(component['contributorsRef']).toBeUndefined();
         let contributors = component['getContributorsForComponent']();
-        let config = { data: { component: 'contribution-dialog', ...contributors }, width: '400px', minHeight: '200px' };
+        let config = { data: { component: 'contribution-dialog', contributors: contributors }, width: '400px', minHeight: '200px' };
         spyOn(component.dialog, 'open').and.returnValue({ afterClosed: () => of({ isSuccess: true }) });
 
         component['openContributionDialog']();

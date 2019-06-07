@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     AfterViewInit,
@@ -86,7 +85,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
@@ -187,7 +185,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
-        protected widgetService: AbstractWidgetService
+        protected widgetService: AbstractWidgetService,
+        public visualization: ElementRef
     ) {
         super(
             datasetService,
@@ -281,19 +280,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             switch (options.granularity) {
                 case 'minute':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
-                    // Falls through
+                // Falls through
                 case 'hour':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
-                    // Falls through
+                // Falls through
                 case 'day':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
-                    // Falls through
+                // Falls through
                 case 'month':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
-                    // Falls through
+                // Falls through
                 case 'year':
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
-                    // Falls through
+                // Falls through
             }
             this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
             countField = '_' + options.granularity;
@@ -1413,7 +1412,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     toggleBodyContainer() {
-        let bodyContainer: HTMLElement = document.getElementById('body-container');
+        let bodyContainer = document.getElementsByClassName('body-container').item(0) as HTMLElement;
         bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
     }
 
