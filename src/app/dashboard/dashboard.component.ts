@@ -37,7 +37,7 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
-import { NeonDashboardConfig, NeonConfig } from '../types';
+import { NeonDashboardConfig, NeonConfig, NeonLayoutGridConfig } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { ParameterService } from '../services/parameter.service';
@@ -686,7 +686,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
 
         Object.keys(gridNameToLayout).forEach((gridName) => {
-            let layout = gridNameToLayout[gridName] || [];
+            let layout = (gridNameToLayout[gridName] || []) as NeonGridItem[];
             layout.forEach((widgetGridItem) => {
                 if (!widgetGridItem.hide) {
                     this.pendingInitialRegistrations += 1;

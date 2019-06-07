@@ -163,7 +163,6 @@ describe('Service: DashboardService Static Functions', () => {
             name: 'datastore1',
             host: 'host1',
             type: 'type1',
-            hasUpdatedFields: false,
             databases: {
                 [database1.name]: database1
             }
@@ -247,7 +246,6 @@ describe('Service: DashboardService Static Functions', () => {
             name: 'datastore1',
             host: 'host1',
             type: 'type1',
-            hasUpdatedFields: false,
             databases: {
                 database1: {
                     prettyName: 'Database 1',
@@ -277,7 +275,6 @@ describe('Service: DashboardService Static Functions', () => {
             name: 'datastore2',
             host: 'host2',
             type: 'type2',
-            hasUpdatedFields: false,
             databases: {
                 database2: {
                     prettyName: 'Database 2',
@@ -310,7 +307,6 @@ describe('Service: DashboardService Static Functions', () => {
 
         DashboardService.appendDatastoresFromConfig({
             datastore1: NeonDatastoreConfig.get({
-                ...{ hasUpdatedFields: true },
                 host: 'host1',
                 type: 'type1',
                 databases: {
@@ -360,9 +356,8 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
+        let datastore1 = NeonDatastoreConfig.get({ name: 'datastore1', host: 'host1', type: 'type1' });
         datastore1.databases = { [database1.name]: database1 };
-        datastore1.hasUpdatedFields = true;
         expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
@@ -382,9 +377,8 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
+        let datastore1 = NeonDatastoreConfig.get({ name: 'datastore1', host: 'host1', type: 'type1', databases: {} });
         datastore1.databases = { [database1.name]: database1 };
-        datastore1.hasUpdatedFields = false;
         let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
@@ -439,9 +433,8 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
         database2.tables = { [table2.name]: table2 };
-        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
+        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', databases: {} };
         datastore2.databases = { [database2.name]: database2 };
-        datastore2.hasUpdatedFields = false;
         expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
     });
 
@@ -461,9 +454,8 @@ describe('Service: DashboardService Static Functions', () => {
         };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
-        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
+        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', databases: {} };
         datastore1.databases = { [database1.name]: database1 };
-        datastore1.hasUpdatedFields = false;
         let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
@@ -522,7 +514,7 @@ describe('Service: DashboardService Static Functions', () => {
     //     };
     //     let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
     //     database1.tables = { [table1.name]: table1 };
-    //     let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
+    //     let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', databases: {} };
     //     datastore1.databases = { [database1.name]: database1 };
 
     //     let dashboard1 = NeonDashboardConfig.get();
@@ -550,7 +542,7 @@ describe('Service: DashboardService Static Functions', () => {
     //     };
     //     let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
     //     database1.tables = { [table1.name]: table1 };
-    //     let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
+    //     let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', databases: {} };
     //     datastore1.databases = { [database1.name]: database1 };
 
     //     let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
@@ -568,7 +560,7 @@ describe('Service: DashboardService Static Functions', () => {
     //     };
     //     let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
     //     database2.tables = { [table2.name]: table2 };
-    //     let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
+    //     let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', databases: {} };
     //     datastore2.databases = { [database2.name]: database2 };
 
     //     let dashboard1 = NeonDashboardConfig.get();

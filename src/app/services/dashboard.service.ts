@@ -67,7 +67,11 @@ export class DashboardService {
             });
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            outputDatastore['hasUpdatedFields'] = !!configDatastore['hasUpdatedFields'];
+            if (!!configDatastore['hasUpdatedFields']) {
+                outputDatastore['hasUpdatedFields'] = true;
+            } else {
+                delete outputDatastore['hasUpdatedFields'];
+            }
 
             let configDatabases = configDatastore.databases || NeonDatabaseMetaData.get();
             outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {

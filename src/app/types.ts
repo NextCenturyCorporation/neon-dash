@@ -213,7 +213,7 @@ export interface NeonConfig {
 
     datastores: Record<string, NeonDatastoreConfig>;
     dashboards: NeonDashboardConfig;
-    layouts: Record<string, NeonLayoutConfig[]>;
+    layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
     errors?: string[];
     neonServerUrl?: string;
     version: string;
@@ -243,7 +243,6 @@ THOR-825 related tasks are complete.
 export class Dataset {
     public connectOnLoad: boolean = false;
     public databases: NeonDatabase[] = [];
-    public hasUpdatedFields: boolean = false;
     public layout: string = ''; // layouts are now specified in dashboards
     //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions
 
