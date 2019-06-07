@@ -15,9 +15,8 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonFieldMetaData } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../types';
 import { Injector } from '@angular/core';
-import { NeonConfig } from '../../types';
 
 import { } from 'jasmine-core';
 

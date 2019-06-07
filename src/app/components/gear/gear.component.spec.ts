@@ -24,9 +24,8 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonFieldMetaData } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../types';
 
-import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../neon-namespaces';
 

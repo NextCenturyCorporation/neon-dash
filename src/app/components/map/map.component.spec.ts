@@ -30,10 +30,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig } from '../../types';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { WidgetOptionCollection } from '../../widget-option';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
