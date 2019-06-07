@@ -45,7 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { Dashboard } from '../types';
+import { NeonDashboardConfig } from '../types';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
@@ -880,7 +880,7 @@ describe('Dashboard', () => {
 
         let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
         let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
-        let testDashboard: Dashboard = Dashboard.get({
+        let testDashboard = NeonDashboardConfig.get({
             datastores: { testDatastore1, testDatastore2 }
         });
         // testDashboard.layoutObject = [{
@@ -944,7 +944,7 @@ describe('Dashboard', () => {
 
         let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
         let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
-        let testDashboard = Dashboard.get();
+        let testDashboard = NeonDashboardConfig.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         // testDashboard.layoutObject = {
         //     tab1: [{
@@ -1009,7 +1009,7 @@ describe('Dashboard', () => {
         spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
         spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
 
-        component['dashboards'] = Dashboard.get();
+        component['dashboards'] = NeonDashboardConfig.get();
 
         component['showDashboardStateOnPageLoad']();
 
@@ -1020,7 +1020,7 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with parameter state but no parameter dataset or auto-show dashboard does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        component['dashboards'] = Dashboard.get();
+        component['dashboards'] = NeonDashboardConfig.get();
 
         component['showDashboardStateOnPageLoad']();
 
@@ -1030,14 +1030,14 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        let showDashboard = Dashboard.get();
+        let showDashboard = NeonDashboardConfig.get();
         showDashboard.datastores = {
             testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = Dashboard.get();
+        let testDashboard = NeonDashboardConfig.get();
         testDashboard.choices = {
             test: showDashboard
         };
@@ -1053,7 +1053,7 @@ describe('Dashboard', () => {
 
     it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let showDashboard = Dashboard.get();
+        let showDashboard = NeonDashboardConfig.get();
 
         showDashboard.datastores = {
             testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
@@ -1061,7 +1061,7 @@ describe('Dashboard', () => {
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = Dashboard.get();
+        let testDashboard = NeonDashboardConfig.get();
         testDashboard.choices = {
             test: showDashboard
         };
@@ -1078,14 +1078,14 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        let showDashboard = Dashboard.get();
+        let showDashboard = NeonDashboardConfig.get();
         showDashboard.datastores = {
             testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = Dashboard.get();
+        let testDashboard = NeonDashboardConfig.get();
         testDashboard.choices = {
             test: showDashboard
         };

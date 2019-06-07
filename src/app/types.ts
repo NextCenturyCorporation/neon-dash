@@ -98,6 +98,9 @@ export interface NeonContributor {
 }
 
 export interface NeonDashboardLeafConfig {
+    fullTitle?: string; // Added to dashboard in validateDashboards()
+    pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
+
     name?: string;
     layout?: string;
     datastores?: Record<string, NeonDatastoreConfig>;
@@ -110,16 +113,33 @@ export interface NeonDashboardLeafConfig {
     contributors?: Record<string, NeonContributor>;
 }
 
-export interface NeonDashboardParentConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig> {
+export interface NeonDashboardParentConfig {
     name?: string;
     // Interior
     category?: string;
-    choices?: Record<string, T>;
+    choices?: Record<string, NeonDashboardConfig>;
 
 }
 
-export type NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> =
-    NeonDashboardLeafConfig & NeonDashboardParentConfig<T>;
+export interface NeonDashboardConfig extends NeonDashboardLeafConfig, NeonDashboardParentConfig { }
+
+export class NeonDashboardConfig {
+    static get(dash: Partial<NeonDashboardConfig> = {}): NeonDashboardConfig {
+        return {
+            layout: '',
+            filters: [],
+            fields: {},
+            tables: {},
+            visualizationTitles: {},
+            contributors: {},
+            choices: {},
+            fullTitle: '',
+            pathFromTop: [],
+            ...dash
+        };
+    }
+}
+
 
 export interface NeonLayoutGridConfig {
     col: number;
@@ -153,7 +173,7 @@ export class NeonDatastoreConfig {
     }
 }
 
-export interface NeonConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
+export interface NeonConfig {
     projectTitle?: string;
     projectIcon?: string;
     fileName?: string;
@@ -161,7 +181,7 @@ export interface NeonConfig<T extends NeonDashboardConfig<any> = NeonDashboardCo
     modified?: boolean;
 
     datastores: Record<string, NeonDatastoreConfig>;
-    dashboards: T;
+    dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]>;
     errors?: string[];
     neonServerUrl?: string;
@@ -169,11 +189,9 @@ export interface NeonConfig<T extends NeonDashboardConfig<any> = NeonDashboardCo
 }
 
 export class NeonConfig {
-    static get<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>>(
-        config: Partial<NeonConfig<T>> = {}
-    ): NeonConfig<T> {
+    static get(config: Partial<NeonConfig> = {}): NeonConfig {
         return {
-            dashboards: {} as T,
+            dashboards: {},
             datastores: {},
             errors: [],
             layouts: {},
@@ -207,35 +225,6 @@ export class Dataset {
         public icon: string = '' // renamed projectIcon, moved to base level of config file and read in within app.component.ts
     ) {}
 }*/
-
-/**
- * Class to represent dashboards object from the config file.
- */
-export interface Dashboard extends NeonDashboardConfig<Dashboard> {
-    layout: string;
-    filters: any[];
-    visualizationTitles?: Record<string, string>;
-
-    fullTitle: string; // Added to dashboard in validateDashboards()
-    pathFromTop: string[]; // Added to dashboard in validateDashboards() - contains keys
-}
-
-export class Dashboard {
-    static get(dash: Partial<Dashboard> = {}): Dashboard {
-        return {
-            layout: '',
-            filters: [],
-            fields: {},
-            tables: {},
-            visualizationTitles: {},
-            contributors: {},
-            choices: {},
-            fullTitle: '',
-            pathFromTop: [],
-            ...dash
-        };
-    }
-}
 
 export const MediaTypes = {
     image: 'img',

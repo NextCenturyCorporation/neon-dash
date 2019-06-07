@@ -26,7 +26,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { Dashboard, NeonConfig, NeonDatastoreConfig } from '../../types';
+import { NeonDashboardConfig, NeonConfig, NeonDatastoreConfig } from '../../types';
 
 import { neonEvents } from '../../neon-namespaces';
 
@@ -162,9 +162,9 @@ describe('Component: SaveStateComponent', () => {
             fileName: 'dashboard1',
             version: '1',
             lastModified: Date.now(),
-            dashboards: {
+            dashboards: NeonDashboardConfig.get({
                 name: 'dashboard1'
-            } as Dashboard, // TODO: Verify typings,
+            }),
             datastores: {
                 datastore1: NeonDatastoreConfig.get()
             },
@@ -173,7 +173,7 @@ describe('Component: SaveStateComponent', () => {
             }
         }, 'testState');
 
-        let savedStateDashboard = Dashboard.get({
+        let savedStateDashboard = NeonDashboardConfig.get({
             name: 'dashboard1'
         });
 
@@ -269,28 +269,29 @@ describe('Component: SaveStateComponent', () => {
     it('saveState does call connection.saveState with expected data', () => {
         let spy = spyOn(component, 'closeSidenav');
 
-        let dashboard = Dashboard.get();
-        dashboard.datastores = {};
-        dashboard.fullTitle = 'Full Title';
-        dashboard.layout = 'layoutName';
-        dashboard.name = 'dashName';
-        dashboard.pathFromTop = ['a', 'b', 'c', 'd'];
+        let dashboard = NeonDashboardConfig.get({
+            datastores: {},
+            fullTitle: 'Full Title',
+            layout: 'layoutName',
+            name: 'dashName',
+            pathFromTop: ['a', 'b', 'c', 'd'],
 
-        dashboard.tables = {
-            table_key_1: 'datastore1.databaseZ.tableA',
-            table_key_2: 'datastore2.databaseY.tableB'
-        };
-        dashboard.fields = {
-            field_key_1: 'datastore1.databaseZ.tableA.field1',
-            field_key_2: 'datastore2.databaseY.tableB.field2'
-        };
-        dashboard.options = {
-            simpleFilter: {
-                databaseName: 'databaseZ',
-                tableName: 'tableA',
-                fieldName: 'field1'
+            tables: {
+                table_key_1: 'datastore1.databaseZ.tableA',
+                table_key_2: 'datastore2.databaseY.tableB'
+            },
+            fields: {
+                field_key_1: 'datastore1.databaseZ.tableA.field1',
+                field_key_2: 'datastore2.databaseY.tableB.field2'
+            },
+            options: {
+                simpleFilter: {
+                    databaseName: 'databaseZ',
+                    tableName: 'tableA',
+                    fieldName: 'field1'
+                }
             }
-        };
+        });
 
         let datastores = {
             datastore1: {
@@ -405,7 +406,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            saveState: (data: NeonConfig<Dashboard>, successCallback) => {
+            saveState: (data: NeonConfig, successCallback) => {
                 calls++;
                 expect(data.dashboards.fullTitle).toEqual('Full Title');
                 expect(data.dashboards.layout).toEqual('testState');
@@ -496,7 +497,7 @@ describe('Component: SaveStateComponent', () => {
 
     it('saveState does validate the state name', () => {
         spyOn(component, 'closeSidenav');
-        spyOn(component['dashboardState'], 'dashboard').and.returnValue(Dashboard.get());
+        spyOn(component['dashboardState'], 'dashboard').and.returnValue(NeonDashboardConfig.get());
         spyOn(component['dashboardService'], 'getDatastoresInConfigFormat').and.returnValue([]);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
         spyOn(component, 'getWidgetById').and.returnValue(null);

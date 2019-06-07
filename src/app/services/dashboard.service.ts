@@ -17,13 +17,12 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import {
-    Dashboard, NeonDatabaseMetaData,
-    NeonTableMetaData, NeonFieldMetaData
+    NeonConfig, NeonDashboardConfig, NeonDatastoreConfig,
+    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData
 } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../types';
 import { ConnectionService, Connection } from './connection.service';
 import { DashboardState } from '../dashboard-state';
 
@@ -31,7 +30,7 @@ import { DashboardState } from '../dashboard-state';
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    private readonly config: NeonConfig<Dashboard> = NeonConfig.get();
+    private readonly config = NeonConfig.get();
 
     public readonly state = new DashboardState();
 
@@ -105,7 +104,7 @@ export class DashboardService {
         return existingDatastores;
     }
 
-    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: Dashboard }, newChoices: { [key: string]: Dashboard }): void {
+    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: NeonDashboardConfig }, newChoices: { [key: string]: NeonDashboardConfig }): void {
         Object.keys(newChoices).forEach((newChoiceId) => {
             let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
 
@@ -120,11 +119,8 @@ export class DashboardService {
 
     /**
      * Updates the datastores of each of the nested dashboards in the given dashboard with the given config file datastores.
-     *
-     * @arg {Dashboard} dashboard
-     * @arg {Datastore[]} datastores
      */
-    static updateDatastoresInDashboards(dashboard: Dashboard, datastores: Record<string, NeonDatastoreConfig>): void {
+    static updateDatastoresInDashboards(dashboard: NeonDashboardConfig, datastores: Record<string, NeonDatastoreConfig>): void {
         if (dashboard.tables) {
             // Assume table keys have format:  datastore.database.table
             let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
@@ -146,11 +142,8 @@ export class DashboardService {
 
     /**
      * Updates the layout of each of the nested dashboards in the given dashboard with the given config file layouts.
-     *
-     * @arg {Dashboard} dashboard
-     * @arg {any} layouts
      */
-    static updateLayoutInDashboards(dashboard: Dashboard, layouts: any): void {
+    static updateLayoutInDashboards(dashboard: NeonDashboardConfig, layouts: any): void {
         if (dashboard.choices) {
             Object.keys(dashboard.choices).forEach((key) => DashboardService.updateLayoutInDashboards(dashboard.choices[key], layouts));
         }
@@ -197,15 +190,12 @@ export class DashboardService {
     /**
      * Validate top level category of dashboards object in the config, then call
      * separate function to check the choices within recursively.
-     *
-     * @arg {Dashboard} dashboard
-     * @return {Dashboard}
      */
-    static validateDashboards<T extends NeonDashboardConfig<T>>(dashboard: T): Dashboard {
-        let rootDashboard: T = dashboard;
+    static validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        let rootDashboard = dashboard;
 
         if ((!dashboard.choices || !Object.keys(dashboard.choices).length) && dashboard.name) {
-            rootDashboard = Dashboard.get() as any as T;
+            rootDashboard = NeonDashboardConfig.get();
             rootDashboard.choices[dashboard.name] = dashboard;
         }
 
@@ -217,7 +207,7 @@ export class DashboardService {
 
         this.validateDashboardChoices(rootDashboard.choices, dashboardKeys);
 
-        return rootDashboard as any as Dashboard;
+        return rootDashboard;
     }
 
     /**
@@ -225,7 +215,6 @@ export class DashboardService {
      * changes when expected values are missing. Also used to translate tableKey/fieldKey
      * values into databaseName, tableName, and fieldName.
      *
-     * @param {[key: string]: Dashboard} dashboardChoices
      * @param {string[]} keys for dashboardChoices map
      * @param {string} pathFromTop path to append to current dashboard object
      * @param {string} title title to append to current dashboard object
@@ -237,7 +226,7 @@ export class DashboardService {
         }
 
         keys.forEach((choiceKey) => {
-            const db = dashboardChoices[choiceKey] as Dashboard;
+            const db = dashboardChoices[choiceKey];
             let fullTitle = (title ? (title + ' ') : '') + db.name;
             let fullPathFromTop = pathFromTop ? pathFromTop.concat(choiceKey) : [choiceKey];
 
@@ -297,7 +286,7 @@ export class DashboardService {
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.messenger = new eventing.Messenger();
-        this.configService.$source.subscribe((config: NeonConfig<Dashboard>) => {
+        this.configService.$source.subscribe((config: NeonConfig) => {
             this.setConfig(config);
 
             let loaded = 0;
@@ -323,12 +312,12 @@ export class DashboardService {
         });
     }
 
-    setConfig(config: NeonConfig<Dashboard>) {
+    setConfig(config: NeonConfig) {
         Object.assign(this.config, {
             dashboards: DashboardService.validateDashboards(
                 config.dashboards ?
                     _.cloneDeep(config.dashboards) :
-                    { category: 'No Dashboards', choices: {}, options: {} } as NeonDashboardConfig
+                    NeonDashboardConfig.get({ category: 'No Dashboards' })
             ),
             datastores: DashboardService.appendDatastoresFromConfig(config.datastores || {}, {}),
             layouts: _.cloneDeep(config.layouts || {})
@@ -359,7 +348,7 @@ export class DashboardService {
         this.config.datastores[datastore.name] = datastore;
     }
 
-    public setActiveDashboard(dashboard: Dashboard) {
+    public setActiveDashboard(dashboard: NeonDashboardConfig) {
         this.state.dashboard = dashboard;
     }
 
@@ -477,7 +466,6 @@ export class DashboardService {
     /**
      * If a database is not found in updateDatabases(), delete dashboards associated with that database so that
      * the user cannot select them.
-     * @param {[key: string]: Dashboard} dashboardChoices
      * @param {String[]} keys
      * @param {String} invalidDatabaseName
      * @return {Promise}

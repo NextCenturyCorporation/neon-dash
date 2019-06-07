@@ -31,14 +31,13 @@ import * as uuidv4 from 'uuid/v4';
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { Dashboard } from '../types';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
-import { NeonConfig } from '../types';
+import { NeonDashboardConfig, NeonConfig } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { ParameterService } from '../services/parameter.service';
@@ -98,8 +97,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public createSettings: boolean = false;
     public createFiltersComponent: boolean = false; // This is used to create the Filters Component later
 
-    public dashboards: Dashboard;
-    public currentDashboard: Dashboard;
+    public dashboards: NeonDashboardConfig;
+    public currentDashboard: NeonDashboardConfig;
     public pendingInitialRegistrations = 0;
 
     public selectedTabIndex = 0;
@@ -379,12 +378,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
-     *
-     * @arg {{ [key: string]: Dashboard }} dashboardChoices
-     * @return {Dashboard}
      * @private
      */
-    private findAutoShowDashboard(dashboard: Dashboard): Dashboard {
+    private findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
         if (dashboard.options && dashboard.options.connectOnLoad) {
             return dashboard;
         } else {
@@ -665,11 +661,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Shows the given dashboard using the given datastores and the given layout.
-     *
-     * @arg {{dashboard:Dashboard,datastores:Datastore[],layout:any[]}} eventMessage
      * @private
      */
-    private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+    private showDashboardState(eventMessage: { dashboard: NeonDashboardConfig }) {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
@@ -712,7 +706,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * @private
      */
     private showDashboardStateOnPageLoad() {
-        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards);
+        let dashboard = this.findAutoShowDashboard(this.dashboards);
 
         const firstDataStore = dashboard && Object.values(this.dashboardService.datastores)[0];
 
