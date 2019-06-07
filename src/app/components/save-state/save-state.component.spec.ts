@@ -148,7 +148,7 @@ describe('Component: SaveStateComponent', () => {
     });
 
     it('handleLoadStateSuccess does reset stateToLoad and publish dashboard state event', () => {
-        let spyDashboardService = spyOn(component['datasetService'], 'appendDatasets').and.returnValue({
+        let spyDashboardService = spyOn(component['dashboardService'], 'addDatastore').and.returnValue({
             choices: {
                 saved_state: {
                     choices: {
@@ -175,21 +175,15 @@ describe('Component: SaveStateComponent', () => {
             }
         }, 'testState');
 
-        let savedStateDashboard = Dashboard.get();
-        savedStateDashboard.name = 'Saved State';
-        savedStateDashboard.choices = {
-            testState: {
-                name: 'dashboard1'
-            }
-        } as any as Record<string, Dashboard>; // TODO: Verify why this is what it is
-        let expectedDashboard = Dashboard.get();
-        expectedDashboard.choices = {
-            saved_state: savedStateDashboard
-        };
+        let savedStateDashboard = Dashboard.get({
+            name: 'dashboard1'
+        });
+
+        ; // TODO: Verify why this is what it is
 
         expect(spyDashboardService.calls.count()).toEqual(1);
         expect(spyDashboardService.calls.argsFor(0)).toEqual([
-            expectedDashboard,
+            savedStateDashboard,
             {
                 datastore1: {}
             },
@@ -370,8 +364,8 @@ describe('Component: SaveStateComponent', () => {
             }]
         }];
 
-        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(dashboard);
-        spyOn(component['datasetService'], 'getDatastoresInConfigFormat').and.returnValue(datastores);
+        spyOn(component['dashboardState'], 'dashboard').and.returnValue(dashboard);
+        spyOn(component['dashboardService'], 'getDatastoresInConfigFormat').and.returnValue(datastores);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue(filters);
         spyOn(component, 'getWidgetById').and.callFake((id: string) => {
             if (id === 'id1') {
@@ -504,8 +498,8 @@ describe('Component: SaveStateComponent', () => {
 
     it('saveState does validate the state name', () => {
         spyOn(component, 'closeSidenav');
-        spyOn(component['datasetService'], 'getCurrentDashboard').and.returnValue(Dashboard.get());
-        spyOn(component['datasetService'], 'getDatastoresInConfigFormat').and.returnValue([]);
+        spyOn(component['dashboardState'], 'dashboard').and.returnValue(Dashboard.get());
+        spyOn(component['dashboardService'], 'getDatastoresInConfigFormat').and.returnValue([]);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
         spyOn(component, 'getWidgetById').and.returnValue(null);
         component.widgetGridItems = [];

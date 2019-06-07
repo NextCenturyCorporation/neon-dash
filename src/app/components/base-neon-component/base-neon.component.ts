@@ -1024,8 +1024,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        let dataset = this.dashboardState.datastore;
-        let matchingDatabase = dataset.databases[options.database.name];
+        let dashboard = this.dashboardState.datastore;
+        let matchingDatabase = dashboard.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }
@@ -1136,7 +1136,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     public getVisualizationTitle(configValue: any): string {
-        let currentDashboard = this.dashboardState.get();
+        let currentDashboard = this.dashboardState.dashboard;
 
         if (currentDashboard && currentDashboard.visualizationTitles && currentDashboard.visualizationTitles[configValue]) {
             return currentDashboard.visualizationTitles[configValue];
@@ -1265,13 +1265,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
             (this.options.contributionKeys === null &&
-                this.dashboardState.get() &&
-                this.dashboardState.get().contributors &&
-                Object.keys(this.dashboardState.get().contributors).length));
+                this.dashboardState.dashboard &&
+                this.dashboardState.dashboard.contributors &&
+                Object.keys(this.dashboardState.dashboard.contributors).length));
     }
 
     protected getContributorsForComponent() {
-        let allContributors = this.dashboardState.get().contributors;
+        let allContributors = this.dashboardState.dashboard.contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
             Object.keys(allContributors);
 
@@ -1279,7 +1279,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     protected getContributorAbbreviations() {
-        let contributors = this.dashboardState.get().contributors;
+        let contributors = this.dashboardState.dashboard.contributors;
         let contributorKeys = this.options.contributionKeys !== null ? this.options.contributionKeys :
             Object.keys(contributors);
 

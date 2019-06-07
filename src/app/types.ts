@@ -17,41 +17,6 @@ import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonField
  */
 // TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
 
-export class FieldMetaData implements NeonFieldMetaData {
-    constructor(
-        public columnName: string = '',
-        public prettyName: string = '',
-        public hide: boolean = false,
-        public type: string = ''
-    ) { }
-}
-
-export class TableMetaData implements NeonTableMetaData {
-    public name?: string;
-
-    constructor(
-        name: string = '',
-        public prettyName: string = '',
-        public fields: FieldMetaData[] = [],
-        public mappings: Record<string, string> = {},
-        public labelOptions: any = {}
-    ) {
-        this.name = name;
-    }
-}
-
-export class DatabaseMetaData implements NeonDatabaseMetaData {
-    public name?: string;
-
-    constructor(
-        name: string = '',
-        public prettyName: string = '',
-        public tables: Record<string, TableMetaData> = {}
-    ) {
-        this.name = name;
-    }
-}
-
 /*
 TODO: THOR-825: This was turned into Datastore -- leaving old commented out
 version here along with comments on updates made for reference until all
@@ -86,7 +51,7 @@ export interface Dashboard extends NeonDashboardConfig<Dashboard> {
 }
 
 export class Dashboard {
-    static get(): Dashboard {
+    static get(dash: Partial<Dashboard> = {}): Dashboard {
         return {
             layout: '',
             filters: [],
@@ -96,7 +61,8 @@ export class Dashboard {
             contributors: {},
             choices: {},
             fullTitle: '',
-            pathFromTop: []
+            pathFromTop: [],
+            ...dash
         };
     }
 }
@@ -112,7 +78,7 @@ export const MediaTypes = {
 
 export interface SingleField {
     datastore: string;
-    database: DatabaseMetaData;
-    table: TableMetaData;
-    field: FieldMetaData;
+    database: NeonDatabaseMetaData;
+    table: NeonTableMetaData;
+    field: NeonFieldMetaData;
 }

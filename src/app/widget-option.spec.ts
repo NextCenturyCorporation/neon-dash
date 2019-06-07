@@ -112,10 +112,10 @@ describe('WidgetOptionCollection', () => {
         expect(options.keyA).toEqual('newA');
     });
 
-    it('find field functions do not error if fields are not set', inject([DashboardService], (datasetService: DashboardService) => {
+    it('find field functions do not error if fields are not set', inject([DashboardService], (dashboardService: DashboardService) => {
         expect(options.findField('testNameField')).toEqual(undefined);
-        expect(options.findFieldObject(datasetService.state, 'testName')).toEqual(new FieldMetaData());
-        expect(options.findFieldObjects(datasetService.state, 'testList')).toEqual([]);
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(new FieldMetaData());
+        expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([]);
     }));
 
     it('findField does return expected object or undefined', () => {
@@ -142,31 +142,31 @@ describe('WidgetOptionCollection', () => {
         expect(options.findField('abcd')).toEqual(undefined);
     });
 
-    it('findFieldObject does return expected object', inject([DashboardService], (datasetService: DashboardService) => {
+    it('findFieldObject does return expected object', inject([DashboardService], (dashboardService: DashboardService) => {
         options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findFieldObject(datasetService.state, 'testDate')).toEqual(DashboardServiceMock.DATE_FIELD);
-        expect(options.findFieldObject(datasetService.state, 'testName')).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(options.findFieldObject(datasetService.state, 'testSize')).toEqual(DashboardServiceMock.SIZE_FIELD);
-        expect(options.findFieldObject(datasetService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_KEY_FIELD);
-        expect(options.findFieldObject(datasetService.state, 'testFake')).toEqual(new FieldMetaData());
-        expect(options.findFieldObject(datasetService.state, 'fakeBind')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(dashboardService.state, 'testDate')).toEqual(DashboardServiceMock.DATE_FIELD);
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(options.findFieldObject(dashboardService.state, 'testSize')).toEqual(DashboardServiceMock.SIZE_FIELD);
+        expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_KEY_FIELD);
+        expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(new FieldMetaData());
     }));
 
-    it('findFieldObjects does return expected array', inject([DashboardService], (datasetService: DashboardService) => {
+    it('findFieldObjects does return expected array', inject([DashboardService], (dashboardService: DashboardService) => {
         options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findFieldObjects(datasetService.state, 'testList')).toEqual([
+        expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([
             DashboardServiceMock.DATE_FIELD,
             DashboardServiceMock.NAME_FIELD,
             DashboardServiceMock.SIZE_FIELD
         ]);
-        expect(options.findFieldObjects(datasetService.state, 'testListWithFieldKey')).toEqual([
+        expect(options.findFieldObjects(dashboardService.state, 'testListWithFieldKey')).toEqual([
             DashboardServiceMock.FIELD_KEY_FIELD,
             DashboardServiceMock.NAME_FIELD
         ]);
-        expect(options.findFieldObjects(datasetService.state, 'testName')).toEqual([]);
-        expect(options.findFieldObjects(datasetService.state, 'fakeBind')).toEqual([]);
+        expect(options.findFieldObjects(dashboardService.state, 'testName')).toEqual([]);
+        expect(options.findFieldObjects(dashboardService.state, 'fakeBind')).toEqual([]);
     }));
 
     it('inject does add given widget option with provided binding', () => {
@@ -257,14 +257,14 @@ describe('WidgetOptionCollection', () => {
         expect(options.list()).toEqual([databaseOption, tableOption, widgetOption1, widgetOption2]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateDatabases does update databases, tables, and fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = [];
         options.database = new DatabaseMetaData();
         options.tables = [];
         options.table = new TableMetaData();
         options.fields = [];
 
-        options.updateDatabases(datasetService.state);
+        options.updateDatabases(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -273,14 +273,14 @@ describe('WidgetOptionCollection', () => {
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
-    it('updateFields does update fields', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateFields does update fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = DashboardServiceMock.TABLES_LIST;
         options.table = DashboardServiceMock.TABLES.testTable1;
         options.fields = [];
 
-        options.updateFields(datasetService.state);
+        options.updateFields(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -289,14 +289,14 @@ describe('WidgetOptionCollection', () => {
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
-    it('updateTables does update tables and fields', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateTables does update tables and fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
         options.table = new TableMetaData();
         options.fields = [];
 
-        options.updateTables(datasetService.state);
+        options.updateTables(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -323,7 +323,7 @@ describe('WidgetOptionCollection with custom fields', () => {
     });
 
     it('updateDatabases does update databases, tables, and fields with custom fields', inject([DashboardService],
-        (datasetService: DashboardService) => {
+        (dashboardService: DashboardService) => {
             options.databases = [];
             options.database = new DatabaseMetaData();
             options.tables = [];
@@ -332,7 +332,7 @@ describe('WidgetOptionCollection with custom fields', () => {
             options.testCustomField = null;
             options.testCustomFieldArray = null;
 
-            options.updateDatabases(datasetService.state);
+            options.updateDatabases(dashboardService.state);
 
             expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
             expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -343,7 +343,7 @@ describe('WidgetOptionCollection with custom fields', () => {
             expect(options.testCustomFieldArray).toEqual([]);
         }));
 
-    it('updateFields does update fields with custom fields', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateFields does update fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = DashboardServiceMock.TABLES_LIST;
@@ -352,7 +352,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateFields(datasetService.state);
+        options.updateFields(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -363,7 +363,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 
-    it('updateTables does update tables and fields with custom fields', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateTables does update tables and fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
@@ -372,7 +372,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateTables(datasetService.state);
+        options.updateTables(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -410,7 +410,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
     });
 
     it('updateDatabases does update databases, tables, and fields with bindings',
-        inject([DashboardService], (datasetService: DashboardService) => {
+        inject([DashboardService], (dashboardService: DashboardService) => {
             options.databases = [];
             options.database = new DatabaseMetaData();
             options.tables = [];
@@ -419,7 +419,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
             options.testCustomField = null;
             options.testCustomFieldArray = null;
 
-            options.updateDatabases(datasetService.state);
+            options.updateDatabases(dashboardService.state);
 
             expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
             expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
@@ -430,7 +430,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
             expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);
         }));
 
-    it('updateFields does update fields with bindings', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateFields does update fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = DashboardServiceMock.TABLES_LIST;
@@ -439,7 +439,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateFields(datasetService.state);
+        options.updateFields(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
@@ -450,7 +450,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);
     }));
 
-    it('updateTables does update tables and fields with bindings', inject([DashboardService], (datasetService: DashboardService) => {
+    it('updateTables does update tables and fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = [];
@@ -459,7 +459,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateTables(datasetService.state);
+        options.updateTables(dashboardService.state);
 
         expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
         expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);

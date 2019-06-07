@@ -431,7 +431,7 @@ export class WidgetOptionCollection {
 
         if (this.databases.length) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.get();
+            let currentDashboard = dashboardState.dashboard;
             let configDatabase: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
@@ -486,7 +486,7 @@ export class WidgetOptionCollection {
 
         if (this.tables.length > 0) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.get();
+            let currentDashboard = dashboardState.dashboard;
             let configTable: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {

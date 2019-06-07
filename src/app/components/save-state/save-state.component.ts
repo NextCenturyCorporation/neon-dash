@@ -47,10 +47,6 @@ export class SaveStateComponent implements OnInit {
 
     @Input() sidenav: MatSidenav;
 
-    @Input() public widgetGridItems: NeonGridItem[] = [];
-    @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
-    @Input() public current: Dashboard;
-
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
@@ -59,7 +55,7 @@ export class SaveStateComponent implements OnInit {
     public readonly dashboardState: DashboardState;
 
     constructor(
-        protected datasetService: DashboardService,
+        protected dashboardService: DashboardService,
         protected filterService: FilterService,
         protected connectionService: ConnectionService,
         protected searchService: AbstractSearchService,
@@ -68,7 +64,7 @@ export class SaveStateComponent implements OnInit {
         private dialog: MatDialog
     ) {
         this.messenger = new eventing.Messenger();
-        this.dashboardState = datasetService.state;
+        this.dashboardState = dashboardService.state;
     }
 
     ngOnInit() {
@@ -163,9 +159,9 @@ export class SaveStateComponent implements OnInit {
             // Same format as the config file.
             let stateData: NeonGTDConfig = {
                 projectTitle: validStateName,
-                dashboards: this.createDashboard(validStateName, this.dashboardState.get(),
+                dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
                     this.filterService.getFiltersToSaveInConfig()),
-                datastores: this.datasetService.getDatastoresInConfigFormat(),
+                datastores: this.dashboardService.getDatastoresInConfigFormat(),
                 layouts: this.createLayouts(validStateName, this.widgetGridItems),
                 version: '1'
             };
@@ -245,7 +241,7 @@ export class SaveStateComponent implements OnInit {
 
     private handleLoadStateSuccess(response: NeonGTDConfig<Dashboard>, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
-            this.datasetService.setConfig(response);
+            this.dashboardService.setConfig(response);
             // Dashboard choices should be set by wrapInSavedStateDashboard
             this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                 dashboard: response.dashboards

@@ -82,7 +82,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 class TestSampleComponent extends SampleComponent {
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -90,7 +90,7 @@ class TestSampleComponent extends SampleComponent {
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

@@ -69,7 +69,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     // It's not a useless constructor!  Silly linter!
     /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
-        datasetService: DashboardService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -77,7 +77,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -1918,8 +1918,8 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    let datasetService = new DashboardServiceMock();
-    datasetService.state.dashboard.contributors = {
+    let dashboardService = new DashboardServiceMock();
+    dashboardService.state.dashboard.contributors = {
         organization1: {
             orgName: 'Organization 1',
             abbreviation: 'ORG ONE',
@@ -1946,7 +1946,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             MatDialogModule
         ],
         providers: [
-            { provide: DashboardService, useValue: datasetService },
+            { provide: DashboardService, useValue: dashboardService },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
