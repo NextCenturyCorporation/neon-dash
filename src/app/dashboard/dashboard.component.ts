@@ -457,6 +457,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
         console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
+        this.snackBar.open(eventMessage.message, 'Ok');
     }
 
     private isFiltered(): boolean {
