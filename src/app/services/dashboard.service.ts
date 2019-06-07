@@ -31,7 +31,7 @@ import { DashboardState } from '../dashboard-state';
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    private readonly config: NeonConfig<Dashboard> = { dashboards: {} as Dashboard, layouts: {}, datastores: {}, version: '' };
+    private readonly config: NeonConfig<Dashboard> = NeonConfig.get();
 
     public readonly state = new DashboardState();
 
@@ -73,12 +73,12 @@ export class DashboardService {
             let configDatabases = configDatastore.databases || NeonDatabaseMetaData.get();
             outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
                 let configDatabase = configDatabases[databaseKey] || NeonDatabaseMetaData.get();
-                let outputDatabase: NeonDatabaseMetaData = NeonDatabaseMetaData.get({ name: databaseKey, prettyName: configDatabase.prettyName });
+                let outputDatabase = NeonDatabaseMetaData.get({ name: databaseKey, prettyName: configDatabase.prettyName });
 
                 let configTables = configDatabase.tables || NeonTableMetaData.get();
                 outputDatabase.tables = Object.keys(configTables).reduce((acc, tableKey) => {
                     let configTable = configTables[tableKey] || NeonTableMetaData.get();
-                    let outputTable: NeonTableMetaData = NeonTableMetaData.get({ name: tableKey, prettyName: configTable.prettyName });
+                    let outputTable = NeonTableMetaData.get({ name: tableKey, prettyName: configTable.prettyName });
 
                     outputTable.fields = (configTable.fields || []).map((configField) =>
                         NeonFieldMetaData.get(configField));
@@ -115,12 +115,6 @@ export class DashboardService {
             } else {
                 oldChoices[newChoiceId] = newChoices[newChoiceId];
             }
-        });
-    }
-
-    static removeFromArray(array, indexList): void {
-        indexList.forEach((index) => {
-            array.splice(index, 1);
         });
     }
 
@@ -163,15 +157,14 @@ export class DashboardService {
     }
 
     static validateFields(table: NeonTableMetaData): void {
-        let indexListToRemove = [];
-        table.fields.forEach((field, index) => {
+        for (let idx = table.fields.length - 1; idx >= 0; idx--) {
+            const field = table.fields[idx];
             if (!field.columnName) {
-                indexListToRemove.push(index);
+                table.fields.splice(idx, 1);
             } else {
                 field.prettyName = field.prettyName || field.columnName;
             }
-        });
-        this.removeFromArray(table.fields, indexListToRemove);
+        }
     }
 
     static validateTables(database: NeonDatabaseMetaData): void {
@@ -381,12 +374,10 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        this.state.datastore = {
+        this.state.datastore = NeonDatastoreConfig.get({
             name: 'Unknown Dataset',
-            type: '',
-            host: '',
             ...datastore
-        };
+        });
     }
 
     /**
@@ -428,21 +419,19 @@ export class DashboardService {
         return new Promise<any>((resolve, __reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
                 Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                    let table = _.find(database.tables, (item: NeonTableMetaData) => item.name === tableName);
+                    let table = database.tables[tableName];
 
                     if (table) {
-                        let hasField = {};
-                        table.fields.forEach((field: NeonFieldMetaData) => {
-                            hasField[field.columnName] = true;
-                        });
+                        let hasField = new Set(table.fields.map((field) => field.columnName));
+
                         tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                            if (!hasField[fieldName]) {
+                            if (!hasField.has(fieldName)) {
                                 let newField: NeonFieldMetaData = NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName });
                                 table.fields.push(newField);
                             }
                         });
 
-                        promiseFields.push(this.getFieldTypes(connection, database, table));
+                        promiseFields.push(this.updateFieldTypes(connection, database, table));
                     }
                 });
 
@@ -472,7 +461,7 @@ export class DashboardService {
      * @return {Promise<NeonFieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: Connection, database: NeonDatabaseMetaData, table: NeonTableMetaData): Promise<NeonFieldMetaData[]> {
+    private updateFieldTypes(connection: Connection, database: NeonDatabaseMetaData, table: NeonTableMetaData): Promise<NeonFieldMetaData[]> {
         return new Promise<NeonFieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let field of table.fields) {
                 if (types && types[field.columnName]) {
@@ -527,48 +516,5 @@ export class DashboardService {
      */
     public isFieldValid(fieldObject: NeonFieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
-    }
-
-    /**
-     * Returns the datastores in the format of the config file.
-     *
-     * @return {{[key:string]:any}}
-     */
-    public getDatastoresInConfigFormat(): { [key: string]: any } {
-        return Object.values(this.datastores).reduce((datastores, datastore) => {
-            datastores[datastore.name] = {
-                hasUpdatedFields: datastore['hasUpdatedFields'],
-                host: datastore.host,
-                type: datastore.type,
-                databases: Object.values(datastore.databases).reduce((databases, database) => {
-                    databases[database.name] = {
-                        prettyName: database.prettyName,
-                        tables: Object.values(database.tables).reduce((tables, table) => {
-                            tables[table.name] = {
-                                prettyName: table.prettyName,
-                                fields: table.fields.map((field) => ({
-                                    columnName: field.columnName,
-                                    prettyName: field.prettyName,
-                                    hide: field.hide,
-                                    type: field.type
-                                })),
-                                labelOptions: table.labelOptions,
-                                mappings: table.mappings
-                            };
-                            return tables;
-                        }, {})
-                    };
-                    return databases;
-                }, {})
-            };
-            return datastores;
-        }, {});
-    }
-
-    exportActiveDashboard() {
-        return {
-            ..._.cloneDeep(this.config),
-            dashboards: _.cloneDeep(this.state.dashboard),
-        };
     }
 }
