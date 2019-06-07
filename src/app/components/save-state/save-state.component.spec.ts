@@ -26,10 +26,8 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { Dashboard } from '../../types';
-import { NeonConfig, NeonDatastoreConfig } from '../../types';
+import { Dashboard, NeonConfig, NeonDatastoreConfig } from '../../types';
 
-import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

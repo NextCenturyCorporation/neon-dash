@@ -26,10 +26,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonFieldMetaData } from '../../types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonConfig } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';

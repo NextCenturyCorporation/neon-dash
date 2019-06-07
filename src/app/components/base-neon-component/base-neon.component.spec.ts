@@ -32,8 +32,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NeonFieldMetaData } from '../../types';
-import { NeonConfig } from '../../types';
+import { NeonFieldMetaData, NeonConfig } from '../../types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
