@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
@@ -735,20 +734,20 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('does show toolbar', (() => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
+        let container = fixture.debugElement;
         expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
     }));
 
     it('does show header in toolbar with visualization name', (() => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
@@ -756,24 +755,24 @@ describe('Component: MediaViewer', () => {
         (component as any).errorMessage = 'Test Error Message';
         component.changeDetection.detectChanges();
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).not.toEqual(-1);
     }));
 
     it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
+        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     }));
 
@@ -781,17 +780,17 @@ describe('Component: MediaViewer', () => {
         (component as any).loadingCount = 1;
         component.changeDetection.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
         expect(loadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     }));
 
     it('does hide tabs if tabsAndMedia is empty', () => {
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
-        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
+        let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
         expect(slider.length).toBe(0);
     });
 
@@ -835,14 +834,14 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia.length).toBe(2);
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(2);
         expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
         expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
         expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
         expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
 
-        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
+        let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
         expect(slider.length).toBe(0);
     });
 
@@ -868,7 +867,7 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<img');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
@@ -913,9 +912,9 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<img');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
@@ -943,7 +942,7 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<audio');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
@@ -988,9 +987,9 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<audio');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
@@ -1018,7 +1017,7 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<iframe');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
@@ -1063,9 +1062,9 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
         expect(media.length).toBe(1);
         expect(media[0].nativeElement.innerHTML).toContain('<iframe');
         expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
@@ -1117,14 +1116,14 @@ describe('Component: MediaViewer', () => {
 
         expect(component.tabsAndMedia.length).toBe(2);
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(2);
         expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
         expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
         expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
         expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
 
-        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
+        let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
         expect(slider.length).toBe(1);
     });
 
@@ -1151,14 +1150,14 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
 
-        let medium = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+        let medium = fixture.debugElement.queryAll(By.css('.single-medium'));
         expect(medium.length).toBe(1);
-        let images = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium img'));
+        let images = fixture.debugElement.queryAll(By.css('.single-medium img'));
         expect(images.length).toBe(2);
         expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
         expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
 
-        let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
+        let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
         expect(slider.length).toBe(1);
     });
 });
@@ -1225,7 +1224,7 @@ describe('Component: MediaViewer with config', () => {
     });
 
     it('does show header in toolbar with title from config', (() => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Test Title');
     }));

@@ -29,7 +29,6 @@
     overflow: unset;
 }
 
-
 .taxonomy-viewer-container {
     overflow-y: auto;
     overflow-x: auto;
@@ -39,17 +38,24 @@
     font-size: 14px;
 }
 
-/deep/ tree-node-children.leaf .tree-children {
-    border: 1px solid var(--color-text-header, grey);
-    max-height: 200px;
-    overflow-y: auto;
-    width: 92%;
+/deep/ tree-node-children {
+    &.leaf {
+        .tree-children {
+            border: 1px solid var(--color-text-header, grey);
+            max-height: 200px;
+            overflow-y: auto;
+            width: 92%;
 
-    tree-node-children.leaf .tree-children {
-        max-height: unset;
-        width: unset;
-        border: unset;
+            tree-node-children {
+                &.leaf {
+                    .tree-children {
+                        max-height: unset;
+                        width: unset;
+                        border: unset;
+                    }
+                }
+            }
+        }
     }
 }
-
 
