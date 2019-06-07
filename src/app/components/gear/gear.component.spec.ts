@@ -24,9 +24,9 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -47,7 +47,7 @@ describe('Component: Gear Component', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             GearModule
@@ -168,7 +168,7 @@ describe('Component: Gear Component', () => {
 
         component['originalOptions'] = new WidgetOptionCollection(() => []);
         component['originalOptions'].updateDatabases(component['dashboardState']);
-        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), new FieldMetaData());
+        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases(component['dashboardState']);
@@ -176,7 +176,7 @@ describe('Component: Gear Component', () => {
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component['originalOptions'].testField).toEqual(new FieldMetaData());
+        expect(component['originalOptions'].testField).toEqual(NeonFieldMetaData.get());
         expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
@@ -487,7 +487,7 @@ describe('Component: Gear Component', () => {
         component['originalOptions'] = new WidgetOptionCollection(() => []);
         component['originalOptions'].updateDatabases(component['dashboardState']);
         component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
-        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), new FieldMetaData());
+        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases(component['dashboardState']);
@@ -506,7 +506,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testOption).toEqual('');
-        expect(component['originalOptions'].testField).toEqual(new FieldMetaData());
+        expect(component['originalOptions'].testField).toEqual(NeonFieldMetaData.get());
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('');

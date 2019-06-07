@@ -28,7 +28,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../types';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../types';
 import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -359,10 +359,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends WidgetOptionCollection {
-    changeDatabase: DatabaseMetaData;
-    changeTable: TableMetaData;
-    changeField: FieldMetaData;
-    field: FieldMetaData;
+    changeDatabase: NeonDatabaseMetaData;
+    changeTable: NeonTableMetaData;
+    changeField: NeonFieldMetaData;
+    field: NeonFieldMetaData;
     operator: OperatorMetaData;
     value: string;
 }

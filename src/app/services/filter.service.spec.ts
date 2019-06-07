@@ -29,8 +29,8 @@ import {
     SimpleFilterDesign
 } from './filter.service';
 
-import { FieldMetaData } from '../types';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonFieldMetaData } from '../types';
+import { NeonConfig } from '../types';
 import { neonEvents } from '../neon-namespaces';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
@@ -625,7 +625,7 @@ describe('FilterCollection', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -1016,7 +1016,7 @@ describe('SimpleFilter', () => {
             datastore: 'testDatastore1',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: new FieldMetaData()
+            field: NeonFieldMetaData.get()
         }], searchService);
         expect(actual).toEqual(null);
     });
@@ -1682,7 +1682,7 @@ describe('CompoundFilter (One Field)', () => {
             datastore: 'testDatastore1',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: new FieldMetaData()
+            field: NeonFieldMetaData.get()
         }], searchService);
         expect(actual).toEqual(null);
     });
@@ -2345,7 +2345,7 @@ describe('CompoundFilter (Multi-Field)', () => {
             datastore: 'testDatastore1',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: new FieldMetaData()
+            field: NeonFieldMetaData.get()
         }], searchService);
         expect(actual).toEqual(null);
     });
@@ -3203,7 +3203,7 @@ describe('FilterService with no filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -3255,7 +3255,7 @@ describe('FilterService with filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: 'config', useValue: NeonGTDConfig.get() }
+            { provide: 'config', useValue: NeonConfig.get() }
         ]
     });
 

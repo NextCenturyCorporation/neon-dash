@@ -31,7 +31,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -52,10 +52,10 @@ export class Annotation {
 }
 
 export class AnnotationFields {
-    startCharacterField: FieldMetaData;
-    endCharacterField: FieldMetaData;
-    textField: FieldMetaData;
-    typeField: FieldMetaData;
+    startCharacterField: NeonFieldMetaData;
+    endCharacterField: NeonFieldMetaData;
+    textField: NeonFieldMetaData;
+    typeField: NeonFieldMetaData;
 }
 
 export class Data {
@@ -78,7 +78,7 @@ export class Part {
 
 export class Details {
     detailLabel: string;
-    detailField: FieldMetaData;
+    detailField: NeonFieldMetaData;
 }
 
 @Component({

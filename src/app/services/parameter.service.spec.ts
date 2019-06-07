@@ -20,7 +20,7 @@ import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
 
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../types';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';
@@ -35,7 +35,7 @@ describe('Service: Parameter', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ]
     });

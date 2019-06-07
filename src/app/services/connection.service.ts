@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../types';
 import { query } from 'neon-framework';
 
 export interface RequestWrapper {
@@ -109,7 +109,7 @@ export interface Connection<T extends { query: any } = { query: any }> {
      * @return {RequestWrapper}
      * @abstract
      */
-    saveState(stateData: NeonGTDConfig, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
+    saveState(stateData: NeonConfig, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
 }
 
 // Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
@@ -251,7 +251,7 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
      * @override
      */
     public saveState(
-        stateData: NeonGTDConfig,
+        stateData: NeonConfig,
         onSuccess: (response: any) => void,
         onError?: (response: any) => void
     ): RequestWrapper {

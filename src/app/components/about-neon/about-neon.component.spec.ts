@@ -17,12 +17,12 @@ import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { AboutNeonComponent } from './about-neon.component';
 import { AboutNeonModule } from './about-neon.module';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: AboutNeonComponent', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<AboutNeonComponent>;
     let component: AboutNeonComponent;
     let neonStub: any = {

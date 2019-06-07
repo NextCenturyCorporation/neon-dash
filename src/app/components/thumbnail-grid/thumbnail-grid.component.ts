@@ -32,7 +32,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../types';
+import { NeonFieldMetaData, MediaTypes } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -143,7 +143,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.toggleFilters(filters);
     }
 
-    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
             database: this.options.database,

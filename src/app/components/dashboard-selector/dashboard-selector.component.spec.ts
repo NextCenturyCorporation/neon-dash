@@ -16,7 +16,7 @@
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -24,7 +24,7 @@ import { DashboardSelectorModule } from './dashboard-selector.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: DashboardSelector', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 

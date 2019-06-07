@@ -15,12 +15,12 @@
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../../active-dashboard';
+import { DashboardState } from '../../dashboard-state';
 
 @Component({
     selector: 'app-simple-filter',
@@ -59,9 +59,9 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
         this.inputPlaceholder = simpleFilter.placeholder || '';
 
-        let database: DatabaseMetaData = this.dashboardState.getDatabaseWithName(simpleFilter.databaseName);
-        let table: TableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-        let field: FieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(simpleFilter.databaseName);
+        let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
         let filter: SimpleFilterDesign = {

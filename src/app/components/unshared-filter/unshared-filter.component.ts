@@ -14,7 +14,7 @@
  *
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 
 /**
  * Component for managing the unshared filter of a visualization.
@@ -36,20 +36,20 @@ export class UnsharedFilterComponent {
      * This should be bound to the 'meta' component from the BaseNeonComponent class
      */
     @Input() public meta: {
-        databases: DatabaseMetaData[];
-        database: DatabaseMetaData;
-        tables: TableMetaData[];
-        table: TableMetaData;
-        unsharedFilterField: FieldMetaData;
+        databases: NeonDatabaseMetaData[];
+        database: NeonDatabaseMetaData;
+        tables: NeonTableMetaData[];
+        table: NeonTableMetaData;
+        unsharedFilterField: NeonFieldMetaData;
         unsharedFilterValue: string;
-        fields: FieldMetaData[];
+        fields: NeonFieldMetaData[];
     };
 
     /**
      * Triggered when the filter field has changed.
-     * @type {EventEmitter<FieldMetaData>}
+     * @type {EventEmitter<NeonFieldMetaData>}
      */
-    @Output() unsharedFilterFieldChanged = new EventEmitter<FieldMetaData>();
+    @Output() unsharedFilterFieldChanged = new EventEmitter<NeonFieldMetaData>();
 
     /**
      * Triggered when the filter has been cleared
@@ -77,7 +77,7 @@ export class UnsharedFilterComponent {
 
     handleRemoveUnsharedFilter(): void {
         this.meta.unsharedFilterValue = null;
-        this.meta.unsharedFilterField = new FieldMetaData();
+        this.meta.unsharedFilterField = NeonFieldMetaData.get();
         this.unsharedFilterRemoved.emit();
     }
 

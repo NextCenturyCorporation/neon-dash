@@ -14,11 +14,11 @@
  *
  */
 import {
-    Dashboard, DatabaseMetaData,
-    TableMetaData, FieldMetaData, SingleField
+    Dashboard, NeonDatabaseMetaData,
+    NeonTableMetaData, NeonFieldMetaData, SingleField
 } from './types';
 import * as _ from 'lodash';
-import { NeonGTDConfig, NeonDatastoreConfig } from './neon-gtd-config';
+import { NeonConfig, NeonDatastoreConfig } from './types';
 
 export class DashboardState {
     /**
@@ -38,8 +38,8 @@ export class DashboardState {
 
     constructor(
         public dashboard: Dashboard = Dashboard.get(),
-        public datastore: NeonDatastoreConfig = { databases: {}, type: '', host: '' },
-        public config: NeonGTDConfig<Dashboard> = { dashboards: {} as any, datastores: {}, layouts: {}, version: '' }
+        public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get(),
+        public config: NeonConfig<Dashboard> = NeonConfig.get<Dashboard>()
     ) { }
 
     /**
@@ -73,7 +73,7 @@ export class DashboardState {
      *
      * @param simpleField The new field for the simple search
      */
-    public setSimpleFilterFieldName(simpleField: FieldMetaData) {
+    public setSimpleFilterFieldName(simpleField: NeonFieldMetaData) {
         this.createSimpleFilter();
         this.dashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
@@ -156,7 +156,7 @@ export class DashboardState {
      * Returns the databases for the active datastore.
      * @return {Array}
      */
-    public getDatabases(): DatabaseMetaData[] {
+    public getDatabases(): NeonDatabaseMetaData[] {
         return Object.values(this.datastore.databases).sort((db1, db2) => db1.name.localeCompare(db2.name));
     }
 
@@ -166,7 +166,7 @@ export class DashboardState {
      * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    public getDatabaseWithName(databaseName: string): DatabaseMetaData {
+    public getDatabaseWithName(databaseName: string): NeonDatabaseMetaData {
         return this.datastore.databases[databaseName];
     }
 
@@ -177,7 +177,7 @@ export class DashboardState {
      * or undefined otherwise.
      * Dashboard name only includes part of the database pretty name
      */
-    public getDatabase(): DatabaseMetaData {
+    public getDatabase(): NeonDatabaseMetaData {
         if (!this.dashboard) {
             return undefined;
         }
@@ -197,7 +197,7 @@ export class DashboardState {
      * @param {String} The database name
      * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
      */
-    public getTables(databaseName: string): { [key: string]: TableMetaData } {
+    public getTables(databaseName: string): { [key: string]: NeonTableMetaData } {
         let database = this.getDatabaseWithName(databaseName);
         return database ? database.tables : {};
     }
@@ -209,7 +209,7 @@ export class DashboardState {
      * @return {Object} The table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    public getTableWithName(databaseName: string, tableName: string): TableMetaData {
+    public getTableWithName(databaseName: string, tableName: string): NeonTableMetaData {
         let tables = this.getTables(databaseName);
         return tables[tableName];
     }
@@ -221,10 +221,10 @@ export class DashboardState {
      * @arg {string} databaseName The database name
      * @arg {string} tableName The table name
      * @arg {string} fieldName The field name
-     * @return {FieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
+     * @return {NeonFieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
      */
-    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): FieldMetaData {
-        let fields: FieldMetaData[] = this.getFields(databaseName, tableName);
+    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): NeonFieldMetaData {
+        let fields: NeonFieldMetaData[] = this.getFields(databaseName, tableName);
         for (let field of fields) {
             if (field.columnName === fieldName) {
                 return field;
@@ -240,7 +240,7 @@ export class DashboardState {
      * @param {String} The table name
      * @return {Array} The array of field objects if a match exists or an empty array otherwise.
      */
-    public getFields(databaseName: string, tableName: string): FieldMetaData[] {
+    public getFields(databaseName: string, tableName: string): NeonFieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
 
         if (!table) {
@@ -258,7 +258,7 @@ export class DashboardState {
      * @param {Boolean} Whether to ignore fields in the table marked as hidden (optional)
      * @return {Array} The sorted copy of the array of field objects if a match exists or an empty array otherwise.
      */
-    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): FieldMetaData[] {
+    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): NeonFieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
 
         if (!table) {
@@ -288,7 +288,7 @@ export class DashboardState {
      * @return {String} The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    public getFirstTableWithMappings(databaseName: string, keys: string[]): TableMetaData {
+    public getFirstTableWithMappings(databaseName: string, keys: string[]): NeonTableMetaData {
         let tables = this.getTables(databaseName);
         for (const table of Object.values(tables)) {
             for (let key of keys) {
@@ -344,7 +344,7 @@ export class DashboardState {
      * @param {String} The table name
      * @return {Object} The mappings if a match exists or an empty object otherwise.
      */
-    public getMappings(databaseName: string, tableName: string): TableMetaData['mappings'] {
+    public getMappings(databaseName: string, tableName: string): NeonTableMetaData['mappings'] {
         let table = this.getTableWithName(databaseName, tableName);
 
         if (!table) {
@@ -404,7 +404,7 @@ export class DashboardState {
      * @param {Object} fieldObject
      * @return {Boolean}
      */
-    public isFieldValid(fieldObject: FieldMetaData): boolean {
+    public isFieldValid(fieldObject: NeonFieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
     }
 

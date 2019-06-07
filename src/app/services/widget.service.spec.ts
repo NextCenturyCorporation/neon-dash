@@ -17,7 +17,7 @@ import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
 import { DashboardService } from './dashboard.service';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../types';
 import { WidgetService } from './widget.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
@@ -34,7 +34,7 @@ describe('Service: Widget', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ]
     });
@@ -90,7 +90,7 @@ describe('ColorSet', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ]
     });

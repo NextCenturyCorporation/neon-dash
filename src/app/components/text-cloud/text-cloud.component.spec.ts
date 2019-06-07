@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 
 import { Injector } from '@angular/core';
 
@@ -26,7 +26,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -49,7 +49,7 @@ describe('Component: TextCloud', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -70,8 +70,8 @@ describe('Component: TextCloud', () => {
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.sizeField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sizeField).toEqual(NeonFieldMetaData.get());
     });
 
     it('has expected class properties', () => {
@@ -81,18 +81,18 @@ describe('Component: TextCloud', () => {
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.table = new TableMetaData('testTable1');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     });
 
     it('returns expected query from finalizeVisualizationQuery', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -113,7 +113,7 @@ describe('Component: TextCloud', () => {
         });
 
         component.options.aggregation = AggregationType.AVG;
-        component.options.sizeField = new FieldMetaData('testSizeField');
+        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField' });
         component.options.limit = 25;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -265,14 +265,14 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with no data does return expected data', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
 
         let actual1 = component.transformVisualizationQueryResults(component.options, []);
 
         expect(component.textCloudData).toEqual([]);
         expect(actual1).toEqual(0);
 
-        component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
+        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
 
         let actual2 = component.transformVisualizationQueryResults(component.options, []);
 
@@ -281,7 +281,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with data does return expected data', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
         let data = [{
             _aggregation: 8,
             testTextField: 'First'

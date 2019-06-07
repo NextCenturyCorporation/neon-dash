@@ -30,7 +30,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -106,7 +106,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
+    private addFilterBehaviorToList(list: FilterBehavior[], field: NeonFieldMetaData): FilterBehavior[] {
         list.push({
             // Match a single NOT EQUALS filter on the specific filter field.
             filterDesign: this.createFilterDesign(field),
@@ -139,7 +139,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         ];
     }
 
-    private createFilterDesign(field: FieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
         return {
             datastore: '',
             database: this.options.database,
@@ -268,7 +268,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return 'Taxonomy Viewer';
     }
 
-    private isTaxonomyNodeFiltered(field: FieldMetaData, value: any) {
+    private isTaxonomyNodeFiltered(field: NeonFieldMetaData, value: any) {
         let filterDesign: FilterDesign = this.createFilterDesign(field, value);
         return this.isFiltered(filterDesign) || this.isFiltered(this.createFilterDesignOnList([filterDesign]));
     }

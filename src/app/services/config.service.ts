@@ -21,7 +21,7 @@ import { environment } from '../../environments/environment';
 
 import { ReplaySubject, Observable, combineLatest, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../types';
 import { Injectable } from '@angular/core';
 
 const EMPTY_CONFIG = {
@@ -38,11 +38,11 @@ let configErrors = [];
 
 @Injectable()
 export class ConfigService {
-    private source = new ReplaySubject<NeonGTDConfig>(1);
+    private source = new ReplaySubject<NeonConfig>(1);
 
-    $source: Observable<NeonGTDConfig>;
+    $source: Observable<NeonConfig>;
 
-    static as(config: NeonGTDConfig) {
+    static as(config: NeonConfig) {
         return new ConfigService(null).set(config);
     }
 
@@ -72,18 +72,18 @@ export class ConfigService {
         return of(undefined);
     }
 
-    loadConfigFromLocal(path): Observable<NeonGTDConfig | undefined> {
+    loadConfigFromLocal(path): Observable<NeonConfig | undefined> {
         return this.http.get(path, { responseType: 'text', params: { rnd: `${Math.random() * 1000000}.${Date.now()}` } })
-            .pipe(map((response: any) => yaml.load(response) as NeonGTDConfig))
+            .pipe(map((response: any) => yaml.load(response) as NeonConfig))
             .pipe(catchError((error) => this.handleConfigFileError(error)));
     }
 
-    loadConfigFromPropertyService(): Observable<NeonGTDConfig | undefined> {
-        return this.http.get<NeonGTDConfig | void>('../neon/services/propertyservice/config')
+    loadConfigFromPropertyService(): Observable<NeonConfig | undefined> {
+        return this.http.get<NeonConfig | void>('../neon/services/propertyservice/config')
             .pipe(catchError((error) => this.handleConfigPropertyServiceError(error)));
     }
 
-    takeFirstLoadedOrFetchDefault(all: (NeonGTDConfig | null)[]) {
+    takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
         const next = all.find((el) => !!el);
         if (next) {
             return of(next);
@@ -91,7 +91,7 @@ export class ConfigService {
         return this.loadConfigFromPropertyService();
     }
 
-    finalizeConfig(configInput: NeonGTDConfig) {
+    finalizeConfig(configInput: NeonConfig) {
         let config = configInput;
         if (config && config.neonServerUrl) {
             neon.setNeonServerUrl(config.neonServerUrl);
@@ -100,7 +100,7 @@ export class ConfigService {
         if (!config) {
             console.error('Config is empty', config);
             configErrors.push('Config is empty!');
-            config = EMPTY_CONFIG as any as NeonGTDConfig;
+            config = EMPTY_CONFIG as any as NeonConfig;
         }
 
         if (configErrors.length) {
@@ -127,7 +127,7 @@ export class ConfigService {
         return false;
     }
 
-    set(config: NeonGTDConfig) {
+    set(config: NeonConfig) {
         this.initSource();
         this.source.next(config);
         return this;
@@ -137,7 +137,7 @@ export class ConfigService {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
             this.fetchConfig(environment.config)
-                .subscribe((el) => this.source.next(el as NeonGTDConfig));
+                .subscribe((el) => this.source.next(el as NeonConfig));
         }
         return this.$source;
     }

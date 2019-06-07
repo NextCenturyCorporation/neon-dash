@@ -19,7 +19,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData } from '../../types';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -27,7 +27,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { DashboardState } from '../../active-dashboard';
+import { DashboardState } from '../../dashboard-state';
 
 @Component({
     selector: 'app-settings',
@@ -44,8 +44,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     public messenger: eventing.Messenger;
 
-    public fields: FieldMetaData[] = [];
-    public searchField: FieldMetaData;
+    public fields: NeonFieldMetaData[] = [];
+    public searchField: NeonFieldMetaData;
 
     public showFilterTray: boolean = true;
     public showSimpleSearch: boolean;
@@ -141,8 +141,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let table: TableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-            let field: FieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+            let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
 
             this.fields = table.fields;

@@ -1,4 +1,4 @@
-import { NeonLayoutGridConfig } from './neon-gtd-config';
+import { NeonLayoutGridConfig } from './types';
 
 /*
  * Copyright 2017 Next Century Corporation

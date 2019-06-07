@@ -31,7 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
@@ -68,7 +68,7 @@ describe('Component: AddVisualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             {

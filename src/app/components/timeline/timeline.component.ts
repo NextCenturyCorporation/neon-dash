@@ -59,7 +59,7 @@ import {
 } from '../../widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -130,7 +130,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
     }
 
-    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
             datastore: '',

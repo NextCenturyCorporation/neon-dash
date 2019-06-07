@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DatabaseMetaData } from '../../types';
+import { NeonDatabaseMetaData } from '../../types';
 import { FilterService } from '../../services/filter.service';
 import { neonEvents } from '../../neon-namespaces';
 
@@ -24,7 +24,7 @@ import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
-import { NeonDatastoreConfig } from '../../neon-gtd-config';
+import { NeonDatastoreConfig } from '../../types';
 
 @Component({
     selector: 'app-custom-connection',
@@ -79,11 +79,11 @@ export class CustomConnectionComponent implements AfterContentInit {
     }
 
     createDataset() {
-        let datastore: NeonDatastoreConfig = { name: this.data.datasetName, host: this.data.datastoreHost, type: this.data.datastoreType, databases: {} };
+        let datastore = NeonDatastoreConfig.get({ name: this.data.datasetName, host: this.data.datastoreHost, type: this.data.datastoreType });
         datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
             acc[db.name] = db;
             return acc;
-        }, {} as { [key: string]: DatabaseMetaData });
+        }, {} as { [key: string]: NeonDatabaseMetaData });
         this.datasetService.addDatastore(datastore);
         this.datasetService.setActiveDatastore(datastore);
 

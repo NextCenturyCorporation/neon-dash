@@ -24,7 +24,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -99,9 +99,9 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         value?: any
     ): FilterDesign {
-        let database: DatabaseMetaData = this.dashboardState.getDatabaseWithName(databaseName);
-        let table: TableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
-        let field: FieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
+        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(databaseName);
+        let table: NeonTableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
+        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
             datastore: '',
             database: database,
@@ -139,7 +139,7 @@ export class QueryBarComponent extends BaseNeonComponent {
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
-            // TODO THOR-950 Rename extensionFields because it is not an array of FieldMetaData objects!
+            // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')

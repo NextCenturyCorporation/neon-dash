@@ -31,10 +31,9 @@ import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../s
 import { WidgetService } from '../../services/widget.service';
 
 import { Color } from '../../color';
-import { FieldMetaData } from '../../types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonFieldMetaData, NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
@@ -52,7 +51,7 @@ describe('Component: Aggregation', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             AggregationModule
@@ -69,10 +68,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.aggregationField).toEqual(new FieldMetaData());
-        expect(component.options.groupField).toEqual(new FieldMetaData());
-        expect(component.options.xField).toEqual(new FieldMetaData());
-        expect(component.options.yField).toEqual(new FieldMetaData());
+        expect(component.options.aggregationField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.groupField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.xField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.yField).toEqual(NeonFieldMetaData.get());
 
         expect(component.options.aggregation).toEqual(AggregationType.COUNT);
         expect(component.options.dualView).toEqual('');
@@ -4108,7 +4107,7 @@ describe('Component: Aggregation with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4210,7 +4209,7 @@ describe('Component: Aggregation with XY config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4312,7 +4311,7 @@ describe('Component: Aggregation with date config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },

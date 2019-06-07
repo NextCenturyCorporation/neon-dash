@@ -28,7 +28,7 @@ import {
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -46,7 +46,7 @@ import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
-import { DashboardState } from '../../active-dashboard';
+import { DashboardState } from '../../dashboard-state';
 
 /**
  * @class BaseNeonComponent
@@ -1033,10 +1033,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Creates and returns a new empty field object.
      *
-     * @return {FieldMetaData}
+     * @return {NeonFieldMetaData}
      */
-    public createEmptyField(): FieldMetaData {
-        return new FieldMetaData();
+    public createEmptyField(): NeonFieldMetaData {
+        return NeonFieldMetaData.get();
     }
 
     /**

@@ -38,7 +38,7 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { ParameterService } from '../services/parameter.service';
@@ -141,7 +141,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public messageReceiver: eventing.Messenger;
     public messageSender: eventing.Messenger;
 
-    neonConfig: NeonGTDConfig;
+    neonConfig: NeonConfig;
 
     constructor(
         public changeDetection: ChangeDetectorRef,

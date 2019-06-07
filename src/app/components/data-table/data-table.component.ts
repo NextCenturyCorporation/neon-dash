@@ -31,7 +31,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -149,7 +149,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnOneValue(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnOneValue(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
             root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :

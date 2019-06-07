@@ -28,11 +28,11 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
@@ -134,7 +134,7 @@ describe('Component: Sample', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -149,8 +149,8 @@ describe('Component: Sample', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
-        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.sampleOptionalField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sampleRequiredField).toEqual(NeonFieldMetaData.get());
         expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
     });
@@ -188,7 +188,7 @@ describe('Component: Sample', () => {
     it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -212,8 +212,8 @@ describe('Component: Sample', () => {
     it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
+        component.options.sampleOptionalField = NeonFieldMetaData.get({ columnName: 'testOptionalField1', prettyName: 'Test Optional Field 1' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -249,7 +249,7 @@ describe('Component: Sample', () => {
     });
 
     it('filterFromSubcomponent does call filterOnItem', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
         let spy = spyOn(component, 'filterOnItem');
 
         component.filterFromSubcomponent('testInput');
@@ -350,12 +350,12 @@ describe('Component: Sample', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _count: 2,
@@ -379,7 +379,7 @@ describe('Component: Sample', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
         expect(component.visualizationData).toEqual([]);
@@ -387,8 +387,8 @@ describe('Component: Sample', () => {
     });
 
     it('transformVisualizationQueryResults with aggregation query data and optional field does return expected data', () => {
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleOptionalField = NeonFieldMetaData.get({ columnName: 'testOptionalField1', prettyName: 'Test Optional Field 1' });
+        component.options.sampleRequiredField = NeonFieldMetaData.get({ columnName: 'testRequiredField1', prettyName: 'Test Required Field 1' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _count: 2,
@@ -532,7 +532,7 @@ describe('Component: Sample with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },

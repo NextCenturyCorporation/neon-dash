@@ -19,7 +19,7 @@ import { Color, ColorSet } from '../color';
 import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../active-dashboard';
+import { DashboardState } from '../dashboard-state';
 
 /**
  * @class NeonTheme

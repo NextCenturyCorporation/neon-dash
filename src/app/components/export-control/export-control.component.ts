@@ -19,7 +19,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { ConnectionService } from '../../services/connection.service';
-import { DashboardState } from '../../active-dashboard';
+import { DashboardState } from '../../dashboard-state';
 
 @Component({
     selector: 'app-export-control',

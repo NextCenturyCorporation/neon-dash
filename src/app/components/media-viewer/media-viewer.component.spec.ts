@@ -15,9 +15,9 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData, MediaTypes } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, MediaTypes } from '../../types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { } from 'jasmine-core';
 
@@ -43,7 +43,7 @@ describe('Component: MediaViewer', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -67,11 +67,11 @@ describe('Component: MediaViewer', () => {
         expect(component.options.resize).toEqual(true);
         expect(component.options.typeMap).toEqual({});
         expect(component.options.url).toEqual('');
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
         expect(component.options.linkFields).toEqual([]);
-        expect(component.options.nameField).toEqual(new FieldMetaData());
-        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.nameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
         expect(component.options.autoplay).toEqual(false);
     });
 
@@ -81,8 +81,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.ID_FIELD;
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
@@ -106,8 +106,8 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('finalizeVisualizationQuery with no ID field does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
         component.options.nameField = DashboardServiceMock.NAME_FIELD;
@@ -123,8 +123,8 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('finalizeVisualizationQuery with sort field does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
         component.options.idField = DashboardServiceMock.ID_FIELD;
         component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
@@ -172,10 +172,10 @@ describe('Component: MediaViewer', () => {
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.table = new TableMetaData('testTable');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
@@ -214,10 +214,10 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('transformVisualizationQueryResults does reset options.id and return correct error if filter is selected', (() => {
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.nameField = NeonFieldMetaData.get({ columnName: 'testNameField' });
+        component.options.typeField = NeonFieldMetaData.get({ columnName: 'testTypeField' });
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
@@ -1173,7 +1173,7 @@ describe('Component: MediaViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'idField', useValue: 'testIdField' },

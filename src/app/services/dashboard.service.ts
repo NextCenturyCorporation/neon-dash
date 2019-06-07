@@ -17,21 +17,21 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import {
-    Dashboard, DatabaseMetaData,
-    TableMetaData, FieldMetaData
+    Dashboard, NeonDatabaseMetaData,
+    NeonTableMetaData, NeonFieldMetaData
 } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { NeonGTDConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../neon-gtd-config';
+import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../types';
 import { ConnectionService, Connection } from './connection.service';
-import { DashboardState } from '../active-dashboard';
+import { DashboardState } from '../dashboard-state';
 
 @Injectable()
 export class DashboardService {
     private static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
-    private readonly config: NeonGTDConfig<Dashboard> = { dashboards: {} as Dashboard, layouts: {}, datastores: {}, version: '' };
+    private readonly config: NeonConfig<Dashboard> = { dashboards: {} as Dashboard, layouts: {}, datastores: {}, version: '' };
 
     public readonly state = new DashboardState();
 
@@ -61,12 +61,11 @@ export class DashboardService {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
             let configDatastore = configDatastores[datastoreKey] || { host: '', type: '', name: '', databases: {} };
-            let outputDatastore: NeonDatastoreConfig = {
+            let outputDatastore = NeonDatastoreConfig.get({
                 name: datastoreKey,
                 host: configDatastore.host,
-                type: configDatastore.type,
-                databases: {}
-            };
+                type: configDatastore.type
+            });
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
             outputDatastore['hasUpdatedFields'] = !!configDatastore['hasUpdatedFields'];
@@ -74,15 +73,15 @@ export class DashboardService {
             let configDatabases: any = configDatastore.databases || {};
             outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
                 let configDatabase: any = configDatabases[databaseKey] || {};
-                let outputDatabase: DatabaseMetaData = new DatabaseMetaData(databaseKey, configDatabase.prettyName);
+                let outputDatabase: NeonDatabaseMetaData = NeonDatabaseMetaData.get({ name: databaseKey, prettyName: configDatabase.prettyName });
 
                 let configTables: any = configDatabase.tables || {};
                 outputDatabase.tables = Object.keys(configTables).reduce((acc, tableKey) => {
                     let configTable = configTables[tableKey] || {};
-                    let outputTable: TableMetaData = new TableMetaData(tableKey, configTable.prettyName);
+                    let outputTable: NeonTableMetaData = NeonTableMetaData.get({ name: tableKey, prettyName: configTable.prettyName });
 
                     outputTable.fields = (configTable.fields || []).map((configField) =>
-                        new FieldMetaData(configField.columnName, configField.prettyName, !!configField.hide, configField.type));
+                        NeonFieldMetaData.get(configField));
 
                     // Create copies to maintain original config data.
                     outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
@@ -91,11 +90,11 @@ export class DashboardService {
                     acc[outputTable.name] = outputTable;
 
                     return acc;
-                }, {} as { [key: string]: TableMetaData });
+                }, {} as { [key: string]: NeonTableMetaData });
 
                 dbs[outputDatabase.name] = outputDatabase;
                 return dbs;
-            }, {} as { [key: string]: DatabaseMetaData });
+            }, {} as { [key: string]: NeonDatabaseMetaData });
 
             // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
             if (!existingDatastores[outputDatastore.name]) {
@@ -163,7 +162,7 @@ export class DashboardService {
         }
     }
 
-    static validateFields(table: TableMetaData): void {
+    static validateFields(table: NeonTableMetaData): void {
         let indexListToRemove = [];
         table.fields.forEach((field, index) => {
             if (!field.columnName) {
@@ -175,7 +174,7 @@ export class DashboardService {
         this.removeFromArray(table.fields, indexListToRemove);
     }
 
-    static validateTables(database: DatabaseMetaData): void {
+    static validateTables(database: NeonDatabaseMetaData): void {
         for (const key of Object.keys(database.tables)) {
             const table = database.tables[key];
             if (!table.name) {
@@ -305,7 +304,7 @@ export class DashboardService {
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.messenger = new eventing.Messenger();
-        this.configService.$source.subscribe((config: NeonGTDConfig<Dashboard>) => {
+        this.configService.$source.subscribe((config: NeonConfig<Dashboard>) => {
             this.setConfig(config);
 
             let loaded = 0;
@@ -331,7 +330,7 @@ export class DashboardService {
         });
     }
 
-    setConfig(config: NeonGTDConfig<Dashboard>) {
+    setConfig(config: NeonConfig<Dashboard>) {
         Object.assign(this.config, {
             dashboards: DashboardService.validateDashboards(
                 config.dashboards ?
@@ -420,25 +419,25 @@ export class DashboardService {
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
      * @param {Connection} connection
-     * @param {DatabaseMetaData} database
+     * @param {NeonDatabaseMetaData} database
      * @return {Promise}
      * @private
      */
-    private getTableNamesAndFieldNames(connection: Connection, database: DatabaseMetaData): Promise<any> {
+    private getTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, __reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
                 Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                    let table = _.find(database.tables, (item: TableMetaData) => item.name === tableName);
+                    let table = _.find(database.tables, (item: NeonTableMetaData) => item.name === tableName);
 
                     if (table) {
                         let hasField = {};
-                        table.fields.forEach((field: FieldMetaData) => {
+                        table.fields.forEach((field: NeonFieldMetaData) => {
                             hasField[field.columnName] = true;
                         });
                         tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
                             if (!hasField[fieldName]) {
-                                let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
+                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName });
                                 table.fields.push(newField);
                             }
                         });
@@ -468,13 +467,13 @@ export class DashboardService {
     /**
      * Wraps connection.getFieldTypes() in a promise object.
      * @param {Connection} connection
-     * @param {DatabaseMetaData} database
-     * @param {TableMetaData} table
-     * @return {Promise<FieldMetaData[]>}
+     * @param {NeonDatabaseMetaData} database
+     * @param {NeonTableMetaData} table
+     * @return {Promise<NeonFieldMetaData[]>}
      * @private
      */
-    private getFieldTypes(connection: Connection, database: DatabaseMetaData, table: TableMetaData): Promise<FieldMetaData[]> {
-        return new Promise<FieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
+    private getFieldTypes(connection: Connection, database: NeonDatabaseMetaData, table: NeonTableMetaData): Promise<NeonFieldMetaData[]> {
+        return new Promise<NeonFieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let field of table.fields) {
                 if (types && types[field.columnName]) {
                     field.type = types[field.columnName];
@@ -526,7 +525,7 @@ export class DashboardService {
      * @param {Object} fieldObject
      * @return {Boolean}
      */
-    public isFieldValid(fieldObject: FieldMetaData): boolean {
+    public isFieldValid(fieldObject: NeonFieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
     }
 

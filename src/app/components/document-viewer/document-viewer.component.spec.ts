@@ -15,9 +15,9 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
@@ -49,7 +49,7 @@ describe('Component: DocumentViewer', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             DocumentViewerModule
@@ -67,9 +67,9 @@ describe('Component: DocumentViewer', () => {
     }));
 
     it('has expected options properties', () => {
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -78,17 +78,17 @@ describe('Component: DocumentViewer', () => {
 
     it('returns the expectedvalue from validateVisualizationQuery', () => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        component.options.table = new TableMetaData('testTable1');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     });
 
     it('returns expected query from finalizeVisualizationQuery with no sort', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         component.options.dateField = DashboardServiceMock.DATE_FIELD;
         component.options.idField = DashboardServiceMock.ID_FIELD;
@@ -103,8 +103,8 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with sort', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         component.options.dateField = DashboardServiceMock.DATE_FIELD;
         component.options.idField = DashboardServiceMock.ID_FIELD;
@@ -123,8 +123,8 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with metadataFields', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         component.options.dateField = DashboardServiceMock.DATE_FIELD;
         component.options.idField = DashboardServiceMock.ID_FIELD;
@@ -145,8 +145,8 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with metadataFields and popoutFields', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         component.options.dataField = DashboardServiceMock.TEXT_FIELD;
         component.options.dateField = DashboardServiceMock.DATE_FIELD;
         component.options.idField = DashboardServiceMock.ID_FIELD;
@@ -235,9 +235,9 @@ describe('Component: DocumentViewer', () => {
 
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -890,7 +890,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },

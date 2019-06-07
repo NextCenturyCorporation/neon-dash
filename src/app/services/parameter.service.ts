@@ -137,8 +137,8 @@ export class ParameterService {
         }
 
         let customMappings: any = {};
-        this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
-            database.tables.forEach((table: TableMetaData) => {
+        this.datasetService.getDatabases().forEach((database: NeonDatabaseMetaData) => {
+            database.tables.forEach((table: NeonTableMetaData) => {
                 Object.keys(table.mappings).forEach((mapping) => {
                     if (mapping.indexOf(ParameterService.CUSTOM_NUMBER_MAPPING_PREFIX) === 0 ||
                         mapping.indexOf(ParameterService.CUSTOM_STRING_MAPPING_PREFIX) === 0) {

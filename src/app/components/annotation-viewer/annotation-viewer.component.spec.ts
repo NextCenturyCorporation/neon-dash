@@ -26,10 +26,10 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
@@ -46,7 +46,7 @@ describe('Component: AnnotationViewer', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             AnnotationViewerModule
@@ -70,12 +70,12 @@ describe('Component: AnnotationViewer', () => {
 
     it('Checks if option object has expected defaults', () => {
         expect(component.annotations).toBeUndefined();
-        expect(component.options.startCharacterField).toEqual(new FieldMetaData());
-        expect(component.options.endCharacterField).toEqual(new FieldMetaData());
-        expect(component.options.textField).toEqual(new FieldMetaData());
-        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.startCharacterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.endCharacterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.textField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
 
-        expect(component.options.documentTextField).toEqual(new FieldMetaData());
+        expect(component.options.documentTextField).toEqual(NeonFieldMetaData.get());
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
     });

@@ -19,7 +19,7 @@ import { Injector, DebugElement } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -34,7 +34,7 @@ import { FiltersModule } from './filters.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: FiltersComponent;
     let fixture: ComponentFixture<FiltersComponent>;
     let debugElement: DebugElement;

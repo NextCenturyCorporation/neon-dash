@@ -27,7 +27,7 @@ import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
 import { Dashboard } from '../../types';
-import { NeonGTDConfig, NeonDatastoreConfig } from '../../neon-gtd-config';
+import { NeonConfig, NeonDatastoreConfig } from '../../types';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
@@ -40,7 +40,7 @@ import { SaveStateModule } from './save-state.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: SaveStateComponent', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<SaveStateComponent>;
     let component: SaveStateComponent;
 
@@ -168,8 +168,8 @@ describe('Component: SaveStateComponent', () => {
                 name: 'dashboard1'
             } as Dashboard, // TODO: Verify typings,
             datastores: {
-                datastore1: {}
-            } as any as Record<string, NeonDatastoreConfig>, // TODO: Verify typings
+                datastore1: NeonDatastoreConfig.get()
+            },
             layouts: {
                 layout1: []
             }
@@ -407,7 +407,7 @@ describe('Component: SaveStateComponent', () => {
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
-            saveState: (data: NeonGTDConfig<Dashboard>, successCallback) => {
+            saveState: (data: NeonConfig<Dashboard>, successCallback) => {
                 calls++;
                 expect(data.dashboards.fullTitle).toEqual('Full Title');
                 expect(data.dashboards.layout).toEqual('testState');

@@ -32,8 +32,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FieldMetaData } from '../../types';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonFieldMetaData } from '../../types';
+import { NeonConfig } from '../../types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -177,7 +177,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
 }
 
 describe('BaseNeonComponent', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
@@ -249,7 +249,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.title).toEqual('Mock Superclass');
-        expect(component.options.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.options.unsharedFilterField).toEqual(NeonFieldMetaData.get());
         expect(component.options.unsharedFilterValue).toEqual('');
     });
 
@@ -396,7 +396,7 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
         component.options.append(
             new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
@@ -609,7 +609,7 @@ describe('BaseNeonComponent', () => {
             value: 'testValue1'
         }]);
 
-        component.options.unsharedFilterField = new FieldMetaData('testField2');
+        component.options.unsharedFilterField = NeonFieldMetaData.get({ columnName: 'testField2' });
         component.options.unsharedFilterValue = 'testValue2';
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -673,7 +673,7 @@ describe('BaseNeonComponent', () => {
             value: 'testValue3'
         }]);
 
-        component.options.unsharedFilterField = new FieldMetaData('testField4');
+        component.options.unsharedFilterField = NeonFieldMetaData.get({ columnName: 'testField4' });
         component.options.unsharedFilterValue = 'testValue4';
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -828,7 +828,7 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
         component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]);
         component.options.customEventsToPublish = [{
@@ -972,7 +972,7 @@ describe('BaseNeonComponent', () => {
             unsharedFilterField: ''
         });
 
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), new FieldMetaData());
+        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFreeTextOption('testValue', 'Test Value', ''), '');
         expect(component.getBindings()).toEqual({
             contributionKeys: null,
@@ -1065,7 +1065,7 @@ describe('BaseNeonComponent', () => {
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([]);
 
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), new FieldMetaData());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.NAME_FIELD);
         component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.TYPE_FIELD);
         component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DashboardServiceMock.NAME_FIELD);
@@ -1914,7 +1914,7 @@ describe('BaseNeonComponent', () => {
 });
 
 describe('Advanced BaseNeonComponent with config', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 

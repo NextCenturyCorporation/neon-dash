@@ -15,13 +15,13 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, SingleField, TableMetaData } from '../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../types';
 import { DashboardService } from './dashboard.service';
 import { neonEvents } from '../neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../active-dashboard';
+import { DashboardState } from '../dashboard-state';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -49,9 +49,9 @@ export interface FilterDesign {
 
 export interface SimpleFilterDesign extends FilterDesign {
     datastore: string;
-    database: DatabaseMetaData;
-    table: TableMetaData;
-    field: FieldMetaData;
+    database: NeonDatabaseMetaData;
+    table: NeonTableMetaData;
+    field: NeonFieldMetaData;
     operator: string;
     value?: any;
 }
@@ -98,12 +98,12 @@ export class FilterUtil {
     /**
      * Creates and returns the pretty name for the given database, table, and field.
      *
-     * @arg {DatabaseMetaData} database
-     * @arg {TableMetaData} table
-     * @arg {FieldMetaData} field
+     * @arg {NeonDatabaseMetaData} database
+     * @arg {NeonTableMetaData} table
+     * @arg {NeonFieldMetaData} field
      * @return {string}
      */
-    static createFilterName(database: DatabaseMetaData, table: TableMetaData, field: FieldMetaData, operator: string): string {
+    static createFilterName(database: NeonDatabaseMetaData, table: NeonTableMetaData, field: NeonFieldMetaData, operator: string): string {
         return database.prettyName + ' / ' + table.prettyName + ' / ' + field.prettyName + ' ' + operator.toUpperCase();
     }
 
@@ -167,9 +167,9 @@ export class FilterUtil {
     static createFilterDesignFromJsonObject(filterObject: any, dashboardState: DashboardState): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
-            let database: DatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
-            let table: TableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
-            let field: FieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            let database: NeonDatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
+            let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
+            let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
             return {
                 name: filterObject.name,
                 root: filterObject.root,
@@ -961,9 +961,9 @@ export abstract class AbstractFilter {
 export class SimpleFilter extends AbstractFilter {
     constructor(
         public datastore: string,
-        public database: DatabaseMetaData,
-        public table: TableMetaData,
-        public field: FieldMetaData,
+        public database: NeonDatabaseMetaData,
+        public table: NeonTableMetaData,
+        public field: NeonFieldMetaData,
         public operator: string,
         public value: any,
         searchService: AbstractSearchService
