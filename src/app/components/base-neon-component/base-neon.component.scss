@@ -49,9 +49,14 @@ $contribution-height: 20px;
         &.info {
             text-align: right;
         }
+
+        &.multiple-line {
+            white-space: unset;
+        }
     }
 
-    .body-container, .footer, .contribution-text-container {
+    .body-container,
+    .footer {
         background-color: var(--color-background, white);
     }
 
@@ -93,7 +98,7 @@ $contribution-height: 20px;
         position: absolute;
         z-index: 1000;
         top: $vis-title-expected-height;
-    }    
+    }
 
     .filter-container {
         @extend %filter-container-shared;
@@ -120,6 +125,12 @@ $contribution-height: 20px;
             line-height: 15px !important;
             margin: 0 5px;
         }
+    }
+
+    .contribution-text,
+    .footer-with-contribution {
+        background-color: var(--color-background, white);
+        border-top: 2px solid var(--color-accent, lightgrey);
     }
 
     .contribution-text {
