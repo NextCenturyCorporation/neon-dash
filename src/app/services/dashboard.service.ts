@@ -117,37 +117,6 @@ export class DashboardService {
         });
     }
 
-    /**
-     * Updates the datastores of each of the nested dashboards in the given dashboard with the given config file datastores.
-     */
-    static updateDatastoresInDashboards(dashboard: NeonDashboardConfig, datastores: Record<string, NeonDatastoreConfig>): void {
-        if (dashboard.tables) {
-            // Assume table keys have format:  datastore.database.table
-            let datastoreNames: string[] = Object.keys(dashboard.tables).map((key) => dashboard.tables[key].split('.')[0]);
-            dashboard.datastores = Object
-                .values(datastores)
-                .filter((datastore) =>
-                    datastoreNames.some((name) => name === datastore.name))
-                .reduce((acc, store) => {
-                    acc[store.name] = store;
-                    return acc;
-                }, {} as Record<string, NeonDatastoreConfig>);
-        }
-
-        if (dashboard.choices) {
-            Object.keys(dashboard.choices).forEach((key) =>
-                DashboardService.updateDatastoresInDashboards(dashboard.choices[key], datastores));
-        }
-    }
-
-    /**
-     * Updates the layout of each of the nested dashboards in the given dashboard with the given config file layouts.
-     */
-    static updateLayoutInDashboards(dashboard: NeonDashboardConfig, layouts: any): void {
-        if (dashboard.choices) {
-            Object.keys(dashboard.choices).forEach((key) => DashboardService.updateLayoutInDashboards(dashboard.choices[key], layouts));
-        }
-    }
 
     static validateFields(table: NeonTableMetaData): void {
         for (let idx = table.fields.length - 1; idx >= 0; idx--) {

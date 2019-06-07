@@ -148,7 +148,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
-        private parameterService: ParameterService,
         private searchService: AbstractSearchService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
@@ -216,7 +215,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
-        let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
+        let widgetGridItem = eventMessage.widgetGridItem;
 
         // Set default grid item config properties for the Neon dashboard.
         widgetGridItem.borderSize = widgetGridItem.borderSize || 10;

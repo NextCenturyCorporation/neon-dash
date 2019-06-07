@@ -881,7 +881,7 @@ describe('Dashboard', () => {
         let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
         let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
         let testDashboard = NeonDashboardConfig.get({
-            datastores: { testDatastore1, testDatastore2 }
+            // datastores: { testDatastore1, testDatastore2 }
         });
         // testDashboard.layoutObject = [{
         //     name: 'a'
@@ -945,7 +945,7 @@ describe('Dashboard', () => {
         let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
         let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
         let testDashboard = NeonDashboardConfig.get();
-        testDashboard.datastores = { testDatastore1, testDatastore2 };
+        // testDashboard.datastores = { testDatastore1, testDatastore2 };
         // testDashboard.layoutObject = {
         //     tab1: [{
         //         name: 'a'
@@ -1030,10 +1030,14 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        let showDashboard = NeonDashboardConfig.get();
-        showDashboard.datastores = {
-            testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        };
+        let showDashboard = NeonDashboardConfig.get({
+            options: {
+                connectOnLoad: true
+            }
+        });
+        // showDashboard.datastores = {
+        //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        // };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1055,9 +1059,9 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let showDashboard = NeonDashboardConfig.get();
 
-        showDashboard.datastores = {
-            testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        };
+        // showDashboard.datastores = {
+        //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        // };
         showDashboard.options = {
             connectOnLoad: true
         };
@@ -1079,9 +1083,9 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
         let showDashboard = NeonDashboardConfig.get();
-        showDashboard.datastores = {
-            testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        };
+        // showDashboard.datastores = {
+        //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
+        // };
         showDashboard.options = {
             connectOnLoad: true
         };

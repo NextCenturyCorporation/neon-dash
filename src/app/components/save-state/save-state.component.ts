@@ -103,7 +103,6 @@ export class SaveStateComponent implements OnInit {
         clonedDashboard.filters = filters;
 
         // Unset the properties that were set by the dataset service (but keep the fullTitle)
-        clonedDashboard.datastores = undefined;
         clonedDashboard.pathFromTop = undefined;
 
         return clonedDashboard;
