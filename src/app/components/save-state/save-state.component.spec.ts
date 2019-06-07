@@ -389,21 +389,21 @@ describe('Component: SaveStateComponent', () => {
             return null;
         });
 
-        component.widgetGridItems = [{
-            id: 'id1',
-            col: 1,
-            row: 2,
-            sizex: 3,
-            sizey: 4,
-            type: 'type1'
-        } as NeonGridItem, {
-            id: 'id2',
-            col: 5,
-            row: 6,
-            sizex: 7,
-            sizey: 8,
-            type: 'type2'
-        } as NeonGridItem];
+        // component.widgetGridItems = [{
+        //     id: 'id1',
+        //     col: 1,
+        //     row: 2,
+        //     sizex: 3,
+        //     sizey: 4,
+        //     type: 'type1'
+        // } as NeonGridItem, {
+        //     id: 'id2',
+        //     col: 5,
+        //     row: 6,
+        //     sizex: 7,
+        //     sizey: 8,
+        //     type: 'type2'
+        // } as NeonGridItem];
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
@@ -502,7 +502,7 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component['dashboardService'], 'getDatastoresInConfigFormat').and.returnValue([]);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
         spyOn(component, 'getWidgetById').and.returnValue(null);
-        component.widgetGridItems = [];
+        // component.widgetGridItems = [];
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({
