@@ -205,7 +205,7 @@ describe('Service: DashboardService Static Functions', () => {
         let input = {};
 
         DashboardService.appendDatastoresFromConfig({
-            datastore1: {
+            datastore1: NeonDatastoreConfig.get({
                 host: 'host1',
                 type: 'type1',
                 databases: {
@@ -237,7 +237,7 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            }
+            })
         }, input);
 
         let table1 = NeonTableMetaData.get({
@@ -279,7 +279,7 @@ describe('Service: DashboardService Static Functions', () => {
         let input = {};
 
         DashboardService.appendDatastoresFromConfig({
-            datastore1: {
+            datastore1: NeonDatastoreConfig.get({
                 host: 'host1',
                 type: 'type1',
                 databases: {
@@ -311,8 +311,8 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            },
-            datastore2: {
+            }),
+            datastore2: NeonDatastoreConfig.get({
                 host: 'host2',
                 type: 'type2',
                 databases: {
@@ -344,7 +344,7 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            }
+            })
         }, input);
 
         let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
@@ -392,7 +392,7 @@ describe('Service: DashboardService Static Functions', () => {
         let input = {};
 
         DashboardService.appendDatastoresFromConfig({
-            datastore1: {
+            datastore1: NeonDatastoreConfig.get({
                 ...{ hasUpdatedFields: true },
                 host: 'host1',
                 type: 'type1',
@@ -425,7 +425,7 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            }
+            })
         }, input);
 
         let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
@@ -471,7 +471,7 @@ describe('Service: DashboardService Static Functions', () => {
         let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
-            datastore2: {
+            datastore2: NeonDatastoreConfig.get({
                 name: 'datastore2',
                 host: 'host2',
                 type: 'type2',
@@ -504,7 +504,7 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            }
+            })
         }, input);
 
         let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
@@ -550,7 +550,7 @@ describe('Service: DashboardService Static Functions', () => {
         let input = { [datastore1.name]: datastore1 };
 
         DashboardService.appendDatastoresFromConfig({
-            datastore1: {
+            datastore1: NeonDatastoreConfig.get({
                 name: 'datastore1',
                 host: 'host1',
                 type: 'type1',
@@ -583,7 +583,7 @@ describe('Service: DashboardService Static Functions', () => {
                         }
                     }
                 }
-            }
+            })
         }, input);
 
         expect(input).toEqual({ [datastore1.name]: datastore1 });
@@ -800,7 +800,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         }));
 
-        dashboardService.setActiveDashboard({
+        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
                 testTable2: 'datastore1.testDatabase1.testTable2'
@@ -809,7 +809,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
                 ['datastore1.testDatabase1.testTable1.testRelationFieldB', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
             ]
-        });
+        }));
 
         expect(dashboardService.state.findRelationDataList().map((lists) => {
             return lists.map((sublists) => {

@@ -34,7 +34,7 @@ describe('Component: SimpleFilter', () => {
     let filterService: FilterService;
     let setInput = (input: string) => {
         component.showSimpleSearch = true;
-        (component as any).changeDetection.detectChanges();
+        component['changeDetection'].detectChanges();
         fixture.debugElement.query(By.css('input.simple-filter-input')).nativeElement.value = input;
         fixture.detectChanges();
     };
