@@ -42,10 +42,6 @@ export class DashboardState {
         public config: NeonGTDConfig<Dashboard> = { dashboards: {} as any, datastores: {}, layouts: {}, version: '' }
     ) { }
 
-    get() {
-        return this.dashboard;
-    }
-
     /**
      * Returns database name from matching table key within the dashboard passed in.
      * @param {String} key
@@ -117,7 +113,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns whether a dataset is active.
+     * Returns whether a datastore is active.
      * @return {Boolean}
      */
     public hasDatastore(): boolean {
@@ -157,7 +153,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns the databases for the active dataset.
+     * Returns the databases for the active datastore.
      * @return {Array}
      */
     public getDatabases(): DatabaseMetaData[] {
@@ -165,7 +161,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns the database with the given name or an Object with an empty name if no such database exists in the dataset.
+     * Returns the database with the given name or an Object with an empty name if no such database exists in the datastore.
      * @param {String} The database name
      * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
@@ -175,7 +171,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the dataset.
+     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the datastore.
      * @param {String} The dashboard name
      * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
@@ -197,7 +193,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns the tables for the database with the given name in the active dataset.
+     * Returns the tables for the database with the given name in the active datastore.
      * @param {String} The database name
      * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
      */
@@ -306,7 +302,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns an object containing the first database, table, and fields found in the active dataset with all the given mappings.
+     * Returns an object containing the first database, table, and fields found in the active datastore with all the given mappings.
      * @param {Array} The array of mapping keys that the database and table must contain.
      * @return {Object} An object containing {String} database, {String} table,
      * and {Object} fields linking {String} mapping to {String} field.
@@ -436,7 +432,7 @@ export class DashboardState {
     }
 
     /**
-     * Returns the list of relation data for the current dataset:  elements of the outer array are individual relations and elements of
+     * Returns the list of relation data for the current datastore:  elements of the outer array are individual relations and elements of
      * the inner array are specific fields within the relations.
      *
      * @return {SingleField[][][]}
@@ -520,5 +516,12 @@ export class DashboardState {
      */
     public translateFieldKeyToValue(fieldKey: string): string {
         return this.deconstructFieldName(fieldKey).field || fieldKey;
+    }
+
+    public exportAsConfig() {
+        return {
+            ..._.cloneDeep(this.config),
+            dashboards: _.cloneDeep(this.dashboard),
+        };
     }
 }

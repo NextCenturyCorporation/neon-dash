@@ -20,6 +20,18 @@ export interface NeonFieldMetaData {
     type: string;
 }
 
+export class NeonFieldMetaData {
+    static get(field: Partial<NeonFieldMetaData>) {
+        return {
+            columnName: '',
+            prettyName: '',
+            hide: false,
+            type: '',
+            ...field
+        };
+    }
+}
+
 export interface NeonTableMetaData {
     name?: string;
     prettyName: string;
@@ -28,10 +40,34 @@ export interface NeonTableMetaData {
     labelOptions: Record<string, any | Record<string, any>>;
 }
 
+export class NeonTableMetaData {
+    static get(table: Partial<NeonTableMetaData>) {
+        return {
+            name: '',
+            prettyName: '',
+            fields: [],
+            mappings: {},
+            labelOptions: {},
+            ...table
+        };
+    }
+}
+
 export interface NeonDatabaseMetaData {
     name?: string;
     prettyName: string;
     tables: Record<string, NeonTableMetaData>;
+}
+
+export class NeonDatabaseMetaData {
+    static get(db: Partial<NeonDatabaseMetaData>) {
+        return {
+            name: '',
+            prettyName: '',
+            tables: {},
+            ...db
+        };
+    }
 }
 
 export interface NeonSimpleFilter {

@@ -565,4 +565,11 @@ export class DashboardService {
             return datastores;
         }, {});
     }
+
+    exportActiveDashboard() {
+        return {
+            ..._.cloneDeep(this.config),
+            dashboards: _.cloneDeep(this.state.dashboard),
+        };
+    }
 }

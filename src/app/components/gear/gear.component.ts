@@ -49,7 +49,7 @@ export class GearComponent implements OnInit, OnDestroy {
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
     private messenger: eventing.Messenger;
-    private originalOptions: any;
+    private originalOptions: WidgetOptionCollection;
 
     // Set to a stub object to stop initialization errors.
     public modifiedOptions: any = {

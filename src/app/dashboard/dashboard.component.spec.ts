@@ -872,16 +872,17 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardState does work as expected', () => {
-        let spyDashboards = spyOn(component.datasetService, 'setActiveDashboard');
-        let spyDatastores = spyOn(component.datasetService, 'setActiveDatastore');
+        let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
+        let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
         let testDatastore1: NeonDatastoreConfig = { name: 'testName1', host: 'testHost1', type: 'testType1', databases: {} };
         let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
-        let testDashboard: Dashboard = Dashboard.get();
-        testDashboard.datastores = { testDatastore1, testDatastore2 };
+        let testDashboard: Dashboard = Dashboard.get({
+            datastores: { testDatastore1, testDatastore2 }
+        });
         // testDashboard.layoutObject = [{
         //     name: 'a'
         // }, {
@@ -935,8 +936,8 @@ describe('Dashboard', () => {
     });
 
     it('showDashboardState does work with tabs', () => {
-        let spyDashboards = spyOn(component.datasetService, 'setActiveDashboard');
-        let spyDatastores = spyOn(component.datasetService, 'setActiveDatastore');
+        let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
+        let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');

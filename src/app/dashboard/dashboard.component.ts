@@ -145,7 +145,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(
         public changeDetection: ChangeDetectorRef,
-        public datasetService: DashboardService,
+        public dashboardService: DashboardService,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
@@ -186,7 +186,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
             // The dashboards are read from the config file in the DashboardService's constructor.
-            this.dashboards = this.datasetService.dashboards;
+            this.dashboards = this.dashboardService.dashboards;
             this.dashboardVersion = config.version || '';
 
             if (config) {
@@ -673,18 +673,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        const firstName = Object.keys(this.datasetService.datastores)[0];
-        this.datasetService.setActiveDatastore(this.datasetService.datastores[firstName]);
+        const firstName = Object.keys(this.dashboardService.datastores)[0];
+        this.dashboardService.setActiveDatastore(this.dashboardService.datastores[firstName]);
 
-        this.datasetService.state.dashboard = eventMessage.dashboard;
+        this.dashboardService.state.dashboard = eventMessage.dashboard;
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
-        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService.state, this.searchService);
+        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.dashboardService.state, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
-        const layout = this.datasetService.layouts[this.datasetService.state.getLayout()];
+        const layout = this.dashboardService.layouts[this.dashboardService.state.getLayout()];
 
         // Should map the grid name to the layout list.
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
@@ -714,7 +714,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private showDashboardStateOnPageLoad() {
         let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards);
 
-        const firstDataStore = dashboard && Object.values(this.datasetService.datastores)[0];
+        const firstDataStore = dashboard && Object.values(this.dashboardService.datastores)[0];
 
         if (dashboard && firstDataStore) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
