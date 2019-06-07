@@ -103,7 +103,6 @@ export interface NeonDashboardLeafConfig {
 
     name?: string;
     layout?: string;
-    datastores?: Record<string, NeonDatastoreConfig>;
     tables?: Record<string, string>;
     fields?: Record<string, string>;
     filters?: any[];
@@ -144,7 +143,6 @@ export class NeonDashboardConfig {
 export interface NeonLayoutGridConfig {
     col: number;
     row: number;
-    bindings?: Record<string, any>;
     sizex: number;
     sizey: number;
 }
@@ -152,6 +150,8 @@ export interface NeonLayoutGridConfig {
 export interface NeonLayoutConfig extends NeonLayoutGridConfig {
     name?: string;
     type: string;
+    bindings?: Record<string, any>;
+
 }
 
 export interface NeonDatastoreConfig {
