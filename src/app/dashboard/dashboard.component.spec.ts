@@ -653,11 +653,11 @@ fdescribe('Dashboard', () => {
         });
     });
 
-    // A
+    // X
     // it('findAutoShowDashboard does return expected object', () => {
-    //     expect(component['findAutoShowDashboard']({})).toEqual(null);
+    //     expect(component['findAutoShowDashboard'](NeonDashboardConfig.get())).toEqual(null);
 
-    //     let noShowDashboard = Dashboard.get();
+    //     let noShowDashboard = NeonDashboardConfig.get();
 
     //     expect(component['findAutoShowDashboard']({
     //         noShow: noShowDashboard
@@ -884,21 +884,19 @@ fdescribe('Dashboard', () => {
                 testName2: { host: 'testHost2', type: 'testType2' }
             },
             layouts: {
-                DISCOVERY: [
-                    {
+                DISCOVERY: [{
+                    tab1: [{
                         name: 'a',
-                    },
-                    {
+                    }],
+                    tab2: [{
                         name: 'b'
-                    },
-                    {
+                    }, {
                         hide: true,
                         name: 'c'
-                    },
-                    {
+                    }, {
                         name: 'd'
-                    }
-                ] as NeonLayoutConfig[]
+                    }]
+                }]
             }
         });
 
