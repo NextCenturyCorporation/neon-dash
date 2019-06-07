@@ -583,7 +583,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         ];
     }
 
-    checkRelatedNodes(node: TreeNode, $event: any) {
+    checkRelatedNodes(node: TreeNode | TaxonomyNode, $event: any) {
         // Update all the groups in the taxonomy (select or unselect them).
         this.updateChildNodesCheckBox(node, $event.target.checked);
         this.updateParentNodesCheckBox(node.parent);
@@ -594,7 +594,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         // Create filters for all the unselected groups with valid fields (description properties).
         let filters: SimpleFilterDesign[] = unselectedGroups.filter((group) => group.description && group.description.columnName)
-            .map((group) => this.createFilterDesign(group.description, group.externalName));
+            .map((group) => this.createFilterDesign(group.description, group.externalName || group.name));
 
         let categoryFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName ===
             this.options.categoryField.columnName);
@@ -644,8 +644,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterDesignListToDelete);
     }
 
-    updateChildNodesCheckBox(node: TreeNode, checked: boolean) {
-        let setNode = node.data || node;
+    updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean) {
+        let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
         setNode.checked = checked;
         if (checked === false && setNode.indeterminate) {
             setNode.indeterminate = checked;
@@ -656,14 +656,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    updateParentNodesCheckBox(node: TreeNode) {
+    updateParentNodesCheckBox(node: TreeNode | TaxonomyGroup) {
         if (node && node.level > 0 && node.children) {
-            let setNode = node.data || node;
+            let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
             let allChildrenChecked = true;
             let noChildrenChecked = true;
 
             for (let child of node.children) {
-                let setChild = child.data || child;
+                let setChild: TaxonomyNode = 'data' in child ? child.data : child;
                 if (node.level === 1 && !!setChild.indeterminate) {
                     allChildrenChecked = false;
                     noChildrenChecked = false;
@@ -691,11 +691,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    retrieveUnselectedNodes(nodeArray: any[]) {
+    retrieveUnselectedNodes(nodeArray: (TaxonomyNode | TaxonomyGroup)[]) {
         let relatives = [];
         for (let node of nodeArray) {
             // Ensures that only node child relatives(with checkboxes) are added and not the values listed(without checkboxes)
-            if (node.children && node.children.length && node.children[0].description.columnName !== this.options.valueField.columnName) {
+            if ('children' in node && node.children.length && node.children[0].description.columnName !== this.options.valueField.columnName) {
                 for (let child of node.children) {
                     if (child.checked === false && child.description.columnName !== this.options.valueField.columnName) {
                         relatives.push(child);
