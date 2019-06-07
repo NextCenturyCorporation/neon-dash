@@ -60,7 +60,7 @@ export class DashboardService {
     ): Record<string, NeonDatastoreConfig> {
         // Transform the datastores from config file structures to Datastore objects.
         Object.keys(configDatastores).forEach((datastoreKey) => {
-            let configDatastore = configDatastores[datastoreKey] || { host: '', type: '', name: '', databases: {} };
+            let configDatastore = configDatastores[datastoreKey] || NeonDatastoreConfig.get();
             let outputDatastore = NeonDatastoreConfig.get({
                 name: datastoreKey,
                 host: configDatastore.host,
@@ -70,14 +70,14 @@ export class DashboardService {
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
             outputDatastore['hasUpdatedFields'] = !!configDatastore['hasUpdatedFields'];
 
-            let configDatabases: any = configDatastore.databases || {};
+            let configDatabases = configDatastore.databases || NeonDatabaseMetaData.get();
             outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
-                let configDatabase: any = configDatabases[databaseKey] || {};
+                let configDatabase = configDatabases[databaseKey] || NeonDatabaseMetaData.get();
                 let outputDatabase: NeonDatabaseMetaData = NeonDatabaseMetaData.get({ name: databaseKey, prettyName: configDatabase.prettyName });
 
-                let configTables: any = configDatabase.tables || {};
+                let configTables = configDatabase.tables || NeonTableMetaData.get();
                 outputDatabase.tables = Object.keys(configTables).reduce((acc, tableKey) => {
-                    let configTable = configTables[tableKey] || {};
+                    let configTable = configTables[tableKey] || NeonTableMetaData.get();
                     let outputTable: NeonTableMetaData = NeonTableMetaData.get({ name: tableKey, prettyName: configTable.prettyName });
 
                     outputTable.fields = (configTable.fields || []).map((configField) =>

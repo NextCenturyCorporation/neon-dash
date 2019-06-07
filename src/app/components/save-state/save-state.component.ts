@@ -22,8 +22,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-
 import { Dashboard } from '../../types';
 import { NeonGridItem } from '../../neon-grid-item';
 import { neonEvents } from '../../neon-namespaces';
@@ -116,7 +114,7 @@ export class SaveStateComponent implements OnInit {
         let layouts: Record<string, NeonLayoutConfig[]> = {};
 
         layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
-            let widget = this.getWidgetById(widgetGridItem.id);
+            // let widget = this.getWidgetById(widgetGridItem.id);
 
             let widgetConfig: NeonLayoutConfig = {
                 type: widgetGridItem.type,
@@ -124,7 +122,7 @@ export class SaveStateComponent implements OnInit {
                 row: widgetGridItem.row,
                 sizex: widgetGridItem.sizex,
                 sizey: widgetGridItem.sizey,
-                bindings: widget.getBindings()
+                // bindings: widget.getBindings()
             };
 
             return widgetConfig;
@@ -155,26 +153,26 @@ export class SaveStateComponent implements OnInit {
         }
         let connection = this.openConnection();
         if (connection) {
-            let validStateName = this.validateName(name);
-            // Same format as the config file.
-            let stateData: NeonConfig = {
-                projectTitle: validStateName,
-                dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
-                    this.filterService.getFiltersToSaveInConfig()),
-                datastores: this.dashboardService.getDatastoresInConfigFormat(),
-                layouts: this.createLayouts(validStateName, this.widgetGridItems),
-                version: '1'
-            };
+            // let validStateName = this.validateName(name);
+            // // Same format as the config file.
+            // let stateData: NeonConfig = {
+            //     projectTitle: validStateName,
+            //     dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
+            //         this.filterService.getFiltersToSaveInConfig()),
+            //     datastores: this.dashboardService.getDatastoresInConfigFormat(),
+            //     layouts: this.createLayouts(validStateName, this.widgetGridItems),
+            //     version: '1'
+            // };
 
-            connection.saveState(stateData, (response) => {
-                if (this.current) {
-                    this.current.name = name;
-                    // this.current.fileName = `${validStateName}.yaml`;
-                }
-                this.handleSaveStateSuccess(response, validStateName);
-            }, (response) => {
-                this.handleStateFailure(response, validStateName);
-            });
+            // connection.saveState(stateData, (response) => {
+            //     if (this.current) {
+            //         this.current.name = name;
+            //         // this.current.fileName = `${validStateName}.yaml`;
+            //     }
+            //     this.handleSaveStateSuccess(response, validStateName);
+            // }, (response) => {
+            //     this.handleStateFailure(response, validStateName);
+            // });
         }
         this.closeSidenav();
     }
@@ -228,10 +226,6 @@ export class SaveStateComponent implements OnInit {
 
     getDefaultOptionTitle() {
         return this.isLoading ? 'Loading...' : 'Select a name';
-    }
-
-    private getWidgetById(id: string): any {
-        return this.widgets.get(id);
     }
 
     private handleDeleteStateSuccess(__response: any, name: string) {
