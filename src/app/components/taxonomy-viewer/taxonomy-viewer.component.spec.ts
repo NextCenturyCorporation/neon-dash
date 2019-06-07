@@ -28,12 +28,12 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
+import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
 import { ConfigService } from '../../services/config.service';
 
-describe('Component: TaxonomyViewer', () => {
+fdescribe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
     let fixture: ComponentFixture<TaxonomyViewerComponent>;
 
@@ -147,7 +147,7 @@ describe('Component: TaxonomyViewer', () => {
                 (subTypeNode).parent = typeNode;
             });
         }));
-        return taxonomyGroups;
+        return taxonomyGroups as TaxonomyGroup[];
     };
 
     initializeTestBed('Taxonomy', {
