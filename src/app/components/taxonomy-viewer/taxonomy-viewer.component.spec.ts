@@ -736,32 +736,25 @@ describe('Component: TaxonomyViewer', () => {
             filter.table = filter.table.name;
             filter.field = filter.field.columnName;
         });
-        const [filterA, filterB, filterC] = filters;
+
+        const [filterA, filterB] = filters;
 
         expect(spy.calls.count()).toEqual(1);
         expect(filterA).toEqual({
             datastore: '',
             database: DatasetServiceMock.DATABASES[0].name,
             table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.NAME_FIELD.columnName,
+            field: DatasetServiceMock.TYPE_FIELD.columnName,
             operator: '!=',
-            value: 'testSubType1'
+            value: 'testTypeA'
         });
         expect(filterB).toEqual({
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
-            operator: '!=',
-            value: undefined
-        });
-        expect(filterC).toEqual({
-            datastore: '',
             database: DatasetServiceMock.DATABASES[0].name,
             table: DatasetServiceMock.TABLES[0].name,
-            field: DatasetServiceMock.TYPE_FIELD.columnName,
+            field: DatasetServiceMock.NAME_FIELD.columnName,
             operator: '!=',
-            value: undefined
+            value: 'testSubType1'
         });
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);

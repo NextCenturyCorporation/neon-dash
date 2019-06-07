@@ -570,7 +570,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     private findUnselectedGroups(group: TaxonomyGroup | TaxonomyNode): TaxonomyNode[] {
         const base = (!group.checked || (group.level > 1 && group.indeterminate) ? [group] : []);
-        const nested = [];
+        const nested: (TaxonomyGroup | TaxonomyNode)[] = [];
         if ('children' in group) {
             nested.push(...group.children);
         }
@@ -578,7 +578,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return [
             ...base,
             ...nested
-                .map(child => this.findUnselectedGroups(child))
+                .map((child) => this.findUnselectedGroups(child))
                 .reduce((acc, child) => acc.concat(child), [])
         ];
     }
@@ -589,36 +589,60 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
-        let unselectedGroups = this.taxonomyGroups.reduce((array, group) =>
+        const unselectedGroups = this.taxonomyGroups.reduce((array, group) =>
             array.concat(this.findUnselectedGroups(group)), [] as TaxonomyNode[]);
 
         // Create filters for all the unselected groups with valid fields (description properties).
-        let filters: SimpleFilterDesign[] = unselectedGroups.filter((group) => group.description && group.description.columnName)
+        const filters: SimpleFilterDesign[] = unselectedGroups
+            .filter((group) => group.description && group.description.columnName)
             .map((group) => this.createFilterDesign(group.description, group.externalName || group.name));
 
-        let categoryFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName ===
-            this.options.categoryField.columnName);
-        let typeFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName === this.options.typeField.columnName);
-        let subTypeFilters: FilterDesign[] = filters.filter((filter) => filter.field.columnName ===
-            this.options.subTypeField.columnName);
+        const categoryFilters: FilterDesign[] = filters.filter(
+            (filter) => filter.field.columnName === this.options.categoryField.columnName
+        );
+        const typeFilters: FilterDesign[] = filters.filter(
+            (filter) => filter.field.columnName === this.options.typeField.columnName
+        );
+        const subTypeFilters: FilterDesign[] = filters.filter(
+            (filter) => filter.field.columnName === this.options.subTypeField.columnName
+        );
 
         // Create a single compound AND filter (with a pretty name) for all the filters on each filterable field.
-        let categoryFilter: FilterDesign = (categoryFilters.length) ? (categoryFilters.length === 1 ? categoryFilters[0] :
-            this.createFilterDesignOnList(categoryFilters)) : null;
+        const categoryFilter: FilterDesign = (categoryFilters.length) ?
+            (categoryFilters.length === 1 ?
+                categoryFilters[0] :
+                this.createFilterDesignOnList(categoryFilters)) :
+            null;
 
         // Ignore the type filters if the type field is the same as the category field.
-        let typeIsDuplicated = !!(this.options.typeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
-        let typeFilter: FilterDesign = (typeFilters.length && !typeIsDuplicated) ? (typeFilters.length === 1 ? typeFilters[0] :
-            this.createFilterDesignOnList(typeFilters)) : null;
+        const typeIsDuplicated = !!(
+            this.options.typeField.columnName === this.options.categoryField.columnName &&
+            categoryFilters.length
+        );
+        const typeFilter: FilterDesign = (typeFilters.length && !typeIsDuplicated) ?
+            (typeFilters.length === 1 ?
+                typeFilters[0] :
+                this.createFilterDesignOnList(typeFilters)) :
+            null;
 
         // Ignore the subtype filters if the subtype field is the same as the type field or the category field.
-        let subTypeIsDuplicated = !!(this.options.subTypeField.columnName === this.options.typeField.columnName && typeFilters.length) ||
-            !!(this.options.subTypeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
-        let subTypeFilter: FilterDesign = (subTypeFilters.length && !subTypeIsDuplicated) ? (subTypeFilters.length === 1 ?
-            subTypeFilters[0] : this.createFilterDesignOnList(subTypeFilters)) : null;
+        const subTypeIsDuplicated =
+            !!(
+                this.options.subTypeField.columnName === this.options.typeField.columnName &&
+                typeFilters.length
+            ) ||
+            !!(
+                this.options.subTypeField.columnName === this.options.categoryField.columnName &&
+                categoryFilters.length
+            );
+        const subTypeFilter: FilterDesign = (subTypeFilters.length && !subTypeIsDuplicated) ?
+            (subTypeFilters.length === 1 ?
+                subTypeFilters[0] :
+                this.createFilterDesignOnList(subTypeFilters)) :
+            null;
 
         // If we don't need to filter a valid filterable field, ensure that we delete all previous filters that were set on that field.
-        let filterDesignListToDelete: FilterDesign[] = [];
+        const filterDesignListToDelete: FilterDesign[] = [];
         if (!categoryFilter && this.options.categoryField.columnName) {
             filterDesignListToDelete.push(this.createFilterDesign(this.options.categoryField));
         }
@@ -695,7 +719,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         let relatives = [];
         for (let node of nodeArray) {
             // Ensures that only node child relatives(with checkboxes) are added and not the values listed(without checkboxes)
-            if ('children' in node && node.children.length && node.children[0].description.columnName !== this.options.valueField.columnName) {
+            if (
+                'children' in node && node.children.length &&
+                node.children[0].description.columnName !== this.options.valueField.columnName
+            ) {
                 for (let child of node.children) {
                     if (child.checked === false && child.description.columnName !== this.options.valueField.columnName) {
                         relatives.push(child);
