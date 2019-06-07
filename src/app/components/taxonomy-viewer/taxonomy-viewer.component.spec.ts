@@ -33,7 +33,7 @@ import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.compon
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
 import { ConfigService } from '../../services/config.service';
 
-fdescribe('Component: TaxonomyViewer', () => {
+describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
     let fixture: ComponentFixture<TaxonomyViewerComponent>;
 
@@ -730,29 +730,39 @@ fdescribe('Component: TaxonomyViewer', () => {
             }
         });
 
+        const [filters] = spy.calls.argsFor(0);
+        filters.forEach((filter) => {
+            filter.database = filter.database.name;
+            filter.table = filter.table.name;
+            filter.field = filter.field.columnName;
+        });
+        const [filterA, filterB, filterC] = filters;
+
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
+        expect(filterA).toEqual({
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.NAME_FIELD.columnName,
             operator: '!=',
             value: 'testSubType1'
-        } as SimpleFilterDesign], [{
+        });
+        expect(filterB).toEqual({
             datastore: '',
             database: DatasetServiceMock.DATABASES[0],
             table: DatasetServiceMock.TABLES[0],
             field: DatasetServiceMock.CATEGORY_FIELD,
             operator: '!=',
             value: undefined
-        } as SimpleFilterDesign, {
+        });
+        expect(filterC).toEqual({
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.TYPE_FIELD.columnName,
             operator: '!=',
             value: undefined
-        } as SimpleFilterDesign]]);
+        });
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
         expect(groups[0].children[0].indeterminate).toEqual(true);
