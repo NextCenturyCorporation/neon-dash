@@ -104,20 +104,6 @@ export class DashboardService {
         return existingDatastores;
     }
 
-    static assignDashboardChoicesFromConfig(oldChoices: { [key: string]: NeonDashboardConfig }, newChoices: { [key: string]: NeonDashboardConfig }): void {
-        Object.keys(newChoices).forEach((newChoiceId) => {
-            let exists = Object.keys(oldChoices).some((oldChoiceId) => oldChoiceId === newChoiceId);
-
-            if (exists) {
-                oldChoices[newChoiceId].choices = oldChoices[newChoiceId].choices || {};
-                DashboardService.assignDashboardChoicesFromConfig(oldChoices[newChoiceId].choices, newChoices[newChoiceId].choices || {});
-            } else {
-                oldChoices[newChoiceId] = newChoices[newChoiceId];
-            }
-        });
-    }
-
-
     static validateFields(table: NeonTableMetaData): void {
         for (let idx = table.fields.length - 1; idx >= 0; idx--) {
             const field = table.fields[idx];

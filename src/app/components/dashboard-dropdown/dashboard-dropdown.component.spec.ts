@@ -24,48 +24,40 @@ import { DashboardDropdownModule } from './dashboard-dropdown.module';
 let fixture: ComponentFixture<DashboardDropdownComponent>;
 let component: DashboardDropdownComponent;
 
-let dashboardTableKeys1: { [key: string]: string } = {};
-dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
-
-let dashboardFieldKeys1: { [key: string]: string } = {};
-dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
-
-let dashboardTableKeys2: { [key: string]: string } = {};
-dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
-
-let dashboardFieldKeys2: { [key: string]: string } = {};
-dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
-
-let choices: { [key: string]: NeonDashboardConfig } = {};
-choices.dash1 = NeonDashboardConfig.get({
-    pathFromTop: ['dash1'],
-    name: 'Test Discovery Config',
-    layout: 'DISCOVERY',
-    tables: dashboardTableKeys1,
-    fields: dashboardFieldKeys1,
-});
-choices.dash2 = NeonDashboardConfig.get({
-    name: 'Other Config',
-    pathFromTop: ['dash2'],
-    category: 'Select an option...',
-    choices: {
-        nextChoice: {
-            pathFromTop: ['dash2', 'nextChoice'],
-            name: 'Last Config',
-            layout: 'layout3',
-            tables: dashboardTableKeys2,
-            fields: dashboardFieldKeys2,
-        }
-    }
-});
-
 let dashboards = NeonDashboardConfig.get({
     category: 'Choose an option',
-    filters: [],
-    fullTitle: '',
-    layout: '',
     pathFromTop: [],
-    choices: choices
+    choices: {
+        dash1: {
+            name: 'Test Discovery Config',
+            pathFromTop: ['dash1'],
+            layout: 'DISCOVERY',
+            tables: {
+                tableKey: 'datastore1.database1.table1'
+            },
+            fields: {
+                fieldKey: 'datastore1.database1.table1.field1'
+            },
+        },
+        dash2: {
+            name: 'Other Config',
+            pathFromTop: ['dash2'],
+            category: 'Select an option...',
+            choices: {
+                nextChoice: {
+                    pathFromTop: ['dash2', 'nextChoice'],
+                    name: 'Last Config',
+                    layout: 'layout3',
+                    tables: {
+                        tableKey: 'datastore2.database2.table1'
+                    },
+                    fields: {
+                        fieldKey: 'datastore2.database2.table1.field1'
+                    }
+                }
+            }
+        }
+    }
 });
 
 describe('Component: DashboardDropdown with input', () => {

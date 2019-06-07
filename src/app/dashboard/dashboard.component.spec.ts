@@ -47,7 +47,7 @@ import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NeonDashboardConfig } from '../types';
 
-describe('Dashboard', () => {
+fdescribe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let debugElement: DebugElement;
     let component: DashboardComponent;
@@ -324,9 +324,9 @@ describe('Dashboard', () => {
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the end of the grid', () => {
-        let widgetGridItem1: NeonGridItem = {
+        let widgetGridItem1 = {
             col: 0, row: 0
-        } as any;
+        } as NeonGridItem;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1
@@ -342,9 +342,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem2: NeonGridItem = {
+        let widgetGridItem2 = {
             col: 0, row: 0
-        } as any;
+        } as NeonGridItem;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem2
@@ -368,9 +368,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem3: NeonGridItem = {
+        let widgetGridItem3 = {
             col: 0, row: 0
-        } as any;
+        } as NeonGridItem;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem3
@@ -402,9 +402,9 @@ describe('Dashboard', () => {
             sizey: 4
         }]);
 
-        let widgetGridItem4: NeonGridItem = {
+        let widgetGridItem4 = {
             col: 0, row: 0
-        } as any;
+        } as NeonGridItem;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem4
@@ -480,9 +480,9 @@ describe('Dashboard', () => {
             sizey: 4
         }];
 
-        let widgetGridItem1: NeonGridItem = {
+        let widgetGridItem1 = {
             col: 0, row: 0
-        } as any;
+        } as NeonGridItem;
 
         component['addWidget']({
             widgetGridItem: widgetGridItem1
@@ -633,7 +633,7 @@ describe('Dashboard', () => {
             sizey: 4
         };
 
-        spyOn((component as any), 'getVisibleRowCount').and.returnValue(50);
+        spyOn(component, 'getVisibleRowCount').and.returnValue(50);
 
         component['expandWidget']({
             widgetGridItem: widgetGridItem1
@@ -867,7 +867,7 @@ describe('Dashboard', () => {
 
     it('resizeGrid does resize the grid', () => {
         let spy = spyOn(component.grid, 'triggerResize');
-        (component as any).resizeGrid();
+        component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -878,22 +878,33 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
-        let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
-        let testDashboard = NeonDashboardConfig.get({
-            // datastores: { testDatastore1, testDatastore2 }
+        const config = NeonConfig.get({
+            datastores: {
+                testName1: { host: 'testHost1', type: 'testType1' },
+                testName2: { host: 'testHost2', type: 'testType2' }
+            },
+            layouts: {
+                DISCOVERY: [{
+                    tab1: [{
+                        name: 'a',
+                    }],
+                    tab2: [{
+                        name: 'b'
+                    }, {
+                        hide: true,
+                        name: 'c'
+                    }, {
+                        name: 'd'
+                    }]
+                }]
+            }
         });
-        // testDashboard.layoutObject = [{
-        //     name: 'a'
-        // }, {
-        //     name: 'b'
-        // }, {
-        //     hide: true,
-        //     name: 'c'
-        // }, {
-        //     name: 'd'
-        // }];
-        testDashboard.filters = ['x', 'y'];
+
+        let testDashboard = NeonDashboardConfig.get({
+            filters: ['x', 'y']
+        });
+
+        component.dashboardService.setConfig(config);
 
         component['showDashboardState']({
             dashboard: testDashboard
@@ -904,7 +915,7 @@ describe('Dashboard', () => {
 
         expect(spyDatastores.calls.count()).toEqual(1);
         // TODO THOR-1062 Permit multiple datastores.
-        expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
 
         expect(spyFilter.calls.count()).toEqual(1);
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
@@ -942,24 +953,34 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
-        let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
-        let testDashboard = NeonDashboardConfig.get();
-        // testDashboard.datastores = { testDatastore1, testDatastore2 };
-        // testDashboard.layoutObject = {
-        //     tab1: [{
-        //         name: 'a'
-        //     }],
-        //     tab2: [{
-        //         name: 'b'
-        //     }, {
-        //         hide: true,
-        //         name: 'c'
-        //     }, {
-        //         name: 'd'
-        //     }]
-        // };
-        testDashboard.filters = ['x', 'y'];
+        const config = NeonConfig.get({
+            datastores: {
+                testName1: { host: 'testHost1', type: 'testType1' },
+                testName2: { host: 'testHost2', type: 'testType2' }
+            },
+            layouts: {
+                DISCOVERY: [{
+                    tab1: [{
+                        name: 'a',
+                    }],
+                    tab2: [{
+                        name: 'b'
+                    }, {
+                        hide: true,
+                        name: 'c'
+                    }, {
+                        name: 'd'
+                    }]
+                }]
+            }
+        });
+
+        component.dashboardService.setConfig(config);
+
+
+        let testDashboard = NeonDashboardConfig.get({
+            filters: ['x', 'y']
+        });
 
         component['showDashboardState']({
             dashboard: testDashboard
@@ -970,7 +991,7 @@ describe('Dashboard', () => {
 
         expect(spyDatastores.calls.count()).toEqual(1);
         // TODO THOR-1062 Permit multiple datastores.
-        expect(spyDatastores.calls.argsFor(0)).toEqual([testDatastore1]);
+        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testDatastore1]);
 
         expect(spyFilter.calls.count()).toEqual(1);
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
@@ -1001,23 +1022,7 @@ describe('Dashboard', () => {
         expect(component.showDashboardSelector).toEqual(false);
     });
 
-    it('showDashboardStateOnPageLoad with no parameter state, parameter dataset, or auto-show dashboard does work as expected', () => {
-        let spyLoad = spyOn(component['parameterService'], 'loadState');
-        let spySender = spyOn(component.messageSender, 'publish');
-
-        spyOn(component['parameterService'], 'findActiveDatasetInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findDashboardStateIdInUrl').and.returnValue(null);
-        spyOn(component['parameterService'], 'findFilterStateIdInUrl').and.returnValue(null);
-
-        component['dashboards'] = NeonDashboardConfig.get();
-
-        component['showDashboardStateOnPageLoad']();
-
-        expect(spyLoad.calls.count()).toEqual(0);
-        expect(spySender.calls.count()).toEqual(0);
-    });
-
-    it('showDashboardStateOnPageLoad with parameter state but no parameter dataset or auto-show dashboard does work as expected', () => {
+    it('showDashboardStateOnPageLoad should auto-show dashboard as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
         component['dashboards'] = NeonDashboardConfig.get();

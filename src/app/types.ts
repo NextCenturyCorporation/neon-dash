@@ -24,7 +24,9 @@ type DeepPartial<T> = {
         (T[P] extends any[] ?
             DeepPartial<T[P][0]>[] | undefined :
             (T[P] extends Record<string, any> ?
-                Record<string, DeepPartial<T[P]['']>> :
+                (T[P][''] extends any[] ?
+                    Record<string, DeepPartial<T[P][''][0]>[]> :
+                    Record<string, DeepPartial<T[P]['']>>) :
                 DeepPartial<T[P]>)));
 } & {
     [key: string]: any;
