@@ -1,79 +1,70 @@
-<mat-sidenav-container #visualization class="visualization-sidenav">
-    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
-        <span class="fill-remaining"></span>
-        <span #infoText class="info text">
-            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
-                {{ errorMessage }}
-            </span>
-            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
-                {{ getButtonText() }}
-            </span>
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <span class="fill-remaining"></span>
+    <span #infoText class="info text">
+        <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+            {{ errorMessage }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
+        <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+            {{ getButtonText() }}
+        </span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
             <mat-icon>settings</mat-icon>
         </button>
-    </mat-toolbar>
-    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-        <mat-spinner></mat-spinner>
-    </div>
+    </span>
+</mat-toolbar>
 
-    <div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
-        <div class="news-feed-container" *ngIf="newsFeedData != null" [hidden]="!newsFeedData.length">
-            <div class="news-feed-div" *ngFor="let item of newsFeedData" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
-                [class.selected]="isSelected(item)">
-                <div class="content-details">
-                    <div class="content-header">{{ item[options.primaryTitleField.columnName] }}</div>
-                    <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">
-                        {{ item[options.contentField.columnName] }}</div>
-                    <div class="content-footer">
-                        <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
-                        <p [hidden]="!item[options.secondaryTitleField.columnName]">{{ item[options.secondaryTitleField.columnName] }}</p>
+<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+    <mat-spinner></mat-spinner>
+</div>
+
+<div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+    <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat" [multi]="options.multiOpen">
+        <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData">
+            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
+                <mat-panel-title>
+                    <span class="date">{{ relativeTime(item[options.dateField.columnName]) }}</span>
+                    <span class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-panel-description>
+                <div>
+                    <div class="text" *ngIf="item[options.contentField.columnName]">
+                        <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
+                        <p>{{item[options.contentField.columnName]}}</p>
+                    </div>
+                    <div class="text" *ngIf="item[options.secondaryContentField.columnName]">
+                        <h4 *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</h4>
+                        <p>{{item[options.secondaryContentField.columnName]}}</p>
+                    </div>
+                    <div class="appendix">
+                        <span class="date">{{ item[options.dateField.columnName] }}</span>
+                        <a matIconButton *ngIf="options.filterField.columnName && item[options.filterField.columnName]" (click)="filterItem(item)">
+                            <mat-icon>filter_list</mat-icon>
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            </mat-panel-description>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
 
-    <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-    <div class="footer" *ngIf="showPagination() && !showContribution()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
-                Next
-            </button>
-        </div>
+<!-- need to account for footer only, contribution text only, or footer and contribution text together -->
+<div class="footer" *ngIf="showPagination()">
+    <div class="footer-button-container">
+        <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+            Previous
+        </button>
+        <span class="pagination-button-spacer"></span>
+        <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
+            Next
+        </button>
     </div>
+</div>
 
-    <div class="footer-with-contribution" *ngIf="showPagination() && showContribution()">
-        <div class="footer-button-container">
-            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                (click)="goToPreviousPage()">
-                Previous
-            </button>
-            <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
-                Next
-            </button>
-        </div>
 
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
-
-    <div class="contribution-text" *ngIf="showContribution() && !showPagination()">
-        <div class="contribution-text-container">
-            <a (click)="openContributionDialog()">
-                {{ getContributorAbbreviations() }}
-            </a>
-        </div>
-    </div>
-</mat-sidenav-container>
+<div class="contribution-text-container" *ngIf="showContribution()">
+    <a (click)="openContributionDialog()">
+        {{ getContributorAbbreviations() }}
+    </a>
+</div>
