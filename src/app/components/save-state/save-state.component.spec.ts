@@ -26,7 +26,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonDashboardConfig, NeonConfig, NeonDatastoreConfig } from '../../types';
+import { NeonDashboardConfig, NeonConfig, NeonDatastoreConfig, NeonLayoutConfig } from '../../types';
 
 import { neonEvents } from '../../neon-namespaces';
 

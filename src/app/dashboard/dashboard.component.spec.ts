@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDatastoreConfig } from '../types';
+import { NeonConfig, NeonDatastoreConfig, NeonLayoutConfig } from '../types';
 import { NeonGridItem } from '../neon-grid-item';
 import { neonEvents } from '../neon-namespaces';
 
@@ -884,19 +884,21 @@ fdescribe('Dashboard', () => {
                 testName2: { host: 'testHost2', type: 'testType2' }
             },
             layouts: {
-                DISCOVERY: [{
-                    tab1: [{
+                DISCOVERY: [
+                    {
                         name: 'a',
-                    }],
-                    tab2: [{
+                    },
+                    {
                         name: 'b'
-                    }, {
+                    },
+                    {
                         hide: true,
                         name: 'c'
-                    }, {
+                    },
+                    {
                         name: 'd'
-                    }]
-                }]
+                    }
+                ] as NeonLayoutConfig[]
             }
         });
 
@@ -991,7 +993,7 @@ fdescribe('Dashboard', () => {
 
         expect(spyDatastores.calls.count()).toEqual(1);
         // TODO THOR-1062 Permit multiple datastores.
-        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testDatastore1]);
+        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
 
         expect(spyFilter.calls.count()).toEqual(1);
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
