@@ -37,36 +37,27 @@ let dashboardFieldKeys2: { [key: string]: string } = {};
 dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
 let choices: { [key: string]: NeonDashboardConfig } = {};
-choices.dash1 = {
-    filters: [],
-    fullTitle: '',
+choices.dash1 = NeonDashboardConfig.get({
     pathFromTop: ['dash1'],
     name: 'Test Discovery Config',
     layout: 'DISCOVERY',
     tables: dashboardTableKeys1,
     fields: dashboardFieldKeys1,
-    options: {}
-};
-choices.dash2 = {
+});
+choices.dash2 = NeonDashboardConfig.get({
     name: 'Other Config',
-    layout: '',
-    filters: [],
-    fullTitle: '',
     pathFromTop: ['dash2'],
     category: 'Select an option...',
     choices: {
         nextChoice: {
-            filters: [],
-            fullTitle: '',
             pathFromTop: ['dash2', 'nextChoice'],
             name: 'Last Config',
             layout: 'layout3',
             tables: dashboardTableKeys2,
             fields: dashboardFieldKeys2,
-            options: {}
         }
     }
-};
+});
 
 let dashboards = NeonDashboardConfig.get({
     category: 'Choose an option',

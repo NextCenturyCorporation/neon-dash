@@ -85,7 +85,7 @@ export class NeonTableMetaData {
 }
 
 export interface NeonDatabaseMetaData {
-    name?: string;
+    name: string;
     prettyName: string;
     tables: Record<string, NeonTableMetaData>;
 }
@@ -131,14 +131,14 @@ export interface NeonDashboardLeafConfig {
     pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
 
     name?: string;
-    layout?: string;
-    tables?: Record<string, string>;
-    fields?: Record<string, string>;
-    filters?: any[];
-    visualizationTitles?: Record<string, string>;
-    options?: NeonDashboardOptions;
-    relations?: (string | string[])[][];
-    contributors?: Record<string, NeonContributor>;
+    layout: string;
+    tables: Record<string, string>;
+    fields: Record<string, string>;
+    filters: any[];
+    visualizationTitles: Record<string, string>;
+    options: NeonDashboardOptions;
+    relations: (string | string[])[][];
+    contributors: Record<string, NeonContributor>;
 }
 
 export interface NeonDashboardParentConfig {
@@ -158,6 +158,7 @@ export class NeonDashboardConfig {
             filters: [],
             fields: {},
             tables: {},
+            options: {},
             visualizationTitles: {},
             contributors: {},
             fullTitle: '',
@@ -183,7 +184,7 @@ export interface NeonLayoutConfig extends NeonLayoutGridConfig {
 }
 
 export interface NeonDatastoreConfig {
-    name?: string;
+    name: string;
     host: string;
     type: string;
     databases: Record<string, NeonDatabaseMetaData>;
