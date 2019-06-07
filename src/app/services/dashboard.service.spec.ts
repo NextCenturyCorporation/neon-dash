@@ -678,7 +678,7 @@ describe('Service: DashboardService Static Functions', () => {
             layout1: [1, 2, 3],
             layout2: [4, 5, 6]
         } as any;
-        dashboardService.setLayout('layout1');
+        dashboardService.state.setLayout('layout1');
         expect(dashboardService.layouts[dashboardService.state.getLayout()]).toEqual([1, 2, 3]);
     });
 
@@ -688,9 +688,9 @@ describe('Service: DashboardService Static Functions', () => {
             layout2: [4, 5, 6]
         } as any;
 
-        dashboardService.setLayout('layout1');
+        dashboardService.state.setLayout('layout1');
         expect(dashboardService.layouts[dashboardService.state.getLayout()]).toEqual([1, 2, 3]);
-        dashboardService.setLayout('layout2');
+        dashboardService.state.setLayout('layout2');
         expect(dashboardService.layouts[dashboardService.state.getLayout()]).toEqual([4, 5, 6]);
     });
 
@@ -773,12 +773,9 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(dashboardService.state.dashboard).toEqual(dashboard);
     });
 
-    it('appendDatasets does add given dashboards, datastores, and layouts to existing dataset', () => {
-        // TODO THOR-692
-    });
-
-    (fit as any)('findRelationDataList does work with relations in string list structure', () => {
+    it('findRelationDataList does work with relations in string list structure', () => {
         dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
+            name: 'datastore1',
             databases: {
                 testDatabase1: {
                     tables: {

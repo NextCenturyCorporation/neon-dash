@@ -269,7 +269,7 @@ export class DashboardService {
                 let connection = this.connectionService.connect(datastore.type, datastore.host);
                 if (connection) {
                     // Update the fields within each table to add any that weren't listed in the config file as well as field types.
-                    this.updateDatabases(datastore, connection).then(() => {
+                    this.mergeDatastoreRemoteState(datastore, connection).then(() => {
                         if (++loaded === Object.keys(this.config.datastores).length) {
                             callback();
                         }
@@ -332,19 +332,12 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        this.state.datastore = NeonDatastoreConfig.get({
+        datastore = NeonDatastoreConfig.get({
             name: 'Unknown Dataset',
             ...datastore
         });
-    }
-
-    /**
-     * Sets the layout name for the active dataset.
-     * @param {String} layoutName
-     */
-    public setLayout(layoutName: string): void {
-        this.state.dashboard.layout = layoutName; // TODO: Cleanup
-        this.cloneDatastores();
+        this.addDatastore(datastore);
+        this.state.datastore = datastore;
     }
 
     /**
@@ -354,7 +347,7 @@ export class DashboardService {
      * @param {Function} callback (optional)
      * @param {Number} index (optional)
      */
-    public updateDatabases(datastore: NeonDatastoreConfig, connection: Connection): any {
+    public mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
         let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
@@ -374,7 +367,7 @@ export class DashboardService {
      */
     private getTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
         let promiseFields = [];
-        return new Promise<any>((resolve, __reject) => {
+        return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
                 Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
                     let table = database.tables[tableName];
@@ -393,17 +386,13 @@ export class DashboardService {
                     }
                 });
 
-                Promise.all(promiseFields).then((response) => {
-                    resolve(response);
-                });
-            }, (error) => {
+                Promise.all(promiseFields).then(resolve, reject);
+            }, async (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
                     let keys = this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : [];
 
-                    Promise.all(this.deleteInvalidDashboards(this.dashboards.choices, keys, database.name)).then((response) => {
-                        resolve(response);
-                    });
+                    Promise.all(this.deleteInvalidDashboards(this.dashboards.choices, keys, database.name)).then(resolve, reject);
                 } else {
                     resolve();
                 }
@@ -464,14 +453,5 @@ export class DashboardService {
         }
 
         return null;
-    }
-
-    /**
-     * Returns whether the given field object is valid.
-     * @param {Object} fieldObject
-     * @return {Boolean}
-     */
-    public isFieldValid(fieldObject: NeonFieldMetaData): boolean {
-        return Boolean(fieldObject && fieldObject.columnName);
     }
 }
