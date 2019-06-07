@@ -21,13 +21,13 @@ import { ContributionDialogModule } from './contribution-dialog.module';
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: ContributionDialogComponent', () => {
     let fixture: ComponentFixture<ContributionDialogComponent>;
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: ContributionDialogComponent;
 
     initializeTestBed('ContributionDialogComponent', {

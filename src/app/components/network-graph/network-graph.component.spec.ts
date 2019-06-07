@@ -17,9 +17,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { FilterService } from '../../services/filter.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { WidgetService } from '../../services/widget.service';
@@ -33,7 +33,7 @@ import { ConfigService } from '../../services/config.service';
 import { WidgetOptionCollection } from '../../widget-option';
 
 describe('Component: NetworkGraph', () => {
-    let testConfig: NeonGTDConfig = NeonGTDConfig.get();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: NetworkGraphComponent;
     let fixture: ComponentFixture<NetworkGraphComponent>;
 
@@ -81,32 +81,32 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.cleanLegendLabels).toEqual(false);
         expect(component.options.legendFiltering).toEqual(true);
 
-        expect(component.options.nodeColorField).toEqual(new FieldMetaData());
-        expect(component.options.edgeColorField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.linkNameField).toEqual(new FieldMetaData());
-        expect(component.options.nodeField).toEqual(new FieldMetaData());
-        expect(component.options.nodeNameField).toEqual(new FieldMetaData());
-        expect(component.options.xPositionField).toEqual(new FieldMetaData());
-        expect(component.options.yPositionField).toEqual(new FieldMetaData());
-        expect(component.options.xTargetPositionField).toEqual(new FieldMetaData());
-        expect(component.options.yTargetPositionField).toEqual(new FieldMetaData());
+        expect(component.options.nodeColorField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.edgeColorField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkNameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.nodeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.nodeNameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.xPositionField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.yPositionField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.xTargetPositionField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.yTargetPositionField).toEqual(NeonFieldMetaData.get());
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeColorField = new FieldMetaData('testNodeColorField');
-        component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
-        component.options.xTargetPositionField = new FieldMetaData('testXTargetPositionField');
-        component.options.yTargetPositionField = new FieldMetaData('testYTargetPositionField');
-        component.options.filterFields = [new FieldMetaData('testFilter1'), new FieldMetaData('testFilter2')];
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.xTargetPositionField = NeonFieldMetaData.get({ columnName: 'testXTargetPositionField' });
+        component.options.yTargetPositionField = NeonFieldMetaData.get({ columnName: 'testYTargetPositionField' });
+        component.options.filterFields = [NeonFieldMetaData.get({ columnName: 'testFilter1' }), NeonFieldMetaData.get({ columnName: 'testFilter2' })];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -170,12 +170,12 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('transformVisualizationQueryResults does load the Network Graph with tabular data', (() => {
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -237,22 +237,22 @@ describe('Component: NetworkGraph', () => {
                 database: 'testNodeDatabase',
                 table: 'testNodeTable',
                 layerType: 'nodes',
-                idField: new FieldMetaData('testNodeIdField'),
-                nameField: new FieldMetaData('testNodeNameField'),
-                colorField: new FieldMetaData('testNodeColorField'),
-                param1Field: new FieldMetaData('testNodeXPositionField'),
-                param2Field: new FieldMetaData('testNodeYPositionField'),
-                filterFields: [new FieldMetaData('testFilterField')]
+                idField: NeonFieldMetaData.get({ columnName: 'testNodeIdField' }),
+                nameField: NeonFieldMetaData.get({ columnName: 'testNodeNameField' }),
+                colorField: NeonFieldMetaData.get({ columnName: 'testNodeColorField' }),
+                param1Field: NeonFieldMetaData.get({ columnName: 'testNodeXPositionField' }),
+                param2Field: NeonFieldMetaData.get({ columnName: 'testNodeYPositionField' }),
+                filterFields: [NeonFieldMetaData.get({ columnName: 'testFilterField' })]
             },
             {
                 database: 'testEdgeDatabase',
                 table: 'testTable',
                 layerType: 'edges',
-                nameField: new FieldMetaData('testEdgeNameField'),
-                colorField: new FieldMetaData('testEdgeColorField'),
-                param1Field: new FieldMetaData('testEdgeSourceIdField'),
-                param2Field: new FieldMetaData('testEdgeDestinationIdField'),
-                filterFields: [new FieldMetaData('testFilterField')]
+                nameField: NeonFieldMetaData.get({ columnName: 'testEdgeNameField' }),
+                colorField: NeonFieldMetaData.get({ columnName: 'testEdgeColorField' }),
+                param1Field: NeonFieldMetaData.get({ columnName: 'testEdgeSourceIdField' }),
+                param2Field: NeonFieldMetaData.get({ columnName: 'testEdgeDestinationIdField' }),
+                filterFields: [NeonFieldMetaData.get({ columnName: 'testFilterField' })]
             }
         ] as any as WidgetOptionCollection[]; // TODO: Violating typing rules
         options.nodeColor = '#96f4f2';
@@ -322,7 +322,7 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('legendIsNeeded does not display a legend when display boolean is set to false', () => {
-        component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
         component.options.displayLegend = false;
         component.displayGraph = false;
 
@@ -333,7 +333,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('legendIsNeeded does not display a legend when edgeColorField is not set', () => {
-        component.options.edgeColorField = new FieldMetaData('');
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: '' });
         component.options.displayLegend = true;
         component.displayGraph = true;
 
@@ -344,7 +344,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('legendIsNeeded displays a legend when display boolean is set to true and edgeColorField is set', () => {
-        component.options.edgeColorField = new FieldMetaData('testEdgeColorField');
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
         component.options.displayLegend = true;
         component.displayGraph = true;
 
@@ -358,12 +358,12 @@ describe('Component: NetworkGraph', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.nodeColor = '#715e93';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -448,12 +448,12 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('does create simple filter for graph when graph node is selected', (() => {
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -512,12 +512,12 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('does create compound AND filter for graph when graph node with data list is selected', (() => {
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -593,12 +593,12 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('does create compound OR filter for graph when graph node with data list is selected', (() => {
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -674,12 +674,12 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('does create simple filters on multiple filter fields for graph when graph node is selected', (() => {
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.linkNameField = new FieldMetaData('testLinkNameField');
-        component.options.nodeNameField = new FieldMetaData('testNodeNameField');
-        component.options.nodeField = new FieldMetaData('testNodeField');
-        component.options.xPositionField = new FieldMetaData('testXPositionField');
-        component.options.yPositionField = new FieldMetaData('testYPositionField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.filterFields = [DashboardServiceMock.ID_FIELD, DashboardServiceMock.TYPE_FIELD];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -765,7 +765,7 @@ describe('Component: NetworkGraph', () => {
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        component.options.edgeColorField = new FieldMetaData();
+        component.options.edgeColorField = NeonFieldMetaData.get();
 
         component.options.nodeField = DashboardServiceMock.NAME_FIELD;
         actual = (component as any).designEachFilterWithNoValues();
@@ -784,7 +784,7 @@ describe('Component: NetworkGraph', () => {
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        component.options.nodeField = new FieldMetaData();
+        component.options.nodeField = NeonFieldMetaData.get();
 
         component.options.filterFields = [DashboardServiceMock.CATEGORY_FIELD];
         actual = (component as any).designEachFilterWithNoValues();

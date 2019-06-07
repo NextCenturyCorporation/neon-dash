@@ -35,7 +35,7 @@ import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../../active-dashboard';
+import { DashboardState } from '../../dashboard-state';
 
 @Component({
     selector: 'app-gear',

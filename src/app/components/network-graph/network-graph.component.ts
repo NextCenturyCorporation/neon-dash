@@ -38,7 +38,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import { neonUtilities } from '../../neon-namespaces';
 import {
     OptionChoices,
@@ -305,7 +305,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnNodeDataItem(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnNodeDataItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
             database: this.options.database,
@@ -401,7 +401,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             } as FilterBehavior);
         }
 
-        let filterFields: FieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
+        let filterFields: NeonFieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
                 if (layer.layerType === LayerType.Nodes) {
@@ -896,7 +896,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-        xPositionField: string, yPositionField: string, filterFields: FieldMetaData[]) {
+        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[]) {
         let ret: Node[] = [];
         let color = originalColor;
         for (let entry of data) {

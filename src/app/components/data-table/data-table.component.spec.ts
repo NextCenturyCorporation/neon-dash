@@ -18,13 +18,13 @@ import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -45,7 +45,7 @@ describe('Component: DataTable', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             DataTableModule
@@ -132,10 +132,10 @@ describe('Component: DataTable', () => {
 
     it('initializeHeadersFromExceptionsToStatus does create the expected headers in order', () => {
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
         component.options.exceptionsToStatus = [
             'date',
@@ -174,10 +174,10 @@ describe('Component: DataTable', () => {
     it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
         component.headers = [];
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
         component.options.allColumnStatus = 'show';
         component.options.fieldsConfig = [
@@ -561,20 +561,20 @@ describe('Component: DataTable', () => {
     }));
 
     it('validateVisualizationQuery does return false if not all specified options exist', (() => {
-        component.options.database = new DatabaseMetaData(undefined);
-        component.options.table = new TableMetaData('documents');
+        component.options.database = NeonDatabaseMetaData.get({ name: undefined });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
 
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData(undefined);
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get(undefined);
 
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
     it('validateVisualizationQuery does return true if all specified options exist', (() => {
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData('documents');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
 
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     }));
@@ -623,9 +623,9 @@ describe('Component: DataTable', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected object', () => {
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData('documents');
-        component.options.sortField = new FieldMetaData('testSortField');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
         component.options.limit = 25;
         (component as any).page = 1;
 
@@ -668,9 +668,9 @@ describe('Component: DataTable', () => {
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is 1', () => {
         component.options.fields = [
-            new FieldMetaData('_id', 'id', false, 'number'),
-            new FieldMetaData('category', 'Category', false, 'string'),
-            new FieldMetaData('testField', 'Test Field', false, 'string')
+            NeonFieldMetaData.get({ columnName: '_id', prettyName: 'id', hide: false, type: 'number' }),
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category', hide: false, type: 'string' }),
+            NeonFieldMetaData.get({ columnName: 'testField', prettyName: 'Test Field', hide: false, type: 'string' })
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
@@ -685,9 +685,9 @@ describe('Component: DataTable', () => {
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
         component.options.fields = [
-            new FieldMetaData('_id', 'id', false, 'number'),
-            new FieldMetaData('category', 'Category', false, 'string'),
-            new FieldMetaData('testField', 'Test Field', false, 'string')
+            NeonFieldMetaData.get({ columnName: '_id', prettyName: 'id', hide: false, type: 'number' }),
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category', hide: false, type: 'string' }),
+            NeonFieldMetaData.get({ columnName: 'testField', prettyName: 'Test Field', hide: false, type: 'string' })
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
@@ -1885,10 +1885,10 @@ describe('Component: DataTable', () => {
         expect(component.headers.length).toEqual(16);
 
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
 
         component.onChangeData();
@@ -1898,10 +1898,10 @@ describe('Component: DataTable', () => {
 
     it('onChangeData does update headers if database or table is updated', () => {
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
 
         component.onChangeData(true);

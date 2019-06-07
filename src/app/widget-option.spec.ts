@@ -17,7 +17,7 @@ import { ReflectiveInjector } from '@angular/core';
 import { inject } from '@angular/core/testing';
 import * as yaml from 'js-yaml';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import { DashboardService } from './services/dashboard.service';
 import {
     WidgetDatabaseOption,
@@ -114,7 +114,7 @@ describe('WidgetOptionCollection', () => {
 
     it('find field functions do not error if fields are not set', inject([DashboardService], (dashboardService: DashboardService) => {
         expect(options.findField('testNameField')).toEqual(undefined);
-        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(NeonFieldMetaData.get());
         expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([]);
     }));
 
@@ -149,8 +149,8 @@ describe('WidgetOptionCollection', () => {
         expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(DashboardServiceMock.NAME_FIELD);
         expect(options.findFieldObject(dashboardService.state, 'testSize')).toEqual(DashboardServiceMock.SIZE_FIELD);
         expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_KEY_FIELD);
-        expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(new FieldMetaData());
-        expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(NeonFieldMetaData.get());
+        expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(NeonFieldMetaData.get());
     }));
 
     it('findFieldObjects does return expected array', inject([DashboardService], (dashboardService: DashboardService) => {
@@ -240,9 +240,9 @@ describe('WidgetOptionCollection', () => {
 
     it('list does return an array of all widget options', () => {
         let databaseOption = new WidgetDatabaseOption();
-        databaseOption.valueCurrent = new DatabaseMetaData();
+        databaseOption.valueCurrent = NeonDatabaseMetaData.get();
         let tableOption = new WidgetTableOption();
-        tableOption.valueCurrent = new TableMetaData();
+        tableOption.valueCurrent = NeonTableMetaData.get();
         expect(options.list()).toEqual([databaseOption, tableOption]);
 
         let widgetOption1 = new WidgetSelectOption('key1', 'label1', 'default1', []);
@@ -259,9 +259,9 @@ describe('WidgetOptionCollection', () => {
 
     it('updateDatabases does update databases, tables, and fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = [];
-        options.database = new DatabaseMetaData();
+        options.database = NeonDatabaseMetaData.get();
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
 
         options.updateDatabases(dashboardService.state);
@@ -293,7 +293,7 @@ describe('WidgetOptionCollection', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
 
         options.updateTables(dashboardService.state);
@@ -325,9 +325,9 @@ describe('WidgetOptionCollection with custom fields', () => {
     it('updateDatabases does update databases, tables, and fields with custom fields', inject([DashboardService],
         (dashboardService: DashboardService) => {
             options.databases = [];
-            options.database = new DatabaseMetaData();
+            options.database = NeonDatabaseMetaData.get();
             options.tables = [];
-            options.table = new TableMetaData();
+            options.table = NeonTableMetaData.get();
             options.fields = [];
             options.testCustomField = null;
             options.testCustomFieldArray = null;
@@ -339,7 +339,7 @@ describe('WidgetOptionCollection with custom fields', () => {
             expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
             expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
             expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(new FieldMetaData());
+            expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
             expect(options.testCustomFieldArray).toEqual([]);
         }));
 
@@ -359,7 +359,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 
@@ -367,7 +367,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
@@ -379,7 +379,7 @@ describe('WidgetOptionCollection with custom fields', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 });
@@ -412,9 +412,9 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
     it('updateDatabases does update databases, tables, and fields with bindings',
         inject([DashboardService], (dashboardService: DashboardService) => {
             options.databases = [];
-            options.database = new DatabaseMetaData();
+            options.database = NeonDatabaseMetaData.get();
             options.tables = [];
-            options.table = new TableMetaData();
+            options.table = NeonTableMetaData.get();
             options.fields = [];
             options.testCustomField = null;
             options.testCustomFieldArray = null;
@@ -454,7 +454,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;

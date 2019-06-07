@@ -14,9 +14,9 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { } from 'jasmine-core';
 
@@ -42,7 +42,7 @@ describe('Component: NewsFeed', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -61,14 +61,14 @@ describe('Component: NewsFeed', () => {
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.filterField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.sortField).toEqual(new FieldMetaData());
+        expect(component.options.contentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.filterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.primaryTitleField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.secondaryTitleField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
@@ -107,16 +107,16 @@ describe('Component: NewsFeed', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.sortField = new FieldMetaData('testSortField');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField');
-        component.options.filterField = new FieldMetaData('testFilterField');
-        component.options.contentField = new FieldMetaData('testContentField');
-        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
+        component.options.primaryTitleField = NeonFieldMetaData.get({ columnName: 'testPrimaryTitleField' });
+        component.options.secondaryTitleField = NeonFieldMetaData.get({ columnName: 'testSecondaryTitleField' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField' });
+        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -165,13 +165,13 @@ describe('Component: NewsFeed', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'tesIdField', prettyName: 'Test Id Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -205,7 +205,7 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -216,7 +216,7 @@ describe('Component: NewsFeed', () => {
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
         component.options.limit = 1;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -250,7 +250,7 @@ describe('Component: NewsFeed', () => {
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -284,13 +284,13 @@ describe('Component: NewsFeed', () => {
 
     // For isSelectable method
     it('isSelectable does return expected boolean', () => {
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
         expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
+        component.options.filterField = NeonFieldMetaData.get();
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = new FieldMetaData();
+        component.options.idField = NeonFieldMetaData.get();
     });
 
     // For isSelected method
@@ -323,7 +323,7 @@ describe('Component: NewsFeed', () => {
             testNotAFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterField = new FieldMetaData();
+        component.options.filterField = NeonFieldMetaData.get();
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -349,7 +349,7 @@ describe('Component: NewsFeed', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.selectGridItem({
             testIdField: 'id1'
@@ -366,7 +366,7 @@ describe('Component: NewsFeed', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
 
         component.selectGridItem({
             testFilterField: 'filter1'

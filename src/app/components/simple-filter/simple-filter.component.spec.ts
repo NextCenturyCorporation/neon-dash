@@ -18,7 +18,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -48,7 +48,7 @@ describe('Component: SimpleFilter', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             SimpleFilterModule
@@ -187,7 +187,7 @@ describe('Component: SimpleFilter unconfigured', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardService },
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             SimpleFilterModule

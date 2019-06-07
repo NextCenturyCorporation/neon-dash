@@ -15,11 +15,11 @@
  */
 import { Injector } from '@angular/core';
 import { AggregationType } from './services/abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from './types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
-import { DashboardState } from './active-dashboard';
+import { DashboardState } from './dashboard-state';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string, variable: any }
@@ -290,12 +290,12 @@ export class WidgetOptionCollection {
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
     public _id: string;
-    public database: DatabaseMetaData = null;
-    public databases: DatabaseMetaData[] = [];
-    public fields: FieldMetaData[] = [];
+    public database: NeonDatabaseMetaData = null;
+    public databases: NeonDatabaseMetaData[] = [];
+    public fields: NeonFieldMetaData[] = [];
     public layers: WidgetOptionCollection[] = [];
-    public table: TableMetaData = null;
-    public tables: TableMetaData[] = [];
+    public table: NeonTableMetaData = null;
+    public tables: NeonTableMetaData[] = [];
 
     /**
      * @constructor
@@ -310,8 +310,8 @@ export class WidgetOptionCollection {
     ) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
-        this.append(new WidgetDatabaseOption(), new DatabaseMetaData());
-        this.append(new WidgetTableOption(), new TableMetaData());
+        this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
+        this.append(new WidgetTableOption(), NeonTableMetaData.get());
     }
 
     [key: string]: any; // Ordering demands it be placed here
@@ -367,10 +367,10 @@ export class WidgetOptionCollection {
      * Returns the field object with the given column name or undefinied if the field does not exist.
      *
      * @arg {string} columnName
-     * @return {FieldMetaData}
+     * @return {NeonFieldMetaData}
      */
-    public findField(columnName: string): FieldMetaData {
-        let outputFields = !columnName ? [] : this.fields.filter((field: FieldMetaData) => field.columnName === columnName);
+    public findField(columnName: string): NeonFieldMetaData {
+        let outputFields = !columnName ? [] : this.fields.filter((field: NeonFieldMetaData) => field.columnName === columnName);
 
         if (!outputFields.length && this.fields.length) {
             // Check if the column name is actually an array index rather than a name.
@@ -386,15 +386,15 @@ export class WidgetOptionCollection {
     /**
      * Returns the field object for the given binding key or an empty field object.
      */
-    public findFieldObject(dashboardState: DashboardState, bindingKey: string): FieldMetaData {
+    public findFieldObject(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
+        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || NeonFieldMetaData.get();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      */
-    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): FieldMetaData[] {
+    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
             fieldKey
@@ -460,7 +460,7 @@ export class WidgetOptionCollection {
             this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
                 .filter((field) => (field && field.columnName));
 
-            // Create the field options and assign the default value as FieldMetaData objects.
+            // Create the field options and assign the default value as NeonFieldMetaData objects.
             this.createFieldOptionsCallback().forEach((fieldsOption) => {
                 if (fieldsOption.optionType === OptionType.FIELD) {
                     this.append(fieldsOption, this.findFieldObject(dashboardState, fieldsOption.bindingKey));

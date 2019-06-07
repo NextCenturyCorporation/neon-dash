@@ -13,9 +13,9 @@
  * limitations under the License.
  *
  */
-import { Dashboard, DatabaseMetaData, FieldMetaData, TableMetaData } from '../../app/types';
+import { Dashboard, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../app/types';
 import { DashboardService } from '../../app/services/dashboard.service';
-import { NeonGTDConfig, NeonDatastoreConfig } from '../../app/neon-gtd-config';
+import { NeonConfig, NeonDatastoreConfig } from '../../app/types';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
 
@@ -26,25 +26,25 @@ class MockConnectionService extends ConnectionService {
 }
 
 export class DashboardServiceMock extends DashboardService {
-    public static CATEGORY_FIELD = new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string');
-    public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field', false, 'date');
-    public static FIELD_KEY_FIELD = new FieldMetaData('testFieldKeyField', 'Test Field Key Field', false, 'string');
-    public static FILTER_FIELD = new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string');
-    public static ID_FIELD = new FieldMetaData('testIdField', 'Test ID Field', false, 'string');
-    public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field', false, 'string');
-    public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field', false, 'string');
-    public static RELATION_FIELD_A = new FieldMetaData('testRelationFieldA', 'Test Relation Field A', false, 'string');
-    public static RELATION_FIELD_B = new FieldMetaData('testRelationFieldB', 'Test Relation Field B', false, 'string');
-    public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field', false, 'float');
-    public static SORT_FIELD = new FieldMetaData('testSortField', 'Test Sort Field', false, 'string');
-    public static TEXT_FIELD = new FieldMetaData('testTextField', 'Test Text Field', false, 'string');
-    public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field', false, 'string');
-    public static X_FIELD = new FieldMetaData('testXField', 'Test X Field', false, 'float');
-    public static Y_FIELD = new FieldMetaData('testYField', 'Test Y Field', false, 'float');
-    public static ES_ID_FIELD = new FieldMetaData('_id', '_id', false, '');
+    public static CATEGORY_FIELD = NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' });
+    public static DATE_FIELD = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' });
+    public static FIELD_KEY_FIELD = NeonFieldMetaData.get({ columnName: 'testFieldKeyField', prettyName: 'Test Field Key Field', hide: false, type: 'string' });
+    public static FILTER_FIELD = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' });
+    public static ID_FIELD = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' });
+    public static LINK_FIELD = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' });
+    public static NAME_FIELD = NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' });
+    public static RELATION_FIELD_A = NeonFieldMetaData.get({ columnName: 'testRelationFieldA', prettyName: 'Test Relation Field A', hide: false, type: 'string' });
+    public static RELATION_FIELD_B = NeonFieldMetaData.get({ columnName: 'testRelationFieldB', prettyName: 'Test Relation Field B', hide: false, type: 'string' });
+    public static SIZE_FIELD = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' });
+    public static SORT_FIELD = NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' });
+    public static TEXT_FIELD = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field', hide: false, type: 'string' });
+    public static TYPE_FIELD = NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' });
+    public static X_FIELD = NeonFieldMetaData.get({ columnName: 'testXField', prettyName: 'Test X Field', hide: false, type: 'float' });
+    public static Y_FIELD = NeonFieldMetaData.get({ columnName: 'testYField', prettyName: 'Test Y Field', hide: false, type: 'float' });
+    public static ES_ID_FIELD = NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id' });
 
     // Keep in alphabetical order.
-    public static FIELDS: FieldMetaData[] = [
+    public static FIELDS: NeonFieldMetaData[] = [
         DashboardServiceMock.CATEGORY_FIELD,
         DashboardServiceMock.DATE_FIELD,
         DashboardServiceMock.FIELD_KEY_FIELD,
@@ -64,22 +64,22 @@ export class DashboardServiceMock extends DashboardService {
     ];
 
     public static TABLES = {
-        testTable1: new TableMetaData('testTable1', 'Test Table 1', DashboardServiceMock.FIELDS),
-        testTable2: new TableMetaData('testTable2', 'Test Table 2', DashboardServiceMock.FIELDS)
+        testTable1: NeonTableMetaData.get({ name: 'testTable1', prettyName: 'Test Table 1', fields: DashboardServiceMock.FIELDS }),
+        testTable2: NeonTableMetaData.get({ name: 'testTable2', prettyName: 'Test Table 2', fields: DashboardServiceMock.FIELDS })
     };
 
     public static TABLES_LIST = [DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.TABLES.testTable2];
 
     public static DATABASES = {
-        testDatabase1: new DatabaseMetaData('testDatabase1', 'Test Database 1', DashboardServiceMock.TABLES),
-        testDatabase2: new DatabaseMetaData('testDatabase2', 'Test Database 2', DashboardServiceMock.TABLES)
+        testDatabase1: NeonDatabaseMetaData.get({ name: 'testDatabase1', prettyName: 'Test Database 1', tables: DashboardServiceMock.TABLES }),
+        testDatabase2: NeonDatabaseMetaData.get({ name: 'testDatabase2', prettyName: 'Test Database 2', tables: DashboardServiceMock.TABLES })
     };
 
     public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
 
     constructor() {
-        super(new ConfigService(null).set(NeonGTDConfig.get()), new MockConnectionService());
-        let datastore: NeonDatastoreConfig = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
+        super(new ConfigService(null).set(NeonConfig.get()), new MockConnectionService());
+        let datastore = NeonDatastoreConfig.get({ name: 'datastore1', host: 'testHostname', type: 'testDatastore' });
         datastore.databases = DashboardServiceMock.DATABASES;
         datastore['hasUpdatedFields'] = true;
         this.setActiveDatastore(datastore);

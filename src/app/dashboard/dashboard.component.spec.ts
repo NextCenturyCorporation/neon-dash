@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonGTDConfig, NeonDatastoreConfig } from '../neon-gtd-config';
+import { NeonConfig, NeonDatastoreConfig } from '../types';
 import { NeonGridItem } from '../neon-grid-item';
 import { neonEvents } from '../neon-namespaces';
 
@@ -61,7 +61,7 @@ describe('Dashboard', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(new NeonConfig()) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
@@ -878,8 +878,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: NeonDatastoreConfig = { name: 'testName1', host: 'testHost1', type: 'testType1', databases: {} };
-        let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
+        let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
+        let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
         let testDashboard: Dashboard = Dashboard.get({
             datastores: { testDatastore1, testDatastore2 }
         });
@@ -942,8 +942,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
-        let testDatastore1: NeonDatastoreConfig = { name: 'testName1', host: 'testHost1', type: 'testType1', databases: {} };
-        let testDatastore2: NeonDatastoreConfig = { name: 'testName2', host: 'testHost2', type: 'testType2', databases: {} };
+        let testDatastore1 = NeonDatastoreConfig.get({ name: 'testName1', host: 'testHost1', type: 'testType1' });
+        let testDatastore2 = NeonDatastoreConfig.get({ name: 'testName2', host: 'testHost2', type: 'testType2' });
         let testDashboard = Dashboard.get();
         testDashboard.datastores = { testDatastore1, testDatastore2 };
         // testDashboard.layoutObject = {

@@ -16,7 +16,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonGTDConfig } from './../../neon-gtd-config';
+import { NeonConfig } from './../../types';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { PropertyService } from '../../services/property.service';
@@ -33,7 +33,7 @@ import { ConfigService } from '../../services/config.service';
 })
 export class ConfigEditorComponent implements OnInit {
     public CONFIG_PROP_NAME: string = 'config';
-    public currentConfig: NeonGTDConfig;
+    public currentConfig: NeonConfig;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
     public configText: string;
 

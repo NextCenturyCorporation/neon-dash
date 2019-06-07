@@ -34,8 +34,8 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { NeonGTDConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../neon-gtd-config';
-import { DashboardState } from '../../active-dashboard';
+import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../types';
+import { DashboardState } from '../../dashboard-state';
 
 @Component({
     selector: 'app-save-state',
@@ -50,7 +50,7 @@ export class SaveStateComponent implements OnInit {
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
-    public states: { total: number, results: NeonGTDConfig[] } = { total: 0, results: [] };
+    public states: { total: number, results: NeonConfig[] } = { total: 0, results: [] };
 
     public readonly dashboardState: DashboardState;
 
@@ -157,7 +157,7 @@ export class SaveStateComponent implements OnInit {
         if (connection) {
             let validStateName = this.validateName(name);
             // Same format as the config file.
-            let stateData: NeonGTDConfig = {
+            let stateData: NeonConfig = {
                 projectTitle: validStateName,
                 dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
                     this.filterService.getFiltersToSaveInConfig()),
@@ -239,7 +239,7 @@ export class SaveStateComponent implements OnInit {
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: NeonGTDConfig<Dashboard>, name: string) {
+    private handleLoadStateSuccess(response: NeonConfig<Dashboard>, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
             this.dashboardService.setConfig(response);
             // Dashboard choices should be set by wrapInSavedStateDashboard

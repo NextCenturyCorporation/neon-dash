@@ -22,7 +22,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { QueryBarComponent } from './query-bar.component';
@@ -39,7 +39,7 @@ const fieldName = 'field';
 class MockDashboardService extends DashboardService {
     options = Dashboard.getOptions();
     constructor() {
-        super(NeonGTDConfig.get());
+        super(NeonConfig.get());
         this.options.queryBar = new SimpleFilter(databaseName, tableName, fieldName);
     }
 
@@ -64,7 +64,7 @@ class queryBarTester {
                 { provide: FilterService, useClass: MockFilterService },
                 { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DashboardService, useClass: mockDataset ? MockDashboardService : DashboardService },
-                { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+                { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
             ],
             imports: [

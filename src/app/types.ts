@@ -1,6 +1,4 @@
-import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, NeonGTDConfig } from './neon-gtd-config';
-
-/*
+/**
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +15,178 @@ import { NeonDashboardConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonField
  */
 // TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
 
+export interface NeonFieldMetaData {
+    columnName: string;
+    prettyName: string;
+    hide: boolean;
+    type: string;
+}
+
+export class NeonFieldMetaData {
+    static get(field: Partial<NeonFieldMetaData> = {}) {
+        return {
+            columnName: '',
+            prettyName: '',
+            hide: false,
+            type: '',
+            ...field
+        };
+    }
+}
+
+export interface NeonTableMetaData {
+    name?: string;
+    prettyName: string;
+    fields: NeonFieldMetaData[];
+    mappings: Record<string, string>;
+    labelOptions: Record<string, any | Record<string, any>>;
+}
+
+export class NeonTableMetaData {
+    static get(table: Partial<NeonTableMetaData> = {}) {
+        return {
+            name: '',
+            prettyName: '',
+            fields: [],
+            mappings: {},
+            labelOptions: {},
+            ...table
+        };
+    }
+}
+
+export interface NeonDatabaseMetaData {
+    name?: string;
+    prettyName: string;
+    tables: Record<string, NeonTableMetaData>;
+}
+
+export class NeonDatabaseMetaData {
+    static get(db: Partial<NeonDatabaseMetaData> = {}) {
+        return {
+            name: '',
+            prettyName: '',
+            tables: {},
+            ...db
+        };
+    }
+}
+
+export interface NeonSimpleFilter {
+    databaseName: string;
+    tableName: string;
+    fieldName: string;
+    placeHolder?: string;
+    icon?: string;
+    tableKey?: string;
+    fieldKey?: string;
+}
+
+export interface NeonDashboardOptions {
+    connectOnLoad?: boolean;
+    colorMaps?: Record<string, any>;
+    simpleFilter?: NeonSimpleFilter;
+}
+
+export interface NeonContributor {
+    orgName: string;
+    abbreviation: string;
+    contactName: string;
+    contactEmail: string;
+    website: string;
+    logo: string;
+}
+
+export interface NeonDashboardLeafConfig {
+    name?: string;
+    layout?: string;
+    datastores?: Record<string, NeonDatastoreConfig>;
+    tables?: Record<string, string>;
+    fields?: Record<string, string>;
+    filters?: any[];
+    visualizationTitles?: Record<string, string>;
+    options?: NeonDashboardOptions;
+    relations?: (string | string[])[][];
+    contributors?: Record<string, NeonContributor>;
+}
+
+export interface NeonDashboardParentConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig> {
+    name?: string;
+    // Interior
+    category?: string;
+    choices?: Record<string, T>;
+
+}
+
+export type NeonDashboardConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> =
+    NeonDashboardLeafConfig & NeonDashboardParentConfig<T>;
+
+export interface NeonLayoutGridConfig {
+    col: number;
+    row: number;
+    bindings?: Record<string, any>;
+    sizex: number;
+    sizey: number;
+}
+
+export interface NeonLayoutConfig extends NeonLayoutGridConfig {
+    name?: string;
+    type: string;
+}
+
+export interface NeonDatastoreConfig {
+    name?: string;
+    host: string;
+    type: string;
+    databases: Record<string, NeonDatabaseMetaData>;
+}
+
+export class NeonDatastoreConfig {
+    static get(config: Partial<NeonDatastoreConfig> = {}) {
+        return {
+            name: '',
+            host: '',
+            type: '',
+            databases: {},
+            ...config
+        };
+    }
+}
+
+export interface NeonConfig<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>> {
+    projectTitle?: string;
+    projectIcon?: string;
+    fileName?: string;
+    lastModified?: number;
+    modified?: boolean;
+
+    datastores: Record<string, NeonDatastoreConfig>;
+    dashboards: T;
+    layouts: Record<string, NeonLayoutConfig[]>;
+    errors?: string[];
+    neonServerUrl?: string;
+    version: string;
+}
+
+export class NeonConfig {
+    static get<T extends NeonDashboardConfig<any> = NeonDashboardConfig<any>>(
+        config: Partial<NeonConfig<T>> = {}
+    ): NeonConfig<T> {
+        return {
+            dashboards: {} as T,
+            datastores: {},
+            errors: [],
+            layouts: {},
+            version: '',
+            neonServerUrl: '',
+            projectIcon: '',
+            projectTitle: '',
+            ...config
+        };
+    }
+}
+
+
 /*
 TODO: THOR-825: This was turned into Datastore -- leaving old commented out
 version here along with comments on updates made for reference until all
@@ -24,7 +194,7 @@ THOR-825 related tasks are complete.
 
 export class Dataset {
     public connectOnLoad: boolean = false;
-    public databases: DatabaseMetaData[] = [];
+    public databases: NeonDatabase[] = [];
     public hasUpdatedFields: boolean = false;
     public layout: string = ''; // layouts are now specified in dashboards
     //public options: DatasetOptions = new DatasetOptions(); moved to DashboardOptions

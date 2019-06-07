@@ -13,12 +13,12 @@
  * limitations under the License.
  *
  */
-import { DatabaseMetaData } from '../../types';
+import { NeonDatabaseMetaData } from '../../types';
 
 export class CustomConnectionData {
     public datasetName: string = '';
     public datastoreType: string = 'mongo';
     public datastoreHost: string = 'localhost';
-    public allDatabases: DatabaseMetaData[] = [];
-    public selectedDatabases: DatabaseMetaData[] = [];
+    public allDatabases: NeonDatabaseMetaData[] = [];
+    public selectedDatabases: NeonDatabaseMetaData[] = [];
 }

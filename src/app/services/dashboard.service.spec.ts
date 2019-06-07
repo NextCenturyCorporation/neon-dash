@@ -16,9 +16,9 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { Dashboard, DatabaseMetaData, FieldMetaData, TableMetaData } from '../types';
+import { Dashboard, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../types';
 import { DashboardService } from './dashboard.service';
-import { NeonGTDConfig, NeonDatastoreConfig } from '../neon-gtd-config';
+import { NeonConfig, NeonDatastoreConfig } from '../types';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
@@ -32,7 +32,7 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
@@ -41,7 +41,7 @@ describe('Service: DashboardService', () => {
     }));
 
     it('should have no active datastores at creation', () => {
-        expect(dashboardService.state.datastore).toEqual({ host: '', type: '', databases: {} } as NeonDatastoreConfig);
+        expect(dashboardService.state.datastore).toEqual(NeonDatastoreConfig.get());
     });
 
     it('should have no active dashboards at creation', () => {
@@ -76,7 +76,7 @@ describe('Service: DashboardService Static Functions', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
@@ -88,7 +88,7 @@ describe('Service: DashboardService Static Functions', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: 'config', useValue: NeonGTDConfig.get() }
+            { provide: 'config', useValue: NeonConfig.get() }
         ]
     });
 
@@ -238,10 +238,10 @@ describe('Service: DashboardService Static Functions', () => {
             }
         }, input);
 
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -251,7 +251,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
@@ -331,10 +331,10 @@ describe('Service: DashboardService Static Functions', () => {
             }
         }, input);
 
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -344,16 +344,16 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
         datastore1.hasUpdatedFields = false;
 
-        let table2 = new TableMetaData('table2', 'Table 2');
+        let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
         table2.fields = [
-            new FieldMetaData('fieldC', 'Field C', false, 'text'),
-            new FieldMetaData('fieldD', 'Field D', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldD', prettyName: 'Field D', hide: true, type: 'date' })
         ];
         table2.labelOptions = {
             valueC: 'labelC',
@@ -363,7 +363,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingC: 'fieldC',
             mappingD: 'fieldD'
         };
-        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
         database2.tables = { [table2.name]: table2 };
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
@@ -412,10 +412,10 @@ describe('Service: DashboardService Static Functions', () => {
             }
         }, input);
 
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -425,7 +425,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
@@ -434,10 +434,10 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('appendDatastoresFromConfig with config and existing datastores should update given datastores', () => {
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -447,7 +447,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
@@ -491,10 +491,10 @@ describe('Service: DashboardService Static Functions', () => {
             }
         }, input);
 
-        let table2 = new TableMetaData('table2', 'Table 2');
+        let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
         table2.fields = [
-            new FieldMetaData('fieldC', 'Field C', false, 'text'),
-            new FieldMetaData('fieldD', 'Field D', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldD', prettyName: 'Field D', hide: true, type: 'date' })
         ];
         table2.labelOptions = {
             valueC: 'labelC',
@@ -504,7 +504,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingC: 'fieldC',
             mappingD: 'fieldD'
         };
-        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
         database2.tables = { [table2.name]: table2 };
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
@@ -513,10 +513,10 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('appendDatastoresFromConfig with same datastore in config and existing datastores should not update given datastores', () => {
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -526,7 +526,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
@@ -574,10 +574,10 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('updateDatastoresInDashboards should set datastores property in given dashboards with tables', () => {
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -587,7 +587,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
@@ -602,10 +602,10 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('updateDatastoresInDashboards should set datastores property in given dashboards with choices', () => {
-        let table1 = new TableMetaData('table1', 'Table 1');
+        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
         table1.fields = [
-            new FieldMetaData('fieldA', 'Field A', false, 'text'),
-            new FieldMetaData('fieldB', 'Field B', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
         ];
         table1.labelOptions = {
             valueA: 'labelA',
@@ -615,15 +615,15 @@ describe('Service: DashboardService Static Functions', () => {
             mappingA: 'fieldA',
             mappingB: 'fieldB'
         };
-        let database1 = new DatabaseMetaData('database1', 'Database 1');
+        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
 
-        let table2 = new TableMetaData('table2', 'Table 2');
+        let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
         table2.fields = [
-            new FieldMetaData('fieldC', 'Field C', false, 'text'),
-            new FieldMetaData('fieldD', 'Field D', true, 'date')
+            NeonFieldMetaData.get({ columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' }),
+            NeonFieldMetaData.get({ columnName: 'fieldD', prettyName: 'Field D', hide: true, type: 'date' })
         ];
         table2.labelOptions = {
             valueC: 'labelC',
@@ -633,7 +633,7 @@ describe('Service: DashboardService Static Functions', () => {
             mappingC: 'fieldC',
             mappingD: 'fieldD'
         };
-        let database2 = new DatabaseMetaData('database2', 'Database 2');
+        let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
         database2.tables = { [table2.name]: table2 };
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
@@ -716,7 +716,7 @@ describe('Service: DashboardService with Mock Data', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 

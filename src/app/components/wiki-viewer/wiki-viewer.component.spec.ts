@@ -15,10 +15,10 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../types';
 
 import { } from 'jasmine-core';
 
@@ -46,7 +46,7 @@ describe('Component: WikiViewer', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -66,17 +66,17 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does set expected default options properties', () => {
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
         expect(component.options.id).toEqual('');
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -104,21 +104,21 @@ describe('Component: WikiViewer', () => {
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.table = new TableMetaData('testTable');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
 
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
@@ -180,7 +180,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -353,7 +353,7 @@ describe('Component: WikiViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonGTDConfig.get()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },
@@ -381,8 +381,8 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' }));
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' }));
         expect(component.options.id).toEqual('testId');
     });
 

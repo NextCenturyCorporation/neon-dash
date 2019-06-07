@@ -37,7 +37,7 @@ import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from 
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -121,7 +121,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         ];
     }
 
-    private createFilterDesign(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesign(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
             database: this.options.database,

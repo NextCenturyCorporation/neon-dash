@@ -38,7 +38,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../types';
+import { NeonFieldMetaData } from '../../types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -143,7 +143,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             datastore: '',
             database: this.options.database,
             table: this.options.table,
-            field: this.options.dataField as FieldMetaData,
+            field: this.options.dataField as NeonFieldMetaData,
             operator: '=',
             value: value
         } as SimpleFilterDesign;
