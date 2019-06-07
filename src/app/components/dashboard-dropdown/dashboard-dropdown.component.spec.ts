@@ -17,7 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
-import { Dashboard } from '../../types';
+import { NeonDashboardConfig } from '../../types';
 
 import { DashboardDropdownModule } from './dashboard-dropdown.module';
 
@@ -36,7 +36,7 @@ dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
 let dashboardFieldKeys2: { [key: string]: string } = {};
 dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
 
-let choices: { [key: string]: Dashboard } = {};
+let choices: { [key: string]: NeonDashboardConfig } = {};
 choices.dash1 = {
     filters: [],
     fullTitle: '',
@@ -68,14 +68,14 @@ choices.dash2 = {
     }
 };
 
-let dashboards: Dashboard = {
+let dashboards = NeonDashboardConfig.get({
     category: 'Choose an option',
     filters: [],
     fullTitle: '',
     layout: '',
     pathFromTop: [],
     choices: choices
-};
+});
 
 describe('Component: DashboardDropdown with input', () => {
     initializeTestBed('Dashboard Dropdown', {

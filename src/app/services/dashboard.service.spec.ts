@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { Dashboard, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../types';
+import { NeonDashboardConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../types';
 import { DashboardService } from './dashboard.service';
 import { NeonConfig, NeonDatastoreConfig } from '../types';
 
@@ -100,7 +100,7 @@ describe('Service: DashboardService Static Functions', () => {
 
     it('assignDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
         let input = {};
-        let dashboard = Dashboard.get();
+        let dashboard = NeonDashboardConfig.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
@@ -112,14 +112,14 @@ describe('Service: DashboardService Static Functions', () => {
 
     it('assignDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
         let input = {};
-        let dashboard = Dashboard.get();
+        let dashboard = NeonDashboardConfig.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
-            test1: {
+            test1: NeonDashboardConfig.get({
                 choices: {
                     test2: dashboard
                 }
-            } as any as Dashboard // TODO: Typings verify
+            })
         });
         expect(input).toEqual({
             test1: {
@@ -131,12 +131,12 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
-        let previousDashboard = Dashboard.get();
+        let previousDashboard = NeonDashboardConfig.get();
         previousDashboard.name = 'previous';
         let input = {
             prev: previousDashboard
         };
-        let dashboard = Dashboard.get();
+        let dashboard = NeonDashboardConfig.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             test: dashboard
@@ -148,24 +148,24 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
-        let previousDashboard = Dashboard.get();
+        let previousDashboard = NeonDashboardConfig.get();
         previousDashboard.name = 'previous';
         let input = {
-            test1: {
+            test1: NeonDashboardConfig.get({
                 choices: {
                     prev2: previousDashboard
                 }
-            }
-        } as any as Dashboard['choices']; // TODO: Figure out why typings
-        let dashboard = Dashboard.get();
+            })
+        };
+        let dashboard = NeonDashboardConfig.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
-            test1: {
+            test1: NeonDashboardConfig.get({
                 choices: {
                     test2: dashboard
                 }
-            }
-        } as any as Dashboard['choices']); // TODO: Figure out why typings
+            })
+        });
 
         expect(input).toEqual({
             test1: {
@@ -178,12 +178,12 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('assignDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
-        let previousDashboard = Dashboard.get();
+        let previousDashboard = NeonDashboardConfig.get();
         previousDashboard.name = 'previous';
         let input = {
             prev: previousDashboard
         };
-        let dashboard = Dashboard.get();
+        let dashboard = NeonDashboardConfig.get();
         dashboard.name = 'name';
         DashboardService.assignDashboardChoicesFromConfig(input, {
             prev: dashboard
@@ -592,7 +592,7 @@ describe('Service: DashboardService Static Functions', () => {
         let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
         datastore1.databases = { [database1.name]: database1 };
 
-        let dashboard1 = Dashboard.get();
+        let dashboard1 = NeonDashboardConfig.get();
         dashboard1.tables = {
             key1: 'datastore1.database1.table1'
         };
@@ -638,15 +638,15 @@ describe('Service: DashboardService Static Functions', () => {
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
         datastore2.databases = { [database2.name]: database2 };
 
-        let dashboard1 = Dashboard.get();
+        let dashboard1 = NeonDashboardConfig.get();
         dashboard1.tables = {
             key1: 'datastore1.database1.table1'
         };
-        let dashboard2 = Dashboard.get();
+        let dashboard2 = NeonDashboardConfig.get();
         dashboard2.tables = {
             key1: 'datastore2.database2.table2'
         };
-        let dashboard3 = Dashboard.get();
+        let dashboard3 = NeonDashboardConfig.get();
         dashboard3.choices = {
             choice1: dashboard1,
             choice2: dashboard2
@@ -691,14 +691,14 @@ describe('Service: DashboardService Static Functions', () => {
     });
 
     it('validateDashboards should add root dashboard if needed to given dashboards', () => {
-        let argument = Dashboard.get();
+        let argument = NeonDashboardConfig.get();
         argument.layout = 'layout1';
         argument.name = 'dashboard1';
         argument.tables = {
             key1: 'datastore1.database1.table1'
         };
 
-        let expected = Dashboard.get();
+        let expected = NeonDashboardConfig.get();
         expected.category = (DashboardService as any).DASHBOARD_CATEGORY_DEFAULT;
         expected.choices = {
             dashboard1: argument
@@ -732,27 +732,28 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active dashboard at creation', () => {
-        let dashboard: Dashboard = Dashboard.get();
-        dashboard.name = 'Test Discovery Config';
-        dashboard.layout = 'DISCOVERY';
-        dashboard.options = {};
-        dashboard.visualizationTitles = {
-            dataTableTitle: 'Documents'
-        };
-        dashboard.tables = {
-            table_key_1: 'datastore1.testDatabase1.testTable1',
-            table_key_2: 'datastore1.testDatabase2.testTable2'
-        };
-        dashboard.fields = {
-            field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
-        };
-        dashboard.relations = [
-            ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
-            [
-                ['datastore1.testDatabase1.testTable1.testRelationFieldB'],
-                ['datastore1.testDatabase2.testTable2.testRelationFieldB']
+        let dashboard = NeonDashboardConfig.get({
+            name: 'Test Discovery Config',
+            layout: 'DISCOVERY',
+            options: {},
+            visualizationTitles: {
+                dataTableTitle: 'Documents'
+            },
+            tables: {
+                table_key_1: 'datastore1.testDatabase1.testTable1',
+                table_key_2: 'datastore1.testDatabase2.testTable2'
+            },
+            fields: {
+                field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
+            },
+            relations: [
+                ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldA'],
+                [
+                    ['datastore1.testDatabase1.testTable1.testRelationFieldB'],
+                    ['datastore1.testDatabase2.testTable2.testRelationFieldB']
+                ]
             ]
-        ];
+        });
         expect(dashboardService.state.dashboard).toEqual(dashboard);
     });
 
@@ -947,72 +948,6 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('getCurrentDatabase does return expected object', () => {
         expect(dashboardService.state.getDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-    });
-
-    it('getDatastoresInConfigFormat does return expected object', () => {
-        expect(dashboardService.getDatastoresInConfigFormat()).toEqual({
-            datastore1: {
-                hasUpdatedFields: true,
-                host: 'testHostname',
-                type: 'testDatastore',
-                databases: {
-                    testDatabase1: {
-                        prettyName: 'Test Database 1',
-                        tables: {
-                            testTable1: {
-                                prettyName: 'Test Table 1',
-                                fields: DashboardServiceMock.FIELDS.map((field) => ({
-                                    columnName: field.columnName,
-                                    prettyName: field.prettyName,
-                                    hide: field.hide,
-                                    type: field.type
-                                })),
-                                labelOptions: {},
-                                mappings: {}
-                            },
-                            testTable2: {
-                                prettyName: 'Test Table 2',
-                                fields: DashboardServiceMock.FIELDS.map((field) => ({
-                                    columnName: field.columnName,
-                                    prettyName: field.prettyName,
-                                    hide: field.hide,
-                                    type: field.type
-                                })),
-                                labelOptions: {},
-                                mappings: {}
-                            }
-                        }
-                    },
-                    testDatabase2: {
-                        prettyName: 'Test Database 2',
-                        tables: {
-                            testTable1: {
-                                prettyName: 'Test Table 1',
-                                fields: DashboardServiceMock.FIELDS.map((field) => ({
-                                    columnName: field.columnName,
-                                    prettyName: field.prettyName,
-                                    hide: field.hide,
-                                    type: field.type
-                                })),
-                                labelOptions: {},
-                                mappings: {}
-                            },
-                            testTable2: {
-                                prettyName: 'Test Table 2',
-                                fields: DashboardServiceMock.FIELDS.map((field) => ({
-                                    columnName: field.columnName,
-                                    prettyName: field.prettyName,
-                                    hide: field.hide,
-                                    type: field.type
-                                })),
-                                labelOptions: {},
-                                mappings: {}
-                            }
-                        }
-                    }
-                }
-            }
-        });
     });
 
     it('translateFieldKeyToValue does return expected string', () => {

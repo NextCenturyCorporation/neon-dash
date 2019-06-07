@@ -103,7 +103,6 @@ export interface Connection<T extends { query: any } = { query: any }> {
     /**
      * Saves (or overwrites) a state with the given data.
      *
-     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}
@@ -244,7 +243,6 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
     /**
      * Saves (or overwrites) a state with the given data.
      *
-     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
      * @arg {(response: any) => void} onSuccess
      * @arg {(response: any) => void} [onError]
      * @return {RequestWrapper}

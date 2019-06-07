@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { Dashboard } from '../../types';
+import { NeonDashboardConfig } from '../../types';
 import * as _ from 'lodash';
 
 @Component({
@@ -31,11 +31,11 @@ import * as _ from 'lodash';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardDropdownComponent {
-    @Input() dashboards: Dashboard;
+    @Input() dashboards: NeonDashboardConfig;
     @Output() selectionChange = new EventEmitter();
     @ViewChild('nextDropdown') nextDropdown: DashboardDropdownComponent;
 
-    public selectedDashboard: Dashboard;
+    public selectedDashboard: NeonDashboardConfig;
 
     constructor(public changeDetection: ChangeDetectorRef) { }
 
@@ -102,7 +102,7 @@ export class DashboardDropdownComponent {
      * @arg {DashboardDropdownComponent} dropdown - dropdown component
      */
     selectDashboardChoice(
-        dashboard: Dashboard,
+        dashboard: NeonDashboardConfig,
         paths: string[],
         indexToUse: number,
         dropdown: DashboardDropdownComponent

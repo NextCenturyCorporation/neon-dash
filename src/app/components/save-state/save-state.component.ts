@@ -31,7 +31,7 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { Dashboard, NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../types';
+import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../types';
 import { DashboardState } from '../../dashboard-state';
 
 @Component({
@@ -86,7 +86,7 @@ export class SaveStateComponent implements OnInit {
         });
     }
 
-    private createDashboard(stateName: string, dashboard: Dashboard, filters: any[]): Dashboard {
+    private createDashboard(stateName: string, dashboard: NeonDashboardConfig, filters: any[]): NeonDashboardConfig {
         // Don't modify the original dashboard object
         let clonedDashboard = _.cloneDeep(dashboard);
         clonedDashboard.options = {
@@ -232,7 +232,7 @@ export class SaveStateComponent implements OnInit {
         this.openNotification(name, 'deleted');
     }
 
-    private handleLoadStateSuccess(response: NeonConfig<Dashboard>, name: string) {
+    private handleLoadStateSuccess(response: NeonConfig, name: string) {
         if (response.dashboards && response.datastores && response.layouts) {
             this.dashboardService.setConfig(response);
             // Dashboard choices should be set by wrapInSavedStateDashboard
@@ -327,17 +327,5 @@ export class SaveStateComponent implements OnInit {
     private validateName(stateName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
         return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
-    }
-
-    private wrapInSavedStateDashboard<T extends NeonDashboardConfig>(stateName: string, dashboard: T): T {
-        let savedStateDashboard: NeonDashboardConfig = Dashboard.get();
-        savedStateDashboard.name = 'Saved State';
-        savedStateDashboard.choices = {};
-        savedStateDashboard.choices[stateName] = dashboard;
-
-        let rootDashboard: NeonDashboardConfig = Dashboard.get();
-        rootDashboard.choices = {};
-        rootDashboard.choices[SaveStateComponent.SAVED_STATE_DASHBOARD_KEY] = savedStateDashboard;
-        return rootDashboard as T;
     }
 }

@@ -15,7 +15,7 @@
  */
 import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
 
-import { Dashboard } from '../../types';
+import { NeonDashboardConfig } from '../../types';
 import { neonEvents } from '../../neon-namespaces';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
@@ -27,9 +27,9 @@ import { eventing } from 'neon-framework';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-    public dashboardChoice: Dashboard;
+    public dashboardChoice: NeonDashboardConfig;
 
-    @Input() dashboards: Dashboard;
+    @Input() dashboards: NeonDashboardConfig;
 
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -56,7 +56,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.closeComponent.emit(true);
     }
 
-    private onDashboardStateChange(eventMessage: { dashboard: Dashboard }): void {
+    private onDashboardStateChange(eventMessage: { dashboard: NeonDashboardConfig }): void {
         // If the dashboard state is changed by an external source, update the dropdowns as needed.
         let paths = eventMessage.dashboard.pathFromTop;
         this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
@@ -67,14 +67,14 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      * dashboardChoice to the appropriate value.
      * @param {any} event
      */
-    public setDashboardChoice($event: Dashboard) {
+    public setDashboardChoice($event: NeonDashboardConfig) {
         this.dashboardChoice = $event;
     }
 
     /**
      * Updates the current dashboard state to the selected dashboardChoice.
      */
-    public updateDashboardState(dashboard: Dashboard) {
+    public updateDashboardState(dashboard: NeonDashboardConfig) {
         if (dashboard) {
             this.messenger.publish(neonEvents.DASHBOARD_STATE, {
                 dashboard
