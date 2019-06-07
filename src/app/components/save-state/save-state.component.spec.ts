@@ -177,8 +177,6 @@ describe('Component: SaveStateComponent', () => {
             name: 'dashboard1'
         });
 
-        ; // TODO: Verify why this is what it is
-
         expect(spyDashboardService.calls.count()).toEqual(1);
         expect(spyDashboardService.calls.argsFor(0)).toEqual([
             savedStateDashboard,
@@ -270,7 +268,6 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let dashboard = NeonDashboardConfig.get({
-            datastores: {},
             fullTitle: 'Full Title',
             layout: 'layoutName',
             name: 'dashName',
@@ -427,7 +424,6 @@ describe('Component: SaveStateComponent', () => {
                         fieldName: 'field1'
                     }
                 });
-                expect(data.dashboards.datastores).toBeUndefined();
                 expect(data.dashboards.pathFromTop).toBeUndefined();
                 expect(data.dashboards.filters).toEqual([{
                     optional: true,

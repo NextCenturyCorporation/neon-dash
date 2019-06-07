@@ -15,6 +15,32 @@
  */
 // TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
 
+type Primitive = number | string | Date | boolean | undefined;
+
+type DeepPartial<T> = {
+    [P in keyof T]?:
+    (T[P] extends (Primitive | Primitive[] | Record<string, Primitive>) ?
+        (T[P] | undefined) :
+        (T[P] extends any[] ?
+            DeepPartial<T[P][0]>[] | undefined :
+            (T[P] extends Record<string, any> ?
+                Record<string, DeepPartial<T[P]['']>> :
+                DeepPartial<T[P]>))) | T[P];
+} & {
+    [key: string]: any;
+};
+
+function translateValues<T>(obj: Record<string, Partial<T>>, transform: (input: Partial<T>) => T): Record<string, T> {
+    for (const key of Object.keys(obj)) {
+        obj[key] = transform(obj[key]);
+    }
+    return obj as Record<string, T>;
+}
+
+function translate<T>(values: Partial<T>[], transform: (input: Partial<T>) => T): T[] {
+    return values.map(transform);
+}
+
 export interface NeonFieldMetaData {
     columnName: string;
     prettyName: string;
@@ -23,14 +49,14 @@ export interface NeonFieldMetaData {
 }
 
 export class NeonFieldMetaData {
-    static get(field: Partial<NeonFieldMetaData> = {}) {
+    static get(field: DeepPartial<NeonFieldMetaData> = {}) {
         return {
             columnName: '',
             prettyName: '',
             hide: false,
             type: '',
             ...field
-        };
+        } as NeonFieldMetaData;
     }
 }
 
@@ -43,15 +69,15 @@ export interface NeonTableMetaData {
 }
 
 export class NeonTableMetaData {
-    static get(table: Partial<NeonTableMetaData> = {}) {
+    static get(table: DeepPartial<NeonTableMetaData> = {}) {
         return {
             name: '',
             prettyName: '',
-            fields: [],
             mappings: {},
             labelOptions: {},
-            ...table
-        };
+            ...table,
+            fields: translate(table.fields || [], NeonFieldMetaData.get.bind(null))
+        } as NeonTableMetaData;
     }
 }
 
@@ -62,13 +88,13 @@ export interface NeonDatabaseMetaData {
 }
 
 export class NeonDatabaseMetaData {
-    static get(db: Partial<NeonDatabaseMetaData> = {}) {
+    static get(db: DeepPartial<NeonDatabaseMetaData> = {}) {
         return {
             name: '',
             prettyName: '',
-            tables: {},
-            ...db
-        };
+            ...db,
+            tables: translateValues(db.tables || {}, NeonTableMetaData.get.bind(null))
+        } as NeonDatabaseMetaData;
     }
 }
 
@@ -123,7 +149,7 @@ export interface NeonDashboardParentConfig {
 export interface NeonDashboardConfig extends NeonDashboardLeafConfig, NeonDashboardParentConfig { }
 
 export class NeonDashboardConfig {
-    static get(dash: Partial<NeonDashboardConfig> = {}): NeonDashboardConfig {
+    static get(dash: DeepPartial<NeonDashboardConfig> = {}): NeonDashboardConfig {
         return {
             layout: '',
             filters: [],
@@ -131,14 +157,13 @@ export class NeonDashboardConfig {
             tables: {},
             visualizationTitles: {},
             contributors: {},
-            choices: {},
             fullTitle: '',
             pathFromTop: [],
-            ...dash
-        };
+            ...dash,
+            choices: translateValues(dash.choices || {}, NeonDashboardConfig.get.bind(null))
+        } as NeonDashboardConfig;
     }
 }
-
 
 export interface NeonLayoutGridConfig {
     col: number;
@@ -162,14 +187,14 @@ export interface NeonDatastoreConfig {
 }
 
 export class NeonDatastoreConfig {
-    static get(config: Partial<NeonDatastoreConfig> = {}) {
+    static get(config: DeepPartial<NeonDatastoreConfig> = {}) {
         return {
             name: '',
             host: '',
             type: '',
-            databases: {},
-            ...config
-        };
+            ...config,
+            databases: translateValues(config.databases || {}, NeonDatabaseMetaData.get.bind(null))
+        } as NeonDatastoreConfig;
     }
 }
 
@@ -189,21 +214,20 @@ export interface NeonConfig {
 }
 
 export class NeonConfig {
-    static get(config: Partial<NeonConfig> = {}): NeonConfig {
+    static get(config: DeepPartial<NeonConfig> = {}): NeonConfig {
         return {
-            dashboards: {},
-            datastores: {},
             errors: [],
             layouts: {},
             version: '',
             neonServerUrl: '',
             projectIcon: '',
             projectTitle: '',
-            ...config
-        };
+            ...config,
+            dashboards: translateValues(config.dashboards || {}, NeonDashboardConfig.get.bind(null)),
+            datastores: translateValues(config.datastores || {}, NeonDatastoreConfig.get.bind(null))
+        } as NeonConfig;
     }
 }
-
 
 /*
 TODO: THOR-825: This was turned into Datastore -- leaving old commented out
