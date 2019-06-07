@@ -48,7 +48,7 @@ export class DashboardState {
      * @return {String}
      */
     deconstructTableName(key: string) {
-        return DashboardState.deconstructDottedReference(this.dashboard.tables[key]);
+        return DashboardState.deconstructDottedReference(this.dashboard.tables[key] || key);
     }
 
 
@@ -58,7 +58,7 @@ export class DashboardState {
      * @return {String}
      */
     deconstructFieldName(key: string) {
-        return DashboardState.deconstructDottedReference(this.dashboard.fields[key]);
+        return DashboardState.deconstructDottedReference(this.dashboard.fields[key] || key);
     }
 
     /**
@@ -134,6 +134,13 @@ export class DashboardState {
      */
     public getLayout(): string {
         return this.dashboard.layout;
+    }
+
+    /**
+     * Sets layout
+     */
+    public setLayout(layout: string) {
+        this.dashboard.layout = layout;
     }
 
     /**
@@ -336,59 +343,6 @@ export class DashboardState {
         return {};
     }
 
-
-
-    /**
-     * Returns the mappings for the table with the given name.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @return {Object} The mappings if a match exists or an empty object otherwise.
-     */
-    public getMappings(databaseName: string, tableName: string): NeonTableMetaData['mappings'] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return {};
-        }
-
-        return table.mappings;
-    }
-
-    /**
-     * Returns the mapping for the table with the given name and the given key.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {String} The mapping key
-     * @return {String} The field name for the mapping at the given key if a match exists or an empty string
-     * otherwise.
-     */
-    public getMapping(databaseName: string, tableName: string, key: string): string {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return '';
-        }
-
-        return table.mappings[key];
-    }
-
-    /**
-     * Sets the mapping for the table with the given name at the given key to the given field name.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {String} The mapping key
-     * @param {String} The field name for the given mapping key
-     */
-    public setMapping(databaseName: string, tableName: string, key: string, fieldName: string): void {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return;
-        }
-
-        table.mappings[key] = fieldName;
-    }
-
     /**
      * Returns the options for the current dashboard.
      * @method getCurrentDashboardOptions
@@ -397,15 +351,6 @@ export class DashboardState {
      */
     public getOptions(): NeonDashboardConfig['options'] {
         return this.dashboard.options;
-    }
-
-    /**
-     * Returns whether the given field object is valid.
-     * @param {Object} fieldObject
-     * @return {Boolean}
-     */
-    public isFieldValid(fieldObject: NeonFieldMetaData): boolean {
-        return Boolean(fieldObject && fieldObject.columnName);
     }
 
     /**
@@ -471,13 +416,15 @@ export class DashboardState {
             return relationFilterFields.map((item) => {
                 const { database, table, field } = this.deconstructTableName(item);
 
-                return {
+                const res = {
                     // TODO THOR-1062 THOR-1078 Set the datastore name too!
                     datastore: '',
                     database: this.getDatabaseWithName(database),
                     table: this.getTableWithName(database, table),
                     field: this.getFieldWithName(database, table, field)
                 } as SingleField;
+
+                return res;
             }).filter((item) => item.database && item.table && item.field);
         })).filter((relationData) => {
             if (relationData.length > 1) {

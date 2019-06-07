@@ -83,7 +83,6 @@ export class CustomConnectionComponent implements AfterContentInit {
             acc[db.name] = db;
             return acc;
         }, {} as { [key: string]: NeonDatabaseMetaData });
-        this.datasetService.addDatastore(datastore);
         this.datasetService.setActiveDatastore(datastore);
 
         // TODO: THOR-825:

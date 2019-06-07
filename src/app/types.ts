@@ -18,21 +18,24 @@
 type Primitive = number | string | Date | boolean | undefined;
 
 type DeepPartial<T> = {
-    [P in keyof T]?:
+    [P in keyof T]?: T[P] |
     (T[P] extends (Primitive | Primitive[] | Record<string, Primitive>) ?
         (T[P] | undefined) :
         (T[P] extends any[] ?
             DeepPartial<T[P][0]>[] | undefined :
             (T[P] extends Record<string, any> ?
                 Record<string, DeepPartial<T[P]['']>> :
-                DeepPartial<T[P]>))) | T[P];
+                DeepPartial<T[P]>)));
 } & {
     [key: string]: any;
 };
 
-function translateValues<T>(obj: Record<string, Partial<T>>, transform: (input: Partial<T>) => T): Record<string, T> {
+function translateValues<T>(obj: Record<string, Partial<T>>, transform: (input: Partial<T>) => T, applyNames = false): Record<string, T> {
     for (const key of Object.keys(obj)) {
         obj[key] = transform(obj[key]);
+        if (applyNames && !obj[key]['name']) {
+            obj[key]['name'] = key;
+        }
     }
     return obj as Record<string, T>;
 }
@@ -93,7 +96,7 @@ export class NeonDatabaseMetaData {
             name: '',
             prettyName: '',
             ...db,
-            tables: translateValues(db.tables || {}, NeonTableMetaData.get.bind(null))
+            tables: translateValues(db.tables || {}, NeonTableMetaData.get.bind(null), true)
         } as NeonDatabaseMetaData;
     }
 }
@@ -160,7 +163,7 @@ export class NeonDashboardConfig {
             fullTitle: '',
             pathFromTop: [],
             ...dash,
-            choices: translateValues(dash.choices || {}, NeonDashboardConfig.get.bind(null))
+            choices: translateValues(dash.choices || {}, NeonDashboardConfig.get.bind(null), true)
         } as NeonDashboardConfig;
     }
 }
@@ -193,7 +196,7 @@ export class NeonDatastoreConfig {
             host: '',
             type: '',
             ...config,
-            databases: translateValues(config.databases || {}, NeonDatabaseMetaData.get.bind(null))
+            databases: translateValues(config.databases || {}, NeonDatabaseMetaData.get.bind(null), true)
         } as NeonDatastoreConfig;
     }
 }
@@ -223,8 +226,8 @@ export class NeonConfig {
             projectIcon: '',
             projectTitle: '',
             ...config,
-            dashboards: translateValues(config.dashboards || {}, NeonDashboardConfig.get.bind(null)),
-            datastores: translateValues(config.datastores || {}, NeonDatastoreConfig.get.bind(null))
+            dashboards: NeonDashboardConfig.get(config.dashboards || {}),
+            datastores: translateValues(config.datastores || {}, NeonDatastoreConfig.get.bind(null), true)
         } as NeonConfig;
     }
 }
