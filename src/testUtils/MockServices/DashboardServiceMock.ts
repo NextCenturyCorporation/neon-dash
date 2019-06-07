@@ -79,11 +79,15 @@ export class DashboardServiceMock extends DashboardService {
 
     constructor() {
         super(new ConfigService(null).set(NeonConfig.get()), new MockConnectionService());
-        let datastore = NeonDatastoreConfig.get({ name: 'datastore1', host: 'testHostname', type: 'testDatastore' });
-        datastore.databases = DashboardServiceMock.DATABASES;
-        datastore['hasUpdatedFields'] = true;
+        let datastore = NeonDatastoreConfig.get({
+            name: 'datastore1',
+            host: 'testHostname',
+            type: 'testDatastore',
+            databases: DashboardServiceMock.DATABASES,
+            hasUpdatedFields: true
+        })
+
         this.setActiveDatastore(datastore);
-        this.addDatastore(datastore);
 
         let dashboard = NeonDashboardConfig.get({
             name: 'Test Discovery Config',

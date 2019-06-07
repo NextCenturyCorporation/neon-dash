@@ -91,110 +91,6 @@ describe('Service: DashboardService Static Functions', () => {
         ]
     });
 
-    it('assignDashboardChoicesFromConfig with no config choices and no existing choices should do nothing', () => {
-        let input = {};
-        DashboardService.assignDashboardChoicesFromConfig(input, {});
-        expect(input).toEqual({});
-    });
-
-    it('assignDashboardChoicesFromConfig with config choices and no existing choices should update given choices', () => {
-        let input = {};
-        let dashboard = NeonDashboardConfig.get();
-        dashboard.name = 'name';
-        DashboardService.assignDashboardChoicesFromConfig(input, {
-            test: dashboard
-        });
-        expect(input).toEqual({
-            test: dashboard
-        });
-    });
-
-    it('assignDashboardChoicesFromConfig with nested config choices and no existing choices should update given choices', () => {
-        let input = {};
-        let dashboard = NeonDashboardConfig.get();
-        dashboard.name = 'name';
-        DashboardService.assignDashboardChoicesFromConfig(input, {
-            test1: NeonDashboardConfig.get({
-                choices: {
-                    test2: dashboard
-                }
-            })
-        });
-        expect(input).toEqual({
-            test1: {
-                choices: {
-                    test2: dashboard
-                }
-            }
-        });
-    });
-
-    it('assignDashboardChoicesFromConfig with config choices and existing choices should update given choices', () => {
-        let previousDashboard = NeonDashboardConfig.get({
-            name: 'previous'
-        });
-        let input = {
-            prev: previousDashboard
-        };
-        let dashboard = NeonDashboardConfig.get();
-        dashboard.name = 'name';
-        DashboardService.assignDashboardChoicesFromConfig(input, {
-            test: dashboard
-        });
-        expect(input).toEqual({
-            prev: previousDashboard,
-            test: dashboard
-        });
-    });
-
-    it('assignDashboardChoicesFromConfig with nested config choices and nested existing choices should update given choices', () => {
-        let previousDashboard = NeonDashboardConfig.get({
-            name: 'previous'
-        });
-        let input = {
-            test1: NeonDashboardConfig.get({
-                choices: {
-                    prev2: previousDashboard
-                }
-            })
-        };
-        let dashboard = NeonDashboardConfig.get({
-            name: 'name'
-        });
-        DashboardService.assignDashboardChoicesFromConfig(input, {
-            test1: NeonDashboardConfig.get({
-                choices: {
-                    test2: dashboard
-                }
-            })
-        });
-
-        expect(input).toEqual({
-            test1: {
-                choices: {
-                    prev2: previousDashboard,
-                    test2: dashboard
-                }
-            }
-        });
-    });
-
-    it('assignDashboardChoicesFromConfig with same ID in config choices and existing choices should not update given choices', () => {
-        let previousDashboard = NeonDashboardConfig.get();
-        previousDashboard.name = 'previous';
-        let input = {
-            prev: previousDashboard
-        };
-        let dashboard = NeonDashboardConfig.get();
-        dashboard.name = 'name';
-        DashboardService.assignDashboardChoicesFromConfig(input, {
-            prev: dashboard
-        });
-        expect(input).toEqual({
-            prev: previousDashboard
-        });
-    });
-
     it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
         let input = {};
         DashboardService.appendDatastoresFromConfig({}, {});
@@ -347,43 +243,64 @@ describe('Service: DashboardService Static Functions', () => {
             })
         }, input);
 
-        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
-        table1.fields = [
-            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
-            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
-        ];
-        table1.labelOptions = {
-            valueA: 'labelA',
-            valueB: 'labelB'
-        };
-        table1.mappings = {
-            mappingA: 'fieldA',
-            mappingB: 'fieldB'
-        };
-        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
-        database1.tables = { [table1.name]: table1 };
-        let datastore1 = { name: 'datastore1', host: 'host1', type: 'type1', hasUpdatedFields: false, databases: {} };
-        datastore1.databases = { [database1.name]: database1 };
-        datastore1.hasUpdatedFields = false;
+        let datastore1 = NeonDatastoreConfig.get({
+            name: 'datastore1',
+            host: 'host1',
+            type: 'type1',
+            hasUpdatedFields: false,
+            databases: {
+                database1: {
+                    prettyName: 'Database 1',
+                    tables: {
+                        table1: {
+                            prettyName: 'Table 1',
+                            labelOptions: {
+                                valueA: 'labelA',
+                                valueB: 'labelB'
+                            },
+                            mappings: {
+                                mappingA: 'fieldA',
+                                mappingB: 'fieldB'
+                            },
+                            fields: [
+                                { columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' },
+                                { columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' }
 
-        let table2 = NeonTableMetaData.get({ name: 'table2', prettyName: 'Table 2' });
-        table2.fields = [
-            NeonFieldMetaData.get({ columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' }),
-            NeonFieldMetaData.get({ columnName: 'fieldD', prettyName: 'Field D', hide: true, type: 'date' })
-        ];
-        table2.labelOptions = {
-            valueC: 'labelC',
-            valueD: 'labelD'
-        };
-        table2.mappings = {
-            mappingC: 'fieldC',
-            mappingD: 'fieldD'
-        };
-        let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
-        database2.tables = { [table2.name]: table2 };
-        let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', hasUpdatedFields: false, databases: {} };
-        datastore2.databases = { [database2.name]: database2 };
-        datastore2.hasUpdatedFields = false;
+                            ]
+                        }
+                    }
+                }
+            }
+        });
+
+        let datastore2 = NeonDatastoreConfig.get({
+            name: 'datastore2',
+            host: 'host2',
+            type: 'type2',
+            hasUpdatedFields: false,
+            databases: {
+                database2: {
+                    prettyName: 'Database 2',
+                    tables: {
+                        table2: {
+                            prettyName: 'Table 2',
+                            labelOptions: {
+                                valueC: 'labelC',
+                                valueD: 'labelD'
+                            },
+                            mappings: {
+                                mappingC: 'fieldC',
+                                mappingD: 'fieldD'
+                            },
+                            fields: [
+                                { columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' },
+                                { columnName: 'fieldD', prettyName: 'Field D', hide: true, type: 'date' }
+                            ]
+                        }
+                    }
+                }
+            }
+        });
 
         expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
     });
@@ -975,16 +892,40 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does ignore relations with unequal filter fields', () => {
-        spyOn(dashboardService.state, 'dashboard').and.returnValue({
+        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
+            name: 'datastore1',
+            databases: {
+                testDatabase1: {
+                    tables: {
+                        testTable1: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                },
+                testDatabase2: {
+                    tables: {
+                        testTable2: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                }
+            }
+        }));
+
+        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+            tables: {
+                testTable1: 'datastore1.testDatabase1.testTable1',
+                testTable2: 'datastore1.testDatabase1.testTable2'
+            },
             relations: [
-                [
-                    ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
-                    []
-                ],
-                [
-                    [],
-                    ['datastore1.testDatabase2.testTable2.testRelationFieldA']
-                ],
+                [['datastore1.testDatabase1.testTable1.testRelationFieldA'], []],
+                [[], ['datastore1.testDatabase2.testTable2.testRelationFieldA']],
                 [
                     ['datastore1.testDatabase1.testTable1.testRelationFieldA', 'datastore1.testDatabase1.testTable1.testRelationFieldB'],
                     ['datastore1.testDatabase2.testTable2.testRelationFieldA']
@@ -994,12 +935,14 @@ describe('Service: DashboardService with Mock Data', () => {
                     ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
                 ]
             ]
-        });
+        }));
+
 
         expect(dashboardService.state.findRelationDataList()).toEqual([]);
     });
 
     it('getCurrentDatabase does return expected object', () => {
+        dashboardService.state
         expect(dashboardService.state.getDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
     });
 

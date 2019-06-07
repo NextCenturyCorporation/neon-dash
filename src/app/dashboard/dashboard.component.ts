@@ -666,10 +666,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        const firstName = Object.keys(this.dashboardService.datastores)[0];
+        const firstName = Object.keys(this.dashboardService.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.dashboardService.setActiveDatastore(this.dashboardService.datastores[firstName]);
+        this.dashboardService.setActiveDashboard(this.currentDashboard);
 
-        this.dashboardService.state.dashboard = eventMessage.dashboard;
+        if (this.currentDashboard.layout) {
+            this.dashboardService.state.setLayout(this.currentDashboard.layout);
+        }
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
@@ -707,7 +710,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private showDashboardStateOnPageLoad() {
         let dashboard = this.findAutoShowDashboard(this.dashboards);
 
-        const firstDataStore = dashboard && Object.values(this.dashboardService.datastores)[0];
+        const firstDataStore = dashboard && Object.values(this.dashboardService.datastores)
+            .sort((ds1, ds2) => ds1.name.localeCompare(ds2.name))[0];
 
         if (dashboard && firstDataStore) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {

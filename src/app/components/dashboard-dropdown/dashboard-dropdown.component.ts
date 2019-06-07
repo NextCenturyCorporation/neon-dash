@@ -68,7 +68,7 @@ export class DashboardDropdownComponent {
         // otherwise, emit undefined
         if (!this.hasMoreChoices()) {
             this.selectionChange.emit(this.selectedDashboard);
-        } else if (this.hasMoreChoices() && this.selectedDashboard) {
+        } else if (this.selectedDashboard) {
             this.selectionChange.emit();
         }
     }
@@ -78,8 +78,7 @@ export class DashboardDropdownComponent {
      */
     hasMoreChoices(): boolean {
         return (
-            !!this.selectedDashboard &&
-            !!this.selectedDashboard.choices &&
+            !_.isEmpty(this.selectedDashboard && this.selectedDashboard.choices) &&
             !!_.findKey(this.dashboards.choices, this.selectedDashboard)
         );
     }
