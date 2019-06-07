@@ -216,7 +216,7 @@ datastores:
                             - columnName: originalText
                               prettyName: Original Text
                         labelOptions:
-                            need:
+                            topics:
                                 food: Food
                                 water: Water
                                 shelter: Shelter
@@ -261,8 +261,8 @@ datastores:
                     ui_output:
                         prettyName: UI out
                         fields:
-                            - columnName: need
-                              prettyName: Need Type
+                            - columnName: type
+                              prettyName: Type
                             - columnName: location
                               prettyName: Location
                             - columnName: translatedText
@@ -270,7 +270,7 @@ datastores:
                             - columnName: originalText
                               prettyName: Original Text
                         labelOptions:
-                            Type:
+                            type:
                                 food: Food
                                 water: Water
                                 shelter: Shelter
@@ -575,6 +575,12 @@ dashboards:
                             relations:
                                 - - es1.mozambique052019_tweet.ui_output.id
                                   - es1.mozambique052019_sf.ui_output.id
+                                - - es1.mozambique052019_tweet.ui_output.topics
+                                  - es1.mozambique052019_sf.ui_output.type
+                                - - - es1.mozambique052019_tweet.ui_output.geoLocation.lat
+                                    - es1.mozambique052019_tweet.ui_output.geoLocation.lon
+                                  - - es1.mozambique052019_sf.ui_output.geoLocation.lat
+                                    - es1.mozambique052019_sf.ui_output.geoLocation.lon
                             options:
                                 connectOnLoad: true
                                 simpleFilter:
@@ -582,14 +588,14 @@ dashboards:
                                     fieldKey: translated_text_key
                                     placeHolder: Search
                             contributors:
-                                elisa-rpi:
+                                rpi:
                                     orgName: 'Rensselaer Polytechnic Institute'
                                     abbreviation: 'RPI'
                                     contactName: 'Heng Ji'
                                     contactEmail: 'jih@rpi.edu'
                                     website: 'http://nlp.cs.rpi.edu/'
                                     logo: 'RPI-logo.png'
-                                elisa-isi:
+                                isi:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     contactName: 'Jonathan May'
@@ -623,20 +629,27 @@ dashboards:
                                     fieldKey: translated_text_key
                                     placeHolder: Search
                             contributors:
-                                elisa-rpi:
-                                    orgName: 'Rensselaer Polytechnic Institute'
-                                    abbreviation: 'RPI'
-                                    contactName: 'Heng Ji'
-                                    contactEmail: 'jih@rpi.edu'
-                                    website: 'http://nlp.cs.rpi.edu/'
-                                    logo: 'RPI-logo.png'
-                                elisa-isi:
-                                    orgName: 'University of Southern California, Information Sciences Institute'
-                                    abbreviation: 'USC/ISI'
-                                    contactName: 'Jonathan May'
-                                    contactEmail: 'jonmay@isi.edu'
-                                    website: 'https://www.isi.edu/'
-                                    logo: 'ISI-logo.png'   
+                                ldc:
+                                    orgName: 'Linguistic Data Consortium'
+                                    abbreviation: 'LDC'
+                                    contactName: 'Stephanie Strassel'
+                                    contactEmail: 'strassel@ldc.upenn.edu'
+                                    website: 'https://www.ldc.upenn.edu/language-resources'
+                                    logo: 'LDC-logo.png'
+                                raytheon:
+                                    orgName: 'Raytheon BBN Technologies'
+                                    abbreviation: 'BBN'
+                                    contactName: 'Rabih Zbib'
+                                    contactEmail: 'rabih.zbib@raytheon.com'
+                                    website: 'https://www.raytheon.com/ourcompany/bbn'
+                                    logo: 'RaytheonBBN-logo.png'
+                                upenn:
+                                    orgName: 'University of Pennsylvania'
+                                    abbreviation: 'UPenn'
+                                    contactName: 'Dan Roth'
+                                    contactEmail: 'danroth@seas.upenn.edu'
+                                    website: 'https://www.upenn.edu/'
+                                    logo: 'UPenn-logo.jpg'
                 apan:
                     name: 'APAN'
                     category: 'Select a datastore...'
@@ -1146,34 +1159,27 @@ layouts:
                 - rpi
                 - isi
     africom-moz:
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
           col: 1
           row: 1
           sizex: 4
-          sizey: 11
+          sizey: 15
           bindings:
-              title: Tweet
+              title: Document Feed
               tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
               idField: id_field_key_1
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
               sortField: date_field_key
-              limit: 100
-              showFields:
-                  - date_field_key
-                  - original_text_key
-              customColumnWidths:
-                  - - date_field_key
-                    - 30
-                  - - original_text_key
-                    - 370
-              filterable: false
-              singleFilter: true
+              titleContentField: translated_text_key
               ignoreSelf: false
+              limit: 100
               contributionKeys:
                 - ldc
-                - rpi
-                - isi
         - name: Map
           type: map
           icon: Map64
@@ -1201,7 +1207,6 @@ layouts:
               east: 78
               south: -20
               contributionKeys:
-                - ldc
                 - rpi
                 - isi
         - name: Text Cloud
@@ -1218,7 +1223,6 @@ layouts:
               dataField: location_key
               preFilter: false
               contributionKeys:
-                - ldc
                 - rpi
         - name: Bar Chart
           type: aggregation
@@ -1228,7 +1232,7 @@ layouts:
           sizex: 3
           sizey: 6
           bindings:
-              title: Situation Needs
+              title: Situation Types
               type: bar-h
               tableKey: table_key_2
               xField: color_field_topic_key
@@ -1237,41 +1241,6 @@ layouts:
               sortByAggregation: true
               ignoreSelf: true
               contributionKeys:
-                - ldc
-                - isi
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 1
-          row: 12
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Original Text
-              tableKey: table_key_1
-              linkField: original_text_key
-              idField: id_field_key_1
-              respondMode: true
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 3
-          row: 12
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Translated Text
-              tableKey: table_key_1
-              linkField: translated_text_key
-              idField: id_field_key_1
-              respondMode: true
-              contributionKeys:
-                - ldc
-                - rpi
                 - isi
         - name: Data Table
           type: dataTable
@@ -1300,53 +1269,28 @@ layouts:
               singleFilter: true
               ignoreSelf: false
               contributionKeys:
-                - ldc
                 - rpi
                 - isi
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 10
-          row: 16
-          sizex: 3
-          sizey: 5
-          bindings:
-              title: Situation Clusters
-              type: bar-h
-              tableKey: table_key_1
-              xField: cluster_name_key
-              limit: 100
-              groupField: cluster_topics_key
-              sortByAggregation: true
     africom-som:
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
           col: 1
           row: 1
           sizex: 4
-          sizey: 11
+          sizey: 15
           bindings:
-              title: Documents
+              title: Document Feed
               tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
               idField: id_field_key_1
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
               sortField: date_field_key
-              limit: 100
-              showFields:
-                  - date_field_key
-                  - original_text_key
-              customColumnWidths:
-                  - - date_field_key
-                    - 30
-                  - - original_text_key
-                    - 370
-              filterable: false
-              singleFilter: true
+              titleContentField: translated_text_key
               ignoreSelf: false
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
+              limit: 100
         - name: Map
           type: map
           icon: Map64
@@ -1373,10 +1317,6 @@ layouts:
               north: 25
               east: 78
               south: 5
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -1390,9 +1330,6 @@ layouts:
               tableKey: table_key_2
               dataField: location_key
               preFilter: false
-              contributionKeys:
-                - ldc
-                - rpi
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
@@ -1401,7 +1338,7 @@ layouts:
           sizex: 3
           sizey: 6
           bindings:
-              title: Situation Needs
+              title: Situation Types
               type: bar-h
               tableKey: table_key_2
               xField: color_field_topic_key
@@ -1409,43 +1346,6 @@ layouts:
               groupField: color_field_topic_key
               sortByAggregation: true
               ignoreSelf: true
-              contributionKeys:
-                - ldc
-                - isi
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 1
-          row: 12
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Original Text
-              tableKey: table_key_1
-              linkField: original_text_key
-              idField: id_field_key_1
-              respondMode: true
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 3
-          row: 12
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Translated Text
-              tableKey: table_key_1
-              linkField: translated_text_key
-              idField: id_field_key_1
-              respondMode: true
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
         - name: Data Table
           type: dataTable
           icon: ViewData64
@@ -1472,25 +1372,6 @@ layouts:
                   - id_field_key_2
               singleFilter: true
               ignoreSelf: false
-              contributionKeys:
-                - ldc
-                - rpi
-                - isi
-        - name: Bar Chart
-          type: aggregation
-          icon: bar_chart
-          col: 10
-          row: 16
-          sizex: 3
-          sizey: 5
-          bindings:
-              title: Situation Clusters
-              type: bar-h
-              tableKey: table_key_1
-              xField: cluster_name_key
-              limit: 100
-              groupField: cluster_topics_key
-              sortByAggregation: true
     elisa_macedonia:
         - name: Data Table
           type: dataTable

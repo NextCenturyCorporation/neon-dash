@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     AfterViewInit,
@@ -86,7 +85,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AggregationComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, AggregationSubcomponentListener {
-
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
@@ -103,17 +101,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         height: number;
         width: number;
     } = {
-            height: 50,
-            width: 50
-        };
+        height: 50,
+        width: 50
+    };
 
     public minimumDimensionsZoom: {
         height: number;
         width: number;
     } = {
-            height: 50,
-            width: 50
-        };
+        height: 50,
+        width: 50
+    };
 
     // TODO THOR-1067 The subcomponent should draw this!
     // The selected area on the subcomponent (box or range).
@@ -129,9 +127,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         x: number;
         y: number;
     } = {
-            x: 0,
-            y: 0
-        };
+        x: 0,
+        y: 0
+    };
 
     // The subcomponents.  If dualView is on, both are used.  Otherwise, only main is used.
     public subcomponentMain: AbstractAggregationSubcomponent;
