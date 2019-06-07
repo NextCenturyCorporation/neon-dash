@@ -384,9 +384,6 @@ TODO
 
 #### **Data Table Bindings**
 
-Required:
-* **sortField** - The field name for the query sorting.
-
 Optional:
 * **allColumnStatus** - (Deprecated; please use **showFields**) Whether to show or hide the data columns on load.  Options:  `'show'`, `'hide'`.  Default:  `'show'`
 * **arrayFilterOperator** - The operator to use on multiple filters.  Default:  `'and'`.  Options:  `'and'`, `'or'`
@@ -406,6 +403,7 @@ Optional:
 * **singleFilter** - Whether to only allow a single filter at a time.  Default:  `false`
 * **skinny** - Whether to show the table with skinny styling.  Default:  `false`
 * **sortDescending** - Whether to sort the rows descending.  Default:  `true`
+* **sortField** - The field name for the query sorting.
 
 #### **Document Viewer Bindings**
 
@@ -474,18 +472,21 @@ TODO
 #### **News Feed Bindings**
 
 Required:
+* **contentField** - The field for the dropdown content.
+* **dateField** - The field for the date.
 * **idField** - The field name for the unique IDs.
-* **sortField** - The field name for the query sorting.
 
 Optional:
-* **contentField** - The field for the news content.
-* **dateField** - The field for the news date.
+* **contentLabel** - The label for the dropdown content.
 * **filterField** - The field name to use for the filter.
 * **id** - The ID to show on initialization.  Default:  `''` (none)
 * **ignoreSelf** - Whether the visualization will ignore its own filters.  Default:  `false`
-* **primaryTitleField** - The field for the news primary title.
-* **secondaryTitleField** - The field for the news secondary title.
+* **multiOpen** - Whether multiple dropdowns can be open at the same time.  Default:  `false`
+* **secondaryContentField** - The field for the secondary dropdown content.
+* **secondaryContentLabel** - The label for the secondary dropdown content.
 * **sortDescending** - Whether to sort the elements descending.  Default:  `false`
+* **sortField** - The field name for the query sorting.
+* **titleContentField** - The field for the title.  Default:  the `contentField`
 
 #### **Text Cloud Bindings**
 
@@ -503,7 +504,6 @@ Optional:
 
 Required:
 * **linkField** - The field name for the media links.
-* **sortField** - The field name for the media query sorting.
 
 Optional:
 * **ascending** - Whether to sort ascending.  Default:  `false`
@@ -534,6 +534,7 @@ Optional:
 * **predictedNameField** - The field name for the media names shown in the labels.
 * **showLabelName**
 * **sortDescending** - Whether to sort the documents descending.  Default:  `true`
+* **sortField** - The field name for the media query sorting.
 * **textMap** - An object with the optional properties `actual`, `name`, and `prediction` mapped to labels shown in the title tooltip.  Default:  `{ actual: 'Actual', name: '', prediction: 'Prediction' }`
 * **truncateLabel**
 * **typeField** - The field name for the media types (with values `'img'`, `'vid'`, or other).
