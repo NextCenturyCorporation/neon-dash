@@ -162,7 +162,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * at the given row and column.  This function assumes the given widget has valid sizes.
      * @arg widgetGridItem The widget to place
      */
-    private static widgetFits(widgetGridItem: NeonGridItem, allItems: NeonGridItem[]) {
+    public static widgetFits(widgetGridItem: NeonGridItem, allItems: NeonGridItem[]) {
         for (let existingWidgetGridItem of allItems) {
             if (DashboardComponent.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
@@ -171,25 +171,32 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    private static computeWidgetPosition(item: NeonGridItem, current: NeonGridItem[], maxRows?: number, maxCols?: number) {
+    public static computeWidgetPosition(item: NeonGridItem, current: NeonGridItem[], maxRows?: number, maxCols?: number) {
         // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
-        const maxCol: number = (maxCols || Number.MAX_SAFE_INTEGER) - item.sizex + 1;
-        const maxRow: number = (maxRows || Number.MAX_SAFE_INTEGER) - item.sizey + 1;
+        const maxCol: number = (maxCols || Number.MAX_SAFE_INTEGER) - (item.sizex || 0) + 1;
+        const maxRow: number = (maxRows || Number.MAX_SAFE_INTEGER) - (item.sizey || 0) + 1;
 
         // Find the first empty space for the widget.
         let xValue = 1;
         let yValue = 1;
-        let found = false;
-        while (yValue <= maxRow && !found) {
+        while (yValue <= maxRow) {
             xValue = 1;
-            while (xValue <= maxCol && !found) {
-                found = DashboardComponent.widgetFits(item, current);
+            while (xValue <= maxCol) {
+                const temp = {
+                    ...item,
+                    row: yValue,
+                    col: xValue
+                };
+
+                if (DashboardComponent.widgetFits(temp, current)) {
+                    return temp;
+                }
                 xValue++;
             }
             yValue++;
         }
 
-        return { col: xValue, row: yValue };
+        return { col: maxCol + 1, row: maxRow + 1 };
     }
 
     constructor(
@@ -262,14 +269,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Compute index of grid in tabbedGrid list by name of grid
      */
     private getGridIndexFromName(gridName: string) {
-        let index = -1;
-
-        // Find the correct tab, or create a new one if needed.
-        this.tabbedGrid.forEach((grid, gridIndex) => {
-            if (grid.name === gridName) {
-                index = gridIndex;
-            }
-        });
+        let index = this.tabbedGrid.findIndex((grid) => grid.name === gridName);
 
         if (index < 0) {
             // Rename the default tab if it is empty.
@@ -295,22 +295,23 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
-        const widgetGridItem = {
+        const widgetGridItem = eventMessage.widgetGridItem;
+        Object.assign(widgetGridItem, { // Preserve reference
             // Set default grid item config properties for the Neon dashboard.
             borderSize: 10,
             dragHandle: '.drag-handle',
             id: uuidv4(),
             sizex: DashboardComponent.DEFAULT_SIZEX,
             sizey: DashboardComponent.DEFAULT_SIZEY,
-            ...eventMessage.widgetGridItem
-        };
+            ...widgetGridItem
+        });
 
         const index = eventMessage.gridName ?
             this.getGridIndexFromName(eventMessage.gridName) :
             this.selectedTabIndex;
 
         // If both col and row not are set, compute
-        if (!widgetGridItem.col && widgetGridItem.row) {
+        if (!widgetGridItem.col || !widgetGridItem.row) {
             const position = DashboardComponent.computeWidgetPosition(
                 widgetGridItem,
                 this.activeWidgetList,
@@ -319,6 +320,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             );
             Object.assign(widgetGridItem, position);
         }
+
         this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
@@ -349,8 +351,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
-    private get activeWidgetList() {
-        return this.activeWidgetList;
+    get activeWidgetList() {
+        return this.tabbedGrid[this.selectedTabIndex].list;
     }
 
     /**
@@ -406,6 +408,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         const { widgetGridItem: item } = eventMessage;
         let visibleRowCount = this.getVisibleRowCount();
         const sizex = this.gridConfig ? this.gridConfig.max_cols : this.getMaxColInUse();
+
         Object.assign(item, {
             previousConfig: { ...item },
             sizex: sizex,
@@ -717,7 +720,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         const layout = this.dashboardService.config.layouts[this.dashboardService.state.getLayout()];
 
-        // Should map the grid name to the layout list.
+        // Should map the grid name to the layout list
+        // TODO: Understand what the layout structure should be
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
 
         Object.keys(gridNameToLayout).forEach((gridName) => {
