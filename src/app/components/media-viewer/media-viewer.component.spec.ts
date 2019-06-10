@@ -83,10 +83,10 @@ describe('Component: MediaViewer', () => {
         component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -108,9 +108,9 @@ describe('Component: MediaViewer', () => {
         component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -125,11 +125,11 @@ describe('Component: MediaViewer', () => {
         component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.sortField = DashboardServiceMock.SORT_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -180,10 +180,10 @@ describe('Component: MediaViewer', () => {
         component.options.id = 'testId';
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.idField = DashboardServiceMock.ID_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
@@ -265,10 +265,10 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('transformVisualizationQueryResults does set expected properties with selected filter and data', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -302,10 +302,10 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does update expected properties', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
@@ -358,10 +358,10 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does set expected properties with selected filter and data with multiple links', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -412,10 +412,10 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does set expected properties with selected filter and data with many multiples', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
-        component.options.nameField = DashboardServiceMock.NAME_FIELD;
-        component.options.typeField = DashboardServiceMock.TYPE_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
+        component.options.nameField = DashboardServiceMock.FIELD_MAP.NAME;
+        component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.id = 'testId';
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -466,8 +466,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does ignore empty links', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testTabName';
@@ -482,8 +482,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does add border if filter selected', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.border = 'grey';
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -516,8 +516,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does use linkPrefix if filter selected', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.linkPrefix = 'linkPrefix/';
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
@@ -550,8 +550,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does ignore existing linkPrefix', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.linkPrefix = 'linkPrefix/';
         component.options.id = 'testId';
 
@@ -581,8 +581,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does remove existing prefix from name', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.id = 'testId';
 
         component.transformVisualizationQueryResults(component.options, [{
@@ -611,8 +611,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('transformVisualizationQueryResults does use typeMap if filter selected', () => {
-        component.options.idField = DashboardServiceMock.ID_FIELD;
-        component.options.linkFields = [DashboardServiceMock.LINK_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.linkFields = [DashboardServiceMock.FIELD_MAP.LINK];
         component.options.typeMap = {
             avi: 'vid',
             jpg: 'img',
@@ -1216,10 +1216,10 @@ describe('Component: MediaViewer with config', () => {
             jpg: 'img'
         });
         expect(component.options.url).toEqual('https://kafka.apache.org/intro');
-        expect(component.options.idField).toEqual(DashboardServiceMock.ID_FIELD);
-        expect(component.options.linkField).toEqual(DashboardServiceMock.LINK_FIELD);
-        expect(component.options.nameField).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(component.options.typeField).toEqual(DashboardServiceMock.TYPE_FIELD);
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
+        expect(component.options.linkField).toEqual(DashboardServiceMock.FIELD_MAP.LINK);
+        expect(component.options.nameField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.typeField).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
         expect(component.options.autoplay).toEqual(true);
     });
 

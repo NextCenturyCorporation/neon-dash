@@ -138,12 +138,12 @@ describe('Component: TextCloud', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.dataField = DashboardServiceMock.TEXT_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
@@ -152,7 +152,7 @@ describe('Component: TextCloud', () => {
     it('onClick does call toggleFilters with expected object', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dataField = DashboardServiceMock.TEXT_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let spy = spyOn((component as any), 'toggleFilters');
 
         component.onClick({
@@ -165,7 +165,7 @@ describe('Component: TextCloud', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TEXT_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TEXT,
             operator: '=',
             value: 'testText1'
         }]]);
@@ -182,7 +182,7 @@ describe('Component: TextCloud', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TEXT_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TEXT,
             operator: '=',
             value: 'testText2'
         }]]);

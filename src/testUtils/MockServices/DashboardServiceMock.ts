@@ -13,9 +13,11 @@
  * limitations under the License.
  *
  */
-import { NeonDashboardConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../app/types';
+import {
+    NeonConfig, NeonDatastoreConfig, NeonDashboardConfig,
+    NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData
+} from '../../app/types';
 import { DashboardService } from '../../app/services/dashboard.service';
-import { NeonConfig, NeonDatastoreConfig } from '../../app/types';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
 
@@ -26,42 +28,27 @@ class MockConnectionService extends ConnectionService {
 }
 
 export class DashboardServiceMock extends DashboardService {
-    public static CATEGORY_FIELD = NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' });
-    public static DATE_FIELD = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' });
-    public static FIELD_KEY_FIELD = NeonFieldMetaData.get({ columnName: 'testFieldKeyField', prettyName: 'Test Field Key Field', hide: false, type: 'string' });
-    public static FILTER_FIELD = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' });
-    public static ID_FIELD = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' });
-    public static LINK_FIELD = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' });
-    public static NAME_FIELD = NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' });
-    public static RELATION_FIELD_A = NeonFieldMetaData.get({ columnName: 'testRelationFieldA', prettyName: 'Test Relation Field A', hide: false, type: 'string' });
-    public static RELATION_FIELD_B = NeonFieldMetaData.get({ columnName: 'testRelationFieldB', prettyName: 'Test Relation Field B', hide: false, type: 'string' });
-    public static SIZE_FIELD = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' });
-    public static SORT_FIELD = NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' });
-    public static TEXT_FIELD = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field', hide: false, type: 'string' });
-    public static TYPE_FIELD = NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' });
-    public static X_FIELD = NeonFieldMetaData.get({ columnName: 'testXField', prettyName: 'Test X Field', hide: false, type: 'float' });
-    public static Y_FIELD = NeonFieldMetaData.get({ columnName: 'testYField', prettyName: 'Test Y Field', hide: false, type: 'float' });
-    public static ES_ID_FIELD = NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id' });
+    public static FIELD_MAP = {
+        CATEGORY: NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', type: 'string' }),
+        DATE: NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', type: 'date' }),
+        FIELD_KEY: NeonFieldMetaData.get({ columnName: 'testFieldKeyField', prettyName: 'Test Field Key Field', type: 'string' }),
+        FILTER: NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', type: 'string' }),
+        ID: NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', type: 'string' }),
+        LINK: NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', type: 'string' }),
+        NAME: NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', type: 'string' }),
+        RELATION_A: NeonFieldMetaData.get({ columnName: 'testRelationFieldA', prettyName: 'Test Relation Field A', type: 'string' }),
+        RELATION_B: NeonFieldMetaData.get({ columnName: 'testRelationFieldB', prettyName: 'Test Relation Field B', type: 'string' }),
+        SIZE: NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', type: 'float' }),
+        SORT: NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', type: 'string' }),
+        TEXT: NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field', type: 'string' }),
+        TYPE: NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', type: 'string' }),
+        X: NeonFieldMetaData.get({ columnName: 'testXField', prettyName: 'Test X Field', type: 'float' }),
+        Y: NeonFieldMetaData.get({ columnName: 'testYField', prettyName: 'Test Y Field', type: 'float' }),
+        ES_ID: NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id' })
+    };
 
     // Keep in alphabetical order.
-    public static FIELDS: NeonFieldMetaData[] = [
-        DashboardServiceMock.CATEGORY_FIELD,
-        DashboardServiceMock.DATE_FIELD,
-        DashboardServiceMock.FIELD_KEY_FIELD,
-        DashboardServiceMock.FILTER_FIELD,
-        DashboardServiceMock.ID_FIELD,
-        DashboardServiceMock.LINK_FIELD,
-        DashboardServiceMock.NAME_FIELD,
-        DashboardServiceMock.RELATION_FIELD_A,
-        DashboardServiceMock.RELATION_FIELD_B,
-        DashboardServiceMock.SIZE_FIELD,
-        DashboardServiceMock.SORT_FIELD,
-        DashboardServiceMock.TEXT_FIELD,
-        DashboardServiceMock.TYPE_FIELD,
-        DashboardServiceMock.X_FIELD,
-        DashboardServiceMock.Y_FIELD,
-        DashboardServiceMock.ES_ID_FIELD
-    ];
+    public static FIELDS: NeonFieldMetaData[] = Object.values(DashboardServiceMock.FIELD_MAP);
 
     public static TABLES = {
         testTable1: NeonTableMetaData.get({ name: 'testTable1', prettyName: 'Test Table 1', fields: DashboardServiceMock.FIELDS }),
@@ -85,7 +72,7 @@ export class DashboardServiceMock extends DashboardService {
             type: 'testDatastore',
             databases: DashboardServiceMock.DATABASES,
             hasUpdatedFields: true
-        })
+        });
 
         this.setActiveDatastore(datastore);
 

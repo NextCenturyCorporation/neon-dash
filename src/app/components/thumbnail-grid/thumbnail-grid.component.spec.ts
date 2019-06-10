@@ -483,19 +483,19 @@ describe('Component: ThumbnailGrid', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
     });
@@ -519,7 +519,7 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -715,7 +715,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterFields = [DashboardServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         component.selectGridItem({
             testFilterField: 'filter1'

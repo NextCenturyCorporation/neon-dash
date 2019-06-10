@@ -70,7 +70,7 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set a new date filter', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DashboardServiceMock.DATE_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
 
         let date = new Date();
         let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 3, date.getDay());
@@ -87,14 +87,14 @@ describe('Component: Timeline', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -104,7 +104,7 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does not set custom filters if filterField does not exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DashboardServiceMock.DATE_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
 
         let date = new Date();
         let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
@@ -133,14 +133,14 @@ describe('Component: Timeline', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -150,8 +150,8 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set custom filters on empty string if filterField does exist but selectedData does not exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DashboardServiceMock.DATE_FIELD;
-        component.options.filterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         let date = new Date();
         let startDate = new Date(date.getUTCFullYear() - 1, date.getUTCMonth(), date.getDay());
@@ -168,14 +168,14 @@ describe('Component: Timeline', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -185,7 +185,7 @@ describe('Component: Timeline', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: ''
         }]]);
@@ -194,8 +194,8 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set custom filters if filterField and selectedData both exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DashboardServiceMock.DATE_FIELD;
-        component.options.filterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         let date = new Date();
         let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
@@ -224,14 +224,14 @@ describe('Component: Timeline', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.DATE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -240,7 +240,7 @@ describe('Component: Timeline', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue1'
         }, {
@@ -248,7 +248,7 @@ describe('Component: Timeline', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue2'
         }, {
@@ -256,7 +256,7 @@ describe('Component: Timeline', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue3'
         }]]);

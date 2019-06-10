@@ -77,7 +77,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         component.createFilter('testText');
 
@@ -86,7 +86,7 @@ describe('Component: NewsFeed', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testText'
         }]]);
@@ -95,12 +95,12 @@ describe('Component: NewsFeed', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
     });
@@ -300,7 +300,7 @@ describe('Component: NewsFeed', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'

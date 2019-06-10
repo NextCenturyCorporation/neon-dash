@@ -121,9 +121,9 @@ describe('WidgetOptionCollection', () => {
     it('findField does return expected object or undefined', () => {
         options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findField('testDateField')).toEqual(DashboardServiceMock.DATE_FIELD);
-        expect(options.findField('testNameField')).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(options.findField('testSizeField')).toEqual(DashboardServiceMock.SIZE_FIELD);
+        expect(options.findField('testDateField')).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findField('testNameField')).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findField('testSizeField')).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
         expect(options.findField('testFakeField')).toEqual(undefined);
     });
 
@@ -134,9 +134,9 @@ describe('WidgetOptionCollection', () => {
         let nameIndex = _.findIndex(DashboardServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testNameField');
         let sizeIndex = _.findIndex(DashboardServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testSizeField');
 
-        expect(options.findField('' + dateIndex)).toEqual(DashboardServiceMock.DATE_FIELD);
-        expect(options.findField('' + nameIndex)).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(options.findField('' + sizeIndex)).toEqual(DashboardServiceMock.SIZE_FIELD);
+        expect(options.findField('' + dateIndex)).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findField('' + nameIndex)).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findField('' + sizeIndex)).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
         expect(options.findField('' + DashboardServiceMock.FIELDS.length)).toEqual(undefined);
         expect(options.findField('-1')).toEqual(undefined);
         expect(options.findField('abcd')).toEqual(undefined);
@@ -145,10 +145,10 @@ describe('WidgetOptionCollection', () => {
     it('findFieldObject does return expected object', inject([DashboardService], (dashboardService: DashboardService) => {
         options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findFieldObject(dashboardService.state, 'testDate')).toEqual(DashboardServiceMock.DATE_FIELD);
-        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(options.findFieldObject(dashboardService.state, 'testSize')).toEqual(DashboardServiceMock.SIZE_FIELD);
-        expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_KEY_FIELD);
+        expect(options.findFieldObject(dashboardService.state, 'testDate')).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findFieldObject(dashboardService.state, 'testSize')).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_MAP.FIELD_KEY);
         expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(NeonFieldMetaData.get());
         expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(NeonFieldMetaData.get());
     }));
@@ -157,13 +157,13 @@ describe('WidgetOptionCollection', () => {
         options.fields = DashboardServiceMock.FIELDS;
 
         expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([
-            DashboardServiceMock.DATE_FIELD,
-            DashboardServiceMock.NAME_FIELD,
-            DashboardServiceMock.SIZE_FIELD
+            DashboardServiceMock.FIELD_MAP.DATE,
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.SIZE
         ]);
         expect(options.findFieldObjects(dashboardService.state, 'testListWithFieldKey')).toEqual([
-            DashboardServiceMock.FIELD_KEY_FIELD,
-            DashboardServiceMock.NAME_FIELD
+            DashboardServiceMock.FIELD_MAP.FIELD_KEY,
+            DashboardServiceMock.FIELD_MAP.NAME
         ]);
         expect(options.findFieldObjects(dashboardService.state, 'testName')).toEqual([]);
         expect(options.findFieldObjects(dashboardService.state, 'fakeBind')).toEqual([]);
@@ -426,8 +426,8 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
             expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
             expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
             expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(DashboardServiceMock.TEXT_FIELD);
-            expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);
+            expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+            expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
         }));
 
     it('updateFields does update fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
@@ -446,8 +446,8 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(DashboardServiceMock.TEXT_FIELD);
-        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
     }));
 
     it('updateTables does update tables and fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
@@ -466,8 +466,8 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table.prettyName).toEqual(DashboardServiceMock.TABLES.testTable2.prettyName);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(DashboardServiceMock.TEXT_FIELD);
-        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.NAME_FIELD, DashboardServiceMock.TYPE_FIELD]);
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
     }));
 });
 

@@ -370,7 +370,7 @@ describe('BaseNeonComponent', () => {
         expect(inputOptions.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(inputOptions.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(inputOptions.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(inputOptions.layers[0].testField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect(inputOptions.layers[0].testField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(inputOptions.layers[0].testValue).toEqual('value binding');
         expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[0]._id)).toEqual(new Map<string, any>());
         expect(spyPostAddLayer.calls.count()).toEqual(1);
@@ -388,7 +388,7 @@ describe('BaseNeonComponent', () => {
     it('createCompleteVisualizationQuery with advanced options does return expected query object', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
         component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
@@ -396,10 +396,10 @@ describe('BaseNeonComponent', () => {
             rhs: 'testIdValue'
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
+        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
             new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
-            [DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]
+            [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
         );
         component.options.customEventsToPublish = [{
             fields: [{
@@ -820,7 +820,7 @@ describe('BaseNeonComponent', () => {
     it('executeQueryChain with advanced options does call executeQuery', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
         component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
@@ -828,8 +828,8 @@ describe('BaseNeonComponent', () => {
             rhs: 'testIdValue'
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.CATEGORY_FIELD);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]);
+        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
+        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -1065,10 +1065,10 @@ describe('BaseNeonComponent', () => {
         expect(component.getExportFields()).toEqual([]);
 
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
-        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.NAME_FIELD);
-        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.TYPE_FIELD);
-        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DashboardServiceMock.NAME_FIELD);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]);
+        component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
+        component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
+        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DashboardServiceMock.FIELD_MAP.NAME);
+        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testNameField',
@@ -1515,7 +1515,7 @@ describe('BaseNeonComponent', () => {
 
     it('hasUnsharedFilter does return expected boolean', () => {
         expect(component['hasUnsharedFilter']()).toEqual(false);
-        component.options.unsharedFilterField = DashboardServiceMock.FILTER_FIELD;
+        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
         expect(component['hasUnsharedFilter']()).toEqual(false);
         component.options.unsharedFilterValue = '';
         expect(component['hasUnsharedFilter']()).toEqual(false);
@@ -1533,22 +1533,22 @@ describe('BaseNeonComponent', () => {
     it('hasUnsharedFilter with options argument does return expected boolean', () => {
         expect(component['hasUnsharedFilter']({})).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FILTER_FIELD
+            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER
         })).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
             unsharedFilterValue: ''
         })).toEqual(false);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
             unsharedFilterValue: 0
         })).toEqual(true);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
             unsharedFilterValue: false
         })).toEqual(true);
         expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FILTER_FIELD,
+            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
             unsharedFilterValue: 'value'
         })).toEqual(true);
 
@@ -2025,17 +2025,17 @@ describe('Advanced BaseNeonComponent with config', () => {
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.testArray).toEqual([4, 3, 2, 1]);
         expect(component.options.testFreeText).toEqual('the quick brown fox jumps over the lazy dog');
-        expect(component.options.testMultipleFields).toEqual([DashboardServiceMock.X_FIELD, DashboardServiceMock.Y_FIELD]);
+        expect(component.options.testMultipleFields).toEqual([DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
         expect(component.options.testMultipleSelect).toEqual(['b', 'c']);
         expect(component.options.testObject).toEqual({
             key: 'value'
         });
-        expect(component.options.testOptionalField).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(component.options.testRequiredField).toEqual(DashboardServiceMock.SIZE_FIELD);
+        expect(component.options.testOptionalField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.testRequiredField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
         expect(component.options.testSelect).toEqual('z');
         expect(component.options.testToggle).toEqual(true);
         expect(component.options.title).toEqual('VisualizationTitle');
-        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
