@@ -89,17 +89,9 @@ describe('Service: DashboardService', () => {
 describe('Service: DashboardService with Mock Data', () => {
     let dashboardService: DashboardService;
 
-    initializeTestBed('Dashboard Service with Mock Data', {
-        providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+    beforeEach(() => {
+        dashboardService = new DashboardServiceMock();
     });
-
-    beforeEach(inject([DashboardService], (_dashboardService: DashboardService) => {
-        dashboardService = _dashboardService;
-    }));
 
     it('should have active datastore at creation', () => {
         let datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
@@ -205,7 +197,37 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does work with relations in nested list structure', () => {
-        spyOn(dashboardService.state, 'dashboard').and.returnValue({
+        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
+            name: 'datastore1',
+            databases: {
+                testDatabase1: {
+                    tables: {
+                        testTable1: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                },
+                testDatabase2: {
+                    tables: {
+                        testTable2: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                }
+            }
+        }));
+
+        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+            tables: {
+                testTable1: 'datastore1.testDatabase1.testTable1',
+                testTable2: 'datastore1.testDatabase1.testTable2'
+            },
             relations: [
                 [
                     ['datastore1.testDatabase1.testTable1.testRelationFieldA'],
@@ -216,7 +238,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
                 ]
             ]
-        });
+        }));
 
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
@@ -301,7 +323,37 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('findRelationDataList does ignore relations on databases/tables/fields that don\'t exist', () => {
-        spyOn(dashboardService.state, 'dashboard').and.returnValue({
+        dashboardService.setActiveDatastore(NeonDatastoreConfig.get({
+            name: 'datastore1',
+            databases: {
+                testDatabase1: {
+                    tables: {
+                        testTable1: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                },
+                testDatabase2: {
+                    tables: {
+                        testTable2: {
+                            fields: [
+                                { columnName: 'testRelationFieldA', prettyName: 'Pretty' },
+                                { columnName: 'testRelationFieldB', prettyName: 'Pretty' }
+                            ]
+                        }
+                    }
+                }
+            }
+        }));
+
+        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+            tables: {
+                testTable1: 'datastore1.testDatabase1.testTable1',
+                testTable2: 'datastore1.testDatabase2.testTable2'
+            },
             relations: [
                 ['datastore1.fakeDatabase1.testTable1.testRelationFieldA', 'datastore1.fakeDatabase2.testTable2.testRelationFieldA'],
                 ['datastore1.testDatabase1.fakeTable1.testRelationFieldA', 'datastore1.testDatabase2.fakeTable2.testRelationFieldA'],
@@ -319,7 +371,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     ['datastore1.testDatabase2.testTable2.testRelationFieldA', 'datastore1.testDatabase2.testTable2.testRelationFieldB']
                 ]
             ]
-        });
+        }));
 
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual([]);
     });
@@ -354,7 +406,7 @@ describe('Service: DashboardService with Mock Data', () => {
         dashboardService.setActiveDashboard(NeonDashboardConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
-                testTable2: 'datastore1.testDatabase1.testTable2'
+                testTable2: 'datastore1.testDatabase2.testTable2'
             },
             relations: [
                 [['datastore1.testDatabase1.testTable1.testRelationFieldA'], []],

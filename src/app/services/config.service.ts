@@ -114,8 +114,8 @@ export class ConfigService {
     fetchConfig(configList: string[]) {
         return combineLatest(...configList.map((config) => this.loadConfigFromLocal(config)))
             .pipe(
-                switchMap(this.takeFirstLoadedOrFetchDefault.bind(this)),
-                map(this.finalizeConfig.bind(this))
+                switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
+                map((config) => this.finalizeConfig(config))
             );
     }
 
@@ -137,7 +137,7 @@ export class ConfigService {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
             this.fetchConfig(environment.config)
-                .subscribe((el) => this.source.next(el as NeonConfig));
+                .subscribe((el) => this.source.next(el));
         }
         return this.$source;
     }

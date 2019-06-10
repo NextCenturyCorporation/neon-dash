@@ -58,15 +58,27 @@ export class DashboardServiceMock extends DashboardService {
     public static TABLES_LIST = [DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.TABLES.testTable2];
 
     public static DATABASES = {
-        testDatabase1: NeonDatabaseMetaData.get({ name: 'testDatabase1', prettyName: 'Test Database 1', tables: DashboardServiceMock.TABLES }),
-        testDatabase2: NeonDatabaseMetaData.get({ name: 'testDatabase2', prettyName: 'Test Database 2', tables: DashboardServiceMock.TABLES })
+        testDatabase1: NeonDatabaseMetaData.get({
+            name: 'testDatabase1',
+            prettyName: 'Test Database 1',
+            tables: DashboardServiceMock.TABLES
+        }),
+        testDatabase2: NeonDatabaseMetaData.get({
+            name: 'testDatabase2',
+            prettyName: 'Test Database 2',
+            tables: DashboardServiceMock.TABLES
+        })
     };
 
     public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
 
     constructor() {
-        super(new ConfigService(null).set(NeonConfig.get()), new MockConnectionService());
-        let datastore = NeonDatastoreConfig.get({
+        super(
+            ConfigService.as(NeonConfig.get()),
+            new MockConnectionService()
+        );
+
+        const datastore = NeonDatastoreConfig.get({
             name: 'datastore1',
             host: 'testHostname',
             type: 'testDatastore',
@@ -76,7 +88,7 @@ export class DashboardServiceMock extends DashboardService {
 
         this.setActiveDatastore(datastore);
 
-        let dashboard = NeonDashboardConfig.get({
+        const dashboard = NeonDashboardConfig.get({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
 

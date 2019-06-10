@@ -14,11 +14,12 @@
  *
  */
 import {
+    NeonDatastoreConfig,
     NeonDashboardConfig, NeonDatabaseMetaData,
     NeonTableMetaData, NeonFieldMetaData, SingleField
 } from './types';
+
 import * as _ from 'lodash';
-import { NeonDatastoreConfig } from './types';
 
 export class DashboardState {
     /**
@@ -223,10 +224,7 @@ export class DashboardState {
      * Returns the field with the given name or an Object with an empty name if no such field exists in the database and table with the
      * given names.
      *
-     * @arg {string} databaseName The database name
-     * @arg {string} tableName The table name
-     * @arg {string} fieldName The field name
-     * @return {NeonFieldMetaData} The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
+     * @return The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
      */
     public getFieldWithName(databaseName: string, tableName: string, fieldName: string): NeonFieldMetaData {
         let fields: NeonFieldMetaData[] = this.getFields(databaseName, tableName);
