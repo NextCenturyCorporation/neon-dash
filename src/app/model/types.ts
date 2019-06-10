@@ -17,6 +17,9 @@
 
 type Primitive = number | string | Date | boolean | undefined;
 
+// This is a recursive mapped type (https://www.typescriptlang.org/docs/handbook/advanced-types.html#mapped-types)
+//  that makes all fields optional but type checked (either it's missing or it's the correct type)
+
 type DeepPartial<T> = {
     [P in keyof T]?: T[P] |
     (T[P] extends (Primitive | Primitive[] | Record<string, Primitive>) ?
@@ -128,6 +131,26 @@ export interface NeonContributor {
     logo: string;
 }
 
+export interface SimpleFilterConfig {
+    name: string;
+    root: string;
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator: string;
+    value?: any;
+}
+
+export interface CompoundFilterConfig {
+    name: string;
+    root: string;
+    type: 'AND' | 'OR';
+    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
+}
+
+export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
+
 export interface NeonDashboardLeafConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()
     pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
@@ -136,7 +159,7 @@ export interface NeonDashboardLeafConfig {
     layout: string;
     tables: Record<string, string>;
     fields: Record<string, string>;
-    filters: any[];
+    filters: FilterConfig[];
     visualizationTitles: Record<string, string>;
     options: NeonDashboardOptions;
     relations: (string | string[])[][];

@@ -201,8 +201,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
@@ -238,8 +236,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Contracts the given widget to its previous size.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
@@ -248,8 +244,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Deletes the widget with the given ID from the grid.
-     *
-     * @arg {{id:string}} eventMessage
      */
     @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
@@ -267,8 +261,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Expands the given widget to fill the width of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
@@ -301,8 +293,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Returns the visible row count.
-     *
-     * @return {number}
      */
     private getVisibleRowCount(): number {
         let gridElement = this.getGridElement();
@@ -314,8 +304,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Handles the given error and message.
-     *
-     * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
      */
     private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
@@ -328,8 +316,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Moves the given widget to the bottom of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
@@ -338,8 +324,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Moves the given widget to the top of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
@@ -447,8 +431,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Registers the given widget with the given ID.
-     *
-     * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
     @DashboardModified()
     private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
@@ -468,7 +450,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Shows the given dashboard using the given datastores and the given layout.
-     * @private
      */
     private showDashboardState(eventMessage: { dashboard: NeonDashboardConfig }) {
         this.currentDashboard = eventMessage.dashboard;
@@ -499,8 +480,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Shows the dashboard state on page load, if any.
-     *
-     * @private
      */
     private showDashboardStateOnPageLoad() {
         let dashboard = this.findAutoShowDashboard(this.dashboards);
@@ -519,8 +498,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Unregisters the widget with the given ID.
-     *
-     * @arg {{id:string}} eventMessage
      */
     @DashboardModified()
     private unregisterWidget(eventMessage: { id: string }) {
@@ -529,8 +506,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Updates the showVisualizationsShortcut boolean value from the messenger channel
-     *
-     * @arg {{show:boolean}} eventMessage
      */
     private updateShowVisualizationsShortcut(eventMessage: { show: boolean }) {
         this.showVisualizationsShortcut = eventMessage.show;
@@ -538,8 +513,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Updates the showFilterTray boolean value from the messenger channel
-     *
-     * @arg {{show:boolean}} eventMessage
      */
     private updateShowFilterTray(eventMessage: { show: boolean }) {
         this.showFilterTray = eventMessage.show;
