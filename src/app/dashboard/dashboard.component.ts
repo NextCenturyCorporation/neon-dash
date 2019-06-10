@@ -142,6 +142,22 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     neonConfig: NeonConfig;
 
+    /**
+     * This function uses a simple Axis-Aligned Bounding Box (AABB)
+     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
+     * @arg one the first widget
+     * @arg two the second widget
+     */
+    public static widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
+        if (one.col > (two.col + two.sizex - 1) || two.col > (one.col + one.sizex - 1)) {
+            return false;
+        }
+        if (one.row > (two.row + two.sizey - 1) || two.row > (one.row + one.sizey - 1)) {
+            return false;
+        }
+        return true;
+    }
+
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
@@ -382,13 +398,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
         if (dashboard.options && dashboard.options.connectOnLoad) {
             return dashboard;
-        } else {
-            const choices = dashboard.choices || {};
-            for (let choiceKey of Object.keys(choices)) {
-                let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
-                if (nestedDashboard) {
-                    return nestedDashboard;
-                }
+        }
+        const choices = dashboard.choices || {};
+        for (let choiceKey of Object.keys(choices)) {
+            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
+            if (nestedDashboard) {
+                return nestedDashboard;
             }
         }
     }
@@ -682,8 +697,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
 
         Object.keys(gridNameToLayout).forEach((gridName) => {
-            let layout = (gridNameToLayout[gridName] || []) as NeonGridItem[];
-            layout.forEach((widgetGridItem) => {
+            const subLayouts = (gridNameToLayout[gridName] || []) as NeonGridItem[];
+            subLayouts.forEach((widgetGridItem) => {
                 if (!widgetGridItem.hide) {
                     this.pendingInitialRegistrations += 1;
                     this.messageSender.publish(neonEvents.WIDGET_ADD, {
@@ -753,25 +768,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private widgetFits(widgetGridItem: NeonGridItem) {
         for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
-            if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
+            if (DashboardComponent.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
                 return false;
             }
-        }
-        return true;
-    }
-
-    /**
-     * This function uses a simple Axis-Aligned Bounding Box (AABB)
-     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
-     * @arg one the first widget
-     * @arg two the second widget
-     */
-    private widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
-        if (one.col > (two.col + two.sizex - 1) || two.col > (one.col + one.sizex - 1)) {
-            return false;
-        }
-        if (one.row > (two.row + two.sizey - 1) || two.row > (one.row + one.sizey - 1)) {
-            return false;
         }
         return true;
     }
