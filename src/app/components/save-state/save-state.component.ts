@@ -17,8 +17,6 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
@@ -29,7 +27,7 @@ import * as _ from 'lodash';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig, NeonLayoutConfig } from '../../model/types';
 import { DashboardState } from '../../model/dashboard-state';
 import { ConfigService } from '../../services/config.service';
 
@@ -73,8 +71,6 @@ export class SaveStateComponent implements OnInit {
         protected configService: ConfigService,
         protected dashboardService: DashboardService,
         protected filterService: FilterService,
-        protected searchService: AbstractSearchService,
-        public widgetService: AbstractWidgetService,
         private snackBar: MatSnackBar,
         private dialog: MatDialog
     ) {
@@ -103,6 +99,13 @@ export class SaveStateComponent implements OnInit {
     })
     public saveState(name: string, __verify = true): void {
         const config = NeonConfig.get({
+            ...this.configService.getActive(),
+            filters: this.filterService.getFiltersToSaveInConfig(),
+            layouts: { Saved: _.cloneDeep(this.dashboardService.gridState.activeWidgetList) as NeonLayoutConfig[] },
+            dashboards: _.cloneDeep({
+                ...this.dashboardService.state.dashboard,
+                layout: 'Saved'
+            }),
             projectTitle: name
         });
 

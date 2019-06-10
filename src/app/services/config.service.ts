@@ -47,7 +47,7 @@ export class ConfigService {
     ) { }
 
     private openConnection() {
-        return this.connectionService.connect('', '');
+        return this.connectionService.connect('.', '.');
     }
 
     private handleConfigFileError(error, file?: any) {
@@ -78,7 +78,7 @@ export class ConfigService {
             return of(next);
         }
         return this.list()
-            .pipe(map((remoteAll) => remoteAll[0]));
+            .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
     private finalizeConfig(configInput: NeonConfig) {

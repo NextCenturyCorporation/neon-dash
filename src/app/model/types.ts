@@ -145,7 +145,7 @@ export interface SimpleFilterConfig {
 export interface CompoundFilterConfig {
     name: string;
     root: string;
-    type: 'AND' | 'OR';
+    type: 'and' | 'or';
     filters: (SimpleFilterConfig | CompoundFilterConfig)[];
 }
 

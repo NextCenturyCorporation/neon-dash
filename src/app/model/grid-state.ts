@@ -158,7 +158,7 @@ export class GridState {
     }
 
     constructor(
-        public gridConfig: NgGridConfig,
+        public gridConfig: { max_rows: number, max_cols: number },
         public tabIndex = 0,
         public tabs: NeonGridTab[] = [{
             list: [],
