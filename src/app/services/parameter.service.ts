@@ -245,7 +245,7 @@ export class ParameterService {
      * @private
      */
     addFiltersForDashboardParameters(parameters: any, argsList: any[], endCallback: () => any) {
-        // let args = argsList.shift();
+        // Let args = argsList.shift();
         // let parameterValue = args.cleanParameter(parameters[args.parameterKey], args.operator);
         // let dataWithMappings = this.datasetService.getFirstDatabaseAndTableWithMappings(args.mappings);
         // let callNextFunction = () => {
@@ -312,7 +312,7 @@ export class ParameterService {
      * @param {String} dashboardStateId
      */
     loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
-        // if (_.keys(dashboardState).length) {
+        // If (_.keys(dashboardState).length) {
         //     if (dashboardStateId) {
         //         // TODO: THOR-1065: This should open a Dashboard (not a single Datastore). Then it should
         //         // create Connections to each Datastore in the Dashboard and call updateDatabases of each Datastore.

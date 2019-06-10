@@ -37,7 +37,7 @@ let dashboards = NeonDashboardConfig.get({
             },
             fields: {
                 fieldKey: 'datastore1.database1.table1.field1'
-            },
+            }
         },
         dash2: {
             name: 'Other Config',

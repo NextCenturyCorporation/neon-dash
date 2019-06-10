@@ -54,6 +54,7 @@ export class ExportControlComponent {
 
         this.dashboardState = dashboardService.state;
     }
+
     setExportFormat(__value: number) {
         // Do nothing.
     }

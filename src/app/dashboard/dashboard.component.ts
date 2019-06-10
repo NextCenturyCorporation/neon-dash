@@ -37,10 +37,9 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../neon-grid-item';
-import { NeonDashboardConfig, NeonConfig, NeonLayoutGridConfig } from '../types';
+import { NeonDashboardConfig, NeonConfig } from '../types';
 import { neonEvents } from '../neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { ParameterService } from '../services/parameter.service';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
@@ -158,6 +157,41 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
+    /**
+     * This function determines if a widget will overlap any existing grid items if placed
+     * at the given row and column.  This function assumes the given widget has valid sizes.
+     * @arg widgetGridItem The widget to place
+     */
+    private static widgetFits(widgetGridItem: NeonGridItem, allItems: NeonGridItem[]) {
+        for (let existingWidgetGridItem of allItems) {
+            if (DashboardComponent.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static computeWidgetPosition(item: NeonGridItem, current: NeonGridItem[], maxRows?: number, maxCols?: number) {
+        // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
+        const maxCol: number = (maxCols || Number.MAX_SAFE_INTEGER) - item.sizex + 1;
+        const maxRow: number = (maxRows || Number.MAX_SAFE_INTEGER) - item.sizey + 1;
+
+        // Find the first empty space for the widget.
+        let xValue = 1;
+        let yValue = 1;
+        let found = false;
+        while (yValue <= maxRow && !found) {
+            xValue = 1;
+            while (xValue <= maxCol && !found) {
+                found = DashboardComponent.widgetFits(item, current);
+                xValue++;
+            }
+            yValue++;
+        }
+
+        return { col: xValue, row: yValue };
+    }
+
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
@@ -225,78 +259,66 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
+     * Compute index of grid in tabbedGrid list by name of grid
+     */
+    private getGridIndexFromName(gridName: string) {
+        let index = -1;
+
+        // Find the correct tab, or create a new one if needed.
+        this.tabbedGrid.forEach((grid, gridIndex) => {
+            if (grid.name === gridName) {
+                index = gridIndex;
+            }
+        });
+
+        if (index < 0) {
+            // Rename the default tab if it is empty.
+            if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
+                this.tabbedGrid[0].name = gridName;
+                index = 0;
+            } else {
+                this.tabbedGrid.push({
+                    list: [],
+                    name: gridName
+                });
+                index = this.tabbedGrid.length - 1;
+            }
+        }
+
+        return index;
+    }
+
+    /**
      * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
      *
      * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
-        let widgetGridItem = eventMessage.widgetGridItem;
+        const widgetGridItem = {
+            // Set default grid item config properties for the Neon dashboard.
+            borderSize: 10,
+            dragHandle: '.drag-handle',
+            id: uuidv4(),
+            sizex: DashboardComponent.DEFAULT_SIZEX,
+            sizey: DashboardComponent.DEFAULT_SIZEY,
+            ...eventMessage.widgetGridItem
+        };
 
-        // Set default grid item config properties for the Neon dashboard.
-        widgetGridItem.borderSize = widgetGridItem.borderSize || 10;
-        widgetGridItem.dragHandle = widgetGridItem.dragHandle || '.drag-handle';
-        widgetGridItem.id = widgetGridItem.id || uuidv4();
+        const index = eventMessage.gridName ?
+            this.getGridIndexFromName(eventMessage.gridName) :
+            this.selectedTabIndex;
 
-        // Move grid item config properties from the top-level into the config object.
-        widgetGridItem.col = widgetGridItem.col || widgetGridItem.col;
-        widgetGridItem.row = widgetGridItem.row || widgetGridItem.row;
-        widgetGridItem.sizex = widgetGridItem.sizex || widgetGridItem.sizex || DashboardComponent.DEFAULT_SIZEX;
-        widgetGridItem.sizey = widgetGridItem.sizey || widgetGridItem.sizey || DashboardComponent.DEFAULT_SIZEY;
-
-        let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
-        if (eventMessage.gridName) {
-            // Find the correct tab, or create a new one if needed.
-            this.tabbedGrid.forEach((grid, gridIndex) => {
-                if (grid.name === eventMessage.gridName) {
-                    index = gridIndex;
-                }
-            });
-
-            if (index < 0) {
-                // Rename the default tab if it is empty.
-                if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
-                    this.tabbedGrid[0].name = eventMessage.gridName;
-                    index = 0;
-                } else {
-                    this.tabbedGrid.push({
-                        list: [],
-                        name: eventMessage.gridName
-                    });
-                    index = this.tabbedGrid.length - 1;
-                }
-            }
+        // If both col and row not are set, compute
+        if (!widgetGridItem.col && widgetGridItem.row) {
+            const position = DashboardComponent.computeWidgetPosition(
+                widgetGridItem,
+                this.activeWidgetList,
+                this.gridConfig.max_rows,
+                this.gridConfig.max_cols
+            );
+            Object.assign(widgetGridItem, position);
         }
-
-        // If both col and row are set, add the widget to the grid.
-        if (widgetGridItem.col && widgetGridItem.row) {
-            this.tabbedGrid[index].list.push(widgetGridItem);
-            return;
-        }
-
-        // Otherwise insert the widget into the first empty space in the grid.
-        widgetGridItem.col = widgetGridItem.col || 1;
-        widgetGridItem.row = widgetGridItem.row || 1;
-
-        // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
-        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizex + 1;
-        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
-
-        // Find the first empty space for the widget.
-        let xValue = 1;
-        let yValue = 1;
-        let found = false;
-        while (yValue <= maxRow && !found) {
-            xValue = 1;
-            while (xValue <= maxCol && !found) {
-                widgetGridItem.col = xValue;
-                widgetGridItem.row = yValue;
-                found = this.widgetFits(widgetGridItem);
-                xValue++;
-            }
-            yValue++;
-        }
-
         this.tabbedGrid[index].list.push(widgetGridItem);
     }
 
@@ -327,6 +349,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         return true;
     }
 
+    private get activeWidgetList() {
+        return this.activeWidgetList;
+    }
+
     /**
      * Clears the grid.
      */
@@ -345,10 +371,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
-        eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
-        eventMessage.widgetGridItem.row = eventMessage.widgetGridItem.previousConfig.row;
-        eventMessage.widgetGridItem.col = eventMessage.widgetGridItem.previousConfig.col;
+        const { widgetGridItem: item } = eventMessage;
+        Object.assign(item, item.previousConfig);
     }
 
     /**
@@ -358,11 +382,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
-        for (let index = 0; index < this.tabbedGrid[this.selectedTabIndex].list.length; index++) {
-            if (this.tabbedGrid[this.selectedTabIndex].list[index].id === eventMessage.id) {
+        const activeList = this.activeWidgetList;
+        for (let index = 0; index < activeList.length; index++) {
+            if (activeList[index].id === eventMessage.id) {
                 // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
-                this.tabbedGrid[this.selectedTabIndex].list[index].hide = true;
-                this.tabbedGrid[this.selectedTabIndex].list.splice(index, 1);
+                activeList[index].hide = true;
+                activeList.splice(index, 1);
             }
         }
     }
@@ -378,17 +403,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
+        const { widgetGridItem: item } = eventMessage;
         let visibleRowCount = this.getVisibleRowCount();
-        eventMessage.widgetGridItem.previousConfig = {
-            col: eventMessage.widgetGridItem.col,
-            row: eventMessage.widgetGridItem.row,
-            sizex: eventMessage.widgetGridItem.sizex,
-            sizey: eventMessage.widgetGridItem.sizey
-        };
-        eventMessage.widgetGridItem.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        eventMessage.widgetGridItem.col = 1;
-        // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        eventMessage.widgetGridItem.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.sizex;
+        const sizex = this.gridConfig ? this.gridConfig.max_cols : this.getMaxColInUse();
+        Object.assign(item, {
+            previousConfig: { ...item },
+            sizex: sizex,
+            // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
+            sizey: (visibleRowCount > 0) ? visibleRowCount : sizex,
+            col: 1
+        });
     }
 
     /**
@@ -426,7 +450,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
+        for (let widgetGridItem of this.activeWidgetList) {
             maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
         }
         return maxCol;
@@ -439,7 +463,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
+        for (let widgetGridItem of this.activeWidgetList) {
             maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
         }
         return maxRow;
@@ -573,7 +597,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFiltersComponent = !this.showFiltersComponent;
         let filtersContainer: HTMLElement = document.getElementById('filters');
         if (this.showFiltersComponent && filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: show');
+            filtersContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
         } else if (filtersContainer) {
             filtersContainer.setAttribute('style', 'display: none');
         }
@@ -583,7 +607,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showDashboardSelector = showSelector;
         let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
         if (this.showDashboardSelector && dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: show');
+            dashboardSelectorContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
         } else if (dashboardSelectorContainer) {
             dashboardSelectorContainer.setAttribute('style', 'display: none');
         }
@@ -667,7 +691,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         if (rightPanelContainer) {
-            rightPanelContainer.setAttribute('style', 'display: show');
+            rightPanelContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
         }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
@@ -701,10 +725,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             subLayouts.forEach((widgetGridItem) => {
                 if (!widgetGridItem.hide) {
                     this.pendingInitialRegistrations += 1;
-                    this.messageSender.publish(neonEvents.WIDGET_ADD, {
-                        gridName: gridName,
-                        widgetGridItem: widgetGridItem
-                    });
+                    this.messageSender.publish(neonEvents.WIDGET_ADD, { gridName, widgetGridItem });
                 }
             });
         });
@@ -759,19 +780,5 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowFilterTray(eventMessage: { show: boolean }) {
         this.showFilterTray = eventMessage.show;
-    }
-
-    /**
-     * This function determines if a widget will overlap any existing grid items if placed
-     * at the given row and column.  This function assumes the given widget has valid sizes.
-     * @arg widgetGridItem The widget to place
-     */
-    private widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
-            if (DashboardComponent.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

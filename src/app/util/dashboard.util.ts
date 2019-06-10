@@ -3,13 +3,11 @@ import * as _ from 'lodash';
 import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../types';
 import { DashboardState } from '../dashboard-state';
 
-
 /**
  * Common Utility functions for dashboards, specifically
  *    - Validation
  */
 export class DashboardUtil {
-
     static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
 
     static validateFields(table: NeonTableMetaData): void {
@@ -194,7 +192,7 @@ export class DashboardUtil {
             });
 
             // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            if (!!configDatastore['hasUpdatedFields']) {
+            if (configDatastore['hasUpdatedFields']) {
                 outputDatastore['hasUpdatedFields'] = true;
             } else {
                 delete outputDatastore['hasUpdatedFields'];

@@ -50,7 +50,6 @@ export class DashboardState {
         return DashboardState.deconstructDottedReference(this.dashboard.tables[key] || key);
     }
 
-
     /**
      * Returns database name from matching table key within the dashboard passed in.
      * @param {String} key
@@ -285,7 +284,6 @@ export class DashboardState {
         return fields;
     }
 
-
     /**
     /**
      * Returns the the first table in the database with the given name containing all the given mappings.
@@ -363,7 +361,6 @@ export class DashboardState {
         const tbl = this.getTables(databaseName)[tableName];
         return tbl ? tbl.prettyName : name;
     }
-
 
     /**
      * Returns the pretty name for the given database name.
