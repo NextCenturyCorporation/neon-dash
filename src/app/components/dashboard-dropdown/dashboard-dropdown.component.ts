@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { NeonDashboardConfig } from '../../types';
+import { NeonDashboardConfig } from '../../model/types';
 import * as _ from 'lodash';
 
 @Component({

@@ -14,7 +14,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { Color, ColorSet } from '../color';
+import { Color, ColorSet } from '../model/color';
 
 /**
  * @interface Theme

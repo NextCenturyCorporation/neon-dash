@@ -20,9 +20,9 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../types';
-import { NeonGridItem } from '../neon-grid-item';
-import { neonEvents } from '../neon-namespaces';
+import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../model/types';
+import { NeonGridItem } from '../model/neon-grid-item';
+import { neonEvents } from '../model/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
@@ -45,7 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { GridState } from './grid-state';
+import { GridState } from '../model/grid-state';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;

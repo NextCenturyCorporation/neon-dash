@@ -14,7 +14,7 @@
  *
  */
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { NeonConfig } from '../../types';
+import { NeonConfig } from '../../model/types';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 

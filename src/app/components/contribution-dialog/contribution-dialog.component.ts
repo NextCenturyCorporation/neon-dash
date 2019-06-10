@@ -15,7 +15,7 @@
  */
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { NeonContributor } from '../../types';
+import { NeonContributor } from '../../model/types';
 
 @Component({
     selector: 'app-contribution-dialog',

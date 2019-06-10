@@ -18,7 +18,7 @@ import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
-import { NeonConfig, NeonFieldMetaData } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../model/types';
 
 import { TimelineComponent } from './timeline.component';
 

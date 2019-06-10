@@ -35,15 +35,15 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
-import { NeonGridItem } from '../neon-grid-item';
-import { NeonDashboardConfig, NeonConfig } from '../types';
-import { neonEvents } from '../neon-namespaces';
+import { NeonGridItem } from '../model/neon-grid-item';
+import { NeonDashboardConfig, NeonConfig } from '../model/types';
+import { neonEvents } from '../model/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
-import { GridState } from './grid-state';
+import { GridState } from '../model/grid-state';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {

@@ -14,7 +14,7 @@
  *
  */
 import { Injector } from '@angular/core';
-import { AggregationType } from './services/abstract.search.service';
+import { AggregationType } from '../services/abstract.search.service';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';

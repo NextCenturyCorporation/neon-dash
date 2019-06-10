@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../types';
-import { DashboardState } from '../dashboard-state';
+import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../model/types';
+import { DashboardState } from '../model/dashboard-state';
 
 /**
  * Common Utility functions for dashboards, specifically

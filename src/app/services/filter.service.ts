@@ -15,13 +15,13 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../model/types';
 import { DashboardService } from './dashboard.service';
-import { neonEvents } from '../neon-namespaces';
+import { neonEvents } from '../model/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../dashboard-state';
+import { DashboardState } from '../model/dashboard-state';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;

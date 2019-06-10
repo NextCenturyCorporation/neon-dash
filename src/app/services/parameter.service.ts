@@ -19,7 +19,7 @@ import { eventing } from 'neon-framework';
 
 import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
-import { neonEvents } from '../neon-namespaces';
+import { neonEvents } from '../model/neon-namespaces';
 import * as _ from 'lodash';
 import { ConnectionService } from './connection.service';
 import { AbstractSearchService } from './abstract.search.service';

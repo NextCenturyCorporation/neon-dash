@@ -19,15 +19,15 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, NeonTableMetaData } from '../../types';
-import { neonEvents } from '../../neon-namespaces';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { DashboardState } from '../../dashboard-state';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-settings',

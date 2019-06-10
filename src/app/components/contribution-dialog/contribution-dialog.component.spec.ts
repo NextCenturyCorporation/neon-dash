@@ -21,7 +21,7 @@ import { ContributionDialogModule } from './contribution-dialog.module';
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonConfig } from '../../types';
+import { NeonConfig } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
