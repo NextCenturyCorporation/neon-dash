@@ -33,7 +33,7 @@ import { ConfigService } from '../../services/config.service';
 
 export function Verify(config: {
     title: string | ((arg: any) => string);
-    message: string | ((arg: any) => string);
+    confirmMessage: string | ((arg: any) => string);
     confirmText: string | ((arg: any) => string);
     cancelText?: string | ((arg: any) => string);
 }) {
@@ -88,33 +88,40 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
+    getNewConfig(name: string) {
+        const out = NeonConfig.get({
+            ...this.dashboardService.config,
+            filters: this.filterService.getFiltersToSaveInConfig(),
+            layouts: { [name]: _.cloneDeep(this.dashboardService.gridState.activeWidgetList) as NeonLayoutConfig[] },
+            dashboards: _.cloneDeep({
+                ...this.dashboardService.state.dashboard,
+                name,
+                layout: name
+            }),
+            projectTitle: name
+        });
+        delete out.errors;
+        delete out.dashboards.pathFromTop;
+        return out;
+    }
+
     /**
      * Saves the current dashboard state using the given name and closes the saved state menu.
      */
     @Verify({
         title: 'Save Changes',
-        message: 'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
+        confirmMessage: 'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
         confirmText: 'Save',
         cancelText: 'Discard'
     })
     public saveState(name: string, __verify = true): void {
-        const config = NeonConfig.get({
-            ...this.configService.getActive(),
-            filters: this.filterService.getFiltersToSaveInConfig(),
-            layouts: { Saved: _.cloneDeep(this.dashboardService.gridState.activeWidgetList) as NeonLayoutConfig[] },
-            dashboards: _.cloneDeep({
-                ...this.dashboardService.state.dashboard,
-                layout: 'Saved'
-            }),
-            projectTitle: name
-        });
+        const config = this.getNewConfig(name);
 
         this.configService.save(config)
             .subscribe(() => {
-                this.listStates();
-                this.openNotification(config.fileName, 'saved');
+                this.openNotification(name, 'saved');
                 this.closeSidenav();
-            }, this.handleStateFailure.bind(this, config.fileName));
+            }, this.handleStateFailure.bind(this, name));
     }
 
     /**
@@ -139,7 +146,7 @@ export class SaveStateComponent implements OnInit {
      */
     @Verify({
         title: 'Delete Changes',
-        message: (name) => `Are you sure you want to delete '${name}' ?`,
+        confirmMessage: (name) => `Are you sure you want to delete '${name}' ?`,
         confirmText: 'Delete'
     })
     public deleteState(name: string, __verify = true) {

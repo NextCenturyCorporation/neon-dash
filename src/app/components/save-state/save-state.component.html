@@ -1,4 +1,4 @@
-<form #optionsForm="ngForm" (submit)="saveState(stateName.value)">
+<form #optionsForm="ngForm" (submit)="saveState(stateName.value, false)">
     <mat-form-field>
         <input #stateName matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent">
     </mat-form-field>
@@ -10,8 +10,7 @@
 
 <div class="option-row" *ngFor="let state of states.results">
     <a class="state-name" (click)="loadState(state.fileName)">
-        <span [matBadgeHidden]="!(current && current.fileName === state.fileName && current.modified)" matBadge="x"
-            mat-position="above after">
+        <span [matBadgeHidden]="!(current && current.fileName === state.fileName && current.modified)" matBadge="x" mat-position="above after">
             {{ state.dashboards.name || state.fileName }}
         </span>
     </a>
