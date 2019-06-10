@@ -24,8 +24,6 @@ import * as _ from 'lodash';
 export class DashboardState {
     /**
      * Returns dotted reference in constituent parts(datastore.database.table.field).
-     * @param {String} name
-     * @return {String}
      */
     static deconstructDottedReference(name: string) {
         const [datastore, database, table, ...field] = (name || '').split('.');
@@ -44,8 +42,6 @@ export class DashboardState {
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
-     * @param {String} key
-     * @return {String}
      */
     deconstructTableName(key: string) {
         return DashboardState.deconstructDottedReference(this.dashboard.tables[key] || key);
@@ -53,8 +49,6 @@ export class DashboardState {
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
-     * @param {String} key
-     * @return {String}
      */
     deconstructFieldName(key: string) {
         return DashboardState.deconstructDottedReference(this.dashboard.fields[key] || key);
@@ -62,7 +56,6 @@ export class DashboardState {
 
     /**
      * Returns the current dashboard config title.
-     * @return {string}
      */
     public getTitle(): string {
         return this.dashboard ? this.dashboard.fullTitle : null;
@@ -96,7 +89,6 @@ export class DashboardState {
 
     /**
      * Returns the simple search field
-     * @return {string}
      */
     public getSimpleFilterFieldName(): string {
         this.createSimpleFilter();
@@ -105,15 +97,13 @@ export class DashboardState {
 
     /**
      * Returns the active table fields
-     * @return {Object}
      */
-    public getActiveFields() {
+    public getActiveFields(): NeonFieldMetaData[] {
         return this.datastore.databases[0].tables[0].fields;
     }
 
     /**
      * Returns whether a datastore is active.
-     * @return {Boolean}
      */
     public hasDatastore(): boolean {
         return (this.datastore.type && this.datastore.host && (Object.keys(this.datastore.databases).length > 0));
@@ -121,7 +111,6 @@ export class DashboardState {
 
     /**
      * Returns the name of the active datastore.
-     * @return {String}
      */
     public getDatastoreName(): string {
         return this.datastore.name;
@@ -129,7 +118,6 @@ export class DashboardState {
 
     /**
      * Returns the layout name for the currently selected dashboard.
-     * @return {String}
      */
     public getLayout(): string {
         return this.dashboard.layout;
@@ -144,7 +132,6 @@ export class DashboardState {
 
     /**
      * Returns the datastore type for the active datastore (elasticsearchrest, mongo, etc)
-     * @return {String}
      */
     public getDatastoreType(): string {
         return this.datastore.type;
@@ -152,7 +139,6 @@ export class DashboardState {
 
     /**
      * Returns the hostname for the active datastore.
-     * @return {String}
      */
     public getDatastoreHost(): string {
         return this.datastore.host;
@@ -160,7 +146,6 @@ export class DashboardState {
 
     /**
      * Returns the databases for the active datastore.
-     * @return {Array}
      */
     public getDatabases(): NeonDatabaseMetaData[] {
         return Object.values(this.datastore.databases).sort((db1, db2) => db1.name.localeCompare(db2.name));
@@ -168,8 +153,8 @@ export class DashboardState {
 
     /**
      * Returns the database with the given name or an Object with an empty name if no such database exists in the datastore.
-     * @param {String} The database name
-     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * @param  The database name
+     * @return The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
     public getDatabaseWithName(databaseName: string): NeonDatabaseMetaData {
@@ -178,10 +163,8 @@ export class DashboardState {
 
     /**
      * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the datastore.
-     * @param {String} The dashboard name
-     * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     * Dashboard name only includes part of the database pretty name
+     * @return The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * or undefined otherwise.  Dashboard name only includes part of the database pretty name
      */
     public getDatabase(): NeonDatabaseMetaData {
         if (!this.dashboard) {
@@ -200,8 +183,7 @@ export class DashboardState {
 
     /**
      * Returns the tables for the database with the given name in the active datastore.
-     * @param {String} The database name
-     * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
+     * @return An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
      */
     public getTables(databaseName: string): { [key: string]: NeonTableMetaData } {
         let database = this.getDatabaseWithName(databaseName);
@@ -210,8 +192,6 @@ export class DashboardState {
 
     /**
      * Returns the table with the given name or an Object with an empty name if no such table exists in the database with the given name.
-     * @param {String} The database name
-     * @param {String} The table name
      * @return {Object} The table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
@@ -239,9 +219,7 @@ export class DashboardState {
 
     /**
      * Returns the field objects for the database and table with the given names.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @return {Array} The array of field objects if a match exists or an empty array otherwise.
+     * @return The array of field objects if a match exists or an empty array otherwise.
      */
     public getFields(databaseName: string, tableName: string): NeonFieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
@@ -256,10 +234,8 @@ export class DashboardState {
     /**
      * Returns a sorted copy of the array of field objects for the database and table with the given names,
      * ignoring hidden fields if specified.
-     * @param {String} The database name
-     * @param {String} The table name
-     * @param {Boolean} Whether to ignore fields in the table marked as hidden (optional)
-     * @return {Array} The sorted copy of the array of field objects if a match exists or an empty array otherwise.
+     * @param Whether to ignore fields in the table marked as hidden (optional)
+     * @return The sorted copy of the array of field objects if a match exists or an empty array otherwise.
      */
     public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): NeonFieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
@@ -285,9 +261,8 @@ export class DashboardState {
     /**
     /**
      * Returns the the first table in the database with the given name containing all the given mappings.
-     * @param {String} The database name
-     * @param {Array} The array of mapping keys that the table must contain.
-     * @return {String} The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * @param The array of mapping keys that the table must contain.
+     * @return The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
     public getFirstTableWithMappings(databaseName: string, keys: string[]): NeonTableMetaData {
@@ -305,8 +280,8 @@ export class DashboardState {
 
     /**
      * Returns an object containing the first database, table, and fields found in the active datastore with all the given mappings.
-     * @param {Array} The array of mapping keys that the database and table must contain.
-     * @return {Object} An object containing {String} database, {String} table,
+     * @param The array of mapping keys that the database and table must contain.
+     * @return An object containing {String} database, {String} table,
      * and {Object} fields linking {String} mapping to {String} field.
      * If no match was found, an empty object is returned instead.
      */
@@ -340,9 +315,6 @@ export class DashboardState {
 
     /**
      * Returns the options for the current dashboard.
-     * @method getCurrentDashboardOptions
-     * @return {Object}
-     *
      */
     public getOptions(): NeonDashboardConfig['options'] {
         return this.dashboard.options;
@@ -350,9 +322,6 @@ export class DashboardState {
 
     /**
      * Returns the pretty name for the given table name in the given database.
-     * @param {String} databaseName
-     * @param {String} tableName
-     * @return {String}
      */
     public getPrettyNameForTable(databaseName: string, tableName: string): string {
         let name = tableName;
@@ -362,8 +331,6 @@ export class DashboardState {
 
     /**
      * Returns the pretty name for the given database name.
-     * @param {String} databaseName
-     * @return {String}
      */
     public getPrettyNameForDatabase(databaseName: string): string {
         const db = this.datastore.databases[databaseName];
@@ -373,8 +340,6 @@ export class DashboardState {
     /**
      * Returns the list of relation data for the current datastore:  elements of the outer array are individual relations and elements of
      * the inner array are specific fields within the relations.
-     *
-     * @return {SingleField[][][]}
      */
     public findRelationDataList(): SingleField[][][] {
         // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
@@ -430,11 +395,8 @@ export class DashboardState {
         });
     }
 
-    // Used to link layouts with dashboards
     /**
      * Returns entire value of matching table key from current dashboard.
-     * @param {String} key
-     * @return {String}
      */
     public getTableByKey(key: string): string {
         return this.dashboard.tables[key];
@@ -442,8 +404,6 @@ export class DashboardState {
 
     /**
      * Returns entire value of matching field key from current dashboard.
-     * @param {String} key
-     * @return {String}
      */
     public getFieldByKey(key: string): string {
         return this.dashboard.fields[key];
@@ -451,9 +411,6 @@ export class DashboardState {
 
     /**
      * If field key is referenced in config file, find field value using current dashboard.
-     *
-     * @arg {string} fieldKey
-     * @return {string}
      */
     public translateFieldKeyToValue(fieldKey: string): string {
         return this.deconstructFieldName(fieldKey).field || fieldKey;
