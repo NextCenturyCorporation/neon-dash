@@ -26,9 +26,9 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonDashboardConfig, NeonConfig, NeonDatastoreConfig, NeonLayoutConfig } from '../../types';
+import { NeonDashboardConfig, NeonConfig, NeonDatastoreConfig, NeonLayoutConfig } from '../../model/types';
 
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';

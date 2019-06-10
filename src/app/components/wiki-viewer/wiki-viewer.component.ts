@@ -33,13 +33,13 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {

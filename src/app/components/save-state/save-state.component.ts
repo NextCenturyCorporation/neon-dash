@@ -22,8 +22,8 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { NeonGridItem } from '../../neon-grid-item';
-import { neonEvents } from '../../neon-namespaces';
+import { NeonGridItem } from '../../model/neon-grid-item';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import * as _ from 'lodash';
 
@@ -31,8 +31,8 @@ import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.compone
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
 import { ConnectionService } from '../../services/connection.service';
-import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../types';
-import { DashboardState } from '../../dashboard-state';
+import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../model/types';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-save-state',

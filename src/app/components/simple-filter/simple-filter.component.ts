@@ -15,12 +15,12 @@
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../../dashboard-state';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-simple-filter',

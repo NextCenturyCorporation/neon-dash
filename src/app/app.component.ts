@@ -15,7 +15,7 @@
  */
 import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
-import { NeonConfig } from './types';
+import { NeonConfig } from './model/types';
 
 @Component({
     selector: 'app-root',

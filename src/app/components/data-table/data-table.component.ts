@@ -31,8 +31,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../types';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -41,7 +41,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -79,13 +79,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: number;
         y: number;
     } = {
-        mousedown: false,
-        downIndex: -1,
-        currentIndex: -1,
-        field: null,
-        x: 0,
-        y: 0
-    };
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0
+        };
 
     public duplicateNumber = 0;
     public seenValues = [];

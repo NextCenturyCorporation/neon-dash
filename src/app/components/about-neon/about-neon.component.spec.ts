@@ -17,7 +17,7 @@ import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { AboutNeonComponent } from './about-neon.component';
 import { AboutNeonModule } from './about-neon.module';
-import { NeonConfig } from '../../types';
+import { NeonConfig } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 

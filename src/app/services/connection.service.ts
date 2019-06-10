@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NeonConfig } from '../types';
+import { NeonConfig } from '../model/types';
 import { query } from 'neon-framework';
 
 export interface RequestWrapper {

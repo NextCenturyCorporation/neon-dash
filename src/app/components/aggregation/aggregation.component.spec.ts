@@ -30,10 +30,10 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { Color } from '../../color';
+import { Color } from '../../model/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData, NeonConfig } from '../../types';
+import { NeonFieldMetaData, NeonConfig } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 

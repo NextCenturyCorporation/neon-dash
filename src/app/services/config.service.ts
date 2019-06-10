@@ -21,7 +21,7 @@ import { environment } from '../../environments/environment';
 
 import { ReplaySubject, Observable, combineLatest, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
-import { NeonConfig } from '../types';
+import { NeonConfig } from '../model/types';
 import { Injectable } from '@angular/core';
 
 const EMPTY_CONFIG = {

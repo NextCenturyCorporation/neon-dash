@@ -24,17 +24,17 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../model/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { GearModule } from './gear.module';
 import { ConfigService } from '../../services/config.service';
-import { WidgetOptionCollection, WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../widget-option';
+import { WidgetOptionCollection, WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../model/widget-option';
 
 describe('Component: Gear Component', () => {
     let component: GearComponent;

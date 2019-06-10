@@ -15,11 +15,11 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
-import { Color, ColorSet } from '../color';
+import { Color, ColorSet } from '../model/color';
 import { DashboardService } from './dashboard.service';
-import { neonEvents } from '../neon-namespaces';
+import { neonEvents } from '../model/neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../dashboard-state';
+import { DashboardState } from '../model/dashboard-state';
 
 /**
  * @class NeonTheme

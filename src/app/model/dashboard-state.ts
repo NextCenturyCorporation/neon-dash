@@ -17,7 +17,7 @@ import {
     NeonDatastoreConfig,
     NeonDashboardConfig, NeonDatabaseMetaData,
     NeonTableMetaData, NeonFieldMetaData, SingleField
-} from './types';
+} from '../model/types';
 
 import * as _ from 'lodash';
 

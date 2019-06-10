@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';

@@ -18,8 +18,8 @@ import { MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
-import { NeonGridItem } from '../../neon-grid-item';
-import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+import { NeonGridItem } from '../../model/neon-grid-item';
+import { neonEvents, neonVisualizations } from '../../model/neon-namespaces';
 
 import { eventing } from 'neon-framework';
 import * as _ from 'lodash';

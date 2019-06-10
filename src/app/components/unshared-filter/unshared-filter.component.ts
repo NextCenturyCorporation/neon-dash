@@ -14,7 +14,7 @@
  *
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 
 /**
  * Component for managing the unshared filter of a visualization.

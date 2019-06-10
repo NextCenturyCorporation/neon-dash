@@ -19,7 +19,7 @@ import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { NeonFieldMetaData, NeonConfig } from '../../types';
+import { NeonFieldMetaData, NeonConfig } from '../../model/types';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';

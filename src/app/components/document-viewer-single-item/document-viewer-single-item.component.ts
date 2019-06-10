@@ -16,7 +16,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 
 @Component({
     selector: 'app-document-viewer-single-item',

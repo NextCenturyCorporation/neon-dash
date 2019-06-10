@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSet } from '../../color';
+import { ColorSet } from '../../model/color';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 

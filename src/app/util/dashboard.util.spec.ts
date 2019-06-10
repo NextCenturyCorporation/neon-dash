@@ -14,7 +14,7 @@
  *
  */
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../types';
+import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../model/types';
 
 import { DashboardUtil } from './dashboard.util';
 

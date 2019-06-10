@@ -14,7 +14,7 @@
  *
  */
 import { Component, Input, ReflectiveInjector, ViewChild, ViewContainerRef } from '@angular/core';
-import { NeonGridItem } from '../../neon-grid-item';
+import { NeonGridItem } from '../../model/neon-grid-item';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
 
 @Component({

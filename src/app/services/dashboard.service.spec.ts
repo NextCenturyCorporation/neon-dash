@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../types';
+import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../model/types';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';

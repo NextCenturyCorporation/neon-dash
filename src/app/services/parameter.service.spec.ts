@@ -20,7 +20,7 @@ import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
 
-import { NeonConfig } from '../types';
+import { NeonConfig } from '../model/types';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';

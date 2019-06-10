@@ -28,11 +28,11 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../types';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -40,7 +40,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {

@@ -18,7 +18,7 @@ import { inject } from '@angular/core/testing';
 import * as yaml from 'js-yaml';
 
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
-import { DashboardService } from './services/dashboard.service';
+import { DashboardService } from '../services/dashboard.service';
 import {
     WidgetDatabaseOption,
     WidgetFieldOption,
@@ -29,8 +29,8 @@ import {
     WidgetNonPrimitiveOption
 } from './widget-option';
 
-import { initializeTestBed } from '../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../testUtils/MockServices/DashboardServiceMock';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 
 import * as _ from 'lodash';
 

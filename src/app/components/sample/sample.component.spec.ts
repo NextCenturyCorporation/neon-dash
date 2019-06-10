@@ -28,7 +28,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../types';
+import { NeonConfig, NeonFieldMetaData } from '../../model/types';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';

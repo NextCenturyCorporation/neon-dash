@@ -28,15 +28,15 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../types';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
 import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetOptionCollection
-} from '../../widget-option';
+} from '../../model/widget-option';
 
-import { neonEvents } from '../../../app/neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 import { MatDialog } from '@angular/material';
 
 @Component({
