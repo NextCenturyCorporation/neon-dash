@@ -348,15 +348,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngAfterViewInit() {
         /* NOTE:
-         * The gear component is created when the app component is created because if it is created when
-         * a component sends its option object in the messenger channel, it is too late.
-         * The gear component is created too late to receive the option object in the meseenger channel,
-         * as a result you would have had to click the gear option in the component twice to see any
-         * object values.
-         * Another workaround might be sending the option object in the messenger channel after a feedback
-         * from the app component after the toggleGear is received.
-         */
-        /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
          * until the window has been resized.
@@ -376,7 +367,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.openOptionMenu.bind(this));
+        this.messageReceiver.subscribe(
+            neonEvents.SHOW_OPTION_MENU,
+            this.setPanel.bind(this, 'gear', 'Component Settings')
+        );
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -403,15 +397,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @DashboardModified()
     onResizeStop(index, __event) {
         this.visualizations.toArray()[index].onResizeStop();
-    }
-
-    /**
-     * Opens the option menu.
-     *
-     * @private
-     */
-    private openOptionMenu() {
-        this.setPanel('gear', 'Component Settings');
     }
 
     toggleFiltersDialog() {
