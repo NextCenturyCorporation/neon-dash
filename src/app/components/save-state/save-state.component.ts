@@ -26,8 +26,8 @@ import * as _ from 'lodash';
 
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
-import { tap } from 'rxjs/operators';
-import { NeonConfig, NeonLayoutConfig } from '../../model/types';
+import { tap, filter } from 'rxjs/operators';
+import { NeonConfig } from '../../model/types';
 import { DashboardState } from '../../model/dashboard-state';
 import { ConfigService } from '../../services/config.service';
 
@@ -47,7 +47,9 @@ export function Verify(config: {
             for (const el of Object.keys(config)) {
                 out[el] = typeof config[el] === 'string' ? config[el] : config[el](value);
             }
-            this.openConfirmationDialog(out as any).subscribe(() => fn.call(this, value));
+            this.openConfirmationDialog(out as any)
+                .pipe(filter((result) => !!result))
+                .subscribe(() => fn.call(this, value));
         };
     };
 }
