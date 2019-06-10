@@ -45,6 +45,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
+import { GridState } from './grid-state';
 
 describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
@@ -207,7 +208,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 2,
@@ -219,9 +220,9 @@ describe('Dashboard', () => {
     });
 
     it('addWidget does work with tabs', () => {
-        expect(component.tabbedGrid.length).toEqual(1);
-        expect(component.tabbedGrid[0].name).toEqual('');
-        expect(component.activeWidgetList).toEqual([]);
+        expect(component.gridState.tabs.length).toEqual(1);
+        expect(component.gridState.tabs[0].name).toEqual('');
+        expect(component.gridState.activeWidgetList).toEqual([]);
 
         let widgetGridItem1: NeonGridItem = {
             col: 1,
@@ -235,9 +236,9 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.tabbedGrid.length).toEqual(1);
-        expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.tabs.length).toEqual(1);
+        expect(component.gridState.tabs[0].name).toEqual('tab1');
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -259,9 +260,9 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem2
         });
 
-        expect(component.tabbedGrid.length).toEqual(1);
-        expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.tabs.length).toEqual(1);
+        expect(component.gridState.tabs[0].name).toEqual('tab1');
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -291,9 +292,9 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem3
         });
 
-        expect(component.tabbedGrid.length).toEqual(2);
-        expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.tabs.length).toEqual(2);
+        expect(component.gridState.tabs[0].name).toEqual('tab1');
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -310,8 +311,8 @@ describe('Dashboard', () => {
             sizex: 4,
             sizey: 4
         }]);
-        expect(component.tabbedGrid[1].name).toEqual('tab2');
-        expect(component.tabbedGrid[1].list).toEqual([{
+        expect(component.gridState.tabs[1].name).toEqual('tab2');
+        expect(component.gridState.tabs[1].list).toEqual([{
             id: widgetGridItem3.id,
             borderSize: 10,
             col: 5,
@@ -331,7 +332,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -349,7 +350,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem2
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -375,7 +376,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem3
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -409,7 +410,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem4
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -445,7 +446,7 @@ describe('Dashboard', () => {
     });
 
     it('addWidget does set the position of the given widget with unspecified position and add it to the middle of the grid', () => {
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -487,7 +488,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -531,7 +532,7 @@ describe('Dashboard', () => {
     });
 
     it('clearDashboard does delete all elements from the grid', () => {
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -551,7 +552,7 @@ describe('Dashboard', () => {
 
         component['clearDashboard']();
 
-        expect(component.activeWidgetList).toEqual([]);
+        expect(component.gridState.activeWidgetList).toEqual([]);
     });
 
     it('contractWidget does update the size and position of the given widget to its previous config', () => {
@@ -598,7 +599,7 @@ describe('Dashboard', () => {
             sizey: 1
         };
 
-        component.tabbedGrid[0].list = [widgetGridItemToDelete, {
+        component.gridState.tabs[0].list = [widgetGridItemToDelete, {
             id: 'b',
             borderSize: 10,
             col: 2,
@@ -612,7 +613,7 @@ describe('Dashboard', () => {
             id: 'a'
         });
 
-        expect(component.activeWidgetList).toEqual([{
+        expect(component.gridState.activeWidgetList).toEqual([{
             id: 'b',
             borderSize: 10,
             col: 2,
@@ -696,9 +697,9 @@ describe('Dashboard', () => {
     // });
 
     it('getMaxColInUse does return expected number', () => {
-        expect(component['getMaxColInUse']()).toEqual(0);
+        expect(component.gridState.getMaxColInUse()).toEqual(0);
 
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -708,9 +709,9 @@ describe('Dashboard', () => {
             sizey: 1
         }];
 
-        expect(component['getMaxColInUse']()).toEqual(1);
+        expect(component.gridState.getMaxColInUse()).toEqual(1);
 
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -728,13 +729,13 @@ describe('Dashboard', () => {
             sizey: 1
         }];
 
-        expect(component['getMaxColInUse']()).toEqual(2);
+        expect(component.gridState.getMaxColInUse()).toEqual(2);
     });
 
     it('getMaxRowInUse does return expected number', () => {
-        expect(component['getMaxRowInUse']()).toEqual(0);
+        expect(component.gridState.getMaxRowInUse()).toEqual(0);
 
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -744,9 +745,9 @@ describe('Dashboard', () => {
             sizey: 1
         }];
 
-        expect(component['getMaxRowInUse']()).toEqual(1);
+        expect(component.gridState.getMaxRowInUse()).toEqual(1);
 
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -764,7 +765,7 @@ describe('Dashboard', () => {
             sizey: 1
         }];
 
-        expect(component['getMaxRowInUse']()).toEqual(2);
+        expect(component.gridState.getMaxRowInUse()).toEqual(2);
     });
 
     it('moveWidgetToBottom does update the row of the given widget', () => {
@@ -781,7 +782,7 @@ describe('Dashboard', () => {
 
         expect(widgetGridItem1.row).toEqual(1);
 
-        component.tabbedGrid[0].list = [{
+        component.gridState.tabs[0].list = [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1139,9 +1140,9 @@ describe('Dashboard', () => {
             sizey: 2
         };
 
-        expect(DashboardComponent.widgetFits(gridItem, [])).toEqual(true);
+        expect(GridState.widgetFits(gridItem, [])).toEqual(true);
 
-        expect(DashboardComponent.widgetFits(gridItem, [{
+        expect(GridState.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1151,7 +1152,7 @@ describe('Dashboard', () => {
             sizey: 1
         }])).toEqual(true);
 
-        expect(DashboardComponent.widgetFits(gridItem, [{
+        expect(GridState.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1161,7 +1162,7 @@ describe('Dashboard', () => {
             sizey: 2
         }])).toEqual(false);
 
-        expect(DashboardComponent.widgetFits(gridItem, [{
+        expect(GridState.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 2,
@@ -1171,7 +1172,7 @@ describe('Dashboard', () => {
             sizey: 1
         }])).toEqual(false);
 
-        expect(DashboardComponent.widgetFits(gridItem, [{
+        expect(GridState.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1189,8 +1190,7 @@ describe('Dashboard', () => {
             sizey: 4
         }])).toEqual(true);
 
-
-        expect(DashboardComponent.widgetFits(gridItem, [{
+        expect(GridState.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1210,7 +1210,7 @@ describe('Dashboard', () => {
     });
 
     it('widgetOverlaps does return expected boolean', () => {
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1224,7 +1224,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1238,7 +1238,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1252,7 +1252,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1266,7 +1266,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 2,
                 row: 1,
@@ -1280,7 +1280,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 2,
@@ -1294,7 +1294,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 2,
                 row: 1,
@@ -1308,7 +1308,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 2,
@@ -1322,7 +1322,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1336,7 +1336,7 @@ describe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(DashboardComponent.widgetOverlaps(
+        expect(GridState.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
