@@ -144,11 +144,11 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         this.configService.load(name)
             .subscribe((config) => {
-                this.dashboardService.setConfig(config);
+                this.configService.setActive(config);
 
-                this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                    dashboard: config.dashboards
-                });
+                // This.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                //     dashboard: config.dashboards
+                // });
 
                 this.openNotification(name, 'loaded');
                 this.closeSidenav();
