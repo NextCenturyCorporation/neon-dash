@@ -385,7 +385,7 @@ describe('Component: SaveStateComponent', () => {
             return null;
         });
 
-        // component.widgetGridItems = [{
+        // Component.widgetGridItems = [{
         //     id: 'id1',
         //     col: 1,
         //     row: 2,
@@ -497,7 +497,7 @@ describe('Component: SaveStateComponent', () => {
         spyOn(component['dashboardService'], 'getDatastoresInConfigFormat').and.returnValue([]);
         spyOn(component['filterService'], 'getFiltersToSaveInConfig').and.returnValue([]);
         spyOn(component, 'getWidgetById').and.returnValue(null);
-        // component.widgetGridItems = [];
+        // Component.widgetGridItems = [];
 
         let calls = 0;
         spyOn(component, 'openConnection').and.callFake(() => ({

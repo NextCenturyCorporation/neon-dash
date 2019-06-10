@@ -496,8 +496,8 @@ describe('Component: Map', () => {
         expect((actual3[2].filterDesign).value).toBeUndefined();
 
         component.options.layers[1].filterFields = [DashboardServiceMock.FILTER_FIELD,
-        DashboardServiceMock.NAME_FIELD,
-        DashboardServiceMock.TYPE_FIELD];
+            DashboardServiceMock.NAME_FIELD,
+            DashboardServiceMock.TYPE_FIELD];
         let actual4 = (component as any).designEachFilterWithNoValues();
         expect(actual4.length).toEqual(8);
         expect((actual4[0].filterDesign)).toEqual((actual3[0].filterDesign));
@@ -745,8 +745,8 @@ describe('Component: Map', () => {
 
         updateMapLayer2(component);
         component.options.layers[1].filterFields = [DashboardServiceMock.FILTER_FIELD,
-        DashboardServiceMock.NAME_FIELD,
-        DashboardServiceMock.TYPE_FIELD];
+            DashboardServiceMock.NAME_FIELD,
+            DashboardServiceMock.TYPE_FIELD];
 
         let filterDataB = new Map<string, any>();
         filterDataB.set(DashboardServiceMock.FILTER_FIELD.columnName, 'testFilterB');
@@ -881,8 +881,8 @@ describe('Component: Map', () => {
 
         updateMapLayer2(component);
         component.options.layers[1].filterFields = [DashboardServiceMock.FILTER_FIELD,
-        DashboardServiceMock.NAME_FIELD,
-        DashboardServiceMock.TYPE_FIELD];
+            DashboardServiceMock.NAME_FIELD,
+            DashboardServiceMock.TYPE_FIELD];
 
         component.filterByMapPoint([new Map<string, any>()], 3, 4);
 

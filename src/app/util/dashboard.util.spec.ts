@@ -19,7 +19,6 @@ import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFie
 import { DashboardUtil } from './dashboard.util';
 
 describe('Util: DashboardUtil', () => {
-
     it('appendDatastoresFromConfig with no config and no datastores should do nothing', () => {
         let input = {};
         DashboardUtil.appendDatastoresFromConfig({}, {});

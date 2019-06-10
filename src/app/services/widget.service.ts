@@ -57,7 +57,7 @@ export class WidgetService extends AbstractWidgetService {
         super();
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
-        document.body.className = this.currentThemeId
+        document.body.className = this.currentThemeId;
         this.dashboardState = dashboardService.state;
     }
 
