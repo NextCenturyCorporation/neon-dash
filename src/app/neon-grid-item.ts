@@ -38,3 +38,8 @@ export interface NeonGridItem extends NeonLayoutGridConfig {
     // The previous grid item config that is stored when the widget is expanded and restored the widget is contracted. */
     previousConfig?: Partial<NeonGridItem>;
 }
+
+export interface NeonGridTab {
+    name: string;
+    list: NeonGridItem[];
+}
