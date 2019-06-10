@@ -36,6 +36,11 @@ export class ConfigService {
         return new ConfigService(null, null).setActive(config);
     }
 
+    static validateName(fileName: string): string {
+        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
+        return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
+    }
+
     constructor(
         private http: HttpClient,
         private connectionService: ConnectionService
@@ -132,6 +137,7 @@ export class ConfigService {
      */
     save(config: NeonConfig): Observable<void> {
         return from(new Promise<void>((resolve, reject) => {
+            config.projectTitle = ConfigService.validateName(config.projectTitle);
             this.openConnection().saveState(config, resolve, reject);
         })).pipe(take(1));
     }
@@ -141,8 +147,17 @@ export class ConfigService {
      */
     load(name: string): Observable<NeonConfig> {
         return from(new Promise<NeonConfig>((resolve, reject) => {
-            this.openConnection().loadState(name, resolve, reject);
-        })).pipe(take(1));
+            const validName = ConfigService.validateName(name);
+            this.openConnection().loadState(validName, resolve, reject);
+        })).pipe(
+            take(1),
+            map((config) => {
+                if (!(config.dashboards && config.datastores && config.layouts)) {
+                    throw new Error(`${name} not loaded:  bad format`);
+                }
+                return config;
+            })
+        );
     }
 
     /*
@@ -150,12 +165,13 @@ export class ConfigService {
      */
     delete(name: string) {
         return from(new Promise<void>((resolve, reject) => {
-            this.openConnection().deleteState(name, resolve, reject);
+            const validName = ConfigService.validateName(name);
+            this.openConnection().deleteState(validName, resolve, reject);
         })).pipe(take(1));
     }
 
     /**
-     * Get's list of available dashboard states.
+     * Get list of available dashboard states.
      */
     list(limit = 100, offset = 0) {
         return from(new Promise<{ total: number, results: NeonConfig[] }>((resolve, reject) => {
