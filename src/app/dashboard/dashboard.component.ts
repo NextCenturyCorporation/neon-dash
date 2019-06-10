@@ -68,8 +68,8 @@ export function DashboardModified() {
 export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-    @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
-    @ViewChild('sideNavRight') sideNavRight: MatSidenav;
+    @ViewChild(SimpleFilterComponent) simpleFilter: SimpleFilterComponent;
+    @ViewChild(MatSidenav) sideNavRight: MatSidenav;
 
     public updatedData = 0;
 
@@ -347,10 +347,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        let gearContainer: HTMLElement = document.getElementById('gear');
-
-        gearContainer.setAttribute('style', 'display: none');
-
         /* NOTE:
          * The gear component is created when the app component is created because if it is created when
          * a component sends its option object in the messenger channel, it is too late.
@@ -416,7 +412,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private openOptionMenu() {
         this.setPanel('gear', 'Component Settings');
-        this.sideNavRight.toggle();
     }
 
     toggleFiltersDialog() {
@@ -472,7 +467,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     @DashboardModified()
     private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
-        if (this.widgets.get(eventMessage.id) === undefined) {
+        if (!this.widgets.has(eventMessage.id)) {
             if (this.pendingInitialRegistrations > 0) {
                 this.pendingInitialRegistrations -= 1;
             }
