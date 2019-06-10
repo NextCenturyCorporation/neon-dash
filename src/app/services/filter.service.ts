@@ -15,8 +15,7 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../model/types';
-import { DashboardService } from './dashboard.service';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../model/types';
 import { neonEvents } from '../model/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
@@ -164,9 +163,9 @@ export class FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: any, dashboardState: DashboardState): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dashboardState: DashboardState): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
-        if (filterObject.database && filterObject.table && filterObject.field && filterObject.operator) {
+        if ('database' in filterObject && 'table' in filterObject && 'field' in filterObject && 'operator' in filterObject) {
             let database: NeonDatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
             let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
             let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
@@ -182,11 +181,11 @@ export class FilterUtil {
             } as SimpleFilterDesign;
         }
 
-        if (filterObject.filters && filterObject.type) {
+        if ('filters' in filterObject && 'type' in filterObject) {
             return {
                 name: filterObject.name,
                 root: filterObject.root,
-                type: filterObject.type,
+                type: CompoundFilterType[filterObject.type],
                 filters: filterObject.filters.map((nestedObject) =>
                     this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
             } as CompoundFilterDesign;
@@ -738,7 +737,7 @@ export class FilterService {
     /**
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      */
-    public setFiltersFromConfig(filtersFromConfig: any[], dashboardState: DashboardState, searchService: AbstractSearchService) {
+    public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dashboardState: DashboardState, searchService: AbstractSearchService) {
         let collection: FilterCollection = new FilterCollection();
         filtersFromConfig.forEach((filterFromConfig) => {
             let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);

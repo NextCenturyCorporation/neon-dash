@@ -146,17 +146,10 @@ export class SaveStateComponent implements OnInit {
         cancelText: 'Discard'
     })
     public saveState(name: string, __verify = false): void {
+        const validStateName = this.validateName(name);
         const config = NeonConfig.get({
-
+            projectTitle: validStateName
         });
-        // Let stateData: NeonConfig = {
-        //     projectTitle: validStateName,
-        //     dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
-        //         this.filterService.getFiltersToSaveInConfig()),
-        //     datastores: this.dashboardService.getDatastoresInConfigFormat(),
-        //     layouts: this.createLayouts(validStateName, this.widgetGridItems),
-        //     version: '1'
-        // };
 
         this.configService.save(config)
             .subscribe(() => {
@@ -168,8 +161,6 @@ export class SaveStateComponent implements OnInit {
 
     /**
      * Loads the dashboard state with the given name.
-     *
-     * @arg {string} name
      */
     public loadState(name: string): void {
         const validStateName = this.validateName(name);
@@ -214,9 +205,6 @@ export class SaveStateComponent implements OnInit {
 
     /**
      * Shows an error notification.
-     *
-     * @arg {Object} response
-     * @private
      */
     private handleStateFailure(name: string, response: any) {
         this.isLoading = false;
@@ -228,8 +216,6 @@ export class SaveStateComponent implements OnInit {
 
     /**
      * Updates the list of available dashboard states.
-     *
-     * @private
      */
     private listStates(limit = 100, offset = 0) {
         this.isLoading = true;
