@@ -5,30 +5,17 @@
                 <span>{{ rightPanelTitle }}</span>
             </mat-toolbar>
 
-            <div class="right-panel-container">
-                <div id="aboutNeon" class="about-neon-container" *ngIf="createAboutNeon">
-                    <wt-lazy [location]="{moduleId:'about-neon', selector: 'app-about-neon'}"></wt-lazy>
-                </div>
-                <div id="addVis" class="add-visualization-container" *ngIf="createAddVis">
-                    <wt-lazy [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}">
-                    </wt-lazy>
-                </div>
-                <div id="addVis" class="add-visualization-container" *ngIf="createCustomConnection">
-                    <wt-lazy [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
-                    </wt-lazy>
-                </div>
-                <div id="gear" class="gear-container" *ngIf="createGear">
-                    <wt-lazy [location]="{moduleId:'gear', selector: 'app-gear'}" [inputs]="{sideNavRight: sideNavRight}">
-                    </wt-lazy>
-                </div>
-                <div id="savedState" class="saved-state-container" *ngIf="createSavedState">
-                    <wt-lazy [location]="{moduleId:'save-state', selector: 'app-save-state'}"
-                        [inputs]="{sidenav: sideNavRight, widgetGridItems: tabbedGrid[selectedTabIndex].list, widgets: widgets, current: currentDashboard}">
-                    </wt-lazy>
-                </div>
-                <div id="settings" class="setting-container" *ngIf="createSettings">
-                    <wt-lazy [location]="{moduleId:'settings', selector: 'app-settings'}" [inputs]="{widgets:widgets}"></wt-lazy>
-                </div>
+            <div class="right-panel-container" [ngSwitch]="currentPanel">
+                <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'addVis'" [ location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'gear'" [location]="{moduleId:'gear', selector: 'app-gear'}" [inputs]="{sideNavRight: sideNavRight}">
+                </wt-lazy>
+                <wt-lazy *ngSwitchCase="'savedState'" [location]="{moduleId:'save-state', selector: 'app-save-state'}"
+                    [inputs]="{sidenav: sideNavRight, gridState: gridState }">
+                </wt-lazy>
+                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}" [inputs]="{widgets:widgets}">
+                </wt-lazy>
             </div>
         </div>
     </mat-sidenav>
@@ -109,13 +96,13 @@
     </div>
 
     <div class="neon-dash" mat-fill layout="col">
-        <mat-tab-group *ngIf="tabbedGrid.length > 1" [(selectedIndex)]="selectedTabIndex">
-            <mat-tab class="tab" *ngFor="let tab of tabbedGrid" [label]="tab.name"></mat-tab>
+        <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
+            <mat-tab class="tab" *ngFor="let tab of gridState.tabs" [label]="tab.name"></mat-tab>
         </mat-tab-group>
 
         <div class="neon-grid">
             <div [ngGrid]="gridConfig" #grid>
-                <div *ngFor="let widgetGridItem of tabbedGrid[selectedTabIndex].list; let i = index;" [(ngGridItem)]="widgetGridItem"
+                <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
                     name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
                     (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
                     <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
