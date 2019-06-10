@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.get().subscribe((config) => {
+        this.service.getActive().subscribe((config) => {
             this.loading = false;
             this.config = config;
         });

@@ -47,7 +47,7 @@ export class ConfigEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.configService.get().subscribe((neonConfig) => {
+        this.configService.getActive().subscribe((neonConfig) => {
             this.currentConfig = neonConfig;
             if (this.currentConfig.errors) {
                 delete this.currentConfig.errors;
@@ -62,7 +62,7 @@ export class ConfigEditorComponent implements OnInit {
 
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, json,
             (__response) => {
-                this.configService.set(settings);
+                this.configService.setActive(settings);
                 this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
