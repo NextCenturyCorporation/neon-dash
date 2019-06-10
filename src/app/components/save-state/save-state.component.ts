@@ -92,7 +92,19 @@ export class SaveStateComponent implements OnInit {
         const out = NeonConfig.get({
             ...this.dashboardService.config,
             filters: this.filterService.getFiltersToSaveInConfig(),
-            layouts: { [name]: _.cloneDeep(this.dashboardService.gridState.activeWidgetList) as NeonLayoutConfig[] },
+            layouts: {
+                [name]: this.dashboardService.gridState.activeWidgetList.map(
+                    (item) => ({
+                        bindings: item.bindings,
+                        col: item.col,
+                        row: item.row,
+                        name: item.name,
+                        sizex: item.sizex,
+                        sizey: item.sizey,
+                        type: item.type
+                    })
+                )
+            },
             dashboards: _.cloneDeep({
                 ...this.dashboardService.state.dashboard,
                 name,
@@ -102,6 +114,7 @@ export class SaveStateComponent implements OnInit {
         });
         delete out.errors;
         delete out.dashboards.pathFromTop;
+        out.dashboards.options.connectOnLoad = true;
         return out;
     }
 
@@ -116,7 +129,6 @@ export class SaveStateComponent implements OnInit {
     })
     public saveState(name: string, __verify = true): void {
         const config = this.getNewConfig(name);
-
         this.configService.save(config)
             .subscribe(() => {
                 this.openNotification(name, 'saved');
