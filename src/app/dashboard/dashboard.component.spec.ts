@@ -207,7 +207,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 2,
@@ -221,7 +221,7 @@ describe('Dashboard', () => {
     it('addWidget does work with tabs', () => {
         expect(component.tabbedGrid.length).toEqual(1);
         expect(component.tabbedGrid[0].name).toEqual('');
-        expect(component.tabbedGrid[0].list).toEqual([]);
+        expect(component.activeWidgetList).toEqual([]);
 
         let widgetGridItem1: NeonGridItem = {
             col: 1,
@@ -237,7 +237,7 @@ describe('Dashboard', () => {
 
         expect(component.tabbedGrid.length).toEqual(1);
         expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -261,7 +261,7 @@ describe('Dashboard', () => {
 
         expect(component.tabbedGrid.length).toEqual(1);
         expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -293,7 +293,7 @@ describe('Dashboard', () => {
 
         expect(component.tabbedGrid.length).toEqual(2);
         expect(component.tabbedGrid[0].name).toEqual('tab1');
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -331,7 +331,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -349,7 +349,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem2
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -375,7 +375,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem3
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -409,7 +409,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem4
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: widgetGridItem1.id,
             borderSize: 10,
             col: 1,
@@ -487,7 +487,7 @@ describe('Dashboard', () => {
             widgetGridItem: widgetGridItem1
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -551,7 +551,7 @@ describe('Dashboard', () => {
 
         component['clearDashboard']();
 
-        expect(component.tabbedGrid[0].list).toEqual([]);
+        expect(component.activeWidgetList).toEqual([]);
     });
 
     it('contractWidget does update the size and position of the given widget to its previous config', () => {
@@ -612,7 +612,7 @@ describe('Dashboard', () => {
             id: 'a'
         });
 
-        expect(component.tabbedGrid[0].list).toEqual([{
+        expect(component.activeWidgetList).toEqual([{
             id: 'b',
             borderSize: 10,
             col: 2,
@@ -870,7 +870,7 @@ describe('Dashboard', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('showDashboardState does work as expected', () => {
+    fit('showDashboardState does work as expected', () => {
         let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
         let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
@@ -883,23 +883,27 @@ describe('Dashboard', () => {
                 testName2: { host: 'testHost2', type: 'testType2' }
             },
             layouts: {
-                DISCOVERY: [{
-                    tab1: [{
-                        name: 'a'
-                    }],
-                    tab2: [
-                        {
-                            name: 'b'
-                        },
-                        {
-                            hide: true,
-                            name: 'c'
-                        },
-                        {
-                            name: 'd'
-                        }
-                    ]
-                }]
+                DISCOVERY: [
+                    {
+                        tab1: [
+                            {
+                                name: 'a'
+                            }
+                        ],
+                        tab2: [
+                            {
+                                name: 'b'
+                            },
+                            {
+                                hide: true,
+                                name: 'c'
+                            },
+                            {
+                                name: 'd'
+                            }
+                        ]
+                    }
+                ]
             }
         });
 
@@ -1134,16 +1138,16 @@ describe('Dashboard', () => {
     });
 
     it('widgetFits does return expected boolean', () => {
-        let widgetGridItem1: NeonGridItem = {
+        let gridItem: NeonGridItem = {
             col: 2,
             row: 2,
             sizex: 2,
             sizey: 2
         };
 
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(true);
+        expect(DashboardComponent.widgetFits(gridItem, [])).toEqual(true);
 
-        component.tabbedGrid[0].list = [{
+        expect(DashboardComponent.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1151,11 +1155,9 @@ describe('Dashboard', () => {
             row: 1,
             sizex: 1,
             sizey: 1
-        }];
+        }])).toEqual(true);
 
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(true);
-
-        component.tabbedGrid[0].list = [{
+        expect(DashboardComponent.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1163,11 +1165,9 @@ describe('Dashboard', () => {
             row: 1,
             sizex: 2,
             sizey: 2
-        }];
+        }])).toEqual(false);
 
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(false);
-
-        component.tabbedGrid[0].list = [{
+        expect(DashboardComponent.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 2,
@@ -1175,11 +1175,9 @@ describe('Dashboard', () => {
             row: 2,
             sizex: 1,
             sizey: 1
-        }];
+        }])).toEqual(false);
 
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(false);
-
-        component.tabbedGrid[0].list = [{
+        expect(DashboardComponent.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1195,11 +1193,10 @@ describe('Dashboard', () => {
             row: 2,
             sizex: 1,
             sizey: 4
-        }];
+        }])).toEqual(true);
 
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(true);
 
-        component.tabbedGrid[0].list = [{
+        expect(DashboardComponent.widgetFits(gridItem, [{
             id: 'a',
             borderSize: 10,
             col: 1,
@@ -1215,9 +1212,7 @@ describe('Dashboard', () => {
             row: 2,
             sizex: 4,
             sizey: 1
-        }];
-
-        expect(component['widgetFits'](widgetGridItem1)).toEqual(false);
+        }])).toEqual(false);
     });
 
     it('widgetOverlaps does return expected boolean', () => {
