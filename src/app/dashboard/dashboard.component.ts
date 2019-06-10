@@ -168,7 +168,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.gridState = new GridState(this.gridConfig);
 
-        this.configService.get().subscribe((neonConfig) => {
+        this.configService.getActive().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
 
             const config = neonConfig;

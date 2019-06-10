@@ -43,7 +43,7 @@ export class ConfigService {
     $source: Observable<NeonConfig>;
 
     static as(config: NeonConfig) {
-        return new ConfigService(null).set(config);
+        return new ConfigService(null).setActive(config);
     }
 
     constructor(private http: HttpClient) { }
@@ -127,13 +127,13 @@ export class ConfigService {
         return false;
     }
 
-    set(config: NeonConfig) {
+    setActive(config: NeonConfig) {
         this.initSource();
         this.source.next(config);
         return this;
     }
 
-    get() {
+    getActive() {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
             this.fetchConfig(environment.config)
