@@ -185,7 +185,7 @@ export class FilterUtil {
             return {
                 name: filterObject.name,
                 root: filterObject.root,
-                type: CompoundFilterType[filterObject.type],
+                type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
                     this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
             } as CompoundFilterDesign;

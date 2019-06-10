@@ -902,9 +902,12 @@ describe('Dashboard', () => {
             }
         });
 
-        let testDashboard = NeonDashboardConfig.get({
-            filters: ['x', 'y']
-        });
+        const filters = [
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
+        ];
+
+        let testDashboard = NeonDashboardConfig.get({ filters });
 
         component.dashboardService.setConfig(config);
 
@@ -920,7 +923,7 @@ describe('Dashboard', () => {
         expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
 
         expect(spyFilter.calls.count()).toEqual(1);
-        expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
+        expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
@@ -979,9 +982,12 @@ describe('Dashboard', () => {
 
         component.dashboardService.setConfig(config);
 
-        let testDashboard = NeonDashboardConfig.get({
-            filters: ['x', 'y']
-        });
+        const filters = [
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
+        ];
+
+        let testDashboard = NeonDashboardConfig.get({ filters });
 
         component['showDashboardState']({
             dashboard: testDashboard
@@ -995,7 +1001,7 @@ describe('Dashboard', () => {
         expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
 
         expect(spyFilter.calls.count()).toEqual(1);
-        expect(spyFilter.calls.argsFor(0)[0]).toEqual(['x', 'y']);
+        expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
         expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);

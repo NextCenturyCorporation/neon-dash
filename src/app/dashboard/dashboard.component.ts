@@ -118,8 +118,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
 
-    public gridState: GridState;
-
     public projectTitle: string = 'Neon';
     public projectIcon: string = 'assets/favicon.blue.ico?v=1';
     public dashboardVersion: string = '';
@@ -166,8 +164,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showCustomConnectionButton = true;
         this.snackBar = snackBar;
 
-        this.gridState = new GridState(this.gridConfig);
-
         this.configService.getActive().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
 
@@ -192,6 +188,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.changeFavicon();
             }
         });
+    }
+
+    public get gridState() {
+        return this.dashboardService.gridState;
     }
 
     @DashboardModified()

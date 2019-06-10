@@ -26,12 +26,15 @@ import { ConfigService } from './config.service';
 import { ConnectionService, Connection } from './connection.service';
 import { DashboardState } from '../model/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
+import { GridState } from '../model/grid-state';
 
 @Injectable()
 export class DashboardService {
     public readonly config = NeonConfig.get();
 
     public readonly state = new DashboardState();
+
+    public readonly gridState = new GridState({ max_cols: 12, max_rows: 0 });
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
