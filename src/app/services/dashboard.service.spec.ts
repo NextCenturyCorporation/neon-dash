@@ -24,18 +24,22 @@ import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServ
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
+import * as _ from 'lodash';
+
 function extractNames(data: { [key: string]: any } | any[]) {
     if (Array.isArray(data)) {
-        for (const el of data) {
-            extractNames(el);
+        return data.map((el) => extractNames(el));
+    } else if (_.isPlainObject(data)) {
+        if ('columnName' in data || 'name' in data) {
+            return data['columnName'] || data['name'];
         }
-    } else {
+        const out = {};
         for (const key of Object.keys(data)) {
-            if (typeof data[key] !== 'string') {
-                data[key] = (data[key].columnName || data[key].name);
-            }
+            out[key] = extractNames(data[key]);
         }
+        return out;
     }
+    return data;
 }
 
 describe('Service: DashboardService', () => {
@@ -174,13 +178,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }]
             ],
             [
@@ -188,13 +192,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }]
             ]
         ]));
@@ -220,13 +224,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }]
             ],
             [
@@ -234,23 +238,23 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }]
             ]
         ]));
@@ -270,13 +274,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_A
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }]
             ],
             [
@@ -284,13 +288,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
                     datastore: '',
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
-                    field: DashboardServiceMock.RELATION_FIELD_B
+                    field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }]
             ]
         ]));
@@ -370,7 +374,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('getCurrentDatabase does return expected object', () => {
-        expect(dashboardService.state.getDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(extractNames(dashboardService.state.getDatabase())).toEqual(extractNames(DashboardServiceMock.DATABASES.testDatabase1));
     });
 
     it('translateFieldKeyToValue does return expected string', () => {

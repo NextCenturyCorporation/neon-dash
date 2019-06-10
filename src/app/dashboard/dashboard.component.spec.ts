@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardConfig } from '../types';
+import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../types';
 import { NeonGridItem } from '../neon-grid-item';
 import { neonEvents } from '../neon-namespaces';
 
@@ -870,7 +870,7 @@ describe('Dashboard', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    fit('showDashboardState does work as expected', () => {
+    it('showDashboardState does work as expected', () => {
         let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
         let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
@@ -885,25 +885,19 @@ describe('Dashboard', () => {
             layouts: {
                 DISCOVERY: [
                     {
-                        tab1: [
-                            {
-                                name: 'a'
-                            }
-                        ],
-                        tab2: [
-                            {
-                                name: 'b'
-                            },
-                            {
-                                hide: true,
-                                name: 'c'
-                            },
-                            {
-                                name: 'd'
-                            }
-                        ]
+                        name: 'a'
+                    },
+                    {
+                        name: 'b'
+                    },
+                    {
+                        hide: true,
+                        name: 'c'
+                    },
+                    {
+                        name: 'd'
                     }
-                ]
+                ] as NeonLayoutConfig[]
             }
         });
 
@@ -966,7 +960,7 @@ describe('Dashboard', () => {
                 testName2: { host: 'testHost2', type: 'testType2' }
             },
             layouts: {
-                DISCOVERY: [{
+                DISCOVERY: {
                     tab1: [{
                         name: 'a'
                     }],
@@ -978,7 +972,7 @@ describe('Dashboard', () => {
                     }, {
                         name: 'd'
                     }]
-                }]
+                }
             }
         });
 

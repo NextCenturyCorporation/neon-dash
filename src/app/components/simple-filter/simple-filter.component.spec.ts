@@ -62,7 +62,7 @@ describe('Component: SimpleFilter', () => {
         fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
             databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
             tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.TEXT_FIELD.columnName
+            fieldName: DashboardServiceMock.FIELD_MAP.TEXT.columnName
         };
         fixture.detectChanges();
     });
@@ -80,7 +80,7 @@ describe('Component: SimpleFilter', () => {
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with click');
     });
@@ -101,7 +101,7 @@ describe('Component: SimpleFilter', () => {
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('replace filter with click');
     });
@@ -119,7 +119,7 @@ describe('Component: SimpleFilter', () => {
         expect(filters.length).toEqual(1);
         expect((filters[0] as SimpleFilterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((filters[0] as SimpleFilterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((filters[0] as SimpleFilterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((filters[0] as SimpleFilterDesign).operator).toEqual('contains');
         expect((filters[0] as SimpleFilterDesign).value).toEqual('add filter with enter');
     });

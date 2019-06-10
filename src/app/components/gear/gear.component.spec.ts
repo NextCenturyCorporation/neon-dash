@@ -171,19 +171,19 @@ describe('Component: Gear Component', () => {
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
         component.modifiedOptions.updateDatabases(component['dashboardState']);
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.NAME_FIELD);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testField).toEqual(NeonFieldMetaData.get());
         expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
 
         component.handleApplyClick();
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(calledChangeData).toEqual(0);
         expect(calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
@@ -493,7 +493,7 @@ describe('Component: Gear Component', () => {
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.NAME_FIELD);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         let layer: any = new WidgetOptionCollection(() => []);
         layer.updateDatabases(component['dashboardState']);
@@ -512,7 +512,7 @@ describe('Component: Gear Component', () => {
         expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.modifiedOptions.testOption).toEqual('testText');
-        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
         expect(component.modifiedOptions.layers[0].testNestedOption).toEqual('testNestedText');
@@ -521,7 +521,7 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component['originalOptions'].testOption).toEqual('testText');
-        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');

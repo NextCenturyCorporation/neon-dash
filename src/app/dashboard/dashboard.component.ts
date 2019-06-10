@@ -723,16 +723,26 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         // Should map the grid name to the layout list
         // TODO: Understand what the layout structure should be
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
-
-        Object.keys(gridNameToLayout).forEach((gridName) => {
-            const subLayouts = (gridNameToLayout[gridName] || []) as NeonGridItem[];
-            subLayouts.forEach((widgetGridItem) => {
-                if (!widgetGridItem.hide) {
-                    this.pendingInitialRegistrations += 1;
-                    this.messageSender.publish(neonEvents.WIDGET_ADD, { gridName, widgetGridItem });
+        for (const layoutName of Object.keys(gridNameToLayout)) {
+            const layoutConf = gridNameToLayout[layoutName];
+            if (Array.isArray(layoutConf)) {
+                for (const item of layoutConf as NeonGridItem[]) {
+                    if (!item.hide) {
+                        this.pendingInitialRegistrations += 1;
+                        this.messageSender.publish(neonEvents.WIDGET_ADD, { gridName: layoutName, widgetGridItem: item });
+                    }
                 }
-            });
-        });
+            } else {
+                for (const tab of Object.keys(layoutConf)) {
+                    for (const item of layoutConf[tab] as NeonGridItem[]) {
+                        if (!item.hide) {
+                            this.pendingInitialRegistrations += 1;
+                            this.messageSender.publish(neonEvents.WIDGET_ADD, { gridName: tab, widgetGridItem: item });
+                        }
+                    }
+                }
+            }
+        }
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);

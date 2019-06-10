@@ -175,28 +175,28 @@ describe('Component: Aggregation', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(actual[0].filterDesign.operator).toEqual('!=');
         expect(actual[0].filterDesign.value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
 
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(3);
         expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(actual[0].filterDesign.operator).toEqual('!=');
         expect(actual[0].filterDesign.value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         expect(actual[1].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[1].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.X_FIELD);
+        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect(actual[1].filterDesign.operator).toEqual('=');
         expect(actual[1].filterDesign.value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
@@ -204,28 +204,28 @@ describe('Component: Aggregation', () => {
         expect((actual[2].filterDesign).filters.length).toEqual(2);
         expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
         expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect((actual[2].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
         expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
 
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
         expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(actual[0].filterDesign.operator).toEqual('!=');
         expect(actual[0].filterDesign.value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         expect(actual[1].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[1].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.X_FIELD);
+        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect(actual[1].filterDesign.operator).toEqual('=');
         expect(actual[1].filterDesign.value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
@@ -233,12 +233,12 @@ describe('Component: Aggregation', () => {
         expect((actual[2].filterDesign).filters.length).toEqual(2);
         expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
         expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect((actual[2].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
         expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
@@ -246,22 +246,22 @@ describe('Component: Aggregation', () => {
         expect((actual[3].filterDesign).filters.length).toEqual(4);
         expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('>=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect((actual[3].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[1].field).toEqual(DashboardServiceMock.X_FIELD);
+        expect((actual[3].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[3].filterDesign).filters[1].operator).toEqual('<=');
         expect((actual[3].filterDesign).filters[1].value).toBeUndefined();
         expect((actual[3].filterDesign).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[2].field).toEqual(DashboardServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual[3].filterDesign).filters[2].operator).toEqual('>=');
         expect((actual[3].filterDesign).filters[2].value).toBeUndefined();
         expect((actual[3].filterDesign).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[3].field).toEqual(DashboardServiceMock.Y_FIELD);
+        expect((actual[3].filterDesign).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual[3].filterDesign).filters[3].operator).toEqual('<=');
         expect((actual[3].filterDesign).filters[3].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawBounds.bind(component).toString());
@@ -270,7 +270,7 @@ describe('Component: Aggregation', () => {
     it('finalizeVisualizationQuery does return expected count aggregation query', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -295,11 +295,11 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.limit = 100;
         component.options.sortByAggregation = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -324,9 +324,9 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.type = 'line-xy';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -352,8 +352,8 @@ describe('Component: Aggregation', () => {
     it('finalizeVisualizationQuery does return expected count aggregation query with filters', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [{
             field: 'testConfigFilterField',
@@ -397,9 +397,9 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [{
             field: 'testConfigFilterField',
@@ -443,9 +443,9 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.type = 'line-xy';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [{
             field: 'testConfigFilterField',
@@ -487,8 +487,8 @@ describe('Component: Aggregation', () => {
     it('finalizeVisualizationQuery does return expected date count aggregation query', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -520,9 +520,9 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -554,9 +554,9 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.type = 'line-xy';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -591,10 +591,10 @@ describe('Component: Aggregation', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         component.options.granularity = 'minute';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -739,7 +739,7 @@ describe('Component: Aggregation', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         // Does not work with no value.
         component.handleLegendItemSelected({});
@@ -754,7 +754,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testValue'
         } as SimpleFilterDesign]]);
@@ -763,7 +763,7 @@ describe('Component: Aggregation', () => {
     it('handleLegendItemSelected does not call toggleFilters if notFilterable=true', () => {
         let spy = spyOn(component, 'toggleFilters');
 
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.notFilterable = true;
 
         component.handleLegendItemSelected({
@@ -804,8 +804,8 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         (component as any).redrawBounds([{
             type: 'and',
@@ -813,28 +813,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -860,8 +860,8 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         component.selectedArea = {
             height: 20,
             width: 10,
@@ -883,8 +883,8 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         (component as any).redrawBounds([{
             type: 'and',
@@ -892,28 +892,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign]
@@ -934,28 +934,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -977,14 +977,14 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         (component as any).redrawBounds([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '>=',
             value: 12
         } as SimpleFilterDesign]);
@@ -999,14 +999,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign]
@@ -1022,28 +1022,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1059,35 +1059,35 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '!=',
                 value: 90
             } as SimpleFilterDesign]
@@ -1105,36 +1105,36 @@ describe('Component: Aggregation', () => {
         // Different database
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         (component as any).redrawBounds([{
             type: 'and',
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1153,28 +1153,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1186,35 +1186,35 @@ describe('Component: Aggregation', () => {
 
         // Different xField
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.SIZE_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
         (component as any).redrawBounds([{
             type: 'and',
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1225,36 +1225,36 @@ describe('Component: Aggregation', () => {
         expect(spyRedraw.calls.count()).toEqual(3);
 
         // Different yField
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.SIZE_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.SIZE;
         (component as any).redrawBounds([{
             type: 'and',
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1271,7 +1271,7 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawDomain([{
             type: 'and',
@@ -1279,14 +1279,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -1310,7 +1310,7 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.selectedArea = {
             height: 20,
             width: 10,
@@ -1332,7 +1332,7 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawDomain([{
             type: 'and',
@@ -1340,14 +1340,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign]
@@ -1367,13 +1367,13 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawDomain([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '>=',
             value: 12
         } as SimpleFilterDesign]);
@@ -1388,28 +1388,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -1427,21 +1427,21 @@ describe('Component: Aggregation', () => {
         // Different database
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         (component as any).redrawDomain([{
             type: 'and',
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -1460,14 +1460,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -1479,21 +1479,21 @@ describe('Component: Aggregation', () => {
 
         // Different xField
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.SIZE_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.SIZE;
         (component as any).redrawDomain([{
             type: 'and',
             filters: [{
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -1510,13 +1510,13 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawFilteredItems([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign]);
@@ -1532,20 +1532,20 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawFilteredItems([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue2'
         } as SimpleFilterDesign]);
@@ -1561,7 +1561,7 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawFilteredItems([]);
 
@@ -1577,12 +1577,12 @@ describe('Component: Aggregation', () => {
         // Different database
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         (component as any).redrawFilteredItems([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign]);
@@ -1598,7 +1598,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign]);
@@ -1609,12 +1609,12 @@ describe('Component: Aggregation', () => {
 
         // Different xField
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.TEXT_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.TEXT;
         (component as any).redrawFilteredItems([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign]);
@@ -1630,13 +1630,13 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         (component as any).redrawFilteredItems([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testValue1'
         } as SimpleFilterDesign]);
@@ -1651,13 +1651,13 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         (component as any).redrawLegend([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testGroup2'
         } as SimpleFilterDesign]);
@@ -1674,27 +1674,27 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         (component as any).redrawLegend([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testGroup1'
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testGroup2'
         } as SimpleFilterDesign, {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testGroup3'
         } as SimpleFilterDesign]);
@@ -1711,7 +1711,7 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         (component as any).redrawLegend([]);
 
@@ -1727,13 +1727,13 @@ describe('Component: Aggregation', () => {
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         (component as any).redrawLegend([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.CATEGORY_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '!=',
             value: 'testGroup2'
         } as SimpleFilterDesign]);
@@ -1751,12 +1751,12 @@ describe('Component: Aggregation', () => {
         // Different database
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         (component as any).redrawLegend([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '!=',
             value: 'testGroup1'
         } as SimpleFilterDesign]);
@@ -1772,7 +1772,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '!=',
             value: 'testGroup1'
         } as SimpleFilterDesign]);
@@ -1783,12 +1783,12 @@ describe('Component: Aggregation', () => {
 
         // Different groupField
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.groupField = DashboardServiceMock.TEXT_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.TEXT;
         (component as any).redrawLegend([{
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '!=',
             value: 'testGroup1'
         } as SimpleFilterDesign]);
@@ -1825,13 +1825,13 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
 
         component.options.aggregation = AggregationType.SUM;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
@@ -1846,18 +1846,18 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with XY data does return expected data', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testXField: 1,
@@ -1887,7 +1887,7 @@ describe('Component: Aggregation', () => {
 
     it('transformVisualizationQueryResults with aggregated data does return expected data', () => {
         component.options.countByAggregation = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _aggregation: 2,
@@ -1918,9 +1918,9 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with XY data and groups does create groups', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testCategoryField: 'a',
@@ -1970,8 +1970,8 @@ describe('Component: Aggregation', () => {
 
     it('transformVisualizationQueryResults with aggregated data and groups does create groups', () => {
         component.options.countByAggregation = true;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _aggregation: 2,
@@ -2021,8 +2021,8 @@ describe('Component: Aggregation', () => {
 
     it('transformVisualizationQueryResults with disabled legend groups does create expected legend groups', () => {
         component.options.countByAggregation = true;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         component.legendDisabledGroups = ['a'];
         component.transformVisualizationQueryResults(component.options, [{
@@ -2095,8 +2095,8 @@ describe('Component: Aggregation', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _date: '2018-01-01T00:00:00.000Z',
@@ -2127,7 +2127,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with aggregated date data does return expected data', () => {
         component.options.countByAggregation = true;
         component.options.granularity = 'day';
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _aggregation: 2,
@@ -2158,7 +2158,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList string data', () => {
         component.options.countByAggregation = true;
         component.options.savePrevious = true;
-        component.options.xField = DashboardServiceMock.TEXT_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.TEXT;
         component.xList = ['z', 'a', 'b', 'c', 'd'];
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -2190,7 +2190,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList number data', () => {
         component.options.countByAggregation = true;
         component.options.savePrevious = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.xList = [0, 1, 2, 3, 4];
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -2224,8 +2224,8 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.savePrevious = true;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         component.xList = ['2018-01-01T00:00:00.000Z',
             '2018-01-02T00:00:00.000Z',
             '2018-01-03T00:00:00.000Z',
@@ -2267,8 +2267,8 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _date: '2018-01-01T00:00:00.000Z',
@@ -2306,8 +2306,8 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _date: '2018-01-01T00:00:00.000Z',
@@ -2359,9 +2359,9 @@ describe('Component: Aggregation', () => {
         component.options.type = 'line-xy';
         component.options.granularity = 'day';
         component.options.timeFill = true;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _date: '2018-01-01T00:00:00.000Z',
@@ -2438,8 +2438,8 @@ describe('Component: Aggregation', () => {
         component.options.granularity = 'day';
         component.options.savePrevious = true;
         component.options.timeFill = true;
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         component.xList = ['2018-01-01T00:00:00.000Z',
             '2018-01-02T00:00:00.000Z',
             '2018-01-03T00:00:00.000Z',
@@ -2494,8 +2494,8 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with XY data and countByAggregation=false does return expected data', () => {
         component.options.countByAggregation = false;
         component.options.type = 'line-xy';
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testXField: 1,
@@ -2525,7 +2525,7 @@ describe('Component: Aggregation', () => {
 
     it('transformVisualizationQueryResults with aggregated data and countByAggregation=false does return expected data', () => {
         component.options.countByAggregation = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _aggregation: 2,
@@ -2554,8 +2554,8 @@ describe('Component: Aggregation', () => {
     });
 
     it('transformVisualizationQueryResults with no data does work as expected', () => {
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
         expect(component.legendActiveGroups).toEqual(['All']);
@@ -2744,9 +2744,9 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         (component as any).aggregationData = [];
 
         component.refreshVisualization();
@@ -2803,9 +2803,9 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.type = 'line-xy';
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         (component as any).aggregationData = [];
 
         component.refreshVisualization();
@@ -2861,8 +2861,8 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.type = 'line-xy';
-        component.options.xField = DashboardServiceMock.DATE_FIELD;
-        component.options.yField = DashboardServiceMock.DATE_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.DATE;
         (component as any).aggregationData = [];
 
         component.refreshVisualization();
@@ -2918,8 +2918,8 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.type = 'line-xy';
-        component.options.xField = DashboardServiceMock.TEXT_FIELD;
-        component.options.yField = DashboardServiceMock.TEXT_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.TEXT;
         (component as any).aggregationData = [];
 
         component.refreshVisualization();
@@ -2975,9 +2975,9 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.dualView = 'on';
 
         (component as any).aggregationData = [{
@@ -3077,9 +3077,9 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.dualView = 'on';
         (component as any).isFiltered = () => true;
 
@@ -3146,9 +3146,9 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.dualView = 'on';
 
         (component as any).aggregationData = [{
@@ -3262,8 +3262,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3277,28 +3277,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -3314,8 +3314,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3329,28 +3329,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 'testText1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 'testText3'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 'testText2'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 'testText4'
             } as SimpleFilterDesign]
@@ -3366,8 +3366,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3382,28 +3382,28 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 56
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 34
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.Y_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 78
             } as SimpleFilterDesign]
@@ -3418,8 +3418,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3444,8 +3444,8 @@ describe('Component: Aggregation', () => {
         };
         component.options.ignoreSelf = false;
         component.options.notFilterable = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3464,8 +3464,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3479,14 +3479,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -3502,8 +3502,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3517,14 +3517,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 'testText1'
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 'testText2'
             } as SimpleFilterDesign]
@@ -3540,8 +3540,8 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3556,14 +3556,14 @@ describe('Component: Aggregation', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 12
             } as SimpleFilterDesign, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.X_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 34
             } as SimpleFilterDesign]
@@ -3578,7 +3578,7 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.ignoreSelf = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3603,8 +3603,8 @@ describe('Component: Aggregation', () => {
         };
         component.options.ignoreSelf = false;
         component.options.notFilterable = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3618,7 +3618,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter with number data does call exchangeFilters', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3630,7 +3630,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 1234
         } as SimpleFilterDesign]]);
@@ -3640,7 +3640,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3652,7 +3652,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 'testText1'
         } as SimpleFilterDesign]]);
@@ -3662,7 +3662,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter does call exchangeFilters with OR root filter type if requireAll=false', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3674,7 +3674,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 1234
         } as SimpleFilterDesign]]);
@@ -3684,7 +3684,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter does call toggleFilters if doNotReplace=true', () => {
         component.options.ignoreSelf = true;
         component.options.requireAll = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3697,7 +3697,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 1234
         } as SimpleFilterDesign]]);
@@ -3706,7 +3706,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter does call toggleFilters with OR root filter type if doNotReplace=true and requireAll=false', () => {
         component.options.ignoreSelf = true;
         component.options.requireAll = false;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3719,7 +3719,7 @@ describe('Component: Aggregation', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.X_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.X,
             operator: '=',
             value: 1234
         } as SimpleFilterDesign]]);
@@ -3728,7 +3728,7 @@ describe('Component: Aggregation', () => {
     it('subcomponentRequestsFilter does not call exchangeFilters or toggleFilters if notFilterable=true', () => {
         component.options.ignoreSelf = false;
         component.options.notFilterable = true;
-        component.options.xField = DashboardServiceMock.X_FIELD;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         let spy1 = spyOn(component, 'exchangeFilters');
         let spy2 = spyOn(component, 'toggleFilters');
 
@@ -3809,10 +3809,10 @@ describe('Component: Aggregation', () => {
             yPercentage: 0.3
         });
 
-        component.options.aggregationField = DashboardServiceMock.SIZE_FIELD;
-        component.options.groupField = DashboardServiceMock.CATEGORY_FIELD;
-        component.options.xField = DashboardServiceMock.X_FIELD;
-        component.options.yField = DashboardServiceMock.Y_FIELD;
+        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
+        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
         component.options.aggregation = AggregationType.SUM;
         component.options.countByAggregation = true;
@@ -4161,10 +4161,10 @@ describe('Component: Aggregation with config', () => {
             rhs: 'testConfigFilterValue'
         });
 
-        expect(component.options.aggregationField).toEqual(DashboardServiceMock.SIZE_FIELD);
-        expect(component.options.groupField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
-        expect(component.options.xField).toEqual(DashboardServiceMock.X_FIELD);
-        expect(component.options.yField).toEqual(DashboardServiceMock.Y_FIELD);
+        expect(component.options.aggregationField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(component.options.groupField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.xField).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
         expect(component.options.granularity).toEqual('day');
@@ -4257,10 +4257,10 @@ describe('Component: Aggregation with XY config', () => {
             rhs: 'testConfigFilterValue'
         });
 
-        expect(component.options.aggregationField).toEqual(DashboardServiceMock.SIZE_FIELD);
-        expect(component.options.groupField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
-        expect(component.options.xField).toEqual(DashboardServiceMock.X_FIELD);
-        expect(component.options.yField).toEqual(DashboardServiceMock.Y_FIELD);
+        expect(component.options.aggregationField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(component.options.groupField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.xField).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
         expect(component.options.granularity).toEqual('day');
@@ -4365,10 +4365,10 @@ describe('Component: Aggregation with date config', () => {
             rhs: 'testConfigFilterValue'
         });
 
-        expect(component.options.aggregationField).toEqual(DashboardServiceMock.SIZE_FIELD);
-        expect(component.options.groupField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
-        expect(component.options.xField).toEqual(DashboardServiceMock.DATE_FIELD);
-        expect(component.options.yField).toEqual(DashboardServiceMock.Y_FIELD);
+        expect(component.options.aggregationField).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(component.options.groupField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(component.options.xField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
         expect(component.options.granularity).toEqual('day');

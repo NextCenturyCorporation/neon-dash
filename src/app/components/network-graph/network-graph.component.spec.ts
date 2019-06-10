@@ -356,7 +356,7 @@ describe('Component: NetworkGraph', () => {
     it('does create filter for graph when legend item is selected', (() => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
+        component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
         component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
         component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
@@ -401,7 +401,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '!=',
             value: 'testTypeValue'
         }]]);
@@ -414,7 +414,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '!=',
             value: 'testTypeValue2'
         }]]);
@@ -427,7 +427,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '!=',
             value: 'testTypeValue'
         }]]);
@@ -440,7 +440,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '!=',
             value: 'testTypeValue2'
         }]]);
@@ -453,7 +453,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
-        component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -492,7 +492,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValue'
         }]]);
@@ -504,7 +504,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValue2'
         }]]);
@@ -517,7 +517,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
-        component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -556,7 +556,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValueA'
         }]]);
@@ -570,21 +570,21 @@ describe('Component: NetworkGraph', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueD'
             }]
@@ -598,7 +598,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
-        component.options.filterFields = [DashboardServiceMock.TYPE_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -637,7 +637,7 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValueA'
         }]]);
@@ -651,21 +651,21 @@ describe('Component: NetworkGraph', () => {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.TYPE_FIELD,
+                field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueD'
             }]
@@ -679,7 +679,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
-        component.options.filterFields = [DashboardServiceMock.ID_FIELD, DashboardServiceMock.TYPE_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.ID, DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -720,14 +720,14 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.ID_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.ID,
             operator: '=',
             value: 1
         }, {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValue'
         }]]);
@@ -739,14 +739,14 @@ describe('Component: NetworkGraph', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.ID_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.ID,
             operator: '=',
             value: 2
         }, {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.TYPE_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeValue2'
         }]]);
@@ -755,23 +755,23 @@ describe('Component: NetworkGraph', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
+        component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         component.options.edgeColorField = NeonFieldMetaData.get();
 
-        component.options.nodeField = DashboardServiceMock.NAME_FIELD;
+        component.options.nodeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -779,18 +779,18 @@ describe('Component: NetworkGraph', () => {
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         component.options.nodeField = NeonFieldMetaData.get();
 
-        component.options.filterFields = [DashboardServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -798,7 +798,7 @@ describe('Component: NetworkGraph', () => {
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -808,7 +808,7 @@ describe('Component: NetworkGraph', () => {
         expect(actual.length).toEqual(2);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -816,17 +816,17 @@ describe('Component: NetworkGraph', () => {
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
 
-        component.options.filterFields = [DashboardServiceMock.CATEGORY_FIELD, DashboardServiceMock.TEXT_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -834,13 +834,13 @@ describe('Component: NetworkGraph', () => {
         expect((actual[1].filterDesign).filters.length).toEqual(1);
         expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[2].filterDesign).operator).toEqual('=');
         expect((actual[2].filterDesign).value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -848,24 +848,24 @@ describe('Component: NetworkGraph', () => {
         expect((actual[3].filterDesign).filters.length).toEqual(1);
         expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
 
-        component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
-        component.options.nodeField = DashboardServiceMock.NAME_FIELD;
+        component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
+        component.options.nodeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         expect((actual[1].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[1].filterDesign).operator).toEqual('=');
         expect((actual[1].filterDesign).value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -873,13 +873,13 @@ describe('Component: NetworkGraph', () => {
         expect((actual[2].filterDesign).filters.length).toEqual(1);
         expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         expect((actual[3].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[3].filterDesign).operator).toEqual('=');
         expect((actual[3].filterDesign).value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -887,13 +887,13 @@ describe('Component: NetworkGraph', () => {
         expect((actual[4].filterDesign).filters.length).toEqual(1);
         expect((actual[4].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[4].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         expect((actual[5].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[5].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[5].filterDesign).operator).toEqual('=');
         expect((actual[5].filterDesign).value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -901,7 +901,7 @@ describe('Component: NetworkGraph', () => {
         expect((actual[6].filterDesign).filters.length).toEqual(1);
         expect((actual[6].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[6].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -909,22 +909,22 @@ describe('Component: NetworkGraph', () => {
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
         component.options.layers = [new WidgetOptionCollection(() => [])];
-        component.options.edgeColorField = DashboardServiceMock.TYPE_FIELD;
+        component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.layers[0].layerType = 'nodes';
-        component.options.layers[0].filterFields = [DashboardServiceMock.CATEGORY_FIELD, DashboardServiceMock.TEXT_FIELD];
-        component.options.layers[0].nodeField = DashboardServiceMock.NAME_FIELD;
+        component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
+        component.options.layers[0].nodeField = DashboardServiceMock.FIELD_MAP.NAME;
 
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.TYPE_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
         expect((actual[0].filterDesign).operator).toEqual('!=');
         expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
         expect((actual[1].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[1].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[1].filterDesign).operator).toEqual('=');
         expect((actual[1].filterDesign).value).toBeUndefined();
         expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -932,13 +932,13 @@ describe('Component: NetworkGraph', () => {
         expect((actual[2].filterDesign).filters.length).toEqual(1);
         expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.NAME_FIELD);
+        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         expect((actual[3].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[3].filterDesign).operator).toEqual('=');
         expect((actual[3].filterDesign).value).toBeUndefined();
         expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -946,13 +946,13 @@ describe('Component: NetworkGraph', () => {
         expect((actual[4].filterDesign).filters.length).toEqual(1);
         expect((actual[4].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[4].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
         expect((actual[5].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[5].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[5].filterDesign).operator).toEqual('=');
         expect((actual[5].filterDesign).value).toBeUndefined();
         expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
@@ -960,7 +960,7 @@ describe('Component: NetworkGraph', () => {
         expect((actual[6].filterDesign).filters.length).toEqual(1);
         expect((actual[6].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[6].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.TEXT_FIELD);
+        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
         expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
         expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());

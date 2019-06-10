@@ -174,12 +174,12 @@ describe('Component: Sample', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.sampleRequiredField = DashboardServiceMock.FILTER_FIELD;
+        component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
     });
@@ -264,7 +264,7 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             value: 'testFilterValue'
         }, true);
 
@@ -273,7 +273,7 @@ describe('Component: Sample', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -285,7 +285,7 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             value: 'testFilterValue'
         });
 
@@ -295,7 +295,7 @@ describe('Component: Sample', () => {
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -562,7 +562,7 @@ describe('Component: Sample with config', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
-        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'test_publish_event',
@@ -584,8 +584,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('class options properties are set to expected values from config', () => {
-        expect(component.options.sampleOptionalField).toEqual(DashboardServiceMock.NAME_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DashboardServiceMock.CATEGORY_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.sampleRequiredField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
