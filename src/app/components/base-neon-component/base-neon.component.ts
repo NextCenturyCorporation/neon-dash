@@ -297,6 +297,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Angular lifecycle hook:  Removes the visualization from the page and unregisters from listeners as needed.
      */
     public ngOnDestroy() {
+        this.changeDetection.detach();
         this.messenger.unsubscribeAll();
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
             id: this.id
