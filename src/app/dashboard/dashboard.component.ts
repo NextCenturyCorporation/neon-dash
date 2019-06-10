@@ -184,7 +184,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
             // The dashboards are read from the config file in the DashboardService's constructor.
-            this.dashboards = this.dashboardService.dashboards;
+            this.dashboards = this.dashboardService.config.dashboards;
             this.dashboardVersion = config.version || '';
 
             if (config) {
@@ -666,13 +666,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        const firstName = Object.keys(this.dashboardService.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
-        this.dashboardService.setActiveDatastore(this.dashboardService.datastores[firstName]);
+        const firstName = Object.keys(this.dashboardService.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
+        this.dashboardService.setActiveDatastore(this.dashboardService.config.datastores[firstName]);
         this.dashboardService.setActiveDashboard(this.currentDashboard);
-
-        if (this.currentDashboard.layout) {
-            this.dashboardService.state.setLayout(this.currentDashboard.layout);
-        }
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
@@ -680,7 +676,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.pendingInitialRegistrations = 0;
 
-        const layout = this.dashboardService.layouts[this.dashboardService.state.getLayout()];
+        const layout = this.dashboardService.config.layouts[this.dashboardService.state.getLayout()];
 
         // Should map the grid name to the layout list.
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
@@ -710,7 +706,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private showDashboardStateOnPageLoad() {
         let dashboard = this.findAutoShowDashboard(this.dashboards);
 
-        const firstDataStore = dashboard && Object.values(this.dashboardService.datastores)
+        const firstDataStore = dashboard && Object.values(this.dashboardService.config.datastores)
             .sort((ds1, ds2) => ds1.name.localeCompare(ds2.name))[0];
 
         if (dashboard && firstDataStore) {
