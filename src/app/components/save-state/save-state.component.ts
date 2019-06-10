@@ -22,7 +22,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { NeonGridItem } from '../../model/neon-grid-item';
 import { neonEvents } from '../../model/neon-namespaces';
 
 import * as _ from 'lodash';
@@ -30,7 +29,7 @@ import * as _ from 'lodash';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
-import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../model/types';
+import { NeonConfig } from '../../model/types';
 import { DashboardState } from '../../model/dashboard-state';
 import { ConfigService } from '../../services/config.service';
 
@@ -42,7 +41,7 @@ export function Verify(config: {
 }) {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
-        descriptor.value = function(this: SaveStateComponent, value: any, verify = false) {
+        descriptor.value = function(this: SaveStateComponent, value: any, verify = true) {
             if (!verify) {
                 return fn.call(this, value);
             }
@@ -93,49 +92,6 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
-    private createDashboard(stateName: string, dashboard: NeonDashboardConfig, filters: any[]): NeonDashboardConfig {
-        // Don't modify the original dashboard object
-        let clonedDashboard = _.cloneDeep(dashboard);
-        clonedDashboard.options = {
-            ...(clonedDashboard.options || {}),
-            connectOnLoad: true
-        };
-        // ClonedDashboard.modified = false;
-
-        // Customize the dashboard with the saved state name
-        clonedDashboard.name = stateName;
-        clonedDashboard.layout = stateName;
-
-        // Add the dashboard filters
-        clonedDashboard.filters = filters;
-
-        // Unset the properties that were set by the dataset service (but keep the fullTitle)
-        clonedDashboard.pathFromTop = undefined;
-
-        return clonedDashboard;
-    }
-
-    private createLayouts(stateName: string, widgetGridItems: NeonGridItem[]): Record<string, NeonLayoutConfig[]> {
-        let layouts: Record<string, NeonLayoutConfig[]> = {};
-
-        layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
-            // Let widget = this.getWidgetById(widgetGridItem.id);
-
-            let widgetConfig: NeonLayoutConfig = {
-                type: widgetGridItem.type,
-                col: widgetGridItem.col,
-                row: widgetGridItem.row,
-                sizex: widgetGridItem.sizex,
-                sizey: widgetGridItem.sizey
-                // Bindings: widget.getBindings()
-            };
-
-            return widgetConfig;
-        });
-
-        return layouts;
-    }
-
     /**
      * Saves the current dashboard state using the given name and closes the saved state menu.
      */
@@ -145,10 +101,9 @@ export class SaveStateComponent implements OnInit {
         confirmText: 'Save',
         cancelText: 'Discard'
     })
-    public saveState(name: string, __verify = false): void {
-        const validStateName = this.validateName(name);
+    public saveState(name: string, __verify = true): void {
         const config = NeonConfig.get({
-            projectTitle: validStateName
+            projectTitle: name
         });
 
         this.configService.save(config)
@@ -163,40 +118,33 @@ export class SaveStateComponent implements OnInit {
      * Loads the dashboard state with the given name.
      */
     public loadState(name: string): void {
-        const validStateName = this.validateName(name);
-        this.configService.load(validStateName)
+        this.configService.load(name)
             .subscribe((config) => {
-                if (config.dashboards && config.datastores && config.layouts) {
-                    this.dashboardService.setConfig(config);
+                this.dashboardService.setConfig(config);
 
-                    // Dashboard choices should be set by wrapInSavedStateDashboard
-                    this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                        dashboard: config.dashboards
-                    });
-                    this.openNotification(name, 'loaded');
-                    this.closeSidenav();
-                } else {
-                    this.openNotification(name, 'not loaded:  bad format');
-                }
-            }, this.handleStateFailure.bind(this, validStateName));
+                this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                    dashboard: config.dashboards
+                });
+
+                this.openNotification(name, 'loaded');
+                this.closeSidenav();
+            }, this.handleStateFailure.bind(this, name));
     }
 
     /*
-     * Deletes the state for the name choosen.
+     * Deletes the state for the name chosen.
      */
     @Verify({
         title: 'Delete Changes',
         message: (name) => `Are you sure you want to delete '${name}' ?`,
         confirmText: 'Delete'
     })
-    public deleteState(name: string, __verify = false) {
-        const validStateName = this.validateName(name);
-
-        this.configService.delete(validStateName)
+    public deleteState(name: string, __verify = true) {
+        this.configService.delete(name)
             .subscribe(() => {
                 this.listStates();
                 this.openNotification(name, 'deleted');
-            }, this.handleStateFailure.bind(this, validStateName));
+            }, this.handleStateFailure.bind(this, name));
     }
 
     getDefaultOptionTitle() {
@@ -251,10 +199,5 @@ export class SaveStateComponent implements OnInit {
             duration: 5000,
             verticalPosition: 'top'
         });
-    }
-
-    private validateName(stateName: string): string {
-        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return stateName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 }
