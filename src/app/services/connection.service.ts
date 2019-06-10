@@ -273,14 +273,18 @@ export class ConnectionService {
      * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
      * creates and returns a Neon connection if none exists.
      */
-    public connect<T extends { query: any } = { query: any }>(datastoreType: string, datastoreHost: string): NeonConnection<T> {
+    public connect<T extends { query: any } = { query: any }>(
+        datastoreType: string,
+        datastoreHost: string,
+        ignoreUpdates: boolean = false
+    ): NeonConnection<T> {
         if (datastoreType && datastoreHost) {
             if (!this.connections.has(datastoreType)) {
                 this.connections.set(datastoreType, new Map<string, NeonConnection<T>>());
             }
             if (!this.connections.get(datastoreType).has(datastoreHost)) {
                 let connection = this.neonConnection();
-                connection.connect(datastoreType, datastoreHost);
+                connection.connect(datastoreType, datastoreHost, ignoreUpdates);
                 this.connections.get(datastoreType).set(datastoreHost, new NeonConnection<T>(connection));
             }
             return this.connections.get(datastoreType).get(datastoreHost);

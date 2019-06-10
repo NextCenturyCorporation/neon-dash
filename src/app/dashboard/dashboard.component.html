@@ -1,5 +1,5 @@
 <mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
-    <mat-sidenav class="neon-sidenav neon-sidenav-info" mat-fill position="end">
+    <mat-sidenav class="neon-sidenav neon-sidenav-info" mat-fill position="end" (closed)="currentPanel = ''">
         <div>
             <mat-toolbar class="title" color="primary">
                 <span>{{ rightPanelTitle }}</span>

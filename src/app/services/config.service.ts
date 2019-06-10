@@ -47,7 +47,7 @@ export class ConfigService {
     ) { }
 
     private openConnection() {
-        return this.connectionService.connect('.', '.');
+        return this.connectionService.connect('.', '.', true);
     }
 
     private handleConfigFileError(error, file?: any) {
@@ -138,6 +138,7 @@ export class ConfigService {
     save(config: NeonConfig): Observable<void> {
         return from(new Promise<void>((resolve, reject) => {
             config.projectTitle = ConfigService.validateName(config.projectTitle);
+            config['stateName'] = config.projectTitle;
             this.openConnection().saveState(config, resolve, reject);
         })).pipe(take(1));
     }
