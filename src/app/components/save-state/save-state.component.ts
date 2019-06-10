@@ -40,8 +40,6 @@ import { DashboardState } from '../../dashboard-state';
     styleUrls: ['save-state.component.scss']
 })
 export class SaveStateComponent implements OnInit {
-    private static SAVED_STATE_DASHBOARD_KEY = 'saved_state';
-
     @Input() sidenav: MatSidenav;
 
     public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
@@ -93,7 +91,7 @@ export class SaveStateComponent implements OnInit {
             ...(clonedDashboard.options || {}),
             connectOnLoad: true
         };
-        // clonedDashboard.modified = false;
+        // ClonedDashboard.modified = false;
 
         // Customize the dashboard with the saved state name
         clonedDashboard.name = stateName;
@@ -112,15 +110,15 @@ export class SaveStateComponent implements OnInit {
         let layouts: Record<string, NeonLayoutConfig[]> = {};
 
         layouts[stateName] = widgetGridItems.map((widgetGridItem) => {
-            // let widget = this.getWidgetById(widgetGridItem.id);
+            // Let widget = this.getWidgetById(widgetGridItem.id);
 
             let widgetConfig: NeonLayoutConfig = {
                 type: widgetGridItem.type,
                 col: widgetGridItem.col,
                 row: widgetGridItem.row,
                 sizex: widgetGridItem.sizex,
-                sizey: widgetGridItem.sizey,
-                // bindings: widget.getBindings()
+                sizey: widgetGridItem.sizey
+                // Bindings: widget.getBindings()
             };
 
             return widgetConfig;
@@ -151,7 +149,7 @@ export class SaveStateComponent implements OnInit {
         }
         let connection = this.openConnection();
         if (connection) {
-            // let validStateName = this.validateName(name);
+            // Let validStateName = this.validateName(name);
             // // Same format as the config file.
             // let stateData: NeonConfig = {
             //     projectTitle: validStateName,
@@ -251,7 +249,7 @@ export class SaveStateComponent implements OnInit {
      * @private
      */
     private handleSaveStateSuccess(__response: any, name: string) {
-        // this.current.modified = false;
+        // This.current.modified = false;
         // this.current.lastModified = Date.now();
 
         this.fetchStates();
@@ -312,7 +310,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     private openConnection() {
-        return this.connectionService.connect(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost());
+        return this.connectionService.connect('', ''); // Host/type don't matter here
     }
 
     public openNotification(stateName: string, actionName: string) {

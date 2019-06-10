@@ -87,7 +87,12 @@ export interface Connection<T extends { query: any } = { query: any }> {
      * @return {RequestWrapper}
      * @abstract
      */
-    runExportQuery(exportData: any, exportFormat: any, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
+    runExportQuery(
+        exportData: any,
+        exportFormat: any,
+        onSuccess: (response: any) => void,
+        onError?: (response: any) => void
+    ): RequestWrapper;
 
     /**
      * Runs a search query with the given payload.
@@ -262,7 +267,7 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
 })
 export class ConnectionService {
     // Maps the datastore types to datastore hosts to connections.
-    private connections: Map<string, Map<string, NeonConnection<any>>> = new Map<string, Map<string, NeonConnection<any>>>();
+    private connections = new Map<string, Map<string, NeonConnection<any>>>();
 
     /**
      * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or

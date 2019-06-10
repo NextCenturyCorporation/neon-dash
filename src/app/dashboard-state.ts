@@ -18,7 +18,7 @@ import {
     NeonTableMetaData, NeonFieldMetaData, SingleField
 } from './types';
 import * as _ from 'lodash';
-import { NeonConfig, NeonDatastoreConfig } from './types';
+import { NeonDatastoreConfig } from './types';
 
 export class DashboardState {
     /**
@@ -38,8 +38,7 @@ export class DashboardState {
 
     constructor(
         public dashboard: NeonDashboardConfig = NeonDashboardConfig.get(),
-        public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get(),
-        public config: NeonConfig = NeonConfig.get()
+        public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
     ) { }
 
     /**
@@ -463,12 +462,5 @@ export class DashboardState {
      */
     public translateFieldKeyToValue(fieldKey: string): string {
         return this.deconstructFieldName(fieldKey).field || fieldKey;
-    }
-
-    public exportAsConfig() {
-        return {
-            ..._.cloneDeep(this.config),
-            dashboards: _.cloneDeep(this.dashboard),
-        };
     }
 }

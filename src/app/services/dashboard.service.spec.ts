@@ -24,6 +24,20 @@ import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServ
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
+function extractNames(data: { [key: string]: any } | any[]) {
+    if (Array.isArray(data)) {
+        for (const el of data) {
+            extractNames(el);
+        }
+    } else {
+        for (const key of Object.keys(data)) {
+            if (typeof data[key] !== 'string') {
+                data[key] = (data[key].columnName || data[key].name);
+            }
+        }
+    }
+}
+
 describe('Service: DashboardService', () => {
     let dashboardService: DashboardService;
 
@@ -154,47 +168,36 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         }));
 
-        expect(dashboardService.state.findRelationDataList().map((lists) => {
-            return lists.map((sublists) => {
-                return sublists.map((rel) => {
-                    return {
-                        datastore: rel.datastore,
-                        database: rel.database.name,
-                        table: rel.table.name,
-                        field: rel.field.columnName
-                    };
-                });
-            });
-        })).toEqual([
+        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                    table: DashboardServiceMock.TABLES.testTable1.name,
-                    field: DashboardServiceMock.RELATION_FIELD_A.columnName
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
+                    table: DashboardServiceMock.TABLES.testTable1,
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES.testDatabase2.name,
-                    table: DashboardServiceMock.TABLES.testTable2.name,
-                    field: DashboardServiceMock.RELATION_FIELD_A.columnName
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
+                    table: DashboardServiceMock.TABLES.testTable2,
+                    field: DashboardServiceMock.RELATION_FIELD_A
                 }]
             ],
             [
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                    table: DashboardServiceMock.TABLES.testTable1.name,
-                    field: DashboardServiceMock.RELATION_FIELD_B.columnName
+                    database: DashboardServiceMock.DATABASES.testDatabase1,
+                    table: DashboardServiceMock.TABLES.testTable1,
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }],
                 [{
                     datastore: '',
-                    database: DashboardServiceMock.DATABASES.testDatabase2.name,
-                    table: DashboardServiceMock.TABLES.testTable2.name,
-                    field: DashboardServiceMock.RELATION_FIELD_B.columnName
+                    database: DashboardServiceMock.DATABASES.testDatabase2,
+                    table: DashboardServiceMock.TABLES.testTable2,
+                    field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
-        ]);
+        ]));
     });
 
     it('findRelationDataList does work with relations in nested list structure', () => {
@@ -211,7 +214,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(dashboardService.state.findRelationDataList()).toEqual([
+        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
                     datastore: '',
@@ -250,7 +253,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
-        ]);
+        ]));
     });
 
     it('findRelationDataList does work with relations in both structures', () => {
@@ -261,7 +264,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(dashboardService.state.findRelationDataList()).toEqual([
+        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
                     datastore: '',
@@ -290,7 +293,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     field: DashboardServiceMock.RELATION_FIELD_B
                 }]
             ]
-        ]);
+        ]));
     });
 
     it('findRelationDataList does ignore relations on databases/tables/fields that don\'t exist', () => {
@@ -314,7 +317,7 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         });
 
-        expect(dashboardService.state.findRelationDataList()).toEqual([]);
+        expect(extractNames(dashboardService.state.findRelationDataList())).toEqual([]);
     });
 
     it('findRelationDataList does ignore relations with unequal filter fields', () => {
@@ -363,12 +366,10 @@ describe('Service: DashboardService with Mock Data', () => {
             ]
         }));
 
-
         expect(dashboardService.state.findRelationDataList()).toEqual([]);
     });
 
     it('getCurrentDatabase does return expected object', () => {
-        dashboardService.state
         expect(dashboardService.state.getDatabase()).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
     });
 

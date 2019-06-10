@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDatastoreConfig, NeonLayoutConfig } from '../types';
+import { NeonConfig, NeonDashboardConfig } from '../types';
 import { NeonGridItem } from '../neon-grid-item';
 import { neonEvents } from '../neon-namespaces';
 
@@ -45,9 +45,8 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { NeonDashboardConfig } from '../types';
 
-fdescribe('Dashboard', () => {
+describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let debugElement: DebugElement;
     let component: DashboardComponent;
@@ -886,16 +885,20 @@ fdescribe('Dashboard', () => {
             layouts: {
                 DISCOVERY: [{
                     tab1: [{
-                        name: 'a',
+                        name: 'a'
                     }],
-                    tab2: [{
-                        name: 'b'
-                    }, {
-                        hide: true,
-                        name: 'c'
-                    }, {
-                        name: 'd'
-                    }]
+                    tab2: [
+                        {
+                            name: 'b'
+                        },
+                        {
+                            hide: true,
+                            name: 'c'
+                        },
+                        {
+                            name: 'd'
+                        }
+                    ]
                 }]
             }
         });
@@ -961,7 +964,7 @@ fdescribe('Dashboard', () => {
             layouts: {
                 DISCOVERY: [{
                     tab1: [{
-                        name: 'a',
+                        name: 'a'
                     }],
                     tab2: [{
                         name: 'b'
@@ -976,7 +979,6 @@ fdescribe('Dashboard', () => {
         });
 
         component.dashboardService.setConfig(config);
-
 
         let testDashboard = NeonDashboardConfig.get({
             filters: ['x', 'y']
@@ -1040,7 +1042,7 @@ fdescribe('Dashboard', () => {
                 connectOnLoad: true
             }
         });
-        // showDashboard.datastores = {
+        // ShowDashboard.datastores = {
         //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
@@ -1064,7 +1066,7 @@ fdescribe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
         let showDashboard = NeonDashboardConfig.get();
 
-        // showDashboard.datastores = {
+        // ShowDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
@@ -1088,7 +1090,7 @@ fdescribe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
         let showDashboard = NeonDashboardConfig.get();
-        // showDashboard.datastores = {
+        // ShowDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
@@ -1219,7 +1221,7 @@ fdescribe('Dashboard', () => {
     });
 
     it('widgetOverlaps does return expected boolean', () => {
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1233,7 +1235,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1247,7 +1249,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1261,7 +1263,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1275,7 +1277,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 2,
                 row: 1,
@@ -1289,7 +1291,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 2,
@@ -1303,7 +1305,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(false);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 2,
                 row: 1,
@@ -1317,7 +1319,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 2,
@@ -1331,7 +1333,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,
@@ -1345,7 +1347,7 @@ fdescribe('Dashboard', () => {
             }
         )).toEqual(true);
 
-        expect(component['widgetOverlaps'](
+        expect(DashboardComponent.widgetOverlaps(
             {
                 col: 1,
                 row: 1,

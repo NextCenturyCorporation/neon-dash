@@ -29,7 +29,6 @@ import { DashboardUtil } from '../util/dashboard.util';
 
 @Injectable()
 export class DashboardService {
-
     public readonly config = NeonConfig.get();
 
     public readonly state = new DashboardState();
@@ -76,21 +75,6 @@ export class DashboardService {
             datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
             layouts: _.cloneDeep(config.layouts || {})
         });
-        this.state.config = this.config;
-    }
-
-    // ---
-    // PRIVATE METHODS
-    // ---
-
-    /**
-     * Updates the dataset that matches the active dataset.
-     */
-    // TODO: THOR-1062: may need to change to account for multiple datastores later
-    private cloneDatastores(): void {
-        for (const name of Object.keys(this.config.datastores)) {
-            this.config.datastores[name] = _.cloneDeep(this.config.datastores[name]);
-        }
     }
 
     /**
@@ -117,12 +101,12 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        datastore = NeonDatastoreConfig.get({
+        const out = NeonDatastoreConfig.get({
             name: 'Unknown Dataset',
             ...datastore
         });
-        this.addDatastore(datastore);
-        this.state.datastore = datastore;
+        this.addDatastore(out);
+        this.state.datastore = out;
     }
 
     /**
@@ -172,12 +156,14 @@ export class DashboardService {
                 });
 
                 Promise.all(promiseFields).then(resolve, reject);
-            }, async (error) => {
+            }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
                     let keys = this.config.dashboards && this.config.dashboards.choices ? Object.keys(this.config.dashboards.choices) : [];
 
-                    Promise.all(DashboardUtil.deleteInvalidDashboards(this.config.dashboards.choices, keys, database.name)).then(resolve, reject);
+                    Promise.all(
+                        DashboardUtil.deleteInvalidDashboards(this.config.dashboards.choices, keys, database.name)
+                    ).then(resolve, reject);
                 } else {
                     resolve();
                 }
@@ -187,13 +173,12 @@ export class DashboardService {
 
     /**
      * Wraps connection.getFieldTypes() in a promise object.
-     * @param {Connection} connection
-     * @param {NeonDatabaseMetaData} database
-     * @param {NeonTableMetaData} table
-     * @return {Promise<NeonFieldMetaData[]>}
-     * @private
      */
-    private updateFieldTypes(connection: Connection, database: NeonDatabaseMetaData, table: NeonTableMetaData): Promise<NeonFieldMetaData[]> {
+    private updateFieldTypes(
+        connection: Connection,
+        database: NeonDatabaseMetaData,
+        table: NeonTableMetaData
+    ): Promise<NeonFieldMetaData[]> {
         return new Promise<NeonFieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
             for (let field of table.fields) {
                 if (types && types[field.columnName]) {
@@ -204,5 +189,12 @@ export class DashboardService {
         }, (__error) => {
             resolve([]);
         }));
+    }
+
+    public exportAsConfig() {
+        return {
+            ..._.cloneDeep(this.config),
+            dashboards: _.cloneDeep(this.state.dashboard)
+        };
     }
 }
