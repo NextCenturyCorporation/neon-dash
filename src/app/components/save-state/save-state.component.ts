@@ -30,9 +30,30 @@ import * as _ from 'lodash';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { tap } from 'rxjs/operators';
-import { ConnectionService } from '../../services/connection.service';
 import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../../model/types';
 import { DashboardState } from '../../model/dashboard-state';
+import { ConfigService } from '../../services/config.service';
+
+export function Verify(config: {
+    title: string | ((arg: any) => string);
+    message: string | ((arg: any) => string);
+    confirmText: string | ((arg: any) => string);
+    cancelText?: string | ((arg: any) => string);
+}) {
+    return (__inst: any, __prop: string | symbol, descriptor) => {
+        const fn = descriptor.value;
+        descriptor.value = function(this: SaveStateComponent, value: any, verify = false) {
+            if (!verify) {
+                return fn.call(this, value);
+            }
+            const out = {} as typeof config;
+            for (const el of Object.keys(config)) {
+                out[el] = typeof config[el] === 'string' ? config[el] : config[el](value);
+            }
+            this.openConfirmationDialog(out as any).subscribe(() => fn.call(this, value));
+        };
+    };
+}
 
 @Component({
     selector: 'app-save-state',
@@ -50,9 +71,9 @@ export class SaveStateComponent implements OnInit {
     public readonly dashboardState: DashboardState;
 
     constructor(
+        protected configService: ConfigService,
         protected dashboardService: DashboardService,
         protected filterService: FilterService,
-        protected connectionService: ConnectionService,
         protected searchService: AbstractSearchService,
         public widgetService: AbstractWidgetService,
         private snackBar: MatSnackBar,
@@ -63,25 +84,13 @@ export class SaveStateComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.fetchStates();
+        this.listStates();
     }
 
     private closeSidenav() {
         if (this.sidenav) {
             this.sidenav.close();
         }
-    }
-
-    openEditConfigDialog() {
-        this.dialog.open(DynamicDialogComponent, {
-            data: {
-                component: 'config-editor'
-            },
-            height: '80%',
-            width: '80%',
-            hasBackdrop: true,
-            disableClose: true
-        });
     }
 
     private createDashboard(stateName: string, dashboard: NeonDashboardConfig, filters: any[]): NeonDashboardConfig {
@@ -129,48 +138,32 @@ export class SaveStateComponent implements OnInit {
 
     /**
      * Saves the current dashboard state using the given name and closes the saved state menu.
-     *
-     * @arg {string} name
      */
-    public saveState(name: string, isOverwrite = false): void {
-        if (isOverwrite) {
-            this.openConfirmationDialog(
-                'Save Changes',
-                'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
-                'Save',
-                'Discard'
-            )
-                .subscribe((result) => {
-                    if (result) {
-                        this.saveState(name, false);
-                    }
-                });
-            return;
-        }
-        let connection = this.openConnection();
-        if (connection) {
-            // Let validStateName = this.validateName(name);
-            // // Same format as the config file.
-            // let stateData: NeonConfig = {
-            //     projectTitle: validStateName,
-            //     dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
-            //         this.filterService.getFiltersToSaveInConfig()),
-            //     datastores: this.dashboardService.getDatastoresInConfigFormat(),
-            //     layouts: this.createLayouts(validStateName, this.widgetGridItems),
-            //     version: '1'
-            // };
+    @Verify({
+        title: 'Save Changes',
+        message: 'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
+        confirmText: 'Save',
+        cancelText: 'Discard'
+    })
+    public saveState(name: string, __verify = false): void {
+        const config = NeonConfig.get({
 
-            // connection.saveState(stateData, (response) => {
-            //     if (this.current) {
-            //         this.current.name = name;
-            //         // this.current.fileName = `${validStateName}.yaml`;
-            //     }
-            //     this.handleSaveStateSuccess(response, validStateName);
-            // }, (response) => {
-            //     this.handleStateFailure(response, validStateName);
-            // });
-        }
-        this.closeSidenav();
+        });
+        // Let stateData: NeonConfig = {
+        //     projectTitle: validStateName,
+        //     dashboards: this.createDashboard(validStateName, this.dashboardState.dashboard,
+        //         this.filterService.getFiltersToSaveInConfig()),
+        //     datastores: this.dashboardService.getDatastoresInConfigFormat(),
+        //     layouts: this.createLayouts(validStateName, this.widgetGridItems),
+        //     version: '1'
+        // };
+
+        this.configService.save(config)
+            .subscribe(() => {
+                this.listStates();
+                this.openNotification(config.fileName, 'saved');
+                this.closeSidenav();
+            }, this.handleStateFailure.bind(this, config.fileName));
     }
 
     /**
@@ -179,81 +172,44 @@ export class SaveStateComponent implements OnInit {
      * @arg {string} name
      */
     public loadState(name: string): void {
-        let connection = this.openConnection();
-        if (connection) {
-            let validStateName = this.validateName(name);
-            connection.loadState(validStateName, (response) => {
-                this.handleLoadStateSuccess(response, validStateName);
-            }, (response) => {
-                this.handleStateFailure(response, validStateName);
-            });
-        }
-        this.closeSidenav();
+        const validStateName = this.validateName(name);
+        this.configService.load(validStateName)
+            .subscribe((config) => {
+                if (config.dashboards && config.datastores && config.layouts) {
+                    this.dashboardService.setConfig(config);
+
+                    // Dashboard choices should be set by wrapInSavedStateDashboard
+                    this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+                        dashboard: config.dashboards
+                    });
+                    this.openNotification(name, 'loaded');
+                    this.closeSidenav();
+                } else {
+                    this.openNotification(name, 'not loaded:  bad format');
+                }
+            }, this.handleStateFailure.bind(this, validStateName));
     }
 
     /*
      * Deletes the state for the name choosen.
-     * @method deleteState
      */
-    public deleteState(name: string, verify = false) {
-        if (verify) {
-            this.openConfirmationDialog(
-                'Delete Changes',
-                `Are you sure you want to delete '${name}' ?`,
-                'Delete'
-            )
-                .subscribe((result) => {
-                    if (result) {
-                        this.deleteState(name, false);
-                    }
-                });
-            return;
-        }
-        let connection = this.openConnection();
-        if (connection) {
-            let validStateName = this.validateName(name);
-            connection.deleteState(validStateName, (response) => {
-                this.handleDeleteStateSuccess(response, validStateName);
-            }, (response) => {
-                this.handleStateFailure(response, validStateName);
-            });
-        }
+    @Verify({
+        title: 'Delete Changes',
+        message: (name) => `Are you sure you want to delete '${name}' ?`,
+        confirmText: 'Delete'
+    })
+    public deleteState(name: string, __verify = false) {
+        const validStateName = this.validateName(name);
+
+        this.configService.delete(validStateName)
+            .subscribe(() => {
+                this.listStates();
+                this.openNotification(name, 'deleted');
+            }, this.handleStateFailure.bind(this, validStateName));
     }
 
     getDefaultOptionTitle() {
         return this.isLoading ? 'Loading...' : 'Select a name';
-    }
-
-    private handleDeleteStateSuccess(__response: any, name: string) {
-        this.fetchStates();
-        this.openNotification(name, 'deleted');
-    }
-
-    private handleLoadStateSuccess(response: NeonConfig, name: string) {
-        if (response.dashboards && response.datastores && response.layouts) {
-            this.dashboardService.setConfig(response);
-            // Dashboard choices should be set by wrapInSavedStateDashboard
-            this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard: response.dashboards
-            });
-            this.openNotification(name, 'loaded');
-        } else {
-            this.openNotification(name, 'not loaded:  bad format');
-        }
-    }
-
-    /**
-     * Updates the state in the URL parameters and reloads the available dashboard state names.
-     *
-     * @arg {Object} response
-     * @private
-     */
-    private handleSaveStateSuccess(__response: any, name: string) {
-        // This.current.modified = false;
-        // this.current.lastModified = Date.now();
-
-        this.fetchStates();
-        this.openNotification(name, 'saved');
     }
 
     /**
@@ -262,7 +218,8 @@ export class SaveStateComponent implements OnInit {
      * @arg {Object} response
      * @private
      */
-    private handleStateFailure(response: any, name: string) {
+    private handleStateFailure(name: string, response: any) {
+        this.isLoading = false;
         this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
             error: response.responseJSON ? response.responseJSON.error : undefined,
             message: 'State operation failed on ' + name
@@ -274,29 +231,22 @@ export class SaveStateComponent implements OnInit {
      *
      * @private
      */
-    private fetchStates(limit = 100, offset = 0) {
+    private listStates(limit = 100, offset = 0) {
         this.isLoading = true;
         this.states = { total: 0, results: [] };
-        let connection = this.openConnection();
-        if (connection) {
-            connection.listStates(limit, offset, (states) => {
+        this.configService.list(limit, offset)
+            .subscribe((items) => {
                 this.isLoading = false;
-                this.states = states;
-            }, (response) => {
-                this.isLoading = false;
-                this.handleStateFailure(response, 'load states');
-            });
-        }
+                this.states = items;
+            }, this.handleStateFailure.bind(this, 'load states'));
     }
 
-    public openConfirmationDialog(title: string, message: string, confirmText = 'Ok', cancelText = 'Cancel') {
+    public openConfirmationDialog(config: { title: string, message: string, confirmText: string, cancelText?: string }) {
         this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'confirmation-dialog',
-                title,
-                confirmMessage: message,
-                confirmText,
-                cancelText
+                cancelText: 'Cancel',
+                ...config
             },
             height: 'auto',
             width: '500px',
@@ -307,10 +257,6 @@ export class SaveStateComponent implements OnInit {
             .pipe(tap(() => {
                 this.confirmDialogRef = null;
             }));
-    }
-
-    private openConnection() {
-        return this.connectionService.connect('', ''); // Host/type don't matter here
     }
 
     public openNotification(stateName: string, actionName: string) {

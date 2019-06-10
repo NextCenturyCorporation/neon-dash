@@ -19,79 +19,64 @@ import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
 
-import { ReplaySubject, Observable, combineLatest, of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { ReplaySubject, Observable, combineLatest, of, from } from 'rxjs';
+import { map, catchError, switchMap, take } from 'rxjs/operators';
 import { NeonConfig } from '../model/types';
 import { Injectable } from '@angular/core';
-
-const EMPTY_CONFIG = {
-    dashboard: {},
-    help: {},
-    datasets: [],
-    layouts: {
-        default: []
-    },
-    customFilters: {}
-};
-
-let configErrors = [];
+import { ConnectionService } from './connection.service';
 
 @Injectable()
 export class ConfigService {
+    private configErrors = [];
     private source = new ReplaySubject<NeonConfig>(1);
 
     $source: Observable<NeonConfig>;
 
     static as(config: NeonConfig) {
-        return new ConfigService(null).setActive(config);
+        return new ConfigService(null, null).setActive(config);
     }
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private connectionService: ConnectionService
+    ) { }
 
-    handleConfigFileError(error, file?: any) {
+    private openConnection() {
+        return this.connectionService.connect('', '');
+    }
+
+    private handleConfigFileError(error, file?: any) {
         if (error.status === 404) {
             // Fail silently.
         } else {
             console.error(error);
-            configErrors.push('Error reading config file ' + file);
-            configErrors.push(error.message);
+            this.configErrors.push('Error reading config file ' + file);
+            this.configErrors.push(error.message);
         }
         return of(undefined);
     }
 
-    handleConfigPropertyServiceError(error) {
-        if (error.message === 'No config') {
-            // Do nothing, this is the expected response
-        } else if (error.status === 404) {
-            // Fail silently.
-        } else {
-            console.error(error);
-            configErrors.push('Error reading Property Service config!');
-            configErrors.push(error.message);
-        }
-        return of(undefined);
-    }
-
-    loadConfigFromLocal(path): Observable<NeonConfig | undefined> {
-        return this.http.get(path, { responseType: 'text', params: { rnd: `${Math.random() * 1000000}.${Date.now()}` } })
+    private loadFromFolder(path): Observable<NeonConfig | undefined> {
+        return this.http.get(path, {
+            responseType: 'text',
+            params: {
+                rnd: `${Math.random() * 1000000}.${Date.now()}`
+            }
+        })
             .pipe(map((response: any) => yaml.load(response) as NeonConfig))
             .pipe(catchError((error) => this.handleConfigFileError(error)));
     }
 
-    loadConfigFromPropertyService(): Observable<NeonConfig | undefined> {
-        return this.http.get<NeonConfig | void>('../neon/services/propertyservice/config')
-            .pipe(catchError((error) => this.handleConfigPropertyServiceError(error)));
-    }
-
-    takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
+    private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
         const next = all.find((el) => !!el);
         if (next) {
             return of(next);
         }
-        return this.loadConfigFromPropertyService();
+        return this.list()
+            .pipe(map((remoteAll) => remoteAll[0]));
     }
 
-    finalizeConfig(configInput: NeonConfig) {
+    private finalizeConfig(configInput: NeonConfig) {
         let config = configInput;
         if (config && config.neonServerUrl) {
             neon.setNeonServerUrl(config.neonServerUrl);
@@ -99,27 +84,27 @@ export class ConfigService {
 
         if (!config) {
             console.error('Config is empty', config);
-            configErrors.push('Config is empty!');
-            config = EMPTY_CONFIG as any as NeonConfig;
+            this.configErrors.push('Config is empty!');
+            config = NeonConfig.get();
         }
 
-        if (configErrors.length) {
-            config.errors = configErrors;
-            configErrors = [];
+        if (this.configErrors.length) {
+            config.errors = this.configErrors;
+            this.configErrors = [];
         }
 
         return config;
     }
 
-    fetchConfig(configList: string[]) {
-        return combineLatest(...configList.map((config) => this.loadConfigFromLocal(config)))
+    private getDefault(configList: string[]) {
+        return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
             .pipe(
                 switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
                 map((config) => this.finalizeConfig(config))
             );
     }
 
-    initSource() {
+    private initSource() {
         if (!this.$source) {
             this.$source = this.source.asObservable().pipe(map((data) => JSON.parse(JSON.stringify(data))));
             return true;
@@ -136,9 +121,45 @@ export class ConfigService {
     getActive() {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
-            this.fetchConfig(environment.config)
+            this.getDefault(environment.config)
                 .subscribe((el) => this.source.next(el));
         }
         return this.$source;
+    }
+
+    /**
+     * Saves config under name
+     */
+    save(config: NeonConfig): Observable<void> {
+        return from(new Promise<void>((resolve, reject) => {
+            this.openConnection().saveState(config, resolve, reject);
+        })).pipe(take(1));
+    }
+
+    /**
+     * Loads the dashboard state with the given name.
+     */
+    load(name: string): Observable<NeonConfig> {
+        return from(new Promise<NeonConfig>((resolve, reject) => {
+            this.openConnection().loadState(name, resolve, reject);
+        })).pipe(take(1));
+    }
+
+    /*
+     * Deletes the state by name
+     */
+    delete(name: string) {
+        return from(new Promise<void>((resolve, reject) => {
+            this.openConnection().deleteState(name, resolve, reject);
+        })).pipe(take(1));
+    }
+
+    /**
+     * Get's list of available dashboard states.
+     */
+    list(limit = 100, offset = 0) {
+        return from(new Promise<{ total: number, results: NeonConfig[] }>((resolve, reject) => {
+            this.openConnection().listStates(limit, offset, resolve, reject);
+        })).pipe(take(1));
     }
 }
