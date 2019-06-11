@@ -1,6 +1,9 @@
 import * as _ from 'lodash';
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, NeonDashboardChoiceConfig } from '../model/types';
+import {
+    NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData,
+    NeonTableMetaData, NeonFieldMetaData, NeonDashboardChoiceConfig
+} from '../model/types';
 import { DashboardState } from '../model/dashboard-state';
 
 /**

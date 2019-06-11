@@ -105,7 +105,10 @@ describe('Component: NetworkGraph', () => {
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
         component.options.xTargetPositionField = NeonFieldMetaData.get({ columnName: 'testXTargetPositionField' });
         component.options.yTargetPositionField = NeonFieldMetaData.get({ columnName: 'testYTargetPositionField' });
-        component.options.filterFields = [NeonFieldMetaData.get({ columnName: 'testFilter1' }), NeonFieldMetaData.get({ columnName: 'testFilter2' })];
+        component.options.filterFields = [
+            NeonFieldMetaData.get({ columnName: 'testFilter1' }),
+            NeonFieldMetaData.get({ columnName: 'testFilter2' })
+        ];
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {

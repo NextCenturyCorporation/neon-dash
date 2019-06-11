@@ -2,7 +2,6 @@ import * as uuidv4 from 'uuid/v4';
 
 import { NeonGridTab, NeonGridItem } from './neon-grid-item';
 import { NeonLayoutConfig } from '../model/types';
-import { NgGridConfig } from 'angular2-grid';
 
 /**
  * Represents the layout state of the grid in it's current configuration

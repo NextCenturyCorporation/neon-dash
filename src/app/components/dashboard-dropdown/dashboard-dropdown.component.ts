@@ -49,7 +49,7 @@ export class DashboardDropdownComponent {
      * @return {String[]}
      */
     getDashboardKeys() {
-        return Object.keys(this.choices)
+        return Object.keys(this.choices);
     }
 
     /**

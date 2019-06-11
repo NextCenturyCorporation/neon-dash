@@ -34,7 +34,10 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { GearModule } from './gear.module';
 import { ConfigService } from '../../services/config.service';
-import { WidgetOptionCollection, WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../model/widget-option';
+import {
+    WidgetOptionCollection, WidgetFreeTextOption,
+    WidgetFieldOption, WidgetSelectOption, OptionChoices
+} from '../../model/widget-option';
 
 describe('Component: Gear Component', () => {
     let component: GearComponent;

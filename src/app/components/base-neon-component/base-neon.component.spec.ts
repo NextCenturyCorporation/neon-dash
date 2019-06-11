@@ -829,7 +829,10 @@ describe('BaseNeonComponent', () => {
         };
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
+        component.options.append(
+            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
+        );
         component.options.customEventsToPublish = [{
             fields: [{
                 columnName: 'testDateField'
@@ -1067,8 +1070,14 @@ describe('BaseNeonComponent', () => {
         component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
         component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
         component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
-        component.options.append(new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false), DashboardServiceMock.FIELD_MAP.NAME);
-        component.options.append(new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false), [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
+        component.options.append(
+            new WidgetFieldOption('testRepeatedField', 'Test Repeated Field', false),
+            DashboardServiceMock.FIELD_MAP.NAME
+        );
+        component.options.append(
+            new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
+            [DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]
+        );
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testNameField',

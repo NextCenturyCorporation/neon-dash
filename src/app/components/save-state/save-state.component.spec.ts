@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, TestBed, fakeAsync, tick, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ViewContainerRef, NgModuleFactoryLoader } from '@angular/core';
 
@@ -44,7 +44,6 @@ import { DynamicDialogModule } from '../dynamic-dialog/dynamic-dialog.module';
 const Modules = {
     './components/confirmation-dialog/confirmation-dialog.module#ConfirmationDialogModule': ConfirmationDialogModule
 };
-
 
 describe('Component: SaveStateComponent', () => {
     let testConfig: NeonConfig = NeonConfig.get();
@@ -126,14 +125,14 @@ describe('Component: SaveStateComponent', () => {
         let deleteCalls = 0;
         let confirmCalls = 0;
 
-        spyOn(component['configService'], 'delete').and.callFake((data) => {
+        spyOn(component['configService'], 'delete').and.callFake(() => {
             deleteCalls++;
             return of(1);
         });
 
-        let confirm = false;  // Reject confirmation
+        let confirm = false; // Reject confirmation
 
-        spyOn(component, 'openConfirmationDialog').and.callFake((data) => {
+        spyOn(component, 'openConfirmationDialog').and.callFake(() => {
             confirmCalls++;
             return of(confirm);
         });
@@ -148,7 +147,7 @@ describe('Component: SaveStateComponent', () => {
         expect(deleteCalls).toEqual(0);
         expect(confirmCalls).toEqual(2);
 
-        confirm = true; // accept
+        confirm = true; // Accept
         component.deleteState('testState', true); // Require confirm
 
         expect(deleteCalls).toEqual(1);
@@ -158,9 +157,7 @@ describe('Component: SaveStateComponent', () => {
     it('saveState does call configService.save with expected data', () => {
         let calls = 0;
 
-        spyOn(component['dashboardService'], 'exportToConfig').and.callFake((data) => {
-            return {};
-        });
+        spyOn(component['dashboardService'], 'exportToConfig').and.callFake(() => ({}));
 
         spyOn(component['configService'], 'save').and.callFake((data) => {
             calls++;
@@ -177,18 +174,16 @@ describe('Component: SaveStateComponent', () => {
         let saveCalls = 0;
         let confirmCalls = 0;
 
-        spyOn(component['configService'], 'save').and.callFake((data) => {
+        spyOn(component['configService'], 'save').and.callFake(() => {
             saveCalls++;
             return of(1);
         });
 
-        spyOn(component['dashboardService'], 'exportToConfig').and.callFake((data) => {
-            return {};
-        });
+        spyOn(component['dashboardService'], 'exportToConfig').and.callFake(() => ({}));
 
-        let confirm = false;  // Reject confirmation
+        let confirm = false; // Reject confirmation
 
-        spyOn(component, 'openConfirmationDialog').and.callFake((data) => {
+        spyOn(component, 'openConfirmationDialog').and.callFake(() => {
             confirmCalls++;
             return of(confirm);
         });
@@ -203,7 +198,7 @@ describe('Component: SaveStateComponent', () => {
         expect(saveCalls).toEqual(0);
         expect(confirmCalls).toEqual(2);
 
-        confirm = true; // accept
+        confirm = true; // Accept
         component.saveState('testState', true); // Require confirm
 
         expect(saveCalls).toEqual(1);
@@ -216,7 +211,6 @@ describe('Component: SaveStateComponent', () => {
 
     it('loadState does call config.load with expected data, and activates returned config', () => {
         let spy = spyOn(component, 'closeSidenav');
-
 
         let loads = 0;
         let activated = 0;
@@ -238,7 +232,6 @@ describe('Component: SaveStateComponent', () => {
 
     it('loadState does drops config on invalid response', () => {
         let spy = spyOn(component, 'closeSidenav');
-
 
         let loads = 0;
         let activated = 0;
@@ -263,7 +256,7 @@ describe('Component: SaveStateComponent', () => {
         let calls = 0;
         spyOn(component['configService'], 'list').and.callFake(() => {
             calls++;
-            return of({ results: [{}], total: 1 })
+            return of({ results: [{}], total: 1 });
         });
 
         component.listStates();

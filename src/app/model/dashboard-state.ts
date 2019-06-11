@@ -14,14 +14,15 @@
  *
  */
 import {
-    NeonDatastoreConfig,
-    NeonDashboardConfig, NeonDatabaseMetaData,
+    NeonDatastoreConfig, NeonDatabaseMetaData,
     NeonTableMetaData, NeonFieldMetaData, SingleField, NeonDashboardLeafConfig
 } from '../model/types';
 
 import * as _ from 'lodash';
 
 export class DashboardState {
+    modified = false;
+
     /**
      * Returns dotted reference in constituent parts(datastore.database.table.field).
      */
@@ -34,8 +35,6 @@ export class DashboardState {
             field: field.join('.')
         };
     }
-
-    modified = false;
 
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),

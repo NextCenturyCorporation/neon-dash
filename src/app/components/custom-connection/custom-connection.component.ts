@@ -78,7 +78,11 @@ export class CustomConnectionComponent implements AfterContentInit {
     }
 
     createDataset() {
-        let datastore = NeonDatastoreConfig.get({ name: this.data.datasetName, host: this.data.datastoreHost, type: this.data.datastoreType });
+        let datastore = NeonDatastoreConfig.get({
+            name: this.data.datasetName,
+            host: this.data.datastoreHost,
+            type: this.data.datastoreType
+        });
         datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
             acc[db.name] = db;
             return acc;
