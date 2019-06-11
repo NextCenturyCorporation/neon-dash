@@ -200,7 +200,6 @@ export class DashboardService {
     exportToConfig(name: string, filters?: FilterConfig[]): NeonConfig {
         const out = NeonConfig.get({
             ...this.config,
-            filters: filters || [],
             layouts: {
                 [name]: this.gridState.activeWidgetList.map(
                     (item) => ({
@@ -217,6 +216,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
+                filters: filters || [],
                 layout: name
             }),
             projectTitle: name
