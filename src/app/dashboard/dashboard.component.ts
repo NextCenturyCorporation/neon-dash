@@ -223,6 +223,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let title = document.createElement('title');
         let head = document.querySelector('head');
 
+        head.querySelectorAll('link[type="image/x-icon"]').forEach((link: HTMLLinkElement) => {
+            link.parentNode.removeChild(link); // Remove all favicons
+        });
+
+
         favicon.setAttribute('rel', 'icon');
         favicon.setAttribute('type', 'image/x-icon');
         favicon.setAttribute('href', this.projectIcon);
