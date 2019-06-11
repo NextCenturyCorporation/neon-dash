@@ -745,7 +745,7 @@ describe('Component: TaxonomyViewer', () => {
             table: DashboardServiceMock.TABLES.testTable1.name,
             field: DashboardServiceMock.FIELD_MAP.NAME.columnName,
             operator: '!=',
-            value: 'testTypeA'
+            value: 'testSubType1'
         });
         expect(filterB).toEqual({
             datastore: '',
@@ -753,8 +753,9 @@ describe('Component: TaxonomyViewer', () => {
             table: DashboardServiceMock.TABLES.testTable1.name,
             field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '!=',
-            value: 'testSubType1'
+            value: 'testTypeA'
         });
+
 
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
