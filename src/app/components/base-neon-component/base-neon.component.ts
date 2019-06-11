@@ -38,7 +38,8 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetOptionCollection,
-    WidgetSelectOption
+    WidgetSelectOption,
+    ConfigurableWidget
 } from '../../model/widget-option';
 
 import { eventing } from 'neon-framework';
@@ -910,7 +911,17 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Publishes the component's option object to the gear component
      */
     publishOptions() {
-        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, this);
+        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, {
+            changeData: this.handleChangeData.bind(this),
+            changeFilterData: this.handleChangeFilterField.bind(this),
+            createLayer: this.createLayer.bind(this),
+            deleteLayer: this.deleteLayer.bind(this),
+            exportData: this.createExportData.bind(this),
+            finalizeCreateLayer: this.finalizeCreateLayer.bind(this),
+            finalizeDeleteLayer: this.finalizeDeleteLayer.bind(this),
+            handleChangeSubcomponentType: this.handleChangeSubcomponentType.bind(this),
+            options: this.options
+        } as ConfigurableWidget);
     }
 
     /**

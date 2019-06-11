@@ -43,6 +43,7 @@ import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
 import { GridState } from '../model/grid-state';
+import { ConfigurableWidget } from '../model/widget-option';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -72,7 +73,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public updatedData = 0;
 
-    public settingsComponent: BaseNeonComponent;
+    public configurableComponent: ConfigurableWidget;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -369,9 +370,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: BaseNeonComponent) => {
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
             this.setPanel('gear', 'Component Settings');
-            this.settingsComponent = comp;
+            this.configurableComponent = comp;
         });
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));

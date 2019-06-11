@@ -589,3 +589,15 @@ export namespace OptionChoices {
         variable: true
     }];
 }
+
+export interface ConfigurableWidget {
+    options: WidgetOptionCollection;
+    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
+    finalizeCreateLayer(layerOptions: any): void;
+    deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
+    finalizeDeleteLayer(layerOptions: any): void;
+    handleChangeSubcomponentType(options?: WidgetOptionCollection): void;
+    exportData(): { name: string, data: any }[]
+}
