@@ -49,8 +49,8 @@ export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
-            if (!this.pendingInitialRegistrations && this.currentDashboard) {
-                this.currentDashboard['modified'] = true; // TODO : resolve
+            if (!this.pendingInitialRegistrations) {
+                this.dashboardService.state.modified = true;
             }
             return fn.call(this, ...args);
         };
@@ -169,6 +169,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.configService.getActive().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
 
+            this.dashboardService.state.modified = false;
+
             if (!first) {
                 this.gridState.clear();
                 this.widgets.clear();
@@ -186,7 +188,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
             if (config) {
                 if (config.errors && config.errors.length > 0) {
-                    let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
+                    let snackBarRef = this.snackBar.openFromComponent(SnackBarComponent, {
                         viewContainerRef: this.viewContainerRef
                     });
                     snackBarRef.instance.snackBarRef = snackBarRef;
