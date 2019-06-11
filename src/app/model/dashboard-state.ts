@@ -35,6 +35,8 @@ export class DashboardState {
         };
     }
 
+    modified = false;
+
     constructor(
         public dashboard: NeonDashboardConfig = NeonDashboardConfig.get(),
         public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()

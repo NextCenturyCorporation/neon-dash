@@ -193,11 +193,4 @@ export class DashboardService {
             resolve([]);
         }));
     }
-
-    public exportAsConfig() {
-        return {
-            ..._.cloneDeep(this.config),
-            dashboards: _.cloneDeep(this.state.dashboard)
-        };
-    }
 }
