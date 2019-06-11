@@ -27,7 +27,7 @@ describe('ConnectionService', () => {
 
         expect(output.connection).toEqual(connection);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost']);
+        expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost', false]);
     });
 
     it('createConnection does return an existing connection', () => {

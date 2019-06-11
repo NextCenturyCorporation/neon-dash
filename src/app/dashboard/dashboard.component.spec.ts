@@ -60,7 +60,7 @@ describe('Dashboard', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(new NeonConfig()) },
+            { provide: ConfigService, useFactory: () => ConfigService.as(new NeonConfig()) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
@@ -75,6 +75,7 @@ describe('Dashboard', () => {
 
         fixture = TestBed.createComponent(DashboardComponent);
         component = fixture.componentInstance;
+        component.dashboardService = new DashboardServiceMock(ConfigService.as(new NeonConfig()));
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
         debugElement = fixture.debugElement;
