@@ -52,6 +52,10 @@
                 <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
             </button>
 
+            <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
+                <mat-icon class="neon-icon-large">menu</mat-icon>
+            </button>
+
             <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
                 <button mat-menu-item (click)="setPanel('addVis', 'Visualization');">
                     <mat-icon color="secondary">add_circle</mat-icon>Visualizations
@@ -68,9 +72,6 @@
                     <mat-icon color="secondary">storage</mat-icon>Custom Data Source
                 </button>
             -->
-                <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
-                    <mat-icon class="neon-icon-large">menu</mat-icon>
-                </button>
             </mat-menu>
         </mat-toolbar>
 
@@ -90,20 +91,20 @@
                 </app-dashboard-selector>
                 <div class="header-toggle-footer"></div>
             </div>
+        </div>
 
-            <div class="neon-dash" mat-fill layout="col">
-                <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
-                    <mat-tab class="tab" *ngFor="let tab of gridState.tabs" [label]="tab.name"></mat-tab>
-                </mat-tab-group>
+        <div class="neon-dash" mat-fill layout="col">
+            <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
+                <mat-tab class="tab" *ngFor="let tab of gridState.tabs" [label]="tab.name"></mat-tab>
+            </mat-tab-group>
 
-                <div class="neon-grid">
-                    <div [ngGrid]="gridConfig" #grid>
-                        <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
-                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                            (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                            <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
-                            <ng-content></ng-content>
-                        </div>
+            <div class="neon-grid">
+                <div [ngGrid]="gridConfig" #grid>
+                    <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
+                        name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                        (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                        <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
+                        <ng-content></ng-content>
                     </div>
                 </div>
             </div>
