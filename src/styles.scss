@@ -455,7 +455,10 @@ body {
     }
 
     &.neon-toolbar-thin {
-        padding: 4px !important;
+        padding: 6px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        line-height: 20px !important;
     }
 
     &.neon-toolbar-wide {
