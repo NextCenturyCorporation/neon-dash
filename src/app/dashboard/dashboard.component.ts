@@ -72,6 +72,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public updatedData = 0;
 
+    public settingsComponent: BaseNeonComponent;
+
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
     public showFiltersComponent: boolean = false;
@@ -367,10 +369,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
-        this.messageReceiver.subscribe(
-            neonEvents.SHOW_OPTION_MENU,
-            this.setPanel.bind(this, 'gear', 'Component Settings')
-        );
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: BaseNeonComponent) => {
+            this.setPanel('gear', 'Component Settings');
+            this.settingsComponent = comp;
+        });
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));

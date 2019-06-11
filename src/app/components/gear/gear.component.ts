@@ -35,6 +35,7 @@ import { OptionsListComponent } from '../options-list/options-list.component';
 import { neonEvents } from '../../model/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../model/dashboard-state';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 @Component({
     selector: 'app-gear',
@@ -44,6 +45,7 @@ import { DashboardState } from '../../model/dashboard-state';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
+    @Input() comp: BaseNeonComponent;
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
@@ -63,14 +65,6 @@ export class GearComponent implements OnInit, OnDestroy {
     public requiredListNonField: string[] = [];
     public optionalList: string[] = [];
     public optionalListNonField: string[] = [];
-
-    private createLayer: (options: any, layerBinding?: any) => any;
-    private deleteLayer: (options: any, layerOptions: any) => boolean;
-    private finalizeCreateLayer: (layerOptions: any) => void;
-    private finalizeDeleteLayer: (layerOptions: any) => void;
-    private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeFilterData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeSubcomponentType: (options?: any) => void;
 
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
@@ -207,14 +201,14 @@ export class GearComponent implements OnInit, OnDestroy {
         this.originalOptions.layers.forEach((layer) => {
             // If the layer was deleted, finalize its deletion.
             if (modifiedLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeDeleteLayer(layer);
+                this.comp['finalizeDeleteLayer'](layer);
             }
         });
         let originalLayerIds = this.originalOptions.layers.map((layer) => layer._id);
         this.modifiedOptions.layers.forEach((layer) => {
             // If the layer was created, finalize its creation.
             if (originalLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeCreateLayer(layer);
+                this.comp['finalizeCreateLayer'](layer);
             }
         });
 
@@ -222,13 +216,13 @@ export class GearComponent implements OnInit, OnDestroy {
 
         // TODO THOR-1061
         if (this.changeSubcomponentType) {
-            this.handleChangeSubcomponentType();
+            this.comp['handleChangeSubcomponentType']();
         }
 
         if (filterDataChange) {
-            this.handleChangeFilterData(undefined, databaseOrTableChange);
+            this.comp['handleChangeFilterData'](undefined, databaseOrTableChange);
         } else {
-            this.handleChangeData(undefined, databaseOrTableChange);
+            this.comp['handleChangeData'](undefined, databaseOrTableChange);
         }
 
         this.resetOptionsAndClose();
@@ -258,7 +252,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Creates a new layer.
      */
     public handleCreateLayer() {
-        let layer: any = this.createLayer(this.modifiedOptions);
+        let layer: any = this.comp['createLayer'](this.modifiedOptions);
         this.layerHidden.set(layer._id, false);
         this.changeMade = true;
     }
@@ -267,7 +261,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Deletes the given layer.
      */
     public handleDeleteLayer(layer: any) {
-        let successful: boolean = this.deleteLayer(this.modifiedOptions, layer);
+        let successful: boolean = this.comp['deleteLayer'](this.modifiedOptions, layer);
         if (successful) {
             this.layerHidden.delete(layer._id);
             this.changeMade = true;
@@ -295,11 +289,6 @@ export class GearComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
-    }
-
-    ngOnInit() {
-        this.messenger.subscribe(neonEvents.SHOW_OPTION_MENU, (message) => this.updateOptions(message));
-        this.changeDetection.detectChanges();
     }
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
@@ -378,20 +367,11 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Receives the message object with the WidgetOptionCollection object and callbacks from the widget
-     *
-     * @arg {message} message
+     * Receives
      */
-    private updateOptions(message) {
-        this.createLayer = message.createLayer;
-        this.deleteLayer = message.deleteLayer;
-        this.finalizeCreateLayer = message.finalizeCreateLayer;
-        this.finalizeDeleteLayer = message.finalizeDeleteLayer;
-        this.originalOptions = message.options;
-        this.handleChangeData = message.changeData;
-        this.handleChangeFilterData = message.changeFilterData;
-        this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        this.exportCallbacks = [message.exportData];
+    ngOnInit() {
+        this.originalOptions = this.comp.options;
+        this.exportCallbacks = [this.comp['createExportData']];
 
         this.resetOptions();
         this.constructOptions();
