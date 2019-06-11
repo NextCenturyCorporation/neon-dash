@@ -14,7 +14,10 @@
  *
  */
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../model/types';
+import {
+    NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData,
+    NeonTableMetaData, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
+} from '../model/types';
 
 import { DashboardUtil } from './dashboard.util';
 
@@ -547,9 +550,11 @@ describe('Util: DashboardUtil', () => {
         let argument = NeonDashboardLeafConfig.get({
             layout: 'layout1',
             name: 'dashboard1',
+            fullTitle: 'dashboard1',
+            pathFromTop: ['dashboard1'],
             tables: {
                 key1: 'datastore1.database1.table1'
-            }
+            },
         });
 
         let expected = NeonDashboardChoiceConfig.get({
