@@ -151,11 +151,13 @@ export interface CompoundFilterConfig {
 
 export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
-export interface NeonDashboardLeafConfig {
+export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()
     pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
-
     name?: string;
+}
+
+export interface NeonDashboardLeafConfig extends NeonDashboardBaseConfig {
     layout: string;
     tables: Record<string, string>;
     fields: Record<string, string>;
@@ -166,18 +168,15 @@ export interface NeonDashboardLeafConfig {
     contributors: Record<string, NeonContributor>;
 }
 
-export interface NeonDashboardParentConfig {
-    name?: string;
-    // Interior
+export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
     category?: string;
-    choices?: Record<string, NeonDashboardConfig>;
-
+    choices?: Record<string, NeonDashboardLeafConfig | NeonDashboardChoiceConfig>;
 }
 
-export interface NeonDashboardConfig extends NeonDashboardLeafConfig, NeonDashboardParentConfig { }
+export type NeonDashboardConfig = NeonDashboardLeafConfig | NeonDashboardChoiceConfig;
 
-export class NeonDashboardConfig {
-    static get(dash: DeepPartial<NeonDashboardConfig> = {}): NeonDashboardConfig {
+export class NeonDashboardLeafConfig {
+    static get(dash: DeepPartial<NeonDashboardLeafConfig> = {}): NeonDashboardLeafConfig {
         return {
             layout: '',
             filters: [],
@@ -189,8 +188,30 @@ export class NeonDashboardConfig {
             fullTitle: '',
             pathFromTop: [],
             ...dash,
-            choices: translateValues(dash.choices || {}, NeonDashboardConfig.get.bind(null), true)
-        } as NeonDashboardConfig;
+        } as NeonDashboardLeafConfig;
+    }
+}
+
+export class NeonDashboardChoiceConfig {
+    static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
+        return {
+            fullTitle: '',
+            pathFromTop: [],
+            ...dash,
+            choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
+        } as NeonDashboardChoiceConfig;
+    }
+}
+
+class NeonDashboardUtil {
+    static get(dashboard: NeonDashboardConfig) {
+        if (!dashboard) {
+            return {};
+        } else if ('choices' in dashboard) {
+            return NeonDashboardChoiceConfig.get(dashboard);
+        } else {
+            return NeonDashboardLeafConfig.get(dashboard);
+        }
     }
 }
 
@@ -252,7 +273,7 @@ export class NeonConfig {
             projectIcon: '',
             projectTitle: '',
             ...config,
-            dashboards: NeonDashboardConfig.get(config.dashboards || {}),
+            dashboards: NeonDashboardUtil.get(config.dashboards || {}),
             datastores: translateValues(config.datastores || {}, NeonDatastoreConfig.get.bind(null), true)
         } as NeonConfig;
     }

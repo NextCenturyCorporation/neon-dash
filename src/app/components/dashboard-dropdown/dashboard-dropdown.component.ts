@@ -22,7 +22,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { NeonDashboardConfig } from '../../model/types';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
 import * as _ from 'lodash';
 
 @Component({
@@ -45,7 +45,7 @@ export class DashboardDropdownComponent {
      * @return {String[]}
      */
     getDashboardKeys() {
-        return this.dashboards && this.dashboards.choices ? Object.keys(this.dashboards.choices) : null;
+        return this.dashboards && 'choices' in this.dashboards ? Object.keys(this.dashboards.choices) : null;
     }
 
     /**
@@ -55,7 +55,7 @@ export class DashboardDropdownComponent {
      * @return {String}
      */
     getDashboardName(key: string) {
-        return this.dashboards.choices[key].name;
+        return 'choices' in this.dashboards ? this.dashboards.choices[key].name : '';
     }
 
     /**
@@ -77,10 +77,12 @@ export class DashboardDropdownComponent {
      * Checks to see if there are more dashboard choices available from the selectedDashboard chosen.
      */
     hasMoreChoices(): boolean {
-        return (
-            !_.isEmpty(this.selectedDashboard && this.selectedDashboard.choices) &&
-            !!_.findKey(this.dashboards.choices, this.selectedDashboard)
-        );
+        const dash = this.selectedDashboard || {};
+        if (!('choices' in dash)) {
+            return false;
+        }
+        return !_.isEmpty(dash.choices) &&
+            ('choices' in this.dashboards && !!_.findKey(this.dashboards.choices, dash));
     }
 
     /**
@@ -101,7 +103,7 @@ export class DashboardDropdownComponent {
      * @arg {DashboardDropdownComponent} dropdown - dropdown component
      */
     selectDashboardChoice(
-        dashboard: NeonDashboardConfig,
+        dashboard: NeonDashboardChoiceConfig,
         paths: string[],
         indexToUse: number,
         dropdown: DashboardDropdownComponent

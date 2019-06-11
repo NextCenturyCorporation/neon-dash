@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../model/types';
+import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, NeonDashboardChoiceConfig } from '../model/types';
 import { DashboardState } from '../model/dashboard-state';
 
 /**
@@ -55,18 +55,18 @@ export class DashboardUtil {
     static validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
         let rootDashboard = dashboard;
 
-        if ((!dashboard.choices || !Object.keys(dashboard.choices).length) && dashboard.name) {
-            rootDashboard = NeonDashboardConfig.get();
+        if ((!('choices' in dashboard) || !Object.keys(dashboard.choices).length) && dashboard.name) {
+            rootDashboard = NeonDashboardChoiceConfig.get();
             rootDashboard.choices[dashboard.name] = dashboard;
         }
 
-        if (!rootDashboard.category) {
-            rootDashboard.category = this.DASHBOARD_CATEGORY_DEFAULT;
+        if (!('category' in rootDashboard)) {
+            rootDashboard['category'] = this.DASHBOARD_CATEGORY_DEFAULT;
         }
 
-        let dashboardKeys = rootDashboard.choices ? Object.keys(rootDashboard.choices) : [];
+        let dashboardKeys = 'choices' in rootDashboard ? Object.keys(rootDashboard.choices) : [];
 
-        this.validateDashboardChoices(rootDashboard.choices, dashboardKeys);
+        this.validateDashboardChoices('choices' in rootDashboard ? rootDashboard['choices'] : {}, dashboardKeys);
 
         return rootDashboard;
     }
@@ -94,12 +94,12 @@ export class DashboardUtil {
             db.fullTitle = db.fullTitle || fullTitle;
             db.pathFromTop = fullPathFromTop;
 
-            let nestedChoiceKeys = db.choices ? Object.keys(db.choices) : [];
+            let nestedChoiceKeys = 'choices' in db ? Object.keys(db.choices) : [];
 
             if (!nestedChoiceKeys.length) {
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
-                if (!db.layout || !db.tables) {
+                if (!('layout' in db) || !('tables' in db)) {
                     delete dashboardChoices[choiceKey];
                 }
             }
@@ -111,7 +111,7 @@ export class DashboardUtil {
 
                 // If simpleFilter present in config, make sure to translate keys to database, table, and
                 // field names.
-                if (db.options &&
+                if ('options' in db &&
                     db.options.simpleFilter &&
                     db.options.simpleFilter.tableKey) {
                     let tableKey = db.options.simpleFilter.tableKey;
@@ -129,17 +129,17 @@ export class DashboardUtil {
                     } else {
                         db.options.simpleFilter.fieldName = '';
                     }
-                } else if (db.options && db.options.simpleFilter) {
+                } else if ('options' in db && db.options.simpleFilter) {
                     // Delete simpleFilter from config if no tableKey present
                     delete db.options.simpleFilter;
                 }
 
                 // Only auto fill category if this is not the last level of nesting
-                if (!db.category && !db.tables) {
+                if (!('category' in db) && !('tables' in db)) {
                     db.category = this.DASHBOARD_CATEGORY_DEFAULT;
                 }
 
-                this.validateDashboardChoices(db.choices, nestedChoiceKeys,
+                this.validateDashboardChoices('choices' in db ? db.choices : {}, nestedChoiceKeys,
                     fullPathFromTop, db.fullTitle);
             }
         });
@@ -160,19 +160,20 @@ export class DashboardUtil {
         }
 
         for (const choiceKey of keys) {
-            if (dashboardChoices[choiceKey].tables) {
-                let tableKeys = Object.keys(dashboardChoices[choiceKey].tables);
+            const dash = dashboardChoices[choiceKey];
+            if ('tables' in dash) {
+                let tableKeys = Object.keys(dash.tables);
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DashboardState.deconstructDottedReference(dashboardChoices[choiceKey].tables[tableKey]);
+                    const { database } = DashboardState.deconstructDottedReference(dash.tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];
                     }
                 }
             } else {
-                let nestedChoiceKeys = dashboardChoices[choiceKey].choices ? Object.keys(dashboardChoices[choiceKey].choices) : [];
-                this.deleteInvalidDashboards(dashboardChoices[choiceKey].choices, nestedChoiceKeys, invalidDatabaseName);
+                let nestedChoiceKeys = dash.choices ? Object.keys(dash.choices) : [];
+                this.deleteInvalidDashboards(dash.choices, nestedChoiceKeys, invalidDatabaseName);
             }
         }
 
