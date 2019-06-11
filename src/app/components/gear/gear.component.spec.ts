@@ -78,7 +78,7 @@ class MockConfigurable implements ConfigurableWidget {
 
 }
 
-fdescribe('Component: Gear Component', () => {
+describe('Component: Gear Component', () => {
     let component: GearComponent;
     let fixture: ComponentFixture<GearComponent>;
 
