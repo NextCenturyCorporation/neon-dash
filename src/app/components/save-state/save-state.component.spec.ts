@@ -46,7 +46,7 @@ const Modules = {
 };
 
 
-fdescribe('Component: SaveStateComponent', () => {
+describe('Component: SaveStateComponent', () => {
     let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<SaveStateComponent>;
     let component: SaveStateComponent;
