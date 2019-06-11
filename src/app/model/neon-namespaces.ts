@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,10 +11,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
-/* eslist-disable */
 
 export namespace neonEvents {
     export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';
@@ -150,13 +147,13 @@ export namespace neonVisualizationMinPixel {
 export const neonVisualizations: any[] = [{
     name: 'Annotation Viewer',
     type: 'annotationViewer',
-    icon: 'annotation_viewer',
+    icon: 'annotation',
     bindings: {},
     config: {}
 }, {
     name: 'Bar Chart',
     type: 'aggregation',
-    icon: 'bar_chart',
+    icon: 'bar-chart',
     bindings: {
         title: 'Bar Chart',
         type: 'bar-v'
@@ -165,19 +162,19 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Data Table',
     type: 'dataTable',
-    icon: 'view_data',
+    icon: 'data-table',
     bindings: {},
     config: {}
 }, {
     name: 'Document Viewer',
     type: 'documentViewer',
-    icon: 'document_viewer',
+    icon: 'document-viewer',
     bindings: {},
     config: {}
 }, {
     name: 'Doughnut Chart',
     type: 'aggregation',
-    icon: 'pie_chart',
+    icon: 'donut-chart',
     bindings: {
         title: 'Doughnut Chart',
         type: 'doughnut'
@@ -195,7 +192,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Line Chart',
     type: 'aggregation',
-    icon: 'line_chart',
+    icon: 'line-chart',
     bindings: {
         title: 'Line Chart',
         type: 'line-xy'
@@ -210,25 +207,25 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'media_viewer',
+    icon: 'media-viewer',
     bindings: {},
     config: {}
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
-    icon: 'network_graph',
+    icon: 'network-graph',
     bindings: {},
     config: {}
 }, {
     name: 'News Feed',
     type: 'newsFeed',
-    icon: 'newspaper',
+    icon: 'news-feed',
     bindings: {},
     config: {}
 }, {
     name: 'Pie Chart',
     type: 'aggregation',
-    icon: 'pie_chart',
+    icon: 'pie-chart',
     bindings: {
         title: 'Pie Chart',
         type: 'pie'
@@ -243,7 +240,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Scatter Plot',
     type: 'aggregation',
-    icon: 'scatter_plot',
+    icon: 'scatter-chart',
     bindings: {
         title: 'Scatter Plot',
         type: 'scatter-xy'
@@ -252,11 +249,11 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Taxonomy Viewer',
     type: 'taxonomyViewer',
-    icon: 'taxonomy_viewer'
+    icon: 'taxonomy_viewer-03'
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
-    icon: 'text_cloud',
+    icon: 'text-cloud',
     bindings: {},
     config: {}
 }, {
@@ -268,7 +265,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Wiki Viewer',
     type: 'wikiViewer',
-    icon: 'wiki_viewer',
+    icon: 'wiki',
     bindings: {},
     config: {}
 }];

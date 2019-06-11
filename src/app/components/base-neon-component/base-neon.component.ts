@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@angular/core';
 
@@ -696,7 +695,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response.responseJSON.stackTrace,
+                    error: response && !!response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
                     message: 'FAILED ' + options.title + ' ' + queryId
                 });
                 this.changeDetection.detectChanges();
@@ -1294,7 +1293,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.contributorsRef = this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'contribution-dialog',
-                ...this.getContributorsForComponent()
+                contributors: this.getContributorsForComponent()
             },
             width: '400px',
             minHeight: '200px'
