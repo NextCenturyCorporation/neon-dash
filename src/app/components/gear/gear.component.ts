@@ -29,13 +29,12 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption, WidgetOptionCollection } from '../../model/widget-option';
+import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../model/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../model/dashboard-state';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 @Component({
     selector: 'app-gear',
@@ -45,7 +44,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
-    @Input() comp: BaseNeonComponent;
+    @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
@@ -201,14 +200,14 @@ export class GearComponent implements OnInit, OnDestroy {
         this.originalOptions.layers.forEach((layer) => {
             // If the layer was deleted, finalize its deletion.
             if (modifiedLayerIds.indexOf(layer._id) < 0) {
-                this.comp['finalizeDeleteLayer'](layer);
+                this.comp.finalizeDeleteLayer(layer);
             }
         });
         let originalLayerIds = this.originalOptions.layers.map((layer) => layer._id);
         this.modifiedOptions.layers.forEach((layer) => {
             // If the layer was created, finalize its creation.
             if (originalLayerIds.indexOf(layer._id) < 0) {
-                this.comp['finalizeCreateLayer'](layer);
+                this.comp.finalizeCreateLayer(layer);
             }
         });
 
@@ -216,13 +215,13 @@ export class GearComponent implements OnInit, OnDestroy {
 
         // TODO THOR-1061
         if (this.changeSubcomponentType) {
-            this.comp['handleChangeSubcomponentType']();
+            this.comp.handleChangeSubcomponentType();
         }
 
         if (filterDataChange) {
-            this.comp['handleChangeFilterData'](undefined, databaseOrTableChange);
+            this.comp.changeFilterData(undefined, databaseOrTableChange);
         } else {
-            this.comp['handleChangeData'](undefined, databaseOrTableChange);
+            this.comp.changeData(undefined, databaseOrTableChange);
         }
 
         this.resetOptionsAndClose();
@@ -252,7 +251,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Creates a new layer.
      */
     public handleCreateLayer() {
-        let layer: any = this.comp['createLayer'](this.modifiedOptions);
+        let layer: any = this.comp.createLayer(this.modifiedOptions);
         this.layerHidden.set(layer._id, false);
         this.changeMade = true;
     }
@@ -261,7 +260,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Deletes the given layer.
      */
     public handleDeleteLayer(layer: any) {
-        let successful: boolean = this.comp['deleteLayer'](this.modifiedOptions, layer);
+        let successful: boolean = this.comp.deleteLayer(this.modifiedOptions, layer);
         if (successful) {
             this.layerHidden.delete(layer._id);
             this.changeMade = true;
@@ -289,6 +288,18 @@ export class GearComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
+    }
+
+    /**
+     * Receives
+     */
+    ngOnInit() {
+        if (this.comp) {
+            this.originalOptions = this.comp.options;
+            this.exportCallbacks = [this.comp.exportData];
+            this.resetOptions();
+            this.constructOptions();
+        }
     }
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
@@ -364,16 +375,5 @@ export class GearComponent implements OnInit, OnDestroy {
         if (bindingKey === 'type') {
             this.changeSubcomponentType = true;
         }
-    }
-
-    /**
-     * Receives
-     */
-    ngOnInit() {
-        this.originalOptions = this.comp.options;
-        this.exportCallbacks = [this.comp['createExportData']];
-
-        this.resetOptions();
-        this.constructOptions();
     }
 }

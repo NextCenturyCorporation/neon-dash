@@ -10,7 +10,7 @@
                 <wt-lazy *ngSwitchCase="'addVis'" [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
                 <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}"></wt-lazy>
                 <wt-lazy *ngSwitchCase="'gear'" [location]="{moduleId:'gear', selector: 'app-gear'}"
-                    [inputs]="{sideNavRight: sideNavRight, comp: settingsComponent}">
+                    [inputs]="{sideNavRight: sideNavRight, comp: configurableComponent }">
                 </wt-lazy>
                 <wt-lazy *ngSwitchCase="'savedState'" [location]="{moduleId:'save-state', selector: 'app-save-state'}"
                     [inputs]="{sidenav: sideNavRight, gridState: gridState }">
