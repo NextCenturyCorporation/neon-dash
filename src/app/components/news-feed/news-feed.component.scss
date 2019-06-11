@@ -65,6 +65,84 @@
 
 }
 
+mat-accordion {
+    mat-expansion-panel {
+        margin: 0;
+        box-shadow: none;
+        border-bottom: 1px solid var(--color-background-contrast, #333333);
+
+        mat-expansion-panel-header {
+            padding: 0 12px;
+
+            &.mat-expanded {
+                background-color: var(--color-primary-transparent, #EEEEEE);
+            }
+
+            mat-panel-title {
+                display: grid;
+                grid-template-columns: 60px 1fr;
+                overflow: hidden;
+                align-items: center;
+                grid-gap: 0.5em;
+
+                .text {
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    height: 1.1em;
+                    line-height: 1.1em;
+                    overflow: hidden;
+                    color: var(--color-header-text, #333333);
+                }
+
+                .date {
+                    font-size: 0.7em;
+                    opacity: 0.8;
+                    text-align: left;
+                }
+            }
+        }
+
+        mat-panel-description {
+            div {
+                width: 100%;
+            }
+
+            div > .text {
+                margin-top: 1em;
+            }
+
+            p {
+                margin: 0;
+                text-align: justify;
+            }
+
+            h4 {
+                color: var(--color-header-text, #333333);
+                padding-top: 0;
+                margin-bottom: 0.25em;
+            }
+
+            .appendix {
+                margin-top: 0.5em;
+                display: grid;
+                grid-template-areas: 'spacer date filter';
+                grid-template-columns: 1fr auto auto;
+                grid-gap: 1em;
+                align-content: center;
+
+                a {
+                    grid-area: filter;
+                    cursor: pointer;
+                }
+
+                .date {
+                    grid-area: date;
+                    font-size: 0.7em;
+                }
+            }
+        }
+    }
+}
 
 .content-ellipses {
     text-overflow: ellipsis;
