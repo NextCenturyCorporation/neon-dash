@@ -14,8 +14,8 @@ body {
 }
 
 body {
-    background-color: var(--color-body, white);
-    color: var(--color-text, dimgrey);
+    background-color: var(--color-background, white);
+    color: var(--color-text-main, dimgrey);
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
@@ -122,7 +122,7 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
-    background-color: var(--color-body, white) !important;
+    background-color: var(--color-background, white) !important;
     position: relative;
 }
 
@@ -140,7 +140,7 @@ body {
 }
 
 .grid-placeholder {
-    background-color: var(--color-text, dimgrey);
+    background-color: var(--color-background-contrast, grey);
     border: 2px dotted black;
     opacity: 0.3;
     z-index: 10;
@@ -210,12 +210,8 @@ body {
     }
 
     &:not([disabled]) {
-        background-color: var(--color-dash-item-unselected, lightgrey) !important;
-        color: var(--color-dash-item-unselected-text, dimgrey) !important;
-
         &:hover {
-            background-color: var(--color-dash-item-selectable, lightgrey) !important;
-            color: var(--color-dash-item-selectable-text, dimgrey) !important;
+            background-color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -231,6 +227,14 @@ body {
     font-weight: 500 !important;
 
     .mat-button-toggle {
+        &.mat-button-toggle-checked {
+            background-color: var(--color-background-contrast, lightgrey) !important;
+        }
+
+        &.mat-button-toggle-disabled {
+            opacity: 0.5;
+        }
+
         &:first-child {
             border-radius: 10px 0 0 10px !important;
         }
@@ -239,15 +243,11 @@ body {
             border-radius: 0 10px 10px 0 !important;
         }
 
-        &:not(.mat-button-toggle-disabled) {
-            &.mat-button-toggle-checked {
-                background-color: var(--color-dash-item-unselected, lightgrey) !important;
-                color: var(--color-dash-item-unselected-text, dimgrey) !important;
-            }
-
-            &:hover {
-                background-color: var(--color-dash-item-selectable, lightgrey) !important;
-                color: var(--color-dash-item-selectable-text, dimgrey) !important;
+        &:hover {
+            &:not(.mat-button-toggle-checked) {
+                &:not(.mat-button-toggle-disabled) {
+                    background-color: var(--color-accent, lightgrey) !important;
+                }
             }
         }
     }
@@ -331,7 +331,7 @@ body {
     &:not([disabled]) {
         &.active,
         &:hover {
-            color: var(--color-dash-item-selectable, lightgrey) !important;
+            color: var(--color-text-main, black) !important;
         }
     }
 }
@@ -359,7 +359,7 @@ body {
 
     &:not([disabled]) {
         &.active {
-            color: var(--color-dash-item-selectable, lightgrey) !important;
+            color: var(--color-accent, lightgrey) !important;
         }
     }
 }
@@ -399,16 +399,15 @@ body {
     }
 }
 
-.mat-select-panel {
-    .mat-option {
-        color: var(--color-text, dimgrey) !important;
 
-        &:not(.mat-option-disabled) {
-            &.mat-selectable,
-            &:hover {
-                background: var(--color-dash-item-selectable, lightgrey) !important;
-                color: var(--color-dash-item-selectable-text, dimgrey) !important;
-            }
+/* TODO THOR-898 */
+.mat-select-panel {
+    background-color: white;
+    color: #333333;
+
+    .mat-option {
+        &:hover {
+            background-color: #999999;
         }
     }
 }
@@ -439,8 +438,7 @@ body {
 
 .mat-tab-label:hover, // sass-lint:disable-line force-pseudo-nesting
 .mat-tab-label-active {
-    background-color: var(--color-dash-item-selectable, lightgrey) !important;
-    color: var(--color-dash-item-selectable-text, dimgrey) !important;
+    background-color: var(--color-background-contrast);
 }
 
 .mat-toolbar {
@@ -448,7 +446,7 @@ body {
     height: 40px !important;
     min-height: 40px !important;
     padding: 5px 10px !important;
-    border-bottom: 2px solid var(--color-border, lightgrey) !important;
+    border-bottom: 2px solid var(--color-accent, lightgrey) !important;
 
     &.neon-toolbar-large {
         height: 50px !important;
@@ -483,8 +481,8 @@ body {
 }
 
 .simpleSnackBar { // sass-lint:disable-line class-name-format
-    background-color: var(--color-background, white) !important;
-    color: var(--color-text, dimgrey);
+    background-color: var(--color-accent, grey) !important;
+    color: var(--color-accent-contrast, white);
 
     .mat-simple-snackbar-action {
         position: absolute;

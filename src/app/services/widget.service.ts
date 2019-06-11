@@ -27,10 +27,10 @@ export class NeonTheme implements Theme {
      * @constructor
      * @arg {string} accent The accent color.
      * @arg {string} id The theme ID.
-     * @arg {string} text The text color.
+     * @arg {string} main The main color.
      * @arg {string} name The theme name.
      */
-    constructor(public accent: string, public id: string, public text: string, public name: string) {}
+    constructor(public accent: string, public id: string, public main: string, public name: string) {}
 }
 
 /**
@@ -40,9 +40,9 @@ export class NeonTheme implements Theme {
  */
 @Injectable()
 export class WidgetService extends AbstractWidgetService {
-    public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#FFFFFF', 'Dark');
-    public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#333333', 'Green');
-    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#333333', 'Teal');
+    public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
+    public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
+    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
@@ -120,7 +120,8 @@ export class WidgetService extends AbstractWidgetService {
      */
     public getThemes(): Theme[] {
         return [
-            WidgetService.THEME_DARK,
+            // TODO THOR-853 Add dark theme
+            // WidgetService.THEME_DARK,
             // TODO THOR-852 Add green theme
             // WidgetService.THEME_GREEN,
             WidgetService.THEME_TEAL
@@ -138,13 +139,13 @@ export class WidgetService extends AbstractWidgetService {
     }
 
     /**
-     * Returns the hex for the text color for the current application theme.
+     * Returns the hex for the main color for the current application theme.
      *
      * @return {string}
      * @override
      */
-    public getThemeTextColorHex(): string {
-        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).text;
+    public getThemeMainColorHex(): string {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).main;
     }
 
     /**
@@ -180,10 +181,7 @@ export class WidgetService extends AbstractWidgetService {
      * @override
      */
     public setTheme(id: string): void {
-        if (id !== this.currentThemeId) {
-            this.currentThemeId = id;
-            document.body.className = this.currentThemeId;
-            this.messenger.publish(neonEvents.DASHBOARD_REFRESH, {});
-        }
+        this.currentThemeId = id;
+        document.body.className = this.currentThemeId;
     }
 }

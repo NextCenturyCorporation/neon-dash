@@ -28,14 +28,12 @@
 
             &:hover {
                 text-decoration: none;
-                color: var(--color-data-item-selectable-dark, dimgrey) !important;
+                color: var(--color-accent, lightgrey) !important;
             }
         }
 
         .filter {
-            &:not(:hover) {
-                color: var(--color-data-item-selectable-dark, dimgrey) !important;
-            }
+            color: var(--color-accent, lightgrey) !important;
         }
 
         .paragraphs {

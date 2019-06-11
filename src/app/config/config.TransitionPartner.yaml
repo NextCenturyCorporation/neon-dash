@@ -1164,8 +1164,8 @@ layouts:
           icon: newFeed64
           col: 1
           row: 1
-          sizex: 4
-          sizey: 15
+          sizex: 3
+          sizey: 10
           bindings:
               title: Document Feed
               tableKey: table_key_1
@@ -1183,9 +1183,9 @@ layouts:
         - name: Map
           type: map
           icon: Map64
-          col: 5
+          col: 4
           row: 1
-          sizex: 5
+          sizex: 6
           sizey: 11
           bindings:
               title: Situation Locations
@@ -1212,9 +1212,9 @@ layouts:
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
-          col: 5
+          col: 4
           row: 12
-          sizex: 5
+          sizex: 6
           sizey: 4
           selected: true
           bindings:
@@ -1271,14 +1271,29 @@ layouts:
               contributionKeys:
                 - rpi
                 - isi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 1
+          row: 11
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
+              xField: cluster_name_key
+              limit: 100
+              groupField: cluster_topics_key
+              sortByAggregation: true
     africom-som:
         - name: News Feed
           type: newsFeed
           icon: newFeed64
           col: 1
           row: 1
-          sizex: 4
-          sizey: 15
+          sizex: 3
+          sizey: 10
           bindings:
               title: Document Feed
               tableKey: table_key_1
@@ -1294,9 +1309,9 @@ layouts:
         - name: Map
           type: map
           icon: Map64
-          col: 5
+          col: 4
           row: 1
-          sizex: 5
+          sizex: 6
           sizey: 11
           bindings:
               title: Situation Locations
@@ -1320,9 +1335,9 @@ layouts:
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
-          col: 5
+          col: 4
           row: 12
-          sizex: 5
+          sizex: 6
           sizey: 4
           selected: true
           bindings:
@@ -1372,6 +1387,21 @@ layouts:
                   - id_field_key_2
               singleFilter: true
               ignoreSelf: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 1
+          row: 11
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
+              xField: cluster_name_key
+              limit: 100
+              groupField: cluster_topics_key
+              sortByAggregation: true
     elisa_macedonia:
         - name: Data Table
           type: dataTable

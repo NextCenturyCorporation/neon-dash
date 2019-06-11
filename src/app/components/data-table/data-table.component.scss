@@ -36,7 +36,7 @@
         vertical-align: middle;
         font-size: 14px;
         font-weight: 500;
-        border: 1px solid var(--color-border, lightgrey);
+        border: 1px solid var(--color-accent, lightgrey);
     }
 
     .column-selector-close {
@@ -68,17 +68,17 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: var(--color-background-contrast, white);
+    background-color: var(--background, white);
 }
 
 /deep/ .datatable-header-inner {
-    border-right: 1px solid var(--color-text, dimgrey);
+    border-right: 1px solid var(--color-text-main, dimgrey);
 }
 
 /deep/ .datatable-header-cell {
-    background: linear-gradient(var(--color-background, lightgrey), var(--color-background-contrast, dimgrey));
-    border-bottom: 1px solid var(--color-text, dimgrey);
-    border-right: 1px solid var(--color-text, dimgrey);
+    background: linear-gradient(var(--background, white), var(--background-contrast, lightgrey));
+    border-bottom: 1px solid var(--color-text-main, dimgrey);
+    border-right: 1px solid var(--color-text-main, dimgrey);
     line-height: 20px !important;
     height: 30px;
     text-align: center;
@@ -89,7 +89,7 @@
     /* This is only needed if the table is reorderable. */
     &.longpress {
         background: linear-gradient(#DDDDDD, #B3B3B3);
-        border: 1px dashed var(--color-text, dimgrey);
+        border: 1px dashed var(--color-text-main, dimgrey);
         z-index: 100;
     }
 }
@@ -156,7 +156,7 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px dashed var(--color-text, dimgrey);
+    border-right: 1px dashed var(--color-text-main, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
@@ -194,9 +194,8 @@
 
     &.active {
         .datatable-row-group {
-            /* Invert colors */
-            background-color: var(--color-data-item-selected, dimgrey);
-            color: var(--color-data-item-selected-text, white);
+            background-color: var(--color-primary, grey);
+            color: var(--color-primary-contrast, white);
         }
 
         &.heat-1 {
@@ -255,7 +254,7 @@
     font-size: 14px;
 
     /deep/ .datatable-row-odd {
-        background-color: var(--color-background-contrast, white);
+        background-color: var(--color-background-contrast, lightgrey);
     }
 
     /deep/ .datatable-header-cell {
@@ -290,8 +289,8 @@
     /deep/ .datatable-body-row.active:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
-        background-color: var(--color-data-item-selectable, lightgrey);
-        color: var(--color-data-item-selectable-text, dimgrey);
+        background-color: var(--color-accent, lightgrey);
+        color: var(--color-text-main, dimgrey);
         cursor: pointer;
     }
 

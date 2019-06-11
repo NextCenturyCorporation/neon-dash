@@ -27,7 +27,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-import { TaxonomyViewerComponent } from './taxonomy-viewer.component';
+import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
 import { ConfigService } from '../../services/config.service';
@@ -146,7 +146,7 @@ describe('Component: TaxonomyViewer', () => {
                 (subTypeNode).parent = typeNode;
             });
         }));
-        return taxonomyGroups;
+        return taxonomyGroups as TaxonomyGroup[];
     };
 
     initializeTestBed('Taxonomy', {
@@ -388,24 +388,26 @@ describe('Component: TaxonomyViewer', () => {
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            expect(component.taxonomyGroups[0].name).toEqual('testCategoryI');
-            expect(component.taxonomyGroups[0].children.length).toEqual(6);
-            expect(component.taxonomyGroups[0].children[0].name).toEqual('testTypeA');
-            for (let child of component.taxonomyGroups[0].children) {
+            const groups = component.taxonomyGroups as any[];
+
+            expect(groups[0].name).toEqual('testCategoryI');
+            expect(groups[0].children.length).toEqual(6);
+            expect(groups[0].children[0].name).toEqual('testTypeA');
+            for (let child of groups[0].children) {
                 expect(child.children[0].name).toEqual('value01');
             }
 
-            expect(component.taxonomyGroups[1].name).toEqual('testCategoryII');
-            expect(component.taxonomyGroups[1].children.length).toEqual(8);
-            expect(component.taxonomyGroups[1].children[7].name).toEqual('testTypeH');
-            expect(component.taxonomyGroups[1].children[7].children.length).toEqual(1);
-            expect(component.taxonomyGroups[1].children[7].children[0].name).toEqual('value05');
+            expect(groups[1].name).toEqual('testCategoryII');
+            expect(groups[1].children.length).toEqual(8);
+            expect(groups[1].children[7].name).toEqual('testTypeH');
+            expect(groups[1].children[7].children.length).toEqual(1);
+            expect(groups[1].children[7].children[0].name).toEqual('value05');
 
-            expect(component.taxonomyGroups[2].name).toEqual('testCategoryIII');
-            expect(component.taxonomyGroups[2].children.length).toEqual(5);
-            expect(component.taxonomyGroups[2].children[0].name).toEqual('testTypeC');
-            expect(component.taxonomyGroups[2].children[0].children.length).toEqual(1);
-            expect(component.taxonomyGroups[2].children[0].children[0].name).toEqual('value02');
+            expect(groups[2].name).toEqual('testCategoryIII');
+            expect(groups[2].children.length).toEqual(5);
+            expect(groups[2].children[0].name).toEqual('testTypeC');
+            expect(groups[2].children[0].children.length).toEqual(1);
+            expect(groups[2].children[0].children[0].name).toEqual('value02');
         });
     }));
 
@@ -423,15 +425,17 @@ describe('Component: TaxonomyViewer', () => {
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            expect(component.taxonomyGroups[1].name).toEqual('testCategoryII');
-            expect(component.taxonomyGroups[1].children.length).toEqual(8);
-            expect(component.taxonomyGroups[1].children[6].name).toEqual('testTypeG');
-            expect(component.taxonomyGroups[1].children[6].children.length).toEqual(0);
+            const groups = component.taxonomyGroups as any[];
 
-            expect(component.taxonomyGroups[3].name).toEqual('testCategoryIIII');
-            expect(component.taxonomyGroups[3].children.length).toEqual(1);
-            expect(component.taxonomyGroups[3].children[0].name).toEqual('testTypeE');
-            expect(component.taxonomyGroups[3].children[0].children.length).toEqual(0);
+            expect(groups[1].name).toEqual('testCategoryII');
+            expect(groups[1].children.length).toEqual(8);
+            expect(groups[1].children[6].name).toEqual('testTypeG');
+            expect(groups[1].children[6].children.length).toEqual(0);
+
+            expect(groups[3].name).toEqual('testCategoryIIII');
+            expect(groups[3].children.length).toEqual(1);
+            expect(groups[3].children[0].name).toEqual('testTypeE');
+            expect(groups[3].children[0].children.length).toEqual(0);
         });
     }));
 
@@ -586,9 +590,11 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -637,15 +643,15 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testSubType2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(false);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a type does call exchangeFilters with type / subtype filters and remove category filters', () => {
@@ -654,9 +660,10 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0].children[0], {
+        component.checkRelatedNodes(groups[0].children[0], {
             target: {
                 checked: false
             }
@@ -695,16 +702,16 @@ describe('Component: TaxonomyViewer', () => {
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].indeterminate).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].indeterminate).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a subtype does call exchangeFilters with subtype filters and remove category / type filters', () => {
@@ -713,47 +720,51 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0].children[0].children[0], {
+        component.checkRelatedNodes(groups[0].children[0].children[0], {
             target: {
                 checked: false
             }
         });
 
+        const [filters] = spy.calls.argsFor(0);
+        filters.forEach((filter) => {
+            filter.database = filter.database.name;
+            filter.table = filter.table.name;
+            filter.field = filter.field.columnName;
+        });
+
+        const [filterA, filterB] = filters;
+
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
+        expect(filterA).toEqual({
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.TYPE_FIELD.columnName,
+            operator: '!=',
+            value: 'testTypeA'
+        });
+        expect(filterB).toEqual({
+            datastore: '',
+            database: DatasetServiceMock.DATABASES[0].name,
+            table: DatasetServiceMock.TABLES[0].name,
+            field: DatasetServiceMock.NAME_FIELD.columnName,
             operator: '!=',
             value: 'testSubType1'
-        } as SimpleFilterDesign], [{
-            datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
-            operator: '!=',
-            value: undefined
-        } as SimpleFilterDesign, {
-            datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TYPE_FIELD,
-            operator: '!=',
-            value: undefined
-        } as SimpleFilterDesign]]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].indeterminate).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        });
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].indeterminate).toEqual(true);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(true);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a category with other unselected categories does call exchangeFilters', () => {
@@ -762,12 +773,15 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
-        component.taxonomyGroups[1].checked = false;
-        component.taxonomyGroups[1].children[0].checked = false;
-        component.taxonomyGroups[1].children[1].checked = false;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        groups[1].checked = false;
+        groups[1].children[0].checked = false;
+        groups[1].children[1].checked = false;
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -840,15 +854,15 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testSubType2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(false);
+        expect(groups[1].checked).toEqual(false);
+        expect(groups[1].children[0].checked).toEqual(false);
+        expect(groups[1].children[1].checked).toEqual(false);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a type with other unselected types does call exchangeFilters', () => {
@@ -857,12 +871,15 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
-        component.taxonomyGroups[1].checked = false;
-        component.taxonomyGroups[1].children[0].checked = false;
-        component.taxonomyGroups[1].children[1].checked = false;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0].children[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        groups[1].checked = false;
+        groups[1].children[0].checked = false;
+        groups[1].children[1].checked = false;
+
+        component.checkRelatedNodes(groups[0].children[0], {
             target: {
                 checked: false
             }
@@ -918,16 +935,16 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testSubType2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].indeterminate).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].indeterminate).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(false);
+        expect(groups[1].children[0].checked).toEqual(false);
+        expect(groups[1].children[1].checked).toEqual(false);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to select a category does call exchangeFilters and remove category / type / subtype filters', () => {
@@ -936,12 +953,15 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
-        component.taxonomyGroups[0].checked = false;
-        component.taxonomyGroups[0].children[0].checked = false;
-        component.taxonomyGroups[0].children[0].children[0].checked = false;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        groups[0].checked = false;
+        groups[0].children[0].checked = false;
+        groups[0].children[0].children[0].checked = false;
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: true
             }
@@ -970,15 +990,15 @@ describe('Component: TaxonomyViewer', () => {
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[1].checked).toEqual(true);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to select a type does call exchangeFilters and remove all category / type / subtype filters', () => {
@@ -987,11 +1007,14 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
-        component.taxonomyGroups[0].children[0].checked = false;
-        component.taxonomyGroups[0].children[0].children[0].checked = false;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0].children[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        groups[0].children[0].checked = false;
+        groups[0].children[0].children[0].checked = false;
+
+        component.checkRelatedNodes(groups[0].children[0], {
             target: {
                 checked: true
             }
@@ -1020,15 +1043,15 @@ describe('Component: TaxonomyViewer', () => {
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[1].checked).toEqual(true);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to select a subtype does call exchangeFilters and remove all category / type / subtype filters', () => {
@@ -1037,10 +1060,13 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.subTypeField = DatasetServiceMock.NAME_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
-        component.taxonomyGroups[0].children[0].children[0].checked = false;
 
-        component.checkRelatedNodes(component.taxonomyGroups[0].children[0].children[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        groups[0].children[0].children[0].checked = false;
+
+        component.checkRelatedNodes(groups[0].children[0].children[0], {
             target: {
                 checked: true
             }
@@ -1069,24 +1095,26 @@ describe('Component: TaxonomyViewer', () => {
             operator: '!=',
             value: undefined
         } as SimpleFilterDesign]]);
-        expect(component.taxonomyGroups[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(true);
+        expect(groups[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[0].checked).toEqual(true);
+        expect(groups[0].children[0].children[1].checked).toEqual(true);
+        expect(groups[0].children[1].checked).toEqual(true);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a category does call exchangeFilters (with no typeField or subTypeField)', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -1101,9 +1129,9 @@ describe('Component: TaxonomyViewer', () => {
             operator: '!=',
             value: 'testCategoryI'
         } as SimpleFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes to deselect a category does call exchangeFilters (with no subTypeField)', () => {
@@ -1111,9 +1139,11 @@ describe('Component: TaxonomyViewer', () => {
 
         component.options.categoryField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.taxonomyGroups = createTestTaxonomyGroups();
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = createTestTaxonomyGroups() as any[];
+        component.taxonomyGroups = groups;
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -1145,13 +1175,13 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testTypeB'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[0].checked).toEqual(true);
-        expect(component.taxonomyGroups[1].children[1].checked).toEqual(true);
-        expect(component.taxonomyGroups[2].checked).toEqual(true);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(false);
+        expect(groups[1].checked).toEqual(true);
+        expect(groups[1].children[0].checked).toEqual(true);
+        expect(groups[1].children[1].checked).toEqual(true);
+        expect(groups[2].checked).toEqual(true);
     });
 
     it('checkRelatedNodes does ignore unselected types if typeField equals categoryField', () => {
@@ -1195,9 +1225,11 @@ describe('Component: TaxonomyViewer', () => {
                 name: 'testCategoryI.testTypeB',
                 children: []
             }]
-        }];
+        }] as any[];
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = component.taxonomyGroups as any[];
+
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -1246,11 +1278,11 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testSubType2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(false);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(false);
     });
 
     it('checkRelatedNodes does ignore unselected subtypes if subTypeField equals typeField', () => {
@@ -1294,9 +1326,10 @@ describe('Component: TaxonomyViewer', () => {
                 name: 'testTypeB',
                 children: []
             }]
-        }];
+        }] as any[];
 
-        component.checkRelatedNodes(component.taxonomyGroups[0], {
+        const groups = component.taxonomyGroups as any[];
+        component.checkRelatedNodes(groups[0], {
             target: {
                 checked: false
             }
@@ -1342,10 +1375,10 @@ describe('Component: TaxonomyViewer', () => {
                 value: 'testTypeB'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign], []]);
-        expect(component.taxonomyGroups[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[0].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[0].children[1].checked).toEqual(false);
-        expect(component.taxonomyGroups[0].children[1].checked).toEqual(false);
+        expect(groups[0].checked).toEqual(false);
+        expect(groups[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[0].checked).toEqual(false);
+        expect(groups[0].children[0].children[1].checked).toEqual(false);
+        expect(groups[0].children[1].checked).toEqual(false);
     });
 });

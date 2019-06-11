@@ -43,8 +43,8 @@ export class LeafletNeonMap extends AbstractMap {
         super();
         if (!styleImport) {
             for (const src of [
-                'assets/leaflet/dist/leaflet.css',
-                'assets/leaflet.markercluster/dist/MarkerCluster.Default.css'
+                '/assets/leaflet/dist/leaflet.css',
+                '/assets/leaflet.markercluster/dist/MarkerCluster.Default.css'
             ]) {
                 styleImport = document.createElement('link');
                 styleImport.rel = 'stylesheet';

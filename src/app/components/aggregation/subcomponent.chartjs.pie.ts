@@ -55,10 +55,10 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {any} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
-     * @arg {string} [textColorHex]
+     * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef, textColorHex?: string) {
-        super(options, listener, elementRef, textColorHex, SelectMode.ITEM);
+    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
+        super(options, listener, elementRef, SelectMode.ITEM);
     }
 
     /**

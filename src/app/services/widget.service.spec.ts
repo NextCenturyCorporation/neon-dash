@@ -74,7 +74,7 @@ describe('Service: Widget', () => {
         // TODO THOR-936
     });
 
-    it('getThemeTextColorHex does return expected theme color', () => {
+    it('getThemeMainColorHex does return expected theme color', () => {
         // TODO THOR-936
     });
 
