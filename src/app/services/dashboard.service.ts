@@ -77,7 +77,9 @@ export class DashboardService {
                     NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })
             ),
             datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
-            layouts: _.cloneDeep(config.layouts || {})
+            layouts: _.cloneDeep(config.layouts || {}),
+            lastModified: config.lastModified,
+            fileName: config.fileName
         });
     }
 

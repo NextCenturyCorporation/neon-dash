@@ -10,7 +10,7 @@
 
 <div class="option-row" *ngFor="let state of states.results">
     <a class="state-name" (click)="loadState(state.fileName)">
-        <span [matBadgeHidden]="!(current && current.fileName === state.fileName && current.modified)" matBadge="x" mat-position="above after">
+        <span [matBadgeHidden]="!(currentFilename === state.fileName && dashboardState.modified)" matBadge="x" mat-position="above after">
             {{ state.dashboards.name || state.fileName }}
         </span>
     </a>
@@ -18,7 +18,7 @@
     <div class="date">Last Modified - {{ state.lastModified ? (state.lastModified | date: 'yyyy-M-d h:mm') : "N/A" }}</div>
     <div class="actions">
         <button mat-icon-button class="update-button" (click)="saveState(state.dashboards.name, true);"
-            *ngIf="(current && current.fileName === state.fileName && current.modified)">
+            *ngIf="(currentFilename === state.fileName && dashboardState.modified)">
             <mat-icon>save</mat-icon>
         </button>
         <button mat-icon-button class="delete-button" (click)="deleteState(state.fileName, true);">
