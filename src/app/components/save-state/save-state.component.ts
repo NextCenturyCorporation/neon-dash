@@ -102,6 +102,7 @@ export class SaveStateComponent implements OnInit {
         const config = this.dashboardService.exportToConfig(name, this.filterService.getFiltersToSaveInConfig());
         this.configService.save(config)
             .subscribe(() => {
+                this.dashboardState.modified = false;
                 this.openNotification(name, 'saved');
                 this.closeSidenav();
             }, this.handleStateFailure.bind(this, name));
@@ -153,7 +154,7 @@ export class SaveStateComponent implements OnInit {
     /**
      * Updates the list of available dashboard states.
      */
-    private listStates(limit = 100, offset = 0) {
+    listStates(limit = 100, offset = 0) {
         this.isLoading = true;
         this.states = { total: 0, results: [] };
         this.configService.list(limit, offset)

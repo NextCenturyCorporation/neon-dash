@@ -22,6 +22,7 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
 @NgModule({
     declarations: [DynamicDialogComponent],
     exports: [DynamicDialogComponent],
+    entryComponents: [DynamicDialogComponent],
     imports: [
         MatDialogModule,
         ReactiveComponentLoaderModule,
