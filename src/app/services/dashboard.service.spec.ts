@@ -90,7 +90,7 @@ describe('Service: DashboardService with Mock Data', () => {
     let dashboardService: DashboardService;
 
     beforeEach(() => {
-        dashboardService = new DashboardServiceMock();
+        dashboardService = new DashboardServiceMock(ConfigService.as(NeonConfig.get()));
     });
 
     it('should have active datastore at creation', () => {

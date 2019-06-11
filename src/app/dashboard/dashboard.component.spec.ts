@@ -28,7 +28,6 @@ import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { DashboardService } from '../services/dashboard.service';
 import { FilterService } from '../services/filter.service';
-import { ParameterService } from '../services/parameter.service';
 import { WidgetService } from '../services/widget.service';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
@@ -65,7 +64,6 @@ describe('Dashboard', () => {
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
-            ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService }
         ]
