@@ -1,5 +1,4 @@
-/*
-/!*
+/**
  * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +11,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- *!/
+ */
+
+/* eslint-disable header/header */
+/*
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
@@ -103,7 +104,7 @@ class queryBarTester {
     clickSearch() {
         this.element.children[0].triggerEventHandler('click', null);
 
-        // ensure that html updates after filter is added
+        // Ensure that html updates after filter is added
         this.detectChanges();
     }
 
@@ -114,11 +115,13 @@ class queryBarTester {
     clickClose() {
         this.getCloseElement().triggerEventHandler('click', null);
 
-        // ensure that html updates after filter is removed
+        // Ensure that html updates after filter is removed
         this.detectChanges();
     }
 
-    detectChanges() { this.fixture.detectChanges(); }
+    detectChanges() {
+        this.fixture.detectChanges();
+    }
 }
 
 describe('Component: queryBar', () => {
@@ -131,14 +134,14 @@ describe('Component: queryBar', () => {
     it('should show in the UI when the configuration includes a queryBar option', () => expect(tester.element).toBeTruthy());
 
     it('should filter when the user clicks the search icon', () => {
-        // set input.value
+        // Set input.value
         let value = 'filter with click';
         tester.setInput(value);
 
-        // find search icon element and click it
+        // Find search icon element and click it
         tester.clickSearch();
 
-        // verify that filter is added to filterService
+        // Verify that filter is added to filterService
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
@@ -147,11 +150,11 @@ describe('Component: queryBar', () => {
     });
 
     it('should replace filter when one already exists', () => {
-        // set input.value
+        // Set input.value
         let value = 'filter with click';
         tester.setInput(value);
 
-        // find search icon element and click it
+        // Find search icon element and click it
         tester.clickSearch();
         let filterId = tester.component.filterId.getValue();
 
@@ -159,10 +162,10 @@ describe('Component: queryBar', () => {
         tester.setInput(value);
         tester.clickSearch();
 
-        // verify that filter id didn't change
+        // Verify that filter id didn't change
         expect(tester.component.filterId.getValue()).toBe(filterId, 'filter id should not have changed');
 
-        // verify that only one filter is in the filter service
+        // Verify that only one filter is in the filter service
         expect(tester.filterService.getFilters().length).toBe(1, 'there should still only be 1 filter');
 
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
@@ -173,14 +176,14 @@ describe('Component: queryBar', () => {
     });
 
     it('should filter when the user presses enter', () => {
-        // set input.value
+        // Set input.value
         let value = 'filter with enter';
         tester.setInput(value);
 
-        // simulate enter key
+        // Simulate enter key
         tester.getInputElement().triggerEventHandler('keyup.enter', null);
 
-        // verify that filter is added to filterService
+        // Verify that filter is added to filterService
         expect(tester.filterService.getFilters().length).toBe(1);
         let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
         expect(filter).toBeTruthy();
@@ -189,56 +192,55 @@ describe('Component: queryBar', () => {
     });
 
     it('should show close icon when filter has been created', () => {
-        // set input.value
+        // Set input.value
         tester.setInput('filter for showing close icon');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         tester.clickSearch();
 
-        // verify that close exists
+        // Verify that close exists
         expect(tester.getCloseElement()).toBeTruthy();
 
-        // should even show if user removes text from input
+        // Should even show if user removes text from input
         tester.setInput('');
 
-        // verify that close exists
+        // Verify that close exists
         expect(tester.getCloseElement()).toBeTruthy();
     });
 
     it('should clear the filter if the user clicks the close icon', () => {
-        // set input.value
+        // Set input.value
         tester.setInput('filter for checking close button');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         tester.clickSearch();
 
-        // find close icon element and click it
+        // Find close icon element and click it
         tester.clickClose();
 
-        // verify that filter is no longer in filterService
+        // Verify that filter is no longer in filterService
         expect(tester.filterService.getFilters().length).toBe(0);
     });
 
     it('should clear the filter if the user filters on an empty string', () => {
-        // set input.value
+        // Set input.value
         tester.setInput('filter for empty string test');
 
-        // find search icon element and click it
+        // Find search icon element and click it
         tester.clickSearch();
 
-        // set input.value to ''
+        // Set input.value to ''
         tester.setInput('');
 
-        // click search
+        // Click search
         tester.clickSearch();
 
-        // verify that filter is no longer in filterService
+        // Verify that filter is no longer in filterService
         expect(tester.filterService.getFilters().length).toBe(0);
     });
 });
 
 describe('Component: queryBar unconfigured', () => {
-
     let tester: queryBarTester;
 
     beforeEach(() => tester = new queryBarTester(false));
@@ -248,3 +250,4 @@ describe('Component: queryBar unconfigured', () => {
     it('should not show in the UI when the configuration does not include a queryBar option', () => expect(tester.element).toBeFalsy());
 });
 */
+

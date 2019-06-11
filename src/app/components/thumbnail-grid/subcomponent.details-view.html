@@ -1,9 +1,10 @@
 <div *ngIf="options.openOnMouseClick">
-    <div class="thumbnail-flags" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+    <div class="thumbnail-flags">
         <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view" [class.with-border]="options.border != ''" height="100"
             width="100" (click)="thumbnailGrid.displayMediaTab(item)">
         </canvas>
-        <div class="thumbnail-flag-details" (click)="thumbnailGrid.selectGridItem(item)">
+        <div class="thumbnail-flag-details" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()"
+            [class.selected]="thumbnailGrid.isSelected(item)">
             <p><span *ngIf="options.showLabelName">{{ options.flagLabel.prettyName }} : </span>{{ item[options.flagLabel.columnName] }}</p>
             <p *ngIf="item[options.flagSubLabel1.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel1.prettyName }} :
                 </span>{{ item[options.flagSubLabel1.columnName] }}</p>

@@ -22,9 +22,11 @@
     <div class="thumbnail-grid-container" *ngIf="gridArray.length">
         <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
             [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-            <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item" [options]="options">
+            <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item"
+                [options]="options">
             </app-subcomponent-title-thumbnail>
-            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item" [options]="options">
+            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item"
+                [options]="options">
             </app-subcomponent-details-thumbnail>
             <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item" [options]="options">
             </app-subcomponent-card-thumbnail>

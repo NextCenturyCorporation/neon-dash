@@ -63,7 +63,7 @@
     }
 
     .subcomponent-selection {
-        background-color: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
+        background-color: var(--color-primary-transparent, rgba(128, 128, 128, 0.33));
         height: 10px;
         width: 10px;
         position: absolute;
@@ -118,21 +118,11 @@
                 }
             }
 
-            &.active {
-                .list-selectable {
-                    color: var(--color-data-item-selected, lightgrey);
-                }
-            }
-
-            &:hover {
-                .list-selectable {
-                    color: var(--color-data-item-selectable, lightgrey);
-                }
-            }
-
             &.active,
             &:hover {
                 .list-selectable {
+                    color: var(--color-accent, lightgrey);
+
                     &.heat-1 {
                         color: #29B6F6; // light-blue-400
                     }
