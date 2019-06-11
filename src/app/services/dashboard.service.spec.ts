@@ -435,4 +435,205 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(dashboardService.state.translateFieldKeyToValue('testNameField')).toEqual('testNameField');
         expect(dashboardService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
+
+    it('exportConfig should produce valid results', () => {
+        let config = NeonConfig.get({
+            datastores: {
+                datastore1: {
+                    host: 'host1',
+                    type: 'type1',
+                    databases: {
+                        databaseZ: {
+                            tables: {
+                                tableA: {}
+                            }
+                        }
+                    }
+                },
+                datastore2: {
+                    host: 'host2',
+                    type: 'type2',
+                    databases: {
+                        databaseY: {
+                            tables: {
+                                tableB: {},
+                                tableC: {}
+                            }
+                        },
+                        databaseX: {
+                            tables: {
+                                tableD: {}
+                            }
+                        }
+                    }
+                },
+                datastore3: {
+                    host: 'host3',
+                    type: 'type3',
+                    databases: {
+                        databaseW: {
+                            tables: {
+                                tableE: {}
+                            }
+                        }
+                    }
+                }
+            },
+            dashboards: {
+                dashName: {
+                    fullTitle: 'Full Title',
+                    layout: 'layoutName',
+                    name: 'dashName',
+                    pathFromTop: ['a', 'b', 'c', 'd'],
+                    filters: [{
+                        optional: true,
+                        datastore: 'datastore1',
+                        database: 'databaseZ',
+                        table: 'tableA',
+                        field: 'field1',
+                        operator: '=',
+                        value: 'value1'
+                    }, {
+                        optional: false,
+                        type: 'and',
+                        filters: [{
+                            datastore: 'datastore1',
+                            database: 'databaseY',
+                            table: 'tableB',
+                            field: 'field2',
+                            operator: '!=',
+                            value: ''
+                        }, {
+                            datastore: 'datastore1',
+                            database: 'databaseY',
+                            table: 'tableB',
+                            field: 'field2',
+                            operator: '!=',
+                            value: null
+                        }]
+                    }],
+                    tables: {
+                        table_key_1: 'datastore1.databaseZ.tableA',
+                        table_key_2: 'datastore2.databaseY.tableB'
+                    },
+                    fields: {
+                        field_key_1: 'datastore1.databaseZ.tableA.field1',
+                        field_key_2: 'datastore2.databaseY.tableB.field2'
+                    },
+                    options: {
+                        simpleFilter: {
+                            databaseName: 'databaseZ',
+                            tableName: 'tableA',
+                            fieldName: 'field1'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Component.widgetGridItems = [{
+        //     id: 'id1',
+        //     col: 1,
+        //     row: 2,
+        //     sizex: 3,
+        //     sizey: 4,
+        //     type: 'type1'
+        // } as NeonGridItem, {
+        //     id: 'id2',
+        //     col: 5,
+        //     row: 6,
+        //     sizex: 7,
+        //     sizey: 8,
+        //     type: 'type2'
+        // } as NeonGridItem];
+
+        // let calls = 0;
+        // spyOn(component, 'openConnection').and.callFake(() => ({
+        //     saveState: (data: NeonConfig, successCallback) => {
+        //         calls++;
+        //         expect(data.dashboards.fullTitle).toEqual('Full Title');
+        //         expect(data.dashboards.layout).toEqual('testState');
+        //         expect(data.dashboards.name).toEqual('testState');
+        //         expect(data.dashboards.tables).toEqual({
+        //             table_key_1: 'datastore1.databaseZ.tableA',
+        //             table_key_2: 'datastore2.databaseY.tableB'
+        //         });
+        //         expect(data.dashboards.fields).toEqual({
+        //             field_key_1: 'datastore1.databaseZ.tableA.field1',
+        //             field_key_2: 'datastore2.databaseY.tableB.field2'
+        //         });
+        //         expect(data.dashboards.options).toEqual({
+        //             connectOnLoad: true,
+        //             simpleFilter: {
+        //                 databaseName: 'databaseZ',
+        //                 tableName: 'tableA',
+        //                 fieldName: 'field1'
+        //             }
+        //         });
+        //         expect(data.dashboards.pathFromTop).toBeUndefined();
+        //         expect(data.dashboards.filters).toEqual([{
+        //             optional: true,
+        //             datastore: 'datastore1',
+        //             database: 'databaseZ',
+        //             table: 'tableA',
+        //             field: 'field1',
+        //             operator: '=',
+        //             value: 'value1'
+        //         }, {
+        //             optional: false,
+        //             type: 'and',
+        //             filters: [{
+        //                 datastore: 'datastore1',
+        //                 database: 'databaseY',
+        //                 table: 'tableB',
+        //                 field: 'field2',
+        //                 operator: '!=',
+        //                 value: ''
+        //             }, {
+        //                 datastore: 'datastore1',
+        //                 database: 'databaseY',
+        //                 table: 'tableB',
+        //                 field: 'field2',
+        //                 operator: '!=',
+        //                 value: null
+        //             }]
+        //         }]);
+        //         expect(data.datastores).toEqual(datastores);
+        //         expect(data.layouts).toEqual(
+        //             {
+        //                 testState: [{
+        //                     col: 1,
+        //                     row: 2,
+        //                     sizex: 3,
+        //                     sizey: 4,
+        //                     type: 'type1',
+        //                     bindings: {
+        //                         binding1: 'a',
+        //                         binding2: 'b'
+        //                     }
+        //                 }, {
+        //                     col: 5,
+        //                     row: 6,
+        //                     sizex: 7,
+        //                     sizey: 8,
+        //                     type: 'type2',
+        //                     bindings: {
+        //                         binding3: 'c',
+        //                         binding4: 'd'
+        //                     }
+        //                 }]
+        //             }
+        //         );
+        //         expect(data.projectTitle).toEqual('testState');
+
+        //         let successSpy = spyOn(component, 'handleSaveStateSuccess');
+        //         successCallback();
+        //         expect(successSpy.calls.count()).toEqual(1);
+        //     }
+        // }));
+
+        // component.saveState('testState');
+        // expect(calls).toEqual(1);
+        // expect(spy.calls.count()).toEqual(1);
+    });
 });
