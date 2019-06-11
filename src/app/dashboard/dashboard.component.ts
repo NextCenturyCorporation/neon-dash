@@ -284,7 +284,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridState.delete(eventMessage.id);
     }
 
-    @DashboardModified()
+    // @DashboardModified()
     private clearDashboard() {
         this.gridState.clear();
     }

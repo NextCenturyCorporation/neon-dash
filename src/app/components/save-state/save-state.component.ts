@@ -112,6 +112,7 @@ export class SaveStateComponent implements OnInit {
         this.configService.load(name)
             .subscribe((config) => {
                 this.configService.setActive(config);
+                this.dashboardState.modified = false;
                 this.openNotification(name, 'loaded');
                 this.closeSidenav();
             }, this.handleStateFailure.bind(this, name));
