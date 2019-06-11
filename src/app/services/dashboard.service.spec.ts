@@ -436,7 +436,7 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(dashboardService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
 
-    fit('exportConfig should produce valid results', () => {
+    it('exportConfig should produce valid results', () => {
         const filters: FilterConfig[] = [
             {
                 root: '',
