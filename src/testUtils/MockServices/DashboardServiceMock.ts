@@ -20,6 +20,7 @@ import {
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
+import { Injectable } from '@angular/core';
 
 class MockConnectionService extends ConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
@@ -27,6 +28,7 @@ class MockConnectionService extends ConnectionService {
     }
 }
 
+@Injectable()
 export class DashboardServiceMock extends DashboardService {
     public static FIELD_MAP = {
         CATEGORY: NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', type: 'string' }),
@@ -72,9 +74,9 @@ export class DashboardServiceMock extends DashboardService {
 
     public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
 
-    constructor() {
+    constructor(configService: ConfigService) {
         super(
-            ConfigService.as(NeonConfig.get()),
+            configService,
             new MockConnectionService()
         );
 

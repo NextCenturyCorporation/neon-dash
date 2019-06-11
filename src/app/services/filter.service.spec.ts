@@ -3254,7 +3254,7 @@ describe('FilterService with filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: 'config', useValue: NeonConfig.get() }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 

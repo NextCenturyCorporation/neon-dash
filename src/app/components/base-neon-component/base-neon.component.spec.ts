@@ -1917,7 +1917,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    let dashboardService = new DashboardServiceMock();
+    let dashboardService = new DashboardServiceMock(ConfigService.as(testConfig));
     dashboardService.state.dashboard.contributors = {
         organization1: {
             orgName: 'Organization 1',
