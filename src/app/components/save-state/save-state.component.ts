@@ -74,6 +74,7 @@ export class SaveStateComponent implements OnInit {
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        console.log(this.dashboardState, this.currentFilename);
     }
 
     ngOnInit() {
@@ -84,6 +85,10 @@ export class SaveStateComponent implements OnInit {
         if (this.sidenav) {
             this.sidenav.close();
         }
+    }
+
+    get currentFilename() {
+        return this.dashboardService.config.fileName;
     }
 
     /**
