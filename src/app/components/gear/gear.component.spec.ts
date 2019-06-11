@@ -35,10 +35,50 @@ import { GearModule } from './gear.module';
 import { ConfigService } from '../../services/config.service';
 import {
     WidgetOptionCollection, WidgetFreeTextOption,
-    WidgetFieldOption, WidgetSelectOption, OptionChoices
+    WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
 } from '../../model/widget-option';
 
-describe('Component: Gear Component', () => {
+class MockConfigurable implements ConfigurableWidget {
+    options = new WidgetOptionCollection(() => { return []; });
+    calledChangeData = 0;
+    calledChangeFilterData = 0;
+    calledFinalizeCreateLayer = 0;
+    calledFinalizeDeleteLayer = 0;
+    calledCreateLayer = 0;
+    calledDeleteLayer = 0;
+    calledHandleChangeSubcomponentType = 0;
+    calledExportData = 0;
+
+    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+        this.calledChangeData++;
+    }
+    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+        this.calledChangeFilterData++;
+    }
+    finalizeCreateLayer(layerOptions: any): void {
+        this.calledFinalizeCreateLayer++;
+    }
+    finalizeDeleteLayer(layerOptions: any): void {
+        this.calledFinalizeDeleteLayer++;
+    }
+    createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void {
+        this.calledCreateLayer++;
+    }
+    deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean {
+        this.calledDeleteLayer++;
+        return undefined;
+    }
+    handleChangeSubcomponentType(options?: WidgetOptionCollection): void {
+        this.calledFinalizeDeleteLayer++;
+    }
+    exportData(): { name: string; data: any; }[] {
+        this.calledExportData++;
+        return [];
+    }
+
+}
+
+fdescribe('Component: Gear Component', () => {
     let component: GearComponent;
     let fixture: ComponentFixture<GearComponent>;
 
@@ -109,14 +149,9 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
@@ -141,8 +176,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testOption).toEqual('testText');
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -154,14 +189,9 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with field change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
@@ -186,8 +216,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -199,14 +229,9 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with database change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
@@ -227,8 +252,8 @@ describe('Component: Gear Component', () => {
         component.handleApplyClick();
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -240,14 +265,9 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with table change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
@@ -268,8 +288,8 @@ describe('Component: Gear Component', () => {
         component.handleApplyClick();
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -281,25 +301,12 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with created layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
-        };
-        let calledFinalizeCreate = 0;
-        component['finalizeCreateLayer'] = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        component['finalizeDeleteLayer'] = () => {
-            calledFinalizeDelete++;
         };
 
         component['originalOptions'] = new WidgetOptionCollection(() => []);
@@ -325,11 +332,11 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(1);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(1);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -340,25 +347,12 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with changed layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
-        };
-        let calledFinalizeCreate = 0;
-        component['finalizeCreateLayer'] = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        component['finalizeDeleteLayer'] = () => {
-            calledFinalizeDelete++;
         };
 
         component['originalOptions'] = new WidgetOptionCollection(() => []);
@@ -391,11 +385,11 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -406,25 +400,12 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with deleted layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
-        };
-        let calledFinalizeCreate = 0;
-        component['finalizeCreateLayer'] = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        component['finalizeDeleteLayer'] = () => {
-            calledFinalizeDelete++;
         };
 
         component['originalOptions'] = new WidgetOptionCollection(() => []);
@@ -449,11 +430,11 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(0);
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(1);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -464,25 +445,12 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with many changes does update originalOptions and call expected function', () => {
-        let calledChangeData = 0;
-        component['handleChangeData'] = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        component['handleChangeFilterData'] = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         component['closeSidenav'] = () => {
             calledCloseSidenav++;
-        };
-        let calledFinalizeCreate = 0;
-        component['finalizeCreateLayer'] = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        component['finalizeDeleteLayer'] = () => {
-            calledFinalizeDelete++;
         };
 
         component['originalOptions'] = new WidgetOptionCollection(() => []);
@@ -527,11 +495,11 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -569,7 +537,9 @@ describe('Component: Gear Component', () => {
 
     it('handleCreateLayer does call createLayer', () => {
         let called = 0;
-        component['createLayer'] = () => {
+        const mock = new MockConfigurable();
+        component.comp = mock;
+        mock.createLayer = () => {
             called++;
             return {
                 _id: 'testId' + called
@@ -583,9 +553,11 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleDeleteLayer does call deleteLayer', () => {
-        component.layerHidden.set('testId1', true);
         let called = 0;
-        component['deleteLayer'] = () => {
+        component.layerHidden.set('testId1', true);
+        const mock = new MockConfigurable();
+        component.comp = mock;
+        mock.deleteLayer = () => {
             called++;
             return true;
         };
@@ -603,7 +575,9 @@ describe('Component: Gear Component', () => {
 
         component.layerHidden.set('testId1', true);
         let called = 0;
-        component['deleteLayer'] = () => {
+        const mock = new MockConfigurable();
+        component.comp = mock;
+        mock.deleteLayer = () => {
             called++;
             return false;
         };
