@@ -17,8 +17,9 @@ import { Injectable } from '@angular/core';
 import { eventing } from 'neon-framework';
 
 import {
-    NeonConfig, NeonDashboardConfig, NeonDatastoreConfig,
-    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, FilterConfig
+    NeonConfig, NeonDatastoreConfig,
+    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData,
+    FilterConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
 } from '../model/types';
 import { neonEvents } from '../model/neon-namespaces';
 import * as _ from 'lodash';
@@ -73,7 +74,7 @@ export class DashboardService {
             dashboards: DashboardUtil.validateDashboards(
                 config.dashboards ?
                     _.cloneDeep(config.dashboards) :
-                    NeonDashboardConfig.get({ category: 'No Dashboards' })
+                    NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })
             ),
             datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
             layouts: _.cloneDeep(config.layouts || {})
@@ -89,7 +90,7 @@ export class DashboardService {
         this.config.datastores[datastore.name] = datastore;
     }
 
-    public setActiveDashboard(dashboard: NeonDashboardConfig) {
+    public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
     }
 
@@ -162,10 +163,11 @@ export class DashboardService {
             }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
-                    let keys = this.config.dashboards && this.config.dashboards.choices ? Object.keys(this.config.dashboards.choices) : [];
+                    let keys = this.config.dashboards && 'choices' in this.config.dashboards ? Object.keys(this.config.dashboards.choices) : [];
 
                     Promise.all(
-                        DashboardUtil.deleteInvalidDashboards(this.config.dashboards.choices, keys, database.name)
+                        DashboardUtil.deleteInvalidDashboards(
+                            'choices' in this.config.dashboards ? this.config.dashboards.choices : {}, keys, database.name)
                     ).then(resolve, reject);
                 } else {
                     resolve();
@@ -218,12 +220,15 @@ export class DashboardService {
                 name,
                 filters: filters || [],
                 layout: name
-            }),
+            }) as NeonDashboardLeafConfig,
             projectTitle: name
         });
         delete out.errors;
         delete out.dashboards.pathFromTop;
-        out.dashboards.options.connectOnLoad = true;
+
+        if ('options' in out.dashboards) {
+            out.dashboards.options.connectOnLoad = true;
+        }
         return out;
     }
 }

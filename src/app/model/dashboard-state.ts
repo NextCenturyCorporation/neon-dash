@@ -16,7 +16,7 @@
 import {
     NeonDatastoreConfig,
     NeonDashboardConfig, NeonDatabaseMetaData,
-    NeonTableMetaData, NeonFieldMetaData, SingleField
+    NeonTableMetaData, NeonFieldMetaData, SingleField, NeonDashboardLeafConfig
 } from '../model/types';
 
 import * as _ from 'lodash';
@@ -38,7 +38,7 @@ export class DashboardState {
     modified = false;
 
     constructor(
-        public dashboard: NeonDashboardConfig = NeonDashboardConfig.get(),
+        public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
         public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
     ) { }
 
@@ -318,7 +318,7 @@ export class DashboardState {
     /**
      * Returns the options for the current dashboard.
      */
-    public getOptions(): NeonDashboardConfig['options'] {
+    public getOptions(): NeonDashboardLeafConfig['options'] {
         return this.dashboard.options;
     }
 

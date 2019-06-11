@@ -36,7 +36,7 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../model/neon-grid-item';
-import { NeonDashboardConfig, NeonConfig } from '../model/types';
+import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../model/types';
 import { neonEvents } from '../model/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
@@ -94,7 +94,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public createFiltersComponent: boolean = false; // This is used to create the Filters Component later
 
     public dashboards: NeonDashboardConfig;
-    public currentDashboard: NeonDashboardConfig;
+    public currentDashboard: NeonDashboardLeafConfig;
     public pendingInitialRegistrations = 0;
 
     public widgets: Map<string, BaseNeonComponent> = new Map();
@@ -133,10 +133,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
      */
     static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
-        if (dashboard.options && dashboard.options.connectOnLoad) {
+        if ('options' in dashboard && dashboard.options.connectOnLoad) {
             return dashboard;
         }
-        const choices = dashboard.choices || {};
+        const choices = ('choices' in dashboard ? dashboard.choices : {}) || {};
         for (let choiceKey of Object.keys(choices)) {
             let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
             if (nestedDashboard) {
@@ -468,7 +468,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Shows the given dashboard using the given datastores and the given layout.
      */
-    private showDashboardState(eventMessage: { dashboard: NeonDashboardConfig }) {
+    private showDashboardState(eventMessage: { dashboard: NeonDashboardLeafConfig }) {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
