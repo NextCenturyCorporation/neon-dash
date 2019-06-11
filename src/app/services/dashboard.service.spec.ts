@@ -16,7 +16,7 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig } from '../model/types';
+import { NeonConfig, NeonDashboardConfig, NeonDatastoreConfig, NeonDashboardLeafConfig } from '../model/types';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
@@ -101,7 +101,7 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active dashboard at creation', () => {
-        let dashboard = NeonDashboardConfig.get({
+        let dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
             options: {},
@@ -153,7 +153,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         }));
 
-        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
                 testTable2: 'datastore1.testDatabase1.testTable2'
@@ -223,7 +223,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         }));
 
-        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
                 testTable2: 'datastore1.testDatabase1.testTable2'
@@ -349,7 +349,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         }));
 
-        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
                 testTable2: 'datastore1.testDatabase2.testTable2'
@@ -403,7 +403,7 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         }));
 
-        dashboardService.setActiveDashboard(NeonDashboardConfig.get({
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             tables: {
                 testTable1: 'datastore1.testDatabase1.testTable1',
                 testTable2: 'datastore1.testDatabase2.testTable2'

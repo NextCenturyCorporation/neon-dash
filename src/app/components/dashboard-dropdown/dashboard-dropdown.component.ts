@@ -39,13 +39,17 @@ export class DashboardDropdownComponent {
 
     constructor(public changeDetection: ChangeDetectorRef) { }
 
+    get choices(): Record<string, NeonDashboardConfig> {
+        return 'choices' in this.dashboards ? this.dashboards.choices : {};
+    }
+
     /**
      * Returns all keys for current dashboard choices.
      *
      * @return {String[]}
      */
     getDashboardKeys() {
-        return this.dashboards && 'choices' in this.dashboards ? Object.keys(this.dashboards.choices) : null;
+        return Object.keys(this.choices)
     }
 
     /**
@@ -55,7 +59,7 @@ export class DashboardDropdownComponent {
      * @return {String}
      */
     getDashboardName(key: string) {
-        return 'choices' in this.dashboards ? this.dashboards.choices[key].name : '';
+        return key in this.choices ? this.choices[key].name : '';
     }
 
     /**
@@ -82,7 +86,7 @@ export class DashboardDropdownComponent {
             return false;
         }
         return !_.isEmpty(dash.choices) &&
-            ('choices' in this.dashboards && !!_.findKey(this.dashboards.choices, dash));
+            !!_.findKey(this.choices, dash);
     }
 
     /**

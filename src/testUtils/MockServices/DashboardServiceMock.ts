@@ -15,7 +15,7 @@
  */
 import {
     NeonConfig, NeonDatastoreConfig, NeonDashboardConfig,
-    NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData
+    NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig
 } from '../../app/model/types';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
@@ -90,7 +90,7 @@ export class DashboardServiceMock extends DashboardService {
 
         this.setActiveDatastore(datastore);
 
-        const dashboard = NeonDashboardConfig.get({
+        const dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
 

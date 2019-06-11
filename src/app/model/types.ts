@@ -168,13 +168,6 @@ export interface NeonDashboardLeafConfig extends NeonDashboardBaseConfig {
     contributors: Record<string, NeonContributor>;
 }
 
-export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
-    category?: string;
-    choices?: Record<string, NeonDashboardLeafConfig | NeonDashboardChoiceConfig>;
-}
-
-export type NeonDashboardConfig = NeonDashboardLeafConfig | NeonDashboardChoiceConfig;
-
 export class NeonDashboardLeafConfig {
     static get(dash: DeepPartial<NeonDashboardLeafConfig> = {}): NeonDashboardLeafConfig {
         return {
@@ -192,6 +185,11 @@ export class NeonDashboardLeafConfig {
     }
 }
 
+export interface NeonDashboardChoiceConfig extends NeonDashboardBaseConfig {
+    category?: string;
+    choices?: Record<string, NeonDashboardLeafConfig | NeonDashboardChoiceConfig>;
+}
+
 export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
@@ -202,6 +200,8 @@ export class NeonDashboardChoiceConfig {
         } as NeonDashboardChoiceConfig;
     }
 }
+
+export type NeonDashboardConfig = NeonDashboardLeafConfig | NeonDashboardChoiceConfig;
 
 class NeonDashboardUtil {
     static get(dashboard: NeonDashboardConfig) {
