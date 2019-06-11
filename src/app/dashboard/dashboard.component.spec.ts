@@ -652,48 +652,40 @@ describe('Dashboard', () => {
         });
     });
 
-    // X
-    // it('findAutoShowDashboard does return expected object', () => {
-    //     expect(component['findAutoShowDashboard'](NeonDashboardConfig.get())).toEqual(null);
+    fit('findAutoShowDashboard does return expected object', () => {
+        expect(DashboardComponent.findAutoShowDashboard(NeonDashboardConfig.get())).toBeFalsy();
 
-    //     let noShowDashboard = NeonDashboardConfig.get();
+        let noShowDashboard = NeonDashboardConfig.get();
 
-    //     expect(component['findAutoShowDashboard']({
-    //         noShow: noShowDashboard
-    //     })).toEqual(null);
+        expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
 
-    //     noShowDashboard.options = {
-    //         connectOnLoad: false
-    //     };
+        noShowDashboard.options = {
+            connectOnLoad: false
+        };
 
-    //     expect(component['findAutoShowDashboard']({
-    //         noShow: noShowDashboard
-    //     })).toEqual(null);
+        expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
 
-    //     let showDashboard = Dashboard.get();
-    //     showDashboard.options = {
-    //         connectOnLoad: true
-    //     };
+        let showDashboard = NeonDashboardConfig.get({
+            name: 'show',
+            options: {
+                connectOnLoad: true
+            }
+        });
 
-    //     expect(component['findAutoShowDashboard']({
-    //         show: showDashboard
-    //     })).toEqual(showDashboard);
+        expect(DashboardComponent.findAutoShowDashboard(showDashboard)).toEqual(showDashboard);
 
-    //     let parentDashboard = Dashboard.get();
-    //     parentDashboard.choices = {
-    //         show: showDashboard
-    //     };
+        let parentDashboard = NeonDashboardConfig.get({
+            choices: {
+                show: showDashboard
+            }
+        });
 
-    //     expect(component['findAutoShowDashboard']({
-    //         parent: parentDashboard
-    //     })).toEqual(showDashboard);
+        expect(DashboardComponent.findAutoShowDashboard(parentDashboard)).toEqual(showDashboard);
 
-    //     parentDashboard.choices.noShow = noShowDashboard;
+        parentDashboard.choices.noShow = noShowDashboard;
 
-    //     expect(component['findAutoShowDashboard']({
-    //         parent: parentDashboard
-    //     })).toEqual(showDashboard);
-    // });
+        expect(DashboardComponent.findAutoShowDashboard(parentDashboard)).toEqual(showDashboard);
+    });
 
     it('getMaxColInUse does return expected number', () => {
         expect(component.gridState.getMaxColInUse()).toEqual(0);

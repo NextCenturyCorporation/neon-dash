@@ -129,6 +129,22 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     neonConfig: NeonConfig;
 
+    /**
+     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
+     */
+    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        if (dashboard.options && dashboard.options.connectOnLoad) {
+            return dashboard;
+        }
+        const choices = dashboard.choices || {};
+        for (let choiceKey of Object.keys(choices)) {
+            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
+            if (nestedDashboard) {
+                return nestedDashboard;
+            }
+        }
+    }
+
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
@@ -282,22 +298,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @DashboardModified()
     private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
         this.gridState.expand(eventMessage.widgetGridItem, this.getVisibleRowCount());
-    }
-
-    /**
-     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
-     */
-    private findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
-        if (dashboard.options && dashboard.options.connectOnLoad) {
-            return dashboard;
-        }
-        const choices = dashboard.choices || {};
-        for (let choiceKey of Object.keys(choices)) {
-            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
-            if (nestedDashboard) {
-                return nestedDashboard;
-            }
-        }
     }
 
     /**
@@ -499,7 +499,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Shows the dashboard state on page load, if any.
      */
     private showDashboardStateOnPageLoad() {
-        let dashboard = this.findAutoShowDashboard(this.dashboards);
+        let dashboard = DashboardComponent.findAutoShowDashboard(this.dashboards);
 
         const firstDataStore = dashboard && Object.values(this.dashboardService.config.datastores)
             .sort((ds1, ds2) => ds1.name.localeCompare(ds2.name))[0];
