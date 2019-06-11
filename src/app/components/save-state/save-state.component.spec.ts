@@ -164,7 +164,7 @@ describe('Component: SaveStateComponent', () => {
 
         spyOn(component['configService'], 'save').and.callFake((data) => {
             calls++;
-            expect(data).toEqual('testState');
+            expect(data).toEqual({});
             return of(1);
         });
 
