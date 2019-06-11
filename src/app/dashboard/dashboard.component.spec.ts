@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardConfig, NeonLayoutConfig } from '../model/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, NeonDashboardChoiceConfig } from '../model/types';
 import { NeonGridItem } from '../model/neon-grid-item';
 import { neonEvents } from '../model/neon-namespaces';
 
@@ -652,10 +652,10 @@ describe('Dashboard', () => {
         });
     });
 
-    fit('findAutoShowDashboard does return expected object', () => {
-        expect(DashboardComponent.findAutoShowDashboard(NeonDashboardConfig.get())).toBeFalsy();
+    it('findAutoShowDashboard does return expected object', () => {
+        expect(DashboardComponent.findAutoShowDashboard(NeonDashboardLeafConfig.get())).toBeFalsy();
 
-        let noShowDashboard = NeonDashboardConfig.get();
+        let noShowDashboard = NeonDashboardLeafConfig.get();
 
         expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
 
@@ -665,7 +665,7 @@ describe('Dashboard', () => {
 
         expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
 
-        let showDashboard = NeonDashboardConfig.get({
+        let showDashboard = NeonDashboardLeafConfig.get({
             name: 'show',
             options: {
                 connectOnLoad: true
@@ -674,7 +674,7 @@ describe('Dashboard', () => {
 
         expect(DashboardComponent.findAutoShowDashboard(showDashboard)).toEqual(showDashboard);
 
-        let parentDashboard = NeonDashboardConfig.get({
+        let parentDashboard = NeonDashboardChoiceConfig.get({
             choices: {
                 show: showDashboard
             }
@@ -898,7 +898,7 @@ describe('Dashboard', () => {
             { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
         ];
 
-        let testDashboard = NeonDashboardConfig.get({ filters });
+        let testDashboard = NeonDashboardLeafConfig.get({ filters });
 
         component.dashboardService.setConfig(config);
 
@@ -978,7 +978,7 @@ describe('Dashboard', () => {
             { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
         ];
 
-        let testDashboard = NeonDashboardConfig.get({ filters });
+        let testDashboard = NeonDashboardLeafConfig.get({ filters });
 
         component['showDashboardState']({
             dashboard: testDashboard
@@ -1023,7 +1023,7 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad should auto-show dashboard as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        component['dashboards'] = NeonDashboardConfig.get();
+        component['dashboards'] = NeonDashboardLeafConfig.get();
 
         component['showDashboardStateOnPageLoad']();
 
@@ -1033,7 +1033,7 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        let showDashboard = NeonDashboardConfig.get({
+        let showDashboard = NeonDashboardLeafConfig.get({
             options: {
                 connectOnLoad: true
             }
@@ -1044,10 +1044,11 @@ describe('Dashboard', () => {
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = NeonDashboardConfig.get();
-        testDashboard.choices = {
-            test: showDashboard
-        };
+        let testDashboard = NeonDashboardChoiceConfig.get({
+            choices: {
+                test: showDashboard
+            }
+        });
         component['dashboards'] = testDashboard;
 
         component['showDashboardStateOnPageLoad']();
@@ -1060,7 +1061,7 @@ describe('Dashboard', () => {
 
     it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
-        let showDashboard = NeonDashboardConfig.get();
+        let showDashboard = NeonDashboardLeafConfig.get();
 
         // ShowDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
@@ -1068,10 +1069,11 @@ describe('Dashboard', () => {
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = NeonDashboardConfig.get();
-        testDashboard.choices = {
-            test: showDashboard
-        };
+        let testDashboard = NeonDashboardChoiceConfig.get({
+            choices: {
+                test: showDashboard
+            }
+        });
         component['dashboards'] = testDashboard;
 
         component['showDashboardStateOnPageLoad']();
@@ -1085,17 +1087,18 @@ describe('Dashboard', () => {
     it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
-        let showDashboard = NeonDashboardConfig.get();
+        let showDashboard = NeonDashboardLeafConfig.get();
         // ShowDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
             connectOnLoad: true
         };
-        let testDashboard = NeonDashboardConfig.get();
-        testDashboard.choices = {
-            test: showDashboard
-        };
+        let testDashboard = NeonDashboardChoiceConfig.get({
+            choices: {
+                test: showDashboard
+            }
+        });
         component['dashboards'] = testDashboard;
 
         component['showDashboardStateOnPageLoad']();

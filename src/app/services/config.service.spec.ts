@@ -17,9 +17,8 @@ import { NeonConfig } from '../model/types';
 import { ConfigService } from './config.service';
 
 import * as _ from 'lodash';
-import { config } from 'rxjs';
 
-(fdescribe as any)('Service: ConfigService', () => {
+describe('Service: ConfigService', () => {
     let configService: ConfigService;
 
     beforeEach(() => {

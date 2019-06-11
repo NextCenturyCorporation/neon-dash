@@ -14,7 +14,7 @@
  *
  */
 
-import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../model/types';
+import { NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../model/types';
 
 import { DashboardUtil } from './dashboard.util';
 
@@ -544,18 +544,20 @@ describe('Util: DashboardUtil', () => {
     });
 
     it('validateDashboards should add root dashboard if needed to given dashboards', () => {
-        let argument = NeonDashboardConfig.get();
-        argument.layout = 'layout1';
-        argument.name = 'dashboard1';
-        argument.tables = {
-            key1: 'datastore1.database1.table1'
-        };
+        let argument = NeonDashboardLeafConfig.get({
+            layout: 'layout1',
+            name: 'dashboard1',
+            tables: {
+                key1: 'datastore1.database1.table1'
+            }
+        });
 
-        let expected = NeonDashboardConfig.get();
-        expected.category = DashboardUtil.DASHBOARD_CATEGORY_DEFAULT;
-        expected.choices = {
-            dashboard1: argument
-        };
+        let expected = NeonDashboardChoiceConfig.get({
+            category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
+            choices: {
+                dashboard1: argument
+            }
+        });
 
         let actual = DashboardUtil.validateDashboards(argument);
         expect(actual).toEqual(expected);
