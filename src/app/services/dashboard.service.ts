@@ -18,7 +18,7 @@ import { eventing } from 'neon-framework';
 
 import {
     NeonConfig, NeonDashboardConfig, NeonDatastoreConfig,
-    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData
+    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData, FilterConfig
 } from '../model/types';
 import { neonEvents } from '../model/neon-namespaces';
 import * as _ from 'lodash';
@@ -192,5 +192,38 @@ export class DashboardService {
         }, (__error) => {
             resolve([]);
         }));
+    }
+
+    /**
+     * Exports current dashboard state to neon config, with optional filters if desired
+     */
+    exportToConfig(name: string, filters?: FilterConfig[]): NeonConfig {
+        const out = NeonConfig.get({
+            ...this.config,
+            filters: filters || [],
+            layouts: {
+                [name]: this.gridState.activeWidgetList.map(
+                    (item) => ({
+                        bindings: item.bindings,
+                        col: item.col,
+                        row: item.row,
+                        name: item.name,
+                        sizex: item.sizex,
+                        sizey: item.sizey,
+                        type: item.type
+                    })
+                )
+            },
+            dashboards: _.cloneDeep({
+                ...this.state.dashboard,
+                name,
+                layout: name
+            }),
+            projectTitle: name
+        });
+        delete out.errors;
+        delete out.dashboards.pathFromTop;
+        out.dashboards.options.connectOnLoad = true;
+        return out;
     }
 }

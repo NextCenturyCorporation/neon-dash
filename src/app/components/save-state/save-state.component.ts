@@ -15,7 +15,7 @@
  */
 import { Component, OnInit, Input } from '@angular/core';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
@@ -26,12 +26,12 @@ import * as _ from 'lodash';
 
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
-import { tap, filter } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { NeonConfig } from '../../model/types';
 import { DashboardState } from '../../model/dashboard-state';
 import { ConfigService } from '../../services/config.service';
 
-export function Verify(config: {
+export function Confirm(config: {
     title: string | ((arg: any) => string);
     confirmMessage: string | ((arg: any) => string);
     confirmText: string | ((arg: any) => string);
@@ -39,8 +39,8 @@ export function Verify(config: {
 }) {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
-        descriptor.value = function(this: SaveStateComponent, value: any, verify = true) {
-            if (!verify) {
+        descriptor.value = function(this: SaveStateComponent, value: any, confirm = true) {
+            if (!confirm) {
                 return fn.call(this, value);
             }
             const out = {} as typeof config;
@@ -62,7 +62,6 @@ export function Verify(config: {
 export class SaveStateComponent implements OnInit {
     @Input() sidenav: MatSidenav;
 
-    public confirmDialogRef: MatDialogRef<DynamicDialogComponent>;
     private isLoading: boolean = false;
     private messenger: eventing.Messenger;
     public states: { total: number, results: NeonConfig[] } = { total: 0, results: [] };
@@ -90,47 +89,17 @@ export class SaveStateComponent implements OnInit {
         }
     }
 
-    getNewConfig(name: string) {
-        const out = NeonConfig.get({
-            ...this.dashboardService.config,
-            filters: this.filterService.getFiltersToSaveInConfig(),
-            layouts: {
-                [name]: this.dashboardService.gridState.activeWidgetList.map(
-                    (item) => ({
-                        bindings: item.bindings,
-                        col: item.col,
-                        row: item.row,
-                        name: item.name,
-                        sizex: item.sizex,
-                        sizey: item.sizey,
-                        type: item.type
-                    })
-                )
-            },
-            dashboards: _.cloneDeep({
-                ...this.dashboardService.state.dashboard,
-                name,
-                layout: name
-            }),
-            projectTitle: name
-        });
-        delete out.errors;
-        delete out.dashboards.pathFromTop;
-        out.dashboards.options.connectOnLoad = true;
-        return out;
-    }
-
     /**
      * Saves the current dashboard state using the given name and closes the saved state menu.
      */
-    @Verify({
+    @Confirm({
         title: 'Save Changes',
         confirmMessage: 'Looks like you have made changes to the current saved state.  Would you like to save these changes?',
         confirmText: 'Save',
         cancelText: 'Discard'
     })
-    public saveState(name: string, __verify = true): void {
-        const config = this.getNewConfig(name);
+    public saveState(name: string, __confirm = true): void {
+        const config = this.dashboardService.exportToConfig(name, this.filterService.getFiltersToSaveInConfig());
         this.configService.save(config)
             .subscribe(() => {
                 this.openNotification(name, 'saved');
@@ -153,12 +122,12 @@ export class SaveStateComponent implements OnInit {
     /*
      * Deletes the state for the name chosen.
      */
-    @Verify({
+    @Confirm({
         title: 'Delete Changes',
         confirmMessage: (name) => `Are you sure you want to delete '${name}' ?`,
         confirmText: 'Delete'
     })
-    public deleteState(name: string, __verify = true) {
+    public deleteState(name: string, __confirm = true) {
         this.configService.delete(name)
             .subscribe(() => {
                 this.listStates();
@@ -195,7 +164,7 @@ export class SaveStateComponent implements OnInit {
     }
 
     public openConfirmationDialog(config: { title: string, message: string, confirmText: string, cancelText?: string }) {
-        this.confirmDialogRef = this.dialog.open(DynamicDialogComponent, {
+        return this.dialog.open(DynamicDialogComponent, {
             data: {
                 component: 'confirmation-dialog',
                 cancelText: 'Cancel',
@@ -204,16 +173,11 @@ export class SaveStateComponent implements OnInit {
             height: 'auto',
             width: '500px',
             disableClose: false
-        });
-
-        return this.confirmDialogRef.afterClosed()
-            .pipe(tap(() => {
-                this.confirmDialogRef = null;
-            }));
+        }).afterClosed();
     }
 
     public openNotification(stateName: string, actionName: string) {
-        let message = 'State "' + stateName + '" was ' + actionName;
+        let message = `'State "${stateName}" was ${actionName}`;
         this.snackBar.open(message, 'x', {
             duration: 5000,
             verticalPosition: 'top'
