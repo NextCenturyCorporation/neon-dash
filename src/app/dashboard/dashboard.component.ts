@@ -478,7 +478,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
-        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.dashboardService.state, this.searchService);
+        this.filterService.setFiltersFromConfig(this.currentDashboard.filters || [], this.dashboardService.state, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
