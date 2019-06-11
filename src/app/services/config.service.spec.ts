@@ -16,8 +16,6 @@
 import { NeonConfig } from '../model/types';
 import { ConfigService } from './config.service';
 
-import * as _ from 'lodash';
-
 describe('Service: ConfigService', () => {
     let configService: ConfigService;
 
@@ -38,9 +36,7 @@ describe('Service: ConfigService', () => {
         expect(calls).toEqual(1);
     });
 
-
     it('load does validate the state name', () => {
-
         let calls = 0;
         spyOn(configService, 'openConnection').and.callFake(() => ({
             loadState: (data, __successCallback) => {
@@ -66,7 +62,7 @@ describe('Service: ConfigService', () => {
         expect(calls).toEqual(1);
     });
 
-    it('setActive notifies of specific events', async (done) => {
+    it('setActive notifies of specific events', (done) => {
         let count = 0;
         configService.setActive(NeonConfig.get({ fileName: 'test' }));
 

@@ -245,7 +245,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             link.parentNode.removeChild(link); // Remove all favicons
         });
 
-
         favicon.setAttribute('rel', 'icon');
         favicon.setAttribute('type', 'image/x-icon');
         favicon.setAttribute('href', this.projectIcon);

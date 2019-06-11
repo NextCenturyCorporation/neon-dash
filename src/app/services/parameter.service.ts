@@ -19,8 +19,8 @@ import { eventing } from 'neon-framework';
 
 import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
-import { neonEvents } from '../model/neon-namespaces';
-import * as _ from 'lodash';
+// Import { neonEvents } from '../model/neon-namespaces';
+// import * as _ from 'lodash';
 import { ConnectionService } from './connection.service';
 import { AbstractSearchService } from './abstract.search.service';
 
@@ -244,7 +244,7 @@ export class ParameterService {
      * @param {Function} endCallback
      * @private
      */
-    addFiltersForDashboardParameters(parameters: any, argsList: any[], endCallback: () => any) {
+    addFiltersForDashboardParameters(__parameters: any, __argsList: any[], __endCallback: () => any) {
         // Let args = argsList.shift();
         // let parameterValue = args.cleanParameter(parameters[args.parameterKey], args.operator);
         // let dataWithMappings = this.datasetService.getFirstDatabaseAndTableWithMappings(args.mappings);
@@ -311,7 +311,7 @@ export class ParameterService {
      * @param {Object} dashboardState.dataset
      * @param {String} dashboardStateId
      */
-    loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
+    loadStateSuccess(__dashboardState: any, __dashboardStateId: number | string) {
         // If (_.keys(dashboardState).length) {
         //     if (dashboardStateId) {
         //         // TODO: THOR-1065: This should open a Dashboard (not a single Datastore). Then it should

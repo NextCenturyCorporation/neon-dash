@@ -554,7 +554,7 @@ describe('Util: DashboardUtil', () => {
             pathFromTop: ['dashboard1'],
             tables: {
                 key1: 'datastore1.database1.table1'
-            },
+            }
         });
 
         let expected = NeonDashboardChoiceConfig.get({

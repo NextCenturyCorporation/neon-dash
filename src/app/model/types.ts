@@ -180,7 +180,7 @@ export class NeonDashboardLeafConfig {
             contributors: {},
             fullTitle: '',
             pathFromTop: [],
-            ...dash,
+            ...dash
         } as NeonDashboardLeafConfig;
     }
 }
@@ -209,9 +209,8 @@ class NeonDashboardUtil {
             return {};
         } else if ('choices' in dashboard) {
             return NeonDashboardChoiceConfig.get(dashboard);
-        } else {
-            return NeonDashboardLeafConfig.get(dashboard);
         }
+        return NeonDashboardLeafConfig.get(dashboard);
     }
 }
 

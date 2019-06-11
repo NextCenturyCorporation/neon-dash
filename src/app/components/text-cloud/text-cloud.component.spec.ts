@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 
 import { Injector } from '@angular/core';
 
@@ -25,8 +25,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
-
-import { NeonConfig } from '../../model/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

@@ -22,8 +22,6 @@ import { FilterService } from '../../services/filter.service';
 
 import { neonEvents } from '../../model/neon-namespaces';
 
-import * as _ from 'lodash';
-
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { filter } from 'rxjs/operators';

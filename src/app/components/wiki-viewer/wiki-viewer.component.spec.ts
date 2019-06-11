@@ -380,8 +380,12 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' }));
-        expect(component.options.linkField).toEqual(NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' }));
+        expect(component.options.idField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+        );
+        expect(component.options.linkField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
+        );
         expect(component.options.id).toEqual('testId');
     });
 

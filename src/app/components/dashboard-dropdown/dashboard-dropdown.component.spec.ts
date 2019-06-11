@@ -17,7 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
-import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
+import { NeonDashboardChoiceConfig } from '../../model/types';
 
 import { DashboardDropdownModule } from './dashboard-dropdown.module';
 
