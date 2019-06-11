@@ -164,8 +164,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showCustomConnectionButton = true;
         this.snackBar = snackBar;
 
+        let first = true;
+
         this.configService.getActive().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
+
+            if (!first) {
+                this.gridState.clear();
+                this.widgets.clear();
+                this.changeDetection.detectChanges();
+            } else {
+                first = false;
+            }
 
             const config = neonConfig;
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
