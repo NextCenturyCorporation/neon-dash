@@ -15,10 +15,10 @@
 import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
 
 import { NeonDashboardConfig } from '../../model/types';
-import { neonEvents } from '../../model/neon-namespaces';
 import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
 
 import { eventing } from 'neon-framework';
+import { DashboardService } from 'src/app/services/dashboard.service';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -36,12 +36,16 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     private messenger: eventing.Messenger;
 
-    constructor() {
+    constructor(
+        private dashboardService: DashboardService
+    ) {
         this.messenger = new eventing.Messenger();
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.onDashboardStateChange.bind(this));
+        this.dashboardService.dashboardSource.subscribe((state) => {
+            this.onDashboardStateChange(state);
+        })
     }
 
     ngOnDestroy(): void {
@@ -57,27 +61,24 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     private onDashboardStateChange(eventMessage: { dashboard: NeonDashboardConfig }): void {
         // If the dashboard state is changed by an external source, update the dropdowns as needed.
-        let paths = eventMessage.dashboard.pathFromTop;
+        let { pathFromTop: paths } = eventMessage.dashboard;
         this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
     }
 
     /**
      * If selection change event bubbles up from dashboard-dropdown, this will set the
      * dashboardChoice to the appropriate value.
-     * @param {any} event
      */
-    public setDashboardChoice($event: NeonDashboardConfig) {
-        this.dashboardChoice = $event;
+    public setDashboardChoice(dashboard: NeonDashboardConfig) {
+        this.dashboardChoice = dashboard;
     }
 
     /**
      * Updates the current dashboard state to the selected dashboardChoice.
      */
     public updateDashboardState(dashboard: NeonDashboardConfig) {
-        if (dashboard) {
-            this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard
-            });
+        if (dashboard && 'tables' in dashboard) {
+            this.dashboardService.setActiveDashboard(dashboard);
         }
     }
 }

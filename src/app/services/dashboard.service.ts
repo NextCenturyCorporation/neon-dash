@@ -14,62 +14,66 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { eventing } from 'neon-framework';
 
 import {
     NeonConfig, NeonDatastoreConfig,
     NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData,
     FilterConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
 } from '../model/types';
-import { neonEvents } from '../model/neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { ConnectionService, Connection } from './connection.service';
 import { DashboardState } from '../model/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../model/grid-state';
+import { Observable, from, Subject } from 'rxjs';
+import { map, shareReplay, mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class DashboardService {
+
     public readonly config = NeonConfig.get();
-
     public readonly state = new DashboardState();
-
     public readonly gridState = new GridState({ max_cols: 12, max_rows: 0 });
 
-    // Use the Dataset Service to save settings for specific databases/tables and
-    // publish messages to all visualizations if those settings change.
-    private messenger: eventing.Messenger;
+    public readonly configSource: Observable<NeonConfig>;
+    private readonly dashboardSubject = new Subject<DashboardState>();
+    public readonly dashboardSource: Observable<DashboardState>;
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
-        this.messenger = new eventing.Messenger();
-        this.configService.$source.subscribe((config: NeonConfig) => {
-            this.setConfig(config);
-
-            let loaded = 0;
-            Object.values(this.config.datastores).forEach((datastore) => {
-                DashboardUtil.validateDatabases(datastore);
-
-                let callback = () => {
-                    this.messenger.publish(neonEvents.DASHBOARD_READY, {});
-                };
-
-                let connection = this.connectionService.connect(datastore.type, datastore.host);
-                if (connection) {
-                    // Update the fields within each table to add any that weren't listed in the config file as well as field types.
-                    this.mergeDatastoreRemoteState(datastore, connection).then(() => {
-                        if (++loaded === Object.keys(this.config.datastores).length) {
-                            callback();
-                        }
-                    });
-                } else {
-                    callback();
-                }
-            });
-        });
+        this.configSource = this.configService
+            .getActive()
+            .pipe(
+                mergeMap((config) => this.onConfigChange(config)),
+                shareReplay(1)
+            );
+        this.dashboardSource = this.dashboardSubject
+            .pipe(shareReplay(1));
     }
 
-    setConfig(config: NeonConfig) {
+    onConfigChange(config: NeonConfig): Observable<NeonConfig> {
+        const dataStoreMerges = Object
+            .values(config.datastores)
+            .map((datastore) => {
+                DashboardUtil.validateDatabases(datastore);
+
+                const connection = this.connectionService.connect(datastore.type, datastore.host);
+                if (connection) {
+                    return this.mergeDatastoreRemoteState(datastore, connection);
+                }
+            })
+            .filter((val) => !!val);
+
+        return from(Promise.all(dataStoreMerges))
+            .pipe(
+                map(() => {
+                    this.setConfig(config);
+                    return this.config;
+                })
+            );
+    }
+
+    private setConfig(config: NeonConfig) {
         Object.assign(this.config, {
             dashboards: DashboardUtil.validateDashboards(
                 config.dashboards ?
@@ -85,7 +89,6 @@ export class DashboardService {
 
     /**
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
-     * @return {Array}
      */
     public addDatastore(datastore: NeonDatastoreConfig) {
         DashboardUtil.validateDatabases(datastore);
@@ -94,6 +97,10 @@ export class DashboardService {
 
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
+        const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
+        this.setActiveDatastore(this.config.datastores[firstName]);
+        this.state.modified = false;
+        this.dashboardSubject.next(this.state);
     }
 
     /**
@@ -117,12 +124,8 @@ export class DashboardService {
 
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
-     * @param {Object} datastore
-     * @param {Connection} connection
-     * @param {Function} callback (optional)
-     * @param {Number} index (optional)
      */
-    public mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
+    private mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
         let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
             this.getTableNamesAndFieldNames(connection, database));
 
@@ -135,10 +138,6 @@ export class DashboardService {
     /**
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
-     * @param {Connection} connection
-     * @param {NeonDatabaseMetaData} database
-     * @return {Promise}
-     * @private
      */
     private getTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
         let promiseFields = [];
