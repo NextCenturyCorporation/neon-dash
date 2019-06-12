@@ -66,15 +66,12 @@ export class DashboardService {
 
         return from(Promise.all(dataStoreMerges))
             .pipe(
-                map(() => {
-                    this.setConfig(config);
-                    return this.config;
-                })
+                map(() => this.applyConfig(config))
             );
     }
 
-    private setConfig(config: NeonConfig) {
-        Object.assign(this.config, {
+    private applyConfig(config: NeonConfig) {
+        return Object.assign(this.config, {
             dashboards: DashboardUtil.validateDashboards(
                 config.dashboards ?
                     _.cloneDeep(config.dashboards) :
