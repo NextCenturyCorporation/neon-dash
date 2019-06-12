@@ -142,6 +142,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
         this.dashboardService.dashboardSource.subscribe(() => this.updateFilters());
+        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.updateFilters.bind(this));
         this.updateFilters();
     }

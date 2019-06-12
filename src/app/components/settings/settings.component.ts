@@ -53,7 +53,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        dashboardService: DashboardService,
+        private dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService
@@ -92,7 +92,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateSimpleSearchFilter.bind(this));
+        this.dashboardService.dashboardSource.subscribe(() => {
+            this.updateSimpleSearchFilter();
+        })
 
         this.changeDetection.detectChanges();
     }
