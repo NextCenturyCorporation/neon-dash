@@ -26,7 +26,6 @@ import {
 
 import { eventing } from 'neon-framework';
 
-import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
@@ -139,7 +138,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
-        private searchService: AbstractSearchService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef
@@ -213,9 +211,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridState.clear();
         this.widgets.clear();
         this.changeDetection.detectChanges();
-
-        // TODO THOR-1062 Permit multiple datastores.
-        this.filterService.setFiltersFromConfig(state.dashboard.filters || [], state, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
