@@ -99,11 +99,11 @@ export class DashboardDropdownComponent {
 
     /**
      * Used to select correct choices from dropdown(s) if connectOnLoad is set to true for one of the dashboards in the config.
-     *
-     * @arg  dashboard
-     * @arg {string[]} paths - paths to use to access dashboard choices
-     * @arg {number} indexToUse - index to use to access path within paths array
-     * @arg {DashboardDropdownComponent} dropdown - dropdown component
+     * 
+     * @arg dashboard
+     * @arg paths - paths to use to access dashboard choices
+     * @arg indexToUse - index to use to access path within paths array
+     * @arg dropdown
      */
     selectDashboardChoice(
         dashboard: NeonDashboardChoiceConfig,
