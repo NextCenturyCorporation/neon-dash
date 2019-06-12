@@ -28,6 +28,8 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../model/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
+import { FilterService } from './filter.service';
+import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable()
 export class DashboardService {
@@ -37,17 +39,22 @@ export class DashboardService {
     public readonly gridState = new GridState({ max_cols: 12, max_rows: 0 });
 
     public readonly configSource: Observable<NeonConfig>;
-    private readonly dashboardSubject = new Subject<DashboardState>();
+    private readonly stateSubject = new Subject<DashboardState>();
     public readonly stateSource: Observable<DashboardState>;
 
-    constructor(private configService: ConfigService, private connectionService: ConnectionService) {
+    constructor(
+        private configService: ConfigService,
+        private connectionService: ConnectionService,
+        private filterService: FilterService,
+        private searchService: AbstractSearchService
+    ) {
         this.configSource = this.configService
             .getActive()
             .pipe(
                 mergeMap((config) => this.onConfigChange(config)),
                 shareReplay(1)
             );
-        this.stateSource = this.dashboardSubject
+        this.stateSource = this.stateSubject
             .pipe(shareReplay(1));
     }
 
@@ -94,10 +101,15 @@ export class DashboardService {
 
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
+        this.state.modified = false;
+
+        // Assign first datastore
         const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.setActiveDatastore(this.config.datastores[firstName]);
-        this.state.modified = false;
-        this.dashboardSubject.next(this.state);
+
+        // Load filters
+        this.filterService.setFiltersFromConfig(dashboard.filters || [], this.state, this.searchService);
+        this.stateSubject.next(this.state);
     }
 
     /**
