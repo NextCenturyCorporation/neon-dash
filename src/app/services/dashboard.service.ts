@@ -38,7 +38,7 @@ export class DashboardService {
 
     public readonly configSource: Observable<NeonConfig>;
     private readonly dashboardSubject = new Subject<DashboardState>();
-    public readonly dashboardSource: Observable<DashboardState>;
+    public readonly stateSource: Observable<DashboardState>;
 
     constructor(private configService: ConfigService, private connectionService: ConnectionService) {
         this.configSource = this.configService
@@ -47,7 +47,7 @@ export class DashboardService {
                 mergeMap((config) => this.onConfigChange(config)),
                 shareReplay(1)
             );
-        this.dashboardSource = this.dashboardSubject
+        this.stateSource = this.dashboardSubject
             .pipe(shareReplay(1));
     }
 
