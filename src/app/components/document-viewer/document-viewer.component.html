@@ -20,7 +20,8 @@
     <div *ngIf="documentViewerData != null">
         <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of documentViewerData">
             <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
-                <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
+                <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}"
+                    *ngFor="let item of activeItem.rows; index as i">
                     <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
                     <td class="document-viewer-text">{{ item.text }}</td>
                 </tr>
