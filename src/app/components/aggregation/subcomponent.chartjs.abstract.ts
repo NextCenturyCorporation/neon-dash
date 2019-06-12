@@ -104,9 +104,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         x: any[];
         y: any[];
     } = {
-        x: [],
-        y: []
-    };
+            x: [],
+            y: []
+        };
 
     protected selectedLabels: any[] = [];
 
