@@ -30,28 +30,6 @@
     display: flex;
     flex-direction: column;
     flex: 1 0;
-    border-bottom: solid 1px var(--color-text, dimgrey);
-
-    &.selected {
-        background-color: var(--color-data-item-selected, dimgrey);
-        color: var(--color-data-item-selected-text, white);
-
-        .text {
-            color: var(--color-data-item-selected-text, white);
-        }
-    }
-
-    &.selectable {
-        &:hover {
-            background-color: var(--color-data-item-selectable, lightgrey);
-            color: var(--color-data-item-selectable-text, dimgrey);
-            cursor: pointer;
-
-            .text {
-                color: var(--color-data-item-selectable-text, dimgrey);
-            }
-        }
-    }
 }
 
 .content-details {
@@ -85,14 +63,35 @@ mat-accordion {
     mat-expansion-panel {
         margin: 0;
         box-shadow: none;
-        border-bottom: 1px solid var(--color-background-contrast, #333333);
+        border-bottom: solid 1px var(--color-text, dimgrey);
+
+        &.mat-expanded {
+            background-color: var(--color-background-contrast, lightgrey);
+        }
+
+        &.selected {
+            background-color: var(--color-data-item-selected, dimgrey);
+            color: var(--color-data-item-selected-text, white);
+
+            .text {
+                color: var(--color-data-item-selected-text, white);
+            }
+        }
+
+        &.selectable {
+            &:hover {
+                background-color: var(--color-data-item-selectable, lightgrey);
+                color: var(--color-data-item-selectable-text, dimgrey);
+                cursor: pointer;
+
+                .text {
+                    color: var(--color-data-item-selectable-text, dimgrey);
+                }
+            }
+        }
 
         mat-expansion-panel-header {
             padding: 0 12px;
-
-            &.mat-expanded {
-                background-color: var(--color-primary-transparent, #EEEEEE);
-            }
 
             mat-panel-title {
                 display: grid;
@@ -107,7 +106,7 @@ mat-accordion {
                     height: 1.1em;
                     line-height: 1.1em;
                     overflow: hidden;
-                    color: var(--color-header-text, #333333);
+                    color: var(--color-bolded, dimgrey);
                 }
 
                 .date {
@@ -133,7 +132,7 @@ mat-accordion {
             }
 
             h4 {
-                color: var(--color-header-text, #333333);
+                color: var(--color-bolded, dimgrey);
                 padding-top: 0;
                 margin-bottom: 0.25em;
             }

@@ -332,4 +332,25 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             this.createFilter(item[this.options.filterField.columnName]);
         }
     }
+
+    /**
+     * Returns whether items are selectable (filterable).
+     *
+     * @return {boolean}
+     */
+    isSelectable() {
+        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
+    }
+
+    /**
+     * Returns whether the given item is selected (filtered).
+     *
+     * @arg {object} item
+     * @return {boolean}
+     */
+    isSelected(item) {
+        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
+            item[this.options.filterField.columnName]
+        )));
+    }
 }
