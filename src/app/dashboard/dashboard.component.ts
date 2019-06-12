@@ -168,7 +168,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.snackBar = snackBar;
 
         this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
-        this.dashboardService.dashboardSource.subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
     }
 
 

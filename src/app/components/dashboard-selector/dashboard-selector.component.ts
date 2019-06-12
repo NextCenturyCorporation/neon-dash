@@ -47,7 +47,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.dashboardService.dashboardSource.subscribe((state) => {
+        this.dashboardService.stateSource.subscribe((state) => {
             this.onDashboardStateChange(state.dashboard);
         })
     }

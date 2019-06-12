@@ -92,7 +92,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
-        this.dashboardService.dashboardSource.subscribe(() => {
+        this.dashboardService.stateSource.subscribe(() => {
             this.updateSimpleSearchFilter();
         })
 
