@@ -18,8 +18,8 @@ import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
 
-import { ReplaySubject, Observable, combineLatest, of, from } from 'rxjs';
-import { map, catchError, switchMap, take } from 'rxjs/operators';
+import { Subject, Observable, combineLatest, of, from } from 'rxjs';
+import { map, catchError, switchMap, take, shareReplay } from 'rxjs/operators';
 import { NeonConfig } from '../model/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
@@ -27,7 +27,7 @@ import { ConnectionService } from './connection.service';
 @Injectable()
 export class ConfigService {
     private configErrors = [];
-    private source = new ReplaySubject<NeonConfig>(1);
+    private source = new Subject<NeonConfig>();
 
     $source: Observable<NeonConfig>;
 
@@ -110,7 +110,12 @@ export class ConfigService {
 
     private initSource() {
         if (!this.$source) {
-            this.$source = this.source.asObservable().pipe(map((data) => JSON.parse(JSON.stringify(data))));
+            this.$source = this.source.asObservable()
+                .pipe(
+                    map((data) => JSON.parse(JSON.stringify(data))),
+                    map((config) => NeonConfig.get(config)),
+                    shareReplay(1)
+                );
             return true;
         }
         return false;

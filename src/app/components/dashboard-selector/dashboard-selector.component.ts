@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 
-import { NeonDashboardConfig } from '../../model/types';
-import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
 
 import { eventing } from 'neon-framework';
-import { DashboardService } from 'src/app/services/dashboard.service';
+import { DashboardService } from '../../services/dashboard.service';
+
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -26,13 +27,12 @@ import { DashboardService } from 'src/app/services/dashboard.service';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-    public dashboardChoice: NeonDashboardConfig;
 
-    @Input() dashboards: NeonDashboardConfig;
+    public dashboardChoice: NeonDashboardConfig;
 
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
+    choices: NeonDashboardChoiceConfig[] = [];
 
     private messenger: eventing.Messenger;
 
@@ -42,14 +42,22 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.messenger = new eventing.Messenger();
     }
 
+    get dashboards() {
+        return this.dashboardService.config.dashboards;
+    }
+
     ngOnInit(): void {
         this.dashboardService.dashboardSource.subscribe((state) => {
-            this.onDashboardStateChange(state);
+            this.onDashboardStateChange(state.dashboard);
         })
     }
 
     ngOnDestroy(): void {
         this.messenger.unsubscribeAll();
+    }
+
+    get choiceNodes() {
+        return this.choices.filter((db) => 'choices' in db);
     }
 
     /**
@@ -59,18 +67,38 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.closeComponent.emit(true);
     }
 
-    private onDashboardStateChange(eventMessage: { dashboard: NeonDashboardConfig }): void {
-        // If the dashboard state is changed by an external source, update the dropdowns as needed.
-        let { pathFromTop: paths } = eventMessage.dashboard;
-        this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
+    private onDashboardStateChange(dashboard: NeonDashboardConfig): void {
+        this.dashboardChoice = dashboard;
+        this.choices = this.computePath();
+        if (!this.choices.length) {
+            this.choices = [this.dashboards];
+        }
+    }
+
+    private computePath(root: NeonDashboardConfig = this.dashboards) {
+        if ('choices' in root) {
+            for (const key of Object.keys(root.choices)) {
+                const res = this.computePath(root.choices[key]);
+                if (res.length) {
+                    return [root, ...res];
+                }
+            }
+        } else if (root.fullTitle === this.dashboardChoice.fullTitle) {
+            return [root];
+        }
+        return [];
     }
 
     /**
      * If selection change event bubbles up from dashboard-dropdown, this will set the
      * dashboardChoice to the appropriate value.
      */
-    public setDashboardChoice(dashboard: NeonDashboardConfig) {
-        this.dashboardChoice = dashboard;
+    public selectDashboard(dashboard: NeonDashboardConfig, idx: number) {
+        if ('choices' in dashboard && !_.isEmpty(dashboard.choices)) {
+            this.choices = [...this.choices.slice(0, idx + 1), dashboard];
+        } else {
+            this.dashboardChoice = dashboard;
+        }
     }
 
     /**
@@ -80,5 +108,13 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         if (dashboard && 'tables' in dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
         }
+    }
+
+    public getChoices(dashboard: NeonDashboardChoiceConfig) {
+        return Object.values(dashboard.choices)
+            .filter((db1) => !!db1.name)
+            .sort((db1, db2) => {
+                return db1.name.localeCompare(db2.name);
+            });
     }
 }
