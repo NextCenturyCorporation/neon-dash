@@ -208,11 +208,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Fires whenever a dashboard state changes
      */
     private onDashboardStateChange(state: DashboardState) {
+        this.pendingInitialRegistrations = this.widgets.size;
+
         this.gridState.clear();
         this.widgets.clear();
         this.changeDetection.detectChanges();
-
-        this.pendingInitialRegistrations = 0;
 
         const layout = this.dashboardService.config.layouts[state.getLayout()];
 
@@ -225,7 +225,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
-
         this.refreshDashboard();
     }
 

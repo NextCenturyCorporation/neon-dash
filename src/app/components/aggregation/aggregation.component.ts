@@ -101,17 +101,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         height: number;
         width: number;
     } = {
-        height: 50,
-        width: 50
-    };
+            height: 50,
+            width: 50
+        };
 
     public minimumDimensionsZoom: {
         height: number;
         width: number;
     } = {
-        height: 50,
-        width: 50
-    };
+            height: 50,
+            width: 50
+        };
 
     // TODO THOR-1067 The subcomponent should draw this!
     // The selected area on the subcomponent (box or range).
@@ -127,9 +127,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         x: number;
         y: number;
     } = {
-        x: 0,
-        y: 0
-    };
+            x: 0,
+            y: 0
+        };
 
     // The subcomponents.  If dualView is on, both are used.  Otherwise, only main is used.
     public subcomponentMain: AbstractAggregationSubcomponent;
@@ -178,6 +178,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
+    private viewInitialized = false;
+    private pendingFilters: FilterDesign[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: FilterService,
@@ -220,6 +223,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.xField.prettyName :
                     this.options.aggregation || this.options.yField.prettyName;
+        }
+    }
+
+    ngAfterViewInit() {
+        super.ngAfterViewInit();
+        this.viewInitialized = true;
+        if (this.pendingFilters) {
+            this.redrawFilteredItems(this.pendingFilters);
+            delete this.pendingFilters;
         }
     }
 
@@ -790,6 +802,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
+        console.log(this.constructor.name, options);
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
@@ -1163,6 +1176,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
+        if (!this.subcomponentMain && !this.viewInitialized) {
+            this.pendingFilters = filterDesigns;
+        }
         if (this.subcomponentMain) {
             // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
             this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
