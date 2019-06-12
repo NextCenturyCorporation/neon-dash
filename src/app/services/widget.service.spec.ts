@@ -23,6 +23,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
+import { FilterService } from './filter.service';
 
 describe('Service: Widget', () => {
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -33,6 +34,7 @@ describe('Service: Widget', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
+            FilterService,
             { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ]

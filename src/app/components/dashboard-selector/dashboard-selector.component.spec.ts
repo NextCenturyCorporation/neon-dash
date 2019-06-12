@@ -21,6 +21,8 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DashboardSelectorModule } from './dashboard-selector.module';
 import { ConfigService } from '../../services/config.service';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardService } from '../../services/dashboard.service';
 
 describe('Component: DashboardSelector', () => {
     let testConfig: NeonConfig = NeonConfig.get();
@@ -29,7 +31,8 @@ describe('Component: DashboardSelector', () => {
 
     initializeTestBed('Dataset Selector', {
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
+            { provide: DashboardService, useClass: DashboardServiceMock }
 
         ],
         imports: [

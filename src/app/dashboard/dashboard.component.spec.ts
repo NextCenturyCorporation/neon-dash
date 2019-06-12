@@ -49,6 +49,7 @@ describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let debugElement: DebugElement;
     let component: DashboardComponent;
+    let configService: ConfigService;
     let spyOnInit;
 
     initializeTestBed('Dashboard', {
@@ -74,7 +75,8 @@ describe('Dashboard', () => {
 
         fixture = TestBed.createComponent(DashboardComponent);
         component = fixture.componentInstance;
-        component.dashboardService = new DashboardServiceMock(ConfigService.as(new NeonConfig()));
+        configService = ConfigService.as(new NeonConfig());
+        component.dashboardService = new DashboardServiceMock(configService);
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
         debugElement = fixture.debugElement;
@@ -89,9 +91,6 @@ describe('Dashboard', () => {
     }));
 
     it('should be showing the correct defaults', async(() => {
-        expect(component.currentPanel).toEqual('dashboardLayouts');
-        expect(component.rightPanelTitle).toEqual('Dashboard Layouts');
-
         expect(component.showCustomConnectionButton).toEqual(true);
         expect(component.showFilterTray).toEqual(true);
         expect(component.showVisualizationsShortcut).toEqual(true);
@@ -548,7 +547,7 @@ describe('Dashboard', () => {
             sizey: 1
         }];
 
-        component['clearDashboard']();
+        component.gridState.clear();
 
         expect(component.gridState.activeWidgetList).toEqual([]);
     });
@@ -898,11 +897,9 @@ describe('Dashboard', () => {
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({ filters });
-
-        component.dashboardService.setConfig(config);
-
-        component['showDashboardState']({
-            dashboard: testDashboard
+        configService.setActive({
+            ...config,
+            dashboards: testDashboard
         });
 
         expect(spyDashboards.calls.count()).toEqual(1);
@@ -916,7 +913,7 @@ describe('Dashboard', () => {
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
             gridName: '',
             widgetGridItem: {
@@ -970,8 +967,6 @@ describe('Dashboard', () => {
             }
         });
 
-        component.dashboardService.setConfig(config);
-
         const filters = [
             { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-' },
             { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
@@ -979,8 +974,9 @@ describe('Dashboard', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({ filters });
 
-        component['showDashboardState']({
-            dashboard: testDashboard
+        configService.setActive({
+            ...config,
+            dashboards: testDashboard
         });
 
         expect(spyDashboards.calls.count()).toEqual(1);
@@ -994,7 +990,7 @@ describe('Dashboard', () => {
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
             gridName: 'tab1',
             widgetGridItem: {
@@ -1041,74 +1037,22 @@ describe('Dashboard', () => {
         // ShowDashboard.datastores = {
         //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
-        showDashboard.options = {
-            connectOnLoad: true
-        };
         let testDashboard = NeonDashboardChoiceConfig.get({
             choices: {
                 test: showDashboard
             }
-        });
-        component.dashboards = testDashboard;
 
-        component['showDashboardStateOnPageLoad']();
+        });
+
+        configService.setActive(NeonConfig.get({
+            dashboards: testDashboard
+        }));
+
 
         expect(spySender.calls.count()).toEqual(1);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
-            dashboard: showDashboard
-        }]);
-    });
-
-    it('showDashboardStateOnPageLoad with parameter state and auto-show dashboard does work as expected', () => {
-        let spySender = spyOn(component.messageSender, 'publish');
-        let showDashboard = NeonDashboardLeafConfig.get({
-            name: 'test'
-        });
-
-        // ShowDashboard.datastores = {
-        //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        // };
-        showDashboard.options = {
-            connectOnLoad: true
-        };
-        let testDashboard = NeonDashboardChoiceConfig.get({
-            choices: {
-                test: showDashboard
-            }
-        });
-        component['dashboards'] = testDashboard;
-
-        component['showDashboardStateOnPageLoad']();
-
-        expect(spySender.calls.count()).toEqual(1);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
-            dashboard: showDashboard
-        }]);
-    });
-
-    it('showDashboardStateOnPageLoad with matching parameter dataset and auto-show dashboard does work as expected', () => {
-        let spySender = spyOn(component.messageSender, 'publish');
-
-        let showDashboard = NeonDashboardLeafConfig.get({ name: 'test' });
-        // ShowDashboard.datastores = {
-        //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        // };
-        showDashboard.options = {
-            connectOnLoad: true
-        };
-        let testDashboard = NeonDashboardChoiceConfig.get({
-            choices: {
-                test: showDashboard
-            }
-        });
-        component['dashboards'] = testDashboard;
-
-        component['showDashboardStateOnPageLoad']();
-
-        expect(spySender.calls.count()).toEqual(1);
-        expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
-            dashboard: showDashboard
-        }]);
+        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+        //     dashboard: showDashboard
+        // }]);
     });
 
     it('showDashboardStateOnPageLoad with parameter dataset but no parameter state or auto-show dashboard does work as expected', () => {

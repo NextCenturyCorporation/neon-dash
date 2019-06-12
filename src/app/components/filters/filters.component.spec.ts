@@ -64,10 +64,6 @@ describe('Component: Filters', () => {
         expect(component).toBeTruthy();
     }));
 
-    it('showFilterBuilderView is true on default if no input passed in', (() => {
-        expect(component.showFilterBuilderView).toBeTruthy();
-    }));
-
     it('getDefaultTitle() returns correct string', (() => {
         expect(component.getDefaultTitle()).toEqual('Filters');
     }));
@@ -78,10 +74,5 @@ describe('Component: Filters', () => {
         /* eslint-disable @typescript-eslint/unbound-method */
         expect(component.closeDialog.emit).toHaveBeenCalledWith(true);
         /* eslint-enable @typescript-eslint/unbound-method */
-    }));
-
-    it('filter-builder is shown when showFilterBuilderView is true', (() => {
-        expect(debugElement.nativeElement.querySelectorAll('app-filter-builder')).toBeTruthy();
-        expect(debugElement.query(By.css('app-filter-builder')).nativeElement.hidden).toBeFalsy();
     }));
 });
