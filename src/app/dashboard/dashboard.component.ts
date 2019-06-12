@@ -164,17 +164,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.matIconRegistry.addSvgIcon(
             'filters',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/filters.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
             'filters_active',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/filters_active.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/filters_active.svg')
         );
 
         this.matIconRegistry.addSvgIcon(
             'dashboard_selector',
-            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/database_icon.svg')
+            this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard/database_icon.svg')
         );
 
         this.filtersIcon = 'filters';
