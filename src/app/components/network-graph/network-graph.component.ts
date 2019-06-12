@@ -245,7 +245,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (!styleImport) {
             styleImport = document.createElement('link');
             styleImport.rel = 'stylesheet';
-            styleImport.href = '/assets/vis/dist/vis-network.min.css';
+            styleImport.href = 'assets/vis/dist/vis-network.min.css';
             document.head.appendChild(styleImport);
         }
     }
