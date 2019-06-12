@@ -20,6 +20,7 @@ import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
 
 import * as _ from 'lodash';
+import { DashboardUtil } from '../../util/dashboard.util';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -34,6 +35,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
 
     choices: NeonDashboardChoiceConfig[] = [];
 
+    dashboards: NeonDashboardConfig;
+
     private messenger: eventing.Messenger;
 
     constructor(
@@ -42,12 +45,9 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.messenger = new eventing.Messenger();
     }
 
-    get dashboards() {
-        return this.dashboardService.config.dashboards;
-    }
-
     ngOnInit(): void {
         this.dashboardService.stateSource.subscribe((state) => {
+            this.dashboards = this.dashboardService.config.dashboards;
             this.onDashboardStateChange(state.dashboard);
         })
     }
@@ -57,7 +57,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     }
 
     get choiceNodes() {
-        return this.choices.filter((db) => 'choices' in db);
+        return this.choices.filter((db) => 'choices' in db && !_.isEmpty(db.choices));
     }
 
     /**
@@ -71,12 +71,17 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.dashboardChoice = dashboard;
         this.choices = this.computePath();
         if (!this.choices.length) {
-            this.choices = [this.dashboards];
+            this.dashboards = NeonDashboardChoiceConfig.get({
+                category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
+                choices: { [dashboard.name]: dashboard }
+            });
+            this.choices = this.computePath();
+            console.log('Computed choices', this.choices);
         }
     }
 
     private computePath(root: NeonDashboardConfig = this.dashboards) {
-        if ('choices' in root) {
+        if ('choices' in root && !_.isEmpty(root.choices)) {
             for (const key of Object.keys(root.choices)) {
                 const res = this.computePath(root.choices[key]);
                 if (res.length) {
