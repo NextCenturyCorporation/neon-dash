@@ -124,7 +124,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         if (!styleImport) {
             styleImport = document.createElement('link');
             styleImport.rel = 'stylesheet';
-            styleImport.href = '/assets/angular-tree-component/dist/angular-tree-component.css';
+            styleImport.href = 'assets/angular-tree-component/dist/angular-tree-component.css';
             document.head.appendChild(styleImport);
         }
     }

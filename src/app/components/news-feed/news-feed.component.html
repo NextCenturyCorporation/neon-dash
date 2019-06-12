@@ -19,7 +19,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<div #newsFeed class="body-container" [class.with-footer]="showPagination()" [class.with-contribution]="showContribution()">
+<div #newsFeed class="body-container">
     <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat"
         [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData">
@@ -66,8 +66,10 @@
     </div>
 </div>
 
-<div class="contribution-text-container" *ngIf="showContribution()">
-    <a (click)="openContributionDialog()">
-        {{ getContributorAbbreviations() }}
-    </a>
+<div class="contribution-text" *ngIf="showContribution()">
+    <div class="contribution-text-container">
+        <a (click)="openContributionDialog()">
+            {{ getContributorAbbreviations() }}
+        </a>
+    </div>
 </div>
