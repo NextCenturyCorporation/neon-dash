@@ -74,7 +74,6 @@ export class SaveStateComponent implements OnInit {
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
-        console.log(this.dashboardState, this.currentFilename);
     }
 
     ngOnInit() {
