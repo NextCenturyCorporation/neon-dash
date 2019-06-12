@@ -136,8 +136,7 @@ $contribution-height: 20px;
         }
     }
 
-    .contribution-text,
-    .footer-with-contribution {
+    .contribution-text {
         background-color: var(--color-background, white);
         border-top: 2px solid var(--color-accent, lightgrey);
     }
