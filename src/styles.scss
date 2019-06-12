@@ -223,7 +223,7 @@ body {
 
 .mat-button-toggle-group {
     border-radius: 10px !important;
-    font-size: 14px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
 
     .mat-button-toggle {
@@ -456,6 +456,9 @@ body {
 
     &.neon-toolbar-thin {
         padding: 6px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        line-height: 20px !important;
     }
 
     &.neon-toolbar-wide {
@@ -470,6 +473,7 @@ body {
     &.widget-header-text {
         font-size: 14px;
         font-weight: 500;
+        font-style: normal;
     }
 }
 

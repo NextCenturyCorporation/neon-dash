@@ -1,13 +1,13 @@
 <div>
     <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
-            <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
-                class="add-visualization-tile">
+            <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected"
+                [colspan]="1" [rowspan]="1" class="add-visualization-tile">
                 <a (click)="onItemSelected($event.shiftKey, i)" matRipple>
                     <div class="neon-popup-thumbnail center-block text-center">
                         <div class="center-block">
                             <div class="center-block icon-container">
-                                <img class="neon-svg-icon" src="./assets/icons/{{item.icon}}.svg">
+                                <img class="neon-svg-icon" src="./assets/icons/visualization/{{item.icon}}.svg">
                             </div>
                             <div class="center-contents">
                                 <span class="content-text">{{ item.name }}</span>
