@@ -738,14 +738,14 @@ export class FilterService {
      */
     public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dashboardState: DashboardState, searchService: AbstractSearchService) {
         let collection: FilterCollection = new FilterCollection();
-        filtersFromConfig.forEach((filterFromConfig) => {
-            let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
+        for (const filterFromConfig of filtersFromConfig) {
+            const filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
             if (filterDesign) {
-                let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
-                let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
+                const filterDataSourceList = collection.findFilterDataSources(filterDesign);
+                const filter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
                 collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
             }
-        });
+        }
         this.filterCollection = collection;
     }
 

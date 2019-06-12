@@ -77,7 +77,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             dialog
         );
 
-        this.dashboardService.stateSource.subscribe(() => {
+        this.dashboardService.stateSource.subscribe((state) => {
             this.clearEveryFilterClause();
         });
 
