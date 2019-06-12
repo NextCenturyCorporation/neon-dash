@@ -274,6 +274,11 @@ export class GearComponent implements OnInit, OnDestroy {
         }
     }
 
+    public handleRefreshClick() {
+        this.handleChangeData(undefined, false);
+        this.resetOptionsAndClose();
+    }
+
     private isFilterData(optionType: OptionType): boolean {
         return optionType === OptionType.DATABASE || optionType === OptionType.TABLE || optionType === OptionType.FIELD ||
             optionType === OptionType.FIELD_ARRAY;
