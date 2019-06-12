@@ -287,11 +287,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridState.delete(eventMessage.id);
     }
 
-    // @DashboardModified()
-    private clearDashboard() {
-        this.gridState.clear();
-    }
-
     disableClose(): boolean {
         return this.currentPanel === 'gear';
     }
@@ -370,7 +365,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     ngOnInit(): void {
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
-        this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
             this.setPanel('gear', 'Component Settings');
             this.configurableComponent = comp;

@@ -35,7 +35,6 @@ import {
     WidgetOptionCollection
 } from '../../model/widget-option';
 
-import { neonEvents } from '../../model/neon-namespaces';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -78,7 +77,9 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             dialog
         );
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+        this.dashboardService.dashboardSource.subscribe(() => {
+            this.clearEveryFilterClause();
+        });
 
         this.addBlankFilterClause();
     }

@@ -96,7 +96,6 @@ export class CustomConnectionComponent implements AfterContentInit {
         // this.datasetService.setCurrentDashboard(??)
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
-        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(datastore);
     }
 
