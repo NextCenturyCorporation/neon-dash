@@ -21,6 +21,8 @@ import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
 import { Injectable } from '@angular/core';
+import { FilterService } from '../../app/services/filter.service';
+import { SearchServiceMock } from './SearchServiceMock';
 
 class MockConnectionService extends ConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
@@ -77,7 +79,9 @@ export class DashboardServiceMock extends DashboardService {
     constructor(configService: ConfigService) {
         super(
             configService,
-            new MockConnectionService()
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
         );
 
         const datastore = NeonDatastoreConfig.get({

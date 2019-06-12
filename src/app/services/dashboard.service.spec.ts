@@ -25,6 +25,7 @@ import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 import * as _ from 'lodash';
+import { FilterService } from './filter.service';
 
 function extractNames(data: { [key: string]: any } | any[]) {
     if (Array.isArray(data)) {
@@ -49,6 +50,7 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
+            FilterService,
             { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
@@ -88,9 +90,11 @@ describe('Service: DashboardService', () => {
 
 describe('Service: DashboardService with Mock Data', () => {
     let dashboardService: DashboardService;
+    let configService: ConfigService;
 
     beforeEach(() => {
-        dashboardService = new DashboardServiceMock(ConfigService.as(NeonConfig.get()));
+        configService = ConfigService.as(NeonConfig.get());
+        dashboardService = new DashboardServiceMock(configService);
     });
 
     it('should have active datastore at creation', () => {
@@ -571,8 +575,8 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         });
 
-        dashboardService.setConfig(config);
-        dashboardService.setActiveDashboard(config.dashboards as NeonDashboardLeafConfig);
+        configService.setActive(config);
+
         dashboardService.gridState.tabs[0] = {
             name: 'testState',
             list: layouts.testState

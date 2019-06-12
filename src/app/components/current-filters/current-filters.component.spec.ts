@@ -26,8 +26,9 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { ConfigService } from '../../services/config.service';
-import { CompoundFilterType } from '../../services/abstract.search.service';
+import { CompoundFilterType, AbstractSearchService } from '../../services/abstract.search.service';
 import { SearchService } from '../../services/search.service';
+import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -73,6 +74,7 @@ describe('Component: CurrentFiltersComponent', () => {
         providers: [
             DashboardService,
             FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ],
         imports: [CurrentFiltersModule]

@@ -229,7 +229,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
-        if (this.pendingFilters) {
+        if (this.pendingFilters && this.pendingFilters.length) {
             this.redrawFilteredItems(this.pendingFilters);
             delete this.pendingFilters;
         }
@@ -802,7 +802,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        console.log(this.constructor.name, options);
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
