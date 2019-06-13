@@ -26,12 +26,12 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -40,7 +40,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -89,7 +89,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public seenValues = [];
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -98,7 +98,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -148,7 +148,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnOneValue(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnOneValue(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
             root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
@@ -341,7 +341,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
                     active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.getColumnWidth(fieldObject.name)
+                    width: this.getColumnWidth(fieldObject['name']) // TODO: Investigate
                 });
             }
         }
@@ -353,7 +353,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
+            let name = this.dashboardState.translateFieldKeyToValue(miniArray[0]);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -403,7 +403,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let pName = header.prettyName;
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.datasetService.translateFieldKeyToValue(exception);
+            let name = this.dashboardState.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -416,7 +416,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let sorted = [];
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.datasetService.translateFieldKeyToValue(exception);
+            let header = this.dashboardState.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);

@@ -27,12 +27,12 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { MediaTypes } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -41,7 +41,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
@@ -92,7 +92,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public selectedTabIndex: number = 0;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -102,7 +102,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

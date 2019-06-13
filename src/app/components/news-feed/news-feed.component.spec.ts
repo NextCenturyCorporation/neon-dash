@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NewsFeedModule } from './news-feed.module';
@@ -37,11 +36,11 @@ describe('Component: NewsFeed', () => {
     // May need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -60,13 +59,13 @@ describe('Component: NewsFeed', () => {
     it('does have expected class options properties', () => {
         expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(new FieldMetaData());
-        expect(component.options.secondaryContentField).toEqual(new FieldMetaData());
-        expect(component.options.titleContentField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.filterField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.sortField).toEqual(new FieldMetaData());
+        expect(component.options.contentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.secondaryContentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.titleContentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.filterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
@@ -76,16 +75,16 @@ describe('Component: NewsFeed', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         component.createFilter('testText');
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testText'
         }]]);
@@ -94,27 +93,27 @@ describe('Component: NewsFeed', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        // Expect((actual[0].FIELD_MAP.filterDesign).field).toEqual(DashboardServiceMock.FILTER); // TODO: Verify
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.sortField = new FieldMetaData('testSortField');
-        component.options.filterField = new FieldMetaData('testFilterField');
-        component.options.contentField = new FieldMetaData('testContentField');
-        component.options.secondaryContentField = new FieldMetaData('testContentField');
-        component.options.titleContentField = new FieldMetaData('testContentField');
-        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField' });
+        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.secondaryContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.titleContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -147,24 +146,24 @@ describe('Component: NewsFeed', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'tesIdField', prettyName: 'Test Id Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.contentField = new FieldMetaData('testContentField', 'Test Content Field');
+        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField', prettyName: 'Test Content Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -197,7 +196,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -206,7 +205,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
         component.options.limit = 1;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -240,7 +239,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -291,7 +290,7 @@ describe('Component: NewsFeed', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.selectItem({
             testIdField: 'id1'
@@ -308,7 +307,7 @@ describe('Component: NewsFeed', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
 
         component.filterItem({
             testFilterField: 'filter1'

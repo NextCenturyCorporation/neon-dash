@@ -12,21 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface NeonGridItem {
-    bindings?: any;
+import { NeonLayoutGridConfig } from './types';
+
+export interface NeonGridItem extends NeonLayoutGridConfig {
     hide?: boolean;
     id?: string;
     icon?: string;
-    name?: string;
     type?: string;
+    name?: string;
+    bindings?: Record<string, any>;
+
+    minPixelx?: number;
+    minPixely?: number;
+    minSizex?: number;
+    minSizey?: number;
 
     borderSize?: number;
-    col?: number;
     dragHandle?: string;
-    row?: number;
-    sizex?: number;
-    sizey?: number;
 
     // The previous grid item config that is stored when the widget is expanded and restored the widget is contracted. */
-    previousConfig?: { col: number, row: number, sizex: number, sizey: number };
+    previousConfig?: Partial<NeonGridItem>;
+}
+
+export interface NeonGridTab {
+    name: string;
+    list: NeonGridItem[];
 }

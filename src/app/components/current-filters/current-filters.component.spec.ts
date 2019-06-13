@@ -17,9 +17,9 @@ import * as moment from 'moment';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../model/types';
 
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -31,16 +31,16 @@ import { SearchService } from '../../services/search.service';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: CurrentFiltersComponent;
-    const search = new SearchService();
+    const search = new SearchService(null as any);
 
     function simple(field: string, op: string, value: any) {
         const out = new SimpleFilter('store',
             {
                 name: 'base',
                 prettyName: 'Base',
-                tables: []
+                tables: {}
             },
             {
                 name: 'table',
@@ -71,7 +71,7 @@ describe('Component: CurrentFiltersComponent', () => {
 
     initializeTestBed('Current Filters', {
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: ConfigService, useValue: ConfigService.as(testConfig) }
         ],

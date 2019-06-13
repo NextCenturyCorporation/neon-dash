@@ -14,8 +14,7 @@
  */
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-
-import { Contributor } from '../../../app/dataset';
+import { NeonContributor } from '../../model/types';
 
 @Component({
     selector: 'app-contribution-dialog',
@@ -23,9 +22,9 @@ import { Contributor } from '../../../app/dataset';
     styleUrls: ['./contribution-dialog.component.scss']
 })
 export class ContributionDialogComponent {
-    public data: Contributor[];
+    public data: NeonContributor[];
 
-    constructor(@Inject(MAT_DIALOG_DATA) data: Contributor[], public dialogRef: MatDialogRef<ContributionDialogComponent>) {
+    constructor(@Inject(MAT_DIALOG_DATA) data: NeonContributor[], public dialogRef: MatDialogRef<ContributionDialogComponent>) {
         this.data = data['contributors'];
     }
 
