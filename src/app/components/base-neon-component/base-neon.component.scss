@@ -25,6 +25,7 @@ $contribution-height: 20px;
     cursor: default;
     border-radius: 5px;
     display: grid;
+    box-sizing: border-box;
     grid-template-rows: auto 1fr auto auto;
     grid-template-areas:
     'header'

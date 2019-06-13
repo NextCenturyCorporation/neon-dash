@@ -27,12 +27,12 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -41,7 +41,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
@@ -63,7 +63,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -74,7 +74,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -147,7 +147,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),
             new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetSelectOption('hideSource', 'Source Button', false, OptionChoices.ShowFalseHideTrue),
-            // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldMetaData objects!
+            // TODO THOR-950 Change metadataFields and popoutFields to arrays of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', []),
             new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', [])
         ];
@@ -165,7 +165,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
-        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldMetaData objects.
+        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of NeonFieldMetaData objects.
         let fields = neonUtilities.flatten(options.metadataFields).map((item) => item.field)
             .concat(neonUtilities.flatten(options.popoutFields).map((item) => item.field));
 

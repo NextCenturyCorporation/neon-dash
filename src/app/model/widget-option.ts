@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 import { Injector } from '@angular/core';
-import { AggregationType } from './services/abstract.search.service';
-import { DatasetService } from './services/dataset.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
+import { AggregationType } from '../services/abstract.search.service';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 import * as uuidv4 from 'uuid/v4';
+import { DashboardState } from './dashboard-state';
 
 type OptionCallback = (options: any) => boolean;
 interface OptionChoice { prettyName: string, variable: any }
@@ -56,7 +56,7 @@ export abstract class WidgetOption {
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public enableInMenu: boolean | OptionCallback = true
-    ) {}
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -289,12 +289,12 @@ export class WidgetOptionCollection {
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
     public _id: string;
-    public database: DatabaseMetaData = null;
-    public databases: DatabaseMetaData[] = [];
-    public fields: FieldMetaData[] = [];
+    public database: NeonDatabaseMetaData = null;
+    public databases: NeonDatabaseMetaData[] = [];
+    public fields: NeonFieldMetaData[] = [];
     public layers: WidgetOptionCollection[] = [];
-    public table: TableMetaData = null;
-    public tables: TableMetaData[] = [];
+    public table: NeonTableMetaData = null;
+    public tables: NeonTableMetaData[] = [];
 
     /**
      * @constructor
@@ -309,9 +309,11 @@ export class WidgetOptionCollection {
     ) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
-        this.append(new WidgetDatabaseOption(), new DatabaseMetaData());
-        this.append(new WidgetTableOption(), new TableMetaData());
+        this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
+        this.append(new WidgetTableOption(), NeonTableMetaData.get());
     }
+
+    [key: string]: any; // Ordering demands it be placed here
 
     /**
      * Returns the option with the given binding key.
@@ -364,10 +366,10 @@ export class WidgetOptionCollection {
      * Returns the field object with the given column name or undefinied if the field does not exist.
      *
      * @arg {string} columnName
-     * @return {FieldMetaData}
+     * @return {NeonFieldMetaData}
      */
-    public findField(columnName: string): FieldMetaData {
-        let outputFields = !columnName ? [] : this.fields.filter((field: FieldMetaData) => field.columnName === columnName);
+    public findField(columnName: string): NeonFieldMetaData {
+        let outputFields = !columnName ? [] : this.fields.filter((field: NeonFieldMetaData) => field.columnName === columnName);
 
         if (!outputFields.length && this.fields.length) {
             // Check if the column name is actually an array index rather than a name.
@@ -382,26 +384,18 @@ export class WidgetOptionCollection {
 
     /**
      * Returns the field object for the given binding key or an empty field object.
-     *
-     * @arg {DatasetService} datasetService
-     * @arg {string} bindingKey
-     * @return {FieldMetaData}
      */
-    public findFieldObject(datasetService: DatasetService, bindingKey: string): FieldMetaData {
+    public findFieldObject(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(datasetService.translateFieldKeyToValue(fieldKey)) || new FieldMetaData();
+        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || NeonFieldMetaData.get();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
-     *
-     * @arg {DatasetService} datasetService
-     * @arg {string} bindingKey
-     * @return {FieldMetaData[]}
      */
-    public findFieldObjects(datasetService: DatasetService, bindingKey: string): FieldMetaData[] {
+    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(datasetService.translateFieldKeyToValue(
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
             fieldKey
         ))).filter((fieldsObject) => !!fieldsObject);
     }
@@ -424,25 +418,23 @@ export class WidgetOptionCollection {
      * @return {WidgetOption[]}
      */
     public list(): WidgetOption[] {
-        return Object.keys(this._collection).map((property) => this.access(property));
+        return Object.values(this._collection);
     }
 
     /**
      * Updates all the databases, tables, and fields in the options.
-     *
-     * @arg {DatasetService} datasetService
      */
-    public updateDatabases(datasetService: DatasetService): void {
-        this.databases = datasetService.getDatabases();
-        this.database = datasetService.getCurrentDatabase() || this.databases[0] || this.database;
+    public updateDatabases(dashboardState: DashboardState): void {
+        this.databases = dashboardState.getDatabases();
+        this.database = dashboardState.getDatabase() || this.databases[0] || this.database;
 
         if (this.databases.length) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = datasetService.getCurrentDashboard();
+            let currentDashboard = dashboardState.dashboard;
             let configDatabase: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = datasetService.getDatabaseNameFromCurrentDashboardByKey(tableKey);
+                configDatabase = dashboardState.deconstructTableName(tableKey).database;
 
                 if (configDatabase) {
                     for (let database of this.databases) {
@@ -455,27 +447,25 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateTables(datasetService);
+        return this.updateTables(dashboardState);
     }
 
     /**
      * Updates all the fields in the options.
-     *
-     * @arg {DatasetService} datasetService
      */
-    public updateFields(datasetService: DatasetService): void {
+    public updateFields(dashboardState: DashboardState): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = datasetService.getSortedFields(this.database.name, this.table.name, true)
+            this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
                 .filter((field) => (field && field.columnName));
 
-            // Create the field options and assign the default value as FieldMetaData objects.
+            // Create the field options and assign the default value as NeonFieldMetaData objects.
             this.createFieldOptionsCallback().forEach((fieldsOption) => {
                 if (fieldsOption.optionType === OptionType.FIELD) {
-                    this.append(fieldsOption, this.findFieldObject(datasetService, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObject(dashboardState, fieldsOption.bindingKey));
                 }
                 if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
-                    this.append(fieldsOption, this.findFieldObjects(datasetService, fieldsOption.bindingKey));
+                    this.append(fieldsOption, this.findFieldObjects(dashboardState, fieldsOption.bindingKey));
                 }
             });
         }
@@ -483,20 +473,23 @@ export class WidgetOptionCollection {
 
     /**
      * Updates all the tables and fields in the options.
-     *
-     * @arg {DatasetService} datasetService
      */
-    public updateTables(datasetService: DatasetService): void {
-        this.tables = this.database ? datasetService.getTables(this.database.name) : [];
+    public updateTables(dashboardState: DashboardState): void {
+        this.tables = this.database ?
+            Object
+                .values(dashboardState.getTables(this.database.name))
+                .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
+            [];
+
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
             let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = datasetService.getCurrentDashboard();
+            let currentDashboard = dashboardState.dashboard;
             let configTable: any;
 
             if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = datasetService.getTableNameFromCurrentDashboardByKey(tableKey);
+                configTable = dashboardState.deconstructTableName(tableKey).table;
 
                 if (configTable) {
                     for (let table of this.tables) {
@@ -509,7 +502,7 @@ export class WidgetOptionCollection {
             }
         }
 
-        return this.updateFields(datasetService);
+        return this.updateFields(dashboardState);
     }
 }
 
@@ -595,4 +588,16 @@ export namespace OptionChoices {
         prettyName: 'No',
         variable: true
     }];
+}
+
+export interface ConfigurableWidget {
+    options: WidgetOptionCollection;
+    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
+    createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
+    finalizeCreateLayer(layerOptions: any): void;
+    deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
+    finalizeDeleteLayer(layerOptions: any): void;
+    handleChangeSubcomponentType(options?: WidgetOptionCollection): void;
+    exportData(): { name: string, data: any }[];
 }

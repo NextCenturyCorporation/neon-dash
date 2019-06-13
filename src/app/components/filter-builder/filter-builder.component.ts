@@ -14,24 +14,22 @@
  */
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
-    Injector,
     ViewEncapsulation
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
 import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { DashboardService } from '../../services/dashboard.service';
 
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { DashboardState } from '../../model/dashboard-state';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
 import {
     WidgetOptionCollection
-} from '../../widget-option';
+} from '../../model/widget-option';
 
 import { eventing } from 'neon-framework';
-import { neonEvents } from '../../../app/neon-namespaces';
-import { MatDialog } from '@angular/material';
+import { neonEvents } from '../../model/neon-namespaces';
 
 @Component({
     selector: 'app-filter-builder',
@@ -58,16 +56,17 @@ export class FilterBuilderComponent {
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
+    readonly dashboardState: DashboardState;
+
     constructor(
-        public datasetService: DatasetService,
+        public dashboardService: DashboardService,
         public filterService: FilterService,
-        public searchService: AbstractSearchService,
-        public injector: Injector,
-        public ref: ChangeDetectorRef,
-        public dialog: MatDialog
+        public searchService: AbstractSearchService
     ) {
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+
+        this.dashboardState = dashboardService.state;
 
         this.addBlankFilterClause();
     }
@@ -77,8 +76,8 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.datasetService);
-        filterClause.field = new FieldMetaData();
+        filterClause.updateDatabases(this.dashboardState);
+        filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
 
@@ -111,7 +110,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.datasetService);
+        filterClause.updateTables(this.dashboardState);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -140,7 +139,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.datasetService);
+        filterClause.updateFields(this.dashboardState);
     }
 
     /**
@@ -193,7 +192,7 @@ export class FilterBuilderComponent {
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.datasetService.findRelationDataList(),
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
                 this.searchService);
 
             this.clearEveryFilterClause();
@@ -229,10 +228,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends WidgetOptionCollection {
-    changeDatabase: DatabaseMetaData;
-    changeTable: TableMetaData;
-    changeField: FieldMetaData;
-    field: FieldMetaData;
+    changeDatabase: NeonDatabaseMetaData;
+    changeTable: NeonTableMetaData;
+    changeField: NeonFieldMetaData;
+    field: NeonFieldMetaData;
     operator: OperatorMetaData;
     value: string;
 }

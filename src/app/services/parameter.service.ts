@@ -16,12 +16,12 @@ import { Injectable } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { AbstractSearchService, Connection } from './abstract.search.service';
-import { Datastore } from '../dataset';
-import { DatasetService } from './dataset.service';
+import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
-import { neonEvents } from '../neon-namespaces';
-import * as _ from 'lodash';
+// Import { neonEvents } from '../model/neon-namespaces';
+// import * as _ from 'lodash';
+import { ConnectionService } from './connection.service';
+import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable()
 export class ParameterService {
@@ -50,8 +50,9 @@ export class ParameterService {
     public parameters: any = {};
 
     constructor(
-        private datasetService: DatasetService,
+        private datasetService: DashboardService,
         private filterService: FilterService,
+        private connectionService: ConnectionService,
         private searchService: AbstractSearchService
     ) {
         this.messenger = new eventing.Messenger();
@@ -135,8 +136,8 @@ export class ParameterService {
         }
 
         let customMappings: any = {};
-        this.datasetService.getDatabases().forEach((database: DatabaseMetaData) => {
-            database.tables.forEach((table: TableMetaData) => {
+        this.datasetService.getDatabases().forEach((database: NeonDatabaseMetaData) => {
+            database.tables.forEach((table: NeonTableMetaData) => {
                 Object.keys(table.mappings).forEach((mapping) => {
                     if (mapping.indexOf(ParameterService.CUSTOM_NUMBER_MAPPING_PREFIX) === 0 ||
                         mapping.indexOf(ParameterService.CUSTOM_STRING_MAPPING_PREFIX) === 0) {
@@ -242,36 +243,36 @@ export class ParameterService {
      * @param {Function} endCallback
      * @private
      */
-    addFiltersForDashboardParameters(parameters: any, argsList: any[], endCallback: () => any) {
-        let args = argsList.shift();
-        let parameterValue = args.cleanParameter(parameters[args.parameterKey], args.operator);
-        let dataWithMappings = this.datasetService.getFirstDatabaseAndTableWithMappings(args.mappings);
-        let callNextFunction = () => {
-            if (argsList.length) {
-                this.addFiltersForDashboardParameters(parameters, argsList, endCallback);
-            } else if (endCallback && _.isFunction(endCallback)) {
-                endCallback();
-            }
-        };
+    addFiltersForDashboardParameters(__parameters: any, __argsList: any[], __endCallback: () => any) {
+        // Let args = argsList.shift();
+        // let parameterValue = args.cleanParameter(parameters[args.parameterKey], args.operator);
+        // let dataWithMappings = this.datasetService.getFirstDatabaseAndTableWithMappings(args.mappings);
+        // let callNextFunction = () => {
+        //     if (argsList.length) {
+        //         this.addFiltersForDashboardParameters(parameters, argsList, endCallback);
+        //     } else if (endCallback && _.isFunction(endCallback)) {
+        //         endCallback();
+        //     }
+        // };
 
-        if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
+        // if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
 
-            /* TODO FIXME THOR-1076
-            let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
-                ' ' + (args.operator || '=') + ' ' + parameterValue;
-            this.filterService.addFilter(
-                this.messenger,
-                '',
-                dataWithMappings.database,
-                dataWithMappings.table,
-                args.createFilterClauseCallback(args.operator, parameterValue),
-                filterName,
-                callNextFunction,
-                callNextFunction);
-             */
-        } else {
-            callNextFunction();
-        }
+        //     /* TODO FIXME THOR-1076
+        //     let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
+        //         ' ' + (args.operator || '=') + ' ' + parameterValue;
+        //     this.filterService.addFilter(
+        //         this.messenger,
+        //         '',
+        //         dataWithMappings.database,
+        //         dataWithMappings.table,
+        //         args.createFilterClauseCallback(args.operator, parameterValue),
+        //         filterName,
+        //         callNextFunction,
+        //         callNextFunction);
+        //      */
+        // } else {
+        //     callNextFunction();
+        // }
     }
 
     /**
@@ -309,46 +310,46 @@ export class ParameterService {
      * @param {Object} dashboardState.dataset
      * @param {String} dashboardStateId
      */
-    loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
-        if (_.keys(dashboardState).length) {
-            if (dashboardStateId) {
-                // TODO: THOR-1065: This should open a Dashboard (not a single Datastore). Then it should
-                // create Connections to each Datastore in the Dashboard and call updateDatabases of each Datastore.
-                let matchingDataset: Datastore = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
-                if (!matchingDataset) {
-                    this.datasetService.addDataset(dashboardState.dataset);
-                    matchingDataset = dashboardState.dataset;
-                }
+    loadStateSuccess(__dashboardState: any, __dashboardStateId: number | string) {
+        // If (_.keys(dashboardState).length) {
+        //     if (dashboardStateId) {
+        //         // TODO: THOR-1065: This should open a Dashboard (not a single Datastore). Then it should
+        //         // create Connections to each Datastore in the Dashboard and call updateDatabases of each Datastore.
+        //         let matchingDataset = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
+        //         if (!matchingDataset) {
+        //             this.datasetService.addDataset(dashboardState.dataset);
+        //             matchingDataset = dashboardState.dataset;
+        //         }
 
-                let connection: Connection = this.searchService.createConnection(matchingDataset.type, matchingDataset.host);
+        //         let connection = this.connectionService.connect(matchingDataset.type, matchingDataset.host);
 
-                // Update dataset fields, then set as active and update the dashboard
-                this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
-                    // TODO THOR-1024 Do not expect filters within the dataset.
-                    this.filterService.setFiltersFromConfig((dataset).filters || [], this.datasetService, this.searchService);
+        //         // Update dataset fields, then set as active and update the dashboard
+        //         this.datasetService.updateDatabases(matchingDataset, connection).then((dataset) => {
+        //             // TODO THOR-1024 Do not expect filters within the dataset.
+        //             this.filterService.setFiltersFromConfig((dataset).filters || [], this.datasetService, this.searchService);
 
-                    for (let databaseIndex = 0; databaseIndex < dataset.databases.length; databaseIndex++) {
-                        for (let tableIndex = 0; tableIndex < dataset.databases[databaseIndex].tables.length; tableIndex++) {
-                            dataset.databases[databaseIndex].tables[tableIndex].mappings =
-                                dashboardState.dataset.databases[databaseIndex].tables[tableIndex].mappings;
-                        }
-                    }
+        //             for (let databaseIndex = 0; databaseIndex < dataset.databases.length; databaseIndex++) {
+        //                 for (let tableIndex = 0; tableIndex < dataset.databases[databaseIndex].tables.length; tableIndex++) {
+        //                     dataset.databases[databaseIndex].tables[tableIndex].mappings =
+        //                         dashboardState.dataset.databases[databaseIndex].tables[tableIndex].mappings;
+        //                 }
+        //             }
 
-                    this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                        dashboard: dashboardState.dashboard,
-                        dataset: dataset,
-                        dashboardStateId: dashboardStateId
-                    });
-                });
-            } else {
-                this.messenger.publish(neonEvents.DASHBOARD_STATE, null);
-            }
-        } else {
-            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                error: null,
-                message: 'State not found for given IDs.'
-            });
-        }
+        //             this.messenger.publish(neonEvents.DASHBOARD_STATE, {
+        //                 dashboard: dashboardState.dashboard,
+        //                 dataset: dataset,
+        //                 dashboardStateId: dashboardStateId
+        //             });
+        //         });
+        //     } else {
+        //         this.messenger.publish(neonEvents.DASHBOARD_STATE, null);
+        //     }
+        // } else {
+        //     this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
+        //         error: null,
+        //         message: 'State not found for given IDs.'
+        //     });
+        // }
     }
 
     /**
