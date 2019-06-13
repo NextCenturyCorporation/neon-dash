@@ -625,10 +625,9 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleRefreshClick does reset options and close menu', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
         (component as any).closeSidenav = () => {
             calledCloseSidenav++;
@@ -636,7 +635,7 @@ describe('Component: Gear Component', () => {
 
         component.handleRefreshClick();
 
-        expect(calledChangeData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(calledCloseSidenav).toEqual(1);
     });

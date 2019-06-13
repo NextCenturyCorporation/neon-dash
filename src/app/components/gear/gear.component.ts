@@ -272,7 +272,7 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     public handleRefreshClick() {
-        this.handleChangeData(undefined, false);
+        this.comp.changeData(undefined, false);
         this.resetOptionsAndClose();
     }
 
