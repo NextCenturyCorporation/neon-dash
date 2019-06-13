@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { NeonConfig } from '../model/types';
 import { ConfigService } from './config.service';
@@ -63,18 +62,12 @@ describe('Service: ConfigService', () => {
     });
 
     it('setActive notifies of specific events', (done) => {
-        let count = 0;
+        configService['$source']
+            .subscribe((config) => {
+                expect(config).toBeTruthy();
+                expect(config.fileName).toBe('test');
+                done();
+            });
         configService.setActive(NeonConfig.get({ fileName: 'test' }));
-
-        setImmediate(() => {
-            configService.getActive()
-                .subscribe((config) => {
-                    expect(config).toBeTruthy();
-                    expect(config.fileName).toBe('test');
-                    count += 1;
-                });
-            expect(count).toBe(1);
-            done();
-        });
     });
 });

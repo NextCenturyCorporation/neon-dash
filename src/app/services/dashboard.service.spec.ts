@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { inject } from '@angular/core/testing';
 
@@ -20,7 +19,7 @@ import { NeonConfig, NeonDatastoreConfig, NeonDashboardLeafConfig, FilterConfig 
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
@@ -440,7 +439,7 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(dashboardService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
 
-    it('exportConfig should produce valid results', () => {
+    it('exportConfig should produce valid results', (done) => {
         const filters: FilterConfig[] = [
             {
                 root: '',
@@ -506,7 +505,8 @@ describe('Service: DashboardService with Mock Data', () => {
                         binding3: 'c',
                         binding4: 'd'
                     }
-                }]
+                }
+            ]
         };
 
         let config = NeonConfig.get({
@@ -516,8 +516,11 @@ describe('Service: DashboardService with Mock Data', () => {
                     type: 'type1',
                     databases: {
                         databaseZ: {
+                            prettyName: 'databaseZ',
                             tables: {
-                                tableA: {}
+                                tableA: {
+                                    prettyName: 'tableA'
+                                }
                             }
                         }
                     }
@@ -527,14 +530,16 @@ describe('Service: DashboardService with Mock Data', () => {
                     type: 'type2',
                     databases: {
                         databaseY: {
+                            prettyName: 'databaseY',
                             tables: {
-                                tableB: {},
-                                tableC: {}
+                                tableB: { prettyName: 'tableB' },
+                                tableC: { prettyName: 'tableC' }
                             }
                         },
                         databaseX: {
+                            prettyName: 'databaseX',
                             tables: {
-                                tableD: {}
+                                tableD: { prettyName: 'tableD' }
                             }
                         }
                     }
@@ -544,8 +549,9 @@ describe('Service: DashboardService with Mock Data', () => {
                     type: 'type3',
                     databases: {
                         databaseW: {
+                            prettyName: 'databaseW',
                             tables: {
-                                tableE: {}
+                                tableE: { prettyName: 'tableE' }
                             }
                         }
                     }
@@ -575,37 +581,52 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         });
 
+        const localDashboardService = new DashboardService(
+            configService,
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
+        );
+
+        localDashboardService.configSource.subscribe(() => {
+            localDashboardService.stateSource.subscribe(() => {
+                localDashboardService.gridState.tabs[0] = {
+                    name: 'testState',
+                    list: layouts.testState
+                };
+
+                const data = localDashboardService
+                    .exportToConfig('testState', filters) as NeonConfig & { dashboards: NeonDashboardLeafConfig };
+                expect(data.dashboards.fullTitle).toEqual('Full Title');
+                expect(data.dashboards.layout).toEqual('testState');
+                expect(data.dashboards.name).toEqual('testState');
+                expect(data.dashboards.tables).toEqual({
+                    table_key_1: 'datastore1.databaseZ.tableA',
+                    table_key_2: 'datastore2.databaseY.tableB'
+                });
+                expect(data.dashboards.fields).toEqual({
+                    field_key_1: 'datastore1.databaseZ.tableA.field1',
+                    field_key_2: 'datastore2.databaseY.tableB.field2'
+                });
+                expect(data.dashboards.options).toEqual({
+                    connectOnLoad: true,
+                    simpleFilter: {
+                        databaseName: 'databaseZ',
+                        tableName: 'tableA',
+                        fieldName: 'field1'
+                    }
+                });
+                expect(data.dashboards.pathFromTop).toBeUndefined();
+                expect(data.dashboards.filters).toEqual(filters);
+                expect(data.datastores).toEqual(config.datastores);
+                expect(data.layouts).toEqual(layouts);
+                expect(data.projectTitle).toEqual('testState');
+                done();
+            });
+
+            localDashboardService.setActiveDashboard(config.dashboards as NeonDashboardLeafConfig);
+        });
+
         configService.setActive(config);
-
-        dashboardService.gridState.tabs[0] = {
-            name: 'testState',
-            list: layouts.testState
-        };
-
-        const data = dashboardService.exportToConfig('testState', filters) as NeonConfig & { dashboards: NeonDashboardLeafConfig };
-        expect(data.dashboards.fullTitle).toEqual('Full Title');
-        expect(data.dashboards.layout).toEqual('testState');
-        expect(data.dashboards.name).toEqual('testState');
-        expect(data.dashboards.tables).toEqual({
-            table_key_1: 'datastore1.databaseZ.tableA',
-            table_key_2: 'datastore2.databaseY.tableB'
-        });
-        expect(data.dashboards.fields).toEqual({
-            field_key_1: 'datastore1.databaseZ.tableA.field1',
-            field_key_2: 'datastore2.databaseY.tableB.field2'
-        });
-        expect(data.dashboards.options).toEqual({
-            connectOnLoad: true,
-            simpleFilter: {
-                databaseName: 'databaseZ',
-                tableName: 'tableA',
-                fieldName: 'field1'
-            }
-        });
-        expect(data.dashboards.pathFromTop).toBeUndefined();
-        expect(data.dashboards.filters).toEqual(filters);
-        expect(data.datastores).toEqual(config.datastores);
-        expect(data.layouts).toEqual(layouts);
-        expect(data.projectTitle).toEqual('testState');
     });
 });

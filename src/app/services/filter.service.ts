@@ -855,8 +855,8 @@ export class FilterService {
             let cachedFilterList: AbstractFilter[] = filterCollection.getFilters(datasourceList);
 
             // If the new (compatible global) filter list is not equal to the old (cached) filter list, update the filter collection.
-            let equals: boolean = filterList.length === cachedFilterList.length && filterList.every((filter, index) =>
-                filter.isEquivalentToFilter(cachedFilterList[index]));
+            let equals: boolean = filterList.length === cachedFilterList.length && filterList.every((filterItem, index) =>
+                filterItem.isEquivalentToFilter(cachedFilterList[index]));
 
             if (!equals) {
                 filterCollection.setFilters(datasourceList, filterList);

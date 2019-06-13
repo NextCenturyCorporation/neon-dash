@@ -756,7 +756,6 @@ describe('Component: TaxonomyViewer', () => {
             value: 'testTypeA'
         });
 
-
         expect(groups[0].checked).toEqual(true);
         expect(groups[0].children[0].checked).toEqual(true);
         expect(groups[0].children[0].indeterminate).toEqual(true);
@@ -767,9 +766,7 @@ describe('Component: TaxonomyViewer', () => {
         expect(groups[1].children[0].checked).toEqual(true);
         expect(groups[1].children[1].checked).toEqual(true);
         expect(groups[2].checked).toEqual(true);
-
     });
-
 
     it('checkRelatedNodes to deselect a category with other unselected categories does call exchangeFilters', () => {
         let spy = spyOn(component, 'exchangeFilters');

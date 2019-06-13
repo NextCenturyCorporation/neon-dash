@@ -94,7 +94,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
         this.dashboardService.stateSource.subscribe(() => {
             this.updateSimpleSearchFilter();
-        })
+        });
 
         this.changeDetection.detectChanges();
     }

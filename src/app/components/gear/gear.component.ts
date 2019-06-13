@@ -296,7 +296,7 @@ export class GearComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
-            this.exportCallbacks = [this.comp.exportData];
+            this.exportCallbacks = [this.comp.exportData.bind(this.comp)];
             this.resetOptions();
             this.constructOptions();
         }

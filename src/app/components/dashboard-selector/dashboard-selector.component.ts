@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 
 import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
 
@@ -28,7 +28,6 @@ import { DashboardUtil } from '../../util/dashboard.util';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-
     public dashboardChoice: NeonDashboardConfig;
 
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -49,7 +48,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.dashboardService.stateSource.subscribe((state) => {
             this.dashboards = this.dashboardService.config.dashboards;
             this.onDashboardStateChange(state.dashboard);
-        })
+        });
     }
 
     ngOnDestroy(): void {
@@ -76,7 +75,6 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 choices: { [dashboard.name]: dashboard }
             });
             this.choices = this.computePath();
-            console.log('Computed choices', this.choices);
         }
     }
 
@@ -118,8 +116,6 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public getChoices(dashboard: NeonDashboardChoiceConfig) {
         return Object.values(dashboard.choices)
             .filter((db1) => !!db1.name)
-            .sort((db1, db2) => {
-                return db1.name.localeCompare(db2.name);
-            });
+            .sort((db1, db2) => db1.name.localeCompare(db2.name));
     }
 }
