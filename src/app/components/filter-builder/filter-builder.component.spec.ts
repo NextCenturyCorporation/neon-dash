@@ -75,10 +75,6 @@ describe('Component: Filter Builder', () => {
         expect(component.parentFilterIsOr).toEqual(false);
     });
 
-    it('does show expected HTML elements', () => {
-        // TODO THOR-701
-    });
-
     it('addBlankFilterClause does add a new blank filter clause to the internal list', () => {
         component.addBlankFilterClause();
 
@@ -101,19 +97,11 @@ describe('Component: Filter Builder', () => {
         // TODO THOR-701
     });
 
-    it('addBlankFilterClause does add a new set of HTML elements', () => {
-        // TODO THOR-701
-    });
-
     it('clearEveryFilterClause does remove all the filter clauses from the internal list', () => {
         // TODO THOR-701
     });
 
     it('handleChangeDatabaseOfClause does update database/tables/fields', () => {
-        // TODO THOR-701
-    });
-
-    it('handleChangeDataOfClause does work as expected', () => {
         // TODO THOR-701
     });
 
@@ -129,19 +117,23 @@ describe('Component: Filter Builder', () => {
         // TODO THOR-701
     });
 
-    it('saveFilter does not add a new filter to the filter service if any of the filter clauses are not valid', () => {
+    it('removeClause does add a blank filter clause to the internal list if it is empty', () => {
         // TODO THOR-701
     });
 
-    it('saveFilter does add a new simple filter to the filter service and clear the internal list of filter clauses', () => {
+    it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
         // TODO THOR-701
     });
 
-    it('saveFilter does add a new compound OR filter to the filter service', () => {
+    it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
         // TODO THOR-701
     });
 
-    it('saveFilter does add a new compound AND filter to the filter service', () => {
+    it('saveFilter does call filterService.toggleFilters with a compound OR filter and clear the internal list of filter clauses', () => {
+        // TODO THOR-701
+    });
+
+    it('saveFilter does call filterService.toggleFilters with a compound AND filter and clear the internal list of filter clauses', () => {
         // TODO THOR-701
     });
 
