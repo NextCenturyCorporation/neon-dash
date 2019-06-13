@@ -29,7 +29,7 @@ import {
     WidgetOptionCollection
 } from '../../widget-option';
 
-import { eventing } from 'neon-framework'; // Imported this to keep messenger availavble to listen to events
+import { eventing } from 'neon-framework';
 import { neonEvents } from '../../../app/neon-namespaces';
 import { MatDialog } from '@angular/material';
 
@@ -40,7 +40,7 @@ import { MatDialog } from '@angular/material';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-// Should I write the ngOnInit functions and ngOnDestroy
+
 export class FilterBuilderComponent {
     protected messenger: eventing.Messenger;
     public filterClauses: FilterClauseMetaData[] = [];
