@@ -83,13 +83,7 @@ export class GridState {
     }
 
     /**
-     * Compute index of    public selectedTabIndex = 0;
-    public tabs: NeonGridTab[] = [{
-        list: [],
-        name: ''
-    }];
-
-    public widgets: Map<string, BaseNeonComponent> = new Map(); grid in tabs list by name of grid
+     * Compute index of grid in tabs list by name of grid
      */
     static getGridIndexFromName(gridName: string, grids: NeonGridTab[]) {
         let index = grids.findIndex((grid) => grid.name === gridName);
