@@ -913,7 +913,7 @@ describe('Dashboard', () => {
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
-        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
             gridName: '',
             widgetGridItem: {
@@ -990,7 +990,7 @@ describe('Dashboard', () => {
         expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
 
         expect(spySender.calls.count()).toEqual(4);
-        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
         expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
             gridName: 'tab1',
             widgetGridItem: {
@@ -1013,16 +1013,6 @@ describe('Dashboard', () => {
         expect(spySimpleFilter.calls.count()).toEqual(1);
 
         expect(component.showDashboardSelector).toEqual(false);
-    });
-
-    it('showDashboardStateOnPageLoad should auto-show dashboard as expected', () => {
-        let spySender = spyOn(component.messageSender, 'publish');
-
-        component['dashboards'] = NeonDashboardLeafConfig.get();
-
-        component['showDashboardStateOnPageLoad']();
-
-        expect(spySender.calls.count()).toEqual(0);
     });
 
     it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
@@ -1048,9 +1038,8 @@ describe('Dashboard', () => {
             dashboards: testDashboard
         }));
 
-
         expect(spySender.calls.count()).toEqual(1);
-        // expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
+        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
         //     dashboard: showDashboard
         // }]);
     });

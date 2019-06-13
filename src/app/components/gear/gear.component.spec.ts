@@ -39,7 +39,7 @@ import {
 } from '../../model/widget-option';
 
 class MockConfigurable implements ConfigurableWidget {
-    options = new WidgetOptionCollection(() => { return []; });
+    options = new WidgetOptionCollection(() => []);
     calledChangeData = 0;
     calledChangeFilterData = 0;
     calledFinalizeCreateLayer = 0;
@@ -49,33 +49,39 @@ class MockConfigurable implements ConfigurableWidget {
     calledHandleChangeSubcomponentType = 0;
     calledExportData = 0;
 
-    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+    changeData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
         this.calledChangeData++;
     }
-    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
+
+    changeFilterData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
         this.calledChangeFilterData++;
     }
-    finalizeCreateLayer(layerOptions: any): void {
+
+    finalizeCreateLayer(__layerOptions: any): void {
         this.calledFinalizeCreateLayer++;
     }
-    finalizeDeleteLayer(layerOptions: any): void {
+
+    finalizeDeleteLayer(__layerOptions: any): void {
         this.calledFinalizeDeleteLayer++;
     }
-    createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void {
+
+    createLayer(__options: WidgetOptionCollection, __layerBindings?: Record<string, any>): void {
         this.calledCreateLayer++;
     }
-    deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean {
+
+    deleteLayer(__options: WidgetOptionCollection, __layerOptions: any): boolean {
         this.calledDeleteLayer++;
         return undefined;
     }
-    handleChangeSubcomponentType(options?: WidgetOptionCollection): void {
+
+    handleChangeSubcomponentType(__options?: WidgetOptionCollection): void {
         this.calledFinalizeDeleteLayer++;
     }
-    exportData(): { name: string; data: any; }[] {
+
+    exportData(): { name: string, data: any }[] {
         this.calledExportData++;
         return [];
     }
-
 }
 
 describe('Component: Gear Component', () => {
@@ -539,7 +545,7 @@ describe('Component: Gear Component', () => {
         let called = 0;
         const mock = new MockConfigurable();
         component.comp = mock;
-        mock.createLayer = () => {
+        (mock as any).createLayer = () => {
             called++;
             return {
                 _id: 'testId' + called
@@ -557,7 +563,7 @@ describe('Component: Gear Component', () => {
         component.layerHidden.set('testId1', true);
         const mock = new MockConfigurable();
         component.comp = mock;
-        mock.deleteLayer = () => {
+        (mock as any).deleteLayer = () => {
             called++;
             return true;
         };
@@ -577,7 +583,7 @@ describe('Component: Gear Component', () => {
         let called = 0;
         const mock = new MockConfigurable();
         component.comp = mock;
-        mock.deleteLayer = () => {
+        (mock as any).deleteLayer = () => {
             called++;
             return false;
         };

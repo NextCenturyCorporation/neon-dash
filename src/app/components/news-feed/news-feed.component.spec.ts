@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, } from '../../model/types';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -98,7 +98,7 @@ describe('Component: NewsFeed', () => {
         expect(actual.length).toEqual(1);
         expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        // expect((actual[0].FIELD_MAP.filterDesign).field).toEqual(DashboardServiceMock.FILTER); // TODO: Verify
+        // Expect((actual[0].FIELD_MAP.filterDesign).field).toEqual(DashboardServiceMock.FILTER); // TODO: Verify
         expect((actual[0].filterDesign).operator).toEqual('=');
         expect((actual[0].filterDesign).value).toBeUndefined();
     });

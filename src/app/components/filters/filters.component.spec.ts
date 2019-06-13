@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector, DebugElement } from '@angular/core';
+import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
@@ -27,7 +27,6 @@ import { FilterService } from '../../services/filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { By } from '@angular/platform-browser';
 
 import { FiltersModule } from './filters.module';
 import { ConfigService } from '../../services/config.service';
@@ -36,7 +35,6 @@ describe('Component: Filters', () => {
     let testConfig: NeonConfig = NeonConfig.get();
     let component: FiltersComponent;
     let fixture: ComponentFixture<FiltersComponent>;
-    let debugElement: DebugElement;
 
     initializeTestBed('Filters', {
         providers: [
@@ -56,8 +54,6 @@ describe('Component: Filters', () => {
         fixture = TestBed.createComponent(FiltersComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-
-        debugElement = fixture.debugElement;
     });
 
     it('exists', (() => {

@@ -169,7 +169,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
     }
 
-
     get currentDashboard() {
         return this.dashboardService.state.dashboard;
     }

@@ -599,5 +599,5 @@ export interface ConfigurableWidget {
     deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
     finalizeDeleteLayer(layerOptions: any): void;
     handleChangeSubcomponentType(options?: WidgetOptionCollection): void;
-    exportData(): { name: string, data: any }[]
+    exportData(): { name: string, data: any }[];
 }
