@@ -296,6 +296,7 @@ export class GearComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
+            /* eslint-disable-next-line @typescript-eslint/unbound-method */
             this.exportCallbacks = [this.comp.exportData];
             this.resetOptions();
             this.constructOptions();
