@@ -18,79 +18,69 @@ import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
 
-import { ReplaySubject, Observable, combineLatest, of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { ReplaySubject, Observable, combineLatest, of, from } from 'rxjs';
+import { map, catchError, switchMap, take } from 'rxjs/operators';
+import { NeonConfig } from '../model/types';
 import { Injectable } from '@angular/core';
-
-const EMPTY_CONFIG = {
-    dashboard: {},
-    help: {},
-    datasets: [],
-    layouts: {
-        default: []
-    },
-    customFilters: {}
-};
-
-let configErrors = [];
+import { ConnectionService } from './connection.service';
 
 @Injectable()
 export class ConfigService {
-    private source = new ReplaySubject<NeonGTDConfig>(1);
+    private configErrors = [];
+    private source = new ReplaySubject<NeonConfig>(1);
 
-    $source: Observable<NeonGTDConfig>;
+    $source: Observable<NeonConfig>;
 
-    static as(config: NeonGTDConfig) {
-        return new ConfigService(null).set(config);
+    static as(config: NeonConfig) {
+        return new ConfigService(null, null).setActive(config);
     }
 
-    constructor(private http: HttpClient) { }
+    static validateName(fileName: string): string {
+        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
+        return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
+    }
 
-    handleConfigFileError(error, file?: any) {
+    constructor(
+        private http: HttpClient,
+        private connectionService: ConnectionService
+    ) { }
+
+    private openConnection() {
+        return this.connectionService.connect('.', '.', true);
+    }
+
+    private handleConfigFileError(error, file?: any) {
         if (error.status === 404) {
             // Fail silently.
         } else {
             console.error(error);
-            configErrors.push('Error reading config file ' + file);
-            configErrors.push(error.message);
+            this.configErrors.push('Error reading config file ' + file);
+            this.configErrors.push(error.message);
         }
         return of(undefined);
     }
 
-    handleConfigPropertyServiceError(error) {
-        if (error.message === 'No config') {
-            // Do nothing, this is the expected response
-        } else if (error.status === 404) {
-            // Fail silently.
-        } else {
-            console.error(error);
-            configErrors.push('Error reading Property Service config!');
-            configErrors.push(error.message);
-        }
-        return of(undefined);
-    }
-
-    loadConfigFromLocal(path): Observable<NeonGTDConfig | undefined> {
-        return this.http.get(path, { responseType: 'text', params: { rnd: `${Math.random() * 1000000}.${Date.now()}` } })
-            .pipe(map((response: any) => yaml.load(response) as NeonGTDConfig))
+    private loadFromFolder(path): Observable<NeonConfig | undefined> {
+        return this.http.get(path, {
+            responseType: 'text',
+            params: {
+                rnd: `${Math.random() * 1000000}.${Date.now()}`
+            }
+        })
+            .pipe(map((response: any) => yaml.load(response) as NeonConfig))
             .pipe(catchError((error) => this.handleConfigFileError(error)));
     }
 
-    loadConfigFromPropertyService(): Observable<NeonGTDConfig | undefined> {
-        return this.http.get<NeonGTDConfig | void>('../neon/services/propertyservice/config')
-            .pipe(catchError((error) => this.handleConfigPropertyServiceError(error)));
-    }
-
-    takeFirstLoadedOrFetchDefault(all: (NeonGTDConfig | null)[]) {
+    private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
         const next = all.find((el) => !!el);
         if (next) {
             return of(next);
         }
-        return this.loadConfigFromPropertyService();
+        return this.list()
+            .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-    finalizeConfig(configInput: NeonGTDConfig) {
+    private finalizeConfig(configInput: NeonConfig) {
         let config = configInput;
         if (config && config.neonServerUrl) {
             neon.setNeonServerUrl(config.neonServerUrl);
@@ -98,27 +88,27 @@ export class ConfigService {
 
         if (!config) {
             console.error('Config is empty', config);
-            configErrors.push('Config is empty!');
-            config = EMPTY_CONFIG as any as NeonGTDConfig;
+            this.configErrors.push('Config is empty!');
+            config = NeonConfig.get();
         }
 
-        if (configErrors.length) {
-            config.errors = configErrors;
-            configErrors = [];
+        if (this.configErrors.length) {
+            config.errors = this.configErrors;
+            this.configErrors = [];
         }
 
         return config;
     }
 
-    fetchConfig(configList: string[]) {
-        return combineLatest(...configList.map((config) => this.loadConfigFromLocal(config)))
+    private getDefault(configList: string[]) {
+        return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
             .pipe(
-                switchMap(this.takeFirstLoadedOrFetchDefault.bind(this)),
-                map(this.finalizeConfig.bind(this))
+                switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
+                map((config) => this.finalizeConfig(config))
             );
     }
 
-    initSource() {
+    private initSource() {
         if (!this.$source) {
             this.$source = this.source.asObservable().pipe(map((data) => JSON.parse(JSON.stringify(data))));
             return true;
@@ -126,18 +116,66 @@ export class ConfigService {
         return false;
     }
 
-    set(config: NeonGTDConfig) {
+    setActive(config: NeonConfig) {
         this.initSource();
         this.source.next(config);
         return this;
     }
 
-    get() {
+    getActive() {
         if (this.initSource()) {
             neon.setNeonServerUrl('../neon');
-            this.fetchConfig(environment.config)
-                .subscribe((el) => this.source.next(el as NeonGTDConfig));
+            this.getDefault(environment.config)
+                .subscribe((el) => this.source.next(el));
         }
         return this.$source;
+    }
+
+    /**
+     * Saves config under name
+     */
+    save(config: NeonConfig): Observable<void> {
+        return from(new Promise<void>((resolve, reject) => {
+            config.projectTitle = ConfigService.validateName(config.projectTitle);
+            config['stateName'] = config.projectTitle;
+            this.openConnection().saveState(config, resolve, reject);
+        })).pipe(take(1));
+    }
+
+    /**
+     * Loads the dashboard state with the given name.
+     */
+    load(name: string): Observable<NeonConfig> {
+        return from(new Promise<NeonConfig>((resolve, reject) => {
+            const validName = ConfigService.validateName(name);
+            this.openConnection().loadState(validName, resolve, reject);
+        })).pipe(
+            take(1),
+            map((config) => {
+                if (!(config.dashboards && config.datastores && config.layouts)) {
+                    throw new Error(`${name} not loaded:  bad format`);
+                }
+                return config;
+            })
+        );
+    }
+
+    /*
+     * Deletes the state by name
+     */
+    delete(name: string) {
+        return from(new Promise<void>((resolve, reject) => {
+            const validName = ConfigService.validateName(name);
+            this.openConnection().deleteState(validName, resolve, reject);
+        })).pipe(take(1));
+    }
+
+    /**
+     * Get list of available dashboard states.
+     */
+    list(limit = 100, offset = 0) {
+        return from(new Promise<{ total: number, results: NeonConfig[] }>((resolve, reject) => {
+            this.openConnection().listStates(limit, offset, resolve, reject);
+        })).pipe(take(1));
     }
 }

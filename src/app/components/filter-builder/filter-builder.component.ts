@@ -23,19 +23,19 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
 import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetOptionCollection
-} from '../../widget-option';
+} from '../../model/widget-option';
 
-import { neonEvents } from '../../../app/neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -62,7 +62,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public parentFilterIsOr: boolean = false;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -70,7 +70,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -88,7 +88,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.datasetService);
+        filterClause.updateDatabases(this.dashboardState);
         filterClause.field = this.createEmptyField();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -204,7 +204,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.datasetService);
+        filterClause.updateTables(this.dashboardState);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -233,7 +233,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.datasetService);
+        filterClause.updateFields(this.dashboardState);
     }
 
     /**
@@ -296,7 +296,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.datasetService.findRelationDataList(),
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
                 this.searchService);
 
             this.clearEveryFilterClause();
@@ -358,10 +358,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends WidgetOptionCollection {
-    changeDatabase: DatabaseMetaData;
-    changeTable: TableMetaData;
-    changeField: FieldMetaData;
-    field: FieldMetaData;
+    changeDatabase: NeonDatabaseMetaData;
+    changeTable: NeonTableMetaData;
+    changeField: NeonFieldMetaData;
+    field: NeonFieldMetaData;
     operator: OperatorMetaData;
     value: string;
 }

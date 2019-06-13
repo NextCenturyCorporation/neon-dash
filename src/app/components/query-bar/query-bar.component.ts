@@ -19,12 +19,12 @@ import { map, startWith } from 'rxjs/operators';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -33,7 +33,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -59,7 +59,7 @@ export class QueryBarComponent extends BaseNeonComponent {
     private previousText: string = '';
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -68,7 +68,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         dialog: MatDialog
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -98,9 +98,9 @@ export class QueryBarComponent extends BaseNeonComponent {
         fieldName: string,
         value?: any
     ): FilterDesign {
-        let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(databaseName);
-        let table: TableMetaData = this.datasetService.getTableWithName(databaseName, tableName);
-        let field: FieldMetaData = this.datasetService.getFieldWithName(databaseName, tableName, fieldName);
+        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(databaseName);
+        let table: NeonTableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
+        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
             datastore: '',
             database: database,
@@ -138,7 +138,7 @@ export class QueryBarComponent extends BaseNeonComponent {
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
-            // TODO THOR-950 Rename extensionFields because it is not an array of FieldMetaData objects!
+            // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
@@ -361,7 +361,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
             let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
             let queryFields = [fields.idField, fields.filterField];
-            let execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
+            let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
                 query: extensionQuery
             });
             let tempArray = [];

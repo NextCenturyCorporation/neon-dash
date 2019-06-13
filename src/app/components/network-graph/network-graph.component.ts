@@ -33,12 +33,12 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -47,7 +47,7 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetColorOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -220,7 +220,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private graph: vis.Network;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -230,7 +230,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         public visualization: ElementRef,
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -304,7 +304,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnNodeDataItem(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnNodeDataItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
             database: this.options.database,
@@ -400,7 +400,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             } as FilterBehavior);
         }
 
-        let filterFields: FieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
+        let filterFields: NeonFieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
                 if (layer.layerType === LayerType.Nodes) {
@@ -895,7 +895,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-        xPositionField: string, yPositionField: string, filterFields: FieldMetaData[]) {
+        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[]) {
         let ret: Node[] = [];
         let color = originalColor;
         for (let entry of data) {

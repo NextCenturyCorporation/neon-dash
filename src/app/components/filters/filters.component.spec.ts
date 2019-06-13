@@ -18,13 +18,13 @@ import { Injector, DebugElement } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../model/types';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { By } from '@angular/platform-browser';
@@ -33,14 +33,14 @@ import { FiltersModule } from './filters.module';
 import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: FiltersComponent;
     let fixture: ComponentFixture<FiltersComponent>;
     let debugElement: DebugElement;
 
     initializeTestBed('Filters', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,

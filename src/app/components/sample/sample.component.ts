@@ -31,19 +31,19 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../model/types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { MatDialog } from '@angular/material';
@@ -76,7 +76,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     /* eslint-disable @typescript-eslint/no-useless-constructor */
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -85,7 +85,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -120,7 +120,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         ];
     }
 
-    private createFilterDesign(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesign(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
             database: this.options.database,

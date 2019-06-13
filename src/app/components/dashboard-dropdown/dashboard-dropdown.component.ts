@@ -21,7 +21,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { Dashboard } from '../../dataset';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
 import * as _ from 'lodash';
 
 @Component({
@@ -30,13 +30,17 @@ import * as _ from 'lodash';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardDropdownComponent {
-    @Input() dashboards: Dashboard;
+    @Input() dashboards: NeonDashboardConfig;
     @Output() selectionChange = new EventEmitter();
     @ViewChild('nextDropdown') nextDropdown: DashboardDropdownComponent;
 
-    public selectedDashboard: Dashboard;
+    public selectedDashboard: NeonDashboardConfig;
 
-    constructor(public changeDetection: ChangeDetectorRef) {}
+    constructor(public changeDetection: ChangeDetectorRef) { }
+
+    get choices(): Record<string, NeonDashboardConfig> {
+        return 'choices' in this.dashboards ? this.dashboards.choices : {};
+    }
 
     /**
      * Returns all keys for current dashboard choices.
@@ -44,7 +48,7 @@ export class DashboardDropdownComponent {
      * @return {String[]}
      */
     getDashboardKeys() {
-        return this.dashboards ? Object.keys(this.dashboards.choices) : null;
+        return Object.keys(this.choices);
     }
 
     /**
@@ -54,7 +58,7 @@ export class DashboardDropdownComponent {
      * @return {String}
      */
     getDashboardName(key: string) {
-        return this.dashboards.choices[key].name;
+        return key in this.choices ? this.choices[key].name : '';
     }
 
     /**
@@ -67,22 +71,21 @@ export class DashboardDropdownComponent {
         // otherwise, emit undefined
         if (!this.hasMoreChoices()) {
             this.selectionChange.emit(this.selectedDashboard);
-        } else if (this.hasMoreChoices() && this.selectedDashboard) {
+        } else if (this.selectedDashboard) {
             this.selectionChange.emit();
         }
     }
 
     /**
      * Checks to see if there are more dashboard choices available from the selectedDashboard chosen.
-     *
-     * @return {Boolean}
      */
-    hasMoreChoices() {
-        return (
-            this.selectedDashboard &&
-            this.selectedDashboard.choices &&
-            _.findKey(this.dashboards.choices, this.selectedDashboard as any)
-        );
+    hasMoreChoices(): boolean {
+        const dash = this.selectedDashboard || {};
+        if (!('choices' in dash)) {
+            return false;
+        }
+        return !_.isEmpty(dash.choices) &&
+            !!_.findKey(this.choices, dash);
     }
 
     /**
@@ -97,13 +100,13 @@ export class DashboardDropdownComponent {
     /**
      * Used to select correct choices from dropdown(s) if connectOnLoad is set to true for one of the dashboards in the config.
      *
-     * @arg {Dashboard} dashboard
+     * @arg  dashboard
      * @arg {string[]} paths - paths to use to access dashboard choices
      * @arg {number} indexToUse - index to use to access path within paths array
      * @arg {DashboardDropdownComponent} dropdown - dropdown component
      */
     selectDashboardChoice(
-        dashboard: Dashboard,
+        dashboard: NeonDashboardChoiceConfig,
         paths: string[],
         indexToUse: number,
         dropdown: DashboardDropdownComponent

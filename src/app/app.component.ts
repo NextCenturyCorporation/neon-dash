@@ -14,7 +14,7 @@
  */
 import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
-import { NeonGTDConfig } from './neon-gtd-config';
+import { NeonConfig } from './model/types';
 
 @Component({
     selector: 'app-root',
@@ -22,7 +22,7 @@ import { NeonGTDConfig } from './neon-gtd-config';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    public config: NeonGTDConfig;
+    public config: NeonConfig;
 
     @HostBinding('class.loading')
     loading = true;
@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.get().subscribe((config) => {
+        this.service.getActive().subscribe((config) => {
             this.loading = false;
             this.config = config;
         });
