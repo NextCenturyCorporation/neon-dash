@@ -58,19 +58,22 @@
             </button>
 
             <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
-                <button mat-menu-item (click)="setPanel('addVis', 'Visualization');">
-                    <mat-icon color="secondary">add_circle</mat-icon>Visualizations
+                <button mat-menu-item (click)="setPanel('addVis', 'Add Visualizations');">
+                    <mat-icon color="secondary">add_circle</mat-icon>Add Visualizations
                 </button>
                 <button mat-menu-item (click)="setPanel('savedState', 'Save States');">
                     <mat-icon color="secondary">save</mat-icon>Saved States
                 </button>
-                <button mat-menu-item (click)="setPanel('settings', 'Settings');">
-                    <mat-icon color="secondary">settings</mat-icon>Settings
+                <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
+                    <mat-icon color="secondary">settings</mat-icon>Dashboard Settings
+                </button>
+                <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
+                    <mat-icon color="secondary">info</mat-icon>About the Neon Dashboard
                 </button>
 
                 <!-- TODO THOR-1056
-                <button mat-menu-item (click)="setPanel('customConnection', 'Custom Data Source')" *ngIf="showCustomConnectionButton">
-                    <mat-icon color="secondary">storage</mat-icon>Custom Data Source
+                <button mat-menu-item (click)="setPanel('customConnection', 'Add Custom Data Source')" *ngIf="showCustomConnectionButton">
+                    <mat-icon color="secondary">storage</mat-icon>Add Custom Data Source
                 </button>
             -->
             </mat-menu>
