@@ -657,10 +657,27 @@ describe('Component: Gear Component', () => {
         // TODO
     });
 
+    it('handleRefreshClick does reset options and close menu', () => {
+        let calledChangeData = 0;
+        (component as any).handleChangeData = () => {
+            calledChangeData++;
+        };
+        let calledCloseSidenav = 0;
+        (component as any).closeSidenav = () => {
+            calledCloseSidenav++;
+        };
+
+        component.handleRefreshClick();
+
+        expect(calledChangeData).toEqual(1);
+        expect(component.changeMade).toEqual(false);
+        expect(calledCloseSidenav).toEqual(1);
+    });
+
     it('resetOptionsAndClose does reset HTML elements and close gear menu', () => {
         // TODO
         // component.resetOptionsAndClose();
-        // expect(component.changeMage).toEqual(false);
+        // expect(component.changeMade).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
         // expect(component.layerHidden).toEqual(new Map<string, boolean>());
     });
