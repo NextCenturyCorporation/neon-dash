@@ -145,6 +145,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                 return nestedDashboard;
             }
         }
+        return null;
     }
 
     constructor(

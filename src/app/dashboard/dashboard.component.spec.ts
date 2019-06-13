@@ -1038,7 +1038,8 @@ describe('Dashboard', () => {
                 connectOnLoad: true
             }
         });
-        // ShowDashboard.datastores = {
+        // TODO
+        // showDashboard.datastores = {
         //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
@@ -1064,8 +1065,8 @@ describe('Dashboard', () => {
         let showDashboard = NeonDashboardLeafConfig.get({
             name: 'test'
         });
-
-        // ShowDashboard.datastores = {
+        // TODO
+        // showDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {
@@ -1090,7 +1091,8 @@ describe('Dashboard', () => {
         let spySender = spyOn(component.messageSender, 'publish');
 
         let showDashboard = NeonDashboardLeafConfig.get({ name: 'test' });
-        // ShowDashboard.datastores = {
+        // TODO
+        // showDashboard.datastores = {
         //     testDatastoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         showDashboard.options = {

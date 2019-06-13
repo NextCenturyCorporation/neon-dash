@@ -36,6 +36,8 @@ export function Confirm(config: {
 }) {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
+        // TODO Why doesn't this function have a return value?
+        /* eslint-disable-next-line consistent-return */
         descriptor.value = function(this: SaveStateComponent, value: any, confirm = true) {
             if (!confirm) {
                 return fn.call(this, value);
