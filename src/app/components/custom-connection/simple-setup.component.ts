@@ -14,11 +14,11 @@
  */
 import { Component } from '@angular/core';
 
-import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
+import { NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../../model/types';
+import { ConnectionService, Connection } from '../../services/connection.service';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
 
@@ -39,22 +39,22 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     // Variables associated with selecting databases and tables.
     public selectedDatabase: {
-        database: DatabaseMetaData;
+        database: NeonDatabaseMetaData;
         selectedTable: {
             selected: boolean;
-            table: TableMetaData;
+            table: NeonTableMetaData;
         };
     };
 
     public customDatabases: {
-        database: DatabaseMetaData;
+        database: NeonDatabaseMetaData;
         customTables: {
             selected: boolean;
-            table: TableMetaData;
+            table: NeonTableMetaData;
         }[];
     }[];
 
-    constructor(private datasetService: DatasetService, private searchService: AbstractSearchService) {
+    constructor(private datasetService: DashboardService, private connectionService: ConnectionService) {
         super();
         this.selected = true;
         this.stepNumber = 1;
@@ -76,13 +76,16 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     onComplete(): void {
         this.data.selectedDatabases = this.customDatabases.map(
             (customDatabase) => {
-                let database = new DatabaseMetaData(
-                    customDatabase.database.name,
-                    customDatabase.database.prettyName
-                );
+                let database = NeonDatabaseMetaData.get({
+                    name: customDatabase.database.name,
+                    prettyName: customDatabase.database.prettyName
+                });
                 database.tables = customDatabase.customTables.map(
                     (customTable) => customTable.table
-                );
+                ).reduce((acc, table) => {
+                    acc[table.name] = table;
+                    return acc;
+                }, {} as { [key: string]: NeonTableMetaData });
                 return database;
             }
         );
@@ -90,7 +93,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     validateDatasetName(): void {
         this.datasetNameIsValid = this.data.datasetName !== '';
-        this.datasetService.getDatasets().forEach((dataset) => {
+        Object.values(this.datasetService.config.datastores).forEach((dataset) => {
             this.datasetNameIsValid =
                 this.datasetNameIsValid &&
                 dataset.name !== this.data.datasetName;
@@ -106,7 +109,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     }
 
     connectToServer(): void {
-        let connection: Connection = this.searchService.createConnection(this.data.datastoreType, this.data.datastoreHost);
+        let connection = this.connectionService.connect(this.data.datastoreType, this.data.datastoreHost);
         if (!connection) {
             return;
         }
@@ -117,7 +120,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             (databaseNames) => {
                 databaseNames.forEach((databaseName) => {
                     this.data.allDatabases.push(
-                        new DatabaseMetaData(databaseName, databaseName, [])
+                        NeonDatabaseMetaData.get({ name: databaseName, prettyName: databaseName })
                     );
                 });
                 this.updateDatabases(connection);
@@ -144,13 +147,14 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                     this.tableDone(tablesDone, tableNames, connection, index);
                 }
                 tableNames.forEach((tableName) => {
-                    let table = new TableMetaData(tableName, tableName, []);
+                    let table = NeonTableMetaData.get({ name: tableName, prettyName: tableName });
                     tableNamesAndFieldNames[tableName].forEach((fieldName) => {
                         table.fields.push(
-                            new FieldMetaData(fieldName, fieldName)
+                            NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName })
                         );
                     });
-                    database.tables.push(table);
+                    database.tables[table.name] = table;
+
                     connection.getFieldTypes(
                         database.name,
                         table.name,
@@ -194,7 +198,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     selectDatabase(): void {
         this.selectedDatabase.selectedTable = {
             selected: false,
-            table: new TableMetaData()
+            table: NeonTableMetaData.get()
         };
     }
 
@@ -236,10 +240,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     resetSelectedDatabase(): void {
         this.selectedDatabase = {
-            database: new DatabaseMetaData(),
+            database: NeonDatabaseMetaData.get(),
             selectedTable: {
                 selected: false,
-                table: new TableMetaData()
+                table: NeonTableMetaData.get()
             }
         };
     }
@@ -283,5 +287,9 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             }
         }
         return true;
+    }
+
+    isTableDisabled(): boolean {
+        return !this.selectedDatabase.database.name || !Object.values(this.selectedDatabase.database.tables).length;
     }
 }

@@ -14,19 +14,18 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -39,16 +38,16 @@ describe('Component: DocumentViewer', () => {
 
     initializeTestBed('Document Viewer', {
         providers: [
-            DatasetService,
+            DashboardService,
             {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
+                provide: DashboardService,
+                useClass: DashboardServiceMock
             },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             DocumentViewerModule
@@ -66,9 +65,9 @@ describe('Component: DocumentViewer', () => {
     }));
 
     it('has expected options properties', () => {
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -77,20 +76,20 @@ describe('Component: DocumentViewer', () => {
 
     it('returns the expectedvalue from validateVisualizationQuery', () => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        component.options.table = new TableMetaData('testTable1');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     });
 
     it('returns expected query from finalizeVisualizationQuery with no sort', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -102,12 +101,12 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with sort', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
-        component.options.sortField = DatasetServiceMock.SORT_FIELD;
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
+        component.options.sortField = DashboardServiceMock.FIELD_MAP.SORT;
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
                 field: 'testTextField',
@@ -122,11 +121,11 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with metadataFields', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.metadataFields = [{
             field: 'a'
         }, {
@@ -144,11 +143,11 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns expected query from finalizeVisualizationQuery with metadataFields and popoutFields', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         component.options.metadataFields = [{
             field: 'a'
         }, {
@@ -171,9 +170,9 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('sets expected properties if transformVisualizationQueryResults returns no data', () => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -182,9 +181,9 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('sets expected properties if transformVisualizationQueryResults returns data', () => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testTextField: 'text1',
@@ -234,9 +233,9 @@ describe('Component: DocumentViewer', () => {
 
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
         expect(component.options.metadataFields).toEqual([]);
         expect(component.options.popoutFields).toEqual([]);
         expect(component.options.showSelect).toBe(false);
@@ -334,9 +333,9 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('creates elements for data', async(() => {
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         (component as any).documentViewerData = [{
             data: {
                 testTextField: 'This is a string.',
@@ -816,11 +815,11 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('populateActiveItem does use field pretty name if no name is given', () => {
-        component.options.databases = DatasetServiceMock.DATABASES;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.tables = DatasetServiceMock.TABLES;
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.databases = DashboardServiceMock.DATABASES_LIST;
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.tables = DashboardServiceMock.TABLES_LIST;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let activeItem = {
             data: {},
@@ -828,10 +827,10 @@ describe('Component: DocumentViewer', () => {
         };
 
         let responseItem = {};
-        responseItem[DatasetServiceMock.NAME_FIELD.columnName] = 'A';
-        responseItem[DatasetServiceMock.TEXT_FIELD.columnName] = 'B';
+        responseItem[DashboardServiceMock.FIELD_MAP.NAME.columnName] = 'A';
+        responseItem[DashboardServiceMock.FIELD_MAP.TEXT.columnName] = 'B';
 
-        component.populateActiveItem(activeItem, responseItem, [], DatasetServiceMock.NAME_FIELD.columnName);
+        component.populateActiveItem(activeItem, responseItem, [], DashboardServiceMock.FIELD_MAP.NAME.columnName);
 
         expect(activeItem).toEqual({
             data: {
@@ -843,7 +842,7 @@ describe('Component: DocumentViewer', () => {
             }]
         });
 
-        component.populateActiveItem(activeItem, responseItem, [], DatasetServiceMock.TEXT_FIELD.columnName, 'My Test Field');
+        component.populateActiveItem(activeItem, responseItem, [], DashboardServiceMock.FIELD_MAP.TEXT.columnName, 'My Test Field');
 
         expect(activeItem).toEqual({
             data: {
@@ -864,7 +863,7 @@ describe('Component: DocumentViewer', () => {
         expect(component.showSelectButton()).toEqual(false);
         component.options.showSelect = true;
         expect(component.showSelectButton()).toEqual(false);
-        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
         expect(component.showSelectButton()).toEqual(true);
     });
 
@@ -884,12 +883,12 @@ describe('Component: Document Viewer with Config', () => {
 
     initializeTestBed('Document Viewer', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
@@ -927,9 +926,9 @@ describe('Component: Document Viewer with Config', () => {
     });
 
     it('has expected options properties after config is loaded', () => {
-        expect(component.options.dataField).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(component.options.dataField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(component.options.dateField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(component.options.idField).toEqual(DashboardServiceMock.FIELD_MAP.ID);
         expect(component.options.metadataFields).toEqual([
             [{
                 name: 'Single Item Metadata Row',

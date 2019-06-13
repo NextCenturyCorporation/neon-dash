@@ -14,15 +14,15 @@
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { Datastore } from '../../dataset';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
+import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../model/types';
 
 @Component({
     selector: 'app-custom-connection',
@@ -41,7 +41,7 @@ export class CustomConnectionComponent implements AfterContentInit {
     private currentStepIndex: number;
 
     constructor(
-        private datasetService: DatasetService,
+        private datasetService: DashboardService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {
@@ -77,10 +77,16 @@ export class CustomConnectionComponent implements AfterContentInit {
     }
 
     createDataset() {
-        let dataset = new Datastore(this.data.datasetName, this.data.datastoreHost, this.data.datastoreType);
-        dataset.databases = this.data.selectedDatabases;
-        this.datasetService.addDataset(dataset);
-        this.datasetService.setActiveDataset(dataset);
+        let datastore = NeonDatastoreConfig.get({
+            name: this.data.datasetName,
+            host: this.data.datastoreHost,
+            type: this.data.datastoreType
+        });
+        datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
+            acc[db.name] = db;
+            return acc;
+        }, {} as { [key: string]: NeonDatabaseMetaData });
+        this.datasetService.setActiveDatastore(datastore);
 
         // TODO: THOR-825:
         // TODO: THOR-1056: fix so that the dashboard is added to existing list
@@ -91,7 +97,7 @@ export class CustomConnectionComponent implements AfterContentInit {
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
         this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
-        this.datasetCreated.emit(dataset);
+        this.datasetCreated.emit(datastore);
     }
 
     close() {

@@ -26,12 +26,12 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { DashboardService } from '../../services/dashboard.service';
+import { FilterBehavior, FilterDesign, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -39,7 +39,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 export class Annotation {
@@ -51,10 +51,10 @@ export class Annotation {
 }
 
 export class AnnotationFields {
-    startCharacterField: FieldMetaData;
-    endCharacterField: FieldMetaData;
-    textField: FieldMetaData;
-    typeField: FieldMetaData;
+    startCharacterField: NeonFieldMetaData;
+    endCharacterField: NeonFieldMetaData;
+    textField: NeonFieldMetaData;
+    typeField: NeonFieldMetaData;
 }
 
 export class Data {
@@ -77,7 +77,7 @@ export class Part {
 
 export class Details {
     detailLabel: string;
-    detailField: FieldMetaData;
+    detailField: NeonFieldMetaData;
 }
 
 @Component({
@@ -109,7 +109,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     constructor(
         protected widgetService: AbstractWidgetService,
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -118,7 +118,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -138,7 +138,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             field: this.options.documentTextField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as FilterDesign;
     }
 
     /**

@@ -18,14 +18,15 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData } from '../../dataset';
-import { neonEvents } from '../../neon-namespaces';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { neonEvents } from '../../model/neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-settings',
@@ -42,27 +43,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     public messenger: eventing.Messenger;
 
-    public fields: FieldMetaData[] = [];
-    public searchField: FieldMetaData;
+    public fields: NeonFieldMetaData[] = [];
+    public searchField: NeonFieldMetaData;
 
     public showFilterTray: boolean = true;
     public showSimpleSearch: boolean;
     public showVisualizationsShortcut: boolean = true;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService
     ) {
-        this.datasetService = datasetService;
         this.injector = injector;
         this.messenger = new eventing.Messenger();
+        this.dashboardState = dashboardService.state;
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
+        this.dashboardState.setSimpleFilterFieldName(this.searchField);
     }
 
     getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
@@ -135,18 +137,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     private updateSimpleSearchFilter() {
-        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
+        let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-            let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+            let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
 
             this.fields = table.fields;
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.datasetService.getActiveFields();
+            this.fields = this.dashboardState.getActiveFields();
         }
     }
 }

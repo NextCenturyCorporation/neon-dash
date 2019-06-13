@@ -27,7 +27,7 @@ import {
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -47,9 +47,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../model/types';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -58,7 +58,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -95,7 +95,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -105,7 +105,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -297,13 +297,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
-     * @arg {FieldMetaData} hoverPopupField
+     * @arg {NeonFieldMetaData} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[],
-        lngField: string, latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]): any[] {
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: NeonFieldMetaData[],
+        lngField: string, latField: string, colorField: string, hoverPopupField: NeonFieldMetaData, data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
@@ -670,7 +670,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnValue(layer: any, field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
             datastore: '',

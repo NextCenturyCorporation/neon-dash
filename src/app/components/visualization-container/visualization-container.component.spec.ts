@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig } from '../../model/types';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -26,7 +26,7 @@ import { AppLazyModule } from '../../app-lazy.module';
 import { AboutNeonComponent } from '../about-neon/about-neon.component';
 
 describe('Component: VisualizationContainer', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let testConfig: NeonConfig = NeonConfig.get();
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 

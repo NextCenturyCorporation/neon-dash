@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../color';
+import { Color } from '../../model/color';
 
 import {
     AbstractSearchService,
@@ -38,7 +38,7 @@ import {
     TimeInterval
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -67,7 +67,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -179,7 +179,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public yList: any[] = [];
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -189,7 +189,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

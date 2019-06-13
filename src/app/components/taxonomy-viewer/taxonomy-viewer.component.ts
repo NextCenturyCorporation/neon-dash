@@ -25,12 +25,12 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../model/types';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldOption,
@@ -38,7 +38,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -55,7 +55,7 @@ export interface TaxonomyNode {
     level?: number;
     checked?: boolean;
     indeterminate?: boolean;
-    description: FieldMetaData;
+    description: NeonFieldMetaData;
 }
 
 export interface TaxonomyGroup extends TaxonomyNode {
@@ -104,7 +104,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     };
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -113,7 +113,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -129,7 +129,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    private addFilterBehaviorToList(list: FilterBehavior[], field: FieldMetaData): FilterBehavior[] {
+    private addFilterBehaviorToList(list: FilterBehavior[], field: NeonFieldMetaData): FilterBehavior[] {
         list.push({
             // Match a single NOT EQUALS filter on the specific filter field.
             filterDesign: this.createFilterDesign(field),
@@ -162,7 +162,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         ];
     }
 
-    private createFilterDesign(field: FieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
         return {
             datastore: '',
             database: this.options.database,
@@ -291,7 +291,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return 'Taxonomy Viewer';
     }
 
-    private isTaxonomyNodeFiltered(field: FieldMetaData, value: any) {
+    private isTaxonomyNodeFiltered(field: NeonFieldMetaData, value: any) {
         let filterDesign: FilterDesign = this.createFilterDesign(field, value);
         return this.isFiltered(filterDesign) || this.isFiltered(this.createFilterDesignOnList([filterDesign]));
     }
