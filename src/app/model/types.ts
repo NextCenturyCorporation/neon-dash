@@ -105,7 +105,7 @@ export class NeonDatabaseMetaData {
     }
 }
 
-export interface NeonSimpleFilter {
+export interface NeonSimpleSearchFilter {
     databaseName: string;
     tableName: string;
     fieldName: string;
@@ -118,7 +118,7 @@ export interface NeonSimpleFilter {
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: Record<string, any>;
-    simpleFilter?: NeonSimpleFilter;
+    simpleFilter?: NeonSimpleSearchFilter;
 }
 
 export interface NeonContributor {
