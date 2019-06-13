@@ -860,7 +860,7 @@ describe('Dashboard', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('showDashboardState does work as expected', () => {
+    it('showDashboardState does work as expected', (done) => {
         let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
         let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
@@ -897,45 +897,50 @@ describe('Dashboard', () => {
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({ filters });
+
+        component.dashboardService.stateSource.subscribe(() => {
+            expect(spyDashboards.calls.count()).toEqual(1);
+            expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+
+            expect(spyDatastores.calls.count()).toEqual(1);
+            // TODO THOR-1062 Permit multiple datastores.
+            expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
+
+            expect(spyFilter.calls.count()).toEqual(1);
+            expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
+
+            expect(spySender.calls.count()).toEqual(4);
+            // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
+            expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: '',
+                widgetGridItem: {
+                    name: 'a'
+                }
+            }]);
+            expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: '',
+                widgetGridItem: {
+                    name: 'b'
+                }
+            }]);
+            expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: '',
+                widgetGridItem: {
+                    name: 'd'
+                }
+            }]);
+
+            expect(spySimpleFilter.calls.count()).toEqual(1);
+
+            expect(component.showDashboardSelector).toEqual(false);
+
+            done();
+        });
+
         configService.setActive({
             ...config,
             dashboards: testDashboard
         });
-
-        expect(spyDashboards.calls.count()).toEqual(1);
-        expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
-
-        expect(spyDatastores.calls.count()).toEqual(1);
-        // TODO THOR-1062 Permit multiple datastores.
-        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
-
-        expect(spyFilter.calls.count()).toEqual(1);
-        expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
-
-        expect(spySender.calls.count()).toEqual(4);
-        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
-        expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: '',
-            widgetGridItem: {
-                name: 'a'
-            }
-        }]);
-        expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: '',
-            widgetGridItem: {
-                name: 'b'
-            }
-        }]);
-        expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: '',
-            widgetGridItem: {
-                name: 'd'
-            }
-        }]);
-
-        expect(spySimpleFilter.calls.count()).toEqual(1);
-
-        expect(component.showDashboardSelector).toEqual(false);
     });
 
     it('showDashboardState does work with tabs', () => {
