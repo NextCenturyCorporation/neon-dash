@@ -25,7 +25,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';

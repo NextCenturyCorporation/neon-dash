@@ -23,11 +23,11 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { QueryBarComponent } from './query-bar.component';
-import { DatasetOptions, SimpleFilter } from '../../model/types';
+import { DatasetOptions, SimpleFilter } from '../../models/types';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { query } from 'neon-framework';

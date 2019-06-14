@@ -27,8 +27,8 @@ import {
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { NeonFieldMetaData } from '../../model/types';
-import { neonEvents } from '../../model/neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonEvents } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     OptionType,
@@ -40,13 +40,13 @@ import {
     WidgetOptionCollection,
     WidgetSelectOption,
     ConfigurableWidget
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
-import { DashboardState } from '../../model/dashboard-state';
+import { DashboardState } from '../../models/dashboard-state';
 
 /**
  * @class BaseNeonComponent

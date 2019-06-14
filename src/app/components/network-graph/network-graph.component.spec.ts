@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonConfig, NeonFieldMetaData } from '../../models/types';
 import { FilterService } from '../../services/filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -28,7 +28,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { NetworkGraphModule } from './network-graph.module';
 import { ConfigService } from '../../services/config.service';
-import { WidgetOptionCollection } from '../../model/widget-option';
+import { WidgetOptionCollection } from '../../models/widget-option';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonConfig = NeonConfig.get();

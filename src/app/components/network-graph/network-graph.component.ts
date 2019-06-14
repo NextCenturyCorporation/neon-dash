@@ -37,8 +37,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -47,7 +47,7 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetColorOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../modelstypes';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';

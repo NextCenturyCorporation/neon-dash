@@ -17,7 +17,7 @@ import * as moment from 'moment';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';

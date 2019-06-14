@@ -16,13 +16,13 @@ import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentI
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
-import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../model/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../models/types';
 
 @Component({
     selector: 'app-custom-connection',

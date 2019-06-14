@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 

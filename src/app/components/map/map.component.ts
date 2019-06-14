@@ -47,9 +47,9 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -58,7 +58,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 

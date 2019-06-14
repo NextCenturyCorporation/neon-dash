@@ -30,7 +30,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfigService } from '../../services/config.service';
 
