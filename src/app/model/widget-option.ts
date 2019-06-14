@@ -137,6 +137,8 @@ export class WidgetFieldOption extends WidgetOption {
 }
 
 export class WidgetFreeTextOption extends WidgetOption {
+    private _intermediateValue: string | number;
+
     /**
      * @constructor
      * @arg {string} bindingKey
@@ -151,6 +153,34 @@ export class WidgetFreeTextOption extends WidgetOption {
         enableInMenu: boolean | OptionCallback = true
     ) {
         super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+
+    get intermediateValue() {
+        if (this._intermediateValue === undefined) {
+            try {
+                const value = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isEmpty(value) ? '' : yaml.safeDump(value);
+            } catch {
+                // Consume error
+            }
+            this._intermediateValue = this._intermediateValue || '';
+        }
+
+        return this._intermediateValue;
+    }
+
+    set intermediateValue(value: any) {
+        this._intermediateValue = value;
+        try {
+            this.valueCurrent = _.isEmpty(value) ? undefined : yaml.safeLoad(String(this._intermediateValue));
+        } catch {
+            // Ignore error
+        }
+    }
+
+    getValueToSaveInBindings() {
+        delete this._intermediateValue;
+        return this.valueCurrent || this.valueDefault;
     }
 }
 
