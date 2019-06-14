@@ -67,7 +67,7 @@ mat-toolbar {
 
 .neon-dash {
     grid-area: grid;
-    background-color: var(--color-background, white);
+    background-color: var(--color-body, white);
     overflow-y: auto;
 
     .neon-grid {
