@@ -37,7 +37,7 @@
         <div>
             <label class="modal__row-label">Table</label>
             <select class="form-control" (ngModelChange)="selectTable()" [(ngModel)]="selectedDatabase.selectedTable.table"
-                [disabled]="!selectedDatabase.database.name || selectedDatabase.database.tables.length == 0">
+                [disabled]="isTableDisabled()">
                 <option value="">Select Table</option>
                 <option *ngFor="let table of selectedDatabase.database.tables" [ngValue]="table">{{ table.name }}</option>
             </select>

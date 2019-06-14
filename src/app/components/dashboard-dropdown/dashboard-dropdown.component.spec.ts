@@ -16,54 +16,48 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardDropdownComponent } from './dashboard-dropdown.component';
-import { DashboardOptions, Dashboard } from '../../dataset';
+import { NeonDashboardChoiceConfig } from '../../model/types';
 
 import { DashboardDropdownModule } from './dashboard-dropdown.module';
 
 let fixture: ComponentFixture<DashboardDropdownComponent>;
 let component: DashboardDropdownComponent;
 
-let dashboardTableKeys1: { [key: string]: string } = {};
-dashboardTableKeys1.tableKey = 'datastore1.database1.table1';
-
-let dashboardFieldKeys1: { [key: string]: string } = {};
-dashboardFieldKeys1.fieldKey = 'datastore1.database1.table1.field1';
-
-let dashboardTableKeys2: { [key: string]: string } = {};
-dashboardTableKeys2.tableKey = 'datastore2.database2.table1';
-
-let dashboardFieldKeys2: { [key: string]: string } = {};
-dashboardFieldKeys2.fieldKey = 'datastore2.database2.table1.field1';
-
-let choices: { [key: string]: Dashboard } = {};
-choices.dash1 = {
-    pathFromTop: ['dash1'],
-    name: 'Test Discovery Config',
-    layout: 'DISCOVERY',
-    tables: dashboardTableKeys1,
-    fields: dashboardFieldKeys1,
-    options: new DashboardOptions()
-};
-choices.dash2 = {
-    name: 'Other Config',
-    pathFromTop: ['dash2'],
-    category: 'Select an option...',
+let dashboards = NeonDashboardChoiceConfig.get({
+    category: 'Choose an option',
+    pathFromTop: [],
     choices: {
-        nextChoice: {
-            pathFromTop: ['dash2', 'nextChoice'],
-            name: 'Last Config',
-            layout: 'layout3',
-            tables: dashboardTableKeys2,
-            fields: dashboardFieldKeys2,
-            options: new DashboardOptions()
+        dash1: {
+            name: 'Test Discovery Config',
+            pathFromTop: ['dash1'],
+            layout: 'DISCOVERY',
+            tables: {
+                tableKey: 'datastore1.database1.table1'
+            },
+            fields: {
+                fieldKey: 'datastore1.database1.table1.field1'
+            }
+        },
+        dash2: {
+            name: 'Other Config',
+            pathFromTop: ['dash2'],
+            category: 'Select an option...',
+            choices: {
+                nextChoice: {
+                    pathFromTop: ['dash2', 'nextChoice'],
+                    name: 'Last Config',
+                    layout: 'layout3',
+                    tables: {
+                        tableKey: 'datastore2.database2.table1'
+                    },
+                    fields: {
+                        fieldKey: 'datastore2.database2.table1.field1'
+                    }
+                }
+            }
         }
     }
-};
-
-let dashboards = {
-    category: 'Choose an option',
-    choices: choices
-};
+});
 
 describe('Component: DashboardDropdown with input', () => {
     initializeTestBed('Dashboard Dropdown', {
@@ -97,7 +91,7 @@ describe('Component: DashboardDropdown with input', () => {
     it('emitSelectedDashboard() should emit selectedDashboard if no more choices exists', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
 
-        component.selectedDashboard = component.dashboards.choices.dash1;
+        component.selectedDashboard = component.choices.dash1;
 
         component.emitSelectedDashboard();
         expect(spy.calls.count()).toEqual(1);
@@ -108,7 +102,7 @@ describe('Component: DashboardDropdown with input', () => {
     it('emitSelectedDashboard() should emit nothing if selectedDashboard is populated but more choices exist', (() => {
         let spy = spyOn(component.selectionChange, 'emit');
 
-        component.selectedDashboard = component.dashboards.choices.dash2;
+        component.selectedDashboard = component.choices.dash2;
 
         component.emitSelectedDashboard();
         expect(spy.calls.count()).toEqual(1);
@@ -117,13 +111,13 @@ describe('Component: DashboardDropdown with input', () => {
     }));
 
     it('hasMoreChoices() should return false if no more nested choices exist within the selectedDashboard', (() => {
-        component.selectedDashboard = component.dashboards.choices.dash1;
+        component.selectedDashboard = component.choices.dash1;
 
         expect(component.hasMoreChoices()).toBeFalsy();
     }));
 
     it('hasMoreChoices() should return true if more nested choices exist within the selectedDashboard', (() => {
-        component.selectedDashboard = component.dashboards.choices.dash2;
+        component.selectedDashboard = component.choices.dash2;
 
         expect(component.hasMoreChoices()).toBeTruthy();
     }));
@@ -148,7 +142,7 @@ describe('Component: DashboardDropdown with input', () => {
     it('selectDashboardChoice() should select correct dashboard choice', (() => {
         component.selectDashboardChoice(component.dashboards, ['dash1'], 0, component);
 
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash1);
+        expect(component.selectedDashboard).toEqual(component.choices.dash1);
     }));
 });
 
@@ -176,15 +170,17 @@ describe('Component: DashboardDropdown with no inputs', () => {
         component.selectDashboardChoice(dashboards, ['dash1'], 0, component);
 
         expect(component.dashboards).toEqual(dashboards);
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash1);
+        expect(component.selectedDashboard).toEqual(component.choices.dash1);
     }));
 
     it('selectDashboardChoice() should select correct dashboard choice and select the appropriate choice within the next dropdown', (() => {
         component.selectDashboardChoice(dashboards, ['dash2', 'nextChoice'], 0, component);
 
         expect(component.dashboards).toEqual(dashboards);
-        expect(component.selectedDashboard).toEqual(component.dashboards.choices.dash2);
-        expect(component.nextDropdown.dashboards).toEqual(component.dashboards.choices.dash2);
-        expect(component.nextDropdown.selectedDashboard).toEqual(component.dashboards.choices.dash2.choices.nextChoice);
+        expect(component.selectedDashboard).toEqual(component.choices.dash2);
+        expect(component.nextDropdown.dashboards).toEqual(component.choices.dash2);
+        expect(component.nextDropdown.selectedDashboard).toEqual(
+            (component.choices.dash2 as NeonDashboardChoiceConfig).choices.nextChoice
+        );
     }));
 });

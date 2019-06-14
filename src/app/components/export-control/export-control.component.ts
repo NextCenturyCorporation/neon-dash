@@ -16,8 +16,9 @@ import { Component, ViewContainerRef, Input } from '@angular/core';
 
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
-import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-export-control',
@@ -36,10 +37,11 @@ export class ExportControlComponent {
     }];
 
     public exportFormat: number;
+    public readonly dashboardState: DashboardState;
 
     constructor(
-        protected datasetService: DatasetService,
-        protected searchService: AbstractSearchService,
+        dashboardService: DashboardService,
+        protected connectionService: ConnectionService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
@@ -48,6 +50,8 @@ export class ExportControlComponent {
         // TODO Why is this needed?
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         this.handleExportClick = this.handleExportClick.bind(this);
+
+        this.dashboardState = dashboardService.state;
     }
 
     setExportFormat(__value: number) {
@@ -81,8 +85,8 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
-            this.datasetService.getDatastoreHost());
+        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
+            this.dashboardState.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {

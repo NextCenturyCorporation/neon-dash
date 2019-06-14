@@ -21,14 +21,13 @@ import { AnnotationViewerComponent } from './annotation-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { FieldMetaData } from '../../dataset';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { NeonConfig, NeonFieldMetaData } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
@@ -41,11 +40,11 @@ describe('Component: AnnotationViewer', () => {
     initializeTestBed('Annotation Viewer', {
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ],
         imports: [
             AnnotationViewerModule
@@ -69,12 +68,12 @@ describe('Component: AnnotationViewer', () => {
 
     it('Checks if option object has expected defaults', () => {
         expect(component.annotations).toBeUndefined();
-        expect(component.options.startCharacterField).toEqual(new FieldMetaData());
-        expect(component.options.endCharacterField).toEqual(new FieldMetaData());
-        expect(component.options.textField).toEqual(new FieldMetaData());
-        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.startCharacterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.endCharacterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.textField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
 
-        expect(component.options.documentTextField).toEqual(new FieldMetaData());
+        expect(component.options.documentTextField).toEqual(NeonFieldMetaData.get());
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
     });

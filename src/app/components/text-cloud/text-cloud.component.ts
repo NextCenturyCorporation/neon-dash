@@ -33,18 +33,18 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../model/types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { MatDialog } from '@angular/material';
 
@@ -64,7 +64,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textCloudData: any[] = [];
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -74,7 +74,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -139,7 +139,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             datastore: '',
             database: this.options.database,
             table: this.options.table,
-            field: this.options.dataField as FieldMetaData,
+            field: this.options.dataField as NeonFieldMetaData,
             operator: '=',
             value: value
         } as SimpleFilterDesign;

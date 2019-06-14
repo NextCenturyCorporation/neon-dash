@@ -25,33 +25,32 @@ import {
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
-import * as uuidv4 from 'uuid/v4';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { Dashboard } from '../dataset';
-import { DatasetService } from '../services/dataset.service';
+import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
-import { NeonGridItem } from '../neon-grid-item';
-import { NeonGTDConfig } from '../neon-gtd-config';
-import { neonEvents } from '../neon-namespaces';
+import { NeonGridItem } from '../model/neon-grid-item';
+import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../model/types';
+import { neonEvents } from '../model/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { ParameterService } from '../services/parameter.service';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
+import { GridState } from '../model/grid-state';
+import { ConfigurableWidget } from '../model/widget-option';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
-            if (!this.pendingInitialRegistrations && this.currentDashboard) {
-                this.currentDashboard.modified = true;
+            if (!this.pendingInitialRegistrations) {
+                this.dashboardService.state.modified = true;
             }
             return fn.call(this, ...args);
         };
@@ -67,15 +66,14 @@ export function DashboardModified() {
     ]
 })
 export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
-    private static DEFAULT_SIZEX = 4;
-    private static DEFAULT_SIZEY = 4;
-
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-    @ViewChild('simpleFilter') simpleFilter: SimpleFilterComponent;
-    @ViewChild('sideNavRight') sideNavRight: MatSidenav;
+    @ViewChild(SimpleFilterComponent) simpleFilter: SimpleFilterComponent;
+    @ViewChild(MatSidenav) sideNavRight: MatSidenav;
 
     public updatedData = 0;
+
+    public configurableComponent: ConfigurableWidget;
 
     public currentPanel: string = 'dashboardLayouts';
     public showCustomConnectionButton: boolean = false;
@@ -97,18 +95,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public createSettings: boolean = false;
     public createFiltersComponent: boolean = false; // This is used to create the Filters Component later
 
-    public dashboards: Dashboard;
-    public currentDashboard: Dashboard;
+    public dashboards: NeonDashboardConfig;
+    public currentDashboard: NeonDashboardLeafConfig;
     public pendingInitialRegistrations = 0;
-
-    public selectedTabIndex = 0;
-    public tabbedGrid: {
-        list: NeonGridItem[];
-        name: string;
-    }[] = [{
-        list: [],
-        name: ''
-    }];
 
     public widgets: Map<string, BaseNeonComponent> = new Map();
 
@@ -140,15 +129,31 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     public messageReceiver: eventing.Messenger;
     public messageSender: eventing.Messenger;
 
-    neonConfig: NeonGTDConfig;
+    neonConfig: NeonConfig;
+
+    /**
+     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
+     */
+    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        if ('options' in dashboard && dashboard.options.connectOnLoad) {
+            return dashboard;
+        }
+        const choices = ('choices' in dashboard ? dashboard.choices : {}) || {};
+        for (let choiceKey of Object.keys(choices)) {
+            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
+            if (nestedDashboard) {
+                return nestedDashboard;
+            }
+        }
+        return null;
+    }
 
     constructor(
         public changeDetection: ChangeDetectorRef,
-        public datasetService: DatasetService,
+        public dashboardService: DashboardService,
         private domSanitizer: DomSanitizer,
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
-        private parameterService: ParameterService,
         private searchService: AbstractSearchService,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
@@ -174,33 +179,50 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.filtersIcon = 'filters';
+        this.showFilterTray = true;
+        this.showCustomConnectionButton = true;
+        this.snackBar = snackBar;
 
-        this.configService.get().subscribe((neonConfig) => {
+        let first = true;
+
+        this.configService.getActive().subscribe((neonConfig) => {
             // TODO: Default to false and set to true only after a dataset has been selected.
-            this.showFilterTray = true;
-            this.showCustomConnectionButton = true;
-            this.neonConfig = neonConfig;
-            this.snackBar = snackBar;
+
+            this.dashboardService.state.modified = false;
+
+            if (!first) {
+                this.gridState.clear();
+                this.widgets.clear();
+                this.changeDetection.detectChanges();
+            } else {
+                first = false;
+            }
+
+            const config = neonConfig;
             this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
 
-            // The dashboards are read from the config file in the DatasetService's constructor.
-            this.dashboards = this.datasetService.getDashboards();
-            this.dashboardVersion = neonConfig.version || '';
+            // The dashboards are read from the config file in the DashboardService's constructor.
+            this.dashboards = this.dashboardService.config.dashboards;
+            this.dashboardVersion = config.version || '';
 
-            if (this.neonConfig) {
-                if (neonConfig.errors && neonConfig.errors.length > 0) {
-                    let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
+            if (config) {
+                if (config.errors && config.errors.length > 0) {
+                    let snackBarRef = this.snackBar.openFromComponent(SnackBarComponent, {
                         viewContainerRef: this.viewContainerRef
                     });
                     snackBarRef.instance.snackBarRef = snackBarRef;
-                    snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
+                    snackBarRef.instance.addErrors('Configuration Errors', config.errors);
                 }
 
-                this.projectTitle = this.neonConfig.projectTitle ? this.neonConfig.projectTitle : this.projectTitle;
-                this.projectIcon = this.neonConfig.projectIcon ? this.neonConfig.projectIcon : this.projectIcon;
+                this.projectTitle = config.projectTitle ? config.projectTitle : this.projectTitle;
+                this.projectIcon = config.projectIcon ? config.projectIcon : this.projectIcon;
                 this.changeFavicon();
             }
         });
+    }
+
+    public get gridState() {
+        return this.dashboardService.gridState;
     }
 
     @DashboardModified()
@@ -210,78 +232,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
-        let widgetGridItem: NeonGridItem = eventMessage.widgetGridItem;
-
-        // Set default grid item config properties for the Neon dashboard.
-        widgetGridItem.borderSize = widgetGridItem.borderSize || 10;
-        widgetGridItem.dragHandle = widgetGridItem.dragHandle || '.drag-handle';
-        widgetGridItem.id = widgetGridItem.id || uuidv4();
-
-        // Move grid item config properties from the top-level into the config object.
-        widgetGridItem.col = widgetGridItem.col || widgetGridItem.col;
-        widgetGridItem.row = widgetGridItem.row || widgetGridItem.row;
-        widgetGridItem.sizex = widgetGridItem.sizex || widgetGridItem.sizex || DashboardComponent.DEFAULT_SIZEX;
-        widgetGridItem.sizey = widgetGridItem.sizey || widgetGridItem.sizey || DashboardComponent.DEFAULT_SIZEY;
-
-        let index = eventMessage.gridName ? -1 : this.selectedTabIndex;
-        if (eventMessage.gridName) {
-            // Find the correct tab, or create a new one if needed.
-            this.tabbedGrid.forEach((grid, gridIndex) => {
-                if (grid.name === eventMessage.gridName) {
-                    index = gridIndex;
-                }
-            });
-
-            if (index < 0) {
-                // Rename the default tab if it is empty.
-                if (!this.tabbedGrid[0].name && !this.tabbedGrid[0].list.length) {
-                    this.tabbedGrid[0].name = eventMessage.gridName;
-                    index = 0;
-                } else {
-                    this.tabbedGrid.push({
-                        list: [],
-                        name: eventMessage.gridName
-                    });
-                    index = this.tabbedGrid.length - 1;
-                }
-            }
-        }
-
-        // If both col and row are set, add the widget to the grid.
-        if (widgetGridItem.col && widgetGridItem.row) {
-            this.tabbedGrid[index].list.push(widgetGridItem);
-            return;
-        }
-
-        // Otherwise insert the widget into the first empty space in the grid.
-        widgetGridItem.col = widgetGridItem.col || 1;
-        widgetGridItem.row = widgetGridItem.row || 1;
-
-        // Zero max rows or columns denotes unlimited.  Adjust the rows and columns for the widget size.
-        let maxCol: number = (this.gridConfig.max_cols || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizex + 1;
-        let maxRow: number = (this.gridConfig.max_rows || Number.MAX_SAFE_INTEGER.valueOf()) - widgetGridItem.sizey + 1;
-
-        // Find the first empty space for the widget.
-        let xValue = 1;
-        let yValue = 1;
-        let found = false;
-        while (yValue <= maxRow && !found) {
-            xValue = 1;
-            while (xValue <= maxCol && !found) {
-                widgetGridItem.col = xValue;
-                widgetGridItem.row = yValue;
-                found = this.widgetFits(widgetGridItem);
-                xValue++;
-            }
-            yValue++;
-        }
-
-        this.tabbedGrid[index].list.push(widgetGridItem);
+        this.gridState.add(eventMessage.widgetGridItem, eventMessage.gridName);
     }
 
     changeFavicon() {
@@ -289,6 +243,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         let faviconShortcut = document.createElement('link');
         let title = document.createElement('title');
         let head = document.querySelector('head');
+
+        head.querySelectorAll('link[type="image/x-icon"]').forEach((link: HTMLLinkElement) => {
+            link.parentNode.removeChild(link); // Remove all favicons
+        });
 
         favicon.setAttribute('rel', 'icon');
         favicon.setAttribute('type', 'image/x-icon');
@@ -312,43 +270,24 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Clears the grid.
-     */
-    private clearDashboard() {
-        this.selectedTabIndex = 0;
-        this.tabbedGrid = [{
-            list: [],
-            name: ''
-        }];
-    }
-
-    /**
      * Contracts the given widget to its previous size.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.sizex = eventMessage.widgetGridItem.previousConfig.sizex;
-        eventMessage.widgetGridItem.sizey = eventMessage.widgetGridItem.previousConfig.sizey;
-        eventMessage.widgetGridItem.row = eventMessage.widgetGridItem.previousConfig.row;
-        eventMessage.widgetGridItem.col = eventMessage.widgetGridItem.previousConfig.col;
+        this.gridState.contract(eventMessage.widgetGridItem);
     }
 
     /**
      * Deletes the widget with the given ID from the grid.
-     *
-     * @arg {{id:string}} eventMessage
      */
     @DashboardModified()
     private deleteWidget(eventMessage: { id: string }) {
-        for (let index = 0; index < this.tabbedGrid[this.selectedTabIndex].list.length; index++) {
-            if (this.tabbedGrid[this.selectedTabIndex].list[index].id === eventMessage.id) {
-                // Update the grid item itself so that its status is saved within the dashboard's layoutObject.
-                this.tabbedGrid[this.selectedTabIndex].list[index].hide = true;
-                this.tabbedGrid[this.selectedTabIndex].list.splice(index, 1);
-            }
-        }
+        this.gridState.delete(eventMessage.id);
+    }
+
+    // @DashboardModified()
+    private clearDashboard() {
+        this.gridState.clear();
     }
 
     disableClose(): boolean {
@@ -357,53 +296,14 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Expands the given widget to fill the width of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        let visibleRowCount = this.getVisibleRowCount();
-        eventMessage.widgetGridItem.previousConfig = {
-            col: eventMessage.widgetGridItem.col,
-            row: eventMessage.widgetGridItem.row,
-            sizex: eventMessage.widgetGridItem.sizex,
-            sizey: eventMessage.widgetGridItem.sizey
-        };
-        eventMessage.widgetGridItem.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        eventMessage.widgetGridItem.col = 1;
-        // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        eventMessage.widgetGridItem.sizey = (visibleRowCount > 0) ? visibleRowCount : eventMessage.widgetGridItem.sizex;
-    }
-
-    /**
-     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
-     *
-     * @arg {{ [key: string]: Dashboard }} dashboardChoices
-     * @return {Dashboard}
-     * @private
-     */
-    private findAutoShowDashboard(dashboardChoices: { [key: string]: Dashboard }): Dashboard {
-        for (let choiceKey of Object.keys(dashboardChoices || {})) {
-            let nestedChoiceKeys = Object.keys(dashboardChoices[choiceKey].choices || {});
-            if (!nestedChoiceKeys.length) {
-                if (dashboardChoices[choiceKey].options && dashboardChoices[choiceKey].options.connectOnLoad) {
-                    return dashboardChoices[choiceKey];
-                }
-            } else {
-                let nestedDashboard = this.findAutoShowDashboard(dashboardChoices[choiceKey].choices);
-                if (nestedDashboard) {
-                    return nestedDashboard;
-                }
-            }
-        }
-        return null;
+        this.gridState.expand(eventMessage.widgetGridItem, this.getVisibleRowCount());
     }
 
     /**
      * Returns the grid element.
-     *
-     * @return {object}
-     * @private
      */
     private getGridElement() {
         /* eslint-disable-next-line dot-notation */
@@ -411,35 +311,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     /**
-     * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
-     * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
-     */
-    private getMaxColInUse(): number {
-        let maxCol = 0;
-
-        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
-            maxCol = Math.max(maxCol, (widgetGridItem.col + widgetGridItem.sizex - 1));
-        }
-        return maxCol;
-    }
-
-    /**
-     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
-     * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
-     */
-    private getMaxRowInUse(): number {
-        let maxRow = 0;
-
-        for (let widgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
-            maxRow = Math.max(maxRow, (widgetGridItem.row + widgetGridItem.sizey - 1));
-        }
-        return maxRow;
-    }
-
-    /**
      * Returns the visible row count.
-     *
-     * @return {number}
      */
     private getVisibleRowCount(): number {
         let gridElement = this.getGridElement();
@@ -451,8 +323,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Handles the given error and message.
-     *
-     * @arg {{error:Error|ExceptionInformation,message:string}} eventMessage
      */
     private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
         // TODO THOR-916
@@ -466,38 +336,21 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Moves the given widget to the bottom of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.row = this.getMaxRowInUse() + 1;
+        this.gridState.moveToBottom(eventMessage.widgetGridItem);
     }
 
     /**
      * Moves the given widget to the top of the grid.
-     *
-     * @arg {{widgetGridItem:NeonGridItem}} eventMessage
      */
     @DashboardModified()
     private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
-        eventMessage.widgetGridItem.row = 1;
+        this.gridState.moveToTop(eventMessage.widgetGridItem);
     }
 
     ngAfterViewInit() {
-        let gearContainer: HTMLElement = document.getElementById('gear');
-
-        gearContainer.setAttribute('style', 'display: none');
-
-        /* NOTE:
-         * The gear component is created when the app component is created because if it is created when
-         * a component sends its option object in the messenger channel, it is too late.
-         * The gear component is created too late to receive the option object in the meseenger channel,
-         * as a result you would have had to click the gear option in the component twice to see any
-         * object values.
-         * Another workaround might be sending the option object in the messenger channel after a feedback
-         * from the app component after the toggleGear is received.
-         */
         /* NOTE:
          * There was an issue with Angular Material beta 12 and angular2-grid,
          * where the grid would initially be multiple times larger than the rest of the page
@@ -518,7 +371,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_READY, this.showDashboardStateOnPageLoad.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_RESET, this.clearDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_STATE, this.showDashboardState.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.openOptionMenu.bind(this));
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
+            this.setPanel('gear', 'Component Settings');
+            this.configurableComponent = comp;
+        });
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -547,16 +403,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[index].onResizeStop();
     }
 
-    /**
-     * Opens the option menu.
-     *
-     * @private
-     */
-    private openOptionMenu() {
-        this.setPanel('gear', 'Component Settings');
-        this.sideNavRight.toggle();
-    }
-
     toggleFiltersDialog() {
         // Added this to create the filters component at first click so it's after dataset initialization
         if (!this.createFiltersComponent) {
@@ -565,7 +411,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFiltersComponent = !this.showFiltersComponent;
         let filtersContainer: HTMLElement = document.getElementById('filters');
         if (this.showFiltersComponent && filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: show');
+            filtersContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
         } else if (filtersContainer) {
             filtersContainer.setAttribute('style', 'display: none');
         }
@@ -575,7 +421,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showDashboardSelector = showSelector;
         let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
         if (this.showDashboardSelector && dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: show');
+            dashboardSelectorContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
         } else if (dashboardSelectorContainer) {
             dashboardSelectorContainer.setAttribute('style', 'display: none');
         }
@@ -605,12 +451,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Registers the given widget with the given ID.
-     *
-     * @arg {{id:string,widget:BaseNeonComponent}} eventMessage
      */
     @DashboardModified()
     private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
-        if (this.widgets.get(eventMessage.id) === undefined) {
+        if (!this.widgets.has(eventMessage.id)) {
             if (this.pendingInitialRegistrations > 0) {
                 this.pendingInitialRegistrations -= 1;
             }
@@ -618,89 +462,37 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
-    resetAllPanel() {
-        let aboutNeonContainer: HTMLElement = document.getElementById('aboutNeon');
-        let addVisContainer: HTMLElement = document.getElementById('addVis');
-        let dashboardLayoutsContainer: HTMLElement = document.getElementById('dashboardLayouts');
-        let gearContainer: HTMLElement = document.getElementById('gear');
-        let savedStateContainer: HTMLElement = document.getElementById('savedState');
-        let settingsContainer: HTMLElement = document.getElementById('settings');
-
-        let containerList = [
-            aboutNeonContainer,
-            addVisContainer,
-            dashboardLayoutsContainer,
-            gearContainer,
-            savedStateContainer,
-            settingsContainer
-        ];
-
-        containerList.forEach((element) => {
-            if (element) {
-                element.setAttribute('style', 'display: none');
-            }
-        });
-    }
-
     setPanel(newPanel: string, newTitle: string) {
-        this.resetAllPanel();
-        let rightPanelContainer: HTMLElement = document.getElementById(newPanel);
-
-        if (newPanel === 'aboutNeon' && !this.createAboutNeon) {
-            this.createAboutNeon = true;
-        } else if (newPanel === 'addVis' && !this.createAddVis) {
-            this.createAddVis = true;
-        } else if (newPanel === 'customConnection' && !this.createCustomConnection) {
-            this.createCustomConnection = true;
-        } else if (newPanel === 'savedState' && !this.createSavedState) {
-            this.createSavedState = true;
-        } else if (newPanel === 'settings' && !this.createSettings) {
-            this.createSettings = true;
-        }
-
-        if (rightPanelContainer) {
-            rightPanelContainer.setAttribute('style', 'display: show');
-        }
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
+        this.sideNavRight.open();
     }
 
     /**
      * Shows the given dashboard using the given datastores and the given layout.
-     *
-     * @arg {{dashboard:Dashboard,datastores:Datastore[],layout:any[]}} eventMessage
-     * @private
      */
-    private showDashboardState(eventMessage: { dashboard: Dashboard }) {
+    private showDashboardState(eventMessage: { dashboard: NeonDashboardLeafConfig }) {
         this.currentDashboard = eventMessage.dashboard;
 
         // TODO THOR-1062 Permit multiple datastores.
-        this.datasetService.setActiveDataset(eventMessage.dashboard.datastores[0]);
-        this.datasetService.setCurrentDashboard(eventMessage.dashboard);
+        const firstName = Object.keys(this.dashboardService.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
+        this.dashboardService.setActiveDatastore(this.dashboardService.config.datastores[firstName]);
+        this.dashboardService.setActiveDashboard(this.currentDashboard);
 
         this.messageSender.publish(neonEvents.DASHBOARD_RESET, {});
 
-        this.filterService.setFiltersFromConfig(eventMessage.dashboard.filters || [], this.datasetService, this.searchService);
+        this.filterService.setFiltersFromConfig(this.currentDashboard.filters || [], this.dashboardService.state, this.searchService);
 
         this.pendingInitialRegistrations = 0;
 
-        // Should map the grid name to the layout list.
-        let gridNameToLayout = !Array.isArray(eventMessage.dashboard.layoutObject) ? eventMessage.dashboard.layoutObject : {
-            '': eventMessage.dashboard.layoutObject
-        };
+        const layout = this.dashboardService.config.layouts[this.dashboardService.state.getLayout()];
 
-        Object.keys(gridNameToLayout).forEach((gridName) => {
-            let layout = gridNameToLayout[gridName] || [];
-            layout.forEach((widgetGridItem) => {
-                if (!widgetGridItem.hide) {
-                    this.pendingInitialRegistrations += 1;
-                    this.messageSender.publish(neonEvents.WIDGET_ADD, {
-                        gridName: gridName,
-                        widgetGridItem: widgetGridItem
-                    });
-                }
-            });
-        });
+        const pairs = GridState.getAllGridItems(layout);
+        this.pendingInitialRegistrations = pairs.length;
+
+        for (const pair of pairs) {
+            this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
+        }
 
         this.simpleFilter.updateSimpleFilterConfig();
         this.toggleDashboardSelectorDialog(false);
@@ -708,23 +500,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Shows the dashboard state on page load, if any.
-     *
-     * @private
      */
     private showDashboardStateOnPageLoad() {
-        let parameterState: string = this.parameterService.findDashboardStateIdInUrl();
+        let dashboard = DashboardComponent.findAutoShowDashboard(this.dashboards);
 
-        if (parameterState) {
-            this.parameterService.loadState(parameterState, this.parameterService.findFilterStateIdInUrl());
-        }
+        const firstDataStore = dashboard && Object.values(this.dashboardService.config.datastores)
+            .sort((ds1, ds2) => ds1.name.localeCompare(ds2.name))[0];
 
-        let parameterDataset: string = this.parameterService.findActiveDatasetInUrl();
-
-        let dashboard: Dashboard = this.findAutoShowDashboard(this.dashboards.choices);
-
-        if (dashboard && (!parameterDataset || parameterDataset === dashboard.datastores[0].name)) {
+        if (dashboard && firstDataStore) {
             this.messageSender.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard: dashboard
+                dashboard
             });
         } else {
             this.toggleDashboardSelectorDialog(true);
@@ -733,8 +518,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Unregisters the widget with the given ID.
-     *
-     * @arg {{id:string}} eventMessage
      */
     @DashboardModified()
     private unregisterWidget(eventMessage: { id: string }) {
@@ -743,8 +526,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Updates the showVisualizationsShortcut boolean value from the messenger channel
-     *
-     * @arg {{show:boolean}} eventMessage
      */
     private updateShowVisualizationsShortcut(eventMessage: { show: boolean }) {
         this.showVisualizationsShortcut = eventMessage.show;
@@ -752,40 +533,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /**
      * Updates the showFilterTray boolean value from the messenger channel
-     *
-     * @arg {{show:boolean}} eventMessage
      */
     private updateShowFilterTray(eventMessage: { show: boolean }) {
         this.showFilterTray = eventMessage.show;
-    }
-
-    /**
-     * This function determines if a widget will overlap any existing grid items if placed
-     * at the given row and column.  This function assumes the given widget has valid sizes.
-     * @arg widgetGridItem The widget to place
-     */
-    private widgetFits(widgetGridItem: NeonGridItem) {
-        for (let existingWidgetGridItem of this.tabbedGrid[this.selectedTabIndex].list) {
-            if (this.widgetOverlaps(widgetGridItem, existingWidgetGridItem)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * This function uses a simple Axis-Aligned Bounding Box (AABB)
-     * calculation to check for overlap of two items.  This function assumes the given items have valid sizes.
-     * @arg one the first widget
-     * @arg two the second widget
-     */
-    private widgetOverlaps(one: NeonGridItem, two: NeonGridItem) {
-        if (one.col > (two.col + two.sizex - 1) || two.col > (one.col + one.sizex - 1)) {
-            return false;
-        }
-        if (one.row > (two.row + two.sizey - 1) || two.row > (one.row + one.sizey - 1)) {
-            return false;
-        }
-        return true;
     }
 }

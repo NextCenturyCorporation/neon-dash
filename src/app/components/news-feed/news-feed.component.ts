@@ -27,11 +27,11 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -39,7 +39,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { MatDialog } from '@angular/material';
 
 import * as moment from 'moment';
@@ -63,7 +63,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public newsFeedData: any[] = null;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -73,7 +73,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,

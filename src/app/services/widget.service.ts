@@ -14,10 +14,11 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
-import { Color, ColorSet } from '../color';
-import { DatasetService } from './dataset.service';
-import { neonEvents } from '../neon-namespaces';
+import { Color, ColorSet } from '../model/color';
+import { DashboardService } from './dashboard.service';
+import { neonEvents } from '../model/neon-namespaces';
 import { eventing } from 'neon-framework';
+import { DashboardState } from '../model/dashboard-state';
 
 /**
  * @class NeonTheme
@@ -49,11 +50,14 @@ export class WidgetService extends AbstractWidgetService {
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
     private messenger: eventing.Messenger;
 
-    constructor(protected datasetService: DatasetService) {
+    public readonly dashboardState: DashboardState;
+
+    constructor(dashboardService: DashboardService) {
         super();
         this.messenger = new eventing.Messenger();
         this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
         document.body.className = this.currentThemeId;
+        this.dashboardState = dashboardService.state;
     }
 
     /**
@@ -152,8 +156,8 @@ export class WidgetService extends AbstractWidgetService {
      */
     public resetColorMap() {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        if (this.datasetService.getCurrentDashboardOptions()) {
-            let dashboardOptions = this.datasetService.getCurrentDashboardOptions();
+        if (this.dashboardState.getOptions()) {
+            let dashboardOptions = this.dashboardState.getOptions();
             let colorMaps = dashboardOptions.colorMaps || {};
             Object.keys(colorMaps).forEach((databaseName) => {
                 Object.keys(colorMaps[databaseName]).forEach((tableName) => {

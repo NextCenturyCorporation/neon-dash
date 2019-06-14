@@ -15,11 +15,11 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { DatasetService } from './dataset.service';
+import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
 
-import { NeonGTDConfig } from '../neon-gtd-config';
+import { NeonConfig } from '../model/types';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { ConfigService } from './config.service';
@@ -32,9 +32,9 @@ describe('Service: Parameter', () => {
         providers: [
             ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            DatasetService,
+            DashboardService,
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ]
     });
