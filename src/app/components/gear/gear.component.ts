@@ -29,7 +29,8 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option';
+import { OptionType, WidgetOption } from '../../model/widget-option';
+import { WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
 import { neonEvents } from '../../model/neon-namespaces';
@@ -92,10 +93,10 @@ export class GearComponent implements OnInit, OnDestroy {
         this.modifiedOptions = this.originalOptions.copy();
 
         let optionList: WidgetOption[] = this.modifiedOptions.list();
-        optionList = this.removeOptionsByEnableInMenu(optionList, false);
-        optionList = this.removeOptionsByBindingKey(optionList, 'title');
-        optionList = this.removeOptionsByType(optionList, 'DATABASE');
-        optionList = this.removeOptionsByType(optionList, 'TABLE');
+        optionList = this.removeOptions(optionList, 'hideFromMenu', true);
+        optionList = this.removeOptions(optionList, 'bindingKey', 'title');
+        optionList = this.removeOptions(optionList, 'optionType', 'DATABASE');
+        optionList = this.removeOptions(optionList, 'optionType', 'TABLE');
 
         let requiredList: WidgetOption[] = [];
         let optionalList: WidgetOption[] = [];
@@ -164,10 +165,10 @@ export class GearComponent implements OnInit, OnDestroy {
     public getLayerList(layer: any): string[] {
         // TODO THOR-1062
         let optionList: WidgetOption[] = layer.list();
-        optionList = this.removeOptionsByEnableInMenu(optionList, false);
-        optionList = this.removeOptionsByBindingKey(optionList, 'title');
-        optionList = this.removeOptionsByType(optionList, 'DATABASE');
-        optionList = this.removeOptionsByType(optionList, 'TABLE');
+        optionList = this.removeOptions(optionList, 'hideFromMenu', true);
+        optionList = this.removeOptions(optionList, 'bindingKey', 'title');
+        optionList = this.removeOptions(optionList, 'optionType', 'DATABASE');
+        optionList = this.removeOptions(optionList, 'optionType', 'TABLE');
         return optionList.map((option) => option.bindingKey);
     }
 
@@ -308,22 +309,8 @@ export class GearComponent implements OnInit, OnDestroy {
         }
     }
 
-    private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.bindingKey !== bindingKey);
-        return newList;
-    }
-
-    private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.enableInMenu !== enableInMenu);
-        return newList;
-    }
-
-    private removeOptionsByType(list: any[], optionType: string): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.optionType !== optionType);
-        return newList;
+    private removeOptions(list: any[], property: string, compareValue: boolean|string): any[] {
+        return list.filter((optionObject) => optionObject[property] !== compareValue);
     }
 
     /**

@@ -43,7 +43,7 @@ import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { ConfigService } from '../services/config.service';
 import { GridState } from '../model/grid-state';
-import { ConfigurableWidget } from '../model/widget-option';
+import { ConfigurableWidget } from '../model/widget-option-collection';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {

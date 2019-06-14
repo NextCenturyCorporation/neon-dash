@@ -23,8 +23,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AggregationType } from '../../model/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';

@@ -24,9 +24,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { DashboardState } from '../../model/dashboard-state';
 import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
-import {
-    WidgetOptionCollection
-} from '../../model/widget-option';
+import { WidgetOptionCollection } from '../../model/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { neonEvents } from '../../model/neon-namespaces';

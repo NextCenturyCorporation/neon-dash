@@ -23,10 +23,10 @@ import {
     WidgetFieldOption,
     WidgetFieldArrayOption,
     WidgetSelectOption,
-    WidgetOptionCollection,
     WidgetTableOption,
     WidgetNonPrimitiveOption
 } from './widget-option';
+import { WidgetOptionCollection } from './widget-option-collection';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';

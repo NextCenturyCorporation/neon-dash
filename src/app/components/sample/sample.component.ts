@@ -26,7 +26,6 @@ import {
 
 import {
     AbstractSearchService,
-    AggregationType,
     FilterClause,
     QueryPayload,
     SortOrder
@@ -38,6 +37,7 @@ import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../model/types';
 import {
+    AggregationType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
