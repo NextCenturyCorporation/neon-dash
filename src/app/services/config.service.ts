@@ -20,7 +20,7 @@ import { environment } from '../../environments/environment';
 
 import { ReplaySubject, Observable, combineLatest, of, from } from 'rxjs';
 import { map, catchError, switchMap, take } from 'rxjs/operators';
-import { NeonConfig } from '../model/types';
+import { NeonConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 

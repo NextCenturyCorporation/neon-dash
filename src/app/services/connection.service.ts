@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { NeonConfig } from '../model/types';
+import { NeonConfig } from '../models/types';
 import { query } from 'neon-framework';
 
 export interface RequestWrapper {

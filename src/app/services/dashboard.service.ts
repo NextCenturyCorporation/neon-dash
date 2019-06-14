@@ -19,14 +19,14 @@ import {
     NeonConfig, NeonDatastoreConfig,
     NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData,
     FilterConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
-} from '../model/types';
-import { neonEvents } from '../model/neon-namespaces';
+} from '../models/types';
+import { neonEvents } from '../models/neon-namespaces';
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { ConnectionService, Connection } from './connection.service';
-import { DashboardState } from '../model/dashboard-state';
+import { DashboardState } from '../models/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
-import { GridState } from '../model/grid-state';
+import { GridState } from '../models/grid-state';
 
 @Injectable()
 export class DashboardService {

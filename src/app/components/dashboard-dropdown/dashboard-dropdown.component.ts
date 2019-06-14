@@ -21,7 +21,7 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../models/types';
 import * as _ from 'lodash';
 
 @Component({

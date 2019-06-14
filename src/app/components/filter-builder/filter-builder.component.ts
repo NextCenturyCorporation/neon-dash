@@ -22,14 +22,14 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DashboardState } from '../../model/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
+import { DashboardState } from '../../models/dashboard-state';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
 import {
     WidgetOptionCollection
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import { eventing } from 'neon-framework';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 @Component({
     selector: 'app-filter-builder',

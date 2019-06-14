@@ -14,12 +14,12 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../model/types';
-import { neonEvents } from '../model/neon-namespaces';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../models/types';
+import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../model/dashboard-state';
+import { DashboardState } from '../models/dashboard-state';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;

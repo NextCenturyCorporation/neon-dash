@@ -15,7 +15,7 @@
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonConfig } from '../model/types';
+import { NeonConfig } from '../models/types';
 import { ConfigService } from './config.service';
 
 describe('Service: ConfigService', () => {
