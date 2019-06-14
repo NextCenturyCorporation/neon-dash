@@ -33,10 +33,8 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { GearModule } from './gear.module';
 import { ConfigService } from '../../services/config.service';
-import {
-    WidgetOptionCollection, WidgetFreeTextOption,
-    WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
-} from '../../model/widget-option';
+import { WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../model/widget-option';
+import { WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
     options = new WidgetOptionCollection(() => []);
@@ -150,7 +148,7 @@ describe('Component: Gear Component', () => {
         layer.append(new WidgetFieldOption('field', '', true));
         layer.append(new WidgetFreeTextOption('freeText', '', ''));
         layer.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        layer.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
+        layer.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getLayerList(layer)).toEqual(['field', 'freeText', 'select']);
     });
 

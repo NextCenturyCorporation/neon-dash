@@ -15,7 +15,6 @@
  */
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
@@ -23,6 +22,7 @@ import {
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
+import { AggregationType } from '../../app/model/widget-option';
 import { RequestWrapper } from '../../app/services/connection.service';
 
 /**

@@ -16,16 +16,17 @@ import { Injectable } from '@angular/core';
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
     SortOrder,
     TimeInterval,
     QueryPayload
-} from '../../app/services/abstract.search.service';
-import { query } from 'neon-framework';
+} from './abstract.search.service';
+import { AggregationType } from '../model/widget-option';
 import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
+
+import { query } from 'neon-framework';
 
 export class NeonQueryWrapper implements QueryPayload {
     /* eslint-disable-next-line no-shadow */

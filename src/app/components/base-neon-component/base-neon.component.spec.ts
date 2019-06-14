@@ -26,13 +26,14 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonFieldMetaData, NeonConfig } from '../../model/types';
 import {
+    AggregationType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -40,9 +41,9 @@ import {
     WidgetMultipleSelectOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
-    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../model/widget-option';
+import { WidgetOptionCollection } from '../../model/widget-option-collection';
 import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';

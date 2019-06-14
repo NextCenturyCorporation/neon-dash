@@ -28,7 +28,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { NetworkGraphModule } from './network-graph.module';
 import { ConfigService } from '../../services/config.service';
-import { WidgetOptionCollection } from '../../model/widget-option';
+import { WidgetOptionCollection } from '../../model/widget-option-collection';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonConfig = NeonConfig.get();

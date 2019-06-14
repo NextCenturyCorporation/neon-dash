@@ -29,7 +29,6 @@ import { Color } from '../../model/color';
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
@@ -61,6 +60,7 @@ import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
 import {
+    AggregationType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,

@@ -13,18 +13,12 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
+
+import { AggregationType } from '../model/widget-option';
 import { RequestWrapper } from './connection.service';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface QueryPayload { }
-
-export enum AggregationType {
-    AVG = 'avg',
-    COUNT = 'count',
-    MAX = 'max',
-    MIN = 'min',
-    SUM = 'sum'
-}
 
 export enum CompoundFilterType {
     AND = 'and',

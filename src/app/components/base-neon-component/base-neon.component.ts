@@ -16,7 +16,6 @@ import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@
 
 import {
     AbstractSearchService,
-    AggregationType,
     FilterClause,
     QueryPayload
 } from '../../services/abstract.search.service';
@@ -30,6 +29,7 @@ import {
 import { NeonFieldMetaData } from '../../model/types';
 import { neonEvents } from '../../model/neon-namespaces';
 import {
+    AggregationType,
     OptionChoices,
     OptionType,
     WidgetFieldArrayOption,
@@ -37,10 +37,9 @@ import {
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
-    WidgetOptionCollection,
-    WidgetSelectOption,
-    ConfigurableWidget
+    WidgetSelectOption
 } from '../../model/widget-option';
+import { WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
