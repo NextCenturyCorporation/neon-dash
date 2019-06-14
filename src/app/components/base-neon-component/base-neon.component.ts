@@ -762,9 +762,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {boolean} databaseOrTableChange
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        let optionsToUpdate = options || this.options;
         this.updateCollectionWithGlobalCompatibleFilters();
-        this.handleChangeData(optionsToUpdate, databaseOrTableChange);
+        this.handleChangeData(undefined, databaseOrTableChange);
     }
 
     /**
