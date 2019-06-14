@@ -19,12 +19,12 @@ import { } from 'jasmine-core';
 import { SettingsComponent } from './settings.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
+import { NeonConfig } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { SettingsModule } from './settings.module';
@@ -41,8 +41,8 @@ describe('Component: Settings', () => {
             SettingsComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],

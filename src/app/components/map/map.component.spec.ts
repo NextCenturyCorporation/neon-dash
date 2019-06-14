@@ -25,17 +25,16 @@ import { MapComponent } from './map.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { WidgetOptionCollection } from '../../widget-option';
+import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { WidgetOptionCollection } from '../../model/widget-option';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
@@ -57,16 +56,12 @@ class TestMapComponent extends MapComponent {
         return this.mapObject;
     }
 
-    getDatasetService(): DatasetService {
-        return this.datasetService;
-    }
-
     getInjector(): Injector {
         return this.injector;
     }
 
-    getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[], lngField: string,
-        latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]) {
+    getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: NeonFieldMetaData[], lngField: string,
+        latField: string, colorField: string, hoverPopupField: NeonFieldMetaData, data: any[]) {
         return super.getMapPoints(databaseName, tableName, idField, filterFields, lngField, latField, colorField, hoverPopupField, data);
     }
 
@@ -129,22 +124,22 @@ function updateMapLayer1(component: TestMapComponent) {
     component.options.layers[0] = new WidgetOptionCollection(() => [], undefined, {});
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
-    component.options.layers[0].database = DatasetServiceMock.DATABASES[0];
+    component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
     component.options.layers[0].fields = [];
     component.options.layers[0].tables = [];
-    component.options.layers[0].table = DatasetServiceMock.TABLES[0];
+    component.options.layers[0].table = DashboardServiceMock.TABLES.testTable1;
     component.options.layers[0].title = 'Layer A';
-    component.options.layers[0].unsharedFilterField = new FieldMetaData();
+    component.options.layers[0].unsharedFilterField = NeonFieldMetaData.get();
     component.options.layers[0].unsharedFilterValue = '';
 
     component.options.layers[0].filterFields = [];
-    component.options.layers[0].idField = DatasetServiceMock.ID_FIELD;
-    component.options.layers[0].colorField = DatasetServiceMock.CATEGORY_FIELD;
-    component.options.layers[0].hoverPopupField = DatasetServiceMock.TEXT_FIELD;
-    component.options.layers[0].dateField = DatasetServiceMock.DATE_FIELD;
-    component.options.layers[0].latitudeField = DatasetServiceMock.Y_FIELD;
-    component.options.layers[0].longitudeField = DatasetServiceMock.X_FIELD;
-    component.options.layers[0].sizeField = DatasetServiceMock.SIZE_FIELD;
+    component.options.layers[0].idField = DashboardServiceMock.FIELD_MAP.ID;
+    component.options.layers[0].colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+    component.options.layers[0].hoverPopupField = DashboardServiceMock.FIELD_MAP.TEXT;
+    component.options.layers[0].dateField = DashboardServiceMock.FIELD_MAP.DATE;
+    component.options.layers[0].latitudeField = DashboardServiceMock.FIELD_MAP.Y;
+    component.options.layers[0].longitudeField = DashboardServiceMock.FIELD_MAP.X;
+    component.options.layers[0].sizeField = DashboardServiceMock.FIELD_MAP.SIZE;
 }
 
 function updateMapLayer2(component: TestMapComponent) {
@@ -154,22 +149,22 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1] = new WidgetOptionCollection(() => [], undefined, {});
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
-    component.options.layers[1].database = DatasetServiceMock.DATABASES[1];
+    component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
     component.options.layers[1].fields = [];
     component.options.layers[1].tables = [];
-    component.options.layers[1].table = DatasetServiceMock.TABLES[1];
+    component.options.layers[1].table = DashboardServiceMock.TABLES.testTable2;
     component.options.layers[1].title = 'Layer B';
-    component.options.layers[1].unsharedFilterField = new FieldMetaData();
+    component.options.layers[1].unsharedFilterField = NeonFieldMetaData.get();
     component.options.layers[1].unsharedFilterValue = '';
 
     component.options.layers[1].filterFields = [];
-    component.options.layers[1].idField = DatasetServiceMock.ID_FIELD;
-    component.options.layers[1].colorField = DatasetServiceMock.CATEGORY_FIELD;
-    component.options.layers[1].hoverPopupField = DatasetServiceMock.TEXT_FIELD;
-    component.options.layers[1].dateField = DatasetServiceMock.DATE_FIELD;
-    component.options.layers[1].latitudeField = DatasetServiceMock.Y_FIELD;
-    component.options.layers[1].longitudeField = DatasetServiceMock.X_FIELD;
-    component.options.layers[1].sizeField = DatasetServiceMock.SIZE_FIELD;
+    component.options.layers[1].idField = DashboardServiceMock.FIELD_MAP.ID;
+    component.options.layers[1].colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+    component.options.layers[1].hoverPopupField = DashboardServiceMock.FIELD_MAP.TEXT;
+    component.options.layers[1].dateField = DashboardServiceMock.FIELD_MAP.DATE;
+    component.options.layers[1].latitudeField = DashboardServiceMock.FIELD_MAP.Y;
+    component.options.layers[1].longitudeField = DashboardServiceMock.FIELD_MAP.X;
+    component.options.layers[1].sizeField = DashboardServiceMock.FIELD_MAP.SIZE;
 }
 
 describe('Component: Map', () => {
@@ -183,12 +178,12 @@ describe('Component: Map', () => {
             TestMapComponent
         ],
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) }
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
         ],
         imports: [
@@ -229,18 +224,18 @@ describe('Component: Map', () => {
 
     it('does have expected default layers', () => {
         expect(component.options.layers[0].databases).toEqual([]);
-        expect(component.options.layers[0].database).toEqual(new DatabaseMetaData());
+        expect(component.options.layers[0].database).toEqual(NeonDatabaseMetaData.get());
         expect(component.options.layers[0].tables).toEqual([]);
-        expect(component.options.layers[0].table).toEqual(new TableMetaData());
+        expect(component.options.layers[0].table).toEqual(NeonTableMetaData.get());
         expect(component.options.layers[0].fields).toEqual([]);
         expect(component.options.layers[0].title).toEqual('Layer 1');
-        expect(component.options.layers[0].idField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].hoverPopupField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData());
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData());
+        expect(component.options.layers[0].idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].colorField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].hoverPopupField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].latitudeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].longitudeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].sizeField).toEqual(NeonFieldMetaData.get());
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -306,18 +301,22 @@ describe('Component: Map', () => {
         };
         let dataset3 = {
             data: [
-                { id: 'testId1',
+                {
+                    id: 'testId1',
                     lat: [0, 0, 0, 0],
                     lng: [0, 0, 0, 0],
                     category: 'a',
                     hoverPopupField: 'Hover Popup Field:  A',
-                    filterFields: [1] },
-                { id: 'testId2',
+                    filterFields: [1]
+                },
+                {
+                    id: 'testId2',
                     lat: [0, 0, 0, 0],
                     lng: [0, 0, 0, 0],
                     category: 'b',
                     hoverPopupField: 'Hover Popup Field:  B',
-                    filterFields: [1, 2] }
+                    filterFields: [1, 2]
+                }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1', 'testId1', 'testId1', 'testId1'], [filter1, filter1, filter1, filter1], filter1,
@@ -329,18 +328,22 @@ describe('Component: Map', () => {
         };
         let dataset4 = {
             data: [
-                { id: 'testId1',
+                {
+                    id: 'testId1',
                     lat: [0, 0, 0, 0],
                     lng: [0, 1, 2, 3],
                     category: 'a',
                     hoverPopupField: 'Hover Popup Field:  A',
-                    filterFields: [1] },
-                { id: 'testId2',
+                    filterFields: [1]
+                },
+                {
+                    id: 'testId2',
                     lat: [0, 0, 0, 0],
                     lng: [4, 5, 6, 7],
                     category: 'b',
                     hoverPopupField: 'Hover Popup Field:  B',
-                    filterFields: [1, 2] }
+                    filterFields: [1, 2]
+                }
             ],
             expected: [
                 new MapPoint('testId1', ['testId1'], [filter1], filter1, '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
@@ -363,21 +366,21 @@ describe('Component: Map', () => {
         };
 
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat',
-            'category', new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset1.data);
+            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat',
+            'category', NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
         // TODO expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
         let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset2.data);
+            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
         let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset3.data);
+            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset3.data);
         expect(mapPoints3).toEqual(dataset3.expected);
         let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [new FieldMetaData('filterFields', 'Filter Fields')], 'lng', 'lat', 'category',
-            new FieldMetaData('hoverPopupField', 'Hover Popup Field'), dataset4.data);
+            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset4.data);
         expect(mapPoints4).toEqual(dataset4.expected);
     });
 
@@ -397,38 +400,38 @@ describe('Component: Map', () => {
         // Layer 1 box filter
         expect((actual1[0].filterDesign).type).toEqual('and');
         expect((actual1[0].filterDesign).filters.length).toEqual(4);
-        expect((actual1[0].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[0].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[0].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[0].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual1[0].filterDesign).filters[0].operator).toEqual('>=');
         expect((actual1[0].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual1[0].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[0].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[0].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[0].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual1[0].filterDesign).filters[1].operator).toEqual('<=');
         expect((actual1[0].filterDesign).filters[1].value).toBeUndefined();
-        expect((actual1[0].filterDesign).filters[2].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign).filters[2].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[0].filterDesign).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[0].filterDesign).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[0].filterDesign).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual1[0].filterDesign).filters[2].operator).toEqual('>=');
         expect((actual1[0].filterDesign).filters[2].value).toBeUndefined();
-        expect((actual1[0].filterDesign).filters[3].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[0].filterDesign).filters[3].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[0].filterDesign).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[0].filterDesign).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[0].filterDesign).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[0].filterDesign).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual1[0].filterDesign).filters[3].operator).toEqual('<=');
         expect((actual1[0].filterDesign).filters[3].value).toBeUndefined();
         expect(actual1[0].redrawCallback.toString()).toEqual((component as any).redrawFilterBox.bind(component).toString());
         // Layer 1 point filter
         expect((actual1[1].filterDesign).type).toEqual('and');
         expect((actual1[1].filterDesign).filters.length).toEqual(2);
-        expect((actual1[1].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[1].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[1].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual1[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual1[1].filterDesign).filters[0].operator).toEqual('=');
         expect((actual1[1].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual1[1].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual1[1].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual1[1].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual1[1].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual1[1].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual1[1].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual1[1].filterDesign).filters[1].operator).toEqual('=');
         expect((actual1[1].filterDesign).filters[1].value).toBeUndefined();
         expect(actual1[1].redrawCallback.toString()).toEqual((component as any).redrawFilterPoint.bind(component).toString());
@@ -441,43 +444,43 @@ describe('Component: Map', () => {
         // Layer 2 box filter
         expect((actual2[2].filterDesign).type).toEqual('and');
         expect((actual2[2].filterDesign).filters.length).toEqual(4);
-        expect((actual2[2].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual2[2].filterDesign).filters[0].operator).toEqual('>=');
         expect((actual2[2].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual2[2].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign).filters[1].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[2].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[2].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual2[2].filterDesign).filters[1].operator).toEqual('<=');
         expect((actual2[2].filterDesign).filters[1].value).toBeUndefined();
-        expect((actual2[2].filterDesign).filters[2].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign).filters[2].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign).filters[2].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[2].filterDesign).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[2].filterDesign).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[2].filterDesign).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual2[2].filterDesign).filters[2].operator).toEqual('>=');
         expect((actual2[2].filterDesign).filters[2].value).toBeUndefined();
-        expect((actual2[2].filterDesign).filters[3].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[2].filterDesign).filters[3].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[2].filterDesign).filters[3].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[2].filterDesign).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[2].filterDesign).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[2].filterDesign).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual2[2].filterDesign).filters[3].operator).toEqual('<=');
         expect((actual2[2].filterDesign).filters[3].value).toBeUndefined();
         expect(actual2[2].redrawCallback.toString()).toEqual((component as any).redrawFilterBox.bind(component).toString());
         // Layer 2 point filter
         expect((actual2[3].filterDesign).type).toEqual('and');
         expect((actual2[3].filterDesign).filters.length).toEqual(2);
-        expect((actual2[3].filterDesign).filters[0].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[3].filterDesign).filters[0].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[3].filterDesign).filters[0].field).toEqual(DatasetServiceMock.Y_FIELD);
+        expect((actual2[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
         expect((actual2[3].filterDesign).filters[0].operator).toEqual('=');
         expect((actual2[3].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual2[3].filterDesign).filters[1].database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual2[3].filterDesign).filters[1].table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual2[3].filterDesign).filters[1].field).toEqual(DatasetServiceMock.X_FIELD);
+        expect((actual2[3].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual2[3].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual2[3].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual2[3].filterDesign).filters[1].operator).toEqual('=');
         expect((actual2[3].filterDesign).filters[1].value).toBeUndefined();
         expect(actual2[3].redrawCallback.toString()).toEqual((component as any).redrawFilterPoint.bind(component).toString());
 
-        component.options.layers[0].filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         let actual3 = (component as any).designEachFilterWithNoValues();
         expect(actual3.length).toEqual(5);
         expect((actual2[0].filterDesign)).toEqual((actual2[0].filterDesign));
@@ -485,15 +488,15 @@ describe('Component: Map', () => {
         expect((actual3[3].filterDesign)).toEqual((actual2[2].filterDesign));
         expect((actual3[4].filterDesign)).toEqual((actual2[3].filterDesign));
         // Layer 1 filter field
-        expect((actual3[2].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual3[2].filterDesign).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual3[2].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual3[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual3[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual3[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual3[2].filterDesign).operator).toEqual('=');
         expect((actual3[2].filterDesign).value).toBeUndefined();
 
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
-            DatasetServiceMock.NAME_FIELD,
-            DatasetServiceMock.TYPE_FIELD];
+        component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
         let actual4 = (component as any).designEachFilterWithNoValues();
         expect(actual4.length).toEqual(8);
         expect((actual4[0].filterDesign)).toEqual((actual3[0].filterDesign));
@@ -502,19 +505,19 @@ describe('Component: Map', () => {
         expect((actual4[3].filterDesign)).toEqual((actual3[3].filterDesign));
         expect((actual4[4].filterDesign)).toEqual((actual3[4].filterDesign));
         // Layer 2 filter fields
-        expect((actual4[5].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[5].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[5].filterDesign).field).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect((actual4[5].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual4[5].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual4[5].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect((actual4[5].filterDesign).operator).toEqual('=');
         expect((actual4[5].filterDesign).value).toBeUndefined();
-        expect((actual4[6].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[6].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[6].filterDesign).field).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect((actual4[6].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual4[6].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual4[6].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect((actual4[6].filterDesign).operator).toEqual('=');
         expect((actual4[6].filterDesign).value).toBeUndefined();
-        expect((actual4[7].filterDesign).database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((actual4[7].filterDesign).table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((actual4[7].filterDesign).field).toEqual(DatasetServiceMock.TYPE_FIELD);
+        expect((actual4[7].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect((actual4[7].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect((actual4[7].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
         expect((actual4[7].filterDesign).operator).toEqual('=');
         expect((actual4[7].filterDesign).value).toBeUndefined();
     });
@@ -532,30 +535,30 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 1
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 2
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 4
             }]
@@ -571,30 +574,30 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 5
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 6
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 7
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 8
             }]
@@ -602,30 +605,30 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '>=',
                 value: 5
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '<=',
                 value: 6
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '>=',
                 value: 7
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '<=',
                 value: 8
             }]
@@ -644,16 +647,16 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 1
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 2
             }]
@@ -668,16 +671,16 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
@@ -685,16 +688,16 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
@@ -705,10 +708,10 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
         updateMapLayer1(component);
-        component.options.layers[0].filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         let filterDataA = new Map<string, any>();
-        filterDataA.set(DatasetServiceMock.FILTER_FIELD.columnName, 'testFilterA');
+        filterDataA.set(DashboardServiceMock.FIELD_MAP.FILTER.columnName, 'testFilterA');
         component.filterByMapPoint([filterDataA], 1, 2);
 
         expect(spy.calls.count()).toBe(1);
@@ -716,41 +719,41 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 1
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 2
             }]
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterA'
         }], []]);
 
         updateMapLayer2(component);
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
-            DatasetServiceMock.NAME_FIELD,
-            DatasetServiceMock.TYPE_FIELD];
+        component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
 
         let filterDataB = new Map<string, any>();
-        filterDataB.set(DatasetServiceMock.FILTER_FIELD.columnName, 'testFilterB');
-        filterDataB.set(DatasetServiceMock.NAME_FIELD.columnName, 'testNameB');
-        filterDataB.set(DatasetServiceMock.TYPE_FIELD.columnName, 'testTypeB');
+        filterDataB.set(DashboardServiceMock.FIELD_MAP.FILTER.columnName, 'testFilterB');
+        filterDataB.set(DashboardServiceMock.FIELD_MAP.NAME.columnName, 'testNameB');
+        filterDataB.set(DashboardServiceMock.FIELD_MAP.TYPE.columnName, 'testTypeB');
         let filterDataC = new Map<string, any>();
-        filterDataC.set(DatasetServiceMock.NAME_FIELD.columnName, 'testNameC');
-        filterDataC.set(DatasetServiceMock.TYPE_FIELD.columnName, 'testTypeC');
+        filterDataC.set(DashboardServiceMock.FIELD_MAP.NAME.columnName, 'testNameC');
+        filterDataC.set(DashboardServiceMock.FIELD_MAP.TYPE.columnName, 'testTypeC');
         component.filterByMapPoint([filterDataB, filterDataC], 3, 4);
 
         expect(spy.calls.count()).toBe(2);
@@ -758,82 +761,82 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterB'
         }, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterB'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.NAME,
             operator: '=',
             value: 'testNameB'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.NAME,
             operator: '=',
             value: 'testNameC'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeB'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: 'testTypeC'
         }], []]);
@@ -843,7 +846,7 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
         updateMapLayer1(component);
-        component.options.layers[0].filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         component.filterByMapPoint([new Map<string, any>()], 1, 2);
 
@@ -852,33 +855,33 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 1
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 2
             }]
         }], [{
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: undefined
         }]]);
 
         updateMapLayer2(component);
-        component.options.layers[1].filterFields = [DatasetServiceMock.FILTER_FIELD,
-            DatasetServiceMock.NAME_FIELD,
-            DatasetServiceMock.TYPE_FIELD];
+        component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
 
         component.filterByMapPoint([new Map<string, any>()], 3, 4);
 
@@ -887,16 +890,16 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
@@ -904,49 +907,49 @@ describe('Component: Map', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.Y_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.Y,
                 operator: '=',
                 value: 3
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[1],
-                table: DatasetServiceMock.TABLES[1],
-                field: DatasetServiceMock.X_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase2,
+                table: DashboardServiceMock.TABLES.testTable2,
+                field: DashboardServiceMock.FIELD_MAP.X,
                 operator: '=',
                 value: 4
             }]
         }], [{
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: undefined
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: undefined
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.NAME_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.NAME,
             operator: '=',
             value: undefined
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[1],
-            table: DatasetServiceMock.TABLES[1],
-            field: DatasetServiceMock.TYPE_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase2,
+            table: DashboardServiceMock.TABLES.testTable2,
+            field: DashboardServiceMock.FIELD_MAP.TYPE,
             operator: '=',
             value: undefined
         }]]);
@@ -1142,12 +1145,12 @@ describe('Component: Map with config', () => {
             TestMapComponent
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(new NeonGTDConfig()) },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',
@@ -1209,11 +1212,11 @@ describe('Component: Map with config', () => {
     });
 
     it('does have expected layers', () => {
-        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.options.layers[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.options.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
     });
 });

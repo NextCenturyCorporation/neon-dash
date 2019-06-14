@@ -33,7 +33,7 @@ import {
     TimeInterval
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -46,7 +46,7 @@ import {
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldOption,
@@ -54,10 +54,10 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetFieldArrayOption
-} from '../../widget-option';
+} from '../../model/widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../model/types';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
@@ -91,7 +91,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public timelineQueryResults: { value: number, date: Date }[] = null;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -101,7 +101,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -127,7 +127,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
     }
 
-    private createFilterDesignOnItem(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
             datastore: '',

@@ -16,8 +16,8 @@ import { ReflectiveInjector } from '@angular/core';
 import { inject } from '@angular/core/testing';
 import * as yaml from 'js-yaml';
 
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from './dataset';
-import { DatasetService } from './services/dataset.service';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonConfig } from './types';
+import { DashboardService } from '../services/dashboard.service';
 import {
     WidgetDatabaseOption,
     WidgetFieldOption,
@@ -28,17 +28,19 @@ import {
     WidgetNonPrimitiveOption
 } from './widget-option';
 
-import { initializeTestBed } from '../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../testUtils/MockServices/DatasetServiceMock';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 
 import * as _ from 'lodash';
+import { ConfigService } from '../services/config.service';
 
 describe('WidgetOptionCollection', () => {
-    let options: any;
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock }
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
@@ -111,61 +113,61 @@ describe('WidgetOptionCollection', () => {
         expect(options.keyA).toEqual('newA');
     });
 
-    it('find field functions do not error if fields are not set', inject([DatasetService], (datasetService: DatasetService) => {
+    it('find field functions do not error if fields are not set', inject([DashboardService], (dashboardService: DashboardService) => {
         expect(options.findField('testNameField')).toEqual(undefined);
-        expect(options.findFieldObject(datasetService, 'testName')).toEqual(new FieldMetaData());
-        expect(options.findFieldObjects(datasetService, 'testList')).toEqual([]);
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(NeonFieldMetaData.get());
+        expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([]);
     }));
 
     it('findField does return expected object or undefined', () => {
-        options.fields = DatasetServiceMock.FIELDS;
+        options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findField('testDateField')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('testNameField')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('testSizeField')).toEqual(DatasetServiceMock.SIZE_FIELD);
+        expect(options.findField('testDateField')).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findField('testNameField')).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findField('testSizeField')).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
         expect(options.findField('testFakeField')).toEqual(undefined);
     });
 
     it('findField does work as expected if given an array index', () => {
-        options.fields = DatasetServiceMock.FIELDS;
+        options.fields = DashboardServiceMock.FIELDS;
 
-        let dateIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testDateField');
-        let nameIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testNameField');
-        let sizeIndex = _.findIndex(DatasetServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testSizeField');
+        let dateIndex = _.findIndex(DashboardServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testDateField');
+        let nameIndex = _.findIndex(DashboardServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testNameField');
+        let sizeIndex = _.findIndex(DashboardServiceMock.FIELDS, (fieldObject) => fieldObject.columnName === 'testSizeField');
 
-        expect(options.findField('' + dateIndex)).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findField('' + nameIndex)).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findField('' + sizeIndex)).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findField('' + DatasetServiceMock.FIELDS.length)).toEqual(undefined);
+        expect(options.findField('' + dateIndex)).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findField('' + nameIndex)).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findField('' + sizeIndex)).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(options.findField('' + DashboardServiceMock.FIELDS.length)).toEqual(undefined);
         expect(options.findField('-1')).toEqual(undefined);
         expect(options.findField('abcd')).toEqual(undefined);
     });
 
-    it('findFieldObject does return expected object', inject([DatasetService], (datasetService: DatasetService) => {
-        options.fields = DatasetServiceMock.FIELDS;
+    it('findFieldObject does return expected object', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findFieldObject(datasetService, 'testDate')).toEqual(DatasetServiceMock.DATE_FIELD);
-        expect(options.findFieldObject(datasetService, 'testName')).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(options.findFieldObject(datasetService, 'testSize')).toEqual(DatasetServiceMock.SIZE_FIELD);
-        expect(options.findFieldObject(datasetService, 'testFieldKey')).toEqual(DatasetServiceMock.FIELD_KEY_FIELD);
-        expect(options.findFieldObject(datasetService, 'testFake')).toEqual(new FieldMetaData());
-        expect(options.findFieldObject(datasetService, 'fakeBind')).toEqual(new FieldMetaData());
+        expect(options.findFieldObject(dashboardService.state, 'testDate')).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(options.findFieldObject(dashboardService.state, 'testSize')).toEqual(DashboardServiceMock.FIELD_MAP.SIZE);
+        expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_MAP.FIELD_KEY);
+        expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(NeonFieldMetaData.get());
+        expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(NeonFieldMetaData.get());
     }));
 
-    it('findFieldObjects does return expected array', inject([DatasetService], (datasetService: DatasetService) => {
-        options.fields = DatasetServiceMock.FIELDS;
+    it('findFieldObjects does return expected array', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.fields = DashboardServiceMock.FIELDS;
 
-        expect(options.findFieldObjects(datasetService, 'testList')).toEqual([
-            DatasetServiceMock.DATE_FIELD,
-            DatasetServiceMock.NAME_FIELD,
-            DatasetServiceMock.SIZE_FIELD
+        expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([
+            DashboardServiceMock.FIELD_MAP.DATE,
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.SIZE
         ]);
-        expect(options.findFieldObjects(datasetService, 'testListWithFieldKey')).toEqual([
-            DatasetServiceMock.FIELD_KEY_FIELD,
-            DatasetServiceMock.NAME_FIELD
+        expect(options.findFieldObjects(dashboardService.state, 'testListWithFieldKey')).toEqual([
+            DashboardServiceMock.FIELD_MAP.FIELD_KEY,
+            DashboardServiceMock.FIELD_MAP.NAME
         ]);
-        expect(options.findFieldObjects(datasetService, 'testName')).toEqual([]);
-        expect(options.findFieldObjects(datasetService, 'fakeBind')).toEqual([]);
+        expect(options.findFieldObjects(dashboardService.state, 'testName')).toEqual([]);
+        expect(options.findFieldObjects(dashboardService.state, 'fakeBind')).toEqual([]);
     }));
 
     it('inject does add given widget option with provided binding', () => {
@@ -239,9 +241,9 @@ describe('WidgetOptionCollection', () => {
 
     it('list does return an array of all widget options', () => {
         let databaseOption = new WidgetDatabaseOption();
-        databaseOption.valueCurrent = new DatabaseMetaData();
+        databaseOption.valueCurrent = NeonDatabaseMetaData.get();
         let tableOption = new WidgetTableOption();
-        tableOption.valueCurrent = new TableMetaData();
+        tableOption.valueCurrent = NeonTableMetaData.get();
         expect(options.list()).toEqual([databaseOption, tableOption]);
 
         let widgetOption1 = new WidgetSelectOption('key1', 'label1', 'default1', []);
@@ -256,61 +258,62 @@ describe('WidgetOptionCollection', () => {
         expect(options.list()).toEqual([databaseOption, tableOption, widgetOption1, widgetOption2]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', inject([DatasetService], (datasetService: DatasetService) => {
+    it('updateDatabases does update databases, tables, and fields', inject([DashboardService], (dashboardService: DashboardService) => {
         options.databases = [];
-        options.database = new DatabaseMetaData();
+        options.database = NeonDatabaseMetaData.get();
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
 
-        options.updateDatabases(datasetService);
+        options.updateDatabases(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
-    it('updateFields does update fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[0];
+    it('updateFields does update fields', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        options.tables = DashboardServiceMock.TABLES_LIST;
+        options.table = DashboardServiceMock.TABLES.testTable1;
         options.fields = [];
 
-        options.updateFields(datasetService);
+        options.updateFields(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
-    it('updateTables does update tables and fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
+    it('updateTables does update tables and fields', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
 
-        options.updateTables(datasetService);
+        options.updateTables(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 });
 
 describe('WidgetOptionCollection with custom fields', () => {
-    let options: any;
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock }
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
@@ -321,74 +324,75 @@ describe('WidgetOptionCollection with custom fields', () => {
         ], ReflectiveInjector.resolveAndCreate([]));
     });
 
-    it('updateDatabases does update databases, tables, and fields with custom fields', inject([DatasetService],
-        (datasetService: DatasetService) => {
+    it('updateDatabases does update databases, tables, and fields with custom fields', inject([DashboardService],
+        (dashboardService: DashboardService) => {
             options.databases = [];
-            options.database = new DatabaseMetaData();
+            options.database = NeonDatabaseMetaData.get();
             options.tables = [];
-            options.table = new TableMetaData();
+            options.table = NeonTableMetaData.get();
             options.fields = [];
             options.testCustomField = null;
             options.testCustomFieldArray = null;
 
-            options.updateDatabases(datasetService);
+            options.updateDatabases(dashboardService.state);
 
-            expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-            expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-            expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-            expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-            expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(new FieldMetaData());
+            expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+            expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+            expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+            expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+            expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+            expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
             expect(options.testCustomFieldArray).toEqual([]);
         }));
 
-    it('updateFields does update fields with custom fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[0];
+    it('updateFields does update fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        options.tables = DashboardServiceMock.TABLES_LIST;
+        options.table = DashboardServiceMock.TABLES.testTable1;
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateFields(datasetService);
+        options.updateFields(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 
-    it('updateTables does update tables and fields with custom fields', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[0];
+    it('updateTables does update tables and fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateTables(datasetService);
+        options.updateTables(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(new FieldMetaData());
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
         expect(options.testCustomFieldArray).toEqual([]);
     }));
 });
 
 describe('WidgetOptionCollection with bindings and custom fields', () => {
-    let options: any;
+    let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock }
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
@@ -409,64 +413,64 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
     });
 
     it('updateDatabases does update databases, tables, and fields with bindings',
-        inject([DatasetService], (datasetService: DatasetService) => {
+        inject([DashboardService], (dashboardService: DashboardService) => {
             options.databases = [];
-            options.database = new DatabaseMetaData();
+            options.database = NeonDatabaseMetaData.get();
             options.tables = [];
-            options.table = new TableMetaData();
+            options.table = NeonTableMetaData.get();
             options.fields = [];
             options.testCustomField = null;
             options.testCustomFieldArray = null;
 
-            options.updateDatabases(datasetService);
+            options.updateDatabases(dashboardService.state);
 
-            expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-            expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-            expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-            expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
-            expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
-            expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+            expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+            expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+            expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+            expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+            expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+            expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+            expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
         }));
 
-    it('updateFields does update fields with bindings', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[1];
-        options.tables = DatasetServiceMock.TABLES;
-        options.table = DatasetServiceMock.TABLES[1];
+    it('updateFields does update fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase2;
+        options.tables = DashboardServiceMock.TABLES_LIST;
+        options.table = DashboardServiceMock.TABLES.testTable2;
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateFields(datasetService);
+        options.updateFields(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
     }));
 
-    it('updateTables does update tables and fields with bindings', inject([DatasetService], (datasetService: DatasetService) => {
-        options.databases = DatasetServiceMock.DATABASES;
-        options.database = DatasetServiceMock.DATABASES[1];
+    it('updateTables does update tables and fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
+        options.databases = DashboardServiceMock.DATABASES_LIST;
+        options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = [];
-        options.table = new TableMetaData();
+        options.table = NeonTableMetaData.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
 
-        options.updateTables(datasetService);
+        options.updateTables(dashboardService.state);
 
-        expect(options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(options.fields).toEqual(DatasetServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect(options.testCustomFieldArray).toEqual([DatasetServiceMock.NAME_FIELD, DatasetServiceMock.TYPE_FIELD]);
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table.prettyName).toEqual(DashboardServiceMock.TABLES.testTable2.prettyName);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
     }));
 });
 

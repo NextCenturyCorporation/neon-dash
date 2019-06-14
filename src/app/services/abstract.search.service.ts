@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { Dashboard, Datastore } from '../dataset';
+import { RequestWrapper } from './connection.service';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface QueryPayload { }
 
 export enum AggregationType {
     AVG = 'avg',
@@ -26,120 +29,6 @@ export enum AggregationType {
 export enum CompoundFilterType {
     AND = 'and',
     OR = 'or'
-}
-
-export interface Connection {
-
-    /**
-     * Deletes the saved dashboard state with the given name.
-     *
-     * @arg {string} stateName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    deleteState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
-
-    /**
-     * Returns the accessible database names.
-     *
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    getDatabaseNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
-
-    /**
-     * Returns the types of the fields in the given database/table.
-     *
-     * @arg {string} databaseName
-     * @arg {string} tableName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    getFieldTypes(databaseName: string, tableName: string, onSuccess: (response: any) => void,
-        onError?: (response: any) => void): RequestWrapper;
-
-    /**
-     * Returns the saved dashboard states.
-     *
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    listStates(limit: number, offset: number, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
-
-    /**
-     * Returns the table and field names in the given database.
-     *
-     * @arg {string} databaseName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    getTableNamesAndFieldNames(databaseName: string, onSuccess: (response: any) => void, onError?: (response: any) => void):
-    RequestWrapper;
-
-    /**
-     * Loads the saved state with the given name.
-     *
-     * @arg {string} stateName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    loadState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
-
-    /**
-     * Runs an export query with the given data and format.
-     *
-     * @arg {any} exportData
-     * @arg {any} exportFormat
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    runExportQuery(exportData: any, exportFormat: any, onSuccess: (response: any) => void, onError?: (response: any) => void):
-    RequestWrapper;
-
-    /**
-     * Runs a search query with the given payload.
-     *
-     * @arg {QueryPayload} queryPayload
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    runSearchQuery(queryPayload: QueryPayload, onSuccess: (response: any) => void, onError?: (response: any) => void):
-    RequestWrapper;
-
-    /**
-     * Saves (or overwrites) a state with the given data.
-     *
-     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @abstract
-     */
-    saveState(stateData: { dashboards: Dashboard, datastores: Datastore[], layouts: any, stateName: string },
-        onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper;
-}
-
-export interface RequestWrapper {
-    abort(): void;
-    always(callback: Function): void;
-    done(callback: Function): void;
-    fail(callback: Function): void;
 }
 
 export enum SortOrder {
@@ -156,11 +45,10 @@ export enum TimeInterval {
 }
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
-export interface FilterClause {}
+export interface FilterClause { }
 
-export interface QueryGroup {}
+export interface QueryGroup { }
 
-export interface QueryPayload {}
 /* eslint-enable @typescript-eslint/no-empty-interface */
 
 /**
@@ -232,15 +120,6 @@ export abstract class AbstractSearchService {
      * @abstract
      */
     public abstract canRunSearch(datastoreType: string, datastoreHost: string): boolean;
-
-    /**
-     * Returns a connection to the REST server.
-     *
-     * @arg {string} type
-     * @arg {string} host
-     * @return {Connection}
-     */
-    public abstract createConnection(type: string, host: string): Connection;
 
     /**
      * Runs the given search using the given datastore type and host.

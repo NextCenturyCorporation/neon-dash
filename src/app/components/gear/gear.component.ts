@@ -28,12 +28,13 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
-import { OptionType, WidgetOption } from '../../widget-option';
+import { DashboardService } from '../../services/dashboard.service';
+import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../model/neon-namespaces';
 import { eventing } from 'neon-framework';
+import { DashboardState } from '../../model/dashboard-state';
 
 @Component({
     selector: 'app-gear',
@@ -43,11 +44,12 @@ import { eventing } from 'neon-framework';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
+    @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
     private messenger: eventing.Messenger;
-    private originalOptions: any;
+    private originalOptions: WidgetOptionCollection;
 
     // Set to a stub object to stop initialization errors.
     public modifiedOptions: any = {
@@ -63,25 +65,20 @@ export class GearComponent implements OnInit, OnDestroy {
     public optionalList: string[] = [];
     public optionalListNonField: string[] = [];
 
-    private createLayer: (options: any, layerBinding?: any) => any;
-    private deleteLayer: (options: any, layerOptions: any) => boolean;
-    private finalizeCreateLayer: (layerOptions: any) => void;
-    private finalizeDeleteLayer: (layerOptions: any) => void;
-    private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeFilterData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeSubcomponentType: (options?: any) => void;
-
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
     public collapseOptionalOptions: boolean = true;
     public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
+    public readonly dashboardState: DashboardState;
+
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        dashboardService: DashboardService,
         protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();
+        this.dashboardState = dashboardService.state;
     }
 
     private closeSidenav() {
@@ -203,14 +200,14 @@ export class GearComponent implements OnInit, OnDestroy {
         this.originalOptions.layers.forEach((layer) => {
             // If the layer was deleted, finalize its deletion.
             if (modifiedLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeDeleteLayer(layer);
+                this.comp.finalizeDeleteLayer(layer);
             }
         });
         let originalLayerIds = this.originalOptions.layers.map((layer) => layer._id);
         this.modifiedOptions.layers.forEach((layer) => {
             // If the layer was created, finalize its creation.
             if (originalLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeCreateLayer(layer);
+                this.comp.finalizeCreateLayer(layer);
             }
         });
 
@@ -218,13 +215,13 @@ export class GearComponent implements OnInit, OnDestroy {
 
         // TODO THOR-1061
         if (this.changeSubcomponentType) {
-            this.handleChangeSubcomponentType();
+            this.comp.handleChangeSubcomponentType();
         }
 
         if (filterDataChange) {
-            this.handleChangeFilterData(undefined, databaseOrTableChange);
+            this.comp.changeFilterData(undefined, databaseOrTableChange);
         } else {
-            this.handleChangeData(undefined, databaseOrTableChange);
+            this.comp.changeData(undefined, databaseOrTableChange);
         }
 
         this.resetOptionsAndClose();
@@ -235,8 +232,8 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeDatabase(options: any): void {
-        options.updateTables(this.datasetService);
+    public handleChangeDatabase(options: WidgetOptionCollection): void {
+        options.updateTables(this.dashboardState);
         this.changeMade = true;
     }
 
@@ -245,8 +242,8 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeTable(options: any): void {
-        options.updateFields(this.datasetService);
+    public handleChangeTable(options: WidgetOptionCollection): void {
+        options.updateFields(this.dashboardState);
         this.changeMade = true;
     }
 
@@ -254,7 +251,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Creates a new layer.
      */
     public handleCreateLayer() {
-        let layer: any = this.createLayer(this.modifiedOptions);
+        let layer: any = this.comp.createLayer(this.modifiedOptions);
         this.layerHidden.set(layer._id, false);
         this.changeMade = true;
     }
@@ -263,7 +260,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Deletes the given layer.
      */
     public handleDeleteLayer(layer: any) {
-        let successful: boolean = this.deleteLayer(this.modifiedOptions, layer);
+        let successful: boolean = this.comp.deleteLayer(this.modifiedOptions, layer);
         if (successful) {
             this.layerHidden.delete(layer._id);
             this.changeMade = true;
@@ -272,6 +269,11 @@ export class GearComponent implements OnInit, OnDestroy {
                 message: 'Cannot delete final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
             });
         }
+    }
+
+    public handleRefreshClick() {
+        this.comp.changeData(undefined, false);
+        this.resetOptionsAndClose();
     }
 
     private isFilterData(optionType: OptionType): boolean {
@@ -293,9 +295,17 @@ export class GearComponent implements OnInit, OnDestroy {
         this.messenger.unsubscribeAll();
     }
 
+    /**
+     * Receives
+     */
     ngOnInit() {
-        this.messenger.subscribe(neonEvents.SHOW_OPTION_MENU, (message) => this.updateOptions(message));
-        this.changeDetection.detectChanges();
+        if (this.comp) {
+            this.originalOptions = this.comp.options;
+            /* eslint-disable-next-line @typescript-eslint/unbound-method */
+            this.exportCallbacks = [this.comp.exportData];
+            this.resetOptions();
+            this.constructOptions();
+        }
     }
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
@@ -371,25 +381,5 @@ export class GearComponent implements OnInit, OnDestroy {
         if (bindingKey === 'type') {
             this.changeSubcomponentType = true;
         }
-    }
-
-    /**
-     * Receives the message object with the WidgetOptionCollection object and callbacks from the widget
-     *
-     * @arg {message} message
-     */
-    private updateOptions(message) {
-        this.createLayer = message.createLayer;
-        this.deleteLayer = message.deleteLayer;
-        this.finalizeCreateLayer = message.finalizeCreateLayer;
-        this.finalizeDeleteLayer = message.finalizeDeleteLayer;
-        this.originalOptions = message.options;
-        this.handleChangeData = message.changeData;
-        this.handleChangeFilterData = message.changeFilterData;
-        this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        this.exportCallbacks = [message.exportData];
-
-        this.resetOptions();
-        this.constructOptions();
     }
 }
