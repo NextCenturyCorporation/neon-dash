@@ -28,7 +28,7 @@ import { DashboardUtil } from '../../util/dashboard.util';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-    public dashboardChoice: NeonDashboardConfig;
+    public dashboardChoice?: NeonDashboardConfig;
 
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -49,6 +49,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
             this.dashboards = this.dashboardService.config.dashboards;
             this.onDashboardStateChange(state.dashboard);
         });
+
+        this.onDashboardStateChange(undefined);
     }
 
     ngOnDestroy(): void {
@@ -66,15 +68,17 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.closeComponent.emit(true);
     }
 
-    private onDashboardStateChange(dashboard: NeonDashboardConfig): void {
+    public onDashboardStateChange(dashboard: NeonDashboardConfig): void {
         this.dashboardChoice = dashboard;
-        this.choices = this.computePath();
-        if (!this.choices.length) {
+        if (!this.dashboards || !('choices' in this.dashboards)) {
             this.dashboards = NeonDashboardChoiceConfig.get({
                 category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
                 choices: { [dashboard.name]: dashboard }
             });
-            this.choices = this.computePath();
+        }
+        this.choices = this.computePath();
+        if (!this.choices.length) {
+            this.choices = [this.dashboards];
         }
     }
 
@@ -86,7 +90,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                     return [root, ...res];
                 }
             }
-        } else if (root.fullTitle === this.dashboardChoice.fullTitle) {
+        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
             return [root];
         }
         return [];
@@ -113,8 +117,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         }
     }
 
-    public getChoices(dashboard: NeonDashboardChoiceConfig) {
-        return Object.values(dashboard.choices)
+    public getNextChoices(dashboard: NeonDashboardChoiceConfig) {
+        return Object.values(dashboard.choices || {})
             .filter((db1) => !!db1.name)
             .sort((db1, db2) => db1.name.localeCompare(db2.name));
     }

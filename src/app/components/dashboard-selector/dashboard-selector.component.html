@@ -15,7 +15,7 @@
     <div class="neon-form-field">
         <mat-form-field class="neon-form-field-flex-5" *ngFor="let dashboard of choiceNodes; let idx = index">
             <mat-select [placeholder]="dashboard.category" (selectionChange)="selectDashboard($event.value,idx)" [value]="choices[idx+1]">
-                <mat-option *ngFor="let choice of getChoices(dashboard)" [value]="choice">
+                <mat-option *ngFor="let choice of getNextChoices(dashboard)" [value]="choice">
                     {{ choice.name }}
                 </mat-option>
             </mat-select>
