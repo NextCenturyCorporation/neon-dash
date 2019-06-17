@@ -39,7 +39,6 @@ import { NeonFieldMetaData } from '../../model/types';
 import {
     AggregationType,
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
@@ -107,19 +106,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.initializeSubcomponent();
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
-            new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false)
-        ];
-    }
-
     private createFilterDesign(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             datastore: '',
@@ -132,13 +118,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
+            new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false),
             new WidgetSelectOption('subcomponentType', 'Subcomponent Type', 'Impl1', [{
                 prettyName: 'Implementation 1',
                 variable: 'Impl1'

@@ -35,7 +35,6 @@ import { DocumentViewerSingleItemComponent } from '../document-viewer-single-ite
 import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
@@ -120,28 +119,17 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('dataField', 'Text Field', true),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('dataField', 'Text Field', true),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetSelectOption('showText', 'Main Document Text', false, OptionChoices.HideFalseShowTrue),
             new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', ''),
             new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),

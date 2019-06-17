@@ -225,12 +225,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
@@ -238,18 +238,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true),
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetSelectOption('clearMedia', 'Clear Media', false, OptionChoices.NoFalseYesTrue),

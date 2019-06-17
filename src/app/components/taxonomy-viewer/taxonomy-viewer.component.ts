@@ -143,25 +143,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return list;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('categoryField', 'Category Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
-            new WidgetFieldOption('valueField', 'Value Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
     private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
         return {
             datastore: '',
@@ -181,13 +162,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('categoryField', 'Category Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('sourceIdField', 'Source ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
+            new WidgetFieldOption('valueField', 'Value Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('ascending', 'Sort Ascending', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),

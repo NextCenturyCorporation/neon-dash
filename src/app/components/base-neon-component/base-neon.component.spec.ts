@@ -89,11 +89,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return [];
     }
 
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
-    createNonFieldOptions(): WidgetOption[] {
+    createOptions(): WidgetOption[] {
         return [];
     }
 
@@ -137,16 +133,11 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 class TestAdvancedNeonComponent extends TestBaseNeonComponent {
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
             new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
-            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false)
-        ];
-    }
-
-    createNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
             new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
             new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
                 prettyName: 'A',
@@ -353,9 +344,10 @@ describe('BaseNeonComponent', () => {
         let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
         expect(inputOptions.layers.length).toEqual(0);
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        component.createLayerFieldOptions = () => [new WidgetFieldOption('testField', 'Test Field', false)];
-        /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        component.createLayerNonFieldOptions = () => [new WidgetFreeTextOption('testValue', 'Test Value', '')];
+        (component as any).createOptionsForLayer = () => [
+            new WidgetFieldOption('testField', 'Test Field', false),
+            new WidgetFreeTextOption('testValue', 'Test Value', '')
+        ];
         let spyPostAddLayer = spyOn(component, 'postAddLayer');
         component.addLayer(inputOptions, {
             tableKey: 'table_key_2',
