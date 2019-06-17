@@ -290,11 +290,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -302,11 +302,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'not a match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('return when matching (1)');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1)');
         expect(component.createTableRowText([{
             value1: 'match',
             value2: 'return when matching (1)'
@@ -314,11 +314,11 @@ describe('Component: DocumentViewer', () => {
             value1: 'match',
             value2: 'return when matching (2)'
         }], {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            })).toEqual('return when matching (1), return when matching (2)');
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1), return when matching (2)');
     });
 
     it('createTableRowText given an empty string, empty array, any object, or null does return empty string', () => {

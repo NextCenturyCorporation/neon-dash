@@ -138,11 +138,11 @@ describe('ChartJsSubcomponent', () => {
             x: 7,
             y: 8
         }], {
-                xAxis: 'number',
-                xList: [1, 3, 5, 7],
-                yAxis: 'number',
-                yList: [2, 4, 6, 8]
-            });
+            xAxis: 'number',
+            xList: [1, 3, 5, 7],
+            yAxis: 'number',
+            yList: [2, 4, 6, 8]
+        });
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
         expect(dataAndOptions.options.events).toEqual(['click',
@@ -250,11 +250,11 @@ describe('ChartJsSubcomponent', () => {
             x: 7,
             y: 8
         }], {
-                xAxis: 'number',
-                xList: [1, 3, 5, 7],
-                yAxis: 'number',
-                yList: [2, 4, 6, 8]
-            });
+            xAxis: 'number',
+            xList: [1, 3, 5, 7],
+            yAxis: 'number',
+            yList: [2, 4, 6, 8]
+        });
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
         expect(dataAndOptions.options.events).toEqual(['click',
