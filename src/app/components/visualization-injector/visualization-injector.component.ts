@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Component, Input, ReflectiveInjector, ViewChild, ViewContainerRef } from '@angular/core';
-import { NeonGridItem } from '../../model/neon-grid-item';
+import { NeonGridItem } from '../../models/neon-grid-item';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
 
 @Component({

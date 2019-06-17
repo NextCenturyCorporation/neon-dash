@@ -33,16 +33,16 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
-import { NeonGridItem } from '../model/neon-grid-item';
-import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../model/types';
-import { neonEvents } from '../model/neon-namespaces';
+import { NeonGridItem } from '../models/neon-grid-item';
+import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { neonEvents } from '../models/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
-import { GridState } from '../model/grid-state';
-import { ConfigurableWidget } from '../model/widget-option';
-import { DashboardState } from '../model/dashboard-state';
+import { GridState } from '../models/grid-state';
+import { ConfigurableWidget } from '../models/widget-option';
+import { DashboardState } from '../models/dashboard-state';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {

@@ -18,8 +18,8 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { NeonFieldMetaData } from '../../model/types';
-import { WidgetOption } from '../../model/widget-option';
+import { NeonFieldMetaData } from '../../models/types';
+import { WidgetOption } from '../../models/widget-option';
 
 @Component({
     selector: 'app-options-list',

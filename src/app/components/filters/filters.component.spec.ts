@@ -18,7 +18,7 @@ import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';

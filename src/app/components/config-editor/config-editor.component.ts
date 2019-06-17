@@ -15,7 +15,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonConfig } from './../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 

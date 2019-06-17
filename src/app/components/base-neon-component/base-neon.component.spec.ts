@@ -31,7 +31,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NeonFieldMetaData, NeonConfig } from '../../model/types';
+import { NeonFieldMetaData, NeonConfig } from '../../models/types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -42,13 +42,13 @@ import {
     WidgetOption,
     WidgetOptionCollection,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
 import { of } from 'rxjs';
 import { ConfigService } from '../../services/config.service';

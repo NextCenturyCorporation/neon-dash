@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../model/color';
+import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
@@ -67,7 +67,7 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';

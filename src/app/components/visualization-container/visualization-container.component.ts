@@ -16,8 +16,8 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { NeonGridItem } from '../../model/neon-grid-item';
-import { neonEvents } from '../../model/neon-namespaces';
+import { NeonGridItem } from '../../models/neon-grid-item';
+import { neonEvents } from '../../models/neon-namespaces';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 
 @Component({

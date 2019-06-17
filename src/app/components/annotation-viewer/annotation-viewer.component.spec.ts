@@ -27,7 +27,7 @@ import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonConfig, NeonFieldMetaData } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';

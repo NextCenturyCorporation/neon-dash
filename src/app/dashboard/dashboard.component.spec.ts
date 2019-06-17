@@ -19,9 +19,9 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, NeonDashboardChoiceConfig } from '../model/types';
-import { NeonGridItem } from '../model/neon-grid-item';
-import { neonEvents } from '../model/neon-namespaces';
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { NeonGridItem } from '../models/neon-grid-item';
+import { neonEvents } from '../models/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
 import { AbstractWidgetService } from '../services/abstract.widget.service';
@@ -43,7 +43,7 @@ const Modules = {
 import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
-import { GridState } from '../model/grid-state';
+import { GridState } from '../models/grid-state';
 import { take } from 'rxjs/operators';
 
 describe('Dashboard', () => {

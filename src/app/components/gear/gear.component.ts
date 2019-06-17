@@ -29,12 +29,12 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option';
+import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../../model/dashboard-state';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
     selector: 'app-gear',
