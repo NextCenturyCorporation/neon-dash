@@ -1,7 +1,7 @@
 #!/bin/bash
 # A script to run build commands on custom arguements
 
-BUILD=$1
+BUILD=${1:-dash}
 
 # Done for all builds
 rm -f target/*.war && mkdir -p target
