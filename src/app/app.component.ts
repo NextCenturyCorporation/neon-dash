@@ -15,6 +15,8 @@
 import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonConfig } from './models/types';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, mergeMap, tap, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -27,13 +29,29 @@ export class AppComponent implements OnInit {
     @HostBinding('class.loading')
     loading = true;
 
-    constructor(private service: ConfigService) {
+    static get base() {
+        const bases = document.getElementsByTagName('base');
+        const base = (bases.length > 0 ? bases.item(0).attributes.getNamedItem('href').value : '');
+        return base === '/' || !base ? /^\// : base;
+    }
+
+    constructor(private service: ConfigService, private router: Router) {
+    }
+
+    loadByUrl(url: string) {
+        return this.service.getActiveByURL(url, AppComponent.base);
     }
 
     ngOnInit() {
-        this.service.getActive().subscribe((config) => {
-            this.loading = false;
-            this.config = config;
-        });
+        this.router.events
+            .pipe(
+                filter((ev) => ev instanceof NavigationEnd),
+                mergeMap(() => this.loadByUrl(window.location.toString())),
+                distinctUntilChanged()
+            )
+            .subscribe((config) => {
+                this.loading = false;
+                this.config = config;
+            });
     }
 }
