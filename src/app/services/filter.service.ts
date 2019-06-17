@@ -169,12 +169,12 @@ export class FilterUtil {
             let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
             let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
             return {
-                name: filterObject.name,
-                root: filterObject.root,
-                datastore: filterObject.datastore,
-                database: database,
-                table: table,
-                field: field,
+                name: filterObject.name || '',
+                root: filterObject.root || '',
+                datastore: filterObject.datastore || '',
+                database,
+                table,
+                field,
                 operator: filterObject.operator,
                 value: filterObject.value
             } as SimpleFilterDesign;
@@ -182,8 +182,8 @@ export class FilterUtil {
 
         if ('filters' in filterObject && 'type' in filterObject) {
             return {
-                name: filterObject.name,
-                root: filterObject.root,
+                name: filterObject.name || '',
+                root: filterObject.root || '',
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
                     this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
@@ -236,10 +236,10 @@ export class FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {any}
      */
-    static createFilterJsonObjectFromDesign(filter: FilterDesign, compact = false): any {
+    static createFilterJsonObjectFromDesign(filter: FilterDesign): FilterConfig {
         if (this.isSimpleFilterDesign(filter)) {
-            let out = {
-                name: compact ? '' : filter.name,
+            return {
+                name: filter.name,
                 root: filter.root,
                 datastore: filter.datastore,
                 database: filter.database.name,
@@ -248,14 +248,6 @@ export class FilterUtil {
                 operator: filter.operator,
                 value: filter.value
             };
-            if (compact) {
-                for (const key of Object.keys(out)) {
-                    if (out[key] === null || out[key] === undefined || out[key] === '') {
-                        delete out[key];
-                    }
-                }
-            }
-            return out;
         }
 
         if (this.isCompoundFilterDesign(filter)) {
@@ -263,7 +255,7 @@ export class FilterUtil {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter, compact))
+                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
             };
         }
 
@@ -657,8 +649,8 @@ export class FilterService {
      *
      * @return {any[]}
      */
-    public getFiltersToSaveInConfig(compact = false): any[] {
-        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter, compact)).filter((filter) => !!filter);
+    public getFiltersToSaveInConfig(): any[] {
+        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
     }
 
     /**

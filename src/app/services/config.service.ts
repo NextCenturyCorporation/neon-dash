@@ -48,6 +48,75 @@ export class ConfigService {
         return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
     }
 
+    static clean(data: Record<string, any>) {
+        delete data.name;
+        for (const key of Object.keys(data)) {
+            if (data[key] === null || data[key] === undefined || data[key] === '') {
+                delete data[key];
+            } else {
+                switch (typeof data[key]) {
+                    case 'string': case 'boolean': case 'number': break;
+                    default:
+                        this.clean(data[key]);
+                }
+            }
+        }
+        return data;
+    }
+
+    static buildMatcher(keyMap: Record<string, string>) {
+        const regex = new RegExp(
+            Object
+                .keys(keyMap)
+                .map((key) => key.replace(/[\[\]+*()]/g, (match) => `\\${match}`))
+                .sort((a, b) => b.length - a.length)
+                .map((key) => `(${key})`)
+                .join('|'), 'g');
+        return regex;
+    }
+
+    static compress(data: Record<string, any>, keyMap: Record<string, string>): string {
+        const regex = this.buildMatcher(keyMap);
+        return JSON.stringify(this.clean(data)).replace(regex, (key) => keyMap[key])
+    }
+
+    static uncompress(json: string, keyMap: Record<string, string>) {
+        const regex = this.buildMatcher(keyMap);
+        return JSON.parse(json.replace(regex, (key) => keyMap[key]));
+    }
+
+    static compressFiltersMap = {
+        '"': '’',
+        '=': '≈',
+        '[': '⟦',
+        ']': '⟧',
+        '{': '⟨',
+        '}': '⟩',
+        '/': '–',
+        '"table"': '!T',
+        '"database"': '!D',
+        '"root"': '!R',
+        '"field"': '!F',
+        '"operator"': '!O',
+        '"value"': '!V'
+    };
+
+    static uncompressFiltersMap = {
+        '’': '"',
+        '≈': '=',
+        '⟦': '[',
+        '⟧': ']',
+        '⟨': '{',
+        '⟩': '}',
+        '–': '/',
+        '!T': '"table"',
+        '!D': '"database"',
+        '!R': '"root"',
+        '!F': '"field"',
+        '!O': '"operator"',
+        '!V': '"value"'
+    };
+
     constructor(
         private http: HttpClient,
         private connectionService: ConnectionService
@@ -140,7 +209,14 @@ export class ConfigService {
         let filters = [];
 
         if (params) {
-            filters = JSON.parse(params);
+            try {
+                filters = ConfigService.uncompress(
+                    params,
+                    ConfigService.uncompressFiltersMap
+                );
+            } catch (err) {
+                // Error?
+            }
         }
 
         if (path) {

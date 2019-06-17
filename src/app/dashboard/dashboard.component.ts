@@ -44,6 +44,7 @@ import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
+import { ConfigService } from '../services/config.service';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -383,7 +384,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     onFiltersChanged() {
         this.router.navigate([], {
             queryParams: {
-                filter: JSON.stringify(this.filterService.getFiltersToSaveInConfig(true))
+                filter: ConfigService.compress(
+                    this.filterService.getFiltersToSaveInConfig(),
+                    ConfigService.compressFiltersMap
+                )
             },
             relativeTo: this.router.routerState.root,
         });
