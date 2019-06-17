@@ -35,6 +35,7 @@ import { OptionsListComponent } from '../options-list/options-list.component';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-gear',
@@ -376,6 +377,18 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {string} bindingKey
      */
     public updateOnChange(bindingKey: string) {
+        if (typeof (this.modifiedOptions[bindingKey]) === 'undefined') {
+            return;
+        }
+        // If the original binding key has been changed and added before
+        if (this.originalOptions.access(bindingKey) !== undefined) {
+            if (this.originalOptions.access(bindingKey).optionType === OptionType.NON_PRIMITIVE) {
+                if (_.isEqual(this.originalOptions[bindingKey], this.modifiedOptions.access(bindingKey).valueCurrent)) {
+                    this.changeMade = false;
+                    return;
+                }
+            }
+        }
         this.changeMade = true;
         // TODO THOR-1061
         if (bindingKey === 'type') {
