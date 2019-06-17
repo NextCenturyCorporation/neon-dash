@@ -60,7 +60,7 @@ let dashboards = NeonDashboardChoiceConfig.get({
     }
 });
 
-(fdescribe as any)('Component: DashboardSelector', () => {
+describe('Component: DashboardSelector', () => {
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 
