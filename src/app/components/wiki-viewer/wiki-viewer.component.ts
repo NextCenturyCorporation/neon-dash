@@ -34,7 +34,6 @@ import { FilterBehavior, FilterService } from '../../services/filter.service';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../model/neon-namespaces';
 import {
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption
@@ -99,26 +98,15 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', true)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', true),
             new WidgetFreeTextOption('id', 'ID', '')
         ];
     }

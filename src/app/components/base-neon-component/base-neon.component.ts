@@ -197,9 +197,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private createLayer(options: WidgetOptionCollection, layerBindings: any = {}): any {
-        let layerOptions = new WidgetOptionCollection(this.createLayerFieldOptions.bind(this), undefined, layerBindings);
+        let layerOptions = new WidgetOptionCollection(this.createOptionsForLayerFields.bind(this), undefined, layerBindings);
         layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
-        layerOptions.inject(this.createLayerNonFieldOptions());
+        layerOptions.inject(this.createOptionsForLayer());
         layerOptions.updateDatabases(this.dashboardState);
         options.layers.push(layerOptions);
         return layerOptions;
@@ -1040,42 +1040,32 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @abstract
-     */
-    public abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
-
-    private createFieldOptionsFull(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return this.createFieldOptions().concat(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false));
-    }
-
-    /**
-     * Creates and returns an array of field options for a layer for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     */
-    public createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for a layer for the visualization.
-     *
-     * @return {WidgetOption[]}
-     */
-    public createLayerNonFieldOptions(): WidgetOption[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
      */
-    public abstract createNonFieldOptions(): WidgetOption[];
+    protected abstract createOptions(): WidgetOption[];
+
+    private createOptionsForFields(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return this.createOptions()
+            .filter((option) => option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY)
+            .concat(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false));
+    }
+
+    /**
+     * Creates and returns an array of options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     */
+    protected createOptionsForLayer(): WidgetOption[] {
+        return [];
+    }
+
+    private createOptionsForLayerFields(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+        return this.createOptionsForLayer()
+            .filter((option) => option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY);
+    }
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
@@ -1086,7 +1076,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
+        let options = new WidgetOptionCollection(this.createOptionsForFields.bind(this), injector);
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
         options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
@@ -1103,7 +1093,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         options.filter = options.filter || this.injector.get('configFilter', null);
 
-        options.inject(this.createNonFieldOptions());
+        options.inject(this.createOptions()
+            .filter((option) => option.optionType !== OptionType.FIELD && option.optionType !== OptionType.FIELD_ARRAY));
 
         options.updateDatabases(this.dashboardState);
 

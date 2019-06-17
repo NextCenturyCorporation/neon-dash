@@ -34,7 +34,6 @@ import { NeonFieldMetaData } from '../../model/types';
 import { neonUtilities } from '../../model/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -142,12 +141,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('documentTextField', 'Document Text Field', true),
             new WidgetFieldOption('endCharacterField', 'End Character Field', false),
@@ -155,18 +154,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('startCharacterField', 'Start Character Field', false),
             new WidgetFieldOption('textField', 'Text Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldOption('typeField', 'Type Field', false),
             // True if text should be highlighted on hover while responseMode is true, false otherwise.
             new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('id', 'ID', ''),
