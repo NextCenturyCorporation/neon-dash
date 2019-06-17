@@ -63,9 +63,9 @@ The linters are run using the following files:
 
 ## Deploy as WAR
 
-To build the Neon Dashboard as a WAR:
+To build the Neon Dashboard as a WAR (replacing "whatever" with your custom WAR name):
 
-        ng build --deployUrl=/dashboard_url/ --base-href /dashboard_url/ --aot
+        npm run-script build whatever
 
 The `dashboard_url` should be your Apache Tomcat deployment URL:  for example, here you would access the Neon Dashboard at `http://hostname:port/dashboard_url`.  The `--aot` ("ahead-of-time") compiler option will improve runtime performance.
 
