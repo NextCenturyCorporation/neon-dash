@@ -43,6 +43,7 @@ import { VisualizationContainerComponent } from '../components/visualization-con
 import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option';
 import { DashboardState } from '../models/dashboard-state';
+import { Router } from '@angular/router';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -141,7 +142,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
-        public viewContainerRef: ViewContainerRef
+        public viewContainerRef: ViewContainerRef,
+        public router: Router
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -373,8 +375,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.generalChange.bind(this));
+        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+    }
+
+    @DashboardModified()
+    onFiltersChanged() {
+        this.router.navigate([], {
+            queryParams: {
+                filter: JSON.stringify(this.filterService.getFiltersToSaveInConfig(true))
+            },
+            relativeTo: this.router.routerState.root,
+        });
     }
 
     @DashboardModified()
