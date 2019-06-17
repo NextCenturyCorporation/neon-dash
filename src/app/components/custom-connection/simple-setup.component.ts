@@ -288,4 +288,8 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         }
         return true;
     }
+
+    isTableDisabled(): boolean {
+        return !this.selectedDatabase.database.name || !Object.values(this.selectedDatabase.database.tables).length;
+    }
 }

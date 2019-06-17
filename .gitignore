@@ -52,6 +52,7 @@ Thumbs.db
 src/app/config/config.json
 src/app/config/config.yaml
 src/app/config/config\.working\.json
+src/app/config/config\.working\.yaml
 
 # Lockfiles
 # The build should depend on the package.json, so don't depend on the lockfiles
@@ -70,4 +71,5 @@ savedStates/*
 # Linter
 .eslintcache
 
-src/app/config/config\.working\.yaml
+# Proxy config file
+proxy.conf.json

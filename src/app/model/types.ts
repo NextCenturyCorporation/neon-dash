@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// TODO: THOR-825: rename classes/functions that still reference 'dataset' to say 'datastore' (THOR-1052)
 
 type Primitive = number | string | Date | boolean | undefined;
 
@@ -20,6 +19,7 @@ type Primitive = number | string | Date | boolean | undefined;
 //  that makes all fields optional but type checked (either it's missing or it's the correct type)
 
 type DeepPartial<T> = {
+    /* eslint-disable-next-line @typescript-eslint/generic-type-naming */
     [P in keyof T]?: T[P] |
     (T[P] extends (Primitive | Primitive[] | Record<string, Primitive>) ?
         (T[P] | undefined) :
@@ -105,7 +105,7 @@ export class NeonDatabaseMetaData {
     }
 }
 
-export interface NeonSimpleFilter {
+export interface NeonSimpleSearchFilter {
     databaseName: string;
     tableName: string;
     fieldName: string;
@@ -118,7 +118,7 @@ export interface NeonSimpleFilter {
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: Record<string, any>;
-    simpleFilter?: NeonSimpleFilter;
+    simpleFilter?: NeonSimpleSearchFilter;
 }
 
 export interface NeonContributor {
