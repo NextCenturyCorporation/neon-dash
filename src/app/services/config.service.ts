@@ -19,8 +19,8 @@ import * as yaml from 'js-yaml';
 import { environment } from '../../environments/environment';
 
 import { Subject, Observable, combineLatest, of, from } from 'rxjs';
-import { map, catchError, switchMap, take, shareReplay } from 'rxjs/operators';
-import { NeonConfig } from '../models/types';
+import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 
@@ -51,7 +51,9 @@ export class ConfigService {
     constructor(
         private http: HttpClient,
         private connectionService: ConnectionService
-    ) { }
+    ) {
+        neon.setNeonServerUrl('../neon');
+    }
 
     private openConnection() {
         return this.connectionService.connect('.', '.', true);
@@ -112,7 +114,8 @@ export class ConfigService {
         return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
             .pipe(
                 switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
-                map((config) => this.finalizeConfig(config))
+                map((config) => this.finalizeConfig(config)),
+                take(1)
             );
     }
 
@@ -129,6 +132,35 @@ export class ConfigService {
         return false;
     }
 
+
+    getActiveByURL(url: string, base: string | RegExp) {
+        const urlObj = new URL(url);
+        const [__, path] = urlObj.pathname.split(base);
+        const params = urlObj.searchParams.get('filter');
+        let filters = [];
+
+        if (params) {
+            filters = JSON.parse(params);
+        }
+
+        if (path) {
+            this.initSource();
+            this.load(path).pipe(
+                tap((conf) => {
+                    (conf.dashboards as NeonDashboardLeafConfig).filters = filters;
+                    this.setActive(conf);
+                }),
+                catchError((err) => this.getActive()
+                    .pipe(tap((conf) => conf.errors = [err.message as string]))
+                )
+            )
+                .subscribe(() => { })
+        } else {
+            this.getActive().subscribe(() => { });
+        }
+        return this.$source;
+    }
+
     setActive(config: NeonConfig) {
         this.initSource();
         this.source.next(config);
@@ -137,7 +169,6 @@ export class ConfigService {
 
     getActive() {
         if (this.initSource()) {
-            neon.setNeonServerUrl('../neon');
             this.getDefault(environment.config)
                 .subscribe((el) => this.source.next(el));
         }
