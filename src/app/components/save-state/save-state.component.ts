@@ -27,6 +27,7 @@ import { filter } from 'rxjs/operators';
 import { NeonConfig } from '../../models/types';
 import { DashboardState } from '../../models/dashboard-state';
 import { ConfigService } from '../../services/config.service';
+import { Router } from '@angular/router';
 
 export function Confirm(config: {
     title: string | ((arg: any) => string);
@@ -72,7 +73,8 @@ export class SaveStateComponent implements OnInit {
         protected dashboardService: DashboardService,
         protected filterService: FilterService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private router: Router
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
@@ -117,8 +119,7 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         this.configService.load(name)
             .subscribe((config) => {
-                this.configService.setActive(config);
-                this.dashboardState.modified = false;
+                this.router.navigateByUrl(`/${config.fileName}`);
                 this.openNotification(name, 'loaded');
                 this.closeSidenav();
             }, this.handleStateFailure.bind(this, name));
