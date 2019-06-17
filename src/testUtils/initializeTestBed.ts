@@ -17,7 +17,7 @@
 import { async, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-export const initializeTestBed = (name, config: Parameters<TestBed['configureTestingModule']>[0]) => {
+export const initializeTestBed = (name, config: Parameters<TestBed['configureTestingModule']>[0], all = true) => {
     config.providers = config.providers || [];
     config.imports = config.imports || [];
     config.imports.push(NoopAnimationsModule);
@@ -25,18 +25,20 @@ export const initializeTestBed = (name, config: Parameters<TestBed['configureTes
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;
 
-    beforeAll((done) => (async () => {
-        /* tslint:disable:no-console */
+    beforeAll(() => {
+        /* tslint:disable-next-line:no-console */
         console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
-        /* tslint:enable:no-console */
+    });
+
+    (all ? beforeAll : beforeEach)((done) => (async () => {
         TestBed.resetTestingModule();
         TestBed.configureTestingModule(config);
         await TestBed.compileComponents();
-        // TestBed.resetTestingModule = () => TestBed;
+        TestBed.resetTestingModule = () => TestBed;
     })().then(done).catch(done.fail));
 
-    afterAll(() => {
-        // TestBed.resetTestingModule = resetTestingModule;
-        // TestBed.resetTestingModule();
+    (all ? afterAll : afterEach)(() => {
+        TestBed.resetTestingModule = resetTestingModule;
+        TestBed.resetTestingModule();
     });
 };
