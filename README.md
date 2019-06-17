@@ -29,7 +29,9 @@ Create a Neon Dashboard config file at `src/app/config/config.json` or `src/app/
 
 To build the Neon Dashboard: `npm install`
 
-To start the Neon Dashboard, first start the Neon Server (if it's not running on port 8080, change the port in [proxy.conf.json](./proxy.conf.json)).  Then run: `npm start`
+Copy the [sample proxy config file](./sample.proxy.conf.json) to `./proxy.conf.json` and change the port if your Neon Server will not run on port 8080 (the default).
+
+To start the Neon Dashboard, first start the Neon Server, then run: `npm start`
 
 This will start the Neon Dashboard on http://localhost:4200 and should auto-reload the page whenever you modify a file.
 

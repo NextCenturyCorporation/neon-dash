@@ -542,36 +542,26 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleCreateLayer does call createLayer', () => {
-        let called = 0;
-        const mock = new MockConfigurable();
-        component.comp = mock;
-        (mock as any).createLayer = () => {
-            called++;
-            return {
-                _id: 'testId' + called
-            };
-        };
+        component.comp = new MockConfigurable();
+        let spyCreate = spyOn(component.comp, 'createLayer').and.returnValue({
+            _id: 'testId1'
+        });
 
         component.handleCreateLayer();
-        expect(called).toEqual(1);
+        expect(spyCreate.calls.count()).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(false);
         expect(component.changeMade).toEqual(true);
     });
 
     it('handleDeleteLayer does call deleteLayer', () => {
-        let called = 0;
         component.layerHidden.set('testId1', true);
-        const mock = new MockConfigurable();
-        component.comp = mock;
-        (mock as any).deleteLayer = () => {
-            called++;
-            return true;
-        };
+        component.comp = new MockConfigurable();
+        let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(true);
 
         component.handleDeleteLayer({
             _id: 'testId1'
         });
-        expect(called).toEqual(1);
+        expect(spyDelete.calls.count()).toEqual(1);
         expect(component.layerHidden.has('testId1')).toEqual(false);
         expect(component.changeMade).toEqual(true);
     });
@@ -580,18 +570,13 @@ describe('Component: Gear Component', () => {
         let spy = spyOn(component['messenger'], 'publish');
 
         component.layerHidden.set('testId1', true);
-        let called = 0;
-        const mock = new MockConfigurable();
-        component.comp = mock;
-        (mock as any).deleteLayer = () => {
-            called++;
-            return false;
-        };
+        component.comp = new MockConfigurable();
+        let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(false);
 
         component.handleDeleteLayer({
             _id: 'testId1'
         });
-        expect(called).toEqual(1);
+        expect(spyDelete.calls.count()).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
         expect(spy.calls.count()).toEqual(1);
@@ -639,10 +624,26 @@ describe('Component: Gear Component', () => {
         // TODO
     });
 
+    it('handleRefreshClick does reset options and close menu', () => {
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
+        let calledCloseSidenav = 0;
+        (component as any).closeSidenav = () => {
+            calledCloseSidenav++;
+        };
+
+        component.handleRefreshClick();
+
+        expect(mock.calledChangeData).toEqual(1);
+        expect(component.changeMade).toEqual(false);
+        expect(calledCloseSidenav).toEqual(1);
+    });
+
     it('resetOptionsAndClose does reset HTML elements and close gear menu', () => {
         // TODO
         // component.resetOptionsAndClose();
-        // expect(component.changeMage).toEqual(false);
+        // expect(component.changeMade).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
         // expect(component.layerHidden).toEqual(new Map<string, boolean>());
     });

@@ -14,28 +14,19 @@
  */
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
-    Injector,
-    OnDestroy,
-    OnInit,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { DashboardState } from '../../model/dashboard-state';
 import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
 import {
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetOption,
     WidgetOptionCollection
 } from '../../model/widget-option';
-
-import { MatDialog } from '@angular/material';
 
 @Component({
     selector: 'app-filter-builder',
@@ -44,7 +35,8 @@ import { MatDialog } from '@angular/material';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+
+export class FilterBuilderComponent {
     public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
@@ -60,26 +52,18 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
-    constructor(
-        dashboardService: DashboardService,
-        filterService: FilterService,
-        searchService: AbstractSearchService,
-        injector: Injector,
-        ref: ChangeDetectorRef,
-        dialog: MatDialog
-    ) {
-        super(
-            dashboardService,
-            filterService,
-            searchService,
-            injector,
-            ref,
-            dialog
-        );
+    readonly dashboardState: DashboardState;
 
+    constructor(
+        public dashboardService: DashboardService,
+        public filterService: FilterService,
+        public searchService: AbstractSearchService
+    ) {
         this.dashboardService.stateSource.subscribe(() => {
             this.clearEveryFilterClause();
         });
+
+        this.dashboardState = dashboardService.state;
 
         this.addBlankFilterClause();
     }
@@ -90,7 +74,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
         filterClause.updateDatabases(this.dashboardState);
-        filterClause.field = this.createEmptyField();
+        filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
 
@@ -114,88 +98,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public clearEveryFilterClause(): void {
         this.filterClauses = [];
         this.addBlankFilterClause();
-    }
-
-    /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
-     *
-     * @return {FilterBehavior[]}
-     * @override
-     */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        // TODO THOR-996 The Filter Builder does not update with filters that are set externally, but should it (combined w/ Filter Tray)?
-        return [] as FilterBehavior[];
-    }
-
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createNonFieldOptions(): WidgetOption[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return [];
-    }
-
-    /**
-     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
-     * @override
-     */
-    finalizeVisualizationQuery(__options: any, __query: QueryPayload, __sharedFilters: FilterClause[]): QueryPayload {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return null;
-    }
-
-    /**
-     * Returns an object containing the ElementRef objects for the visualization.
-     *
-     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} visualization
-     * @override
-     */
-    getElementRefs(): any {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return {};
-    }
-
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationDefaultLimit(): number {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return 0;
-    }
-
-    /**
-     * Returns the default title for the visualization.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationDefaultTitle(): string {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return 'Filter Builder';
     }
 
     /**
@@ -235,16 +137,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
         filterClause.updateFields(this.dashboardState);
-    }
-
-    /**
-     * Updates and redraws the elements and properties for the visualization.
-     *
-     * @override
-     */
-    refreshVisualization() {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        // Do nothing.
     }
 
     /**
@@ -305,20 +197,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
-     * Returns the count of elements shown in the visualization.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any[]} results
-     * @return {number}
-     * @override
-     */
-    transformVisualizationQueryResults(__options: any, __results: any[]): number {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return 0;
-    }
-
-    /**
      * Returns whether the given filter clauses is valid.
      *
      * @arg {FilterClauseMetaData} filterClause
@@ -338,18 +216,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public validateFilters(filterClauses: FilterClauseMetaData[]): boolean {
         return filterClauses.every((filterClause) => this.validateFilter(filterClause));
-    }
-
-    /**
-     * Returns whether the visualization query created using the given options is valid.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
-     * @override
-     */
-    validateVisualizationQuery(__options: any): boolean {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return false;
     }
 }
 

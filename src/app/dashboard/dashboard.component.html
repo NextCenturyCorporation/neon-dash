@@ -8,20 +8,23 @@
             <div class="right-panel-container" [ngSwitch]="currentPanel">
                 <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}"></wt-lazy>
                 <wt-lazy *ngSwitchCase="'addVis'" [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
-                <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
+                </wt-lazy>
                 <wt-lazy *ngSwitchCase="'gear'" [location]="{moduleId:'gear', selector: 'app-gear'}"
                     [inputs]="{sideNavRight: sideNavRight, comp: configurableComponent }">
                 </wt-lazy>
                 <wt-lazy *ngSwitchCase="'savedState'" [location]="{moduleId:'save-state', selector: 'app-save-state'}"
                     [inputs]="{sidenav: sideNavRight, gridState: gridState }">
                 </wt-lazy>
-                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}" [inputs]="{widgets:widgets}">
+                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
+                    [inputs]="{widgets:widgets}">
                 </wt-lazy>
             </div>
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
+        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center"
+            flex>
             <div *ngIf="currentDashboard">
                 <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!dashboardService.state.modified"
                     matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
@@ -48,8 +51,8 @@
                 matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
-                matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
+                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
             </button>
 
@@ -58,19 +61,22 @@
             </button>
 
             <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
-                <button mat-menu-item (click)="setPanel('addVis', 'Visualization');">
-                    <mat-icon color="secondary">add_circle</mat-icon>Visualizations
+                <button mat-menu-item (click)="setPanel('addVis', 'Add Visualizations');">
+                    <mat-icon color="secondary">add_circle</mat-icon>Add Visualizations
                 </button>
                 <button mat-menu-item (click)="setPanel('savedState', 'Save States');">
                     <mat-icon color="secondary">save</mat-icon>Saved States
                 </button>
-                <button mat-menu-item (click)="setPanel('settings', 'Settings');">
-                    <mat-icon color="secondary">settings</mat-icon>Settings
+                <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
+                    <mat-icon color="secondary">settings</mat-icon>Dashboard Settings
+                </button>
+                <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
+                    <mat-icon color="secondary">info</mat-icon>About the Neon Dashboard
                 </button>
 
                 <!-- TODO THOR-1056
-                <button mat-menu-item (click)="setPanel('customConnection', 'Custom Data Source')" *ngIf="showCustomConnectionButton">
-                    <mat-icon color="secondary">storage</mat-icon>Custom Data Source
+                <button mat-menu-item (click)="setPanel('customConnection', 'Add Custom Data Source')" *ngIf="showCustomConnectionButton">
+                    <mat-icon color="secondary">storage</mat-icon>Add Custom Data Source
                 </button>
             -->
             </mat-menu>

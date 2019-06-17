@@ -1029,14 +1029,14 @@ describe('Dashboard', () => {
                 connectOnLoad: true
             }
         });
-        // ShowDashboard.datastores = {
+        // TODO
+        // showDashboard.datastores = {
         //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
         // };
         let testDashboard = NeonDashboardChoiceConfig.get({
             choices: {
                 test: showDashboard
             }
-
         });
 
         configService.setActive(NeonConfig.get({
