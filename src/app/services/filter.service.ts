@@ -236,10 +236,10 @@ export class FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {any}
      */
-    static createFilterJsonObjectFromDesign(filter: FilterDesign): any {
+    static createFilterJsonObjectFromDesign(filter: FilterDesign, compact = false): any {
         if (this.isSimpleFilterDesign(filter)) {
-            return {
-                name: filter.name,
+            let out = {
+                name: compact ? '' : filter.name,
                 root: filter.root,
                 datastore: filter.datastore,
                 database: filter.database.name,
@@ -248,6 +248,14 @@ export class FilterUtil {
                 operator: filter.operator,
                 value: filter.value
             };
+            if (compact) {
+                for (const key of Object.keys(out)) {
+                    if (out[key] === null || out[key] === undefined || out[key] === '') {
+                        delete out[key];
+                    }
+                }
+            }
+            return out;
         }
 
         if (this.isCompoundFilterDesign(filter)) {
@@ -255,7 +263,7 @@ export class FilterUtil {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
+                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter, compact))
             };
         }
 
@@ -649,8 +657,8 @@ export class FilterService {
      *
      * @return {any[]}
      */
-    public getFiltersToSaveInConfig(): any[] {
-        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
+    public getFiltersToSaveInConfig(compact = false): any[] {
+        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter, compact)).filter((filter) => !!filter);
     }
 
     /**

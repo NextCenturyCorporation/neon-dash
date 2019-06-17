@@ -22,7 +22,6 @@ import * as moment from 'moment';
 
 import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
-import { Router } from '@angular/router';
 
 interface FilterDisplay {
     full: FilterDesign;
@@ -133,8 +132,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     constructor(
         public filterService: FilterService,
-        public dashboardService: DashboardService,
-        public router: Router
+        public dashboardService: DashboardService
     ) {
         this.messenger = new eventing.Messenger();
     }
@@ -187,10 +185,6 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
             }
         }
         this.groups.sort((group1, group2) => group1.name.localeCompare(group2.name));
-        this.router.navigate([], {
-            queryParams: { filter: JSON.stringify(this.filterService.getFiltersToSaveInConfig()) },
-            relativeTo: this.router.routerState.root,
-        });
     }
 
     ngOnDestroy() {
