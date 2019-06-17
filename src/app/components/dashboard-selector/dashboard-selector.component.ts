@@ -73,7 +73,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         if (!this.dashboards || !('choices' in this.dashboards)) {
             this.dashboards = NeonDashboardChoiceConfig.get({
                 category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
-                choices: { [dashboard.name]: dashboard }
+                choices: dashboard ? { [dashboard.name]: dashboard } : {}
             });
         }
         this.choices = this.computePath();
