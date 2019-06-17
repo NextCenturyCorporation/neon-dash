@@ -30,7 +30,9 @@ import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { FilterService } from './filter.service';
 import { AbstractSearchService } from './abstract.search.service';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DashboardService {
     public readonly config = NeonConfig.get();
     public readonly state = new DashboardState();
@@ -69,7 +71,7 @@ export class DashboardService {
             })
             .filter((val) => !!val);
 
-        return from(Promise.all(dataStoreMerges))
+        return from(dataStoreMerges.length ? Promise.all(dataStoreMerges) : Promise.resolve(null))
             .pipe(
                 map(() => this.applyConfig(config))
             );
@@ -85,6 +87,8 @@ export class DashboardService {
             datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
             layouts: _.cloneDeep(config.layouts || {}),
             lastModified: config.lastModified,
+            projectTitle: config.projectTitle,
+            projectIcon: config.projectIcon,
             fileName: config.fileName
         });
     }

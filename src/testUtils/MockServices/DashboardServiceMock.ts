@@ -75,14 +75,7 @@ export class DashboardServiceMock extends DashboardService {
 
     public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
 
-    constructor(configService: ConfigService) {
-        super(
-            configService,
-            new MockConnectionService(),
-            new FilterService(),
-            new SearchServiceMock()
-        );
-
+    static init(svc: DashboardServiceMock) {
         const datastore = NeonDatastoreConfig.get({
             name: 'datastore1',
             host: 'testHostname',
@@ -91,7 +84,7 @@ export class DashboardServiceMock extends DashboardService {
             hasUpdatedFields: true
         });
 
-        this.setActiveDatastore(datastore);
+        svc.setActiveDatastore(datastore);
 
         const dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',
@@ -116,6 +109,30 @@ export class DashboardServiceMock extends DashboardService {
             ]
         });
 
-        this.setActiveDashboard(dashboard);
+        svc.setActiveDashboard(dashboard);
+    }
+
+    constructor(configService: ConfigService) {
+        super(
+            configService,
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
+        );
+
+        DashboardServiceMock.init(this);
+    }
+}
+
+
+@Injectable()
+export class EmptyDashboardServiceMock extends DashboardService {
+    constructor(configService: ConfigService) {
+        super(
+            configService,
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
+        );
     }
 }

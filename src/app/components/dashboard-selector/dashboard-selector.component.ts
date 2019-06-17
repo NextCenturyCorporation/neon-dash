@@ -39,7 +39,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     private messenger: eventing.Messenger;
 
     constructor(
-        private dashboardService: DashboardService
+        public dashboardService: DashboardService
     ) {
         this.messenger = new eventing.Messenger();
     }
