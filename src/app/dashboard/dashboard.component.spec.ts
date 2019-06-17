@@ -46,7 +46,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { GridState } from '../model/grid-state';
 import { take } from 'rxjs/operators';
 
-(fdescribe as any)('Dashboard', () => {
+describe('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let debugElement: DebugElement;
     let component: DashboardComponent;
@@ -67,7 +67,7 @@ import { take } from 'rxjs/operators';
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService }
         ]
-    });
+    }, false);
 
     beforeEach(() => {
         const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
@@ -861,7 +861,7 @@ import { take } from 'rxjs/operators';
     });
 });
 
-(describe as any)('Dashboard Custom', () => {
+describe('Dashboard Custom', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let component: DashboardComponent;
     let configService: ConfigService;
@@ -881,7 +881,7 @@ import { take } from 'rxjs/operators';
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService }
         ]
-    });
+    }, false);
 
     beforeEach(() => {
         const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
@@ -894,7 +894,6 @@ import { take } from 'rxjs/operators';
     });
 
     it('showDashboardState does work as expected', (done) => {
-        let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -940,32 +939,31 @@ import { take } from 'rxjs/operators';
         component.dashboardService.stateSource.pipe(take(1)).subscribe(async (state) => {
             fixture.detectChanges();
 
+            await new Promise((res) => setTimeout(res, 100));
+
             expect(state.dashboard).toEqual(testDashboard);
             expect(state.datastore).toEqual(config.datastores.testName1);
 
-            expect(spyFilter.calls.count()).toEqual(1);
-            expect(spyFilter.calls.argsFor(0)).toEqual(filters);
-
             expect(spySender.calls.count()).toEqual(4);
-            // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
-            expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+            expect(spySender.calls.argsFor(0)).toEqual([neonEvents.WIDGET_ADD, {
                 gridName: '',
                 widgetGridItem: {
                     name: 'a'
                 }
             }]);
-            expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+            expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
                 gridName: '',
                 widgetGridItem: {
                     name: 'b'
                 }
             }]);
-            expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
+            expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
                 gridName: '',
                 widgetGridItem: {
                     name: 'd'
                 }
             }]);
+            expect(spySender.calls.argsFor(3)).toEqual([neonEvents.DASHBOARD_REFRESH, {}]);
 
             expect(spySimpleFilter.calls.count()).toEqual(1);
 
