@@ -14,7 +14,7 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../model/color';
+import { Color } from '../../models/color';
 
 import * as moment from 'moment';
 import * as Chart from 'chart.js';

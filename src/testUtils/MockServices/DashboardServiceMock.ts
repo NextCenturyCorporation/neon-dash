@@ -15,7 +15,7 @@
 import {
     NeonDatastoreConfig,
     NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig
-} from '../../app/model/types';
+} from '../../app/models/types';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';

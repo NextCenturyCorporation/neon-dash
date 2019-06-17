@@ -23,10 +23,10 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonConfig, NeonFieldMetaData } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -36,7 +36,7 @@ import { ConfigService } from '../../services/config.service';
 import {
     WidgetOptionCollection, WidgetFreeTextOption,
     WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 class MockConfigurable implements ConfigurableWidget {
     options = new WidgetOptionCollection(() => []);

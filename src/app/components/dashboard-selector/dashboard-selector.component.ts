@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 
-import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../model/types';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../models/types';
 
 import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
