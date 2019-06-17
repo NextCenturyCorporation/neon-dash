@@ -29,11 +29,13 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
 import { CurrentFiltersModule } from '../components/current-filters/current-filters.module';
 import { CustomConnectionModule } from '../components/custom-connection/custom-connection.module';
 import { AbbreviatePipe } from './abbreviate.pipe';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
     declarations: [DashboardComponent, AbbreviatePipe],
     exports: [DashboardComponent],
     imports: [
+        RouterModule.forRoot([{ path: '**', component: DashboardComponent }]),
         CommonWidgetModule,
         MatBadgeModule,
         MatSnackBarModule,
