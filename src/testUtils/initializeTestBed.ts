@@ -17,7 +17,7 @@
 import { async, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-export const initializeTestBed = (name, config) => {
+export const initializeTestBed = (name, config: Parameters<TestBed['configureTestingModule']>[0]) => {
     config.providers = config.providers || [];
     config.imports = config.imports || [];
     config.imports.push(NoopAnimationsModule);
@@ -25,18 +25,18 @@ export const initializeTestBed = (name, config) => {
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;
 
-    beforeAll((done) => (async() => {
+    beforeAll((done) => (async () => {
         /* tslint:disable:no-console */
         console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
         /* tslint:enable:no-console */
         TestBed.resetTestingModule();
         TestBed.configureTestingModule(config);
         await TestBed.compileComponents();
-        TestBed.resetTestingModule = () => TestBed;
+        // TestBed.resetTestingModule = () => TestBed;
     })().then(done).catch(done.fail));
 
     afterAll(() => {
-        TestBed.resetTestingModule = resetTestingModule;
-        TestBed.resetTestingModule();
+        // TestBed.resetTestingModule = resetTestingModule;
+        // TestBed.resetTestingModule();
     });
 };

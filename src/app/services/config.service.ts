@@ -24,15 +24,23 @@ import { NeonConfig } from '../model/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ConfigService {
     private configErrors = [];
     private source = new Subject<NeonConfig>();
 
     $source: Observable<NeonConfig>;
 
-    static as(config: NeonConfig) {
-        return new ConfigService(null, null).setActive(config);
+    static as(config: NeonConfig | null) {
+        const svc = new ConfigService(null, null);
+        if (config) {
+            svc.setActive(config);
+        } else {
+            svc.initSource();
+        }
+        return svc;
     }
 
     static validateName(fileName: string): string {

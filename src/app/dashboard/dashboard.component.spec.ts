@@ -29,7 +29,7 @@ import { DashboardService } from '../services/dashboard.service';
 import { FilterService } from '../services/filter.service';
 import { WidgetService } from '../services/widget.service';
 
-import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
+import { DashboardServiceMock, EmptyDashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
@@ -44,12 +44,12 @@ import { AppLazyModule } from '../app-lazy.module';
 import { DashboardModule } from './dashboard.module';
 import { HttpClientModule } from '@angular/common/http';
 import { GridState } from '../model/grid-state';
+import { take } from 'rxjs/operators';
 
-describe('Dashboard', () => {
+(fdescribe as any)('Dashboard', () => {
     let fixture: ComponentFixture<DashboardComponent>;
     let debugElement: DebugElement;
     let component: DashboardComponent;
-    let configService: ConfigService;
     let spyOnInit;
 
     initializeTestBed('Dashboard', {
@@ -60,7 +60,7 @@ describe('Dashboard', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useFactory: () => ConfigService.as(new NeonConfig()) },
+            { provide: ConfigService, useFactory: () => ConfigService.as(NeonConfig.get()) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
@@ -73,39 +73,39 @@ describe('Dashboard', () => {
         const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
         spyNgModuleFactoryLoader.stubbedModules = Modules;
 
+
         fixture = TestBed.createComponent(DashboardComponent);
         component = fixture.componentInstance;
-        configService = ConfigService.as(new NeonConfig());
-        component.dashboardService = new DashboardServiceMock(configService);
+
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();
         debugElement = fixture.debugElement;
     });
 
-    it('should include top level layout components', async(() => {
+    it('should include top level layout components', () => {
         expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
         expect(debugElement.nativeElement.querySelectorAll('app-dashboard-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
         expect(debugElement.nativeElement.querySelectorAll('app-right-panel')).toBeTruthy();
-    }));
+    });
 
-    it('should be showing the correct defaults', async(() => {
+    it('should be showing the correct defaults', () => {
         expect(component.showCustomConnectionButton).toEqual(true);
         expect(component.showFilterTray).toEqual(true);
         expect(component.showVisualizationsShortcut).toEqual(true);
 
         expect(component.createFiltersComponent).toEqual(false);
-    }));
+    });
 
-    it('should be showing correct filter icons', async(() => {
+    it('should be showing correct filter icons', () => {
         expect(component.filtersIcon).toEqual('filters');
         component['isFiltered'] = () => true;
         component.changeDetection.detectChanges();
         expect(component.filtersIcon).toEqual('filters_active');
-    }));
+    });
 
-    it('should correctly toggle the panels', async(() => {
+    it('should correctly toggle the panels', () => {
         component.setPanel('aboutNeon', 'About Neon');
         expect(component.currentPanel).toEqual('aboutNeon');
         expect(component.rightPanelTitle).toEqual('About Neon');
@@ -125,18 +125,18 @@ describe('Dashboard', () => {
         component.setPanel('settings', 'Settings');
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
-    }));
+    });
 
-    it('toggle filters component', async(() => {
+    it('toggle filters component', () => {
         component.showFilterTray = false;
         expect(debugElement.nativeElement.querySelectorAll('app-filters').length).toEqual(0);
         component.showFilterTray = true;
         component.createFiltersComponent = true;
         component.toggleFiltersDialog();
         expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
-    }));
+    });
 
-    it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', async(() => {
+    it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', () => {
         let spyOnFilterTray = spyOn(component, 'updateShowFilterTray');
         let spyOnVisualizationsShortcut = spyOn(component, 'updateShowVisualizationsShortcut');
         let message = {
@@ -159,9 +159,9 @@ describe('Dashboard', () => {
 
         expect(spyOnFilterTray.calls.count()).toEqual(1);
         expect(spyOnVisualizationsShortcut.calls.count()).toEqual(1);
-    }));
+    });
 
-    it('updateShowVisualizationsShortcut does update showVisualizationsShortcut', async(() => {
+    it('updateShowVisualizationsShortcut does update showVisualizationsShortcut', () => {
         component['updateShowVisualizationsShortcut']({
             show: false
         });
@@ -175,9 +175,9 @@ describe('Dashboard', () => {
         expect(component.showVisualizationsShortcut).toEqual(true);
         component.changeDetection.detectChanges();
         expect(debugElement.query(By.css('#showVisualizationsShortcutButton'))).not.toBeNull();
-    }));
+    });
 
-    it('updateShowFilterTray does update showFiltersComponent', async(() => {
+    it('updateShowFilterTray does update showFiltersComponent', () => {
         component['updateShowFilterTray']({
             show: false
         });
@@ -191,7 +191,7 @@ describe('Dashboard', () => {
         expect(component.showFilterTray).toEqual(true);
         component.changeDetection.detectChanges();
         expect(debugElement.query(By.css('#showFilterTrayButton'))).not.toBeNull();
-    }));
+    });
 
     it('addWidget does add the given widget with specified position to the grid', () => {
         let widgetGridItem1: NeonGridItem = {
@@ -859,15 +859,47 @@ describe('Dashboard', () => {
         component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
     });
+});
+
+(describe as any)('Dashboard Custom', () => {
+    let fixture: ComponentFixture<DashboardComponent>;
+    let component: DashboardComponent;
+    let configService: ConfigService;
+
+    initializeTestBed('Dashboard Custom', {
+        imports: [
+            AppLazyModule,
+            DashboardModule,
+            HttpClientModule,
+            RouterTestingModule
+        ],
+        providers: [
+            { provide: ConfigService, useFactory: () => ConfigService.as(null) },
+            { provide: APP_BASE_HREF, useValue: '/' },
+            { provide: DashboardService, useClass: EmptyDashboardServiceMock },
+            FilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            { provide: AbstractWidgetService, useClass: WidgetService }
+        ]
+    });
+
+    beforeEach(() => {
+        const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
+        spyNgModuleFactoryLoader.stubbedModules = Modules;
+
+        fixture = TestBed.createComponent(DashboardComponent);
+        component = fixture.componentInstance;
+        configService = component.dashboardService['configService'];
+        fixture.detectChanges();
+    });
 
     it('showDashboardState does work as expected', (done) => {
-        let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
-        let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
         let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
         const config = NeonConfig.get({
+            projectTitle: 'Test Config',
             datastores: {
                 testName1: { host: 'testHost1', type: 'testType1' },
                 testName2: { host: 'testHost2', type: 'testType2' }
@@ -896,18 +928,23 @@ describe('Dashboard', () => {
             { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
         ];
 
-        let testDashboard = NeonDashboardLeafConfig.get({ filters });
+        let testDashboard = NeonDashboardLeafConfig.get({
+            filters,
+            layout: 'DISCOVERY',
+            category: 'Select an option...',
+            options: {
+                connectOnLoad: true
+            }
+        });
 
-        component.dashboardService.stateSource.subscribe(() => {
-            expect(spyDashboards.calls.count()).toEqual(1);
-            expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
+        component.dashboardService.stateSource.pipe(take(1)).subscribe(async (state) => {
+            fixture.detectChanges();
 
-            expect(spyDatastores.calls.count()).toEqual(1);
-            // TODO THOR-1062 Permit multiple datastores.
-            expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
+            expect(state.dashboard).toEqual(testDashboard);
+            expect(state.datastore).toEqual(config.datastores.testName1);
 
             expect(spyFilter.calls.count()).toEqual(1);
-            expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
+            expect(spyFilter.calls.argsFor(0)).toEqual(filters);
 
             expect(spySender.calls.count()).toEqual(4);
             // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
@@ -941,16 +978,16 @@ describe('Dashboard', () => {
             ...config,
             dashboards: testDashboard
         });
+
+        fixture.detectChanges();
     });
 
-    it('showDashboardState does work with tabs', () => {
-        let spyDashboards = spyOn(component.dashboardService, 'setActiveDashboard');
-        let spyDatastores = spyOn(component.dashboardService, 'setActiveDatastore');
-        let spyFilter = spyOn(component.filterService, 'setFiltersFromConfig');
+    it('showDashboardState does work with tabs', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
         const config = NeonConfig.get({
+            projectTitle: 'Test Config',
             datastores: {
                 testName1: { host: 'testHost1', type: 'testType1' },
                 testName2: { host: 'testHost2', type: 'testType2' }
@@ -977,80 +1014,54 @@ describe('Dashboard', () => {
             { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
         ];
 
-        let testDashboard = NeonDashboardLeafConfig.get({ filters });
+        let testDashboard = NeonDashboardLeafConfig.get({
+            filters,
+            category: 'Select an option...',
+            layout: 'DISCOVERY',
+            options: { connectOnLoad: true }
+        });
+
+        component.dashboardService.stateSource.pipe(take(1)).subscribe(async (state) => {
+            fixture.detectChanges();
+
+            expect(state.dashboard).toEqual(testDashboard);
+            expect(state.datastore).toEqual(config.datastores.testName1);
+
+            expect(spySender.calls.count()).toEqual(4);
+
+            expect(spySender.calls.argsFor(0)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: 'tab1',
+                widgetGridItem: {
+                    name: 'a'
+                }
+            }]);
+
+            expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: 'tab2',
+                widgetGridItem: {
+                    name: 'b'
+                }
+            }]);
+            expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
+                gridName: 'tab2',
+                widgetGridItem: {
+                    name: 'd'
+                }
+            }]);
+
+            expect(spySimpleFilter.calls.count()).toEqual(1);
+
+            expect(component.showDashboardSelector).toEqual(false);
+
+            done();
+        });
 
         configService.setActive({
             ...config,
             dashboards: testDashboard
         });
 
-        expect(spyDashboards.calls.count()).toEqual(1);
-        expect(spyDashboards.calls.argsFor(0)).toEqual([testDashboard]);
-
-        expect(spyDatastores.calls.count()).toEqual(1);
-        // TODO THOR-1062 Permit multiple datastores.
-        expect(spyDatastores.calls.argsFor(0)).toEqual([config.datastores.testName1]);
-
-        expect(spyFilter.calls.count()).toEqual(1);
-        expect(spyFilter.calls.argsFor(0)[0]).toEqual(filters);
-
-        expect(spySender.calls.count()).toEqual(4);
-        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_RESET, {}]);
-        expect(spySender.calls.argsFor(1)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: 'tab1',
-            widgetGridItem: {
-                name: 'a'
-            }
-        }]);
-        expect(spySender.calls.argsFor(2)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: 'tab2',
-            widgetGridItem: {
-                name: 'b'
-            }
-        }]);
-        expect(spySender.calls.argsFor(3)).toEqual([neonEvents.WIDGET_ADD, {
-            gridName: 'tab2',
-            widgetGridItem: {
-                name: 'd'
-            }
-        }]);
-
-        expect(spySimpleFilter.calls.count()).toEqual(1);
-
-        expect(component.showDashboardSelector).toEqual(false);
-    });
-
-    it('showDashboardStateOnPageLoad with auto-show dashboard but no parameter state or parameter dataset does work as expected', () => {
-        let spySender = spyOn(component.messageSender, 'publish');
-
-        let showDashboard = NeonDashboardLeafConfig.get({
-            name: 'test',
-            options: {
-                connectOnLoad: true
-            }
-        });
-        // TODO
-        // showDashboard.datastores = {
-        //     testDataStoreName1: { name: 'testDatastoreName1', host: 'testDatastoreHost1', type: 'testDatastoreType1', databases: {} }
-        // };
-        let testDashboard = NeonDashboardChoiceConfig.get({
-            choices: {
-                test: showDashboard
-            }
-        });
-
-        configService.setActive(NeonConfig.get({
-            dashboards: testDashboard
-        }));
-
-        expect(spySender.calls.count()).toEqual(1);
-        // Expect(spySender.calls.argsFor(0)).toEqual([neonEvents.DASHBOARD_STATE, {
-        //     dashboard: showDashboard
-        // }]);
-    });
-
-    it('showDashboardStateOnPageLoad with parameter dataset but no parameter state or auto-show dashboard does work as expected', () => {
-        // TODO THOR-1131
+        fixture.detectChanges();
     });
 
     it('unregisterWidget does update the global collection of widgets', () => {
