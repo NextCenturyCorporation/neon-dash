@@ -20,7 +20,7 @@ import { environment } from '../../environments/environment';
 
 import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
 import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
-import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardConfig } from '../models/types';
+import { NeonConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 import { ConfigUtil } from '../util/config.util';
@@ -29,6 +29,8 @@ import { ConfigUtil } from '../util/config.util';
     providedIn: 'root'
 })
 export class ConfigService {
+    static readonly INITIAL_RND = `${Math.random() * 1000000}.${Date.now()}`;
+
     private configErrors = [];
     private source = new Subject<NeonConfig>();
 
@@ -70,7 +72,7 @@ export class ConfigService {
         return this.http.get(path, {
             responseType: 'text',
             params: {
-                rnd: `${Math.random() * 1000000}.${Date.now()}`
+                rnd: ConfigService.INITIAL_RND
             }
         })
             .pipe(map((response: any) => yaml.load(response) as NeonConfig))
@@ -86,7 +88,7 @@ export class ConfigService {
             .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-    private finalizeConfig(configInput: NeonConfig) {
+    private finalizeConfig(configInput: NeonConfig, filters: string) {
         let config = configInput;
 
         if (!config) {
@@ -100,7 +102,10 @@ export class ConfigService {
             this.configErrors = [];
         }
 
-        ConfigUtil.nameDashboards(configInput.dashboards, config.fileName || '');
+
+
+        ConfigUtil.filterDashboards(config.dashboards, filters);
+        ConfigUtil.nameDashboards(config.dashboards, config.fileName || '');
 
         return config;
     }
@@ -109,7 +114,6 @@ export class ConfigService {
         return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
             .pipe(
                 switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
-                map((config) => this.finalizeConfig(config)),
                 take(1)
             );
     }
@@ -118,16 +122,14 @@ export class ConfigService {
         if (!this.$source) {
             this.$source = this.source.asObservable()
                 .pipe(
-                    map((data) => JSON.parse(JSON.stringify(data))),
+                    map((data) => JSON.parse(JSON.stringify(data))), // Clone and clean
                     map((config) => NeonConfig.get(config)),
                     shareReplay(1)
                 );
-            return true;
         }
-        return false;
     }
 
-    getActiveByURL(url: string, base: string | RegExp) {
+    setActiveByURL(url: string, base: string | RegExp) {
         const urlObj = new URL(url);
         const [, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
@@ -139,13 +141,12 @@ export class ConfigService {
                 tap((conf) => {
                     conf.errors = [err ? err.message as string : err];
                 })
-            ))
-        ).subscribe((conf) => {
-            ConfigUtil.filterDashboards(conf.dashboards, params);
-            this.setActive(conf);
-        });
+            )),
+            map((config) => this.finalizeConfig(config, params)),
+            map((config) => this.setActive(config))
+        ).subscribe();
 
-        return this.$source;
+        return this.getActive();
     }
 
     setActive(config: NeonConfig) {

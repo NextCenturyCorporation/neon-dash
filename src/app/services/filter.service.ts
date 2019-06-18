@@ -259,7 +259,8 @@ export class FilterUtil {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
+                filters: filter.filters
+                    .map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
             };
         }
 
