@@ -380,7 +380,7 @@ export class GearComponent implements OnInit, OnDestroy {
         // If the original binding key has been changed and added before
         if (this.originalOptions.access(bindingKey) !== undefined) {
             if (this.originalOptions.access(bindingKey).optionType === OptionType.NON_PRIMITIVE) {
-                if (_.isEqual(this.originalOptions[bindingKey], this.modifiedOptions.access(bindingKey).valueCurrent)) {
+                if (_.isEqual(this.originalOptions[bindingKey], this.modifiedOptions[bindingKey])) {
                     this.changeMade = false;
                     return;
                 }
