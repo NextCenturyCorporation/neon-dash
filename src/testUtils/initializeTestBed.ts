@@ -24,7 +24,7 @@ export function getConfigService(config?: NeonConfig) {
     if (config || config === undefined) {
         svc.setActive(config || NeonConfig.get({}));
     } else {
-        svc['initSource'](); // TOOD: Remove when merged 
+        svc['initSource'](); // TODO Remove when merged 
     }
     return svc;
 }
@@ -36,11 +36,13 @@ export const initializeTestBed = (name, config: Parameters<TestBed['configureTes
     config.imports.push(NoopAnimationsModule);
 
     const hasConfig = config.providers.find(
-        (p) => p instanceof ConfigService || p === ConfigService || p.provide === ConfigService
+        (provider) => provider instanceof ConfigService ||
+            provider === ConfigService ||
+            provider.provide === ConfigService
     );
 
     if (!hasConfig) {
-        config.providers.push(getConfigService(NeonConfig.get()));
+        config.providers.push({ provide: ConfigService, useFactory: () => getConfigService() });
     }
 
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
