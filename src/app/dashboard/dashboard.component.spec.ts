@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ComponentFixture, async, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DebugElement, NgModuleFactoryLoader } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -72,7 +72,6 @@ describe('Dashboard', () => {
     beforeEach(() => {
         const spyNgModuleFactoryLoader = TestBed.get(NgModuleFactoryLoader);
         spyNgModuleFactoryLoader.stubbedModules = Modules;
-
 
         fixture = TestBed.createComponent(DashboardComponent);
         component = fixture.componentInstance;
@@ -936,7 +935,7 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        component.dashboardService.stateSource.pipe(take(1)).subscribe(async (state) => {
+        component.dashboardService.stateSource.pipe(take(1)).subscribe(async(state) => {
             fixture.detectChanges();
 
             await new Promise((res) => setTimeout(res, 100));
@@ -1019,7 +1018,7 @@ describe('Dashboard Custom', () => {
             options: { connectOnLoad: true }
         });
 
-        component.dashboardService.stateSource.pipe(take(1)).subscribe(async (state) => {
+        component.dashboardService.stateSource.pipe(take(1)).subscribe((state) => {
             fixture.detectChanges();
 
             expect(state.dashboard).toEqual(testDashboard);

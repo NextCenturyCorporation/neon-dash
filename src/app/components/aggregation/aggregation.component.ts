@@ -1232,6 +1232,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization(redrawMain: boolean = false) {
+        if (!this.aggregationData) {
+            return;
+        }
+
         let findAxisType = (type) => {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
             if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||

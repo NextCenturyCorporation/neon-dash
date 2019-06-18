@@ -16,7 +16,7 @@ import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonConfig } from './models/types';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter, mergeMap, tap, distinctUntilChanged } from 'rxjs/operators';
+import { filter, mergeMap, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',

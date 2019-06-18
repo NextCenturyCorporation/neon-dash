@@ -51,7 +51,7 @@ export class WidgetService extends AbstractWidgetService {
 
     constructor(dashboardService: DashboardService) {
         super();
-        dashboardService.stateSource.subscribe(() => this.resetColorMap());
+        dashboardService.configSource.subscribe(() => this.resetColorMap());
 
         document.body.className = this.currentThemeId;
         this.dashboardState = dashboardService.state;

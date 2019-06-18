@@ -128,10 +128,9 @@ export class ConfigService {
         return false;
     }
 
-
     getActiveByURL(url: string, base: string | RegExp) {
         const urlObj = new URL(url);
-        const [__, path] = urlObj.pathname.split(base);
+        const [, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
 
         if (path) {
@@ -142,12 +141,14 @@ export class ConfigService {
                     this.setActive(conf);
                 }),
                 catchError((err) => this.getActive()
-                    .pipe(tap((conf) => conf.errors = [err.message as string]))
-                )
-            )
-                .subscribe(() => { })
+                    .pipe(
+                        tap((conf) => {
+                            conf.errors = [err.message as string];
+                        })
+                    ))
+            ).subscribe();
         } else {
-            this.getActive().subscribe(() => { });
+            this.getActive().subscribe();
         }
         return this.$source;
     }

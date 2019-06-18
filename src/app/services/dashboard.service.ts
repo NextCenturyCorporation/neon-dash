@@ -70,6 +70,7 @@ export class DashboardService {
                 if (connection) {
                     return this.mergeDatastoreRemoteState(datastore, connection);
                 }
+                return null;
             })
             .filter((val) => !!val);
 
@@ -111,10 +112,9 @@ export class DashboardService {
         const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.setActiveDatastore(this.config.datastores[firstName]);
 
-
         // Load filters
-        console.log(dashboard.filters);
-        const filters = typeof dashboard.filters === 'string' ? FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
+        const filters = typeof dashboard.filters === 'string' ?
+            FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
         this.filterService.setFiltersFromConfig(filters || [], this.state, this.searchService);
         this.stateSubject.next(this.state);
     }
