@@ -386,10 +386,12 @@ export class GearComponent implements OnInit, OnDestroy {
                 }
             }
         }
+        // If the modified gets cleared while original has already been set
         if (_.isEmpty(this.modifiedOptions[bindingKey]) && !_.isEmpty(this.originalOptions[bindingKey])) {
             this.changeMade = true;
             return;
         }
+        // If modified has never been set and the original has already been set before
         if (typeof (this.modifiedOptions[bindingKey]) === 'undefined' && _.isPlainObject(this.originalOptions[bindingKey])) {
             this.changeMade = false;
             return;
