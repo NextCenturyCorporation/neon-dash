@@ -23,6 +23,7 @@ import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operato
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
+import { ConfigUtil } from '../util/config.util';
 
 @Injectable({
     providedIn: 'root'
@@ -42,80 +43,6 @@ export class ConfigService {
         }
         return svc;
     }
-
-    static validateName(fileName: string): string {
-        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
-    }
-
-    static clean(data: Record<string, any>) {
-        delete data.name;
-        for (const key of Object.keys(data)) {
-            if (data[key] === null || data[key] === undefined || data[key] === '') {
-                delete data[key];
-            } else {
-                switch (typeof data[key]) {
-                    case 'string': case 'boolean': case 'number': break;
-                    default:
-                        this.clean(data[key]);
-                }
-            }
-        }
-        return data;
-    }
-
-    static buildMatcher(keyMap: Record<string, string>) {
-        const regex = new RegExp(
-            Object
-                .keys(keyMap)
-                .map((key) => key.replace(/[\[\]+*()]/g, (match) => `\\${match}`))
-                .sort((a, b) => b.length - a.length)
-                .map((key) => `(${key})`)
-                .join('|'), 'g');
-        return regex;
-    }
-
-    static compress(data: Record<string, any>, keyMap: Record<string, string>): string {
-        const regex = this.buildMatcher(keyMap);
-        return JSON.stringify(this.clean(data)).replace(regex, (key) => keyMap[key])
-    }
-
-    static uncompress(json: string, keyMap: Record<string, string>) {
-        const regex = this.buildMatcher(keyMap);
-        return JSON.parse(json.replace(regex, (key) => keyMap[key]));
-    }
-
-    static compressFiltersMap = {
-        '"': '’',
-        '=': '≈',
-        '[': '⟦',
-        ']': '⟧',
-        '{': '⟨',
-        '}': '⟩',
-        '/': '–',
-        '"table"': '!T',
-        '"database"': '!D',
-        '"root"': '!R',
-        '"field"': '!F',
-        '"operator"': '!O',
-        '"value"': '!V'
-    };
-
-    static uncompressFiltersMap = {
-        '’': '"',
-        '≈': '=',
-        '⟦': '[',
-        '⟧': ']',
-        '⟨': '{',
-        '⟩': '}',
-        '–': '/',
-        '!T': '"table"',
-        '!D': '"database"',
-        '!R': '"root"',
-        '!F': '"field"',
-        '!O': '"operator"',
-        '!V': '"value"'
-    };
 
     constructor(
         private http: HttpClient,
@@ -206,24 +133,12 @@ export class ConfigService {
         const urlObj = new URL(url);
         const [__, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
-        let filters = [];
-
-        if (params) {
-            try {
-                filters = ConfigService.uncompress(
-                    params,
-                    ConfigService.uncompressFiltersMap
-                );
-            } catch (err) {
-                // Error?
-            }
-        }
 
         if (path) {
             this.initSource();
             this.load(path).pipe(
                 tap((conf) => {
-                    (conf.dashboards as NeonDashboardLeafConfig).filters = filters;
+                    (conf.dashboards as NeonDashboardLeafConfig).filters = params;
                     this.setActive(conf);
                 }),
                 catchError((err) => this.getActive()
@@ -256,7 +171,7 @@ export class ConfigService {
      */
     save(config: NeonConfig): Observable<void> {
         return from(new Promise<void>((resolve, reject) => {
-            config.projectTitle = ConfigService.validateName(config.projectTitle);
+            config.projectTitle = ConfigUtil.validateName(config.projectTitle);
             config['stateName'] = config.projectTitle;
             this.openConnection().saveState(config, resolve, reject);
         })).pipe(take(1));
@@ -267,7 +182,7 @@ export class ConfigService {
      */
     load(name: string): Observable<NeonConfig> {
         return from(new Promise<NeonConfig>((resolve, reject) => {
-            const validName = ConfigService.validateName(name);
+            const validName = ConfigUtil.validateName(name);
             this.openConnection().loadState(validName, resolve, reject);
         })).pipe(
             take(1),
@@ -285,7 +200,7 @@ export class ConfigService {
      */
     delete(name: string) {
         return from(new Promise<void>((resolve, reject) => {
-            const validName = ConfigService.validateName(name);
+            const validName = ConfigUtil.validateName(name);
             this.openConnection().deleteState(validName, resolve, reject);
         })).pipe(take(1));
     }

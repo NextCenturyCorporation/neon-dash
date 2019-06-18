@@ -18,22 +18,10 @@ import {
 } from './types';
 
 import * as _ from 'lodash';
+import { ConfigUtil } from '../util/config.util';
 
 export class DashboardState {
     modified = false;
-
-    /**
-     * Returns dotted reference in constituent parts(datastore.database.table.field).
-     */
-    static deconstructDottedReference(name: string) {
-        const [datastore, database, table, ...field] = (name || '').split('.');
-        return {
-            datastore,
-            database,
-            table,
-            field: field.join('.')
-        };
-    }
 
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
@@ -44,14 +32,14 @@ export class DashboardState {
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructTableName(key: string) {
-        return DashboardState.deconstructDottedReference(this.dashboard.tables[key] || key);
+        return ConfigUtil.deconstructDottedReference(this.dashboard.tables[key] || key);
     }
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructFieldName(key: string) {
-        return DashboardState.deconstructDottedReference(this.dashboard.fields[key] || key);
+        return ConfigUtil.deconstructDottedReference(this.dashboard.fields[key] || key);
     }
 
     /**

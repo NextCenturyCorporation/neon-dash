@@ -383,12 +383,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @DashboardModified()
     onFiltersChanged() {
         this.router.navigate([], {
-            queryParams: {
-                filter: ConfigService.compress(
-                    this.filterService.getFiltersToSaveInConfig(),
-                    ConfigService.compressFiltersMap
-                )
-            },
+            queryParams: { filter: this.filterService.getFiltersToSaveInURL() },
             relativeTo: this.router.routerState.root,
         });
     }
