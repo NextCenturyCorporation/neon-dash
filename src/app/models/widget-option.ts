@@ -28,6 +28,7 @@ export enum OptionType {
     FIELD = 'FIELD',
     FIELD_ARRAY = 'FIELD_ARRAY',
     FREE_TEXT = 'FREE_TEXT',
+    NUMBER = 'NUMBER',
     MULTIPLE_SELECT = 'MULTIPLE_SELECT',
     NON_PRIMITIVE = 'NON_PRIMITIVE',
     COLOR = 'COLOR',
@@ -151,6 +152,53 @@ export class WidgetFreeTextOption extends WidgetOption {
         enableInMenu: boolean | OptionCallback = true
     ) {
         super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+}
+
+export class WidgetNumberOption extends WidgetOption {
+    private _intermediateValue: number;
+
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        enableInMenu: boolean | OptionCallback = true
+    ) {
+        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+    }
+
+    get intermediateValue() {
+        if (this._intermediateValue === undefined) {
+            try {
+                const value = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isNumber(_.toNumber(value)) ? value : null;
+            } catch {
+                // Consume Error
+            }
+            this._intermediateValue = this._intermediateValue || null;
+        }
+        return this._intermediateValue;
+    }
+
+    set intermediateValue(value: any) {
+        this._intermediateValue = value;
+        try {
+            this.valueCurrent = _.isNumber(_.toNumber(value)) ? this._intermediateValue : 0;
+        } catch {
+            // Ignore
+        }
+    }
+
+    getValueToSaveInBindings() {
+        delete this._intermediateValue;
+        return this.valueCurrent || this.valueDefault;
     }
 }
 
