@@ -190,7 +190,7 @@ export class WidgetNumberOption extends WidgetOption {
     set intermediateValue(value: any) {
         this._intermediateValue = value;
         try {
-            this.valueCurrent = _.isNumber(_.toNumber(value)) ? this._intermediateValue : 0;
+            this.valueCurrent = _.isInteger(_.toNumber(value)) ? this._intermediateValue : 0;
         } catch {
             // Ignore
         }
