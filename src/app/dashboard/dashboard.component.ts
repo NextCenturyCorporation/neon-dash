@@ -117,7 +117,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentState: DashboardState;
+    private currentTitle: string;
 
     /**
      * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
@@ -213,7 +213,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Clean on different dashboard
-        if (!this.currentState || this.currentState.dashboard.fullTitle !== state.dashboard.fullTitle) {
+        if (this.currentTitle !== state.dashboard.fullTitle) {
+            console.log('Full dashboard reload');
             this.pendingInitialRegistrations = this.widgets.size;
 
             this.gridState.clear();
@@ -233,9 +234,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.toggleDashboardSelectorDialog(false);
             this.refreshDashboard();
         } else {
-            this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
+            console.log('Partial dashboard reload on filters');
+            this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
         }
-        this.currentState = state;
+        this.currentTitle = state.dashboard.fullTitle;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {

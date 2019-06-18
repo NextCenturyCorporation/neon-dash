@@ -18,9 +18,9 @@ import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
 
-import { Subject, Observable, combineLatest, of, from } from 'rxjs';
+import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
 import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
-import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 import { ConfigUtil } from '../util/config.util';
@@ -88,9 +88,6 @@ export class ConfigService {
 
     private finalizeConfig(configInput: NeonConfig) {
         let config = configInput;
-        if (config && config.neonServerUrl) {
-            neon.setNeonServerUrl(config.neonServerUrl);
-        }
 
         if (!config) {
             console.error('Config is empty', config);
@@ -102,6 +99,8 @@ export class ConfigService {
             config.errors = this.configErrors;
             this.configErrors = [];
         }
+
+        ConfigUtil.nameDashboards(configInput.dashboards, config.fileName || '');
 
         return config;
     }
@@ -133,23 +132,19 @@ export class ConfigService {
         const [, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
 
-        if (path) {
-            this.initSource();
-            this.load(path).pipe(
+        this.initSource();
+
+        from(path ? this.load(path) : throwError(null)).pipe(
+            catchError((err) => this.getDefault(environment.config).pipe(
                 tap((conf) => {
-                    (conf.dashboards as NeonDashboardLeafConfig).filters = params;
-                    this.setActive(conf);
-                }),
-                catchError((err) => this.getActive()
-                    .pipe(
-                        tap((conf) => {
-                            conf.errors = [err.message as string];
-                        })
-                    ))
-            ).subscribe();
-        } else {
-            this.getActive().subscribe();
-        }
+                    conf.errors = [err ? err.message as string : err];
+                })
+            ))
+        ).subscribe((conf) => {
+            ConfigUtil.filterDashboards(conf.dashboards, params);
+            this.setActive(conf);
+        });
+
         return this.$source;
     }
 
@@ -160,10 +155,7 @@ export class ConfigService {
     }
 
     getActive() {
-        if (this.initSource()) {
-            this.getDefault(environment.config)
-                .subscribe((el) => this.source.next(el));
-        }
+        this.initSource();
         return this.$source;
     }
 
