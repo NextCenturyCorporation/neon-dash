@@ -41,14 +41,6 @@ export class ConfigService {
             shareReplay(1)
         );
 
-    static as(config: NeonConfig | null) {
-        const svc = new ConfigService(null, null);
-        if (config) {
-            svc.setActive(config);
-        }
-        return svc;
-    }
-
     constructor(
         private http: HttpClient,
         private connectionService: ConnectionService

@@ -60,7 +60,6 @@ describe('Dashboard', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useFactory: () => ConfigService.as(NeonConfig.get()) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
@@ -873,7 +872,6 @@ describe('Dashboard Custom', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useFactory: () => ConfigService.as(null) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: EmptyDashboardServiceMock },
             FilterService,
@@ -935,10 +933,8 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        component.dashboardService.stateSource.pipe(take(1)).subscribe(async(state) => {
+        component.dashboardService.stateSource.pipe(take(1)).subscribe((state) => {
             fixture.detectChanges();
-
-            await new Promise((res) => setTimeout(res, 100));
 
             expect(state.dashboard).toEqual(testDashboard);
             expect(state.datastore).toEqual(config.datastores.testName1);

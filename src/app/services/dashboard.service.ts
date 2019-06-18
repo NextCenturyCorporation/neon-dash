@@ -70,7 +70,7 @@ export class DashboardService {
                 if (connection) {
                     return this.mergeDatastoreRemoteState(datastore, connection);
                 }
-                return null;
+                return undefined;
             })
             .filter((val) => !!val);
 

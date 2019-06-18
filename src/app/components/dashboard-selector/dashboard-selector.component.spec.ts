@@ -15,12 +15,11 @@
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { NeonConfig, NeonDashboardChoiceConfig } from '../../models/types';
+import { NeonDashboardChoiceConfig } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DashboardSelectorModule } from './dashboard-selector.module';
-import { ConfigService } from '../../services/config.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -66,7 +65,6 @@ describe('Component: DashboardSelector', () => {
 
     initializeTestBed('Dataset Selector', {
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: DashboardService, useClass: DashboardServiceMock }
 
         ],

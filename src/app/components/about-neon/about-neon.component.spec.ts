@@ -16,12 +16,9 @@ import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
 import { AboutNeonComponent } from './about-neon.component';
 import { AboutNeonModule } from './about-neon.module';
-import { NeonConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: AboutNeonComponent', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<AboutNeonComponent>;
     let component: AboutNeonComponent;
     let neonStub: any = {
@@ -41,7 +38,6 @@ describe('Component: AboutNeonComponent', () => {
     initializeTestBed('About Neon', {
         imports: [AboutNeonModule],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'neon', useValue: neonStub }
         ]
     });

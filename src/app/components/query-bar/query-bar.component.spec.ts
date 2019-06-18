@@ -65,7 +65,6 @@ class queryBarTester {
                 { provide: FilterService, useClass: MockFilterService },
                 { provide: AbstractWidgetService, useClass: WidgetService },
                 { provide: DashboardService, useClass: mockDataset ? MockDashboardService : DashboardService },
-                { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
 
             ],
             imports: [
