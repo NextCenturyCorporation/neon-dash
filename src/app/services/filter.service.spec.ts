@@ -28,13 +28,12 @@ import {
     SimpleFilterDesign
 } from './filter.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../models/types';
+import { NeonFieldMetaData } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { ConfigService } from './config.service';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
@@ -622,8 +621,8 @@ describe('FilterCollection', () => {
     initializeTestBed('Single List Filter Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+
         ],
         imports: [
             HttpClientModule,
@@ -3199,8 +3198,8 @@ describe('FilterService with no filters', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+
         ],
         imports: [
             HttpClientModule,
@@ -3250,8 +3249,8 @@ describe('FilterService with filters', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-                    ]
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
+        ]
     });
 
     beforeEach(inject([DashboardService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {

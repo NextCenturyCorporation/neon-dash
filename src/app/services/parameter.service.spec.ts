@@ -19,10 +19,7 @@ import { DashboardService } from './dashboard.service';
 import { FilterService } from './filter.service';
 import { ParameterService } from './parameter.service';
 
-import { NeonConfig } from '../models/types';
-
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 describe('Service: Parameter', () => {
@@ -33,8 +30,8 @@ describe('Service: Parameter', () => {
             ParameterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            FilterService,
-            
+            FilterService
+
         ]
     });
 

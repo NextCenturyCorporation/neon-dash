@@ -17,15 +17,13 @@ import * as moment from 'moment';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
-import { NeonConfig } from '../../models/types';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
 
-import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
-import { ConfigService } from '../../services/config.service';
 import { CompoundFilterType, AbstractSearchService } from '../../services/abstract.search.service';
 import { SearchService } from '../../services/search.service';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';

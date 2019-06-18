@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { Injector } from '@angular/core';
 
 import { DocumentViewerComponent } from './document-viewer.component';
@@ -30,7 +30,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DocumentViewerModule } from './document-viewer.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
@@ -46,8 +45,8 @@ describe('Component: DocumentViewer', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-                    ],
+            Injector
+        ],
         imports: [
             DocumentViewerModule
         ]
@@ -887,7 +886,7 @@ describe('Component: Document Viewer with Config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-                        { provide: 'title', useValue: 'Document Viewer Title' },
+            { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'dataField', useValue: 'testTextField' },
             { provide: 'dateField', useValue: 'testDateField' },
