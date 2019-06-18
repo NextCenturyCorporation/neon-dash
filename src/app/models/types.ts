@@ -160,7 +160,7 @@ export interface NeonDashboardLeafConfig extends NeonDashboardBaseConfig {
     layout: string;
     tables: Record<string, string>;
     fields: Record<string, string>;
-    filters: FilterConfig[];
+    filters: FilterConfig[] | string;
     visualizationTitles: Record<string, string>;
     options: NeonDashboardOptions;
     relations: (string | string[])[][];

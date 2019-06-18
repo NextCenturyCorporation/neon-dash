@@ -19,6 +19,7 @@ import {
     NeonTableMetaData, NeonFieldMetaData, NeonDashboardChoiceConfig
 } from '../models/types';
 import { DashboardState } from '../models/dashboard-state';
+import { ConfigUtil } from './config.util';
 
 /**
  * Common Utility functions for dashboards, specifically
@@ -133,14 +134,14 @@ export class DashboardUtil {
                     db.options.simpleFilter.tableKey) {
                     let tableKey = db.options.simpleFilter.tableKey;
 
-                    const { database, table } = DashboardState.deconstructDottedReference(db.tables[tableKey]);
+                    const { database, table } = ConfigUtil.deconstructDottedReference(db.tables[tableKey]);
 
                     db.options.simpleFilter.databaseName = database;
                     db.options.simpleFilter.tableName = table;
 
                     if (db.options.simpleFilter.fieldKey) {
                         let fieldKey = db.options.simpleFilter.fieldKey;
-                        const { field: fieldName } = DashboardState.deconstructDottedReference(db.fields[fieldKey]);
+                        const { field: fieldName } = ConfigUtil.deconstructDottedReference(db.fields[fieldKey]);
 
                         db.options.simpleFilter.fieldName = fieldName;
                     } else {
@@ -182,7 +183,7 @@ export class DashboardUtil {
                 let tableKeys = Object.keys(dash.tables);
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DashboardState.deconstructDottedReference(dash.tables[tableKey]);
+                    const { database } = ConfigUtil.deconstructDottedReference(dash.tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete dashboardChoices[choiceKey];

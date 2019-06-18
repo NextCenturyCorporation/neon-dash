@@ -14,12 +14,14 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
+import { ConfigUtil } from '../util/config.util';
+import { DashboardUtil } from '../util/dashboard.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -284,6 +286,46 @@ export class FilterUtil {
         return (filterDesign as SimpleFilterDesign).datastore !== undefined &&
             (filterDesign as SimpleFilterDesign).database !== undefined &&
             (filterDesign as SimpleFilterDesign).table !== undefined;
+    }
+
+    static toSimpleFilterJSON(filters: FilterDesign[]): any[] {
+        let out: any[] = [];
+        for (const filter of filters) {
+            if (this.isCompoundFilterDesign(filter)) {
+                out.push([filter.type, this.toSimpleFilterQueryString(filter.filters)]);
+            } else if (this.isSimpleFilterDesign(filter)) {
+                out.push([`${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`, filter.operator, filter.value]);
+            }
+        }
+        return out;
+    }
+
+    static fromSimpleFilterJSON(simple: any[]): FilterConfig {
+        if (simple.length === 3 && typeof simple[2] === 'string') { // Simple filter
+            const [field, operator, value] = simple as string[];
+            return {
+                ...ConfigUtil.deconstructDottedReference(field),
+                operator,
+                value,
+            } as SimpleFilterConfig;
+        } else if (typeof simple[0] === 'string') { // Complex filter
+            const [operator, ...filters] = simple;
+            return {
+                name: operator,
+                root: operator,
+                filters: filters.map((val) => this.fromSimpleFilterJSON(val))
+            } as CompoundFilterConfig;
+        }
+        return;
+    }
+
+    static toSimpleFilterQueryString(filters: FilterDesign[]): string {
+        return ConfigUtil.translate(JSON.stringify(this.toSimpleFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+    }
+
+    static fromSimpleFilterQueryString(query: string): FilterConfig[] {
+        const arr = JSON.parse(ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap)) as any[];
+        return arr.map((val) => this.fromSimpleFilterJSON(val));
     }
 }
 
@@ -646,12 +688,18 @@ export class FilterService {
 
     /**
      * Returns the filters as JSON objects to save in a config file.
-     *
-     * @return {any[]}
      */
-    public getFiltersToSaveInConfig(): any[] {
+    public getFiltersToSaveInConfig(): FilterConfig[] {
         return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
     }
+
+    /**
+     * Returns the filters as string for use in URL
+     */
+    public getFiltersToSaveInURL(): string {
+        return FilterUtil.toSimpleFilterQueryString(this.getFilters());
+    }
+
 
     /**
      * Returns all the filters to search on the given datastore/database/table (ignoring filters from the given data sources).

@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import {
     NeonConfig, NeonDatastoreConfig,
     NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData,
-    FilterConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
+    NeonDashboardLeafConfig, NeonDashboardChoiceConfig
 } from '../models/types';
 
 import * as _ from 'lodash';
@@ -29,7 +29,7 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
-import { FilterService } from './filter.service';
+import { FilterService, FilterUtil } from './filter.service';
 import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable({
@@ -111,8 +111,11 @@ export class DashboardService {
         const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.setActiveDatastore(this.config.datastores[firstName]);
 
+
         // Load filters
-        this.filterService.setFiltersFromConfig(dashboard.filters || [], this.state, this.searchService);
+        console.log(dashboard.filters);
+        const filters = typeof dashboard.filters === 'string' ? FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
+        this.filterService.setFiltersFromConfig(filters || [], this.state, this.searchService);
         this.stateSubject.next(this.state);
     }
 
@@ -140,7 +143,7 @@ export class DashboardService {
      */
     private mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
         let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
-            this.getTableNamesAndFieldNames(connection, database));
+            this.mergeTableNamesAndFieldNames(connection, database));
 
         return Promise.all(promiseArray).then((__response) => {
             datastore['hasUpdatedFields'] = true;
@@ -152,7 +155,7 @@ export class DashboardService {
      * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
      * associated dashboards are deleted. Any other error will return a rejected promise.
      */
-    private getTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
+    private mergeTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
         let promiseFields = [];
         return new Promise<any>((resolve, reject) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
@@ -169,7 +172,7 @@ export class DashboardService {
                             }
                         });
 
-                        promiseFields.push(this.updateFieldTypes(connection, database, table));
+                        promiseFields.push(this.mergeFieldTypes(connection, database, table));
                     }
                 });
 
@@ -195,7 +198,7 @@ export class DashboardService {
     /**
      * Wraps connection.getFieldTypes() in a promise object.
      */
-    private updateFieldTypes(
+    private mergeFieldTypes(
         connection: Connection,
         database: NeonDatabaseMetaData,
         table: NeonTableMetaData
@@ -215,7 +218,7 @@ export class DashboardService {
     /**
      * Exports current dashboard state to neon config, with optional filters if desired
      */
-    exportToConfig(name: string, filters?: FilterConfig[]): NeonConfig {
+    exportToConfig(name: string): NeonConfig {
         const out = NeonConfig.get({
             ...this.config,
             layouts: {
@@ -234,9 +237,9 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: filters || [],
+                filters: this.filterService.getFiltersToSaveInConfig(),
                 layout: name
-            }) as NeonDashboardLeafConfig,
+            }),
             projectTitle: name
         });
         delete out.errors;

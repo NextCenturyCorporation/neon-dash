@@ -17,7 +17,6 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
 
 import { neonEvents } from '../../models/neon-namespaces';
 
@@ -71,7 +70,6 @@ export class SaveStateComponent implements OnInit {
     constructor(
         protected configService: ConfigService,
         protected dashboardService: DashboardService,
-        protected filterService: FilterService,
         private snackBar: MatSnackBar,
         private dialog: MatDialog,
         private router: Router
@@ -104,7 +102,7 @@ export class SaveStateComponent implements OnInit {
         cancelText: 'Discard'
     })
     public saveState(name: string, __confirm = true): void {
-        const config = this.dashboardService.exportToConfig(name, this.filterService.getFiltersToSaveInConfig());
+        const config = this.dashboardService.exportToConfig(name);
         this.configService.save(config)
             .subscribe(() => {
                 this.dashboardState.modified = false;
