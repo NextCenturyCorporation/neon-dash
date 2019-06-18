@@ -23,7 +23,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -32,7 +32,6 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { GearModule } from './gear.module';
-import { ConfigService } from '../../services/config.service';
 import {
     WidgetOptionCollection, WidgetFreeTextOption,
     WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
@@ -93,8 +92,8 @@ describe('Component: Gear Component', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-                    ],
+            Injector
+        ],
         imports: [
             GearModule
         ]

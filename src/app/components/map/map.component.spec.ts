@@ -31,7 +31,7 @@ import { WidgetService } from '../../services/widget.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { WidgetOptionCollection } from '../../models/widget-option';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -40,7 +40,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
-import { ConfigService } from '../../services/config.service';
 
 @Component({
     selector: 'app-map',
@@ -182,8 +181,8 @@ describe('Component: Map', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService },
-            
+            { provide: AbstractWidgetService, useClass: WidgetService }
+
         ],
         imports: [
             CommonWidgetModule,
@@ -1149,7 +1148,7 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-                        { provide: 'tableKey', useValue: 'table_key_1' },
+            { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',
                 useValue: [{

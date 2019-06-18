@@ -29,6 +29,7 @@ import { WidgetService } from '../../services/widget.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
+import { NeonFieldMetaData } from '../../models/types';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -502,14 +503,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         // Expected date value equals UTCMonth - 1
         expect(previousItem).toEqual({
@@ -535,14 +536,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         // Expected date value equals UTCMonth - 1
         expect(previousItem2).toEqual({
@@ -575,14 +576,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         expect(previousItem).toEqual(undefined);
 
@@ -601,14 +602,14 @@ describe('Component: Timeline', () => {
             origDate: 1515110400000,
             date: new Date(2017, 12, 4, 19, 0, 0)
         }], {
-                testIdField: 'id3',
-                testFilterField: 'filter3',
-                _aggregation: 1,
-                _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
-                _month: 1,
-                _year: 2018
+            testIdField: 'id3',
+            testFilterField: 'filter3',
+            _aggregation: 1,
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
+            _month: 1,
+            _year: 2018
 
-            });
+        });
 
         expect(previousItem2).toEqual(undefined);
     });

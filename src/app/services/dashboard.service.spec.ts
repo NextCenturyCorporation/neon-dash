@@ -49,8 +49,8 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            FilterService,
-                    ]
+            FilterService
+        ]
     });
 
     beforeEach(inject([DashboardService], (_dashboardService: DashboardService) => {

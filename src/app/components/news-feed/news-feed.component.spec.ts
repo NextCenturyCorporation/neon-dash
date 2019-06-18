@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -27,7 +27,6 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NewsFeedModule } from './news-feed.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -39,8 +38,8 @@ describe('Component: NewsFeed', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            
+            Injector
+
         ],
         imports: [
             NewsFeedModule

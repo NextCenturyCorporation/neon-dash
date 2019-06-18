@@ -24,13 +24,11 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { NeonConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { SettingsModule } from './settings.module';
 import { ExportControlModule } from '../export-control/export-control.module';
 import { FormsModule } from '@angular/forms';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: Settings', () => {
     let fixture: ComponentFixture<SettingsComponent>;
@@ -41,7 +39,7 @@ describe('Component: Settings', () => {
             SettingsComponent
         ],
         providers: [
-                        { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],

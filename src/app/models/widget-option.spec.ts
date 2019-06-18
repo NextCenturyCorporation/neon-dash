@@ -16,7 +16,7 @@ import { ReflectiveInjector } from '@angular/core';
 import { inject } from '@angular/core/testing';
 import * as yaml from 'js-yaml';
 
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonConfig } from './types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import { DashboardService } from '../services/dashboard.service';
 import {
     WidgetDatabaseOption,
@@ -32,15 +32,14 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 
 import * as _ from 'lodash';
-import { ConfigService } from '../services/config.service';
 
 describe('WidgetOptionCollection', () => {
     let options: WidgetOptionCollection;
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-                    ]
+            { provide: DashboardService, useClass: DashboardServiceMock }
+        ]
     });
 
     beforeEach(() => {
@@ -311,8 +310,8 @@ describe('WidgetOptionCollection with custom fields', () => {
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-                    ]
+            { provide: DashboardService, useClass: DashboardServiceMock }
+        ]
     });
 
     beforeEach(() => {
@@ -389,8 +388,8 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
 
     initializeTestBed('Widget Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-                    ]
+            { provide: DashboardService, useClass: DashboardServiceMock }
+        ]
     });
 
     beforeEach(() => {
