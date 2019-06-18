@@ -22,11 +22,12 @@ import {
     WidgetDatabaseOption,
     WidgetFieldOption,
     WidgetFieldArrayOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
     WidgetSelectOption,
-    WidgetTableOption,
-    WidgetNonPrimitiveOption
+    WidgetTableOption
 } from './widget-option';
-import { WidgetOptionCollection } from './widget-option-collection';
+import { OptionCollection, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
@@ -34,18 +35,21 @@ import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServ
 import * as _ from 'lodash';
 import { ConfigService } from '../services/config.service';
 
-describe('WidgetOptionCollection', () => {
-    let options: WidgetOptionCollection;
+describe('OptionCollection', () => {
+    let options: OptionCollection;
+    let dashboardService: DashboardService;
 
-    initializeTestBed('Widget Collection', {
+    initializeTestBed('Option Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
-    beforeEach(() => {
-        options = new WidgetOptionCollection(() => [], ReflectiveInjector.resolveAndCreate([{
+    beforeEach(inject([DashboardService], (_dashboardService) => {
+        dashboardService = _dashboardService;
+
+        options = new OptionCollection(ReflectiveInjector.resolveAndCreate([{
             provide: 'keyA',
             useValue: 'provideA'
         }, {
@@ -71,8 +75,12 @@ describe('WidgetOptionCollection', () => {
             useValue: 'field_key_1'
         }, {
             provide: 'testListWithFieldKey',
-            useValue: ['field_key_1', 'testNameField']
+            useValue: ['field_key_1', 'field_key_2']
         }]));
+    }));
+
+    it('does have an _id', () => {
+        expect(options._id).toBeDefined();
     });
 
     it('does have empty databases, fields, and tables', () => {
@@ -113,11 +121,18 @@ describe('WidgetOptionCollection', () => {
         expect(options.keyA).toEqual('newA');
     });
 
-    it('find field functions do not error if fields are not set', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('copy does return a copy', () => {
+        let copy = options.copy();
+        // Verify that toBe (true equality) is false and toEqual (deep equality) is true.
+        expect(copy).not.toBe(options);
+        expect(copy).toEqual(options);
+    });
+
+    it('find field functions do not error if fields are not set', () => {
         expect(options.findField('testNameField')).toEqual(undefined);
         expect(options.findFieldObject(dashboardService.state, 'testName')).toEqual(NeonFieldMetaData.get());
         expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([]);
-    }));
+    });
 
     it('findField does return expected object or undefined', () => {
         options.fields = DashboardServiceMock.FIELDS;
@@ -143,7 +158,7 @@ describe('WidgetOptionCollection', () => {
         expect(options.findField('abcd')).toEqual(undefined);
     });
 
-    it('findFieldObject does return expected object', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('findFieldObject does return expected object', () => {
         options.fields = DashboardServiceMock.FIELDS;
 
         expect(options.findFieldObject(dashboardService.state, 'testDate')).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
@@ -152,9 +167,9 @@ describe('WidgetOptionCollection', () => {
         expect(options.findFieldObject(dashboardService.state, 'testFieldKey')).toEqual(DashboardServiceMock.FIELD_MAP.FIELD_KEY);
         expect(options.findFieldObject(dashboardService.state, 'testFake')).toEqual(NeonFieldMetaData.get());
         expect(options.findFieldObject(dashboardService.state, 'fakeBind')).toEqual(NeonFieldMetaData.get());
-    }));
+    });
 
-    it('findFieldObjects does return expected array', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('findFieldObjects does return expected array', () => {
         options.fields = DashboardServiceMock.FIELDS;
 
         expect(options.findFieldObjects(dashboardService.state, 'testList')).toEqual([
@@ -163,12 +178,11 @@ describe('WidgetOptionCollection', () => {
             DashboardServiceMock.FIELD_MAP.SIZE
         ]);
         expect(options.findFieldObjects(dashboardService.state, 'testListWithFieldKey')).toEqual([
-            DashboardServiceMock.FIELD_MAP.FIELD_KEY,
-            DashboardServiceMock.FIELD_MAP.NAME
+            DashboardServiceMock.FIELD_MAP.FIELD_KEY
         ]);
         expect(options.findFieldObjects(dashboardService.state, 'testName')).toEqual([]);
         expect(options.findFieldObjects(dashboardService.state, 'fakeBind')).toEqual([]);
-    }));
+    });
 
     it('inject does add given widget option with provided binding', () => {
         options.inject(new WidgetSelectOption('keyA', 'labelA', 'defaultA', []));
@@ -258,7 +272,7 @@ describe('WidgetOptionCollection', () => {
         expect(options.list()).toEqual([databaseOption, tableOption, widgetOption1, widgetOption2]);
     });
 
-    it('updateDatabases does update databases, tables, and fields', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('updateDatabases does update databases, tables, and fields', () => {
         options.databases = [];
         options.database = NeonDatabaseMetaData.get();
         options.tables = [];
@@ -272,9 +286,9 @@ describe('WidgetOptionCollection', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-    }));
+    });
 
-    it('updateFields does update fields', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('updateFields does update fields', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = DashboardServiceMock.TABLES_LIST;
@@ -288,9 +302,9 @@ describe('WidgetOptionCollection', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-    }));
+    });
 
-    it('updateTables does update tables and fields', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('updateTables does update tables and fields', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase1;
         options.tables = [];
@@ -304,136 +318,84 @@ describe('WidgetOptionCollection', () => {
         expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-    }));
+    });
 });
 
-describe('WidgetOptionCollection with custom fields', () => {
+describe('WidgetOptionCollection', () => {
     let options: WidgetOptionCollection;
+    let dashboardService: DashboardService;
 
-    initializeTestBed('Widget Collection', {
+    initializeTestBed('Widget Option Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
         ]
     });
 
-    beforeEach(() => {
+    beforeEach(inject([DashboardService], (_dashboardService) => {
+        dashboardService = _dashboardService;
+
         options = new WidgetOptionCollection(() => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
-        ], ReflectiveInjector.resolveAndCreate([]));
-    });
-
-    it('updateDatabases does update databases, tables, and fields with custom fields', inject([DashboardService],
-        (dashboardService: DashboardService) => {
-            options.databases = [];
-            options.database = NeonDatabaseMetaData.get();
-            options.tables = [];
-            options.table = NeonTableMetaData.get();
-            options.fields = [];
-            options.testCustomField = null;
-            options.testCustomFieldArray = null;
-
-            options.updateDatabases(dashboardService.state);
-
-            expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-            expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-            expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
-            expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-            expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
-            expect(options.testCustomFieldArray).toEqual([]);
-        }));
-
-    it('updateFields does update fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
-        options.databases = DashboardServiceMock.DATABASES_LIST;
-        options.database = DashboardServiceMock.DATABASES.testDatabase1;
-        options.tables = DashboardServiceMock.TABLES_LIST;
-        options.table = DashboardServiceMock.TABLES.testTable1;
-        options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
-
-        options.updateFields(dashboardService.state);
-
-        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
-        expect(options.testCustomFieldArray).toEqual([]);
-    }));
-
-    it('updateTables does update tables and fields with custom fields', inject([DashboardService], (dashboardService: DashboardService) => {
-        options.databases = DashboardServiceMock.DATABASES_LIST;
-        options.database = DashboardServiceMock.DATABASES.testDatabase1;
-        options.tables = [];
-        options.table = NeonTableMetaData.get();
-        options.fields = [];
-        options.testCustomField = null;
-        options.testCustomFieldArray = null;
-
-        options.updateTables(dashboardService.state);
-
-        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
-        expect(options.testCustomFieldArray).toEqual([]);
-    }));
-});
-
-describe('WidgetOptionCollection with bindings and custom fields', () => {
-    let options: WidgetOptionCollection;
-
-    initializeTestBed('Widget Collection', {
-        providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
-    });
-
-    beforeEach(() => {
-        options = new WidgetOptionCollection(() => [
-            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
-            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false)
-        ], ReflectiveInjector.resolveAndCreate([{
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+        ], dashboardService.state, 'Test Title', 100, ReflectiveInjector.resolveAndCreate([{
             provide: 'tableKey',
             useValue: 'table_key_2'
+        }, {
+            provide: 'limit',
+            useValue: '1234'
+        }, {
+            provide: 'title',
+            useValue: 'Test Custom Title'
         }, {
             provide: 'testCustomField',
             useValue: 'testTextField'
         }, {
             provide: 'testCustomFieldArray',
             useValue: ['testNameField', 'testTypeField']
+        }, {
+            provide: 'testCustomKey',
+            useValue: 'testCustomValue'
         }]));
+    }));
+
+    it('does have databases, fields, tables, and custom properties', () => {
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+
+        expect(options.limit).toEqual('1234');
+        expect(options.title).toEqual('Test Custom Title');
+
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
+        expect(options.testCustomKey).toEqual('testCustomValue');
     });
 
-    it('updateDatabases does update databases, tables, and fields with bindings',
-        inject([DashboardService], (dashboardService: DashboardService) => {
-            options.databases = [];
-            options.database = NeonDatabaseMetaData.get();
-            options.tables = [];
-            options.table = NeonTableMetaData.get();
-            options.fields = [];
-            options.testCustomField = null;
-            options.testCustomFieldArray = null;
+    it('updateDatabases does update databases, tables, and fields with custom properties', () => {
+        options.databases = [];
+        options.database = NeonDatabaseMetaData.get();
+        options.tables = [];
+        options.table = NeonTableMetaData.get();
+        options.fields = [];
+        options.testCustomField = null;
+        options.testCustomFieldArray = null;
 
-            options.updateDatabases(dashboardService.state);
+        options.updateDatabases(dashboardService.state);
 
-            expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-            expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-            expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
-            expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-            expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
-            expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-            expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
-        }));
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
+    });
 
-    it('updateFields does update fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('updateFields does update fields with custom properties', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = DashboardServiceMock.TABLES_LIST;
@@ -451,9 +413,9 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
-    }));
+    });
 
-    it('updateTables does update tables and fields with bindings', inject([DashboardService], (dashboardService: DashboardService) => {
+    it('updateTables does update tables and fields with custom properties', () => {
         options.databases = DashboardServiceMock.DATABASES_LIST;
         options.database = DashboardServiceMock.DATABASES.testDatabase2;
         options.tables = [];
@@ -471,7 +433,257 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
         expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
         expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
+    });
+});
+
+describe('WidgetOptionCollection with no bindings', () => {
+    let options: WidgetOptionCollection;
+    let dashboardService: DashboardService;
+
+    initializeTestBed('Widget Option Collection', {
+        providers: [
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+        ]
+    });
+
+    beforeEach(inject([DashboardService], (_dashboardService) => {
+        dashboardService = _dashboardService;
+
+        options = new WidgetOptionCollection(() => [
+            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+        ], dashboardService.state, 'Test Title', 100, ReflectiveInjector.resolveAndCreate([]));
     }));
+
+    it('does have databases, fields, tables, and custom properties with default values', () => {
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+
+        expect(options.limit).toEqual(100);
+        expect(options.title).toEqual('Test Title');
+
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
+        expect(options.testCustomFieldArray).toEqual([]);
+        expect(options.testCustomKey).toEqual('default value');
+    });
+});
+
+describe('RootWidgetOptionCollection', () => {
+    let options: RootWidgetOptionCollection;
+    let dashboardService: DashboardService;
+
+    initializeTestBed('Root Widget Option Collection', {
+        providers: [
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+        ]
+    });
+
+    beforeEach(inject([DashboardService], (_dashboardService) => {
+        dashboardService = _dashboardService;
+
+        options = new RootWidgetOptionCollection(() => [
+            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+        ], () => [
+            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
+            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
+        ], dashboardService.state, 'Test Title', 100, true, ReflectiveInjector.resolveAndCreate([{
+            provide: 'tableKey',
+            useValue: 'table_key_2'
+        }, {
+            provide: 'contributionKeys',
+            useValue: ['next_century']
+        }, {
+            provide: 'filter',
+            useValue: { lhs: 'a', operator: '!=', rhs: 'b' }
+        }, {
+            provide: 'hideUnfiltered',
+            useValue: true
+        }, {
+            provide: 'limit',
+            useValue: '1234'
+        }, {
+            provide: 'title',
+            useValue: 'Test Custom Title'
+        }, {
+            provide: 'unsharedFilterField',
+            useValue: 'testFilterField'
+        }, {
+            provide: 'unsharedFilterValue',
+            useValue: 'testFilterValue'
+        }, {
+            provide: 'testCustomField',
+            useValue: 'testTextField'
+        }, {
+            provide: 'testCustomFieldArray',
+            useValue: ['testNameField', 'testTypeField']
+        }, {
+            provide: 'testCustomKey',
+            useValue: 'testCustomValue'
+        }, {
+            provide: 'layers',
+            useValue: [{
+                tableKey: 'table_key_2',
+                limit: 5678,
+                title: 'Test Layer Title',
+                testCustomLayerField: 'testDateField',
+                testCustomLayerFieldArray: ['testXField', 'testYField'],
+                testCustomLayerKey: 'testCustomLayerValue'
+            }]
+        }]));
+    }));
+
+    it('does have databases, fields, tables, custom properties, and custom layers', () => {
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+
+        expect(options.contributionKeys).toEqual(['next_century']);
+        expect(options.filter).toEqual({ lhs: 'a', operator: '!=', rhs: 'b' });
+        expect(options.hideUnfiltered).toEqual(true);
+        expect(options.limit).toEqual('1234');
+        expect(options.title).toEqual('Test Custom Title');
+        expect(options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect(options.unsharedFilterValue).toEqual('testFilterValue');
+
+        expect(options.testCustomField).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(options.testCustomFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.NAME, DashboardServiceMock.FIELD_MAP.TYPE]);
+        expect(options.testCustomKey).toEqual('testCustomValue');
+
+        expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.layers[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.layers[0].limit).toEqual(5678);
+        expect(options.layers[0].title).toEqual('Test Layer Title');
+        expect(options.layers[0].testCustomLayerField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.layers[0].testCustomLayerFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
+        expect(options.layers[0].testCustomLayerKey).toEqual('testCustomLayerValue');
+    });
+
+    it('addLayer does add a new layer', () => {
+        let newLayer = options.addLayer();
+        expect(options.layers.length).toEqual(2);
+        expect(options.layers[1].title).toEqual('Layer 2');
+        expect(options.layers[1].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.layers[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.layers[1].tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.layers[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.layers[1].fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.layers[1].testCustomLayerField).toEqual(NeonFieldMetaData.get());
+        expect(options.layers[1].testCustomLayerFieldArray).toEqual([]);
+        expect(options.layers[1].testCustomLayerKey).toEqual('default layer value');
+        expect(newLayer).toEqual(options.layers[1]);
+    });
+
+    it('addLayer with options and bindings does add a new layer to it', () => {
+        let newLayer = options.addLayer({
+            tableKey: 'table_key_2',
+            limit: 5678,
+            title: 'Test Layer Title',
+            testCustomLayerField: 'testDateField',
+            testCustomLayerFieldArray: ['testXField', 'testYField'],
+            testCustomLayerKey: 'testCustomLayerValue'
+        });
+        expect(options.layers.length).toEqual(2);
+        expect(options.layers[1].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.layers[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(options.layers[1].tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.layers[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(options.layers[1].fields).toEqual(DashboardServiceMock.FIELDS);
+        expect(options.layers[1].limit).toEqual(5678);
+        expect(options.layers[1].title).toEqual('Test Layer Title');
+        expect(options.layers[1].testCustomLayerField).toEqual(DashboardServiceMock.FIELD_MAP.DATE);
+        expect(options.layers[1].testCustomLayerFieldArray).toEqual([DashboardServiceMock.FIELD_MAP.X, DashboardServiceMock.FIELD_MAP.Y]);
+        expect(options.layers[1].testCustomLayerKey).toEqual('testCustomLayerValue');
+        expect(newLayer).toEqual(options.layers[1]);
+    });
+
+    it('copy does copy layers', () => {
+        let copy = options.copy();
+        // Verify that toBe (true equality) is false and toEqual (deep equality) is true.
+        expect(copy).not.toBe(options);
+        expect(copy).toEqual(options);
+    });
+
+    it('removeLayer does remove the given layer if it is not the final layer', () => {
+        let newLayer = options.addLayer();
+        let successful = options.removeLayer(options.layers[0]);
+        expect(successful).toEqual(true);
+        expect(options.layers.length).toEqual(1);
+        expect(options.layers[0]).toEqual(newLayer);
+    });
+
+    it('removeLayer does not remove the given layer if it is the final layer', () => {
+        let successful = options.removeLayer(options.layers[0]);
+        expect(successful).toEqual(false);
+        expect(options.layers.length).toEqual(1);
+    });
+});
+
+describe('RootWidgetOptionCollection with no bindings', () => {
+    let options: RootWidgetOptionCollection;
+    let dashboardService: DashboardService;
+
+    initializeTestBed('Root Widget Option Collection', {
+        providers: [
+            { provide: DashboardService, useClass: DashboardServiceMock },
+            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+        ]
+    });
+
+    beforeEach(inject([DashboardService], (_dashboardService) => {
+        dashboardService = _dashboardService;
+
+        options = new RootWidgetOptionCollection(() => [
+            new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
+            new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+        ], () => [
+            new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
+            new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
+            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
+        ], dashboardService.state, 'Test Title', 100, true, ReflectiveInjector.resolveAndCreate([]));
+    }));
+
+    it('does have databases, fields, tables, custom properties, and custom layers with default values', () => {
+        expect(options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(options.fields).toEqual(DashboardServiceMock.FIELDS);
+
+        expect(options.contributionKeys).toEqual(null);
+        expect(options.filter).toEqual(null);
+        expect(options.hideUnfiltered).toEqual(false);
+        expect(options.limit).toEqual(100);
+        expect(options.title).toEqual('Test Title');
+        expect(options.unsharedFilterField).toEqual(NeonFieldMetaData.get());
+        expect(options.unsharedFilterValue).toEqual('');
+
+        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
+        expect(options.testCustomFieldArray).toEqual([]);
+        expect(options.testCustomKey).toEqual('default value');
+
+        expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].limit).toEqual(100);
+        expect(options.layers[0].title).toEqual('Layer 1');
+        expect(options.layers[0].testCustomLayerField).toEqual(NeonFieldMetaData.get());
+        expect(options.layers[0].testCustomLayerFieldArray).toEqual([]);
+        expect(options.layers[0].testCustomLayerKey).toEqual('default layer value');
+    });
 });
 
 describe('NonPrimitive Fields', () => {
