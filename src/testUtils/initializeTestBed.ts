@@ -16,11 +16,34 @@
 ///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
 import { async, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NeonConfig } from '../app/models/types';
+import { ConfigService } from '../app/services/config.service';
+
+export function getConfigService(config?: NeonConfig) {
+    const svc = new ConfigService(null, null);
+    if (config || config === undefined) {
+        svc.setActive(config || NeonConfig.get({}));
+    } else {
+        svc['initSource'](); // TODO Remove when merged 
+    }
+    return svc;
+}
+
 
 export const initializeTestBed = (name, config: Parameters<TestBed['configureTestingModule']>[0], all = true) => {
     config.providers = config.providers || [];
     config.imports = config.imports || [];
     config.imports.push(NoopAnimationsModule);
+
+    const hasConfig = config.providers.find(
+        (provider) => provider instanceof ConfigService ||
+            provider === ConfigService ||
+            provider.provide === ConfigService
+    );
+
+    if (!hasConfig) {
+        config.providers.push({ provide: ConfigService, useFactory: () => getConfigService() });
+    }
 
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
     let resetTestingModule = TestBed.resetTestingModule;

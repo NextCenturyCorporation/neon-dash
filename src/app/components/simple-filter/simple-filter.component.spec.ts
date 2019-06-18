@@ -17,7 +17,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { NeonConfig } from '../../models/types';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -25,7 +24,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { SimpleFilterModule } from './simple-filter.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: SimpleFilter', () => {
     let component: SimpleFilterComponent;
@@ -46,8 +44,7 @@ describe('Component: SimpleFilter', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            FilterService
         ],
         imports: [
             SimpleFilterModule
@@ -185,8 +182,7 @@ describe('Component: SimpleFilter unconfigured', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardService },
-            FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            FilterService
         ],
         imports: [
             SimpleFilterModule

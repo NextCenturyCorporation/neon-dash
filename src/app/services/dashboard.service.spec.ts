@@ -18,7 +18,7 @@ import { AbstractSearchService } from './abstract.search.service';
 import { NeonConfig, NeonDatastoreConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
 import { DashboardService } from './dashboard.service';
 
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
@@ -49,8 +49,7 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            FilterService
         ]
     });
 
@@ -92,7 +91,7 @@ describe('Service: DashboardService with Mock Data', () => {
     let configService: ConfigService;
 
     beforeEach(() => {
-        configService = ConfigService.as(NeonConfig.get());
+        configService = getConfigService();
         dashboardService = new DashboardServiceMock(configService);
     });
 

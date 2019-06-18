@@ -16,12 +16,10 @@ import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
 import { DashboardService } from './dashboard.service';
-import { NeonConfig } from '../models/types';
 import { WidgetService } from './widget.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
-import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { FilterService } from './filter.service';
 
@@ -34,8 +32,7 @@ describe('Service: Widget', () => {
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            FilterService
 
         ]
     });
@@ -90,8 +87,7 @@ describe('ColorSet', () => {
         providers: [
             WidgetService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
 
         ]
     });
