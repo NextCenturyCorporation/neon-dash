@@ -377,9 +377,6 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {string} bindingKey
      */
     public updateOnChange(bindingKey: string) {
-        if (typeof (this.modifiedOptions[bindingKey]) === 'undefined') {
-            return;
-        }
         // If the original binding key has been changed and added before
         if (this.originalOptions.access(bindingKey) !== undefined) {
             if (this.originalOptions.access(bindingKey).optionType === OptionType.NON_PRIMITIVE) {
@@ -388,6 +385,14 @@ export class GearComponent implements OnInit, OnDestroy {
                     return;
                 }
             }
+        }
+        if (_.isEmpty(this.modifiedOptions[bindingKey]) && !_.isEmpty(this.originalOptions[bindingKey])) {
+            this.changeMade = true;
+            return;
+        }
+        if (typeof (this.modifiedOptions[bindingKey]) === 'undefined' && _.isPlainObject(this.originalOptions[bindingKey])) {
+            this.changeMade = false;
+            return;
         }
         this.changeMade = true;
         // TODO THOR-1061
