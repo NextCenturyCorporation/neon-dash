@@ -38,6 +38,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
@@ -172,7 +173,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
                 this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
-            new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
                 this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
             new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
                 prettyName: 'None',
@@ -208,7 +209,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Card',
                 variable: ViewType.CARD
             }]),
-            new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
+            new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
             new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
             new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 

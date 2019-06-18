@@ -35,6 +35,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetOptionCollection,
@@ -1095,7 +1096,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null, false));
 
         options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
-        options.inject(new WidgetFreeTextOption('limit', 'Limit', defaultLimit));
+        options.inject(new WidgetNumberOption('limit', 'Limit', defaultLimit));
         options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
         options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
 
