@@ -40,8 +40,7 @@ describe('WidgetOptionCollection', () => {
     initializeTestBed('Widget Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+                    ]
     });
 
     beforeEach(() => {
@@ -313,8 +312,7 @@ describe('WidgetOptionCollection with custom fields', () => {
     initializeTestBed('Widget Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+                    ]
     });
 
     beforeEach(() => {
@@ -392,8 +390,7 @@ describe('WidgetOptionCollection with bindings and custom fields', () => {
     initializeTestBed('Widget Collection', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+                    ]
     });
 
     beforeEach(() => {

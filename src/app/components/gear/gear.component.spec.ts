@@ -94,8 +94,7 @@ describe('Component: Gear Component', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ],
+                    ],
         imports: [
             GearModule
         ]

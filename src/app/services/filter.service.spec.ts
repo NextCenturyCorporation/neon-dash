@@ -623,8 +623,7 @@ describe('FilterCollection', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-
+            
         ],
         imports: [
             HttpClientModule,
@@ -3201,8 +3200,7 @@ describe('FilterService with no filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-
+            
         ],
         imports: [
             HttpClientModule,
@@ -3253,8 +3251,7 @@ describe('FilterService with filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: FilterService, useClass: FilterService },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+                    ]
     });
 
     beforeEach(inject([DashboardService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {

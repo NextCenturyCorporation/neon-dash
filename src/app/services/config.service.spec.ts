@@ -14,12 +14,13 @@
  */
 import { NeonConfig } from '../models/types';
 import { ConfigService } from './config.service';
+import { getConfigService } from '../../testUtils/initializeTestBed';
 
 describe('Service: ConfigService', () => {
     let configService: ConfigService;
 
     beforeEach(() => {
-        configService = ConfigService.as(NeonConfig.get());
+        configService = getConfigService();
     });
 
     it('deleteState does validate the state name', () => {

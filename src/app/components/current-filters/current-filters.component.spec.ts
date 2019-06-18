@@ -22,7 +22,7 @@ import { NeonConfig } from '../../models/types';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
 
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { ConfigService } from '../../services/config.service';
@@ -32,7 +32,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: CurrentFiltersComponent;
     const search = new SearchService(null as any);
 
@@ -74,8 +73,7 @@ describe('Component: CurrentFiltersComponent', () => {
         providers: [
             DashboardService,
             FilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+            { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [CurrentFiltersModule]
     });

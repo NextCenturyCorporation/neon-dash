@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonConfig, NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { FilterService } from '../../services/filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -27,11 +27,9 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NetworkGraphModule } from './network-graph.module';
-import { ConfigService } from '../../services/config.service';
 import { WidgetOptionCollection } from '../../models/widget-option';
 
 describe('Component: NetworkGraph', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: NetworkGraphComponent;
     let fixture: ComponentFixture<NetworkGraphComponent>;
 
@@ -42,7 +40,6 @@ describe('Component: NetworkGraph', () => {
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [

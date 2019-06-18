@@ -29,10 +29,8 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { FilterBuilderModule } from './filter-builder.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filter Builder', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
@@ -41,9 +39,7 @@ describe('Component: Filter Builder', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
+            Injector
         ],
         imports: [
             FilterBuilderModule

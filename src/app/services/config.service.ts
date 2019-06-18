@@ -33,16 +33,6 @@ export class ConfigService {
 
     $source: Observable<NeonConfig>;
 
-    static as(config: NeonConfig | null) {
-        const svc = new ConfigService(null, null);
-        if (config) {
-            svc.setActive(config);
-        } else {
-            svc.initSource();
-        }
-        return svc;
-    }
-
     static validateName(fileName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
         return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');

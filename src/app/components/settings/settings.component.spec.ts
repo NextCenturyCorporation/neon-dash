@@ -41,8 +41,7 @@ describe('Component: Settings', () => {
             SettingsComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
-            { provide: DashboardService, useClass: DashboardServiceMock },
+                        { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
