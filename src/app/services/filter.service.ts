@@ -845,8 +845,8 @@ export class FilterService {
             // Save the filter list and continue the loop.  We need an intermediary collection here because multiple filter designs from
             // compatibleFilterBehaviorList could have the same filterDataSourceList so saving filters directly into filterCollection would
             // overwrite compatible filter lists from previous filter designs.  Also, don't add the same filter to the list twice!
-            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, filter) =>
-                list.concat((list.indexOf(filter) < 0 ? filter : [])), compatibleCollection.getFilters(filterDataSourceList));
+            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, subFilter) =>
+                list.concat((list.indexOf(subFilter) < 0 ? subFilter : [])), compatibleCollection.getFilters(filterDataSourceList));
             compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
         }
 
