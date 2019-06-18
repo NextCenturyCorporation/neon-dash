@@ -1,3 +1,5 @@
+import { NeonDashboardConfig } from '../models/types';
+
 /**
  * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,5 +70,28 @@ export class ConfigUtil {
     static translate(data: string, keyMap: Record<string, string>): string {
         const regex = this.buildMatcher(keyMap);
         return data.replace(regex, (key) => keyMap[key]);
+    }
+
+    static nameDashboards(dashboard: NeonDashboardConfig, prefix: string) {
+        if ('choices' in dashboard) {
+            for (const dash of Object.values(dashboard.choices)) {
+                this.nameDashboards(dash, dashboard.name ?
+                    (prefix ? `${prefix} / ${dashboard.name}` : dashboard.name)
+                    : prefix);
+            }
+        } else {
+            dashboard.fullTitle = dashboard.fullTitle ||
+                (prefix ? `${prefix} / ${dashboard.name}`.trim() : dashboard.name);
+        }
+    }
+
+    static filterDashboards(dashboard: NeonDashboardConfig, filters: string) {
+        if ('choices' in dashboard) {
+            for (const dash of Object.values(dashboard.choices)) {
+                this.filterDashboards(dash, filters);
+            }
+        } else if ('layout' in dashboard) {
+            dashboard.filters = filters;
+        }
     }
 }

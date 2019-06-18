@@ -23,10 +23,16 @@ import { ConfigUtil } from '../util/config.util';
 export class DashboardState {
     modified = false;
 
+
+
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
         public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
     ) { }
+
+    get id() {
+        return this.dashboard.fullTitle;
+    }
 
     /**
      * Returns database name from matching table key within the dashboard passed in.

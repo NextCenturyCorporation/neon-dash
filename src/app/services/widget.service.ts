@@ -17,6 +17,7 @@ import { AbstractWidgetService, Theme } from './abstract.widget.service';
 import { Color, ColorSet } from '../models/color';
 import { DashboardService } from './dashboard.service';
 import { DashboardState } from '../models/dashboard-state';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 /**
  * @class NeonTheme
@@ -51,7 +52,13 @@ export class WidgetService extends AbstractWidgetService {
 
     constructor(dashboardService: DashboardService) {
         super();
-        dashboardService.configSource.subscribe(() => this.resetColorMap());
+        dashboardService.stateSource
+            .pipe(
+                distinctUntilKeyChanged('id')
+            )
+            .subscribe((state) => {
+                this.resetColorMap()
+            });
 
         document.body.className = this.currentThemeId;
         this.dashboardState = dashboardService.state;

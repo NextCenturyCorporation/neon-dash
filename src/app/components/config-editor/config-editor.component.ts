@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { MatSnackBar } from '@angular/material';
 import { NeonConfig } from '../../models/types';
@@ -21,6 +21,8 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
 import * as yaml from 'js-yaml';
 import { ConfigService } from '../../services/config.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-config-editor',
@@ -29,11 +31,12 @@ import { ConfigService } from '../../services/config.service';
         'config-editor.component.scss'
     ]
 })
-export class ConfigEditorComponent implements OnInit {
+export class ConfigEditorComponent implements OnInit, OnDestroy {
     public CONFIG_PROP_NAME: string = 'config';
     public currentConfig: NeonConfig;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
     public configText: string;
+    destroy = new Subject();
 
     constructor(
         private configService: ConfigService,
@@ -44,13 +47,19 @@ export class ConfigEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.configService.getActive().subscribe((neonConfig) => {
-            this.currentConfig = neonConfig;
-            if (this.currentConfig.errors) {
-                delete this.currentConfig.errors;
-            }
-            this.reset();
-        });
+        this.configService.getActive()
+            .pipe(takeUntil(this.destroy))
+            .subscribe((neonConfig) => {
+                this.currentConfig = neonConfig;
+                if (this.currentConfig.errors) {
+                    delete this.currentConfig.errors;
+                }
+                this.reset();
+            });
+    }
+
+    ngOnDestroy() {
+        this.destroy.next();
     }
 
     public save() {
@@ -63,13 +72,13 @@ export class ConfigEditorComponent implements OnInit {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
             },
-            (err) => {
-                this.snackBar.open('Error attempting to save configuration', 'OK', {
-                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                (err) => {
+                    this.snackBar.open('Error attempting to save configuration', 'OK', {
+                        duration: this.DEFAULT_SNACK_BAR_DURATION
+                    });
+                    console.warn('Error attempting to save configuration:');
+                    console.warn(err);
                 });
-                console.warn('Error attempting to save configuration:');
-                console.warn(err);
-            });
     }
 
     public reset() {
