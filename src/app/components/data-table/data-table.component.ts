@@ -207,9 +207,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], true),
             // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], true),
             // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];

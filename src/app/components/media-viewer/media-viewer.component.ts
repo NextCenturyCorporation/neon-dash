@@ -233,7 +233,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
+            new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
             new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
