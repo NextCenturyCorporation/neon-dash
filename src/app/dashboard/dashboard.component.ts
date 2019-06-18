@@ -44,6 +44,7 @@ import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
+import { ConfigUtil } from '../util/config.util';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -119,23 +120,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     private currentTitle: string;
 
-    /**
-     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
-     */
-    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
-        if ('options' in dashboard && dashboard.options.connectOnLoad) {
-            return dashboard;
-        }
-        const choices = ('choices' in dashboard ? dashboard.choices : {}) || {};
-        for (let choiceKey of Object.keys(choices)) {
-            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
-            if (nestedDashboard) {
-                return nestedDashboard;
-            }
-        }
-        return null;
-    }
-
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
@@ -199,7 +183,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             config.projectIcon || 'assets/favicon.blue.ico?v=1'
         );
 
-        const dashboard = DashboardComponent.findAutoShowDashboard(config.dashboards) as NeonDashboardLeafConfig;
+        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards) as NeonDashboardLeafConfig;
 
         if (dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
@@ -237,6 +221,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             console.log('Partial dashboard reload on filters');
             this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
         }
+
         this.currentTitle = state.dashboard.fullTitle;
     }
 
@@ -393,6 +378,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     onFiltersChanged() {
         this.router.navigate([], {
             queryParams: { filter: this.filterService.getFiltersToSaveInURL() },
+            queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root
         });
     }

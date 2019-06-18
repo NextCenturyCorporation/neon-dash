@@ -21,6 +21,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import * as _ from 'lodash';
 import { DashboardUtil } from '../../util/dashboard.util';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -39,7 +40,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     private messenger: eventing.Messenger;
 
     constructor(
-        public dashboardService: DashboardService
+        public dashboardService: DashboardService,
+        public router: Router
     ) {
         this.messenger = new eventing.Messenger();
     }
@@ -96,6 +98,21 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         return [];
     }
 
+    private computeNamePath(root: NeonDashboardConfig = this.dashboards) {
+        if ('choices' in root && !_.isEmpty(root.choices)) {
+            for (const key of Object.keys(root.choices)) {
+                const res = this.computeNamePath(root.choices[key]);
+                if (res) {
+                    return [key, ...res];
+                }
+            }
+        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+            return [];
+        }
+        return;
+    }
+
+
     /**
      * If selection change event bubbles up from dashboard-dropdown, this will set the
      * dashboardChoice to the appropriate value.
@@ -113,7 +130,12 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      */
     public updateDashboardState(dashboard: NeonDashboardConfig) {
         if (dashboard && 'tables' in dashboard) {
-            this.dashboardService.setActiveDashboard(dashboard);
+            this.router.navigate([], {
+                queryParams: {
+                    path: this.computeNamePath().join('.')
+                },
+                relativeTo: this.router.routerState.root
+            })
         }
     }
 
