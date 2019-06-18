@@ -19,8 +19,8 @@ import * as yaml from 'js-yaml';
 import { environment } from '../../environments/environment';
 
 import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
-import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
-import { NeonConfig } from '../models/types';
+import { map, catchError, switchMap, take, shareReplay, tap, publishReplay } from 'rxjs/operators';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
 import { ConfigUtil } from '../util/config.util';
@@ -29,19 +29,22 @@ import { ConfigUtil } from '../util/config.util';
     providedIn: 'root'
 })
 export class ConfigService {
-    static readonly INITIAL_RND = `${Math.random() * 1000000}.${Date.now()}`;
-
     private configErrors = [];
     private source = new Subject<NeonConfig>();
 
-    $source: Observable<NeonConfig>;
+    private $default: Observable<NeonConfig>;
+
+    $source = this.source.asObservable()
+        .pipe(
+            map((data) => JSON.parse(JSON.stringify(data))), // Clone and clean
+            map((config) => NeonConfig.get(config)),
+            shareReplay(1)
+        );
 
     static as(config: NeonConfig | null) {
         const svc = new ConfigService(null, null);
         if (config) {
             svc.setActive(config);
-        } else {
-            svc.initSource();
         }
         return svc;
     }
@@ -72,7 +75,7 @@ export class ConfigService {
         return this.http.get(path, {
             responseType: 'text',
             params: {
-                rnd: ConfigService.INITIAL_RND
+                rnd: `${Math.random() * 1000000}.${Date.now()}`
             }
         })
             .pipe(map((response: any) => yaml.load(response) as NeonConfig))
@@ -88,7 +91,8 @@ export class ConfigService {
             .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-    private finalizeConfig(configInput: NeonConfig, filters: string) {
+
+    private finalizeConfig(configInput: NeonConfig, filters: string, dashboardPath: string) {
         let config = configInput;
 
         if (!config) {
@@ -102,39 +106,53 @@ export class ConfigService {
             this.configErrors = [];
         }
 
+        let dash: NeonDashboardLeafConfig;
 
-
-        ConfigUtil.filterDashboards(config.dashboards, filters);
         ConfigUtil.nameDashboards(config.dashboards, config.fileName || '');
+
+        // If dashboard path is provided, find the dashboard to activate
+        if (dashboardPath) {
+            const parts = dashboardPath.split('.').filter((key) => !!key);
+            const active = ConfigUtil.findDashboardByKey(config.dashboards, parts);
+
+            // If found
+            if (active) {
+                ConfigUtil.setAutoShowDashboard(config.dashboards, active);
+                active.filters = filters;
+                dash = active;
+            }
+        }
+
+        if (!dash) {
+            ConfigUtil.filterDashboards(config.dashboards, filters);
+        }
 
         return config;
     }
 
+    /**
+     * Default load process, generally represents empty URL loading
+     */
     private getDefault(configList: string[]) {
-        return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
-            .pipe(
-                switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
-                take(1)
-            );
-    }
-
-    private initSource() {
-        if (!this.$source) {
-            this.$source = this.source.asObservable()
+        if (!this.$default) {
+            this.$default = combineLatest(...configList.map((config) => this.loadFromFolder(config)))
                 .pipe(
-                    map((data) => JSON.parse(JSON.stringify(data))), // Clone and clean
-                    map((config) => NeonConfig.get(config)),
+                    switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
+                    take(1),
                     shareReplay(1)
                 );
         }
+        return this.$default;
     }
 
+    /**
+     * Loads config state by URL, given a base path
+     */
     setActiveByURL(url: string, base: string | RegExp) {
         const urlObj = new URL(url);
         const [, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
-
-        this.initSource();
+        const dashboardPath = urlObj.searchParams.get('path');
 
         from(path ? this.load(path) : throwError(null)).pipe(
             catchError((err) => this.getDefault(environment.config).pipe(
@@ -142,7 +160,7 @@ export class ConfigService {
                     conf.errors = [err ? err.message as string : err];
                 })
             )),
-            map((config) => this.finalizeConfig(config, params)),
+            map((config) => this.finalizeConfig(config, params, dashboardPath)),
             map((config) => this.setActive(config))
         ).subscribe();
 
@@ -150,13 +168,11 @@ export class ConfigService {
     }
 
     setActive(config: NeonConfig) {
-        this.initSource();
         this.source.next(config);
-        return this;
+        return this.getActive();
     }
 
     getActive() {
-        this.initSource();
         return this.$source;
     }
 

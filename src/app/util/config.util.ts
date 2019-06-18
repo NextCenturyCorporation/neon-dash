@@ -1,4 +1,4 @@
-import { NeonDashboardConfig } from '../models/types';
+import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
 /**
  * Copyright 2019 Next Century Corporation
@@ -72,26 +72,79 @@ export class ConfigUtil {
         return data.replace(regex, (key) => keyMap[key]);
     }
 
-    static nameDashboards(dashboard: NeonDashboardConfig, prefix: string) {
-        if ('choices' in dashboard) {
-            for (const dash of Object.values(dashboard.choices)) {
-                this.nameDashboards(dash, dashboard.name ?
-                    (prefix ? `${prefix} / ${dashboard.name}` : dashboard.name)
-                    : prefix);
+    static visitDashboards(dashboard: NeonDashboardConfig, handler: {
+        leaf?: (dash: NeonDashboardLeafConfig, path?: NeonDashboardChoiceConfig[]) => void,
+        choice?: (dash: NeonDashboardChoiceConfig, path?: NeonDashboardChoiceConfig[]) => void,
+    }, stack = [dashboard]) {
+        if ('choices' in dashboard && Object.keys(dashboard.choices).length > 0) {
+            if (handler.choice) {
+                handler.choice(dashboard, stack);
             }
-        } else {
-            dashboard.fullTitle = dashboard.fullTitle ||
-                (prefix ? `${prefix} / ${dashboard.name}`.trim() : dashboard.name);
+            for (const dash of Object.values(dashboard.choices)) {
+                const res = this.visitDashboards(dash, handler, [...stack, dash]);
+                if (res) {
+                    return res;
+                }
+            }
+        } else if ('layout' in dashboard) {
+            if (handler.leaf) {
+                return handler.leaf(dashboard, stack);
+            }
         }
     }
 
-    static filterDashboards(dashboard: NeonDashboardConfig, filters: string) {
-        if ('choices' in dashboard && Object.keys(dashboard.choices).length > 0) {
-            for (const dash of Object.values(dashboard.choices)) {
-                this.filterDashboards(dash, filters);
+    static nameDashboards(dashboard: NeonDashboardConfig, prefix: string) {
+        this.visitDashboards(dashboard, {
+            leaf: (dash, choices) => {
+                const name = [
+                    { name: prefix }, ...choices, dash
+                ]
+                    .filter((ds) => !!ds.name)
+                    .map((ds) => ds.name)
+                    .join(' / ');
+
+                dash.fullTitle = name;
             }
-        } else if ('layout' in dashboard) {
-            dashboard.filters = filters;
+        });
+    }
+
+    static filterDashboards(dashboard: NeonDashboardConfig, filters: string) {
+        this.visitDashboards(dashboard, {
+            leaf: (dash) => {
+                dash.filters = filters;
+            }
+        });
+    }
+
+    static findDashboardByKey(dashboard: NeonDashboardConfig, path: string[], i = 0): NeonDashboardLeafConfig | undefined {
+        if (dashboard) {
+            if (path.length && (i === path.length)) {
+                return dashboard as any;
+            } else if ('choices' in dashboard) {
+                return this.findDashboardByKey(dashboard.choices[path[i]], path, i + 1);
+            }
         }
+        return;
+    }
+
+    static setAutoShowDashboard(dashboard: NeonDashboardConfig, auto: NeonDashboardLeafConfig) {
+        this.visitDashboards(dashboard, {
+            leaf: (dash) => {
+                dash.options.connectOnLoad = dash === auto;
+            }
+        })
+    }
+
+    /**
+     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
+     */
+    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        return this.visitDashboards(dashboard, {
+            leaf: (dash) => {
+                if (dash.options.connectOnLoad) {
+                    return dash;
+                }
+            }
+        })
     }
 }
