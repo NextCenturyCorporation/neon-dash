@@ -16,7 +16,7 @@ import { Component, OnInit, HostBinding } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonConfig } from './models/types';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter, mergeMap, distinctUntilChanged } from 'rxjs/operators';
+import { filter, mergeMap, distinctUntilKeyChanged } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -38,16 +38,12 @@ export class AppComponent implements OnInit {
     constructor(private service: ConfigService, private router: Router) {
     }
 
-    loadByUrl(url: string) {
-        return this.service.getActiveByURL(url, AppComponent.base);
-    }
-
     ngOnInit() {
         this.router.events
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.loadByUrl(window.location.toString())),
-                distinctUntilChanged()
+                mergeMap(() => this.service.setActiveByURL(window.location.toString(), AppComponent.base)),
+                distinctUntilKeyChanged('projectTitle')
             )
             .subscribe((config) => {
                 this.loading = false;

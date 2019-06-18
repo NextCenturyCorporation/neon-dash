@@ -86,7 +86,7 @@ export class ConfigUtil {
     }
 
     static filterDashboards(dashboard: NeonDashboardConfig, filters: string) {
-        if ('choices' in dashboard) {
+        if ('choices' in dashboard && Object.keys(dashboard.choices).length > 0) {
             for (const dash of Object.values(dashboard.choices)) {
                 this.filterDashboards(dash, filters);
             }

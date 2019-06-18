@@ -115,6 +115,7 @@ export class DashboardService {
         // Load filters
         const filters = typeof dashboard.filters === 'string' ?
             FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
+
         this.filterService.setFiltersFromConfig(filters || [], this.state, this.searchService);
         this.stateSubject.next(this.state);
     }
