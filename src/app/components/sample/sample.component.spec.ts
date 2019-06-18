@@ -134,8 +134,7 @@ describe('Component: Sample', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-
+            
         ],
         imports: [
             CommonWidgetModule
@@ -559,8 +558,7 @@ describe('Component: Sample with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
-            { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
+                        { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'hideUnfiltered', useValue: true },

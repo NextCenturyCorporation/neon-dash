@@ -41,8 +41,7 @@ describe('Component: ThumbnailGrid', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-
+            
         ],
         imports: [
             ThumbnailGridModule
@@ -797,8 +796,7 @@ describe('Component: ThumbnailGrid with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
-            { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+                        { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
             { provide: 'borderCompareValue', useValue: 'Test Compare Value' },

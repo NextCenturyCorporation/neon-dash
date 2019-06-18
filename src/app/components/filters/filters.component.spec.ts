@@ -18,7 +18,6 @@ import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { FiltersComponent } from './filters.component';
-import { NeonConfig } from '../../models/types';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -29,10 +28,8 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { FiltersModule } from './filters.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: Filters', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: FiltersComponent;
     let fixture: ComponentFixture<FiltersComponent>;
 
@@ -41,9 +38,7 @@ describe('Component: Filters', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
+            Injector
         ],
         imports: [
             FiltersModule

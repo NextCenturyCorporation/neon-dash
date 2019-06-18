@@ -66,8 +66,7 @@ describe('Component: DashboardSelector', () => {
 
     initializeTestBed('Dataset Selector', {
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
-            { provide: DashboardService, useClass: DashboardServiceMock }
+                        { provide: DashboardService, useClass: DashboardServiceMock }
 
         ],
         imports: [

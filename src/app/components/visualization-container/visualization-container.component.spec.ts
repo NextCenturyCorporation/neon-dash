@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { NeonConfig } from '../../models/types';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-import { ConfigService } from '../../services/config.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgModuleFactoryLoader } from '@angular/core';
 import { AboutNeonModule } from '../about-neon/about-neon.module';
@@ -26,15 +24,11 @@ import { AppLazyModule } from '../../app-lazy.module';
 import { AboutNeonComponent } from '../about-neon/about-neon.component';
 
 describe('Component: VisualizationContainer', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 
     initializeTestBed('Visualization Container', {
-        providers: [
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
-        ],
+        providers: [],
         imports: [
             AppLazyModule,
             VisualizationContainerModule,

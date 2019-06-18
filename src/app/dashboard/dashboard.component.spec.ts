@@ -60,7 +60,6 @@ describe('Dashboard', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useFactory: () => ConfigService.as(NeonConfig.get()) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
@@ -873,7 +872,6 @@ describe('Dashboard Custom', () => {
             RouterTestingModule
         ],
         providers: [
-            { provide: ConfigService, useFactory: () => ConfigService.as(null) },
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: EmptyDashboardServiceMock },
             FilterService,

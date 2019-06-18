@@ -50,8 +50,7 @@ describe('Service: DashboardService', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             FilterService,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ]
+                    ]
     });
 
     beforeEach(inject([DashboardService], (_dashboardService: DashboardService) => {

@@ -43,8 +43,7 @@ describe('Component: DataTable', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
-        ],
+                    ],
         imports: [
             DataTableModule
         ]
