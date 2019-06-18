@@ -44,7 +44,6 @@ import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
-import { ConfigService } from '../services/config.service';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -117,6 +116,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     // Use two messengers here because a single messager doesn't receive its own messages.
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
+
+    private currentState: DashboardState;
 
     /**
      * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
@@ -211,24 +212,30 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Fires whenever a dashboard state changes
      */
     private onDashboardStateChange(state: DashboardState) {
-        this.pendingInitialRegistrations = this.widgets.size;
+        // Clean on different dashboard
+        if (!this.currentState || this.currentState.dashboard.fullTitle !== state.dashboard.fullTitle) {
+            this.pendingInitialRegistrations = this.widgets.size;
 
-        this.gridState.clear();
-        this.widgets.clear();
-        this.changeDetection.detectChanges();
+            this.gridState.clear();
+            this.widgets.clear();
+            this.changeDetection.detectChanges();
 
-        const layout = this.dashboardService.config.layouts[state.getLayout()];
+            const layout = this.dashboardService.config.layouts[state.getLayout()];
 
-        const pairs = GridState.getAllGridItems(layout);
-        this.pendingInitialRegistrations = pairs.length;
+            const pairs = GridState.getAllGridItems(layout);
+            this.pendingInitialRegistrations = pairs.length;
 
-        for (const pair of pairs) {
-            this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
+            for (const pair of pairs) {
+                this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
+            }
+
+            this.simpleFilter.updateSimpleFilterConfig();
+            this.toggleDashboardSelectorDialog(false);
+            this.refreshDashboard();
+        } else {
+            this.messageSender.publish(neonEvents.DASHBOARD_REFRESH, {});
         }
-
-        this.simpleFilter.updateSimpleFilterConfig();
-        this.toggleDashboardSelectorDialog(false);
-        this.refreshDashboard();
+        this.currentState = state;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {
@@ -384,7 +391,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     onFiltersChanged() {
         this.router.navigate([], {
             queryParams: { filter: this.filterService.getFiltersToSaveInURL() },
-            relativeTo: this.router.routerState.root,
+            relativeTo: this.router.routerState.root
         });
     }
 

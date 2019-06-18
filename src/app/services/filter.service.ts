@@ -14,14 +14,16 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
+import {
+    NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData,
+    FilterConfig, SimpleFilterConfig, CompoundFilterConfig
+} from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
-import { DashboardUtil } from '../util/dashboard.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -288,44 +290,51 @@ export class FilterUtil {
             (filterDesign as SimpleFilterDesign).table !== undefined;
     }
 
-    static toSimpleFilterJSON(filters: FilterDesign[]): any[] {
+    static toPlainFilterJSON(filters: FilterDesign[]): any[] {
         let out: any[] = [];
         for (const filter of filters) {
             if (this.isCompoundFilterDesign(filter)) {
-                out.push([filter.type, this.toSimpleFilterQueryString(filter.filters)]);
+                out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
             } else if (this.isSimpleFilterDesign(filter)) {
-                out.push([`${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`, filter.operator, filter.value]);
+                out.push([
+                    `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
+                    filter.operator,
+                    filter.value,
+                    filter.root
+                ]);
             }
         }
         return out;
     }
 
-    static fromSimpleFilterJSON(simple: any[]): FilterConfig {
-        if (simple.length === 3 && typeof simple[2] === 'string') { // Simple filter
-            const [field, operator, value] = simple as string[];
-            return {
-                ...ConfigUtil.deconstructDottedReference(field),
-                operator,
-                value,
-            } as SimpleFilterConfig;
-        } else if (typeof simple[0] === 'string') { // Complex filter
-            const [operator, ...filters] = simple;
+    static fromFilterPlainJSON(simple: any[]): FilterConfig {
+        if (simple[0] === 'and' || simple[1] === 'or') { // Complex filter
+            const [operator, root, ...filters] = simple;
             return {
                 name: operator,
-                root: operator,
-                filters: filters.map((val) => this.fromSimpleFilterJSON(val))
+                type: operator,
+                root: root || 'or',
+                filters: filters.map((val) => this.fromFilterPlainJSON(val))
             } as CompoundFilterConfig;
-        }
-        return;
+        } // Simple filter
+        const [field, operator, value, root] = simple as string[];
+        return {
+            ...ConfigUtil.deconstructDottedReference(field),
+            operator,
+            value,
+            root: root || 'or'
+        } as SimpleFilterConfig;
     }
 
     static toSimpleFilterQueryString(filters: FilterDesign[]): string {
-        return ConfigUtil.translate(JSON.stringify(this.toSimpleFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+        return ConfigUtil.translate(JSON.stringify(this.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
     }
 
     static fromSimpleFilterQueryString(query: string): FilterConfig[] {
-        const arr = JSON.parse(ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap)) as any[];
-        return arr.map((val) => this.fromSimpleFilterJSON(val));
+        const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
+        const arr = JSON.parse(text) as any[];
+        const res = arr.map((val) => this.fromFilterPlainJSON(val));
+        return res;
     }
 }
 
@@ -700,7 +709,6 @@ export class FilterService {
         return FilterUtil.toSimpleFilterQueryString(this.getFilters());
     }
 
-
     /**
      * Returns all the filters to search on the given datastore/database/table (ignoring filters from the given data sources).
      *
@@ -893,8 +901,8 @@ export class FilterService {
             // Save the filter list and continue the loop.  We need an intermediary collection here because multiple filter designs from
             // compatibleFilterBehaviorList could have the same filterDataSourceList so saving filters directly into filterCollection would
             // overwrite compatible filter lists from previous filter designs.  Also, don't add the same filter to the list twice!
-            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, filter) =>
-                list.concat((list.indexOf(filter) < 0 ? filter : [])), compatibleCollection.getFilters(filterDataSourceList));
+            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, subFilter) =>
+                list.concat((list.indexOf(subFilter) < 0 ? subFilter : [])), compatibleCollection.getFilters(filterDataSourceList));
             compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
         }
 
