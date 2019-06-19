@@ -1,5 +1,3 @@
-import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-
 /**
  * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +12,8 @@ import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+
 export class ConfigUtil {
     static encodeFiltersMap = {
         '"': '’',
@@ -72,10 +72,10 @@ export class ConfigUtil {
         return data.replace(regex, (key) => keyMap[key]);
     }
 
-    static visitDashboards(dashboard: NeonDashboardConfig, handler: {
-        leaf?: (dash: NeonDashboardLeafConfig, path?: NeonDashboardChoiceConfig[]) => void,
-        choice?: (dash: NeonDashboardChoiceConfig, path?: NeonDashboardChoiceConfig[]) => void,
-    }, stack = [dashboard]) {
+    static visitDashboards<T>(dashboard: NeonDashboardConfig, handler: {
+        leaf?: (dash: NeonDashboardLeafConfig, path?: NeonDashboardChoiceConfig[]) => T;
+        choice?: (dash: NeonDashboardChoiceConfig, path?: NeonDashboardChoiceConfig[]) => T;
+    }, stack = [dashboard]): T | undefined {
         if ('choices' in dashboard && Object.keys(dashboard.choices).length > 0) {
             if (handler.choice) {
                 handler.choice(dashboard, stack);
@@ -91,6 +91,7 @@ export class ConfigUtil {
                 return handler.leaf(dashboard, stack);
             }
         }
+        return undefined;
     }
 
     static nameDashboards(dashboard: NeonDashboardConfig, prefix: string) {
@@ -116,15 +117,15 @@ export class ConfigUtil {
         });
     }
 
-    static findDashboardByKey(dashboard: NeonDashboardConfig, path: string[], i = 0): NeonDashboardLeafConfig | undefined {
+    static findDashboardByKey(dashboard: NeonDashboardConfig, path: string[], idx = 0): NeonDashboardLeafConfig | undefined {
         if (dashboard) {
-            if (path.length && (i === path.length)) {
+            if (path.length && (idx === path.length)) {
                 return dashboard as any;
             } else if ('choices' in dashboard) {
-                return this.findDashboardByKey(dashboard.choices[path[i]], path, i + 1);
+                return this.findDashboardByKey(dashboard.choices[path[idx]], path, idx + 1);
             }
         }
-        return;
+        return undefined;
     }
 
     static setAutoShowDashboard(dashboard: NeonDashboardConfig, auto: NeonDashboardLeafConfig) {
@@ -132,19 +133,20 @@ export class ConfigUtil {
             leaf: (dash) => {
                 dash.options.connectOnLoad = dash === auto;
             }
-        })
+        });
     }
 
     /**
      * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
      */
-    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardLeafConfig {
         return this.visitDashboards(dashboard, {
             leaf: (dash) => {
                 if (dash.options.connectOnLoad) {
                     return dash;
                 }
+                return undefined;
             }
-        })
+        });
     }
 }

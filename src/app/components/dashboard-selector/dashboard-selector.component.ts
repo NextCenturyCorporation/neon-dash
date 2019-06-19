@@ -109,9 +109,8 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
             return [];
         }
-        return;
+        return undefined;
     }
-
 
     /**
      * If selection change event bubbles up from dashboard-dropdown, this will set the
@@ -130,12 +129,13 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
      */
     public updateDashboardState(dashboard: NeonDashboardConfig) {
         if (dashboard && 'tables' in dashboard) {
+            this.dashboardChoice = dashboard;
             this.router.navigate([], {
                 queryParams: {
                     path: this.computeNamePath().join('.')
                 },
                 relativeTo: this.router.routerState.root
-            })
+            });
         }
     }
 

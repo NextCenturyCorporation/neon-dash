@@ -22,6 +22,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardSelectorModule } from './dashboard-selector.module';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { DashboardService } from '../../services/dashboard.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 let dashboards = NeonDashboardChoiceConfig.get({
     category: 'Choose an option',
@@ -59,16 +60,16 @@ let dashboards = NeonDashboardChoiceConfig.get({
     }
 });
 
-describe('Component: DashboardSelector', () => {
+describe('Component: Dashboard Selector', () => {
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 
-    initializeTestBed('Dataset Selector', {
+    initializeTestBed('Dashboard Selector', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock }
-
         ],
         imports: [
+            RouterTestingModule,
             DashboardSelectorModule
         ]
     });
@@ -95,9 +96,9 @@ describe('Component: DashboardSelector', () => {
     }));
 
     it('updateDashboardState() should call setActiveDashboard()', (() => {
-        let spy = spyOn(component['dashboardService'], 'setActiveDashboard');
+        let spy = spyOn(component['router'], 'navigate');
 
-        component.updateDashboardState(NeonDashboardChoiceConfig.get({ tables: {} }));
+        component.updateDashboardState(dashboards.choices.dash1);
         expect(spy.calls.count()).toEqual(1);
     }));
 
