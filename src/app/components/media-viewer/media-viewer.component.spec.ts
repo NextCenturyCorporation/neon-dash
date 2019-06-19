@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, MediaTypes } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, MediaTypes } from '../../models/types';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -29,7 +29,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -40,8 +39,7 @@ describe('Component: MediaViewer', () => {
             DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [
@@ -1171,7 +1169,6 @@ describe('Component: MediaViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'title', useValue: 'Test Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'idField', useValue: 'testIdField' },
