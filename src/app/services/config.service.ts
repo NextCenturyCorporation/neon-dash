@@ -144,16 +144,21 @@ export class ConfigService {
         const [, path] = urlObj.pathname.split(base);
         const params = urlObj.searchParams.get('filter');
         const dashboardPath = urlObj.searchParams.get('path');
+        const cleanPath = path.replace(/^[/]+/g, '');
 
-        from(path ? this.load(path) : throwError(null)).pipe(
-            catchError((err) => this.getDefault(environment.config).pipe(
-                tap((conf) => {
-                    conf.errors = [err ? err.message as string : err];
-                })
-            )),
-            map((config) => this.finalizeConfig(config, params, dashboardPath)),
-            map((config) => this.setActive(config))
-        ).subscribe();
+        setImmediate(() => {
+            from(cleanPath ? this.load(cleanPath) : throwError(null)).pipe(
+                catchError((err) => {
+                    return this.getDefault(environment.config).pipe(
+                        tap((conf) => {
+                            conf.errors = [err ? err.message as string : err];
+                        })
+                    );
+                }),
+                map((config) => this.finalizeConfig(config, params, dashboardPath)),
+                tap((config) => this.setActive(config))
+            ).subscribe();
+        });
 
         return this.getActive();
     }

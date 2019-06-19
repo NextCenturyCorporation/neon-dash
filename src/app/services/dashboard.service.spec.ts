@@ -635,7 +635,7 @@ describe('Service: DashboardService with Mock Data', () => {
         localConfigService.setActive(config);
     });
 
-    (fit as any)('exportConfig should produce valid results with string filter', (done) => {
+    it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
             [".databaseZ.tableA.field1","=","value1","or"],
             ["and", "and",
