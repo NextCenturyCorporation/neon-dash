@@ -15,7 +15,7 @@
 import { ConfigUtil } from './config.util';
 import { NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
-(fdescribe as any)('Config Util Tests', () => {
+describe('Config Util Tests', () => {
     it('findAutoShowDashboard does return expected object', () => {
         expect(ConfigUtil.findAutoShowDashboard(NeonDashboardLeafConfig.get())).toBeFalsy();
 
@@ -104,6 +104,65 @@ import { NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/ty
     });
 
     it('should name dashboards appropriately', () => {
+        const config = NeonDashboardChoiceConfig.get({
+            name: 'g',
+            choices: {
+                a: {
+                    choices: {
+                        c: {
 
+                        },
+                        d: {
+
+                        }
+                    }
+                },
+                b: {
+
+                }
+            }
+        });
+        ConfigUtil.nameDashboards(config, 'prefix');
+
+        expect(config.fullTitle).toBeFalsy();
+        expect(config.name).toEqual('g');
+
+        expect(config.choices.a.fullTitle).toBeFalsy();
+        expect(config.choices.a.name).toEqual('a');
+        expect((config.choices.a as NeonDashboardChoiceConfig).choices.c.fullTitle).toEqual('prefix / g / a / c');
+        expect((config.choices.a as NeonDashboardChoiceConfig).choices.c.name).toEqual('c');
+
+        expect(config.choices.b.fullTitle).toEqual('prefix / g / b');
+        expect(config.choices.b.name).toEqual('b');
+    });
+
+    it('should find dashboards by key', () => {
+        const config = NeonDashboardChoiceConfig.get({
+            name: 'g',
+            choices: {
+                a: {
+                    choices: {
+                        c: {
+                            choices: {
+                                e: {}
+                            }
+                        },
+                        d: {
+
+                        }
+                    }
+                },
+                b: {
+
+                }
+            }
+        });
+
+        expect(ConfigUtil.findDashboardByKey(config, 'a.c.e'.split('.')).name).toEqual('e');
+        expect(ConfigUtil.findDashboardByKey(config, 'a.c'.split('.')).name).toEqual('c');
+        expect(ConfigUtil.findDashboardByKey(config, 'a'.split('.')).name).toEqual('a');
+        expect(ConfigUtil.findDashboardByKey(config, 'f.g'.split('.'))).toBeUndefined();
+        expect(ConfigUtil.findDashboardByKey(config, ''.split('.'))).toBeUndefined();
+        expect(ConfigUtil.findDashboardByKey(config, [])).toEqual(config);
     });
 });
