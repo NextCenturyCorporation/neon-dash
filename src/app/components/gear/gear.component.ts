@@ -192,7 +192,6 @@ export class GearComponent implements OnInit, OnDestroy {
             if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
                 filterDataChange = true;
             }
-            // TODO THOR-1044 Validate number free text options
             this.originalOptions[option.bindingKey] = option.valueCurrent;
         });
 

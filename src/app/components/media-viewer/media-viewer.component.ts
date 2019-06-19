@@ -38,6 +38,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
@@ -265,7 +266,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'One Tab per Array',
                 variable: true
             }]),
-            new WidgetFreeTextOption('sliderValue', 'Slider Value', '0'),
+            new WidgetNumberOption('sliderValue', 'Slider Value', 0),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
             new WidgetFreeTextOption('url', 'URL', '')
         ];

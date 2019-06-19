@@ -65,6 +65,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
@@ -499,10 +500,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinX', 'Scale Min X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxX', 'Scale Max X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinY', 'Scale Min Y', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', null, this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList.bind(this)),
             new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
