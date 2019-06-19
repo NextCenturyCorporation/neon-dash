@@ -25,6 +25,7 @@ import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMoc
 
 import * as _ from 'lodash';
 import { FilterService } from './filter.service';
+import { ConfigUtil } from '../util/config.util';
 
 function extractNames(data: { [key: string]: any } | any[]) {
     if (Array.isArray(data)) {
@@ -562,6 +563,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 layout: 'testState',
                 name: 'dashName',
                 pathFromTop: ['a', 'b', 'c', 'd'],
+                filters,
                 tables: {
                     table_key_1: 'datastore1.databaseZ.tableA',
                     table_key_2: 'datastore2.databaseY.tableB'
@@ -571,6 +573,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     field_key_2: 'datastore2.databaseY.tableB.field2'
                 },
                 options: {
+                    connectOnLoad: true,
                     simpleFilter: {
                         databaseName: 'databaseZ',
                         tableName: 'tableA',
@@ -587,43 +590,43 @@ describe('Service: DashboardService with Mock Data', () => {
             new SearchServiceMock()
         );
 
-        localDashboardService.configSource.subscribe(() => {
-            localDashboardService.stateSource.subscribe(() => {
-                localDashboardService.gridState.tabs[0] = {
-                    name: 'testState',
-                    list: layouts.testState
-                };
+        localDashboardService.stateSource.subscribe(() => {
+            localDashboardService.gridState.tabs[0] = {
+                name: 'testState',
+                list: layouts.testState
+            };
 
-                const data = localDashboardService
-                    .exportToConfig('testState', filters) as NeonConfig & { dashboards: NeonDashboardLeafConfig };
-                expect(data.dashboards.fullTitle).toEqual('Full Title');
-                expect(data.dashboards.layout).toEqual('testState');
-                expect(data.dashboards.name).toEqual('testState');
-                expect(data.dashboards.tables).toEqual({
-                    table_key_1: 'datastore1.databaseZ.tableA',
-                    table_key_2: 'datastore2.databaseY.tableB'
-                });
-                expect(data.dashboards.fields).toEqual({
-                    field_key_1: 'datastore1.databaseZ.tableA.field1',
-                    field_key_2: 'datastore2.databaseY.tableB.field2'
-                });
-                expect(data.dashboards.options).toEqual({
-                    connectOnLoad: true,
-                    simpleFilter: {
-                        databaseName: 'databaseZ',
-                        tableName: 'tableA',
-                        fieldName: 'field1'
-                    }
-                });
-                expect(data.dashboards.pathFromTop).toBeUndefined();
-                expect(data.dashboards.filters).toEqual(filters);
-                expect(data.datastores).toEqual(config.datastores);
-                expect(data.layouts).toEqual(layouts);
-                expect(data.projectTitle).toEqual('testState');
-                done();
+            const data = localDashboardService
+                .exportToConfig('testState') as NeonConfig & { dashboards: NeonDashboardLeafConfig };
+            expect(data.dashboards.fullTitle).toEqual('Full Title');
+            expect(data.dashboards.layout).toEqual('testState');
+            expect(data.dashboards.name).toEqual('testState');
+            expect(data.dashboards.tables).toEqual({
+                table_key_1: 'datastore1.databaseZ.tableA',
+                table_key_2: 'datastore2.databaseY.tableB'
             });
+            expect(data.dashboards.fields).toEqual({
+                field_key_1: 'datastore1.databaseZ.tableA.field1',
+                field_key_2: 'datastore2.databaseY.tableB.field2'
+            });
+            expect(data.dashboards.options).toEqual({
+                connectOnLoad: true,
+                simpleFilter: {
+                    databaseName: 'databaseZ',
+                    tableName: 'tableA',
+                    fieldName: 'field1'
+                }
+            });
+            expect(data.dashboards.pathFromTop).toBeUndefined();
+            expect(data.dashboards.filters).toEqual(filters);
+            expect(data.datastores).toEqual(config.datastores);
+            expect(data.layouts).toEqual(layouts);
+            expect(data.projectTitle).toEqual('testState');
+            done();
+        });
 
-            localDashboardService.setActiveDashboard(config.dashboards as NeonDashboardLeafConfig);
+        localDashboardService.configSource.subscribe((conf) => {
+            localDashboardService.setActiveDashboard(ConfigUtil.findAutoShowDashboard(conf.dashboards));
         });
 
         configService.setActive(config);
