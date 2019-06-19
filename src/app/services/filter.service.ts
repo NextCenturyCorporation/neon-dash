@@ -306,14 +306,14 @@ export class FilterUtil {
         return out;
     }
 
-    static fromFilterPlainJSON(simple: any[]): FilterConfig {
+    static fromPlainFilterJSON(simple: any[]): FilterConfig {
         if (simple[0] === 'and' || simple[1] === 'or') { // Complex filter
             const [operator, root, ...filters] = simple;
             return {
                 name: operator,
                 type: operator,
                 root: root || 'or',
-                filters: filters.map((val) => this.fromFilterPlainJSON(val))
+                filters: filters.map((val) => this.fromPlainFilterJSON(val))
             } as CompoundFilterConfig;
         } // Simple filter
         const [field, operator, value, root] = simple as string[];
@@ -332,7 +332,7 @@ export class FilterUtil {
     static fromSimpleFilterQueryString(query: string): FilterConfig[] {
         const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
         const arr = JSON.parse(text) as any[];
-        const res = arr.map((val) => this.fromFilterPlainJSON(val));
+        const res = arr.map((val) => this.fromPlainFilterJSON(val));
         return res;
     }
 }

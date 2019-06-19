@@ -19,7 +19,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, NeonDashboardChoiceConfig, FilterConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, FilterConfig } from '../models/types';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
@@ -123,6 +123,16 @@ describe('Dashboard', () => {
         component.setPanel('settings', 'Settings');
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
+    });
+
+    it('should navigate on filters changed', () => {
+        let spyOnRouter = spyOn(component.router, 'navigate');
+        component.onFiltersChanged();
+        expect(spyOnRouter.calls.count()).toEqual(1);
+        const [path, params] = spyOnRouter.calls.argsFor(0);
+        expect(path).toEqual([]);
+        expect(params.queryParamsHandling).toEqual('merge');
+        expect(params.queryParams.filter).toBeTruthy();
     });
 
     it('toggle filters component', () => {

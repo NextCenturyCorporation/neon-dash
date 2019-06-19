@@ -183,7 +183,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             config.projectIcon || 'assets/favicon.blue.ico?v=1'
         );
 
-        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards) as NeonDashboardLeafConfig;
+        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
 
         if (dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
