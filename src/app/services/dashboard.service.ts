@@ -181,17 +181,11 @@ export class DashboardService {
             }, (error) => {
                 if (error.status === 404) {
                     console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
-                    let keys = (this.config.dashboards && 'choices' in this.config.dashboards) ?
-                        Object.keys(this.config.dashboards.choices) : [];
-
-                    Promise.all(
-                        DashboardUtil.deleteInvalidDashboards(
-                            'choices' in this.config.dashboards ? this.config.dashboards.choices : {}, keys, database.name
-                        )
-                    ).then(resolve, reject);
-                } else {
-                    resolve();
+                    DashboardUtil.deleteInvalidDashboards(
+                        'choices' in this.config.dashboards ? this.config.dashboards.choices : {}, database.name
+                    );
                 }
+                resolve();
             });
         });
     }
@@ -244,7 +238,6 @@ export class DashboardService {
             projectTitle: name
         });
         delete out.errors;
-        delete out.dashboards.pathFromTop;
 
         if ('options' in out.dashboards) {
             out.dashboards.options.connectOnLoad = true;
