@@ -206,22 +206,19 @@ export class FilterUtil {
      */
     static createFilterFromDesign(filterDesign: FilterDesign, searchService: AbstractSearchService): AbstractFilter {
         let filter: AbstractFilter = null;
-        let simpleFilterDesign: SimpleFilterDesign = this.isSimpleFilterDesign(filterDesign) ? (filterDesign) :
-            null;
-        let compoundFilterDesign: CompoundFilterDesign = this.isCompoundFilterDesign(filterDesign) ?
-            (filterDesign) : null;
-
         // TODO THOR-1078 Validate that datastore is non-empty.
-        if (simpleFilterDesign && simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
-            simpleFilterDesign.table.name && simpleFilterDesign.field && simpleFilterDesign.field.columnName &&
-            simpleFilterDesign.operator && typeof simpleFilterDesign.value !== 'undefined') {
-            // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
-            filter = new SimpleFilter('', simpleFilterDesign.database, simpleFilterDesign.table, simpleFilterDesign.field,
-                simpleFilterDesign.operator, simpleFilterDesign.value, searchService);
-        }
 
-        if (compoundFilterDesign && compoundFilterDesign.type && compoundFilterDesign.filters) {
-            filter = new CompoundFilter(compoundFilterDesign.type, compoundFilterDesign.filters.map((nestedDesign) =>
+        if (this.isSimpleFilterDesign(filterDesign)) {
+            if (filterDesign.database.name &&
+                filterDesign.table.name &&
+                filterDesign.field && filterDesign.field.columnName &&
+                filterDesign.operator && typeof filterDesign.value !== 'undefined') {
+                // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
+                filter = new SimpleFilter('', filterDesign.database, filterDesign.table, filterDesign.field,
+                    filterDesign.operator, filterDesign.value, searchService);
+            }
+        } else if (this.isCompoundFilterDesign(filterDesign)) {
+            filter = new CompoundFilter(filterDesign.type, filterDesign.filters.map((nestedDesign) =>
                 this.createFilterFromDesign(nestedDesign, searchService)), searchService);
         }
 
@@ -275,7 +272,8 @@ export class FilterUtil {
      * @return {filterDesign is CompoundFilterDesign}
      */
     static isCompoundFilterDesign(filterDesign: FilterDesign): filterDesign is CompoundFilterDesign {
-        return (filterDesign as CompoundFilterDesign).type !== undefined && (filterDesign as CompoundFilterDesign).filters !== undefined;
+        return (filterDesign as CompoundFilterDesign).type !== undefined &&
+            (filterDesign as CompoundFilterDesign).filters !== undefined;
     }
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
