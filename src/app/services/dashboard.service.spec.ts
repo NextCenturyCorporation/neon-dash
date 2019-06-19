@@ -22,6 +22,7 @@ import { initializeTestBed, getConfigService } from '../../testUtils/initializeT
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
+import { SearchService } from './search.service';
 
 import * as _ from 'lodash';
 import { FilterService } from './filter.service';
@@ -442,9 +443,9 @@ describe('Service: DashboardService with Mock Data', () => {
     it('exportConfig should produce valid results', (done) => {
         const filters: FilterConfig[] = [
             {
-                root: '',
+                root: 'or',
                 name: 'field1',
-                datastore: 'datastore1',
+                datastore: '',
                 database: 'databaseZ',
                 table: 'tableA',
                 field: 'field1',
@@ -452,14 +453,14 @@ describe('Service: DashboardService with Mock Data', () => {
                 value: 'value1'
             },
             {
-                root: '',
+                root: 'and',
                 name: 'combo',
                 type: 'and',
                 filters: [
                     {
-                        root: '',
+                        root: 'or',
                         name: 'field2',
-                        datastore: 'datastore1',
+                        datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -467,9 +468,9 @@ describe('Service: DashboardService with Mock Data', () => {
                         value: ''
                     },
                     {
-                        root: '',
+                        root: 'or',
                         name: 'field2b',
-                        datastore: 'datastore1',
+                        datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -512,6 +513,7 @@ describe('Service: DashboardService with Mock Data', () => {
         let config = NeonConfig.get({
             datastores: {
                 datastore1: {
+                    name: 'datastore1',
                     host: 'host1',
                     type: 'type1',
                     databases: {
@@ -519,20 +521,24 @@ describe('Service: DashboardService with Mock Data', () => {
                             prettyName: 'databaseZ',
                             tables: {
                                 tableA: {
-                                    prettyName: 'tableA'
+                                    prettyName: 'tableA',
+                                    fields: [
+                                        { columnName: 'field1', type: 'string', prettyName: 'Field1' }
+                                    ]
                                 }
                             }
-                        }
-                    }
-                },
-                datastore2: {
-                    host: 'host2',
-                    type: 'type2',
-                    databases: {
+                        },
                         databaseY: {
+                            name: 'databaseY',
                             prettyName: 'databaseY',
                             tables: {
-                                tableB: { prettyName: 'tableB' },
+                                tableB: {
+                                    name: 'tableB',
+                                    prettyName: 'tableB',
+                                    fields: [
+                                        { columnName: 'field2', type: 'string', prettyName: 'Field2' }
+                                    ]
+                                },
                                 tableC: { prettyName: 'tableC' }
                             }
                         },
@@ -540,18 +546,6 @@ describe('Service: DashboardService with Mock Data', () => {
                             prettyName: 'databaseX',
                             tables: {
                                 tableD: { prettyName: 'tableD' }
-                            }
-                        }
-                    }
-                },
-                datastore3: {
-                    host: 'host3',
-                    type: 'type3',
-                    databases: {
-                        databaseW: {
-                            prettyName: 'databaseW',
-                            tables: {
-                                tableE: { prettyName: 'tableE' }
                             }
                         }
                     }
@@ -566,16 +560,18 @@ describe('Service: DashboardService with Mock Data', () => {
                 filters,
                 tables: {
                     table_key_1: 'datastore1.databaseZ.tableA',
-                    table_key_2: 'datastore2.databaseY.tableB'
+                    table_key_2: 'datastore1.databaseY.tableB'
                 },
                 fields: {
                     field_key_1: 'datastore1.databaseZ.tableA.field1',
-                    field_key_2: 'datastore2.databaseY.tableB.field2'
+                    field_key_2: 'datastore1.databaseY.tableB.field2'
                 },
                 options: {
                     connectOnLoad: true,
                     simpleFilter: {
                         databaseName: 'databaseZ',
+                        tableKey: 'table_key_1',
+                        fieldKey: 'field_key_1',
                         tableName: 'tableA',
                         fieldName: 'field1'
                     }
@@ -583,11 +579,13 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         });
 
+        const conn = new MockConnectionService();
+        const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
-            configService,
-            new MockConnectionService(),
+            localConfigService,
+            conn,
             new FilterService(),
-            new SearchServiceMock()
+            new SearchService(conn)
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -603,21 +601,22 @@ describe('Service: DashboardService with Mock Data', () => {
             expect(data.dashboards.name).toEqual('testState');
             expect(data.dashboards.tables).toEqual({
                 table_key_1: 'datastore1.databaseZ.tableA',
-                table_key_2: 'datastore2.databaseY.tableB'
+                table_key_2: 'datastore1.databaseY.tableB'
             });
             expect(data.dashboards.fields).toEqual({
                 field_key_1: 'datastore1.databaseZ.tableA.field1',
-                field_key_2: 'datastore2.databaseY.tableB.field2'
+                field_key_2: 'datastore1.databaseY.tableB.field2'
             });
             expect(data.dashboards.options).toEqual({
                 connectOnLoad: true,
                 simpleFilter: {
+                    tableKey: 'table_key_1',
+                    fieldKey: 'field_key_1',
                     databaseName: 'databaseZ',
                     tableName: 'tableA',
                     fieldName: 'field1'
                 }
             });
-            expect(data.dashboards.pathFromTop).toBeUndefined();
             expect(data.dashboards.filters).toEqual(filters);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
@@ -626,9 +625,10 @@ describe('Service: DashboardService with Mock Data', () => {
         });
 
         localDashboardService.configSource.subscribe((conf) => {
-            localDashboardService.setActiveDashboard(ConfigUtil.findAutoShowDashboard(conf.dashboards));
+            const dash = ConfigUtil.findAutoShowDashboard(conf.dashboards);
+            localDashboardService.setActiveDashboard(dash);
         });
 
-        configService.setActive(config);
+        localConfigService.setActive(config);
     });
 });
