@@ -180,9 +180,9 @@ export class WidgetNumberOption extends WidgetOption {
                 const value = this.valueCurrent || this.valueDefault;
                 this._intermediateValue = _.isNumber(_.toNumber(value)) ? value : null;
             } catch {
-                // Consume Error
+                console.error('ERROR WidgetNumberOption: get intermediateValue() failed');
             }
-            this._intermediateValue = this._intermediateValue || null;
+            this._intermediateValue = this._intermediateValue;
         }
         return this._intermediateValue;
     }
@@ -190,9 +190,9 @@ export class WidgetNumberOption extends WidgetOption {
     set intermediateValue(value: any) {
         this._intermediateValue = value;
         try {
-            this.valueCurrent = _.isInteger(_.toNumber(value)) ? this._intermediateValue : 0;
+            this.valueCurrent = !_.isNaN(Number(value)) ? this._intermediateValue : null;
         } catch {
-            // Ignore
+            console.error('ERROR WidgetNumberOption: set intermediateValue() failed');
         }
     }
 

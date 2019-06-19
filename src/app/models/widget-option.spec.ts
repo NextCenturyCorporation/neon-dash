@@ -25,7 +25,8 @@ import {
     WidgetSelectOption,
     WidgetOptionCollection,
     WidgetTableOption,
-    WidgetNonPrimitiveOption
+    WidgetNonPrimitiveOption,
+    WidgetNumberOption
 } from './widget-option';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
@@ -525,5 +526,33 @@ describe('NonPrimitive Fields', () => {
         option.intermediateValue = 'null';
 
         expect(option.getValueToSaveInBindings()).toEqual({});
+    });
+});
+
+describe('Number Fields', () => {
+    it('Object initializes correctly', () => {
+        const optEmpty = new WidgetNumberOption('test', 'Test', 0, true);
+        expect(optEmpty.valueDefault).toEqual(0);
+        expect(optEmpty.intermediateValue).toEqual(0);
+        expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
+
+        const optNull = new WidgetNumberOption('test', 'Test', undefined, true);
+        expect(optNull.valueDefault).toEqual(undefined);
+        expect(optNull.intermediateValue).toEqual(undefined);
+        expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
+    });
+
+    it('Object updates properly', () => {
+        const opt = new WidgetNumberOption('test', 'Test', 0, true);
+        expect(opt.valueDefault).toEqual(0);
+        opt.intermediateValue = 7;
+        expect(opt.getValueToSaveInBindings()).toEqual(7);
+
+        // ValueCurrent is null because invalid input so therefore the value returned is the default
+        opt.intermediateValue = 'Hello World';
+        expect(opt.getValueToSaveInBindings()).toEqual(0);
+
+        opt.intermediateValue = undefined;
+        expect(opt.getValueToSaveInBindings()).toEqual(0);
     });
 });
