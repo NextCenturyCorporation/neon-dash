@@ -101,6 +101,8 @@ export class GearComponent implements OnInit, OnDestroy {
         let optionalList: WidgetOption[] = [];
         let requiredFieldList: WidgetOption[] = [];
         let optionalFieldList: WidgetOption[] = [];
+        let requiredNonFieldList: WidgetOption[] = [];
+        let optionalNonFieldList: WidgetOption[] = [];
 
         optionList.forEach((element) => {
             if (element.isRequired) {
@@ -113,21 +115,23 @@ export class GearComponent implements OnInit, OnDestroy {
         requiredList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 requiredFieldList.push(element);
-                requiredList.splice(requiredList.indexOf(element), 1);
+            } else {
+                requiredNonFieldList.push(element);
             }
         });
 
         optionalList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 optionalFieldList.push(element);
-                optionalList.splice(optionalList.indexOf(element), 1);
+            } else {
+                optionalNonFieldList.push(element);
             }
         });
 
         this.requiredList = requiredFieldList.map((option) => option.bindingKey);
-        this.requiredListNonField = requiredList.map((option) => option.bindingKey);
-        this.optionalList = optionalList.map((option) => option.bindingKey);
-        this.optionalListNonField = optionalFieldList.map((option) => option.bindingKey);
+        this.requiredListNonField = requiredNonFieldList.map((option) => option.bindingKey);
+        this.optionalList = optionalFieldList.map((option) => option.bindingKey);
+        this.optionalListNonField = optionalNonFieldList.map((option) => option.bindingKey);
     }
 
     /**
