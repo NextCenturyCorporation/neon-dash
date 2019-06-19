@@ -83,10 +83,10 @@ describe('Component: Aggregation', () => {
         expect(component.options.notFilterable).toEqual(false);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
-        expect(component.options.scaleMaxX).toEqual('');
-        expect(component.options.scaleMaxY).toEqual('');
-        expect(component.options.scaleMinX).toEqual('');
-        expect(component.options.scaleMinY).toEqual('');
+        expect(component.options.scaleMaxX).toEqual(null);
+        expect(component.options.scaleMaxY).toEqual(null);
+        expect(component.options.scaleMinX).toEqual(null);
+        expect(component.options.scaleMinY).toEqual(null);
         expect(component.options.showHeat).toEqual(false);
         expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
@@ -3794,10 +3794,10 @@ describe('Component: Aggregation', () => {
             notFilterable: false,
             requireAll: false,
             savePrevious: false,
-            scaleMaxX: '',
-            scaleMaxY: '',
-            scaleMinX: '',
-            scaleMinY: '',
+            scaleMaxX: null,
+            scaleMaxY: null,
+            scaleMinX: null,
+            scaleMinY: null,
             showHeat: false,
             showLegend: true,
             sortByAggregation: false,

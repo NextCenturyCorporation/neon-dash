@@ -36,7 +36,7 @@ import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
@@ -182,7 +182,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
-            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable.bind(this)),
+            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
