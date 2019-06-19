@@ -23,8 +23,6 @@ import { ConfigUtil } from '../util/config.util';
 export class DashboardState {
     modified = false;
 
-
-
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
         public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
@@ -79,14 +77,6 @@ export class DashboardState {
                 fieldName: ''
             };
         }
-    }
-
-    /**
-     * Returns the simple search field
-     */
-    public getSimpleFilterFieldName(): string {
-        this.createSimpleFilter();
-        return this.dashboard.options.simpleFilter.fieldName;
     }
 
     /**
