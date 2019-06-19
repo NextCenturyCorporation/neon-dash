@@ -428,7 +428,7 @@ describe('Util: DashboardUtil', () => {
         expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
-    it('validateDashboards should set category and fullTitle and pathFromTop properties in given dashboards', () => {
+    it('validateDashboards should set category and fullTitle properties in given dashboards', () => {
         // TODO THOR-692
     });
 

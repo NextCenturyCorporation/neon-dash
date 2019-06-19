@@ -556,7 +556,6 @@ describe('Service: DashboardService with Mock Data', () => {
                 fullTitle: 'Full Title',
                 layout: 'testState',
                 name: 'dashName',
-                pathFromTop: ['a', 'b', 'c', 'd'],
                 filters,
                 tables: {
                     table_key_1: 'datastore1.databaseZ.tableA',
