@@ -307,7 +307,7 @@ export class FilterUtil {
     }
 
     static fromPlainFilterJSON(simple: any[]): FilterConfig {
-        if (simple[0] === 'and' || simple[1] === 'or') { // Complex filter
+        if (simple[0] === 'and' || simple[0] === 'or') { // Complex filter
             const [operator, root, ...filters] = simple;
             return {
                 name: operator,
