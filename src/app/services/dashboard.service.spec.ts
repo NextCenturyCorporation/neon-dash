@@ -695,7 +695,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 },
                 {
                     root: 'and',
-                    name: 'combo',
+                    name: 'and',
                     type: 'and',
                     filters: [
                         {
