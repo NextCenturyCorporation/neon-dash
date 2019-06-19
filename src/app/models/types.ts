@@ -106,13 +106,9 @@ export class NeonDatabaseMetaData {
 }
 
 export interface NeonSimpleSearchFilter {
-    databaseName: string;
-    tableName: string;
-    fieldName: string;
     placeHolder?: string;
-    icon?: string;
-    tableKey?: string;
-    fieldKey?: string;
+    tableKey: string;
+    fieldKey: string;
 }
 
 export interface NeonDashboardOptions {

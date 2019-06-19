@@ -26,11 +26,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 let dashboards = NeonDashboardChoiceConfig.get({
     category: 'Choose an option',
-    pathFromTop: [],
     choices: {
         dash1: {
             fullTitle: 'Test Discovery Config',
-            pathFromTop: ['dash1'],
             layout: 'DISCOVERY',
             tables: {
                 tableKey: 'datastore1.database1.table1'
@@ -41,11 +39,9 @@ let dashboards = NeonDashboardChoiceConfig.get({
         },
         dash2: {
             fullTitle: 'Other Config',
-            pathFromTop: ['dash2'],
             category: 'Select an option...',
             choices: {
                 nextChoice: {
-                    pathFromTop: ['dash2', 'nextChoice'],
                     fullTitle: 'Last Config',
                     layout: 'layout3',
                     tables: {
@@ -100,6 +96,7 @@ describe('Component: Dashboard Selector', () => {
 
         component.updateDashboardState(dashboards.choices.dash1);
         expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual(['dash1'])
     }));
 
     it('selectDashboard() should set dashboardChoice if no more choices exists', (() => {
