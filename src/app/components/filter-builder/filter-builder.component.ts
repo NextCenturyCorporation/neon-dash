@@ -28,9 +28,6 @@ import {
     WidgetOptionCollection
 } from '../../models/widget-option';
 
-import { eventing } from 'neon-framework';
-import { neonEvents } from '../../models/neon-namespaces';
-
 @Component({
     selector: 'app-filter-builder',
     templateUrl: './filter-builder.component.html',
@@ -40,7 +37,6 @@ import { neonEvents } from '../../models/neon-namespaces';
 })
 
 export class FilterBuilderComponent {
-    protected messenger: eventing.Messenger;
     public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
@@ -63,8 +59,9 @@ export class FilterBuilderComponent {
         public filterService: FilterService,
         public searchService: AbstractSearchService
     ) {
-        this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+        this.dashboardService.stateSource.subscribe(() => {
+            this.clearEveryFilterClause();
+        });
 
         this.dashboardState = dashboardService.state;
 

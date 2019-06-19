@@ -22,12 +22,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class FiltersComponent {
     @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
-    public showFilterBuilderView: boolean = true; // If false, show current filters instead
 
     /**
      * Returns the default title.
-     *
-     * @return {string}
      */
     getDefaultTitle(): string {
         return 'Filters';

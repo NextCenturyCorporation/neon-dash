@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
 
@@ -32,8 +32,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { WikiViewerModule } from './wiki-viewer.module';
 
-import { ConfigService } from '../../services/config.service';
-
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
@@ -43,8 +41,7 @@ describe('Component: WikiViewer', () => {
             DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [
@@ -177,8 +174,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
             DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [
@@ -351,7 +347,6 @@ describe('Component: WikiViewer with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },

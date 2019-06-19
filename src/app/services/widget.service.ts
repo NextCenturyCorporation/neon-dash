@@ -16,8 +16,6 @@ import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
 import { Color, ColorSet } from '../models/color';
 import { DashboardService } from './dashboard.service';
-import { neonEvents } from '../models/neon-namespaces';
-import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
 
 /**
@@ -48,14 +46,13 @@ export class WidgetService extends AbstractWidgetService {
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
-    private messenger: eventing.Messenger;
 
     public readonly dashboardState: DashboardState;
 
     constructor(dashboardService: DashboardService) {
         super();
-        this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
+        dashboardService.stateSource.subscribe(() => this.resetColorMap());
+
         document.body.className = this.currentThemeId;
         this.dashboardState = dashboardService.state;
     }

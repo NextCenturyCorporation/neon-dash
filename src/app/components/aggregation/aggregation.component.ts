@@ -178,6 +178,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
+    private viewInitialized = false;
+    private pendingFilters: FilterDesign[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: FilterService,
@@ -220,6 +223,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.xField.prettyName :
                     this.options.aggregation || this.options.yField.prettyName;
+        }
+    }
+
+    ngAfterViewInit() {
+        super.ngAfterViewInit();
+        this.viewInitialized = true;
+        if (this.pendingFilters && this.pendingFilters.length) {
+            this.redrawFilteredItems(this.pendingFilters);
+            delete this.pendingFilters;
         }
     }
 
@@ -1163,6 +1175,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
+        if (!this.subcomponentMain && !this.viewInitialized) {
+            this.pendingFilters = filterDesigns;
+        }
         if (this.subcomponentMain) {
             // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
             this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {

@@ -47,7 +47,7 @@ import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { initializeTestBed, getConfigService } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
 import { MatDialog, MatDialogModule } from '@angular/material';
 import { of } from 'rxjs';
@@ -193,7 +193,7 @@ describe('BaseNeonComponent', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
+            { provide: ConfigService, useValue: getConfigService(testConfig) },
             { provide: 'testDate', useValue: 'testDateField' },
             { provide: 'testFake', useValue: 'testFakeField' },
             { provide: 'testList', useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'] },
@@ -1925,7 +1925,7 @@ describe('Advanced BaseNeonComponent with config', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    let dashboardService = new DashboardServiceMock(ConfigService.as(testConfig));
+    let dashboardService = new DashboardServiceMock(getConfigService(testConfig));
     dashboardService.state.dashboard.contributors = {
         organization1: {
             orgName: 'Organization 1',
@@ -1957,7 +1957,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
+            { provide: ConfigService, useValue: getConfigService(testConfig) },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'contributionKeys', useValue: ['organization1', 'organization2'] },
             {
