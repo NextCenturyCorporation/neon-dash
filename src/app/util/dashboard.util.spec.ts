@@ -439,26 +439,4 @@ describe('Util: DashboardUtil', () => {
     it('validateDashboards should delete choices with no layout or tables from given dashboards', () => {
         // TODO THOR-692
     });
-
-    it('validateDashboards should add root dashboard if needed to given dashboards', () => {
-        let argument = NeonDashboardLeafConfig.get({
-            layout: 'layout1',
-            name: 'dashboard1',
-            fullTitle: 'dashboard1',
-            pathFromTop: ['dashboard1'],
-            tables: {
-                key1: 'datastore1.database1.table1'
-            }
-        });
-
-        let expected = NeonDashboardChoiceConfig.get({
-            category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
-            choices: {
-                dashboard1: argument
-            }
-        });
-
-        let actual = DashboardUtil.validateDashboards(argument);
-        expect(actual).toEqual(expected);
-    });
 });
