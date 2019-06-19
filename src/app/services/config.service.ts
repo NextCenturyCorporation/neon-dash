@@ -83,7 +83,6 @@ export class ConfigService {
             .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-
     private finalizeConfig(configInput: NeonConfig, filters: string, dashboardPath: string) {
         let config = configInput;
 
@@ -105,7 +104,7 @@ export class ConfigService {
         // If dashboard path is provided, find the dashboard to activate
         if (dashboardPath) {
             const parts = dashboardPath.split('.').filter((key) => !!key);
-            const active = ConfigUtil.findDashboardByKey(config.dashboards, parts);
+            const active = ConfigUtil.findDashboardByKey(config.dashboards, parts) as NeonDashboardLeafConfig;
 
             // If found
             if (active) {

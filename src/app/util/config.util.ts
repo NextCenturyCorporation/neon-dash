@@ -98,7 +98,7 @@ export class ConfigUtil {
         this.visitDashboards(dashboard, {
             leaf: (dash, choices) => {
                 const name = [
-                    { name: prefix }, ...choices, dash
+                    { name: prefix }, ...choices
                 ]
                     .filter((ds) => !!ds.name)
                     .map((ds) => ds.name)
@@ -117,9 +117,9 @@ export class ConfigUtil {
         });
     }
 
-    static findDashboardByKey(dashboard: NeonDashboardConfig, path: string[], idx = 0): NeonDashboardLeafConfig | undefined {
+    static findDashboardByKey(dashboard: NeonDashboardConfig, path: string[], idx = 0): NeonDashboardConfig | undefined {
         if (dashboard) {
-            if (path.length && (idx === path.length)) {
+            if ((path.length || idx === 0) && (idx === path.length)) {
                 return dashboard as any;
             } else if ('choices' in dashboard) {
                 return this.findDashboardByKey(dashboard.choices[path[idx]], path, idx + 1);
