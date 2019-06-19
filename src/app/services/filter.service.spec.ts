@@ -25,8 +25,7 @@ import {
     FilterDataSource,
     FilterService,
     FilterUtil,
-    SimpleFilterDesign,
-    SimpleFilter
+    SimpleFilterDesign
 } from './filter.service';
 
 import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/types';
@@ -38,7 +37,7 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { filter } from 'minimatch';
 import { ConfigUtil } from '../util/config.util';
 
-(fdescribe as any)('FilterUtil', () => {
+describe('FilterUtil', () => {
     beforeAll(() => {
         /* eslint-disable no-console */
         console.log('STARTING FILTER UTIL TESTS...');

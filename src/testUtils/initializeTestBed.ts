@@ -1,5 +1,8 @@
-/*
- * Copyright 2017 Next Century Corporation
+/// <reference types="jasmine" /> 
+
+/* eslint-disable header/header */
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,10 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-///<reference path="../../node_modules/@types/jasmine/index.d.ts"/>
-import { async, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../app/models/types';
 import { ConfigService } from '../app/services/config.service';
@@ -23,12 +24,9 @@ export function getConfigService(config?: NeonConfig) {
     const svc = new ConfigService(null, null);
     if (config || config === undefined) {
         svc.setActive(config || NeonConfig.get({}));
-    } else {
-        svc['initSource'](); // TODO Remove when merged 
     }
     return svc;
 }
-
 
 export const initializeTestBed = (name, config: Parameters<TestBed['configureTestingModule']>[0], all = true) => {
     config.providers = config.providers || [];
