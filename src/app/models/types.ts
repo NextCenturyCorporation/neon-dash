@@ -152,7 +152,6 @@ export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()
-    pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
     name?: string;
 }
 
@@ -178,7 +177,6 @@ export class NeonDashboardLeafConfig {
             visualizationTitles: {},
             contributors: {},
             fullTitle: '',
-            pathFromTop: [],
             ...dash
         } as NeonDashboardLeafConfig;
     }
@@ -193,7 +191,6 @@ export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
             fullTitle: '',
-            pathFromTop: [],
             ...dash,
             choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
         } as NeonDashboardChoiceConfig;
