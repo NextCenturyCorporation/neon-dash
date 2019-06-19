@@ -19,7 +19,7 @@ import * as yaml from 'js-yaml';
 import { environment } from '../../environments/environment';
 
 import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
-import { map, catchError, switchMap, take, shareReplay, tap, publishReplay } from 'rxjs/operators';
+import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
@@ -34,6 +34,7 @@ export class ConfigService {
 
     private $default: Observable<NeonConfig>;
 
+    // eslint-disable-next-line no-invalid-this
     $source = this.source.asObservable()
         .pipe(
             map((data) => JSON.parse(JSON.stringify(data))), // Clone and clean
@@ -146,19 +147,17 @@ export class ConfigService {
         const dashboardPath = urlObj.searchParams.get('path');
         const cleanPath = path.replace(/^[/]+/g, '');
 
-        setImmediate(() => {
+        setTimeout(() => {
             from(cleanPath ? this.load(cleanPath) : throwError(null)).pipe(
-                catchError((err) => {
-                    return this.getDefault(environment.config).pipe(
-                        tap((conf) => {
-                            conf.errors = [err ? err.message as string : err];
-                        })
-                    );
-                }),
+                catchError((err) => this.getDefault(environment.config).pipe(
+                    tap((conf) => {
+                        conf.errors = [err ? err.message as string : err];
+                    })
+                )),
                 map((config) => this.finalizeConfig(config, params, dashboardPath)),
                 tap((config) => this.setActive(config))
             ).subscribe();
-        });
+        }, 1);
 
         return this.getActive();
     }

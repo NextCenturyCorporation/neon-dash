@@ -34,7 +34,6 @@ import { neonEvents } from '../models/neon-namespaces';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { filter } from 'minimatch';
 import { ConfigUtil } from '../util/config.util';
 
 describe('FilterUtil', () => {
@@ -624,46 +623,6 @@ describe('FilterUtil', () => {
             ConfigUtil.encodeFiltersMap
         );
 
-        const filters = [
-            {
-                root: 'or',
-                name: 'databaseZ / tableA / Field1 = value1',
-                datastore: '',
-                database: 'databaseZ',
-                table: 'tableA',
-                field: 'field1',
-                operator: '=',
-                value: 'value1'
-            },
-            {
-                root: 'and',
-                name: 'and',
-                type: 'and',
-                filters: [
-                    {
-                        root: 'or',
-                        name: 'databaseY / tableB / Field2 != ',
-                        datastore: '',
-                        database: 'databaseY',
-                        table: 'tableB',
-                        field: 'field2',
-                        operator: '!=',
-                        value: ''
-                    },
-                    {
-                        root: 'or',
-                        name: 'databaseY / tableB / Field2 != null',
-                        datastore: '',
-                        database: 'databaseY',
-                        table: 'tableB',
-                        field: 'field2',
-                        operator: '!=',
-                        value: null
-                    }
-                ]
-            }
-        ];
-
         const filtersSimple = [
             {
                 root: 'or',
@@ -740,14 +699,14 @@ describe('FilterUtil', () => {
                 ]
             } as CompoundFilterDesign
 
-        ]
+        ];
 
         const expected = [
             ['.databaseZ.tableA.field1', '=', 'value1', 'or'],
-            ['and', 'and',
+            ['and',
+                'and',
                 ['.databaseY.tableB.field2', '!=', '', 'or'],
-                ['.databaseY.tableB.field2', '!=', null, 'or']
-            ]
+                ['.databaseY.tableB.field2', '!=', null, 'or']]
         ];
 
         const empty = ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap);

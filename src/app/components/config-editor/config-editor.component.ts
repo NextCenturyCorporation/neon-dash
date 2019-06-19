@@ -72,13 +72,13 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
             },
-                (err) => {
-                    this.snackBar.open('Error attempting to save configuration', 'OK', {
-                        duration: this.DEFAULT_SNACK_BAR_DURATION
-                    });
-                    console.warn('Error attempting to save configuration:');
-                    console.warn(err);
+            (err) => {
+                this.snackBar.open('Error attempting to save configuration', 'OK', {
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
+                console.warn('Error attempting to save configuration:');
+                console.warn(err);
+            });
     }
 
     public reset() {
