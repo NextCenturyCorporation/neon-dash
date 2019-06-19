@@ -91,12 +91,14 @@ describe('Component: Dashboard Selector', () => {
         expect(choices.find((ch) => ch.name === 'dash2').fullTitle).toEqual('Other Config');
     }));
 
-    it('updateDashboardState() should call setActiveDashboard()', (() => {
+    it('updateDashboardState() should navigate to dashboard name', (() => {
         let spy = spyOn(component['router'], 'navigate');
 
         component.updateDashboardState(dashboards.choices.dash1);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['dash1'])
+        const [path, params] = spy.calls.argsFor(0);
+        expect(path).toEqual([]);
+        expect(params.queryParams).toEqual({ path: 'dash1' });
     }));
 
     it('selectDashboard() should set dashboardChoice if no more choices exists', (() => {

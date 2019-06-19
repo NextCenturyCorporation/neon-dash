@@ -109,6 +109,11 @@ export interface NeonSimpleSearchFilter {
     placeHolder?: string;
     tableKey: string;
     fieldKey: string;
+
+    // Used at runtime
+    tableName?: string;
+    databaseName?: string;
+    fieldName?: string;
 }
 
 export interface NeonDashboardOptions {

@@ -440,47 +440,7 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(dashboardService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
 
-    it('exportConfig should produce valid results', (done) => {
-        const filters: FilterConfig[] = [
-            {
-                root: 'or',
-                name: 'field1',
-                datastore: '',
-                database: 'databaseZ',
-                table: 'tableA',
-                field: 'field1',
-                operator: '=',
-                value: 'value1'
-            },
-            {
-                root: 'and',
-                name: 'combo',
-                type: 'and',
-                filters: [
-                    {
-                        root: 'or',
-                        name: 'field2',
-                        datastore: '',
-                        database: 'databaseY',
-                        table: 'tableB',
-                        field: 'field2',
-                        operator: '!=',
-                        value: ''
-                    },
-                    {
-                        root: 'or',
-                        name: 'field2b',
-                        datastore: '',
-                        database: 'databaseY',
-                        table: 'tableB',
-                        field: 'field2',
-                        operator: '!=',
-                        value: null
-                    }
-                ]
-            }
-        ];
-
+    function getConfig(filters: string | FilterConfig[]) {
         const layouts = {
             testState: [
                 {
@@ -578,6 +538,50 @@ describe('Service: DashboardService with Mock Data', () => {
             }
         });
 
+        return { config, filters, layouts };
+    }
+
+    it('exportConfig should produce valid results', (done) => {
+        const { config, layouts, filters } = getConfig([
+            {
+                root: 'or',
+                name: 'field1',
+                datastore: '',
+                database: 'databaseZ',
+                table: 'tableA',
+                field: 'field1',
+                operator: '=',
+                value: 'value1'
+            },
+            {
+                root: 'and',
+                name: 'combo',
+                type: 'and',
+                filters: [
+                    {
+                        root: 'or',
+                        name: 'field2',
+                        datastore: '',
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: ''
+                    },
+                    {
+                        root: 'or',
+                        name: 'field2b',
+                        datastore: '',
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: null
+                    }
+                ]
+            }
+        ]);
+
         const conn = new MockConnectionService();
         const localConfigService = getConfigService();
         const localDashboardService = new DashboardService(
@@ -617,6 +621,106 @@ describe('Service: DashboardService with Mock Data', () => {
                 }
             });
             expect(data.dashboards.filters).toEqual(filters);
+            expect(data.datastores).toEqual(config.datastores);
+            expect(data.layouts).toEqual(layouts);
+            expect(data.projectTitle).toEqual('testState');
+            done();
+        });
+
+        localDashboardService.configSource.subscribe((conf) => {
+            const dash = ConfigUtil.findAutoShowDashboard(conf.dashboards);
+            localDashboardService.setActiveDashboard(dash);
+        });
+
+        localConfigService.setActive(config);
+    });
+
+    (fit as any)('exportConfig should produce valid results with string filter', (done) => {
+        const { config, layouts, filters } = getConfig(`[
+            [".databaseZ.tableA.field1","=","value1","or"],
+            ["and", "and",
+                [".databaseY.tableB.field2", "!=", "", "or"],
+                [".databaseY.tableB.field2", "!=", null, "or"]
+            ]
+        ]`);
+
+        const conn = new MockConnectionService();
+        const localConfigService = getConfigService();
+        const localDashboardService = new DashboardService(
+            localConfigService,
+            conn,
+            new FilterService(),
+            new SearchService(conn)
+        );
+
+        localDashboardService.stateSource.subscribe(() => {
+            localDashboardService.gridState.tabs[0] = {
+                name: 'testState',
+                list: layouts.testState
+            };
+
+            const data = localDashboardService
+                .exportToConfig('testState') as NeonConfig & { dashboards: NeonDashboardLeafConfig };
+            expect(data.dashboards.fullTitle).toEqual('Full Title');
+            expect(data.dashboards.layout).toEqual('testState');
+            expect(data.dashboards.name).toEqual('testState');
+            expect(data.dashboards.tables).toEqual({
+                table_key_1: 'datastore1.databaseZ.tableA',
+                table_key_2: 'datastore1.databaseY.tableB'
+            });
+            expect(data.dashboards.fields).toEqual({
+                field_key_1: 'datastore1.databaseZ.tableA.field1',
+                field_key_2: 'datastore1.databaseY.tableB.field2'
+            });
+            expect(data.dashboards.options).toEqual({
+                connectOnLoad: true,
+                simpleFilter: {
+                    tableKey: 'table_key_1',
+                    fieldKey: 'field_key_1',
+                    databaseName: 'databaseZ',
+                    tableName: 'tableA',
+                    fieldName: 'field1'
+                }
+            });
+            expect(data.dashboards.filters).toEqual([
+                {
+                    root: 'or',
+                    name: 'databaseZ / tableA / Field1 = value1',
+                    datastore: '',
+                    database: 'databaseZ',
+                    table: 'tableA',
+                    field: 'field1',
+                    operator: '=',
+                    value: 'value1'
+                },
+                {
+                    root: 'and',
+                    name: 'combo',
+                    type: 'and',
+                    filters: [
+                        {
+                            root: 'or',
+                            name: 'databaseY / tableB / Field2 != ',
+                            datastore: '',
+                            database: 'databaseY',
+                            table: 'tableB',
+                            field: 'field2',
+                            operator: '!=',
+                            value: ''
+                        },
+                        {
+                            root: 'or',
+                            name: 'databaseY / tableB / Field2 != null',
+                            datastore: '',
+                            database: 'databaseY',
+                            table: 'tableB',
+                            field: 'field2',
+                            operator: '!=',
+                            value: null
+                        }
+                    ]
+                }
+            ]);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
             expect(data.projectTitle).toEqual('testState');

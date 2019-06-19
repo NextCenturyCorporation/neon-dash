@@ -72,6 +72,8 @@ export class DashboardState {
             const { database, table } = this.deconstructTableName(tableKey);
 
             this.dashboard.options.simpleFilter = {
+                fieldKey: '',
+                tableKey: '',
                 databaseName: database,
                 tableName: table,
                 fieldName: ''
