@@ -43,9 +43,9 @@ export class ConfigUtil {
     static deconstructDottedReference(name: string) {
         const [datastore, database, table, ...field] = (name || '').split('.');
         return {
-            datastore,
-            database,
-            table,
+            datastore: datastore || '',
+            database: database || '',
+            table: table || '',
             field: field.join('.')
         };
     }
@@ -59,7 +59,7 @@ export class ConfigUtil {
         const regex = new RegExp(
             Object
                 .keys(keyMap)
-                .map((key) => key.replace(/[[\]+*()]/g, (match) => `\\${match}`))
+                .map((key) => key.replace(/[[\]+*()^.$]/g, (match) => `\\${match}`))
                 .sort((key1, key2) => key2.length - key1.length)
                 .map((key) => `(${key})`)
                 .join('|'), 'g'
