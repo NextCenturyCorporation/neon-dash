@@ -56,8 +56,8 @@ export class WidgetService extends AbstractWidgetService {
             .pipe(
                 distinctUntilKeyChanged('id')
             )
-            .subscribe((state) => {
-                this.resetColorMap()
+            .subscribe(() => {
+                this.resetColorMap();
             });
 
         document.body.className = this.currentThemeId;

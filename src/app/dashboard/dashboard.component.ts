@@ -34,7 +34,7 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../models/neon-grid-item';
-import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonConfig } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
@@ -198,7 +198,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private onDashboardStateChange(state: DashboardState) {
         // Clean on different dashboard
         if (this.currentTitle !== state.dashboard.fullTitle) {
-            console.log('Full dashboard reload');
             this.pendingInitialRegistrations = this.widgets.size;
 
             this.gridState.clear();
@@ -218,7 +217,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.toggleDashboardSelectorDialog(false);
             this.refreshDashboard();
         } else {
-            console.log('Partial dashboard reload on filters');
             this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
         }
 
