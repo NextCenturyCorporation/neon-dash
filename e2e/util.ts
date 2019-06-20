@@ -13,19 +13,32 @@
  * limitations under the License.
  */
 import './types';
-import { element, by } from 'protractor';
+import { $$, $ } from 'protractor';
 import { By } from 'selenium-webdriver';
 
 // eslint-disable-next-line no-extend-native
 Object.defineProperties(By.prototype, {
-    asElement: {
+    first: {
         get: function(this: By) {
-            return element(by.css(this['value']));
+            return $(this['value']);
+        }
+    },
+    all: {
+        get: function(this: By) {
+            return $$(this['value']);
         }
     },
     asText: {
         get: function(this: By) {
-            return this.asElement.getText();
+            return this.first.getText();
+        }
+    },
+    nest: {
+        get: function() {
+            return function(this: By, value: string) {
+                // eslint-disable-next-line no-invalid-this
+                return By.css(`${this['value']} ${value}`);
+            };
         }
     }
 });
