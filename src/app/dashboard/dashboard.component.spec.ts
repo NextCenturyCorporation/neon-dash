@@ -19,7 +19,7 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, FilterConfig } from '../models/types';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
@@ -123,6 +123,16 @@ describe('Dashboard', () => {
         component.setPanel('settings', 'Settings');
         expect(component.currentPanel).toEqual('settings');
         expect(component.rightPanelTitle).toEqual('Settings');
+    });
+
+    it('should navigate on filters changed', () => {
+        let spyOnRouter = spyOn(component.router, 'navigate');
+        component.onFiltersChanged();
+        expect(spyOnRouter.calls.count()).toEqual(1);
+        const [path, params] = spyOnRouter.calls.argsFor(0);
+        expect(path).toEqual([]);
+        expect(params.queryParamsHandling).toEqual('merge');
+        expect(params.queryParams.filter).toBeTruthy();
     });
 
     it('toggle filters component', () => {
@@ -648,41 +658,6 @@ describe('Dashboard', () => {
         });
     });
 
-    it('findAutoShowDashboard does return expected object', () => {
-        expect(DashboardComponent.findAutoShowDashboard(NeonDashboardLeafConfig.get())).toBeFalsy();
-
-        let noShowDashboard = NeonDashboardLeafConfig.get();
-
-        expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
-
-        noShowDashboard.options = {
-            connectOnLoad: false
-        };
-
-        expect(DashboardComponent.findAutoShowDashboard(noShowDashboard)).toBeFalsy();
-
-        let showDashboard = NeonDashboardLeafConfig.get({
-            name: 'show',
-            options: {
-                connectOnLoad: true
-            }
-        });
-
-        expect(DashboardComponent.findAutoShowDashboard(showDashboard)).toEqual(showDashboard);
-
-        let parentDashboard = NeonDashboardChoiceConfig.get({
-            choices: {
-                show: showDashboard
-            }
-        });
-
-        expect(DashboardComponent.findAutoShowDashboard(parentDashboard)).toEqual(showDashboard);
-
-        parentDashboard.choices.noShow = noShowDashboard;
-
-        expect(DashboardComponent.findAutoShowDashboard(parentDashboard)).toEqual(showDashboard);
-    });
-
     it('getMaxColInUse does return expected number', () => {
         expect(component.gridState.getMaxColInUse()).toEqual(0);
 
@@ -919,9 +894,9 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
+        const filters: FilterConfig[] = [
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({
@@ -1002,9 +977,9 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-' }
+        const filters: FilterConfig[] = [
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({

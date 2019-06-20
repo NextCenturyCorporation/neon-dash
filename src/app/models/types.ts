@@ -106,13 +106,14 @@ export class NeonDatabaseMetaData {
 }
 
 export interface NeonSimpleSearchFilter {
-    databaseName: string;
-    tableName: string;
-    fieldName: string;
     placeHolder?: string;
-    icon?: string;
-    tableKey?: string;
-    fieldKey?: string;
+    tableKey: string;
+    fieldKey: string;
+
+    // Used at runtime
+    tableName?: string;
+    databaseName?: string;
+    fieldName?: string;
 }
 
 export interface NeonDashboardOptions {
@@ -152,7 +153,6 @@ export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()
-    pathFromTop?: string[]; // Added to dashboard in validateDashboards() - contains keys
     name?: string;
 }
 
@@ -160,7 +160,7 @@ export interface NeonDashboardLeafConfig extends NeonDashboardBaseConfig {
     layout: string;
     tables: Record<string, string>;
     fields: Record<string, string>;
-    filters: FilterConfig[];
+    filters: FilterConfig[] | string;
     visualizationTitles: Record<string, string>;
     options: NeonDashboardOptions;
     relations: (string | string[])[][];
@@ -178,7 +178,6 @@ export class NeonDashboardLeafConfig {
             visualizationTitles: {},
             contributors: {},
             fullTitle: '',
-            pathFromTop: [],
             ...dash
         } as NeonDashboardLeafConfig;
     }
@@ -193,7 +192,6 @@ export class NeonDashboardChoiceConfig {
     static get(dash: DeepPartial<NeonDashboardChoiceConfig> = {}): NeonDashboardChoiceConfig {
         return {
             fullTitle: '',
-            pathFromTop: [],
             ...dash,
             choices: translateValues(dash.choices || {}, NeonDashboardUtil.get.bind(null), true)
         } as NeonDashboardChoiceConfig;
