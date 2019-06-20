@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, LocationStrategy, PathLocationStrategy, Location } from '@angular/common';
 
 import { NgGridModule } from 'angular2-grid';
 
@@ -34,6 +34,10 @@ import { RouterModule } from '@angular/router';
 @NgModule({
     declarations: [DashboardComponent, AbbreviatePipe],
     exports: [DashboardComponent],
+    providers: [
+        Location,
+        { provide: LocationStrategy, useClass: PathLocationStrategy }
+    ],
     imports: [
         RouterModule.forRoot([{ path: '**', component: DashboardComponent }]),
         CommonWidgetModule,
