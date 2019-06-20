@@ -37,17 +37,18 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption,
     WidgetColorOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -335,7 +336,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
             new WidgetColorOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('edgeWidth', 'Edge Width', '1'),
+            new WidgetNumberOption('edgeWidth', 'Edge Width', 1),
             new WidgetColorOption('fontColor', 'Font Color', '#343434', this.optionsNotReified.bind(this)),
             new WidgetColorOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified.bind(this)),
             new WidgetColorOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified.bind(this)),

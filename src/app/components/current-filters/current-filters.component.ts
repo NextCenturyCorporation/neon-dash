@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
 import { FilterDesign, FilterService, AbstractFilter, SimpleFilter, CompoundFilter } from '../../services/filter.service';
@@ -21,6 +21,7 @@ import { FilterDesign, FilterService, AbstractFilter, SimpleFilter, CompoundFilt
 import * as moment from 'moment';
 
 import { eventing } from 'neon-framework';
+import { DashboardService } from '../../services/dashboard.service';
 
 interface FilterDisplay {
     full: FilterDesign;
@@ -129,7 +130,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public groups: FilterGroup[] = [];
 
-    constructor(public filterService: FilterService) {
+    constructor(public filterService: FilterService, public dashboardService: DashboardService) {
         this.messenger = new eventing.Messenger();
     }
 
@@ -140,9 +141,9 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // TODO Do we really need to subscribe to all of these channels?
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateFilters.bind(this));
+        this.dashboardService.stateSource.subscribe(() => this.updateFilters());
+        this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, this.updateFilters.bind(this));
         this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.updateFilters.bind(this));
-        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.updateFilters.bind(this));
         this.updateFilters();
     }
 

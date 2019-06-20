@@ -14,12 +14,12 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../model/types';
-import { neonEvents } from '../model/neon-namespaces';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../models/types';
+import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../model/dashboard-state';
+import { DashboardState } from '../models/dashboard-state';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -738,14 +738,14 @@ export class FilterService {
      */
     public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dashboardState: DashboardState, searchService: AbstractSearchService) {
         let collection: FilterCollection = new FilterCollection();
-        filtersFromConfig.forEach((filterFromConfig) => {
-            let filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
+        for (const filterFromConfig of filtersFromConfig) {
+            const filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
             if (filterDesign) {
-                let filterDataSourceList: FilterDataSource[] = collection.findFilterDataSources(filterDesign);
-                let filter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
+                const filterDataSourceList = collection.findFilterDataSources(filterDesign);
+                const filter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
                 collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
             }
-        });
+        }
         this.filterCollection = collection;
     }
 
@@ -835,44 +835,44 @@ export class FilterService {
     ): void {
         let compatibleCollection: FilterCollection = new FilterCollection();
 
-        compatibleFilterBehaviorList.forEach((compatibleFilterBehavior) => {
+        for (const filter of compatibleFilterBehaviorList) {
             // Find the data source for the filter design.
-            let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(compatibleFilterBehavior.filterDesign);
+            let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(filter.filterDesign);
 
             // Find the global filter list that is compatible with the filter design.
-            let filterList: AbstractFilter[] = this.getFiltersWithDesign(compatibleFilterBehavior.filterDesign);
+            let filterList: AbstractFilter[] = this.getFiltersWithDesign(filter.filterDesign);
 
             // Save the filter list and continue the loop.  We need an intermediary collection here because multiple filter designs from
             // compatibleFilterBehaviorList could have the same filterDataSourceList so saving filters directly into filterCollection would
             // overwrite compatible filter lists from previous filter designs.  Also, don't add the same filter to the list twice!
-            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, filter) =>
-                list.concat((list.indexOf(filter) < 0 ? filter : [])), compatibleCollection.getFilters(filterDataSourceList));
+            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, subFilter) =>
+                list.concat((list.indexOf(subFilter) < 0 ? subFilter : [])), compatibleCollection.getFilters(filterDataSourceList));
             compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
-        });
+        }
 
-        compatibleCollection.getDataSources().forEach((filterDataSourceList) => {
-            let filterList: AbstractFilter[] = compatibleCollection.getFilters(filterDataSourceList);
-            let cachedFilterList: AbstractFilter[] = filterCollection.getFilters(filterDataSourceList);
+        for (const datasourceList of compatibleCollection.getDataSources()) {
+            let filterList: AbstractFilter[] = compatibleCollection.getFilters(datasourceList);
+            let cachedFilterList: AbstractFilter[] = filterCollection.getFilters(datasourceList);
 
             // If the new (compatible global) filter list is not equal to the old (cached) filter list, update the filter collection.
-            let equals: boolean = filterList.length === cachedFilterList.length && filterList.every((filter, index) =>
-                filter.isEquivalentToFilter(cachedFilterList[index]));
+            let equals: boolean = filterList.length === cachedFilterList.length && filterList.every((filterItem, index) =>
+                filterItem.isEquivalentToFilter(cachedFilterList[index]));
 
             if (!equals) {
-                filterCollection.setFilters(filterDataSourceList, filterList);
+                filterCollection.setFilters(datasourceList, filterList);
 
                 // Call the redrawCallback of each compatibleFilterBehaviorList object with an equivalent filterDataSourceList.
-                compatibleFilterBehaviorList.forEach((compatibleFilterBehavior) => {
+                for (const behavior of compatibleFilterBehaviorList) {
                     let callbackFilterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(
-                        compatibleFilterBehavior.filterDesign
+                        behavior.filterDesign
                     );
 
-                    if (FilterUtil.areFilterDataSourceListsEquivalent(filterDataSourceList, callbackFilterDataSourceList)) {
-                        compatibleFilterBehavior.redrawCallback(filterList);
+                    if (FilterUtil.areFilterDataSourceListsEquivalent(datasourceList, callbackFilterDataSourceList)) {
+                        behavior.redrawCallback(filterList);
                     }
-                });
+                }
             }
-        });
+        }
     }
 }
 

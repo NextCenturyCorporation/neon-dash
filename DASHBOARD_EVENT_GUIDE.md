@@ -4,11 +4,8 @@ Events listed in:  [**src/neon-namespaces.ts**](./src/neon-namespaces.ts)
 
 Event Channel | Intent | Event Payload
 --------------|--------|--------------
-DASHBOARD_CLEAR | Deletes all of the widgets in the dashboard. | {}
 DASHBOARD_ERROR | Shows an error message. | { error: Error, message: string }
-DASHBOARD_READY | Signals that the initial dashboard and dataset are loaded if any post-page-load behavior must be run. | {}
 DASHBOARD_REFRESH | Signals a resize on all of the widgets. | {}
-DASHBOARD_STATE | Loads the selected dashboard state. | { dashboard: Dashboard }
 FILTERS_CHANGED | Signals that one or more filters have been added or removed and the visualizations must requery. | { caller: string, change: Map }
 SELECT_ID | Selects a data item in the dashboard.  Some visualizations will update to highlight this data selection. | { item: any, metadata: any }
 SHOW_OPTION_MENU | Opens the options menu from the navbar to show a specific visualization's options. | { changeData: Function, changeFilterData: Function, createLayer: Function, deleteLayer: Function, exportData: Function, finalizeCreateLayer: Function, finalizeDeleteLayer: Function, handleChangeSubcomponentType: Function, options: WidgetOptionCollection }

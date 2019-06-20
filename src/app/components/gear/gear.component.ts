@@ -29,13 +29,13 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption } from '../../model/widget-option';
-import { WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
+import { OptionType, WidgetOption } from '../../models/widget-option';
+import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
-import { DashboardState } from '../../model/dashboard-state';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
     selector: 'app-gear',
@@ -193,7 +193,6 @@ export class GearComponent implements OnInit, OnDestroy {
             if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
                 filterDataChange = true;
             }
-            // TODO THOR-1044 Validate number free text options
             this.originalOptions[option.bindingKey] = option.valueCurrent;
         });
 
@@ -302,8 +301,7 @@ export class GearComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
-            /* eslint-disable-next-line @typescript-eslint/unbound-method */
-            this.exportCallbacks = [this.comp.exportData];
+            this.exportCallbacks = [this.comp.exportData.bind(this.comp)];
             this.resetOptions();
             this.constructOptions();
         }

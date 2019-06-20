@@ -30,17 +30,17 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -171,7 +171,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
-            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable.bind(this)),
+            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
@@ -196,9 +196,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], true),
             // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], true),
             // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];

@@ -22,7 +22,7 @@ import {
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
-import { AggregationType } from '../../app/model/widget-option';
+import { AggregationType } from '../../app/models/widget-option';
 import { RequestWrapper } from '../../app/services/connection.service';
 
 /**
