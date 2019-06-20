@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     imports: [
         ExportControlModule,
         OptionsListModule,
+        OptionsSectionModule,
         MatButtonModule,
         MatToolbarModule,
         MatFormFieldModule,

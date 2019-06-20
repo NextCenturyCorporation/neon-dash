@@ -19,7 +19,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { WidgetOptionCollection } from '../../models/widget-option';
-import { OptionsListModule } from '../options-list/options-list.module';
+import { GearComponent } from '../gear/gear.component';
 
 @Component({
     selector: 'app-options-section',
@@ -30,5 +30,6 @@ import { OptionsListModule } from '../options-list/options-list.module';
 })
 export class OptionsSectionComponent {
     @Input() modifiedOptions: WidgetOptionCollection;
-    @Input() optionslist: OptionsListModule;
+    @Input() gearComp: GearComponent;
+    @Input() index: number;
 }

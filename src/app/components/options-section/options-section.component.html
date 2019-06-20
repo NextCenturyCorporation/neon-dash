@@ -6,7 +6,7 @@
 <div class="option-well">
     <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
         <mat-select placeholder="Database" [(ngModel)]="modifiedOptions.database" required="true"
-            [name]="modifiedOptions._id + '_database'" (ngModelChange)="handleChangeDatabase(modifiedOptions)"
+            [name]="modifiedOptions._id + '_database'" (ngModelChange)="gearComp.handleChangeDatabase(modifiedOptions)"
             [disabled]="modifiedOptions.databases.length < 2">
             <mat-option *ngFor="let database of modifiedOptions.databases" [value]="database">
                 {{ database.prettyName }}</mat-option>
@@ -15,7 +15,7 @@
 
     <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
         <mat-select placeholder="Table" [(ngModel)]="modifiedOptions.table" required="true"
-            [name]="modifiedOptions._id + '_table'" (ngModelChange)="handleChangeTable(modifiedOptions)"
+            [name]="modifiedOptions._id + '_table'" (ngModelChange)="gearComp.handleChangeTable(modifiedOptions)"
             [disabled]="modifiedOptions.tables.length < 2">
             <mat-option *ngFor="let table of modifiedOptions.tables" [value]="table">{{ table.prettyName }}
             </mat-option>
@@ -23,30 +23,30 @@
     </mat-form-field>
 
     <!-- Required Field Config-->
-    <optionslist [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredList
-        [updateOnChange]=updateOnChange.bind(this)>
-    </optionslist>
+    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=gearComp.requiredList
+        [updateOnChange]=gearComp.updateOnChange.bind(this.gearComp)>
+    </app-options-list>
 
     <!-- Required Non-Field Config-->
-    <options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredListNonField
-        [updateOnChange]=updateOnChange.bind(this)>
-    </options-list>
+    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields
+        [bindingsList]=gearComp.requiredListNonField [updateOnChange]=gearComp.updateOnChange.bind(this.gearComp)>
+    </app-options-list>
 </div>
 
-<mat-toolbar class="subheader tappable" (click)="toggleOptionalOptions()" color="primary">
+<mat-toolbar class="subheader tappable" (click)="gearComp.toggleOptionalOptions()" color="primary">
     <span>Optional Config</span>
     <span class="spacer"></span>
-    <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
+    <mat-icon class="neon-icon-small">{{ gearComp.getIconForOptions() }}</mat-icon>
 </mat-toolbar>
 
-<div class="option-well" [hidden]="collapseOptionalOptions">
+<div class="option-well" [hidden]="gearComp.collapseOptionalOptions">
     <!-- Optional Field Config-->
-    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalList
-        [updateOnChange]=updateOnChange.bind(this)>
+    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=gearComp.optionalList
+        [updateOnChange]=gearComp.updateOnChange.bind(this.gearComp)>
     </app-options-list>
 
     <!-- Optional Non-Field Config-->
-    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalListNonField
-        [updateOnChange]=updateOnChange.bind(this)>
+    <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields
+        [bindingsList]=gearComp.optionalListNonField [updateOnChange]=gearComp.updateOnChange.bind(this.gearComp)>
     </app-options-list>
 </div>
