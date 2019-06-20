@@ -20,20 +20,16 @@ import { ContributionDialogModule } from './contribution-dialog.module';
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonConfig } from '../../model/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: ContributionDialogComponent', () => {
     let fixture: ComponentFixture<ContributionDialogComponent>;
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: ContributionDialogComponent;
 
     initializeTestBed('ContributionDialogComponent', {
         providers: [
             FilterService,
             DashboardService,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }
         ],

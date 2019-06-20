@@ -23,7 +23,7 @@ import {
     TimeInterval,
     QueryPayload
 } from './abstract.search.service';
-import { AggregationType } from '../model/widget-option';
+import { AggregationType } from '../models/widget-option';
 import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
 
 import { query } from 'neon-framework';

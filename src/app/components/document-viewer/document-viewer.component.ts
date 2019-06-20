@@ -32,7 +32,7 @@ import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldOption,
@@ -40,7 +40,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 

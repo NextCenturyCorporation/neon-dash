@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 
-import { AggregationType } from '../model/widget-option';
+import { AggregationType } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

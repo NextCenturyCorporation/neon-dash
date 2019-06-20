@@ -18,15 +18,15 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
-import { neonEvents } from '../../model/neon-namespaces';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
-import { DashboardState } from '../../model/dashboard-state';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
     selector: 'app-settings',
@@ -53,7 +53,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        dashboardService: DashboardService,
+        private dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService
@@ -92,7 +92,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateSimpleSearchFilter.bind(this));
+        this.dashboardService.stateSource.subscribe(() => {
+            this.updateSimpleSearchFilter();
+        });
 
         this.changeDetection.detectChanges();
     }

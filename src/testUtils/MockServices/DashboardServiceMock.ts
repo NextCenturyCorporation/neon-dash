@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,18 +11,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
-    NeonConfig, NeonDatastoreConfig, NeonDashboardConfig,
+    NeonDatastoreConfig,
     NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig
-} from '../../app/model/types';
+} from '../../app/models/types';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { ConnectionService } from '../../app/services/connection.service';
 import { Injectable } from '@angular/core';
+import { FilterService } from '../../app/services/filter.service';
+import { SearchServiceMock } from './SearchServiceMock';
 
-class MockConnectionService extends ConnectionService {
+export class MockConnectionService extends ConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
         return null as any;
     }
@@ -74,12 +75,7 @@ export class DashboardServiceMock extends DashboardService {
 
     public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
 
-    constructor(configService: ConfigService) {
-        super(
-            configService,
-            new MockConnectionService()
-        );
-
+    static init(svc: DashboardServiceMock) {
         const datastore = NeonDatastoreConfig.get({
             name: 'datastore1',
             host: 'testHostname',
@@ -88,7 +84,7 @@ export class DashboardServiceMock extends DashboardService {
             hasUpdatedFields: true
         });
 
-        this.setActiveDatastore(datastore);
+        svc.setActiveDatastore(datastore);
 
         const dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',
@@ -113,6 +109,30 @@ export class DashboardServiceMock extends DashboardService {
             ]
         });
 
-        this.setActiveDashboard(dashboard);
+        svc.setActiveDashboard(dashboard);
+    }
+
+    constructor(configService: ConfigService) {
+        super(
+            configService,
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
+        );
+
+        DashboardServiceMock.init(this);
+    }
+}
+
+
+@Injectable()
+export class EmptyDashboardServiceMock extends DashboardService {
+    constructor(configService: ConfigService) {
+        super(
+            configService,
+            new MockConnectionService(),
+            new FilterService(),
+            new SearchServiceMock()
+        );
     }
 }

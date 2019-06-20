@@ -36,14 +36,14 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import {
     AggregationType,
     OptionChoices,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { MatDialog } from '@angular/material';
 

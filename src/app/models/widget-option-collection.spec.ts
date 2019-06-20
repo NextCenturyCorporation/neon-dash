@@ -16,7 +16,7 @@ import { ReflectiveInjector } from '@angular/core';
 import { inject } from '@angular/core/testing';
 import * as yaml from 'js-yaml';
 
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonConfig } from './types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import { DashboardService } from '../services/dashboard.service';
 import {
     WidgetDatabaseOption,
@@ -24,6 +24,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
+    WidgetNumberOption,
     WidgetSelectOption,
     WidgetTableOption
 } from './widget-option';
@@ -33,7 +34,6 @@ import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 
 import * as _ from 'lodash';
-import { ConfigService } from '../services/config.service';
 
 describe('OptionCollection', () => {
     let options: OptionCollection;
@@ -41,8 +41,7 @@ describe('OptionCollection', () => {
 
     initializeTestBed('Option Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
         ]
     });
 
@@ -327,8 +326,7 @@ describe('WidgetOptionCollection', () => {
 
     initializeTestBed('Widget Option Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
         ]
     });
 
@@ -442,8 +440,7 @@ describe('WidgetOptionCollection with no bindings', () => {
 
     initializeTestBed('Widget Option Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
         ]
     });
 
@@ -479,8 +476,7 @@ describe('RootWidgetOptionCollection', () => {
 
     initializeTestBed('Root Widget Option Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
         ]
     });
 
@@ -639,8 +635,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
     initializeTestBed('Root Widget Option Collection', {
         providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: DashboardService, useClass: DashboardServiceMock }
         ]
     });
 
@@ -737,5 +732,33 @@ describe('NonPrimitive Fields', () => {
         option.intermediateValue = 'null';
 
         expect(option.getValueToSaveInBindings()).toEqual({});
+    });
+});
+
+describe('Number Fields', () => {
+    it('Object initializes correctly', () => {
+        const optEmpty = new WidgetNumberOption('test', 'Test', 0, true);
+        expect(optEmpty.valueDefault).toEqual(0);
+        expect(optEmpty.intermediateValue).toEqual(0);
+        expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
+
+        const optNull = new WidgetNumberOption('test', 'Test', undefined, true);
+        expect(optNull.valueDefault).toEqual(undefined);
+        expect(optNull.intermediateValue).toEqual(undefined);
+        expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
+    });
+
+    it('Object updates properly', () => {
+        const opt = new WidgetNumberOption('test', 'Test', 0, true);
+        expect(opt.valueDefault).toEqual(0);
+        opt.intermediateValue = 7;
+        expect(opt.getValueToSaveInBindings()).toEqual(7);
+
+        // ValueCurrent is null because invalid input so therefore the value returned is the default
+        opt.intermediateValue = 'Hello World';
+        expect(opt.getValueToSaveInBindings()).toEqual(0);
+
+        opt.intermediateValue = undefined;
+        expect(opt.getValueToSaveInBindings()).toEqual(0);
     });
 });
