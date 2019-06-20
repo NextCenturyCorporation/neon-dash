@@ -16,7 +16,7 @@
 import {
     NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData,
     NeonTableMetaData, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
-} from '../model/types';
+} from '../models/types';
 
 import { DashboardUtil } from './dashboard.util';
 

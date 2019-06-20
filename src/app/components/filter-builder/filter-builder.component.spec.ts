@@ -12,48 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
-
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { NeonFieldMetaData, NeonConfig } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
-import { FilterBuilderModule } from './filter-builder.module';
-import { ConfigService } from '../../services/config.service';
+import { getConfigService } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Filter Builder', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: FilterBuilderComponent;
-    let fixture: ComponentFixture<FilterBuilderComponent>;
-
-    initializeTestBed('Filter Builder', {
-        providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
-        ],
-        imports: [
-            FilterBuilderModule
-        ]
-    });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(FilterBuilderComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new FilterService(), new SearchServiceMock());
     });
 
     it('class properties are set to expected defaults', () => {

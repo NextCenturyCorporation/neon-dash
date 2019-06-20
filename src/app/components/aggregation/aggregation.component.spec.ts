@@ -25,17 +25,16 @@ import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { AggregationType } from '../../model/widget-option';
+import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { Color } from '../../model/color';
+import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData, NeonConfig } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -50,8 +49,7 @@ describe('Component: Aggregation', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             AggregationModule
@@ -86,10 +84,10 @@ describe('Component: Aggregation', () => {
         expect(component.options.notFilterable).toEqual(false);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
-        expect(component.options.scaleMaxX).toEqual('');
-        expect(component.options.scaleMaxY).toEqual('');
-        expect(component.options.scaleMinX).toEqual('');
-        expect(component.options.scaleMinY).toEqual('');
+        expect(component.options.scaleMaxX).toEqual(null);
+        expect(component.options.scaleMaxY).toEqual(null);
+        expect(component.options.scaleMinX).toEqual(null);
+        expect(component.options.scaleMinY).toEqual(null);
         expect(component.options.showHeat).toEqual(false);
         expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
@@ -3967,7 +3965,6 @@ describe('Component: Aggregation with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4069,7 +4066,6 @@ describe('Component: Aggregation with XY config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4171,7 +4167,6 @@ describe('Component: Aggregation with date config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },

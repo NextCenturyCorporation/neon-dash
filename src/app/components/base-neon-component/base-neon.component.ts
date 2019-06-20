@@ -26,20 +26,20 @@ import {
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { NeonFieldMetaData } from '../../model/types';
-import { neonEvents } from '../../model/neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionType,
     WidgetOption
-} from '../../model/widget-option';
-import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
+} from '../../models/widget-option';
+import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
-import { DashboardState } from '../../model/dashboard-state';
+import { DashboardState } from '../../models/dashboard-state';
 
 /**
  * @class BaseNeonComponent
@@ -489,8 +489,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private getGlobalFilterClauses(options: WidgetOptionCollection): FilterClause[] {
-        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
-            list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
+        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] :
+            this.cachedFilters.getDataSources()
+                .map((dataSource) => this.cachedFilters.getFilters(dataSource))
+                .reduce((acc, filters) => [...acc, ...filters], [])
+                .map((filter) => filter.toDesign());
         return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 

@@ -31,17 +31,18 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MediaTypes } from '../../model/types';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { MediaTypes } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
@@ -233,7 +234,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
+            new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
             new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
@@ -254,7 +255,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'One Tab per Array',
                 variable: true
             }]),
-            new WidgetFreeTextOption('sliderValue', 'Slider Value', '0'),
+            new WidgetNumberOption('sliderValue', 'Slider Value', 0),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
             new WidgetFreeTextOption('url', 'URL', '')
         ];

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonDatabaseMetaData } from '../../model/types';
+import { NeonDatabaseMetaData } from '../../models/types';
 
 export class CustomConnectionData {
     public datasetName: string = '';
