@@ -17,18 +17,15 @@ import { browser, by, ElementFinder, By } from 'protractor';
 interface PageInfo { start?: number, end?: number, count: number }
 
 /* eslint-disable no-invalid-this */
+/* eslint-disable no-await-in-loop */
 export class NeonGtdPage {
     root = By.css('app-dashboard');
     toolbar = this.root.nest('mat-toolbar');
     toolbarTitle = this.toolbar.nest('.dashboard-name');
     visualizations = By.css('app-visualization-injector>*:last-child');
 
-    goTo(path = '/') {
-        return browser.get(path);
-    }
-
-    get(path: string) {
-        return by.css(path);
+    goTo(path = '/', query: Record<string, string> = {}) {
+        return browser.get(`${path}?${new URLSearchParams(query).toString()}`);
     }
 
     async getPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
@@ -44,5 +41,21 @@ export class NeonGtdPage {
             return { start, end, count };
         }
         return undefined;
+    }
+
+    async findVisualization(predicate: (element: ElementFinder) => Promise<boolean> | boolean): Promise<ElementFinder | undefined> {
+        for (const vis of await this.visualizations.all) {
+            if (await predicate(vis)) {
+                return vis;
+            }
+        }
+        return undefined;
+    }
+
+    getFirstPageableViz(): Promise<ElementFinder | undefined> {
+        return this.findVisualization(async (vis) => {
+            const info = await this.getPageInfo(vis);
+            return info && !!info.start;
+        });
     }
 }
