@@ -28,12 +28,13 @@ import {
     SimpleFilterDesign
 } from './filter.service';
 
-import { NeonFieldMetaData } from '../models/types';
+import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { ConfigUtil } from '../util/config.util';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
@@ -606,6 +607,144 @@ describe('FilterUtil', () => {
                 value: 'testId2'
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
+    });
+
+    describe('simpleFiltering', () => {
+        const queryString = `[
+            [".databaseZ.tableA.field1","=","value1","or"],
+            ["and", "and",
+                [".databaseY.tableB.field2", "!=", "", "or"],
+                [".databaseY.tableB.field2", "!=", null, "or"]
+            ]
+        ]`;
+
+        const queryStringCompact = ConfigUtil.translate(
+            JSON.stringify(JSON.parse(queryString)),
+            ConfigUtil.encodeFiltersMap
+        );
+
+        const filtersSimple = [
+            {
+                root: 'or',
+                datastore: '',
+                database: 'databaseZ',
+                table: 'tableA',
+                field: 'field1',
+                operator: '=',
+                value: 'value1'
+            },
+            {
+                root: 'and',
+                name: 'and',
+                type: 'and',
+                filters: [
+                    {
+                        root: 'or',
+                        datastore: '',
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: ''
+                    },
+                    {
+                        root: 'or',
+                        datastore: '',
+                        database: 'databaseY',
+                        table: 'tableB',
+                        field: 'field2',
+                        operator: '!=',
+                        value: null
+                    }
+                ]
+            }
+        ];
+
+        const filterDesigns = [
+            {
+                root: CompoundFilterType.OR,
+                name: '.databaseZ.tableA.field1',
+                datastore: '',
+                database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
+                table: NeonTableMetaData.get({ name: 'tableA' }),
+                field: NeonFieldMetaData.get({ columnName: 'field1' }),
+                operator: '=',
+                value: 'value1'
+            } as SimpleFilterDesign,
+            {
+                root: 'and',
+                name: 'and',
+                type: 'and',
+                filters: [
+                    {
+                        root: CompoundFilterType.OR,
+                        name: '.databaseY.tableB.field2',
+                        datastore: '',
+                        database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                        table: NeonTableMetaData.get({ name: 'tableB' }),
+                        field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                        operator: '!=',
+                        value: ''
+                    } as SimpleFilterDesign,
+                    {
+                        root: CompoundFilterType.OR,
+                        name: '.databaseY.tableB.Field2',
+                        datastore: '',
+                        database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                        table: NeonTableMetaData.get({ name: 'tableB' }),
+                        field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                        operator: '!=',
+                        value: null
+                    } as SimpleFilterDesign
+                ]
+            } as CompoundFilterDesign
+
+        ];
+
+        const expected = [
+            ['.databaseZ.tableA.field1', '=', 'value1', 'or'],
+            ['and',
+                'and',
+                ['.databaseY.tableB.field2', '!=', '', 'or'],
+                ['.databaseY.tableB.field2', '!=', null, 'or']]
+        ];
+
+        const empty = ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap);
+
+        it('toPlainFilterJSON should return expected output', () => {
+            expect(FilterUtil.toPlainFilterJSON(filterDesigns)).toEqual(expected);
+            expect(FilterUtil.toPlainFilterJSON([])).toEqual([]);
+        });
+
+        it('fromPlainFilterJSON should return expected output', () => {
+            expect(expected.map((exp) => FilterUtil.fromPlainFilterJSON(exp))).toEqual(filtersSimple);
+            expect(FilterUtil.fromPlainFilterJSON(['1.2.3.4', '=', 'b', 'or'])).toEqual({
+                datastore: '1',
+                database: '2',
+                table: '3',
+                field: '4',
+                operator: '=',
+                value: 'b',
+                root: 'or'
+            });
+
+            expect(FilterUtil.fromPlainFilterJSON(['and', 'or'])).toEqual({
+                root: 'or',
+                type: 'and',
+                name: 'and',
+                filters: []
+            });
+        });
+
+        it('toSimpleFilterQueryString should return expected output', () => {
+            expect(FilterUtil.toSimpleFilterQueryString(filterDesigns)).toEqual(queryStringCompact);
+            expect(FilterUtil.toSimpleFilterQueryString([])).toEqual(empty);
+        });
+
+        it('fromSimpleFilterQueryString should return expected output', () => {
+            expect(FilterUtil.fromSimpleFilterQueryString(queryStringCompact)).toEqual(filtersSimple);
+            expect(FilterUtil.fromSimpleFilterQueryString(empty)).toEqual([]);
+        });
     });
 });
 

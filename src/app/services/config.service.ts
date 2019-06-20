@@ -18,11 +18,12 @@ import * as yaml from 'js-yaml';
 
 import { environment } from '../../environments/environment';
 
-import { Subject, Observable, combineLatest, of, from } from 'rxjs';
-import { map, catchError, switchMap, take, shareReplay } from 'rxjs/operators';
-import { NeonConfig } from '../models/types';
+import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
+import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
 import { ConnectionService } from './connection.service';
+import { ConfigUtil } from '../util/config.util';
 
 @Injectable({
     providedIn: 'root'
@@ -31,17 +32,22 @@ export class ConfigService {
     private configErrors = [];
     private source = new Subject<NeonConfig>();
 
-    $source: Observable<NeonConfig>;
+    private $default: Observable<NeonConfig>;
 
-    static validateName(fileName: string): string {
-        // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
-        return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');
-    }
+    // eslint-disable-next-line no-invalid-this
+    $source = this.source.asObservable()
+        .pipe(
+            map((data) => JSON.parse(JSON.stringify(data))), // Clone and clean
+            map((config) => NeonConfig.get(config)),
+            shareReplay(1)
+        );
 
     constructor(
         private http: HttpClient,
         private connectionService: ConnectionService
-    ) { }
+    ) {
+        neon.setNeonServerUrl('../neon');
+    }
 
     private openConnection() {
         return this.connectionService.connect('.', '.', true);
@@ -78,11 +84,8 @@ export class ConfigService {
             .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-    private finalizeConfig(configInput: NeonConfig) {
+    private finalizeConfig(configInput: NeonConfig, filters: string, dashboardPath: string) {
         let config = configInput;
-        if (config && config.neonServerUrl) {
-            neon.setNeonServerUrl(config.neonServerUrl);
-        }
 
         if (!config) {
             console.error('Config is empty', config);
@@ -95,42 +98,78 @@ export class ConfigService {
             this.configErrors = [];
         }
 
+        let dash: NeonDashboardLeafConfig;
+
+        ConfigUtil.nameDashboards(config.dashboards, config.fileName || '');
+
+        // If dashboard path is provided, find the dashboard to activate
+        if (dashboardPath) {
+            const parts = dashboardPath.split('.').filter((key) => !!key);
+            const active = ConfigUtil.findDashboardByKey(config.dashboards, parts) as NeonDashboardLeafConfig;
+
+            // If found
+            if (active) {
+                ConfigUtil.setAutoShowDashboard(config.dashboards, active);
+                if (filters) {
+                    active.filters = filters;
+                }
+                dash = active;
+            }
+        }
+
+        if (!dash && filters) {
+            ConfigUtil.filterDashboards(config.dashboards, filters);
+        }
+
         return config;
     }
 
+    /**
+     * Default load process, generally represents empty URL loading
+     */
     private getDefault(configList: string[]) {
-        return combineLatest(...configList.map((config) => this.loadFromFolder(config)))
-            .pipe(
-                switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
-                map((config) => this.finalizeConfig(config))
-            );
-    }
-
-    private initSource() {
-        if (!this.$source) {
-            this.$source = this.source.asObservable()
+        if (!this.$default) {
+            this.$default = combineLatest(...configList.map((config) => this.loadFromFolder(config)))
                 .pipe(
-                    map((data) => JSON.parse(JSON.stringify(data))),
-                    map((config) => NeonConfig.get(config)),
+                    switchMap((configs: NeonConfig[]) => this.takeFirstLoadedOrFetchDefault(configs)),
+                    take(1),
                     shareReplay(1)
                 );
-            return true;
         }
-        return false;
+        return this.$default;
+    }
+
+    /**
+     * Loads config state by URL, given a base path
+     */
+    setActiveByURL(url: string, base: string | RegExp) {
+        const urlObj = new URL(url);
+        const [, path] = urlObj.pathname.split(base);
+        const params = urlObj.searchParams.get('filter');
+        const dashboardPath = urlObj.searchParams.get('path');
+        const cleanPath = path.replace(/^[/]+/g, '');
+
+        setTimeout(() => {
+            from(cleanPath ? this.load(cleanPath) : throwError(null)).pipe(
+                catchError((err) => this.getDefault(environment.config).pipe(
+                    tap((conf) => {
+                        conf.errors = [err ? err.message as string : err];
+                    })
+                )),
+                map((config) => this.finalizeConfig(config, params, dashboardPath)),
+                tap((config) => this.setActive(config))
+            ).subscribe();
+        }, 1);
+
+        return this.getActive();
     }
 
     setActive(config: NeonConfig) {
-        this.initSource();
         this.source.next(config);
-        return this;
+        return this.getActive();
     }
 
     getActive() {
-        if (this.initSource()) {
-            neon.setNeonServerUrl('../neon');
-            this.getDefault(environment.config)
-                .subscribe((el) => this.source.next(el));
-        }
         return this.$source;
     }
 
@@ -139,7 +178,7 @@ export class ConfigService {
      */
     save(config: NeonConfig): Observable<void> {
         return from(new Promise<void>((resolve, reject) => {
-            config.projectTitle = ConfigService.validateName(config.projectTitle);
+            config.projectTitle = ConfigUtil.validateName(config.projectTitle);
             config['stateName'] = config.projectTitle;
             this.openConnection().saveState(config, resolve, reject);
         })).pipe(take(1));
@@ -150,7 +189,7 @@ export class ConfigService {
      */
     load(name: string): Observable<NeonConfig> {
         return from(new Promise<NeonConfig>((resolve, reject) => {
-            const validName = ConfigService.validateName(name);
+            const validName = ConfigUtil.validateName(name);
             this.openConnection().loadState(validName, resolve, reject);
         })).pipe(
             take(1),
@@ -168,7 +207,7 @@ export class ConfigService {
      */
     delete(name: string) {
         return from(new Promise<void>((resolve, reject) => {
-            const validName = ConfigService.validateName(name);
+            const validName = ConfigUtil.validateName(name);
             this.openConnection().deleteState(validName, resolve, reject);
         })).pipe(take(1));
     }

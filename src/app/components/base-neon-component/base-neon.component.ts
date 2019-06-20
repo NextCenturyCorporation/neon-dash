@@ -131,7 +131,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // Don't pass the event message as an argument to handleChangeData.
             this.handleChangeData();
         });
-        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
+        this.messenger.subscribe(neonEvents.FILTERS_REFRESH, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
