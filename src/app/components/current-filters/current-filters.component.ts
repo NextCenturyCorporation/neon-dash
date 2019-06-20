@@ -130,7 +130,10 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     public groups: FilterGroup[] = [];
 
-    constructor(public filterService: FilterService, public dashboardService: DashboardService) {
+    constructor(
+        public filterService: FilterService,
+        public dashboardService: DashboardService
+    ) {
         this.messenger = new eventing.Messenger();
     }
 
