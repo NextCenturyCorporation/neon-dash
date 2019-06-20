@@ -187,4 +187,26 @@ describe('Service: ConfigService Initialization', () => {
                 done();
             });
     });
+
+    it('setActiveByURL loads the appropriate config (without filters) with no path', (done) => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        configService.load = loadConfig;
+
+        configService.setActiveByURL(`http://website.com/ctx/configName`, '/ctx')
+            .subscribe((config) => {
+                expect(config.fileName).toEqual('configName');
+                expect(config).toBeTruthy();
+
+                const dash1 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash1']) as NeonDashboardLeafConfig;
+                const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
+
+                expect(dash2).toBeTruthy();
+                expect(dash2.options.connectOnLoad).toBeFalsy();
+                expect(dash2.filters).toBeFalsy();
+
+                expect(dash1.options.connectOnLoad).toBeFalsy();
+                expect(dash2.filters).toBeFalsy();
+                done();
+            });
+    });
 });
