@@ -13,8 +13,13 @@
 
 <div class="dashboard-selector-container">
     <div class="neon-form-field">
-        <app-dashboard-dropdown #dashboardDropdown [dashboards]="dashboards" (selectionChange)="setDashboardChoice($event)">
-        </app-dashboard-dropdown>
+        <mat-form-field class="neon-form-field-flex-5" *ngFor="let dashboard of choiceNodes; let idx = index">
+            <mat-select [placeholder]="dashboard.category" (selectionChange)="selectDashboard($event.value,idx)" [value]="choices[idx+1]">
+                <mat-option *ngFor="let choice of getNextChoices(dashboard)" [value]="choice">
+                    {{ choice.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </div>
     <div class="neon-form-field button-row">
         <button mat-raised-button color="primary" [disabled]="!dashboardChoice" (click)="updateDashboardState(dashboardChoice)"> Apply

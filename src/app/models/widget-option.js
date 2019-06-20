@@ -79,13 +79,14 @@ export const OptionChoices = {
 };
 
 export const OptionType = {
+    COLOR: 'COLOR',
     DATABASE: 'DATABASE',
     FIELD: 'FIELD',
     FIELD_ARRAY: 'FIELD_ARRAY',
     FREE_TEXT: 'FREE_TEXT',
     MULTIPLE_SELECT: 'MULTIPLE_SELECT',
     NON_PRIMITIVE: 'NON_PRIMITIVE',
-    COLOR: 'COLOR',
+    NUMBER: 'NUMBER',
     SELECT: 'SELECT',
     TABLE: 'TABLE'
 };
@@ -277,7 +278,7 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
                 const value = this.valueCurrent || this.valueDefault;
                 this._intermediateValue = _.isEmpty(value) ? '' : yaml.safeDump(value);
             } catch {
-                // Ignore error
+                console.error('ERROR WidgetNonPrimitiveOption: get intermediateValue() failed');
             }
             this._intermediateValue = this._intermediateValue || '';
         }
@@ -289,7 +290,53 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
         try {
             this.valueCurrent = _.isEmpty(value) ? undefined : yaml.safeLoad(this._intermediateValue);
         } catch {
-            // Ignore error
+            console.error('ERROR WidgetNonPrimitiveOption: set intermediateValue() failed');
+        }
+    }
+
+    getValueToSaveInBindings() {
+        delete this._intermediateValue;
+        return this.valueCurrent || this.valueDefault;
+    }
+}
+
+export class WidgetNumberOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|function} [hideFromMenu=false]
+     */
+    constructor(
+        bindingKey,
+        prettyName,
+        valueDefault,
+        hideFromMenu
+    ) {
+        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu || false);
+        this._intermediateValue = undefined;
+    }
+
+    get intermediateValue() {
+        if (this._intermediateValue === undefined) {
+            try {
+                const value = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isNumber(_.toNumber(value)) ? value : null;
+            } catch {
+                console.error('ERROR WidgetNumberOption: get intermediateValue() failed');
+            }
+            this._intermediateValue = this._intermediateValue;
+        }
+        return this._intermediateValue;
+    }
+
+    set intermediateValue(value) {
+        this._intermediateValue = value;
+        try {
+            this.valueCurrent = !_.isNaN(Number(value)) ? this._intermediateValue : null;
+        } catch {
+            console.error('ERROR WidgetNumberOption: set intermediateValue() failed');
         }
     }
 

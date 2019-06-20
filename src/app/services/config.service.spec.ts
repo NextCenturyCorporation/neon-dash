@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonConfig } from '../model/types';
+import { NeonConfig } from '../models/types';
 import { ConfigService } from './config.service';
+import { getConfigService } from '../../testUtils/initializeTestBed';
 
 describe('Service: ConfigService', () => {
     let configService: ConfigService;
 
     beforeEach(() => {
-        configService = ConfigService.as(NeonConfig.get());
+        configService = getConfigService();
     });
 
     it('deleteState does validate the state name', () => {
@@ -62,18 +63,12 @@ describe('Service: ConfigService', () => {
     });
 
     it('setActive notifies of specific events', (done) => {
-        let count = 0;
+        configService['$source']
+            .subscribe((config) => {
+                expect(config).toBeTruthy();
+                expect(config.fileName).toBe('test');
+                done();
+            });
         configService.setActive(NeonConfig.get({ fileName: 'test' }));
-
-        setImmediate(() => {
-            configService.getActive()
-                .subscribe((config) => {
-                    expect(config).toBeTruthy();
-                    expect(config.fileName).toBe('test');
-                    count += 1;
-                });
-            expect(count).toBe(1);
-            done();
-        });
     });
 });

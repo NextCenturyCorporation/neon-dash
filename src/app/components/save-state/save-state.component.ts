@@ -19,13 +19,13 @@ import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { eventing } from 'neon-framework';
 import { filter } from 'rxjs/operators';
-import { NeonConfig } from '../../model/types';
-import { DashboardState } from '../../model/dashboard-state';
+import { NeonConfig } from '../../models/types';
+import { DashboardState } from '../../models/dashboard-state';
 import { ConfigService } from '../../services/config.service';
 
 export function Confirm(config: {

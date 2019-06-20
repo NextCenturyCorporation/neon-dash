@@ -45,7 +45,7 @@ import {
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionChoices,
@@ -54,10 +54,10 @@ import {
     WidgetOption,
     WidgetSelectOption,
     WidgetFieldArrayOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
-import { NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
