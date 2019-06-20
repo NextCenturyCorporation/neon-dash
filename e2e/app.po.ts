@@ -12,15 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { browser } from 'protractor';
+import { browser, by, ElementFinder, By } from 'protractor';
+
+interface PageInfo { start?: number, end?: number, count: number }
 
 /* eslint-disable no-invalid-this */
 export class NeonGtdPage {
+    root = By.css('app-dashboard');
+    toolbar = this.root.nest('mat-toolbar');
+    toolbarTitle = this.toolbar.nest('.dashboard-name');
+    visualizations = By.css('app-visualization-injector>*:last-child');
+
     goTo(path = '/') {
         return browser.get(path);
     }
-}
 
-export const root = 'app-dashboard';
-export const toolbar = `${root} mat-toolbar`;
-export const toolbarTitle = `${toolbar} .dashboard-name`;
+    get(path: string) {
+        return by.css(path);
+    }
+
+    async getPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
+        const text = await element.element(By.css('mat-toolbar .info.text')).getText();
+        const cleaned = text.replace(/[^0-9]+/g, ' ').trim();
+
+        if (cleaned) {
+            const parts = cleaned.split(/\s/).map((val) => parseInt(val, 10));
+            if (parts.length === 1) {
+                return { count: parts[0] };
+            }
+            const [start, end, count] = parts;
+            return { start, end, count };
+        }
+        return undefined;
+    }
+}

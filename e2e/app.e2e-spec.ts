@@ -12,20 +12,103 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonGtdPage, toolbarTitle } from './app.po';
-import { by } from 'protractor';
+
+/* eslint-disable no-await-in-loop */
+import { NeonGtdPage } from './app.po';
 import './util';
+import { ElementFinder, by, browser } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
 
-    beforeEach(() => {
+    beforeAll(() => {
         page = new NeonGtdPage();
+        page.goTo('/');
+    });
+
+    beforeEach(() => {
+        browser.navigate().to('/');
     });
 
     it('should load the dashboard', async() => {
-        page.goTo('/');
+        expect(await page.toolbarTitle.asText).toBeTruthy();
+    });
 
-        expect(await by.css(toolbarTitle).asText).toBeTruthy();
+    it('should verify counts', async() => {
+        const all = await page.visualizations.all;
+
+        expect(all.length).toBeGreaterThan(1);
+
+        const counts = [];
+
+        for (const vis of all) {
+            const info = await page.getPageInfo(vis);
+            if (info && info.start) {
+                counts.push(info.count);
+            }
+        }
+
+        const [first, ...remainder] = counts;
+
+        expect(counts.length).toBeGreaterThan(1);
+
+        for (const count of remainder) {
+            expect(first).toEqual(count);
+        }
+    });
+
+    it('should verify pagination', async() => {
+        let pageable: ElementFinder;
+
+        for (const vis of await page.visualizations.all) {
+            const info = await page.getPageInfo(vis);
+
+            if (info.start) { // We have a pageable
+                pageable = vis;
+                break;
+            }
+        }
+        expect(pageable).toBeDefined();
+
+        let infoA = await page.getPageInfo(pageable);
+        await pageable.element(by.buttonText('Next')).click();
+        let infoB = await page.getPageInfo(pageable);
+
+        expect(infoB.start).toBeGreaterThan(infoA.end);
+        expect(infoB.count).toEqual(infoA.count);
+        expect(infoB.end - infoB.start).toEqual(infoA.end - infoA.start);
+    });
+
+    it('counts should vary on selecting a filter', async() => {
+        let pageable: ElementFinder;
+
+        for (const vis of await page.visualizations.all) {
+            const info = await page.getPageInfo(vis);
+
+            if (info.start) { // We have a pageable
+                pageable = vis;
+                break;
+            }
+        }
+        expect(pageable).toBeDefined();
+
+        let infoA = await page.getPageInfo(pageable);
+
+        const query = [['.ldc_uyg_jul_18.ui_out.topic', '=', 'Search﹒and﹒Rescue', 'or']];
+        browser.navigate().to(`/?filter=${JSON.stringify(query)}`);
+
+        for (const vis of await page.visualizations.all) {
+            const info = await page.getPageInfo(vis);
+
+            if (info.start) { // We have a pageable
+                pageable = vis;
+                break;
+            }
+        }
+        expect(pageable).toBeDefined();
+
+        let infoB = await page.getPageInfo(pageable);
+
+        expect(infoA.count).toBeGreaterThan(infoB.count);
     });
 });

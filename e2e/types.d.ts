@@ -15,7 +15,9 @@
 import { ElementFinder } from 'protractor';
 declare module 'selenium-webdriver' {
     interface By {
-        asElement: ElementFinder;
+        first: ElementFinder;
+        all: Promise<ElementFinder[]>;
         asText: Promise<string>;
+        nest(css: string): By;
     }
 }
