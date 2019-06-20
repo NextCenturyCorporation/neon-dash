@@ -12,20 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonGtdPage, toolbarTitle } from './app.po';
-import { by } from 'protractor';
-import './util';
+import './types';
+import { element, by } from 'protractor';
+import { By } from 'selenium-webdriver';
 
-describe('neon-gtd App', () => {
-    let page: NeonGtdPage;
-
-    beforeEach(() => {
-        page = new NeonGtdPage();
-    });
-
-    it('should load the dashboard', async() => {
-        page.goTo('/');
-
-        expect(await by.css(toolbarTitle).asText).toBeTruthy();
-    });
+// eslint-disable-next-line no-extend-native
+Object.defineProperties(By.prototype, {
+    asElement: {
+        get: function(this: By) {
+            return element(by.css(this['value']));
+        }
+    },
+    asText: {
+        get: function(this: By) {
+            return this.asElement.getText();
+        }
+    }
 });
