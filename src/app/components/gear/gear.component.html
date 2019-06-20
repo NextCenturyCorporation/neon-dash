@@ -45,9 +45,11 @@
                     </mat-select>
                 </mat-form-field>
 
-                <app-options-list [options]=layer [fields]=layer.fields [bindingsList]=getLayerList(layer)
-                    [updateOnChange]=modifiedOptions.updateOnChange.bind() [index]=i>
-                </app-options-list>
+                <!-- <app-options-list [options]=layer [fields]=layer.fields [bindingsList]=getLayerList(layer)
+                    [updateOnChange]=updateOnChange.bind(this) [index]=i>
+                </app-options-list> -->
+                <app-options-section [modifiedOptions]=modifiedOptions [gearComp]=this [index]=i>
+                </app-options-section>
             </div>
         </div>
     </div>

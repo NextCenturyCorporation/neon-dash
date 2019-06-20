@@ -94,10 +94,10 @@ export class GearComponent implements OnInit, OnDestroy {
         let optionList: WidgetOption[] = this.modifiedOptions.list();
         optionList = this.removeOptionsByEnableInMenu(optionList, false);
         optionList = this.removeOptionsByBindingKey(optionList, 'title');
+        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
         optionList = this.removeOptionsByType(optionList, 'DATABASE');
         optionList = this.removeOptionsByType(optionList, 'TABLE');
         optionList = this.removeOptionsByBindingKey(optionList, 'layer');
-        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
 
         let requiredList: WidgetOption[] = [];
         let optionalList: WidgetOption[] = [];
@@ -172,9 +172,9 @@ export class GearComponent implements OnInit, OnDestroy {
         let optionList: WidgetOption[] = layer.list();
         optionList = this.removeOptionsByEnableInMenu(optionList, false);
         optionList = this.removeOptionsByBindingKey(optionList, 'title');
+        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
         optionList = this.removeOptionsByType(optionList, 'DATABASE');
         optionList = this.removeOptionsByType(optionList, 'TABLE');
-        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
         return optionList.map((option) => option.bindingKey);
     }
 
