@@ -17,9 +17,13 @@ import { CommonModule } from '@angular/common';
 import { MapComponent } from './map.component';
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { MouseWheelDirective } from './mousewheel.directive';
 
 @NgModule({
-    declarations: [MapComponent],
+    declarations: [
+        MapComponent,
+        MouseWheelDirective
+    ],
     exports: [MapComponent],
     entryComponents: [MapComponent],
     imports: [
