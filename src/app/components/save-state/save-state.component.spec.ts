@@ -25,7 +25,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { MatSnackBar } from '@angular/material';
-import { NeonConfig } from '../../model/types';
+import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -34,7 +34,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { ConfirmationDialogModule } from '../../components/confirmation-dialog/confirmation-dialog.module';
 
 import { SaveStateModule } from './save-state.module';
-import { ConfigService } from '../../services/config.service';
 import { of, throwError } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppLazyModule } from '../../app-lazy.module';
@@ -45,7 +44,6 @@ const Modules = {
 };
 
 describe('Component: SaveStateComponent', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let fixture: ComponentFixture<SaveStateComponent>;
     let component: SaveStateComponent;
 
@@ -62,8 +60,7 @@ describe('Component: SaveStateComponent', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
             MatSnackBar,
-            ViewContainerRef,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
+            ViewContainerRef
         ]
     });
 
