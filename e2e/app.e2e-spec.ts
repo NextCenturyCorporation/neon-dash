@@ -16,18 +16,17 @@
 /* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
 import './util';
-import { ElementFinder, by, browser } from 'protractor';
+import { by, browser } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
 
     beforeAll(() => {
         page = new NeonGtdPage();
-        page.goTo('/');
     });
 
-    beforeEach(() => {
-        browser.navigate().to('/');
+    beforeEach(async() => {
+        await page.goTo('/');
     });
 
     it('should load the dashboard', async() => {
@@ -58,16 +57,7 @@ describe('neon-gtd App', () => {
     });
 
     it('should verify pagination', async() => {
-        let pageable: ElementFinder;
-
-        for (const vis of await page.visualizations.all) {
-            const info = await page.getPageInfo(vis);
-
-            if (info.start) { // We have a pageable
-                pageable = vis;
-                break;
-            }
-        }
+        let pageable = await page.getFirstPageableViz();
         expect(pageable).toBeDefined();
 
         let infoA = await page.getPageInfo(pageable);
@@ -79,35 +69,20 @@ describe('neon-gtd App', () => {
         expect(infoB.end - infoB.start).toEqual(infoA.end - infoA.start);
     });
 
-    it('counts should vary on selecting a filter', async() => {
-        let pageable: ElementFinder;
+    (fit as any)('counts should vary on selecting a filter', async() => {
+        let pageableA = await page.getFirstPageableViz();
+        expect(pageableA).toBeDefined();
 
-        for (const vis of await page.visualizations.all) {
-            const info = await page.getPageInfo(vis);
-
-            if (info.start) { // We have a pageable
-                pageable = vis;
-                break;
-            }
-        }
-        expect(pageable).toBeDefined();
-
-        let infoA = await page.getPageInfo(pageable);
+        let infoA = await page.getPageInfo(pageableA);
 
         const query = [['.ldc_uyg_jul_18.ui_out.topic', '=', 'Search﹒and﹒Rescue', 'or']];
-        browser.navigate().to(`/?filter=${JSON.stringify(query)}`);
+        await page.goTo('/', { filter: JSON.stringify(query) });
 
-        for (const vis of await page.visualizations.all) {
-            const info = await page.getPageInfo(vis);
+        await browser.wait(async() => !!(await browser.waitForAngular()), 100);
 
-            if (info.start) { // We have a pageable
-                pageable = vis;
-                break;
-            }
-        }
-        expect(pageable).toBeDefined();
+        let pageableB = await page.getFirstPageableViz();
 
-        let infoB = await page.getPageInfo(pageable);
+        let infoB = await page.getPageInfo(pageableB);
 
         expect(infoA.count).toBeGreaterThan(infoB.count);
     });
