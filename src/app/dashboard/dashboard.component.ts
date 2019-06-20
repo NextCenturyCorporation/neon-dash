@@ -45,6 +45,7 @@ import { ConfigurableWidget } from '../models/widget-option';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
+import { Location } from '@angular/common';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -129,7 +130,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
-        public router: Router
+        public router: Router,
+        public location: Location
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -196,6 +198,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Fires whenever a dashboard state changes
      */
     private onDashboardStateChange(state: DashboardState) {
+        // Validate url first
+        const url = new URL(window.location.toString());
+        const urlFilter = url.searchParams.get('filter');
+        const currentFilter = this.filterService.getFiltersToSaveInURL();
+
+        if (!urlFilter && currentFilter) {
+            url.searchParams.set('filter', currentFilter);
+            const path = this.location.prepareExternalUrl(url.pathname);
+            this.location.replaceState(path, url.searchParams.toString());
+        }
+
         // Clean on different dashboard
         if (this.currentTitle !== state.dashboard.fullTitle) {
             this.pendingInitialRegistrations = this.widgets.size;

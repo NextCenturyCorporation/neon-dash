@@ -23,7 +23,8 @@ export class ConfigUtil {
         '{': '⟨',
         '}': '⟩',
         '/': '–',
-        ' ': '﹒'
+        ' ': '﹒',
+        ',': '⸒',
     };
 
     static decodeFiltersMap = {
@@ -34,7 +35,8 @@ export class ConfigUtil {
         '⟨': '{',
         '⟩': '}',
         '–': '/',
-        '﹒': ' '
+        '﹒': ' ',
+        '⸒': ',',
     };
 
     /**
