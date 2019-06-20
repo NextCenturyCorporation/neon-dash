@@ -31,7 +31,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
-import { OptionsSectionComponent } from '../options-section/options-section.component';
 
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
