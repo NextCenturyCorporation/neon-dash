@@ -12,20 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonGtdPage, toolbarTitle } from './app.po';
-import { by } from 'protractor';
-import './util';
-
-describe('neon-gtd App', () => {
-    let page: NeonGtdPage;
-
-    beforeEach(() => {
-        page = new NeonGtdPage();
-    });
-
-    it('should load the dashboard', async() => {
-        page.goTo('/');
-
-        expect(await by.css(toolbarTitle).asText).toBeTruthy();
-    });
-});
+import { ElementFinder } from 'protractor';
+declare module 'selenium-webdriver' {
+    interface By {
+        asElement: ElementFinder;
+        asText: Promise<string>;
+    }
+}
