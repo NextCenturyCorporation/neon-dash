@@ -23,18 +23,17 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { neonEvents } from '../../model/neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { GearModule } from './gear.module';
-import { ConfigService } from '../../services/config.service';
-import { WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../model/widget-option';
-import { WidgetOptionCollection, ConfigurableWidget } from '../../model/widget-option-collection';
+import { WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../models/widget-option';
+import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
     options = new WidgetOptionCollection(() => []);
@@ -91,8 +90,7 @@ describe('Component: Gear Component', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             GearModule

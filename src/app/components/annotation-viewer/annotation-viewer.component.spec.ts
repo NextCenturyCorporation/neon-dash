@@ -27,11 +27,10 @@ import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: AnnotationViewer', () => {
     let component: AnnotationViewerComponent;
@@ -43,8 +42,7 @@ describe('Component: AnnotationViewer', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             AnnotationViewerModule

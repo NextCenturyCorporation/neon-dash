@@ -14,7 +14,7 @@
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../model/color';
+import { Color } from '../../models/color';
 
 import * as moment from 'moment';
 import * as Chart from 'chart.js';
@@ -244,19 +244,19 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         };
 
         // Compare here to an empty string so we do not ignore zero!
-        if (this.options.scaleMaxX !== '' && !isNaN(Number(this.options.scaleMaxX))) {
+        if (this.options.scaleMaxX !== null && !isNaN(Number(this.options.scaleMaxX))) {
             defaultOptions.scales.xAxes[0].ticks.max = Number(this.options.scaleMaxX);
         }
 
-        if (this.options.scaleMinX !== '' && !isNaN(Number(this.options.scaleMinX))) {
+        if (this.options.scaleMinX !== null && !isNaN(Number(this.options.scaleMinX))) {
             defaultOptions.scales.xAxes[0].ticks.min = Number(this.options.scaleMinX);
         }
 
-        if (this.options.scaleMaxY !== '' && !isNaN(Number(this.options.scaleMaxY))) {
+        if (this.options.scaleMaxY !== null && !isNaN(Number(this.options.scaleMaxY))) {
             defaultOptions.scales.yAxes[0].ticks.max = Number(this.options.scaleMaxY);
         }
 
-        if (this.options.scaleMinY !== '' && !isNaN(Number(this.options.scaleMinY))) {
+        if (this.options.scaleMinY !== null && !isNaN(Number(this.options.scaleMinY))) {
             defaultOptions.scales.yAxes[0].ticks.min = Number(this.options.scaleMinY);
         }
 

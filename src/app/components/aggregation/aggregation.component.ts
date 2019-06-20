@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../model/color';
+import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
@@ -64,9 +64,10 @@ import {
     OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -177,6 +178,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
+    private viewInitialized = false;
+    private pendingFilters: FilterDesign[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: FilterService,
@@ -219,6 +223,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.xField.prettyName :
                     this.options.aggregation || this.options.yField.prettyName;
+        }
+    }
+
+    ngAfterViewInit() {
+        super.ngAfterViewInit();
+        this.viewInitialized = true;
+        if (this.pendingFilters && this.pendingFilters.length) {
+            this.redrawFilteredItems(this.pendingFilters);
+            delete this.pendingFilters;
         }
     }
 
@@ -475,10 +488,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinX', 'Scale Min X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxX', 'Scale Max X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinY', 'Scale Min Y', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', null, this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList.bind(this)),
             new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
@@ -1151,6 +1164,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
+        if (!this.subcomponentMain && !this.viewInitialized) {
+            this.pendingFilters = filterDesigns;
+        }
         if (this.subcomponentMain) {
             // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
             this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
