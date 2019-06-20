@@ -450,10 +450,12 @@ body {
     padding: 5px 10px !important;
     border-bottom: 2px solid var(--color-border, lightgrey) !important;
 
-    &.neon-toolbar-large {
+    &.neon-toolbar-navbar {
+        border-bottom: none !important;
         height: 50px !important;
         line-height: 40px !important;
         min-height: 50px !important;
+        padding: 5px 20px !important;
     }
 
     &.neon-toolbar-thin {
@@ -461,10 +463,6 @@ body {
         height: 32px !important;
         min-height: 32px !important;
         padding: 6px !important;
-    }
-
-    &.neon-toolbar-wide {
-        padding: 5px 20px !important;
     }
 
     &.titlebar-header-text {
