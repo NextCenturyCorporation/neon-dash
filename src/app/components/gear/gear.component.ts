@@ -97,6 +97,7 @@ export class GearComponent implements OnInit, OnDestroy {
         optionList = this.removeOptionsByType(optionList, 'DATABASE');
         optionList = this.removeOptionsByType(optionList, 'TABLE');
         optionList = this.removeOptionsByBindingKey(optionList, 'layer');
+        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
 
         let requiredList: WidgetOption[] = [];
         let optionalList: WidgetOption[] = [];
