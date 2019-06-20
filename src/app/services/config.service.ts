@@ -110,12 +110,14 @@ export class ConfigService {
             // If found
             if (active) {
                 ConfigUtil.setAutoShowDashboard(config.dashboards, active);
-                active.filters = filters;
+                if (filters) {
+                    active.filters = filters;
+                }
                 dash = active;
             }
         }
 
-        if (!dash) {
+        if (!dash && filters) {
             ConfigUtil.filterDashboards(config.dashboards, filters);
         }
 

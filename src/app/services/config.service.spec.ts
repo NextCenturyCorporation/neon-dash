@@ -103,7 +103,7 @@ describe('Service: ConfigService Initialization', () => {
                             dash1: {
                             },
                             dash2: {
-
+                                filters: 'SAVED_FILTERS'
                             }
                         }
                     }
@@ -132,7 +132,7 @@ describe('Service: ConfigService Initialization', () => {
                 expect(dash1.filters).toEqual(query);
 
                 expect(dash2.options.connectOnLoad).toEqual(false);
-                expect(dash2.filters).toEqual([]);
+                expect(dash2.filters).toEqual('SAVED_FILTERS');
                 done();
             });
     });
@@ -192,7 +192,7 @@ describe('Service: ConfigService Initialization', () => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         configService.load = loadConfig;
 
-        configService.setActiveByURL(`http://website.com/ctx/configName`, '/ctx')
+        configService.setActiveByURL('http://website.com/ctx/configName', '/ctx')
             .subscribe((config) => {
                 expect(config.fileName).toEqual('configName');
                 expect(config).toBeTruthy();
@@ -202,10 +202,11 @@ describe('Service: ConfigService Initialization', () => {
 
                 expect(dash2).toBeTruthy();
                 expect(dash2.options.connectOnLoad).toBeFalsy();
-                expect(dash2.filters).toBeFalsy();
+                // Original filters should be preserved
+                expect(dash2.filters).toEqual('SAVED_FILTERS');
 
                 expect(dash1.options.connectOnLoad).toBeFalsy();
-                expect(dash2.filters).toBeFalsy();
+                expect(dash1.filters).toEqual([]);
                 done();
             });
     });
