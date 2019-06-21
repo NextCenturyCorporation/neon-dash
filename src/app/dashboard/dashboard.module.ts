@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, LocationStrategy, PathLocationStrategy, Location } from '@angular/common';
 
 import { NgGridModule } from 'angular2-grid';
 
@@ -29,11 +29,17 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
 import { CurrentFiltersModule } from '../components/current-filters/current-filters.module';
 import { CustomConnectionModule } from '../components/custom-connection/custom-connection.module';
 import { AbbreviatePipe } from './abbreviate.pipe';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
     declarations: [DashboardComponent, AbbreviatePipe],
     exports: [DashboardComponent],
+    providers: [
+        Location,
+        { provide: LocationStrategy, useClass: PathLocationStrategy }
+    ],
     imports: [
+        RouterModule.forRoot([{ path: '**', component: DashboardComponent }]),
         CommonWidgetModule,
         MatBadgeModule,
         MatSnackBarModule,

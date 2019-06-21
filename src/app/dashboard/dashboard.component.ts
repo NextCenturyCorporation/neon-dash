@@ -34,7 +34,7 @@ import { FilterService } from '../services/filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../models/neon-grid-item';
-import { NeonDashboardConfig, NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonConfig } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
@@ -43,6 +43,9 @@ import { VisualizationContainerComponent } from '../components/visualization-con
 import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
+import { Router } from '@angular/router';
+import { ConfigUtil } from '../util/config.util';
+import { Location } from '@angular/common';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -116,22 +119,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    /**
-     * Finds and returns the Dashboard to automatically show on page load, or null if no such dashboard exists.
-     */
-    static findAutoShowDashboard(dashboard: NeonDashboardConfig): NeonDashboardConfig {
-        if ('options' in dashboard && dashboard.options.connectOnLoad) {
-            return dashboard;
-        }
-        const choices = ('choices' in dashboard ? dashboard.choices : {}) || {};
-        for (let choiceKey of Object.keys(choices)) {
-            let nestedDashboard = this.findAutoShowDashboard(choices[choiceKey]);
-            if (nestedDashboard) {
-                return nestedDashboard;
-            }
-        }
-        return null;
-    }
+    private currentTitle: string;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -141,7 +129,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
         public widgetService: AbstractWidgetService,
-        public viewContainerRef: ViewContainerRef
+        public viewContainerRef: ViewContainerRef,
+        public router: Router,
+        public location: Location
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -195,7 +185,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             config.projectIcon || 'assets/favicon.blue.ico?v=1'
         );
 
-        const dashboard = DashboardComponent.findAutoShowDashboard(config.dashboards) as NeonDashboardLeafConfig;
+        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
 
         if (dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
@@ -208,24 +198,41 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Fires whenever a dashboard state changes
      */
     private onDashboardStateChange(state: DashboardState) {
-        this.pendingInitialRegistrations = this.widgets.size;
+        // Validate url first
+        const url = new URL(window.location.toString());
+        const urlFilter = url.searchParams.get('filter');
+        const currentFilter = this.filterService.getFiltersToSaveInURL();
 
-        this.gridState.clear();
-        this.widgets.clear();
-        this.changeDetection.detectChanges();
-
-        const layout = this.dashboardService.config.layouts[state.getLayout()];
-
-        const pairs = GridState.getAllGridItems(layout);
-        this.pendingInitialRegistrations = pairs.length;
-
-        for (const pair of pairs) {
-            this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
+        if (!urlFilter && currentFilter) {
+            const path = this.location.prepareExternalUrl(url.pathname);
+            this.location.replaceState(`${path}#${currentFilter}`, url.searchParams.toString());
         }
 
-        this.simpleFilter.updateSimpleFilterConfig();
-        this.toggleDashboardSelectorDialog(false);
-        this.refreshDashboard();
+        // Clean on different dashboard
+        if (this.currentTitle !== state.dashboard.fullTitle) {
+            this.pendingInitialRegistrations = this.widgets.size;
+
+            this.gridState.clear();
+            this.widgets.clear();
+            this.changeDetection.detectChanges();
+
+            const layout = this.dashboardService.config.layouts[state.getLayout()];
+
+            const pairs = GridState.getAllGridItems(layout);
+            this.pendingInitialRegistrations = pairs.length;
+
+            for (const pair of pairs) {
+                this.messageSender.publish(neonEvents.WIDGET_ADD, pair);
+            }
+
+            this.simpleFilter.updateSimpleFilterConfig();
+            this.toggleDashboardSelectorDialog(false);
+            this.refreshDashboard();
+        } else {
+            this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
+        }
+
+        this.currentTitle = state.dashboard.fullTitle;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {
@@ -373,8 +380,17 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.generalChange.bind(this));
+        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+    }
+
+    @DashboardModified()
+    onFiltersChanged() {
+        this.router.navigate([], {
+            fragment: this.filterService.getFiltersToSaveInURL(),
+            queryParamsHandling: 'merge',
+            relativeTo: this.router.routerState.root
+        });
     }
 
     @DashboardModified()
