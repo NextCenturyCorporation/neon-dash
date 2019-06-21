@@ -661,7 +661,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
-            callback(options, this.prettifyLabels(options, response), this.finishQueryExecution.bind(this));
+            callback(options, this.searchService.transformQueryResultsValues(response, this.getLabelOptions(options)),
+                this.finishQueryExecution.bind(this));
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
@@ -948,47 +949,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public prettifyInteger(item: number): string {
         return Math.round(item).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-
-    /**
-     * Returns the result of converting labels in the response query data into pretty labels specified in the config.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {{data:any[]}} response
-     * @return {{data:any[]}}
-     */
-    private prettifyLabels(options: WidgetOptionCollection, response: { data: any[] }): { data: any[] } {
-        let labelOptions = this.getLabelOptions(options);
-        let labelKeys = Object.keys(labelOptions);
-        let itemKeys;
-        // Go through each item in the response data
-        for (let item of response.data) {
-            itemKeys = Object.keys(item);
-            // For each key in the data item
-            for (let key of itemKeys) {
-                // If that key exists in the labelOptions as keys for which there is a value to change
-                if (labelKeys.includes(key)) {
-                    // Data items can have arrays of values, and we have to change all of them otherwise,
-                    // there is only one, and we have to change that one
-                    let value = item[key];
-                    if (value instanceof Array) {
-                        let newItemParam = [];
-                        // For each value in that array, if that element is a key in the options,
-                        // push into the new array the pretty name, otherwize push the original value
-                        for (let element of value) {
-                            let possibleNewValue = labelOptions[key][element];
-                            let newValue = possibleNewValue ? possibleNewValue : element;
-                            newItemParam.push(newValue);
-                        }
-                        item[key] = newItemParam;
-                    } else if (labelOptions[key][value]) {
-                        // If it's not an array, check to see if its a value in the options, set it if it is
-                        item[key] = labelOptions[key][value];
-                    }
-                }
-            }
-        }
-        return response;
     }
 
     /**
