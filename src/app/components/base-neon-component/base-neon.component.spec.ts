@@ -344,7 +344,7 @@ describe('BaseNeonComponent', () => {
         let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
         expect(inputOptions.layers.length).toEqual(0);
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        (component as any).createOptionsForLayer = () => [
+        component['createOptionsForLayer'] = () => [
             new WidgetFieldOption('testField', 'Test Field', false),
             new WidgetFreeTextOption('testValue', 'Test Value', '')
         ];
