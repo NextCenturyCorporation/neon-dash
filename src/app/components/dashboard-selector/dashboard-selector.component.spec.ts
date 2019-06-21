@@ -22,14 +22,13 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardSelectorModule } from './dashboard-selector.module';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { DashboardService } from '../../services/dashboard.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 let dashboards = NeonDashboardChoiceConfig.get({
     category: 'Choose an option',
-    pathFromTop: [],
     choices: {
         dash1: {
             fullTitle: 'Test Discovery Config',
-            pathFromTop: ['dash1'],
             layout: 'DISCOVERY',
             tables: {
                 tableKey: 'datastore1.database1.table1'
@@ -40,11 +39,9 @@ let dashboards = NeonDashboardChoiceConfig.get({
         },
         dash2: {
             fullTitle: 'Other Config',
-            pathFromTop: ['dash2'],
             category: 'Select an option...',
             choices: {
                 nextChoice: {
-                    pathFromTop: ['dash2', 'nextChoice'],
                     fullTitle: 'Last Config',
                     layout: 'layout3',
                     tables: {
@@ -59,16 +56,16 @@ let dashboards = NeonDashboardChoiceConfig.get({
     }
 });
 
-describe('Component: DashboardSelector', () => {
+describe('Component: Dashboard Selector', () => {
     let fixture: ComponentFixture<DashboardSelectorComponent>;
     let component: DashboardSelectorComponent;
 
-    initializeTestBed('Dataset Selector', {
+    initializeTestBed('Dashboard Selector', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock }
-
         ],
         imports: [
+            RouterTestingModule,
             DashboardSelectorModule
         ]
     });
@@ -94,11 +91,14 @@ describe('Component: DashboardSelector', () => {
         expect(choices.find((ch) => ch.name === 'dash2').fullTitle).toEqual('Other Config');
     }));
 
-    it('updateDashboardState() should call setActiveDashboard()', (() => {
-        let spy = spyOn(component['dashboardService'], 'setActiveDashboard');
+    it('updateDashboardState() should navigate to dashboard name', (() => {
+        let spy = spyOn(component['router'], 'navigate');
 
-        component.updateDashboardState(NeonDashboardChoiceConfig.get({ tables: {} }));
+        component.updateDashboardState(dashboards.choices.dash1);
         expect(spy.calls.count()).toEqual(1);
+        const [path, params] = spy.calls.argsFor(0);
+        expect(path).toEqual([]);
+        expect(params.queryParams).toEqual({ path: 'dash1' });
     }));
 
     it('selectDashboard() should set dashboardChoice if no more choices exists', (() => {
