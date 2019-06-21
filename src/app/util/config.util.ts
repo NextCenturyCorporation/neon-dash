@@ -16,27 +16,17 @@ import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig
 
 export class ConfigUtil {
     static encodeFiltersMap = {
-        '"': '’',
-        '=': '≈',
         '[': '⟦',
         ']': '⟧',
-        '{': '⟨',
-        '}': '⟩',
         '/': '–',
-        ' ': '﹒',
-        ',': '⸒'
+        ' ': '﹒'
     };
 
     static decodeFiltersMap = {
-        '’': '"',
-        '≈': '=',
         '⟦': '[',
         '⟧': ']',
-        '⟨': '{',
-        '⟩': '}',
         '–': '/',
-        '﹒': ' ',
-        '⸒': ','
+        '﹒': ' '
     };
 
     /**
