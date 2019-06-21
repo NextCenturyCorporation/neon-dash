@@ -12,12 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NeonConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { ConfigService } from './config.service';
 import { getConfigService } from '../../testUtils/initializeTestBed';
+import { Observable, of } from 'rxjs';
+import { ConfigUtil } from '../util/config.util';
 
 describe('Service: ConfigService', () => {
     let configService: ConfigService;
+
+    beforeAll(() => {
+        // eslint-disable-next-line no-console
+        console.log('STARTING ConfigService TESTS ...');
+    });
 
     beforeEach(() => {
         configService = getConfigService();
@@ -70,5 +77,137 @@ describe('Service: ConfigService', () => {
                 done();
             });
         configService.setActive(NeonConfig.get({ fileName: 'test' }));
+    });
+});
+
+describe('Service: ConfigService Initialization', () => {
+    let configService: ConfigService;
+
+    beforeAll(() => {
+        // eslint-disable-next-line no-console
+        console.log('STARTING ConfigService Initialization TESTS ...');
+    });
+
+    beforeEach(() => {
+        configService = getConfigService(null);
+    });
+
+    function loadConfig(this: ConfigService, fileName: string, ...__args: any[]): Observable<NeonConfig> {
+        return of(NeonConfig.get({
+            projecTitle: 'Test Config',
+            fileName,
+            dashboards: {
+                choices: {
+                    dashSet: {
+                        choices: {
+                            dash1: {
+                            },
+                            dash2: {
+                                filters: 'SAVED_FILTERS'
+                            }
+                        }
+                    }
+                }
+            }
+        }));
+    }
+
+    it('setActiveByURL loads the appropriate config (with filters) given a url and base path', (done) => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        configService.load = loadConfig;
+
+        const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
+
+        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash1#${query}`, '/ctx')
+            .subscribe((config) => {
+                expect(config.fileName).toEqual('configName');
+                expect(config).toBeTruthy();
+
+                const dash1 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash1']) as NeonDashboardLeafConfig;
+                const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
+
+                expect(dash1).toBeTruthy();
+                expect(dash1.options.connectOnLoad).toEqual(true);
+                expect(dash1.filters).toBeTruthy();
+                expect(dash1.filters).toEqual(query);
+
+                expect(dash2.options.connectOnLoad).toEqual(false);
+                expect(dash2.filters).toEqual('SAVED_FILTERS');
+                done();
+            });
+    });
+
+    it('setActiveByURL loads the appropriate config (with filters) given a url and base path and secondary path', (done) => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        configService.load = loadConfig;
+
+        const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
+
+        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash2#${query}`, '/ctx')
+            .subscribe((config) => {
+                expect(config.fileName).toEqual('configName');
+                expect(config).toBeTruthy();
+
+                const dash1 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash1']) as NeonDashboardLeafConfig;
+                const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
+
+                expect(dash2).toBeTruthy();
+                expect(dash2.options.connectOnLoad).toEqual(true);
+                expect(dash2.filters).toBeTruthy();
+                expect(dash2.filters).toEqual(query);
+
+                expect(dash1.options.connectOnLoad).toEqual(false);
+                expect(dash1.filters).toEqual([]);
+                done();
+            });
+    });
+
+    it('setActiveByURL loads the appropriate config (with filters) with no path', (done) => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        configService.load = loadConfig;
+
+        const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
+
+        configService.setActiveByURL(`http://website.com/ctx/configName#${query}`, '/ctx')
+            .subscribe((config) => {
+                expect(config.fileName).toEqual('configName');
+                expect(config).toBeTruthy();
+
+                const dash1 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash1']) as NeonDashboardLeafConfig;
+                const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
+
+                expect(dash2).toBeTruthy();
+                expect(dash2.options.connectOnLoad).toBeFalsy();
+                expect(dash2.filters).toBeTruthy();
+                expect(dash2.filters).toEqual(query);
+
+                expect(dash1.options.connectOnLoad).toBeFalsy();
+                expect(dash2.filters).toBeTruthy();
+                expect(dash2.filters).toEqual(query);
+                done();
+            });
+    });
+
+    it('setActiveByURL loads the appropriate config (without filters) with no path', (done) => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        configService.load = loadConfig;
+
+        configService.setActiveByURL('http://website.com/ctx/configName', '/ctx')
+            .subscribe((config) => {
+                expect(config.fileName).toEqual('configName');
+                expect(config).toBeTruthy();
+
+                const dash1 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash1']) as NeonDashboardLeafConfig;
+                const dash2 = ConfigUtil.findDashboardByKey(config.dashboards, ['dashSet', 'dash2']) as NeonDashboardLeafConfig;
+
+                expect(dash2).toBeTruthy();
+                expect(dash2.options.connectOnLoad).toBeFalsy();
+                // Original filters should be preserved
+                expect(dash2.filters).toEqual('SAVED_FILTERS');
+
+                expect(dash1.options.connectOnLoad).toBeFalsy();
+                expect(dash1.filters).toEqual([]);
+                done();
+            });
     });
 });

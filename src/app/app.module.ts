@@ -21,7 +21,6 @@ import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
 import { DashboardService } from './services/dashboard.service';
 import { FilterService } from './services/filter.service';
-import { ParameterService } from './services/parameter.service';
 import { PropertyService } from './services/property.service';
 import { SearchService } from './services/search.service';
 import { WidgetService } from './services/widget.service';
@@ -51,7 +50,6 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
     providers: [
         DashboardService,
         FilterService,
-        ParameterService,
         PropertyService,
         ConfigService,
         {
@@ -66,4 +64,4 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
     entryComponents: [AppComponent, DynamicDialogComponent],
     bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

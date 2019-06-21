@@ -264,7 +264,7 @@ describe('BaseNeonComponent', () => {
         expect(spyInitialize.calls.count()).toEqual(1);
         expect(spyMessengerSubscribe.calls.count()).toEqual(3);
         expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_REFRESH);
-        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual('filters_changed');
+        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual(neonEvents.FILTERS_REFRESH);
         expect(spyMessengerSubscribe.calls.argsFor(2)[0]).toEqual(neonEvents.SELECT_ID);
     });
 
@@ -1726,7 +1726,7 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, component['cachedFilters']]);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
@@ -1734,7 +1734,7 @@ describe('BaseNeonComponent', () => {
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
         let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_CHANGED, {
+        messenger.publish(neonEvents.FILTERS_REFRESH, {
             source: 'testSource'
         });
 
@@ -1742,7 +1742,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event if ID=source', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if ID=source', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
@@ -1750,7 +1750,7 @@ describe('BaseNeonComponent', () => {
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
         let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_CHANGED, {
+        messenger.publish(neonEvents.FILTERS_REFRESH, {
             source: 'testSource'
         });
 
@@ -1758,7 +1758,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_CHANGED event if !filterSelf', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if !filterSelf', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
@@ -1766,7 +1766,7 @@ describe('BaseNeonComponent', () => {
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
         let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_CHANGED, {
+        messenger.publish(neonEvents.FILTERS_REFRESH, {
             source: 'testSource'
         });
 
@@ -1774,7 +1774,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does not call executeAllQueryChain on FILTERS_CHANGED event if ID equals source AND shouldFilterSelf()=>false', () => {
+    it('does not call executeAllQueryChain on FILTERS_REFRESH event if ID equals source AND shouldFilterSelf()=>false', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
@@ -1782,7 +1782,7 @@ describe('BaseNeonComponent', () => {
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
         let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_CHANGED, {
+        messenger.publish(neonEvents.FILTERS_REFRESH, {
             caller: 'testSource'
         });
 
