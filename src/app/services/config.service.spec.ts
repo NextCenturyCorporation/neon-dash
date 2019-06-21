@@ -118,7 +118,7 @@ describe('Service: ConfigService Initialization', () => {
 
         const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
 
-        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash1&filter=${query}`, '/ctx')
+        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash1#${query}`, '/ctx')
             .subscribe((config) => {
                 expect(config.fileName).toEqual('configName');
                 expect(config).toBeTruthy();
@@ -143,7 +143,7 @@ describe('Service: ConfigService Initialization', () => {
 
         const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
 
-        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash2&filter=${query}`, '/ctx')
+        configService.setActiveByURL(`http://website.com/ctx/configName?path=dashSet.dash2#${query}`, '/ctx')
             .subscribe((config) => {
                 expect(config.fileName).toEqual('configName');
                 expect(config).toBeTruthy();
@@ -168,7 +168,7 @@ describe('Service: ConfigService Initialization', () => {
 
         const query = ConfigUtil.translate('[["a.b.c","=","5","and"]]', ConfigUtil.encodeFiltersMap);
 
-        configService.setActiveByURL(`http://website.com/ctx/configName?filter=${query}`, '/ctx')
+        configService.setActiveByURL(`http://website.com/ctx/configName#${query}`, '/ctx')
             .subscribe((config) => {
                 expect(config.fileName).toEqual('configName');
                 expect(config).toBeTruthy();
