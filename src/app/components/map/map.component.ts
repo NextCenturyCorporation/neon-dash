@@ -563,7 +563,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         };
     }
 
-    mouseWheelUp(event) {
+    mouseWheelUp(event: MouseWheelEvent) {
         if (this.shouldZoom(event)) {
             this.mapObject.zoomIn();
         } else {
@@ -571,7 +571,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    mouseWheelDown(event) {
+    mouseWheelDown(event: MouseWheelEvent) {
         if (this.shouldZoom(event)) {
             this.mapObject.zoomOut();
         } else {
@@ -579,7 +579,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    shouldZoom(event) {
+    shouldZoom(event: MouseEvent) {
         const ctrlMetaPressed = event.ctrlKey || event.metaKey;
         const usingLeaflet = this.options.type === MapType.Leaflet;
         const ctrlZoomEnabled = !this.options.disableCtrlZoom;

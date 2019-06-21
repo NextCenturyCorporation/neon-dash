@@ -33,7 +33,13 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
-import { WidgetFreeTextOption, WidgetFieldOption, WidgetSelectOption, OptionChoices } from '../../models/widget-option';
+import {
+    OptionChoices,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetSelectOption
+} from '../../models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
@@ -609,12 +615,36 @@ describe('Component: Gear Component', () => {
         expect(component.collapseOptionalOptions).toEqual(false);
     });
 
-    it('updateOnChange does update changeMade', () => {
+    it('updateOnChange does update changeMade and detects NonPrimitive options correctly', () => {
+        const mock = new MockConfigurable(component['dashboardState']);
+        component.comp = mock;
+
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
+
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
         expect(component.changeMade).toEqual(false);
-        component.updateOnChange('testBindingKey1');
+        expect(component.modifiedOptions.testOption1).toEqual({});
+        component.modifiedOptions['testOption1'] = { foo: true };
+        component.updateOnChange('testOption1');
         expect(component.changeMade).toEqual(true);
-        component.updateOnChange('testBindingKey2');
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.updateOnChange('testOption2');
+        expect(component.changeMade).toEqual(false);
+        expect(component.modifiedOptions.testOption2).toEqual({ foo: true });
+        component.modifiedOptions['testOption2'] = {};
+        component.updateOnChange('testOption2');
         expect(component.changeMade).toEqual(true);
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), {});
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), undefined);
+        component.updateOnChange('testOption3');
+        expect(component.changeMade).toEqual(false);
     });
 
     it('does have expected default HTML elements', () => {

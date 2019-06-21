@@ -14,12 +14,16 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData, FilterConfig } from '../models/types';
+import {
+    NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData,
+    FilterConfig, SimpleFilterConfig, CompoundFilterConfig
+} from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
+import { ConfigUtil } from '../util/config.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -169,12 +173,12 @@ export class FilterUtil {
             let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
             let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
             return {
-                name: filterObject.name,
-                root: filterObject.root,
-                datastore: filterObject.datastore,
-                database: database,
-                table: table,
-                field: field,
+                name: filterObject.name || '',
+                root: filterObject.root || '',
+                datastore: filterObject.datastore || '',
+                database,
+                table,
+                field,
                 operator: filterObject.operator,
                 value: filterObject.value
             } as SimpleFilterDesign;
@@ -182,8 +186,8 @@ export class FilterUtil {
 
         if ('filters' in filterObject && 'type' in filterObject) {
             return {
-                name: filterObject.name,
-                root: filterObject.root,
+                name: filterObject.name || '',
+                root: filterObject.root || '',
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
                     this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
@@ -202,22 +206,19 @@ export class FilterUtil {
      */
     static createFilterFromDesign(filterDesign: FilterDesign, searchService: AbstractSearchService): AbstractFilter {
         let filter: AbstractFilter = null;
-        let simpleFilterDesign: SimpleFilterDesign = this.isSimpleFilterDesign(filterDesign) ? (filterDesign) :
-            null;
-        let compoundFilterDesign: CompoundFilterDesign = this.isCompoundFilterDesign(filterDesign) ?
-            (filterDesign) : null;
-
         // TODO THOR-1078 Validate that datastore is non-empty.
-        if (simpleFilterDesign && simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
-            simpleFilterDesign.table.name && simpleFilterDesign.field && simpleFilterDesign.field.columnName &&
-            simpleFilterDesign.operator && typeof simpleFilterDesign.value !== 'undefined') {
-            // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
-            filter = new SimpleFilter('', simpleFilterDesign.database, simpleFilterDesign.table, simpleFilterDesign.field,
-                simpleFilterDesign.operator, simpleFilterDesign.value, searchService);
-        }
 
-        if (compoundFilterDesign && compoundFilterDesign.type && compoundFilterDesign.filters) {
-            filter = new CompoundFilter(compoundFilterDesign.type, compoundFilterDesign.filters.map((nestedDesign) =>
+        if (this.isSimpleFilterDesign(filterDesign)) {
+            if (filterDesign.database.name &&
+                filterDesign.table.name &&
+                filterDesign.field && filterDesign.field.columnName &&
+                filterDesign.operator && typeof filterDesign.value !== 'undefined') {
+                // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
+                filter = new SimpleFilter('', filterDesign.database, filterDesign.table, filterDesign.field,
+                    filterDesign.operator, filterDesign.value, searchService);
+            }
+        } else if (this.isCompoundFilterDesign(filterDesign)) {
+            filter = new CompoundFilter(filterDesign.type, filterDesign.filters.map((nestedDesign) =>
                 this.createFilterFromDesign(nestedDesign, searchService)), searchService);
         }
 
@@ -236,7 +237,7 @@ export class FilterUtil {
      * @arg {FilterDesign} filterDesign
      * @return {any}
      */
-    static createFilterJsonObjectFromDesign(filter: FilterDesign): any {
+    static createFilterJsonObjectFromDesign(filter: FilterDesign): FilterConfig {
         if (this.isSimpleFilterDesign(filter)) {
             return {
                 name: filter.name,
@@ -255,7 +256,8 @@ export class FilterUtil {
                 name: filter.name,
                 root: filter.root,
                 type: filter.type,
-                filters: filter.filters.map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
+                filters: filter.filters
+                    .map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
             };
         }
 
@@ -270,7 +272,8 @@ export class FilterUtil {
      * @return {filterDesign is CompoundFilterDesign}
      */
     static isCompoundFilterDesign(filterDesign: FilterDesign): filterDesign is CompoundFilterDesign {
-        return (filterDesign as CompoundFilterDesign).type !== undefined && (filterDesign as CompoundFilterDesign).filters !== undefined;
+        return (filterDesign as CompoundFilterDesign).type !== undefined &&
+            (filterDesign as CompoundFilterDesign).filters !== undefined;
     }
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
@@ -284,6 +287,53 @@ export class FilterUtil {
         return (filterDesign as SimpleFilterDesign).datastore !== undefined &&
             (filterDesign as SimpleFilterDesign).database !== undefined &&
             (filterDesign as SimpleFilterDesign).table !== undefined;
+    }
+
+    static toPlainFilterJSON(filters: FilterDesign[]): any[] {
+        let out: any[] = [];
+        for (const filter of filters) {
+            if (this.isCompoundFilterDesign(filter)) {
+                out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
+            } else if (this.isSimpleFilterDesign(filter)) {
+                out.push([
+                    `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
+                    filter.operator,
+                    filter.value,
+                    filter.root
+                ]);
+            }
+        }
+        return out;
+    }
+
+    static fromPlainFilterJSON(simple: any[]): FilterConfig {
+        if (simple[0] === 'and' || simple[0] === 'or') { // Complex filter
+            const [operator, root, ...filters] = simple;
+            return {
+                name: operator,
+                type: operator,
+                root: root || 'or',
+                filters: filters.map((val) => this.fromPlainFilterJSON(val))
+            } as CompoundFilterConfig;
+        } // Simple filter
+        const [field, operator, value, root] = simple as string[];
+        return {
+            ...ConfigUtil.deconstructDottedReference(field),
+            operator,
+            value,
+            root: root || 'or'
+        } as SimpleFilterConfig;
+    }
+
+    static toSimpleFilterQueryString(filters: FilterDesign[]): string {
+        return ConfigUtil.translate(JSON.stringify(this.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+    }
+
+    static fromSimpleFilterQueryString(query: string): FilterConfig[] {
+        const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
+        const arr = JSON.parse(text) as any[];
+        const res = arr.map((val) => this.fromPlainFilterJSON(val));
+        return res;
     }
 }
 
@@ -646,11 +696,16 @@ export class FilterService {
 
     /**
      * Returns the filters as JSON objects to save in a config file.
-     *
-     * @return {any[]}
      */
-    public getFiltersToSaveInConfig(): any[] {
+    public getFiltersToSaveInConfig(): FilterConfig[] {
         return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
+    }
+
+    /**
+     * Returns the filters as string for use in URL
+     */
+    public getFiltersToSaveInURL(): string {
+        return FilterUtil.toSimpleFilterQueryString(this.getFilters());
     }
 
     /**

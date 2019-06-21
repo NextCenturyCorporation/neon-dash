@@ -209,9 +209,9 @@ describe('Component: SaveStateComponent', () => {
         let spy = spyOn(component, 'closeSidenav');
 
         let loads = 0;
-        let activated = 0;
-        spyOn(component['configService'], 'setActive').and.callFake(() => {
-            activated += 1;
+        let navigated = 0;
+        spyOn(component['router'], 'navigate').and.callFake(() => {
+            navigated += 1;
         });
 
         spyOn(component['configService'], 'load').and.callFake((data) => {
@@ -222,7 +222,7 @@ describe('Component: SaveStateComponent', () => {
 
         component.loadState('testState');
         expect(loads).toEqual(1);
-        expect(activated).toEqual(1);
+        expect(navigated).toEqual(1);
         expect(spy.calls.count()).toEqual(1);
     });
 
