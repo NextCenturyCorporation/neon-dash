@@ -16,7 +16,7 @@
 /* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
 import './util';
-import { by, browser } from 'protractor';
+import { by, ElementFinder, $ } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
@@ -25,15 +25,15 @@ describe('neon-gtd App', () => {
         page = new NeonGtdPage();
     });
 
-    beforeEach(async() => {
+    beforeEach(async () => {
         await page.goTo('/');
     });
 
-    it('should load the dashboard', async() => {
+    it('should load the dashboard', async () => {
         expect(await page.toolbarTitle.asText).toBeTruthy();
     });
 
-    it('should verify counts', async() => {
+    it('should verify counts', async () => {
         const all = await page.visualizations.all;
 
         expect(all.length).toBeGreaterThan(1);
@@ -41,7 +41,7 @@ describe('neon-gtd App', () => {
         const counts = [];
 
         for (const vis of all) {
-            const info = await page.getPageInfo(vis);
+            const info = await page.getVizPageInfo(vis);
             if (info && info.start) {
                 counts.push(info.count);
             }
@@ -56,34 +56,74 @@ describe('neon-gtd App', () => {
         }
     });
 
-    it('should verify pagination', async() => {
+    it('should verify pagination', async () => {
         let pageable = await page.getFirstPageableViz();
         expect(pageable).toBeDefined();
 
-        let infoA = await page.getPageInfo(pageable);
+        let infoA = await page.getVizPageInfo(pageable);
         await pageable.element(by.buttonText('Next')).click();
-        let infoB = await page.getPageInfo(pageable);
+        let infoB = await page.getVizPageInfo(pageable);
 
         expect(infoB.start).toBeGreaterThan(infoA.end);
         expect(infoB.count).toEqual(infoA.count);
         expect(infoB.end - infoB.start).toEqual(infoA.end - infoA.start);
     });
 
-    (fit as any)('counts should vary on selecting a filter', async() => {
-        let pageableA = await page.getFirstPageableViz();
+    it('counts should vary on selecting a filter', async () => {
+        let pageableA: ElementFinder = await page.getFirstCountableViz();
         expect(pageableA).toBeDefined();
 
-        let infoA = await page.getPageInfo(pageableA);
+        let infoA = await page.getVizPageInfo(pageableA);
+        let tagA = await pageableA.getTagName();
 
-        const query = [['.ldc_uyg_jul_18.ui_out.topic', '=', 'Search﹒and﹒Rescue', 'or']];
-        await page.goTo('/', { filter: JSON.stringify(query) });
+        const legendary: ElementFinder = await page.getVizByTagName('app-aggregation');
+        await page.clickLegendItem(legendary);
 
-        await browser.wait(async() => !!(await browser.waitForAngular()), 100);
+        let pageableB: ElementFinder = await page.getFirstCountableViz();
+        expect(pageableB).toBeDefined();
 
-        let pageableB = await page.getFirstPageableViz();
-
-        let infoB = await page.getPageInfo(pageableB);
-
+        let infoB = await page.getVizPageInfo(pageableB);
+        expect(tagA).toEqual(await pageableB.getTagName());
         expect(infoA.count).toBeGreaterThan(infoB.count);
+    });
+
+    it('widget should have settings', async () => {
+        let pageableA: ElementFinder = await page.getFirstCountableViz();
+        expect(pageableA).toBeDefined();
+        const title = await page.getVizTitle(pageableA);
+
+        await pageableA.element(by.buttonText('settings')).click();
+
+        const settings: ElementFinder = await page.getSettingsPanel();
+
+        expect(settings).toBeDefined();
+        expect(await settings.element(by.buttonText('Cancel'))).toBeDefined();
+
+        const applyBtn = settings.element(by.buttonText('Apply Changes'));
+        expect(await applyBtn).toBeDefined();
+        expect(await applyBtn.isEnabled()).toBeFalsy();
+
+        await settings.element(by.css('input[placeholder=Title]')).sendKeys('s');  // make plural
+        expect(await applyBtn.isEnabled()).toBeTruthy();
+        await applyBtn.click();
+
+        const titleAfter = await page.getVizTitle(pageableA);
+        expect(titleAfter).toEqual(title + 's');
+    });
+
+    it('global search should filter values', async () => {
+        let pageableA: ElementFinder = await page.getFirstCountableViz();
+        expect(pageableA).toBeDefined();
+        const { count } = await page.getVizPageInfo(pageableA);
+
+        const input = $('app-simple-filter input');
+
+        await input.sendKeys('---+++---');
+        await input.submit();
+
+        const { count: count2 } = await page.getVizPageInfo(pageableA);
+
+        expect(count).toBeGreaterThan(0);
+        expect(count2).toEqual(0)
     });
 });
