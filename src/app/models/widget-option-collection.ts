@@ -18,6 +18,7 @@ import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import { DashboardState } from './dashboard-state';
 import {
+    isFieldOption,
     OptionChoices,
     OptionType,
     WidgetDatabaseOption,
@@ -30,7 +31,7 @@ import {
 } from './widget-option';
 
 /**
- * Manages configurable options for all widgets.
+ * Manages configurable options with databases, tables, and fields.
  */
 export class OptionCollection {
     // An object containing strings mapped to WidgetOption objects.
@@ -250,6 +251,9 @@ export class OptionCollection {
     }
 }
 
+/**
+ * Manages configurable options with common widget options and a custom options callback function to initialize them.
+ */
 export class WidgetOptionCollection extends OptionCollection {
     /**
      * @constructor
@@ -270,13 +274,13 @@ export class WidgetOptionCollection extends OptionCollection {
     ) {
         super(injector, config);
 
-        let nonFieldOptions = this.createOptions().filter((option) => option.optionType !== OptionType.FIELD &&
-            option.optionType !== OptionType.FIELD_ARRAY);
+        let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
         this.inject([
             new WidgetFreeTextOption('title', 'Title', defaultTitle),
-            new WidgetFreeTextOption('limit', 'Limit', defaultLimit)
-        ].concat(nonFieldOptions));
+            new WidgetFreeTextOption('limit', 'Limit', defaultLimit),
+            ...nonFieldOptions
+        ]);
 
         this.updateDatabases(dashboardState);
     }
@@ -318,6 +322,9 @@ export class WidgetOptionCollection extends OptionCollection {
     }
 }
 
+/**
+ * Manages configurable options with common widget options, layers, and custom options callback functions to initialize them.
+ */
 export class RootWidgetOptionCollection extends WidgetOptionCollection {
     public layers: WidgetOptionCollection[] = [];
 
@@ -395,8 +402,9 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
             new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null),
             new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('unsharedFilterValue', 'Local Filter Value', '', true),
-            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true)
-        ].concat(super.createOptions());
+            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true),
+            ...super.createOptions()
+        ];
     }
 
     /**
