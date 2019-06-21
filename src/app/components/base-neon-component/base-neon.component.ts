@@ -30,6 +30,7 @@ import { NeonFieldMetaData } from '../../models/types';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
+    isFieldOption,
     OptionChoices,
     OptionType,
     WidgetFieldArrayOption,
@@ -1052,8 +1053,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected abstract createOptions(): WidgetOption[];
 
     private createOptionsForFields(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return this.createOptions()
-            .filter((option) => option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY)
+        return this.createOptions().filter((option) => isFieldOption(option))
             .concat(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false));
     }
 
@@ -1067,8 +1067,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private createOptionsForLayerFields(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return this.createOptionsForLayer()
-            .filter((option) => option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY);
+        return this.createOptionsForLayer().filter((option) => isFieldOption(option));
     }
 
     /**
@@ -1097,8 +1096,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         options.filter = options.filter || this.injector.get('configFilter', null);
 
-        options.inject(this.createOptions()
-            .filter((option) => option.optionType !== OptionType.FIELD && option.optionType !== OptionType.FIELD_ARRAY));
+        options.inject(this.createOptions().filter((option) => !isFieldOption(option)));
 
         options.updateDatabases(this.dashboardState);
 
