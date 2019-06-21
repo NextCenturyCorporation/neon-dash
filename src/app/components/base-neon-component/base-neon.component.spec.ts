@@ -268,7 +268,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('ngAfterViewInit on multi layer widget does work as expected', () => {
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         let spyConstruct = spyOn(component, 'constructVisualization');
         let spyExecute = spyOn(component, 'executeAllQueryChain');
         component.ngAfterViewInit();
@@ -402,8 +402,8 @@ describe('BaseNeonComponent', () => {
 
     it('createExportData with multiple layers does return expected data', () => {
         // Setup:  Create multiple layers
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
         expect(component.options.layers[0].title).toEqual('Layer 1');
         expect(component.options.layers[1].title).toEqual('Layer 2');
@@ -638,8 +638,8 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([component.options]);
 
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
 
         component['executeAllQueryChain']();
@@ -655,8 +655,8 @@ describe('BaseNeonComponent', () => {
         component['executeAllQueryChain']();
         expect(spy.calls.count()).toEqual(0);
 
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
-        (component as any).finalizeCreateLayer((component as any).createLayer(component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
 
         component['initializing'] = true;
