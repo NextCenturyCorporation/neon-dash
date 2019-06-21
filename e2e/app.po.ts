@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { browser, ElementFinder, By, by, $$, $ } from 'protractor';
+import { browser, ElementFinder, By, by, $$, $, ElementArrayFinder } from 'protractor';
 
 interface PageInfo { start?: number, end?: number, count: number }
 
@@ -27,6 +27,17 @@ export class NeonGtdPage {
     goTo(path = '/', query: Record<string, string> = {}, fragment: string = '') {
         const url = `${path}?${new URLSearchParams(query).toString()}#${fragment}`;
         return browser.get(url);
+    }
+
+    async getVizWrapper(viz: ElementFinder): Promise<ElementFinder | undefined> {
+        let out = viz.element(by.xpath('..'));
+        while (out) {
+            if ((await out.getTagName()) === 'app-visualization-container') {
+                return out;
+            }
+            out = out.element(by.xpath('..'));
+        }
+        return undefined;
     }
 
     async getVizPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
