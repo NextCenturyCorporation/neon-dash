@@ -132,7 +132,7 @@ describe('Dashboard', () => {
         const [path, params] = spyOnRouter.calls.argsFor(0);
         expect(path).toEqual([]);
         expect(params.queryParamsHandling).toEqual('merge');
-        expect(params.queryParams.filter).toBeTruthy();
+        expect(params.fragment).toBeTruthy();
     });
 
     it('toggle filters component', () => {
