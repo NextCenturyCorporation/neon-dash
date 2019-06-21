@@ -204,9 +204,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         const currentFilter = this.filterService.getFiltersToSaveInURL();
 
         if (!urlFilter && currentFilter) {
-            url.searchParams.set('filter', currentFilter);
             const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(path, url.searchParams.toString());
+            this.location.replaceState(`${path}#${currentFilter}`, url.searchParams.toString());
         }
 
         // Clean on different dashboard
@@ -388,7 +387,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @DashboardModified()
     onFiltersChanged() {
         this.router.navigate([], {
-            queryParams: { filter: this.filterService.getFiltersToSaveInURL() },
+            fragment: this.filterService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root
         });
