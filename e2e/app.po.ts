@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { browser, by, ElementFinder, By } from 'protractor';
+import { browser, ElementFinder, By, by, $$, $ } from 'protractor';
 
 interface PageInfo { start?: number, end?: number, count: number }
 
@@ -22,14 +22,15 @@ export class NeonGtdPage {
     root = By.css('app-dashboard');
     toolbar = this.root.nest('mat-toolbar');
     toolbarTitle = this.toolbar.nest('.dashboard-name');
-    visualizations = By.css('app-visualization-injector>*:last-child');
+    visualizations = this.root.nest('app-visualization-injector>*:not(div)');
 
-    goTo(path = '/', query: Record<string, string> = {}) {
-        return browser.get(`${path}?${new URLSearchParams(query).toString()}`);
+    goTo(path = '/', query: Record<string, string> = {}, fragment: string = '') {
+        const url = `${path}?${new URLSearchParams(query).toString()}#${fragment}`;
+        return browser.get(url);
     }
 
-    async getPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
-        const text = await element.element(By.css('mat-toolbar .info.text')).getText();
+    async getVizPageInfo(element: ElementFinder): Promise<PageInfo | undefined> {
+        const text = await (element.element(By.css('mat-toolbar .info.text')).getText());
         const cleaned = text.replace(/[^0-9]+/g, ' ').trim();
 
         if (cleaned) {
@@ -40,10 +41,11 @@ export class NeonGtdPage {
             const [start, end, count] = parts;
             return { start, end, count };
         }
+
         return undefined;
     }
 
-    async findVisualization(predicate: (element: ElementFinder) => Promise<boolean> | boolean): Promise<ElementFinder | undefined> {
+    async findViz(predicate: (element: ElementFinder) => Promise<boolean> | boolean): Promise<ElementFinder | undefined> {
         for (const vis of await this.visualizations.all) {
             if (await predicate(vis)) {
                 return vis;
@@ -52,10 +54,49 @@ export class NeonGtdPage {
         return undefined;
     }
 
+    getVizByTagName(name: string): Promise<ElementFinder | undefined> {
+        return this.findViz(async (el) => {
+            return (await el.getTagName()) === name;
+        });
+    }
+
     getFirstPageableViz(): Promise<ElementFinder | undefined> {
-        return this.findVisualization(async (vis) => {
-            const info = await this.getPageInfo(vis);
+        return this.findViz(async (vis) => {
+            const info = await this.getVizPageInfo(vis);
             return info && !!info.start;
         });
+    }
+
+    getFirstCountableViz(): Promise<ElementFinder | undefined> {
+        return this.findViz(async (vis) => {
+            const info = await this.getVizPageInfo(vis);
+            return info && !!info.count;
+        });
+    }
+
+    async clickLegendItem(vis: ElementFinder, name?: string) {
+        // Grab first legend item
+        await vis.element(by.css('.legend-button')).click();
+
+        // Go global for popup
+        const button = $$('.mat-menu-content button[role=menuitem]').filter(async (el) => {
+            const isVisible = await el.isDisplayed();
+            if (isVisible && name) {
+                return (await el.getText()).includes(name);
+            } else {
+                return isVisible;
+            }
+        }).first();
+
+        expect(await button.isDisplayed()).toBeTruthy();
+        await button.click();
+    }
+
+    async getSettingsPanel() {
+        return $('mat-sidenav app-gear');
+    }
+
+    getVizTitle(viz: ElementFinder) {
+        return viz.element(by.css('mat-toolbar .header')).getText();
     }
 }

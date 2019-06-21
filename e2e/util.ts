@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import './types';
-import { $$, $ } from 'protractor';
+import { $, $$ } from 'protractor';
 import { By } from 'selenium-webdriver';
 
 // eslint-disable-next-line no-extend-native
