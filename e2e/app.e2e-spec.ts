@@ -16,7 +16,7 @@
 /* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
 import './util';
-import { by, ElementFinder, $ } from 'protractor';
+import { by, ElementFinder, $, Key, browser } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
@@ -70,29 +70,28 @@ describe('neon-gtd App', () => {
     });
 
     it('counts should vary on selecting a filter', async () => {
-        let pageableA: ElementFinder = await page.getFirstCountableViz();
-        expect(pageableA).toBeDefined();
+        let vizA: ElementFinder = await page.getFirstCountableViz();
+        expect(vizA).toBeDefined();
 
-        let infoA = await page.getVizPageInfo(pageableA);
-        let tagA = await pageableA.getTagName();
+        let infoA = await page.getVizPageInfo(vizA);
+        let titleA = await page.getVizTitle(vizA);
 
         const legendary: ElementFinder = await page.getVizByTagName('app-aggregation');
         await page.clickLegendItem(legendary);
 
-        let pageableB: ElementFinder = await page.getFirstCountableViz();
-        expect(pageableB).toBeDefined();
+        let vizB: ElementFinder = await page.getVizByTitle(titleA);
+        expect(vizB).toBeDefined();
 
-        let infoB = await page.getVizPageInfo(pageableB);
-        expect(tagA).toEqual(await pageableB.getTagName());
+        let infoB = await page.getVizPageInfo(vizB);
         expect(infoA.count).toBeGreaterThan(infoB.count);
     });
 
     it('widget should have settings', async () => {
-        let pageableA: ElementFinder = await page.getFirstCountableViz();
-        expect(pageableA).toBeDefined();
-        const title = await page.getVizTitle(pageableA);
+        let vizA: ElementFinder = await page.getFirstCountableViz();
+        expect(vizA).toBeDefined();
+        const title = await page.getVizTitle(vizA);
 
-        await pageableA.element(by.buttonText('settings')).click();
+        await vizA.element(by.buttonText('settings')).click();
 
         const settings: ElementFinder = await page.getSettingsPanel();
 
@@ -107,23 +106,29 @@ describe('neon-gtd App', () => {
         expect(await applyBtn.isEnabled()).toBeTruthy();
         await applyBtn.click();
 
-        const titleAfter = await page.getVizTitle(pageableA);
+        const titleAfter = await page.getVizTitle(vizA);
         expect(titleAfter).toEqual(title + 's');
     });
 
     it('global search should filter values', async () => {
-        let pageableA: ElementFinder = await page.getFirstCountableViz();
-        expect(pageableA).toBeDefined();
-        const { count } = await page.getVizPageInfo(pageableA);
+        let vizA: ElementFinder = await page.getFirstCountableViz();
+        expect(vizA).toBeDefined();
+
+        const { count } = await page.getVizPageInfo(vizA);
+        const titleA = await page.getVizTitle(vizA)
 
         const input = $('app-simple-filter input');
 
-        await input.sendKeys('---+++---');
-        await input.submit();
+        await input.sendKeys(...'---+++---'.split(''), Key.RETURN);
+        await browser.waitForAngular();
 
-        const { count: count2 } = await page.getVizPageInfo(pageableA);
+
+        let vizB: ElementFinder = await page.getVizByTitle(titleA);
+        expect(vizB).toBeDefined();
+
+        const info = await page.getVizPageInfo(vizB);
 
         expect(count).toBeGreaterThan(0);
-        expect(count2).toEqual(0)
+        expect(info).toBeUndefined();
     });
 });

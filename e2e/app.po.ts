@@ -60,6 +60,12 @@ export class NeonGtdPage {
         });
     }
 
+    getVizByTitle(title: string): Promise<ElementFinder | undefined> {
+        return this.findViz(async (el) => {
+            return (await this.getVizTitle(el)) === title;
+        });
+    }
+
     getFirstPageableViz(): Promise<ElementFinder | undefined> {
         return this.findViz(async (vis) => {
             const info = await this.getVizPageInfo(vis);
