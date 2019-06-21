@@ -85,7 +85,7 @@ export class OptionCollection {
         });
     }
 
-    protected copyCommonProperties(copy: OptionCollection): OptionCollection {
+    protected copyCommonProperties(copy: this): this {
         copy._id = this._id;
         copy.database = this.database;
         copy.databases = this.databases;
@@ -103,8 +103,8 @@ export class OptionCollection {
      *
      * @return {OptionCollection}
      */
-    public copy(): OptionCollection {
-        let copy = new OptionCollection(this.injector, this.config);
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.injector, this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -144,6 +144,10 @@ export class OptionCollection {
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
             fieldKey
         ))).filter((fieldsObject) => !!fieldsObject);
+    }
+
+    protected getConstructor<T>(this: T): new(...args: any[]) => T {
+        return this.constructor as new(...args: any[]) => T;
     }
 
     /**
@@ -291,10 +295,10 @@ export class WidgetOptionCollection extends OptionCollection {
      * @return {WidgetOptionCollection}
      * @override
      */
-    public copy(): WidgetOptionCollection {
-        let copy = new WidgetOptionCollection(this.createOptionsCallback, this.dashboardState, this.title, this.limit, this.injector,
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dashboardState, this.title, this.limit, this.injector,
             this.config);
-        return this.copyCommonProperties(copy) as WidgetOptionCollection;
+        return this.copyCommonProperties(copy);
     }
 
     /**
@@ -382,11 +386,11 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * @return {RootWidgetOptionCollection}
      * @override
      */
-    public copy(): RootWidgetOptionCollection {
-        let copy = new RootWidgetOptionCollection(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dashboardState,
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dashboardState,
             this.title, this.limit, false, this.injector, this.config);
         copy.layers = this.layers.map((layer) => layer.copy());
-        return this.copyCommonProperties(copy) as RootWidgetOptionCollection;
+        return this.copyCommonProperties(copy);
     }
 
     /**
