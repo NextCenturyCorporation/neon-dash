@@ -134,8 +134,9 @@ export abstract class AbstractSearchService {
      * @return {QueryPayload}
      * @abstract
      */
-    public abstract transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
-    { [key: string]: { [value: string]: string } }): QueryPayload;
+    public abstract transformFilterClauseValues(queryPayload: QueryPayload,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): QueryPayload;
 
     /**
      * Transforms the given search query payload into an object to export.
@@ -151,6 +152,18 @@ export abstract class AbstractSearchService {
         queryPayload: QueryPayload,
         uniqueName: string
     ): any;
+
+    /**
+     * Transforms the values in the given search query results using the given map of keys-to-values-to-labels.
+     *
+     * @arg {{ data: any[] }} queryResults
+     * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
+     * @return {{ data: any[] }}
+     * @abstract
+     */
+    public abstract transformQueryResultsValues(queryResults: { data: any[] },
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): { data: any[] };
 
     /**
      * Sets the aggregation data on the given search query payload.
