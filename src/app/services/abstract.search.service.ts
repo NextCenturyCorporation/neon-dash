@@ -116,6 +116,16 @@ export abstract class AbstractSearchService {
     public abstract canRunSearch(datastoreType: string, datastoreHost: string): boolean;
 
     /**
+     * Returns an aggregation name from the given descriptor.
+     *
+     * @arg {string} [descriptor]
+     * @return {string}
+     */
+    public getAggregationName(descriptor?: string): string {
+        return descriptor ? ('_' + descriptor) : '_aggregation';
+    }
+
+    /**
      * Runs the given search using the given datastore type and host.
      *
      * @arg {string} datastoreType
