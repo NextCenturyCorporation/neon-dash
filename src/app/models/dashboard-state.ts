@@ -137,26 +137,6 @@ export class DashboardState {
     }
 
     /**
-     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the datastore.
-     * @return The database containing {String} name, {Array} fields, and {Object} labelOptions if a match exists
-     * or undefined otherwise.  Dashboard name only includes part of the database pretty name
-     */
-    public getDatabase(): NeonDatabaseMetaData {
-        if (!this.dashboard) {
-            return undefined;
-        }
-        let tableKeys = this.dashboard.tables;
-
-        let keyArray = Object.keys(tableKeys || {});
-
-        if (keyArray.length) {
-            const { database } = this.deconstructTableName(keyArray[0]);
-            return this.getDatabaseWithName(database);
-        }
-        return undefined;
-    }
-
-    /**
      * Returns the tables for the database with the given name in the active datastore.
      * @return An array of table Objects containing {String} name, {Array} fields, and {Object} labelOptions.
      */

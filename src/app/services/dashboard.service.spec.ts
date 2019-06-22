@@ -83,10 +83,6 @@ describe('Service: DashboardService', () => {
             databases: {}
         });
     });
-
-    it('getCurrentDatabase does return undefined', () => {
-        expect(dashboardService.state.getDatabase()).not.toBeDefined();
-    });
 });
 
 describe('Service: DashboardService with Mock Data', () => {
@@ -428,10 +424,6 @@ describe('Service: DashboardService with Mock Data', () => {
         }));
 
         expect(dashboardService.state.findRelationDataList()).toEqual([]);
-    });
-
-    it('getCurrentDatabase does return expected object', () => {
-        expect(extractNames(dashboardService.state.getDatabase())).toEqual(extractNames(DashboardServiceMock.DATABASES.testDatabase1));
     });
 
     it('translateFieldKeyToValue does return expected string', () => {
