@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { AbstractWidgetService, Theme } from './abstract.widget.service';
+import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
 import { Color, ColorSet } from '../models/color';
 import { DashboardService } from './dashboard.service';
 import { DashboardState } from '../models/dashboard-state';
@@ -36,17 +36,17 @@ export class NeonTheme implements Theme {
 /**
  * A service for everything a Neon Dashboard widget needs.
  *
- * @class WidgetService
+ * @class ColorThemeService
  */
 @Injectable()
-export class WidgetService extends AbstractWidgetService {
+export class ColorThemeService extends AbstractColorThemeService {
     public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
     public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
     public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
-    private currentThemeId: string = WidgetService.THEME_TEAL.id;
+    private currentThemeId: string = ColorThemeService.THEME_TEAL.id;
 
     public readonly dashboardState: DashboardState;
 
@@ -129,10 +129,10 @@ export class WidgetService extends AbstractWidgetService {
     public getThemes(): Theme[] {
         return [
             // TODO THOR-853 Add dark theme
-            // WidgetService.THEME_DARK,
+            // ColorThemeService.THEME_DARK,
             // TODO THOR-852 Add green theme
-            // WidgetService.THEME_GREEN,
-            WidgetService.THEME_TEAL
+            // ColorThemeService.THEME_GREEN,
+            ColorThemeService.THEME_TEAL
         ];
     }
 

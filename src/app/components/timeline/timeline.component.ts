@@ -31,7 +31,7 @@ import {
     QueryPayload,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -95,7 +95,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -405,7 +405,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData(data: any[]) {
         let series: TimelineSeries = {
-            color: this.widgetService.getThemeMainColorHex(),
+            color: this.colorThemeService.getThemeMainColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},
