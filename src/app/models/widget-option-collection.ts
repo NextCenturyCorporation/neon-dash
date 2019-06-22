@@ -183,21 +183,26 @@ export class OptionCollection {
     public updateDatabases(dataset: Dataset): void {
         this.databases = dataset.datastores.reduce((list, datastore) =>
             list.concat(Object.values(datastore.databases).sort((one, two) => one.name.localeCompare(two.name))), []);
+
         this.database = this.databases[0] || this.database;
 
         if (this.databases.length) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let configDatabase: any;
+            // By default, set the initial database to the first one in the dataset's configured table keys.
+            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredDatabase = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+                configuredTableKeys[0]).database;
 
-            if (tableKey && dataset.tableKeys[tableKey]) {
-                configDatabase = DataUtil.deconstructTableName(dataset.tableKeys, tableKey).database;
+            // Look for the table key configured for the specific visualization.
+            let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
+                configuredDatabase = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
+            }
 
-                if (configDatabase) {
-                    for (let database of this.databases) {
-                        if (configDatabase === database.name) {
-                            this.database = database;
-                            break;
-                        }
+            if (configuredDatabase) {
+                for (let database of this.databases) {
+                    if (configuredDatabase === database.name) {
+                        this.database = database;
+                        break;
                     }
                 }
             }
@@ -235,18 +240,22 @@ export class OptionCollection {
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let configTable: any;
+            // By default, set the initial table to the first one in the dataset's configured table keys.
+            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredTable = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+                configuredTableKeys[0]).table;
 
-            if (tableKey && dataset.tableKeys[tableKey]) {
-                configTable = DataUtil.deconstructTableName(dataset.tableKeys, tableKey).table;
+            // Look for the table key configured for the specific visualization.
+            let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
+                configuredTable = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
+            }
 
-                if (configTable) {
-                    for (let table of this.tables) {
-                        if (configTable === table.name) {
-                            this.table = table;
-                            break;
-                        }
+            if (configuredTable) {
+                for (let table of this.tables) {
+                    if (configuredTable === table.name) {
+                        this.table = table;
+                        break;
                     }
                 }
             }

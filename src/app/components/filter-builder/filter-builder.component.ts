@@ -57,13 +57,15 @@ export class FilterBuilderComponent {
         public filterService: FilterService,
         public searchService: AbstractSearchService
     ) {
+        this.dashboardState = dashboardService.state;
+
         this.dashboardService.stateSource.subscribe(() => {
             this.clearEveryFilterClause();
         });
 
-        this.dashboardState = dashboardService.state;
-
-        this.addBlankFilterClause();
+        if (!this.filterClauses.length) {
+            this.addBlankFilterClause();
+        }
     }
 
     /**
