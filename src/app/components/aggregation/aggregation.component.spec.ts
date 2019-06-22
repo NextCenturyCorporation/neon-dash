@@ -33,7 +33,7 @@ import { WidgetService } from '../../services/widget.service';
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {

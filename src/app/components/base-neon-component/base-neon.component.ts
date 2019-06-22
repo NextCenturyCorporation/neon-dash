@@ -26,7 +26,7 @@ import {
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { NeonFieldMetaData } from '../../models/types';
+import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
@@ -86,6 +86,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
     readonly dashboardState: DashboardState;
+    protected dataset: Dataset;
 
     constructor(
         protected dashboardService: DashboardService,
@@ -97,6 +98,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        this.dataset = this.dashboardState.asDataset();
+        dashboardService.stateSource.subscribe((dashboardState) => {
+            this.dataset = dashboardState.asDataset();
+        });
     }
 
     /**
@@ -320,7 +325,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService, filterDesignListToDelete);
+            this.dataset.relations, this.searchService, filterDesignListToDelete);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -343,7 +348,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService);
+            this.dataset.relations, this.searchService);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -653,7 +658,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), query
+            this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
         ));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
@@ -684,7 +689,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        return (!this.searchService.canRunSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost()) ||
+        return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
 
@@ -957,8 +962,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        let dashboard = this.dashboardState.datastore;
-        let matchingDatabase = dashboard.databases[options.database.name];
+        let datastore = this.dataset.datastores[0];
+        let matchingDatabase = datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }
@@ -999,7 +1004,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            this.dashboardState, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), injector);
+            this.dataset, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), injector);
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 

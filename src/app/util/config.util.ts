@@ -29,19 +29,6 @@ export class ConfigUtil {
         '﹒': ' '
     };
 
-    /**
-     * Returns dotted reference in constituent parts(datastore.database.table.field).
-     */
-    static deconstructDottedReference(name: string) {
-        const [datastore, database, table, ...field] = (name || '').split('.');
-        return {
-            datastore: datastore || '',
-            database: database || '',
-            table: table || '',
-            field: field.join('.')
-        };
-    }
-
     static validateName(fileName: string): string {
         // Replace / with . and remove ../ and non-alphanumeric characters except ._-+=,
         return fileName.replace(/\.\.\//g, '').replace(/\//g, '.').replace(/[^A-Za-z0-9._\-+=,]/g, '');

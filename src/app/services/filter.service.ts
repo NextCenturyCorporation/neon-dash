@@ -14,16 +14,15 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import {
-    NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData,
-    FilterConfig, SimpleFilterConfig, CompoundFilterConfig
-} from '../models/types';
+import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { neonEvents } from '../models/neon-namespaces';
 
 import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
+import { DataUtil } from '../util/data.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -318,7 +317,7 @@ export class FilterUtil {
         } // Simple filter
         const [field, operator, value, root] = simple as string[];
         return {
-            ...ConfigUtil.deconstructDottedReference(field),
+            ...DataUtil.deconstructDottedReference(field),
             operator,
             value,
             root: root || 'or'

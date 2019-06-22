@@ -23,7 +23,7 @@ import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign }
 import { DashboardService } from '../../services/dashboard.service';
 
 import { DashboardState } from '../../models/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -71,7 +71,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this.dashboardState);
+        filterClause.updateDatabases(this.dashboardState.asDataset());
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -105,7 +105,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.dashboardState);
+        filterClause.updateTables(this.dashboardState.asDataset());
         filterClause.changeTable = filterClause.table;
     }
 
@@ -134,7 +134,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.dashboardState);
+        filterClause.updateFields();
     }
 
     /**

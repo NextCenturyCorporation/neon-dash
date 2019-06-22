@@ -35,7 +35,7 @@ import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from 
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import {
     AggregationType,
     OptionChoices,

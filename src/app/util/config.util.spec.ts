@@ -55,36 +55,6 @@ describe('Config Util Tests', () => {
         expect(ConfigUtil.validateName('abc#$@#@$@#$-de.%%yml')).toEqual('abc-de.yml');
     });
 
-    it('deconstructDotted should work appropriately', () => {
-        expect(ConfigUtil.deconstructDottedReference('')).toEqual({
-            datastore: '',
-            database: '',
-            table: '',
-            field: ''
-        });
-
-        expect(ConfigUtil.deconstructDottedReference('a.b')).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: '',
-            field: ''
-        });
-
-        expect(ConfigUtil.deconstructDottedReference('...b')).toEqual({
-            datastore: '',
-            database: '',
-            table: '',
-            field: 'b'
-        });
-
-        expect(ConfigUtil.deconstructDottedReference('a.b.c.d.e.f')).toEqual({
-            datastore: 'a',
-            database: 'b',
-            table: 'c',
-            field: 'd.e.f'
-        });
-    });
-
     it('translate should encode and decode appropriately', () => {
         // Forward
         const MAPPING = { NAME: 'NM', AGE: 'A', ME: 'm' };

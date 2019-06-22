@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { FilterService } from '../../services/filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -907,7 +907,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
-        component.options.layers = [new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100)];
+        component.options.layers = [new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100)];
         component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.layers[0].layerType = 'nodes';
         component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];

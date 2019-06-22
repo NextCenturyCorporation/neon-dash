@@ -21,7 +21,7 @@ import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
-import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../models/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../models/dataset';
 
 @Component({
     selector: 'app-custom-connection',
