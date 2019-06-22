@@ -31,7 +31,7 @@ import { WidgetService } from '../../services/widget.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -120,7 +120,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
+    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -145,7 +145,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
+    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;

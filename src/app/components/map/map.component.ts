@@ -47,7 +47,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {

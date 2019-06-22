@@ -18,7 +18,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy
 import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';

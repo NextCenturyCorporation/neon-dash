@@ -29,7 +29,7 @@ import { WidgetService } from '../../services/widget.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;

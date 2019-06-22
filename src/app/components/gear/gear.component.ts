@@ -234,7 +234,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeDatabase(options: WidgetOptionCollection): void {
-        options.updateTables(this.dashboardState);
+        options.updateTables(this.dashboardState.asDataset());
         this.changeMade = true;
     }
 
@@ -244,7 +244,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeTable(options: WidgetOptionCollection): void {
-        options.updateFields(this.dashboardState);
+        options.updateFields();
         this.changeMade = true;
     }
 
