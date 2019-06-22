@@ -1,0 +1,50 @@
+version: '3'
+
+networks:
+  esnet:
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.7.2
+    container_name: e2e_es
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      esnet:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+  neon-server:
+    environment:
+      STATE_DIRECTORY: /config
+    volumes:
+      - ./resources:/config
+    image: com.ncc.neon/server:latest
+    container_name: e2e_neon-server
+    ports:
+      - 8090:8090
+    networks:
+      esnet:
+  data-load:
+    volumes:
+      - ./data:/data
+    image: node:12.4.0-slim
+    depends_on:
+      - elasticsearch
+    entrypoint: []
+    command: /bin/bash /data/load.sh
+    container_name: e2e_data-load
+    networks:
+      esnet:
