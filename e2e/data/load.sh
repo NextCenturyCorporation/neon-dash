@@ -9,8 +9,8 @@ done
 
 curl -X DELETE -s ${HOST}/${DATA_SET}
 curl -H 'Content-Type: application/json' \
-     -XPOST -s \
+     -XPUT -s \
      -d @/data/${DATA_SET}_mapping.json \
-     ${HOST}/${DATA_SET};
+     ${HOST}/${DATA_SET}
 
 npx elasticdump --input=/data/${DATA_SET}.json --output=${HOST}
