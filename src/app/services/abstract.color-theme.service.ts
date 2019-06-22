@@ -26,11 +26,11 @@ export interface Theme {
 /**
  * A service for everything a Neon widget needs.
  *
- * @class AbstractWidgetService
+ * @class AbstractColorThemeService
  * @abstract
  */
 @Injectable()
-export abstract class AbstractWidgetService {
+export abstract class AbstractColorThemeService {
     /**
      * Returns the color for the given value from an existing color set for the given database/table/field or creates a new color set if
      * none exists.

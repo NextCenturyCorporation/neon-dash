@@ -20,10 +20,8 @@ import { Injector } from '@angular/core';
 import { DocumentViewerComponent } from './document-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -44,7 +42,6 @@ describe('Component: DocumentViewer', () => {
             },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector
         ],
         imports: [
@@ -884,7 +881,6 @@ describe('Component: Document Viewer with Config', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector,
             { provide: 'title', useValue: 'Document Viewer Title' },
             { provide: 'tableKey', useValue: 'table_key_1' },
