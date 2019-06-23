@@ -21,7 +21,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -29,7 +29,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { TaxonomyViewerComponent, TaxonomyGroup } from './taxonomy-viewer.component';
 
 import { TaxonomyViewerModule } from './taxonomy-viewer.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: TaxonomyViewer', () => {
     let component: TaxonomyViewerComponent;
@@ -153,8 +152,7 @@ describe('Component: TaxonomyViewer', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [

@@ -22,13 +22,12 @@ import { DataTableComponent } from './data-table.component';
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../model/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { DataTableModule } from './data-table.module';
-import { ConfigService } from '../../services/config.service';
 
 // TODO Change toHaveBeenCalled to toHaveBeenCalledWith
 /* eslint-disable jasmine/prefer-toHaveBeenCalledWith */
@@ -42,8 +41,7 @@ describe('Component: DataTable', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             DataTableModule

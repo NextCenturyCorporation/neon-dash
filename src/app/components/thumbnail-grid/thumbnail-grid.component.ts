@@ -31,17 +31,18 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, MediaTypes } from '../../model/types';
-import { neonUtilities } from '../../model/neon-namespaces';
+import { NeonFieldMetaData, MediaTypes } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
 export const ViewType = {
@@ -172,7 +173,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
                 this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
-            new WidgetFreeTextOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
                 this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
             new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
                 prettyName: 'None',
@@ -208,7 +209,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Card',
                 variable: ViewType.CARD
             }]),
-            new WidgetFreeTextOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
+            new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
             new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
             new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
 

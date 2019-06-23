@@ -16,17 +16,16 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommonWidgetModule } from '../../common-widget.module';
 import { DashboardSelectorComponent } from './dashboard-selector.component';
-import { MatSidenavModule, MatButtonModule, MatIconModule } from '@angular/material';
-import { DashboardDropdownModule } from '../dashboard-dropdown/dashboard-dropdown.module';
+import { MatSidenavModule, MatButtonModule, MatIconModule, MatSelectModule } from '@angular/material';
 
 @NgModule({
     declarations: [DashboardSelectorComponent],
     exports: [DashboardSelectorComponent],
     imports: [
         CommonWidgetModule,
-        DashboardDropdownModule,
         MatButtonModule,
         MatIconModule,
+        MatSelectModule,
         MatSidenavModule,
         CommonModule
     ]

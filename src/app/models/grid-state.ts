@@ -15,7 +15,7 @@
 import * as uuidv4 from 'uuid/v4';
 
 import { NeonGridTab, NeonGridItem } from './neon-grid-item';
-import { NeonLayoutConfig } from '../model/types';
+import { NeonLayoutConfig } from './types';
 
 /**
  * Represents the layout state of the grid in it's current configuration
@@ -109,8 +109,11 @@ export class GridState {
         const out: { gridName: string, widgetGridItem: NeonGridItem }[] = [];
 
         // Should map the grid name to the layout list
-        // TODO: Understand what the layout structure should be
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
+        if (!gridNameToLayout) {
+            return [];
+        }
+
         for (const layoutName of Object.keys(gridNameToLayout)) {
             const layoutConf = gridNameToLayout[layoutName];
             if (Array.isArray(layoutConf)) {
