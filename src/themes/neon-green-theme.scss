@@ -1,19 +1,34 @@
+/**
+ * Copyright 2019 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // TODO THOR-852 Change to green theme (currently just a copy of teal theme).
 
-$green-theme-primary: #27607E;
-$green-theme-primary-lighter: #598DAD;
-$green-theme-primary-darker: #003652;
+$green-theme-primary: #367588;
+$green-theme-primary-lighter: #AFD4DE;
+$green-theme-primary-darker: #254855;
 
 $green-theme-accent: #54C8CD;
 $green-theme-accent-lighter: #8BFBFF;
 $green-theme-accent-darker: #00979C;
 
-$green-theme-grey: #666666;
-$green-theme-grey-lighter: #999999;
-$green-theme-grey-darker: #333333;
+// $green-theme-black: #666666;
+// $green-theme-black-lighter: #999999;
+$green-theme-black-darker: #333333;
 
 $green-theme-white: #F2F2F2;
-$green-theme-white-lighter: #FFFFFF;
+// $green-theme-white-lighter: #FFFFFF;
 $green-theme-white-darker: #D7D7D7;
 
 $green-theme-base: (
@@ -32,65 +47,62 @@ $green-theme-base: (
     A400: $green-theme-accent,
     A700: $green-theme-accent-darker,
     contrast: (
-        50: $green-theme-grey-darker,
-        100: $green-theme-grey-darker,
-        200: $green-theme-grey-darker,
-        300: $green-theme-white-lighter,
-        400: $green-theme-white-lighter,
-        500: $green-theme-white-lighter,
-        600: $green-theme-white-lighter,
-        700: $green-theme-white-lighter,
-        800: $green-theme-white-lighter,
-        900: $green-theme-white-lighter,
-        A100: $green-theme-grey-darker,
-        A200: $green-theme-grey-darker,
-        A400: $green-theme-grey-darker,
-        A700: $green-theme-white-lighter
+        50: $green-theme-black-darker,
+        100: $green-theme-black-darker,
+        200: $green-theme-black-darker,
+        300: $green-theme-white,
+        400: $green-theme-white,
+        500: $green-theme-white,
+        600: $green-theme-white,
+        700: $green-theme-white,
+        800: $green-theme-white,
+        900: $green-theme-white,
+        A100: $green-theme-black-darker,
+        A200: $green-theme-black-darker,
+        A400: $green-theme-black-darker,
+        A700: $green-theme-white
     )
 );
 
-// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L674
-// TODO Update default angular material design light theme background as needed.
-// sass-lint:disable-block function-name-format
+// Based on https://github.com/angular/components/blob/master/src/material/core/theming/_palette.scss#L673
 $green-theme-background: (
-    status-bar:               map_get($mat-grey, 300),
-    app-bar:                  map_get($mat-grey, 100),
-    background:               map_get($mat-grey, 50),
-    hover:                    rgba(black, 0.04),
-    card:                     white,
-    dialog:                   white,
-    disabled-button:          rgba(black, 0.12),
-    raised-button:            white,
-    focused-button:           $dark-focused,
-    selected-button:          map_get($mat-grey, 300),
-    selected-disabled-button: map_get($mat-grey, 400),
-    disabled-button-toggle:   map_get($mat-grey, 200),
-    unselected-chip:          map_get($mat-grey, 300),
-    disabled-list-option:     map_get($mat-grey, 200),
+    status-bar:               $green-theme-white,
+    app-bar:                  $green-theme-white,
+    background:               $green-theme-white,
+    hover:                    $green-theme-accent,
+    card:                     $green-theme-white,
+    dialog:                   $green-theme-white,
+    disabled-button:          $green-theme-white-darker,
+    raised-button:            $green-theme-primary,
+    focused-button:           $green-theme-white-darker,
+    selected-button:          $green-theme-accent,
+    selected-disabled-button: $green-theme-white-darker,
+    disabled-button-toggle:   $green-theme-white-darker,
+    unselected-chip:          $green-theme-primary,
+    disabled-list-option:     $green-theme-white-darker,
 );
 
-// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L710
-// TODO Update default angular material design light theme foreground as needed.
+// Based on https://github.com/angular/components/blob/master/src/material/core/theming/_palette.scss#L710
 $green-theme-foreground: (
-    base:              black,
-    divider:           $dark-dividers,
-    dividers:          $dark-dividers,
-    disabled:          $dark-disabled-text,
-    disabled-button:   rgba(black, 0.26),
-    disabled-text:     $dark-disabled-text,
-    elevation:         black,
-    hint-text:         $dark-disabled-text,
-    secondary-text:    $dark-secondary-text,
-    icon:              rgba(black, 0.54),
-    icons:             rgba(black, 0.54),
-    text:              rgba(black, 0.87),
-    slider-min:        rgba(black, 0.87),
-    slider-off:        rgba(black, 0.26),
-    slider-off-active: rgba(black, 0.38),
+    base:              $green-theme-black-darker,
+    divider:           $green-theme-black-darker,
+    dividers:          $green-theme-black-darker,
+    disabled:          $green-theme-black-darker,
+    disabled-button:   $green-theme-black-darker,
+    disabled-text:     $green-theme-black-darker,
+    elevation:         $green-theme-black-darker,
+    hint-text:         $green-theme-black-darker,
+    secondary-text:    $green-theme-black-darker,
+    icon:              $green-theme-black-darker,
+    icons:             $green-theme-black-darker,
+    text:              $green-theme-black-darker,
+    slider-min:        $green-theme-black-darker,
+    slider-off:        $green-theme-black-darker,
+    slider-off-active: $green-theme-black-darker,
 );
 
-$green-theme-primary-palette: mat-palette($green-theme-base, 500, 100, 700);
-$green-theme-accent-palette: mat-palette($green-theme-base, A400, A200, A700);
+$green-theme-primary-palette: mat-palette($green-theme-base, 500, 50, 900);
+$green-theme-accent-palette: mat-palette($green-theme-base, A400, A100, A700);
 $green-theme-warn-palette: mat-palette($mat-red, A400, A200, A700);
 
 $green-theme: (
@@ -106,16 +118,24 @@ $green-theme: (
     @include angular-material-theme($green-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
-    --color-accent: #54C8CD;
-    --color-accent-contrast: #333333;
-    --color-accent-transparent: rgba(84, 200, 205, 0.33);
-    --color-primary: #27607E;
-    --color-primary-contrast: #F2F2F2;
-    --color-primary-transparent: rgba(39, 96, 126, 0.33);
-    --color-background: #F2F2F2;
-    --color-background-contrast: #D7D7D7;
-    --color-text-header: #666666;
-    --color-text-main: #333333;
+    --color-background: #F2F2F2; // $green-theme-white
+    --color-background-contrast: #D7D7D7; // $green-theme-white-darker
+    --color-body: #F2F2F2; // $green-theme-white
+    --color-bolded: #367588; // $green-theme-primary
+    --color-border: #54C8CD; // $green-theme-accent
+    --color-text: #333333; // $green-theme-black-darker
+
+    --color-dash-item-selectable: #54C8CD; // $green-theme-accent
+    --color-dash-item-selectable-text: #F2F2F2; // $green-theme-white
+    --color-dash-item-unselected: #367588; // $green-theme-primary
+    --color-dash-item-unselected-text: #F2F2F2; // $green-theme-white
+
+    --color-data-item-selectable: #54C8CD; // $green-theme-accent
+    --color-data-item-selectable-dark: #00979C; // $green-theme-accent-darker
+    --color-data-item-selectable-text: #333333; // $green-theme-black-darker
+    --color-data-item-selected: #8BFBFF; // $green-theme-accent-lighter
+    --color-data-item-selected-area: rgba(139, 251, 255, 0.33); // $green-theme-accent-lighter
+    --color-data-item-selected-text: #333333; // $green-theme-black-darker
 
     --color-set-1: rgb(94, 80, 143); // #5E508F deep purple
     --color-set-2: rgb(255, 135, 55); // #FF8737 orange
@@ -133,7 +153,7 @@ $green-theme: (
     --color-set-light-5: rgb(255, 139, 158); // #FF8B9E pink
     --color-set-light-6: rgb(105, 204, 255); // #69CCFF blue
     --color-set-light-7: rgb(255, 255, 82); // #FFFF52 yellow
-    --color-set-light-8: rgb(54, 154, 82); // #369A52 sea green
+    --color-set-light-8: rgb(157, 255, 175); // #369A52 sea green
 
     --color-set-dark-1: rgb(49, 39, 97); // #312761 deep purple
     --color-set-dark-2: rgb(198, 88, 0); // #C65800 orange
@@ -160,7 +180,7 @@ $green-theme: (
     --color-set-light-5-transparency-medium: rgba(255, 139, 158, 0.66);
     --color-set-light-6-transparency-medium: rgba(105, 204, 255, 0.66);
     --color-set-light-7-transparency-medium: rgba(255, 255, 82, 0.66);
-    --color-set-light-8-transparency-medium: rgba(54, 154, 82, 0.66);
+    --color-set-light-8-transparency-medium: rgba(157, 255, 175, 0.66);
 
     --color-set-dark-1-transparency-medium: rgba(49, 39, 97, 0.66);
     --color-set-dark-2-transparency-medium: rgba(198, 88, 0, 0.66);
@@ -187,7 +207,7 @@ $green-theme: (
     --color-set-light-5-transparency-high: rgba(255, 139, 158, 0.33);
     --color-set-light-6-transparency-high: rgba(105, 204, 255, 0.33);
     --color-set-light-7-transparency-high: rgba(255, 255, 82, 0.33);
-    --color-set-light-8-transparency-high: rgba(54, 154, 82, 0.33);
+    --color-set-light-8-transparency-high: rgba(157, 255, 175, 0.33);
 
     --color-set-dark-1-transparency-high: rgba(49, 39, 97, 0.33);
     --color-set-dark-2-transparency-high: rgba(198, 88, 0, 0.33);
