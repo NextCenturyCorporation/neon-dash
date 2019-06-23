@@ -216,6 +216,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.widgets.clear();
             this.changeDetection.detectChanges();
 
+            this.colorThemeService.initializeColors(state.getOptions().colorMaps);
+
             const layout = this.dashboardService.config.layouts[state.getLayout()];
 
             const pairs = GridState.getAllGridItems(layout);

@@ -23,7 +23,7 @@ import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServ
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { FilterService } from './filter.service';
 
-describe('Service: Widget', () => {
+describe('Service: Color Theme', () => {
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     let service: ColorThemeService;
 
@@ -77,13 +77,21 @@ describe('Service: Widget', () => {
         // TODO THOR-936
     });
 
+    it('initializeColors does update colorKeyToColorSet with given hex colors', () => {
+        // TODO THOR-936
+    });
+
+    it('initializeColors does update colorKeyToColorSet with given RGB colors', () => {
+        // TODO THOR-936
+    });
+
     it('setTheme does update theme ID', () => {
         // TODO THOR-936
     });
 });
 
 describe('ColorSet', () => {
-    initializeTestBed('Widget Service ColorSet', {
+    initializeTestBed('Color Theme Service ColorSet', {
         providers: [
             ColorThemeService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },

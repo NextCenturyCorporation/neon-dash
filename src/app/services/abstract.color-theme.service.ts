@@ -97,6 +97,14 @@ export abstract class AbstractColorThemeService {
     public abstract getThemeMainColorHex(): string;
 
     /**
+     * Initializes the starting colors using the given input.
+     *
+     * @arg {Record<string, Record<string, Record<string, Record<string, string>>>>} colors
+     * @abstract
+     */
+    public abstract initializeColors(colors: Record<string, Record<string, Record<string, Record<string, string>>>>): void;
+
+    /**
      * Sets the current application theme to the theme with the given ID.
      *
      * @arg {string} id
