@@ -16,7 +16,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonConfig, NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { FilterService } from '../../services/filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
@@ -27,11 +27,9 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NetworkGraphModule } from './network-graph.module';
-import { ConfigService } from '../../services/config.service';
-import { WidgetOptionCollection } from '../../model/widget-option';
+import { WidgetOptionCollection } from '../../models/widget-option';
 
 describe('Component: NetworkGraph', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: NetworkGraphComponent;
     let fixture: ComponentFixture<NetworkGraphComponent>;
 
@@ -42,7 +40,6 @@ describe('Component: NetworkGraph', () => {
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) },
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [
@@ -70,7 +67,7 @@ describe('Component: NetworkGraph', () => {
         expect(component.options.linkColor).toEqual('#96c1fc');
         expect(component.options.edgeColor).toEqual('#2b7ce9');
         expect(component.options.fontColor).toEqual('#343434');
-        expect(component.options.edgeWidth).toEqual('1');
+        expect(component.options.edgeWidth).toEqual(1);
         expect(component.options.limit).toEqual('testLimit');
         expect(component.options.filterFields).toEqual([]);
         expect(component.options.physics).toEqual(true);

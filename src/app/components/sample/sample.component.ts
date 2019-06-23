@@ -36,14 +36,14 @@ import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from 
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../model/types';
+import { NeonFieldMetaData } from '../../models/types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../model/widget-option';
+} from '../../models/widget-option';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { MatDialog } from '@angular/material';

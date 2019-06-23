@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { Color, ColorSet } from '../model/color';
+import { Color, ColorSet } from '../models/color';
 
 /**
  * @interface Theme

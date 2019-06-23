@@ -22,14 +22,11 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DashboardState } from '../../model/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../model/types';
+import { DashboardState } from '../../models/dashboard-state';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
 import {
     WidgetOptionCollection
-} from '../../model/widget-option';
-
-import { eventing } from 'neon-framework';
-import { neonEvents } from '../../model/neon-namespaces';
+} from '../../models/widget-option';
 
 @Component({
     selector: 'app-filter-builder',
@@ -40,7 +37,6 @@ import { neonEvents } from '../../model/neon-namespaces';
 })
 
 export class FilterBuilderComponent {
-    protected messenger: eventing.Messenger;
     public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
@@ -63,8 +59,9 @@ export class FilterBuilderComponent {
         public filterService: FilterService,
         public searchService: AbstractSearchService
     ) {
-        this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+        this.dashboardService.stateSource.subscribe(() => {
+            this.clearEveryFilterClause();
+        });
 
         this.dashboardState = dashboardService.state;
 
