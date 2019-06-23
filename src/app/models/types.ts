@@ -28,7 +28,7 @@ export interface NeonSimpleSearchFilter {
 
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
-    colorMaps?: Record<string, any>;
+    colorMaps?: Record<string, Record<string, Record<string, Record<string, string>>>>;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
