@@ -56,7 +56,7 @@ function wait-for-dist() {
   done
 }
 
-function check-for-neon-image() {
+function check-pre-reqs() {
   if ! (docker images | grep 'com.ncc.neon/server' > /dev/null); then
     echo 
     echo "  Please build the neon-server docker containers."
@@ -64,9 +64,16 @@ function check-for-neon-image() {
     echo 
     exit 1
   fi
+
+  if (node --version |  grep '^v8.' > /dev/null); then
+    echo 
+    echo "  Please upgrade your node to version 10 or higher"
+    echo 
+    exit 1
+  fi
 }
 
-check-for-neon-image
+check-pre-reqs
 
 trap teardown EXIT
 
