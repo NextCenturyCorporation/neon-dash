@@ -24,7 +24,8 @@ import {
     QueryPayload
 } from './abstract.search.service';
 import { AggregationType } from '../models/widget-option';
-import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
+import { NeonConnection, RequestWrapper } from './connection.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 
 import { query } from 'neon-framework';
 
@@ -53,7 +54,7 @@ interface ExportField {
  */
 @Injectable()
 export class SearchService extends AbstractSearchService {
-    constructor(private connectionService: ConnectionService) {
+    constructor(private connectionService: InjectableConnectionService) {
         super();
     }
 
