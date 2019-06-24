@@ -26,7 +26,7 @@ import {
 
 import { eventing } from 'neon-framework';
 
-import { AbstractColorThemeService } from '../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -128,7 +128,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public filterService: FilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public colorThemeService: AbstractColorThemeService,
+        public colorThemeService: InjectableColorThemeService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
         public location: Location

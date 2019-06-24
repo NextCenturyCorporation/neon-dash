@@ -31,7 +31,7 @@ import {
     QueryPayload,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -95,7 +95,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {

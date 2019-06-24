@@ -20,10 +20,9 @@ import { } from 'jasmine-core';
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { ColorThemeService } from '../../services/color-theme.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -38,7 +37,7 @@ describe('Component: AnnotationViewer', () => {
 
     initializeTestBed('Annotation Viewer', {
         providers: [
-            { provide: AbstractColorThemeService, useClass: ColorThemeService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },

@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
 import { Color, ColorSet } from '../models/color';
 
-/**
- * @class NeonTheme
- */
 export class NeonTheme implements Theme {
     /**
      * @constructor
@@ -30,12 +26,6 @@ export class NeonTheme implements Theme {
     constructor(public accent: string, public id: string, public main: string, public name: string) { }
 }
 
-/**
- * A service for everything a Neon Dashboard widget needs.
- *
- * @class ColorThemeService
- */
-@Injectable()
 export class ColorThemeService extends AbstractColorThemeService {
     public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
     public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
