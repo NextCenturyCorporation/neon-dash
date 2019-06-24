@@ -127,7 +127,7 @@ describe('Dashboard', () => {
 
     it('should navigate on filters changed', () => {
         let spyOnRouter = spyOn(component.router, 'navigate');
-        component.onFiltersChanged();
+        component.onFiltersChanged('testCaller', null);
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
         expect(path).toEqual([]);
