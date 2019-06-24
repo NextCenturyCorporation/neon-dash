@@ -23,6 +23,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import {
     FilterBehavior,
     FilterCollection,
+    FilterDataSource,
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
@@ -138,7 +139,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // Don't pass the event message as an argument to handleChangeData.
             this.handleChangeData();
         });
-        this.messenger.subscribe(neonEvents.FILTERS_REFRESH, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
@@ -153,6 +153,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 });
             }
         });
+
+        this.filterService.registerFilterChangeListener(this.id, this.handleFiltersChanged.bind(this));
 
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
@@ -288,6 +290,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
             id: this.id
         });
+        this.filterService.unregisterFilterChangeListener(this.id);
         this.destroyVisualization();
     }
 
@@ -330,7 +333,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
-     * given, also deletes the filters of each data source in the list (useful if you want to do both with a single FILTERS_CHANGED event).
+     * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
      *
      * @arg {FilterDesign[]} filterDesignList
      * @arg {FilterDesign[]} [filterDesignListToDelete]
@@ -708,13 +711,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Handles any needed behavior on a FILTERS_CHANGED event and then runs the visualization query.
+     * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(eventMessage: any): void {
+    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
         this.updateCollectionWithGlobalCompatibleFilters();
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
-        if (eventMessage.caller !== this.id || this.shouldFilterSelf()) {
+        if (callerId !== this.id || this.shouldFilterSelf()) {
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
         }
