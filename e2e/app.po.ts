@@ -12,17 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { browser, ElementFinder, By, by, $$, $, ElementArrayFinder } from 'protractor';
+import { browser, ElementFinder, By, by, $$, $, ElementArrayFinder, Locator } from 'protractor';
 
 interface PageInfo { start?: number, end?: number, count: number }
+
+function nest(locator: Locator, sub: string) {
+    return by.css(`${locator['value']} ${sub}`);
+}
 
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-await-in-loop */
 export class NeonGtdPage {
-    root = By.css('app-dashboard');
-    toolbar = this.root.nest('mat-toolbar');
-    toolbarTitle = this.toolbar.nest('.dashboard-name');
-    visualizations = this.root.nest('app-visualization-injector>*:not(div)');
+    root = 'app-dashboard';
+    toolbar = `${this.root} mat-toolbar`;
+    toolbarTitle = `${this.toolbar} .dashboard-name`;
+    visualizations = `${this.root} app-visualization-injector>*:not(div)`;
 
     goTo(path = '/', query: Record<string, string> = {}, fragment: string = '') {
         const url = `${path}?${new URLSearchParams(query).toString()}#${fragment}`;
@@ -57,7 +61,7 @@ export class NeonGtdPage {
     }
 
     async findViz(predicate: (element: ElementFinder) => Promise<boolean> | boolean): Promise<ElementFinder | undefined> {
-        for (const vis of await this.visualizations.all) {
+        for (const vis of await browser.$$(this.visualizations)) {
             if (await predicate(vis)) {
                 return vis;
             }
