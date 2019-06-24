@@ -1,4 +1,7 @@
 #!/bin/bash
+ES_PORT=9199
+UI_PORT=4199
+SB_PORT=8089
 
 function log() {
   echo "$(date --iso-8601=seconds)" $1 > /dev/stderr
@@ -11,8 +14,17 @@ function in-docker() {
   popd > /dev/null
 }
 
-function cleanup() {
+function setup() {
+  if [[ ! -d "node_modules/ts-node-2" ]]; then
+    npm i --no-save ts-node
+    mv node_modules/ts-ndoe node_modules/ts-node-2
+  fi
+  in-docker "docker-compose --no-ansi up -d" 
+}
+
+function teardown() {
   in-docker "docker-compose --no-ansi down"
+  rm -rf node_modules/ts-node
   kill %1 2> /dev/null
 }
 
@@ -28,12 +40,12 @@ function find-newest() {
 
 function protract() {
   log "Starting protractor"
-  npx protractor protractor.conf.js
+  npx protractor e2e/protractor.conf.js
 }
 
 function wait-for-data() {
   log "Waiting for data to be available"
-  until [[ $(curl -s 'localhost:9200/_search?size=0&q=*' | jq -r .hits.total) -gt 0 ]];
+  until [[ $(curl -s "localhost:${ES_PORT}/_search?size=0&q=*" | jq -r .hits.total) -gt 0 ]];
   do
     sleep .5
   done
@@ -47,11 +59,11 @@ function wait-for-dist() {
   done
 }
 
-trap cleanup EXIT
+trap teardown EXIT
 
 WATCH="${1:-0}"
 
-in-docker "docker-compose --no-ansi up -d" 
+setup
 
 if [[ "$WATCH" == "0" ]]; then
   NEWEST_DIR=`find-newest src dist 2`

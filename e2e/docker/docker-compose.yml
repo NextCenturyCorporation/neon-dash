@@ -8,7 +8,7 @@ services:
     container_name: e2e-ui
     image: nginx:alpine
     ports: 
-      - 4200:80
+      - 4199:80
     networks:
       esnet:
     volumes:
@@ -29,7 +29,7 @@ services:
         soft: -1
         hard: -1
     ports:
-      - 9200:9200
+      - 9199:9200
     networks:
       esnet:
     healthcheck:
@@ -40,12 +40,11 @@ services:
   neon-server:
     environment:
       STATE_DIRECTORY: /config
+      SERVER_PORT: 80
     volumes:
       - ./resources:/config
     image: com.ncc.neon/server:latest
     container_name: e2e-neon-server
-    ports:
-      - 8090:8090
     networks:
       esnet:
   data-load:
