@@ -61,7 +61,7 @@ export class NeonGtdPage {
     }
 
     async findViz(predicate: (element: ElementFinder) => Promise<boolean> | boolean): Promise<ElementFinder | undefined> {
-        for (const vis of await browser.$$(this.visualizations)) {
+        for (const vis of await $$(this.visualizations)) {
             if (await predicate(vis)) {
                 return vis;
             }
