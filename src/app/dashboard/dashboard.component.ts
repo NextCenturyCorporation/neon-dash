@@ -94,6 +94,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     widgets: Map<string, BaseNeonComponent> = new Map();
 
+    movingWidgets = false;
+
     gridConfig: NgGridConfig = {
         resizable: true,
         margins: [5, 5, 5, 5],
@@ -158,6 +160,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
         this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.handleKeydown = this.handleKeydown.bind(this);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.handleKeyup = this.handleKeyup.bind(this);
     }
 
     get currentDashboard() {
@@ -359,11 +368,50 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.resizeGrid();
     }
 
+    handleKeydown(ev: KeyboardEvent) {
+        if (ev.key === 'Shift') {
+            this.movingWidgets = true;
+        }
+    }
+
+    handleKeyup(ev: KeyboardEvent) {
+        if (ev.key === 'Shift') {
+            this.movingWidgets = false;
+        }
+    }
+
+    handleMouseMove(ev: MouseEvent) {
+        this.movingWidgets = ev.shiftKey;
+        if (ev.shiftKey && !document.hasFocus()) {
+            const inp = document.createElement('input');
+            inp.id = 'focus-me';
+            inp.style.opacity = '0.001';
+            inp.style.position = 'absolute';
+            inp.style.bottom = '0';
+            document.body.append(inp);
+            document.querySelector('#focus-me').dispatchEvent(new FocusEvent('focus'));
+            setTimeout(() => document.body.removeChild(inp), 10);
+        }
+    }
+
     ngOnDestroy(): void {
         this.messageReceiver.unsubscribeAll();
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.removeEventListener('keydown', this.handleKeydown);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.removeEventListener('keyup', this.handleKeyup);
     }
 
     ngOnInit(): void {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.addEventListener('mousemove', this.handleMouseMove);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.addEventListener('keydown', this.handleKeydown);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.addEventListener('keyup', this.handleKeyup);
+
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {

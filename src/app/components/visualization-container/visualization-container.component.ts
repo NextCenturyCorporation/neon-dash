@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, HostBinding } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
@@ -30,8 +30,11 @@ export class VisualizationContainerComponent implements OnInit {
 
     public expanded: boolean;
     public showToolbar: boolean;
+    public showDragging: boolean;
 
     @Input() visualization: NeonGridItem;
+
+    @HostBinding('class.moving') @Input() moving: boolean;
 
     private messenger: any;
 

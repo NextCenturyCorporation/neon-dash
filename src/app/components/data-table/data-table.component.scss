@@ -67,30 +67,6 @@
     position: fixed;
 }
 
-.datatable-filter-container {
-    @extend %filter-container-shared;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-
-    .datatable-filter-reset {
-        @extend %filter-reset-shared;
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: flex-end;
-        overflow: hidden;
-
-        .datatable-filter-label {
-            @extend %filter-label-shared;
-        }
-
-        mat-icon {
-            @extend %filter-icon-shared;
-        }
-    }
-}
-
 /deep/ .datatable-row-even {
     background-color: var(--background, white);
 }

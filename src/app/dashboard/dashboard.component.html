@@ -16,15 +16,13 @@
                 <wt-lazy *ngSwitchCase="'savedState'" [location]="{moduleId:'save-state', selector: 'app-save-state'}"
                     [inputs]="{sidenav: sideNavRight, gridState: gridState }">
                 </wt-lazy>
-                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
-                    [inputs]="{widgets:widgets}">
+                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}" [inputs]="{widgets:widgets}">
                 </wt-lazy>
             </div>
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center"
-            flex>
+        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide titlebar-header-text" color="primary" layout-align="space-between center" flex>
             <div *ngIf="currentDashboard">
                 <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!dashboardService.state.modified"
                     matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
@@ -51,8 +49,8 @@
                 matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
-                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
+                matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
             </button>
 
@@ -109,8 +107,8 @@
                 <div [ngGrid]="gridConfig" #grid>
                     <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
                         name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                        (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                        <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
+                        (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)" [class.moving]="movingWidgets">
+                        <app-visualization-container [moving]="movingWidgets" [visualization]="widgetGridItem"></app-visualization-container>
                         <ng-content></ng-content>
                     </div>
                 </div>

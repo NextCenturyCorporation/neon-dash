@@ -23,7 +23,6 @@ $contribution-height: 20px;
     height: 100%;
     width: 100%;
     cursor: default;
-    border-radius: 5px;
     display: grid;
     box-sizing: border-box;
     grid-template-rows: auto 1fr auto auto;
@@ -155,42 +154,6 @@ $contribution-height: 20px;
 
         &:hover {
             text-decoration: underline;
-        }
-    }
-
-    %filter-reset-shared {
-        font-size: 14px;
-        line-height: 20px;
-        height: 20px;
-        border-radius: 5px;
-        margin: 5px;
-        padding: 5px 0 5px 10px;
-        background-color: var(--color-background-contrast, grey);
-    }
-
-    %filter-label-shared {
-        overflow: hidden;
-        position: relative;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    %filter-icon-shared {
-        padding: 2px 0;
-    }
-
-    .filter-reset {
-        @extend %filter-reset-shared;
-        float: right;
-
-        .filter-label {
-            @extend %filter-label-shared;
-            float: left;
-            max-width: 100px;
-        }
-
-        mat-icon {
-            @extend %filter-icon-shared;
         }
     }
 
