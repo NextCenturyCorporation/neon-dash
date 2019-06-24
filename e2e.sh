@@ -1,7 +1,5 @@
 #!/bin/bash
-ES_PORT=9199
-UI_PORT=4199
-SB_PORT=8089
+WATCH="${1:-0}"
 
 function log() {
   echo "$(date --iso-8601=seconds)" $1 > /dev/stderr
@@ -58,9 +56,17 @@ function wait-for-dist() {
   done
 }
 
-trap teardown EXIT
+function check-for-neon-image() {
+  if [[ ! (docker images | grepn 'com.ncc.neon/neon-server') ]]; then
+    echo "Please build the neon-server docker containers."
+    echo "run `./gradlew docker` in the server root to install"
+    exit 1
+  fi
+}
 
-WATCH="${1:-0}"
+check-for-neon-image
+
+trap teardown EXIT
 
 setup
 
