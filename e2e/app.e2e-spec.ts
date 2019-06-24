@@ -15,8 +15,7 @@
 
 /* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
-import './util';
-import { by, ElementFinder, $, Key, browser, ElementArrayFinder } from 'protractor';
+import { by, ElementFinder, $, Key, browser } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
@@ -30,11 +29,11 @@ describe('neon-gtd App', () => {
     });
 
     it('should load the dashboard', async () => {
-        expect(await page.toolbarTitle.asText).toBeTruthy();
+        expect(await browser.$(page.toolbarTitle).getText()).toBeTruthy();
     });
 
     it('should verify counts', async () => {
-        const all = await page.visualizations.all;
+        const all = await browser.$$(page.visualizations);
 
         expect(all.length).toBeGreaterThan(1);
 

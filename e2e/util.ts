@@ -12,33 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import './types';
-import { $, $$ } from 'protractor';
-import { By } from 'selenium-webdriver';
+export class Util {
 
-// eslint-disable-next-line no-extend-native
-Object.defineProperties(By.prototype, {
-    first: {
-        get: function(this: By) {
-            return $(this['value']);
-        }
-    },
-    all: {
-        get: function(this: By) {
-            return $$(this['value']);
-        }
-    },
-    asText: {
-        get: function(this: By) {
-            return this.first.getText();
-        }
-    },
-    nest: {
-        get: function() {
-            return function(this: By, value: string) {
-                // eslint-disable-next-line no-invalid-this
-                return By.css(`${this['value']} ${value}`);
-            };
-        }
-    }
-});
+}
