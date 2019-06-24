@@ -2,7 +2,7 @@ projectTitle: 'Fun'
 projectIcon: /assets/images/verdi-favicon.ico
 datastores:
     es1:
-        host: e2e_es
+        host: e2e-es
         type: elasticsearchrest
         databases:
             ldc_uyg_jul_18: # layout: uyghur-ldc-sd: "DARPA60: Uyghur LDC Situation Discovery"
