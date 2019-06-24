@@ -42,7 +42,7 @@ function protract() {
 
 function wait-for-data() {
   log "Waiting for data to be available"
-  until [[ $(curl -s "localhost:${ES_PORT}/_search?size=0&q=*" | jq -r .hits.total) -gt 0 ]];
+  until [[ $(curl -s "localhost:9199/_search?size=0&q=*" | jq -r .hits.total) -gt 0 ]];
   do
     sleep .5
   done
@@ -57,9 +57,11 @@ function wait-for-dist() {
 }
 
 function check-for-neon-image() {
-  if [[ ! (docker images | grepn 'com.ncc.neon/neon-server') ]]; then
-    echo "Please build the neon-server docker containers."
-    echo "run `./gradlew docker` in the server root to install"
+  if ! (docker images | grep 'com.ncc.neon/server' > /dev/null); then
+    echo 
+    echo "  Please build the neon-server docker containers."
+    echo "  run './gradlew docker' in the server root to install"
+    echo 
     exit 1
   fi
 }
