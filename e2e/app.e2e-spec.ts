@@ -15,7 +15,7 @@
 
 /* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
-import { by, ElementFinder, $, Key, browser } from 'protractor';
+import { by, ElementFinder, $, Key, browser, $$ } from 'protractor';
 
 describe('neon-gtd App', () => {
     let page: NeonGtdPage;
@@ -29,11 +29,11 @@ describe('neon-gtd App', () => {
     });
 
     it('should load the dashboard', async () => {
-        expect(await browser.$(page.toolbarTitle).getText()).toBeTruthy();
+        expect(await $(page.toolbarTitle).getText()).toBeTruthy();
     });
 
     it('should verify counts', async () => {
-        const all = await browser.$$(page.visualizations);
+        const all = await $$(page.visualizations);
 
         expect(all.length).toBeGreaterThan(1);
 
@@ -139,7 +139,7 @@ describe('neon-gtd App', () => {
         const parent: ElementFinder = await page.getVizWrapper(vizA) as any;
         expect(parent).toBeDefined();
 
-        const border = await parent.$$('.visualization-border>div').first();
+        const border = await parent.$('.visualization-border>div');
         await browser.actions().mouseMove(border).perform();
 
         const actions = parent.$('.visualization-toolbar');
