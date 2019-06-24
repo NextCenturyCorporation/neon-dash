@@ -7,7 +7,7 @@ do
   sleep .5
 done
 
-curl -X DELETE -s ${HOST}/${DATA_SET}
+curl -X DELETE -s ${HOST}/*
 curl -H 'Content-Type: application/json' \
      -XPUT -s \
      -d @/data/${DATA_SET}_mapping.json \
