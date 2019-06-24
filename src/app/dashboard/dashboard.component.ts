@@ -205,7 +205,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (!urlFilter && currentFilter) {
             const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(`${path}#${currentFilter}`, url.searchParams.toString());
+            this.location.replaceState(`${path}?${url.searchParams.toString()}#${currentFilter}`);
         }
 
         // Clean on different dashboard
