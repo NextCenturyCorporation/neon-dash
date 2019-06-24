@@ -19,7 +19,8 @@ import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonField
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { ConnectionService, Connection } from './connection.service';
+import { Connection } from './connection.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
 
@@ -43,7 +44,7 @@ export class DashboardService {
 
     constructor(
         private configService: ConfigService,
-        private connectionService: ConnectionService,
+        private connectionService: InjectableConnectionService,
         private filterService: FilterService,
         private searchService: AbstractSearchService
     ) {
