@@ -19,7 +19,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NeonFieldMetaData } from '../../models/types';
-import { WidgetOption } from '../../models/widget-option';
+import { WidgetOption, WidgetOptionCollection } from '../../models/widget-option';
 
 @Component({
     selector: 'app-options-list',
@@ -32,7 +32,7 @@ export class OptionsListComponent {
     @Input() bindingsList: string[];
     @Input() fields: NeonFieldMetaData[];
     @Input() index: number;
-    @Input() options: any;
+    @Input() options: WidgetOptionCollection;
     @Input() updateOnChange: Function;
 
     /**

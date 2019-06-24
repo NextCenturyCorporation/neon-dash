@@ -46,14 +46,17 @@
                 </mat-form-field>
 
                 <!-- layer option list -->
-                <app-options-section [modifiedOptions]=modifiedOptions [gearComp]=this [index]=i>
+                <app-options-section [modifiedOptions]="layer" [updateOnChange]="updateOnChange.bind(this)"
+                    [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
+                    [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)" [index]=i>
                 </app-options-section>
-
             </div>
         </div>
     </div>
     <!-- Non Multilayer option list-->
-    <app-options-section [modifiedOptions]=modifiedOptions [gearComp]=this>
+    <app-options-section [modifiedOptions]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
+        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
+        [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
     </app-options-section>
 
     <mat-form-field class="option-container">

@@ -22,7 +22,8 @@ import {
     ViewEncapsulation,
     Input,
     ViewChildren,
-    QueryList
+    QueryList,
+    ViewChild
 } from '@angular/core';
 
 import { MatSidenav } from '@angular/material';
@@ -30,7 +31,7 @@ import { MatSidenav } from '@angular/material';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option';
-import { OptionsListComponent } from '../options-list/options-list.component';
+import { OptionsSectionComponent } from '../options-section/options-section.component';
 
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
@@ -46,28 +47,18 @@ import { DashboardState } from '../../models/dashboard-state';
 export class GearComponent implements OnInit, OnDestroy {
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
-    @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
+    @ViewChildren('listChildren') listChildren: QueryList<OptionsSectionComponent>;
 
     private messenger: eventing.Messenger;
     private originalOptions: WidgetOptionCollection;
 
     // Set to a stub object to stop initialization errors.
-    public modifiedOptions: any = {
-        databases: [],
-        fields: [],
-        layers: [],
-        tables: []
-    };
+    public modifiedOptions: any = new WidgetOptionCollection(() => []);
 
     public exportCallbacks: (() => { name: string, data: any }[])[] = [];
-    public requiredList: string[] = [];
-    public requiredListNonField: string[] = [];
-    public optionalList: string[] = [];
-    public optionalListNonField: string[] = [];
 
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
-    public collapseOptionalOptions: boolean = true;
     public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
     public readonly dashboardState: DashboardState;
@@ -86,54 +77,10 @@ export class GearComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Constructs requiredList & optionalList at the same time
+     * Updates the modifiedOptions.
      */
     private constructOptions() {
         this.modifiedOptions = this.originalOptions.copy();
-
-        let optionList: WidgetOption[] = this.modifiedOptions.list();
-        optionList = this.removeOptionsByEnableInMenu(optionList, false);
-        optionList = this.removeOptionsByBindingKey(optionList, 'title');
-        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
-        optionList = this.removeOptionsByType(optionList, 'DATABASE');
-        optionList = this.removeOptionsByType(optionList, 'TABLE');
-        optionList = this.removeOptionsByBindingKey(optionList, 'layer');
-
-        let requiredList: WidgetOption[] = [];
-        let optionalList: WidgetOption[] = [];
-        let requiredFieldList: WidgetOption[] = [];
-        let optionalFieldList: WidgetOption[] = [];
-        let requiredNonFieldList: WidgetOption[] = [];
-        let optionalNonFieldList: WidgetOption[] = [];
-
-        optionList.forEach((element) => {
-            if (element.isRequired) {
-                requiredList.push(element);
-            } else {
-                optionalList.push(element);
-            }
-        });
-
-        requiredList.forEach((element) => {
-            if (element.optionType === 'FIELD') {
-                requiredFieldList.push(element);
-            } else {
-                requiredNonFieldList.push(element);
-            }
-        });
-
-        optionalList.forEach((element) => {
-            if (element.optionType === 'FIELD') {
-                optionalFieldList.push(element);
-            } else {
-                optionalNonFieldList.push(element);
-            }
-        });
-
-        this.requiredList = requiredFieldList.map((option) => option.bindingKey);
-        this.requiredListNonField = requiredNonFieldList.map((option) => option.bindingKey);
-        this.optionalList = optionalFieldList.map((option) => option.bindingKey);
-        this.optionalListNonField = optionalNonFieldList.map((option) => option.bindingKey);
     }
 
     /**
@@ -144,21 +91,6 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     public getIconForFilter(options: any): string {
         return this.layerHidden.get(options._id) ? 'keyboard_arrow_down' : 'keyboard_arrow_up';
-    }
-
-    /**
-     * Returns the icon for the optional options.
-     *
-     * @return {string}
-     */
-    public getIconForOptions() {
-        let icon: string;
-        if (this.collapseOptionalOptions) {
-            icon = 'keyboard_arrow_down';
-        } else {
-            icon = 'keyboard_arrow_up';
-        }
-        return icon;
     }
 
     /**
@@ -306,6 +238,16 @@ export class GearComponent implements OnInit, OnDestroy {
      * Receives
      */
     ngOnInit() {
+        // If (this.comp) {
+        //     this.originalOptions = this.comp.options;
+        //     /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        //     this.exportCallbacks = [this.comp.exportData];
+        //     this.resetOptions();
+        //     this.constructOptions();
+        // }
+    }
+
+    ngAfterViewInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
             /* eslint-disable-next-line @typescript-eslint/unbound-method */
@@ -345,20 +287,15 @@ export class GearComponent implements OnInit, OnDestroy {
     private resetOptions() {
         this.changeMade = false;
         this.changeSubcomponentType = false;
-        this.collapseOptionalOptions = true;
+
         this.layerHidden = new Map<string, boolean>();
 
-        this.requiredList = [];
-        this.requiredListNonField = [];
-        this.optionalList = [];
-        this.optionalListNonField = [];
+        // Call options-section reset to reset the lists
+        this.listChildren.forEach((child) => {
+            child.optionSectionResetOptions();
+        });
 
-        this.modifiedOptions = {
-            databases: [],
-            fields: [],
-            layers: [],
-            tables: []
-        };
+        this.modifiedOptions = new WidgetOptionCollection(() => []);
     }
 
     /**
@@ -368,13 +305,6 @@ export class GearComponent implements OnInit, OnDestroy {
      */
     public toggleFilter(options: any): void {
         this.layerHidden.set(options._id, !(this.layerHidden.get(options._id)));
-    }
-
-    /**
-     * Toggles the visibility of the optional options
-     */
-    public toggleOptionalOptions(): void {
-        this.collapseOptionalOptions = !this.collapseOptionalOptions;
     }
 
     /**
