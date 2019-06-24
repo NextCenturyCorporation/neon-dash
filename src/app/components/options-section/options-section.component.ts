@@ -16,12 +16,9 @@ import {
     ChangeDetectionStrategy,
     Component,
     Input,
-    ViewEncapsulation,
-    ElementRef,
-    Renderer2
+    ViewEncapsulation
 } from '@angular/core';
 import { WidgetOptionCollection, WidgetOption } from '../../models/widget-option';
-import * as _ from 'lodash';
 
 @Component({
     selector: 'app-options-section',
@@ -39,26 +36,50 @@ export class OptionsSectionComponent {
 
     public collapseOptionalOptions: boolean = true;
 
-    public getRequiredFields(modifiedOptions: WidgetOptionCollection): string[] {
-        return modifiedOptions.list().filter((option) => option.isRequired &&
+    /**
+     * Removes option from display list. (must manually display options that are removed)
+     *
+     * @param {WidgetOption[]}
+     * @returns {WidgetOption[]}
+     */
+    private removeOptionsFromList(optList: WidgetOption[]): WidgetOption[] {
+        let optionList: WidgetOption[] = optList;
+        optionList = this.removeOptionsByEnableInMenu(optionList, false);
+        optionList = this.removeOptionsByBindingKey(optionList, 'title');
+        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
+        optionList = this.removeOptionsByType(optionList, 'DATABASE');
+        optionList = this.removeOptionsByType(optionList, 'TABLE');
+        return optionList;
+    }
+
+    public getRequiredFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+        let requiredList: WidgetOption[] = modifiedOptions.list();
+        requiredList = this.removeOptionsFromList(requiredList);
+        return requiredList.filter((option) => option.isRequired &&
             (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalFields(modifiedOptions: WidgetOptionCollection): string[] {
-        return modifiedOptions.list().filter((option) => !option.isRequired &&
+    public getOptionalFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+        let optionalList: WidgetOption[] = modifiedOptions.list();
+        optionalList = this.removeOptionsFromList(optionalList);
+        return optionalList.filter((option) => !option.isRequired &&
             (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getRequiredNonFields(modifiedOptions: WidgetOptionCollection): string[] {
-        return modifiedOptions.list().filter((option) => option.isRequired &&
+    public getRequiredNonFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+        let requiredNonList: WidgetOption[] = modifiedOptions.list();
+        requiredNonList = this.removeOptionsFromList(requiredNonList);
+        return requiredNonList.filter((option) => option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalNonFields(modifiedOptions: WidgetOptionCollection): string[] {
-        return modifiedOptions.list().filter((option) => !option.isRequired &&
+    public getOptionalNonFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+        let optionalNonList: WidgetOption[] = modifiedOptions.list();
+        optionalNonList = this.removeOptionsFromList(optionalNonList);
+        return optionalNonList.filter((option) => !option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
@@ -80,9 +101,15 @@ export class OptionsSectionComponent {
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
-        newList = newList.filter((field) => field.bindingKey !== bindingKey);
+        newList = newList.filter((field) => field !== bindingKey);
         return newList;
     }
+
+    // Private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
+    //     let newList = list;
+    //     newList = newList.filter((field) => field.bindingKey !== bindingKey);
+    //     return newList;
+    // }
 
     private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
@@ -105,11 +132,6 @@ export class OptionsSectionComponent {
 
     public optionSectionResetOptions() {
         this.collapseOptionalOptions = true;
-
-        this.requiredList = [];
-        this.requiredListNonField = [];
-        this.optionalList = [];
-        this.optionalListNonField = [];
     }
 
     private delay(ms: number) {
