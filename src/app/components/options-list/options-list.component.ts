@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -19,8 +18,8 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { FieldMetaData } from '../../dataset';
-import { WidgetOption } from '../../widget-option';
+import { NeonFieldMetaData } from '../../models/types';
+import { WidgetOption } from '../../models/widget-option';
 
 @Component({
     selector: 'app-options-list',
@@ -31,22 +30,18 @@ import { WidgetOption } from '../../widget-option';
 })
 export class OptionsListComponent {
     @Input() bindingsList: string[];
-    @Input() fields: FieldMetaData[];
+    @Input() fields: NeonFieldMetaData[];
     @Input() index: number;
     @Input() options: any;
     @Input() updateOnChange: Function;
 
-    constructor() {
-        // Do nothing.
-    }
-
     /**
      * Creates and returns a new empty field object.
      *
-     * @return {FieldMetaData}
+     * @return {NeonFieldMetaData}
      */
-    public createEmptyField(): FieldMetaData {
-        return new FieldMetaData();
+    public createEmptyField(): NeonFieldMetaData {
+        return NeonFieldMetaData.get();
     }
 
     /**

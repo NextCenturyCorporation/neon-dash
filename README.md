@@ -29,27 +29,47 @@ Create a Neon Dashboard config file at `src/app/config/config.json` or `src/app/
 
 To build the Neon Dashboard: `npm install`
 
-To start the Neon Dashboard, first start the Neon Server (if it's not running on port 8080, change the port in [proxy.conf.json](./proxy.conf.json)).  Then run: `npm start`
+Copy the [sample proxy config file](./sample.proxy.conf.json) to `./proxy.conf.json` and change the port if your Neon Server will not run on port 8080 (the default).
+
+To start the Neon Dashboard, first start the Neon Server, then run: `npm start`
 
 This will start the Neon Dashboard on http://localhost:4200 and should auto-reload the page whenever you modify a file.
 
 To see anything useful, you will need to ingest data into your datastore(s).
 
+## Unit Test and Lint
+
+To start the unit tests and linters, run: `npm test`
+
 ## Unit Test
 
-To start the unit tests, run: `npm test`
+To start just the unit tests, run: `npm run-script unit-test`
+
+The unit tests are run using a [Karma config file](./karma.conf.js).  The unit tests are written with [Jasmine](https://jasmine.github.io/).
 
 ## Lint
 
-To lint the code, run: `npm lint --fix`
+To start just the linters, run: `npm run-script lint`
+
+The linters use the following libraries:
+- [ESLint](https://eslint.org/) and [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint)
+- [JS Beautify](https://github.com/beautify-web/js-beautify) (HTML only)
+- [Sass Lint](https://github.com/sasstools/sass-lint) and [Sass Lint Auto Fix](https://github.com/srowhani/sass-lint-auto-fix)
+
+The linters are run using the following files:
+- [.eslintrc.yml](./.eslintrc.yml)
+- [.jsbeautifyrc](./.jsbeautifyrc)
+- [sass-lint.yaml](./sass-lint.yaml) and [sass-lint-auto-fix.yaml](./sass-lint-auto-fix.yaml)
 
 ## Deploy as WAR
 
-To build the Neon Dashboard as a WAR:
+To build the Neon Dashboard as a WAR (replacing "whatever" with your custom WAR name):
 
-        ng build --deployUrl=/dashboard_url/ --base-href /dashboard_url/ --aot
+        npm run-script build whatever
 
-The `dashboard_url` should be your Apache Tomcat deployment URL:  for example, here you would access the Neon Dashboard at `http://hostname:port/dashboard_url`.  The `--aot` ("ahead-of-time") compiler option will improve runtime performance.
+Your WAR name should also be your Apache Tomcat deployment URL.  For example, the command above would generate `target/whatever.war` for you to copy into your Apache Tomcat `webapps` directory and access the Neon Dashboard at `http://hostname:port/whatever`.
+
+Note:  This command will build the dashboard for a production environment (`--prod`) and using the ahead-of-time compiler option (`--aot`) to improve runtime performance.
 
 ## Deploy as Docker Image
 

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,15 +11,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetService } from '../../services/dataset.service';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
     selector: 'app-simple-filter',
@@ -33,13 +33,16 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     public showSimpleSearch: boolean = false;
 
     private messenger = new eventing.Messenger();
+    public readonly dashboardState: DashboardState;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        dashboardService: DashboardService,
         protected filterService: FilterService,
         protected searchService: AbstractSearchService
-    ) {}
+    ) {
+        this.dashboardState = dashboardService.state;
+    }
 
     public addFilter(term: string): void {
         if (!term.length) {
@@ -47,7 +50,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             return;
         }
 
-        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
+        let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (!this.validateSimpleFilter(simpleFilter)) {
             return;
@@ -55,9 +58,9 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
         this.inputPlaceholder = simpleFilter.placeholder || '';
 
-        let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
-        let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-        let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(simpleFilter.databaseName);
+        let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
             simpleFilter.fieldName);
 
         let filter: SimpleFilterDesign = {
@@ -69,7 +72,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             value: term
         } as SimpleFilterDesign;
 
-        this.filterService.exchangeFilters('SimpleFilter', [filter], this.datasetService.findRelationDataList(), this.searchService);
+        this.filterService.exchangeFilters('SimpleFilter', [filter], this.dashboardState.findRelationDataList(), this.searchService);
 
         this.cachedFilter = filter;
     }
@@ -99,7 +102,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
 
     public updateSimpleFilterConfig(): void {
         this.updateShowSimpleSearch({
-            show: this.validateSimpleFilter((this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {})
+            show: this.validateSimpleFilter((this.dashboardState.getOptions() || {}).simpleFilter || {})
         });
     }
 

@@ -6,7 +6,8 @@
     <h3 class="header">Themes</h3>
     <div class='radio-container' layout="row" mat-margin>
         <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+            <mat-radio-button class="radio-btn" *ngFor="let theme of widgetService.getThemes()" [value]="theme.id">{{ theme.name }}
+            </mat-radio-button>
         </mat-radio-group>
     </div>
     <mat-divider class="divider"></mat-divider>
@@ -29,7 +30,7 @@
             <div *ngIf="showSimpleSearch">
                 <mat-form-field class="dropdown-menu">
                     <mat-select name="simple-search-field" placeholder="Simple Search Field" [(ngModel)]="searchField"
-                        (change)="changeSimpleSearchFilter()" required="true" [disabled]="fields.length == 0">
+                        (ngModelChange)="changeSimpleSearchFilter()" required="true" [disabled]="fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>

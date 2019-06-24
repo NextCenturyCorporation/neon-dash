@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,25 +11,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, Input } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
-  selector: 'app-confirm-dialog',
-  templateUrl: 'confirmation-dialog.component.html',
-  styleUrls: ['confirmation-dialog.component.scss']
+    selector: 'app-confirmation-dialog',
+    templateUrl: 'confirmation-dialog.component.html',
+    styleUrls: ['confirmation-dialog.component.scss']
 })
 
 export class ConfirmationDialogComponent {
     public confirmDialogRef: any;
-    public confirmMessage: string;
+    public confirmMessage: string = '';
     public target: string;
     public title: string;
-    public confirmText: string;
-    public cancelText: string;
+    public confirmText: string = 'Confirm';
+    public cancelText: string = 'Cancel';
 
-    constructor(public dialogRef: MatDialogRef<ConfirmationDialogComponent>) {}
-
+    constructor(
+        @Inject(MAT_DIALOG_DATA) public data: any,
+        public dialogRef: MatDialogRef<ConfirmationDialogComponent>
+    ) {
+        this.target = data.target;
+        this.title = data.title;
+        this.confirmMessage = data.confirmMessage;
+        this.confirmText = data.confirmText || this.confirmText;
+        this.cancelText = data.cancelText || this.cancelText;
+    }
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,16 +11,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { inject } from '@angular/core/testing';
 
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
-import { SearchService, NeonConnection, NeonGroupWrapper, NeonQueryWrapper, NeonWhereWrapper } from './search.service';
+import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { query } from 'neon-framework';
+
+// TODO How can we call query.and and query.or without using "apply" ?
+/* eslint-disable no-useless-call */
 
 describe('Service: Search', () => {
     let service: SearchService;
@@ -69,20 +71,26 @@ describe('Service: Search', () => {
 
     it('buildCompoundFilterClause does not wrap single filter clause', () => {
         expect(service.buildCompoundFilterClause([new NeonWhereWrapper(query.where('field', '=', 'value'))])).toEqual(
-            new NeonWhereWrapper(query.where('field', '=', 'value')));
+            new NeonWhereWrapper(query.where('field', '=', 'value'))
+        );
     });
 
     it('buildDateQueryGroup does return expected query group', () => {
         expect(service.buildDateQueryGroup('groupField', TimeInterval.MINUTE)).toEqual(new NeonGroupWrapper(
-            new query.GroupByFunctionClause('minute', 'groupField', '_minute')));
+            new query.GroupByFunctionClause('minute', 'groupField', '_minute')
+        ));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.HOUR)).toEqual(new NeonGroupWrapper(
-            new query.GroupByFunctionClause('hour', 'groupField', '_hour')));
+            new query.GroupByFunctionClause('hour', 'groupField', '_hour')
+        ));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.DAY_OF_MONTH)).toEqual(new NeonGroupWrapper(
-            new query.GroupByFunctionClause('dayOfMonth', 'groupField', '_dayOfMonth')));
+            new query.GroupByFunctionClause('dayOfMonth', 'groupField', '_dayOfMonth')
+        ));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.MONTH)).toEqual(new NeonGroupWrapper(
-            new query.GroupByFunctionClause('month', 'groupField', '_month')));
+            new query.GroupByFunctionClause('month', 'groupField', '_month')
+        ));
         expect(service.buildDateQueryGroup('groupField', TimeInterval.YEAR)).toEqual(new NeonGroupWrapper(
-            new query.GroupByFunctionClause('year', 'groupField', '_year')));
+            new query.GroupByFunctionClause('year', 'groupField', '_year')
+        ));
     });
 
     it('buildFilterClause does return expected filter clause', () => {
@@ -98,7 +106,8 @@ describe('Service: Search', () => {
             'table')));
 
         expect(service.buildQueryPayload('database', 'table', ['field'])).toEqual(new NeonQueryWrapper(new query.Query().selectFrom(
-            'database', 'table').withFields(['field'])));
+            'database', 'table'
+        ).withFields(['field'])));
 
         expect(service.buildQueryPayload('database', 'table', ['field1', 'field2'])).toEqual(new NeonQueryWrapper(new query.Query()
             .selectFrom('database', 'table').withFields(['field1', 'field2'])));
@@ -108,7 +117,7 @@ describe('Service: Search', () => {
     });
 
     it('canRunSearch does return false with no active connection', () => {
-        let spy = spyOn(service, 'createConnection').and.returnValue(null);
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue(null);
 
         expect(service.canRunSearch('type', 'host')).toEqual(false);
 
@@ -117,7 +126,7 @@ describe('Service: Search', () => {
     });
 
     it('canRunSearch does return true with active connection', () => {
-        let spy = spyOn(service, 'createConnection').and.returnValue({});
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue({});
 
         expect(service.canRunSearch('type', 'host')).toEqual(true);
 
@@ -125,38 +134,11 @@ describe('Service: Search', () => {
         expect(spy.calls.argsFor(0)).toEqual(['type', 'host']);
     });
 
-    it('createConnection does return a new connection', () => {
-        let connection = new query.Connection();
-        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
-        let spy = spyOn(connection, 'connect');
-
-        let output = service.createConnection('elasticsearchrest', 'localhost');
-
-        expect(output.connection).toEqual(connection);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['elasticsearchrest', 'localhost']);
-    });
-
-    it('createConnection does return an existing connection', () => {
-        let existingNeonConnection = new NeonConnection(new query.Connection());
-        (service as any).connections.set('elasticsearchrest', new Map<string, any>());
-        (service as any).connections.get('elasticsearchrest').set('localhost', existingNeonConnection);
-
-        let connection = new query.Connection();
-        spyOn((service as any), 'createNeonConnection').and.returnValue(connection);
-        let spy = spyOn(connection, 'connect');
-
-        let output = service.createConnection('elasticsearchrest', 'localhost');
-
-        expect(output).toEqual(existingNeonConnection);
-        expect(spy.calls.count()).toEqual(0);
-    });
-
     it('runSearch does call expected function', () => {
         let queryPayload = new NeonQueryWrapper(new query.Query());
         let called = 0;
-        let spy = spyOn(service, 'createConnection').and.returnValue({
-            runSearchQuery: (queryInput, options) => {
+        let spy = spyOn(service['connectionService'], 'connect').and.returnValue({
+            runSearchQuery: (queryInput, __options) => {
                 expect(queryInput).toEqual(queryPayload);
                 called++;
             }
@@ -376,9 +358,8 @@ describe('Service: Search', () => {
             prettyName: 'Pretty Field 3'
         }];
 
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         let queryInput = new query.Query().withFields('field1', 'field2').aggregate(query['COUNT'], 'field1', '_count');
-        /* tslint:enable:no-string-literal */
 
         expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
@@ -420,13 +401,13 @@ describe('Service: Search', () => {
             prettyName: 'Pretty Field 5'
         }];
 
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable dot-notation */
         let queryInput = new query.Query().withFields('field1', 'field2', 'field3', 'field4', 'field5')
             .aggregate(query['AVG'], 'field1', '_avg')
             .aggregate(query['MAX'], 'field2', '_max')
             .aggregate(query['MIN'], 'field3', '_min')
             .aggregate(query['SUM'], 'field4', '_sum');
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
 
         expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {
@@ -468,12 +449,12 @@ describe('Service: Search', () => {
             prettyName: 'Pretty Field 3'
         }];
 
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable dot-notation */
         let queryInput = new query.Query().withFields('field1', 'field2').groupBy([
             new query.GroupByFunctionClause('month', 'field2', '_month'),
             new query.GroupByFunctionClause('year', 'field2', '_year')
         ]).aggregate(query['COUNT'], 'field1', '_count');
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
 
         expect(service.transformQueryPayloadToExport(fields, new NeonQueryWrapper(queryInput), 'Test Name')).toEqual({
             data: {

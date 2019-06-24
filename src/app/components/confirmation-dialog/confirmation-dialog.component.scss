@@ -13,19 +13,28 @@
  * limitations under the License.
  *
  */
-@import '../base-neon-component/base-neon.component.scss';
+@import '../base-neon-component/base-neon.component';
 
-.mat-dialog-content {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    text-align: center;
-    font-size: 20px;
-    width: 90%;
-    color: black;
+:host {
+    display: block;
     overflow: hidden;
 }
 
-.mat-dialog-actions {
-    display: flex;
-    float: right;
+h2 {
+    margin-bottom: 0;
+    padding-bottom: 0.25em;
+}
+
+.mat-dialog-content {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    text-align: center;
+    font-size: 1em;
+    overflow: hidden;
+}
+
+mat-dialog-actions {
+    width: 100%;
+    display: block;
+    text-align: right;
 }

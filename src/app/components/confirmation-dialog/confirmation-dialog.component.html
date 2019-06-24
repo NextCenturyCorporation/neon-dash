@@ -1,10 +1,11 @@
 <h2 mat-dialog-title>
     {{ title }}
 </h2>
+<mat-divider></mat-divider>
 <mat-dialog-content>
-    {{ confirmMessage }} <b>"{{ target }}"</b>?
+    {{ confirmMessage }} <span *ngIf="target"><b>"{{ target }}"</b>?</span>
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button mat-raised-button color="primary" (click)="dialogRef.close(false)">{{ cancelText }}</button>
     <button mat-raised-button color="primary" (click)="dialogRef.close(true)">{{ confirmText }}</button>
+    <button mat-raised-button color="accent" (click)="dialogRef.close(false)">{{ cancelText }}</button>
 </mat-dialog-actions>

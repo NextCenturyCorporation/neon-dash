@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,16 +11,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-/// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
-import * as $ from 'jquery';
 import { ElementRef } from '@angular/core';
 import { TimelineComponent } from './timeline.component';
 import { Bucketizer } from '../bucketizers/Bucketizer';
-
-declare let d3;
+import * as d3 from 'd3';
 
 const DEFAULT_MARGIN = 15;
 const DEFAULT_HEIGHT = 150;
@@ -38,7 +34,8 @@ const DEFAULT_DATA = [
         date: new Date(Date.now() + 31536000000),
         value: 0,
         filters: []
-    }];
+    }
+];
 
 /**
  * Class used for displaying data on the timeline
@@ -59,7 +56,7 @@ export class TimelineSeries {
     public selectedData: TimelineItem[] = [];
     public name: string = 'Default';
     public type: string = 'bar';
-    public options: Object = {};
+    public options: Record<string, any> = {};
     public startDate: Date = DEFAULT_DATA[0].date;
     public endDate: Date = DEFAULT_DATA[1].date;
 }
@@ -78,11 +75,36 @@ export class TimelineData {
     public focusGranularityDifferent: boolean = false;
 }
 
+const readDim = (val: string | number) => typeof val === 'number' && !Number.isNaN(val) ? val :
+    parseFloat(`${val || '0'}`.replace(/px/, ''));
+
+const getProp = (style: HTMLElement['style'], prop: keyof HTMLElement['style']) => readDim(style[prop]);
+
+const computeOuterDims = (el: HTMLElement) => {
+    const style = window.getComputedStyle(el, null);
+    return {
+        w: el.clientWidth +
+            getProp(style, 'paddingTop') +
+            getProp(style, 'paddingBottom') +
+            getProp(style, 'borderTopWidth') +
+            getProp(style, 'borderBottomWidth') +
+            getProp(style, 'marginTop') +
+            getProp(style, 'marginBottom'),
+        h: el.clientHeight +
+            getProp(style, 'paddingLeft') +
+            getProp(style, 'paddingRight') +
+            getProp(style, 'borderLeftWidth') +
+            getProp(style, 'borderRightWidth') +
+            getProp(style, 'marginLeft') +
+            getProp(style, 'marginRight')
+    };
+};
+
 export class TimelineSelectorChart {
     private element: ElementRef;
 
     private brushHandler: Function = undefined;
-    // private hoverListener = undefined;
+    // Private hoverListener = undefined;
     private data: TimelineData;
     private dateFormats = {
         year: '%Y',
@@ -92,12 +114,13 @@ export class TimelineSelectorChart {
     };
 
     marginFocus: {
-        bottom: number,
-        top: number
+        bottom: number;
+        top: number;
     };
+
     marginContext: {
-        bottom: number,
-        top: number
+        bottom: number;
+        top: number;
     };
 
     private xDomain: Date[] = [];
@@ -115,7 +138,7 @@ export class TimelineSelectorChart {
     // The data index over which the user is currently hovering changed on mousemove and mouseout.
     private hoverIndex = -1;
 
-    private brush: d3.svg.Brush<TimelineItem>;
+    private brush: d3.svg.Brush<TimelineItem, number, number>;
 
     private width = DEFAULT_WIDTH - 2 * DEFAULT_MARGIN;
     private approximateBarWidth: number;
@@ -127,6 +150,9 @@ export class TimelineSelectorChart {
 
     private tlComponent: TimelineComponent;
 
+    private tooltip: HTMLElement;
+    private tooltipDimensions = { w: 0, h: 0 };
+
     constructor(tlComponent: TimelineComponent, element: ElementRef, data: TimelineData) {
         this.tlComponent = tlComponent;
         this.element = element;
@@ -134,13 +160,13 @@ export class TimelineSelectorChart {
         this.svg = d3.select(this.element.nativeElement);
 
         this.marginFocus = {
-                top: 0,
-                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
-            };
+            top: 0,
+            bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+        };
         this.marginContext = {
-                top: DEFAULT_MARGIN,
-                bottom: 0
-            };
+            top: DEFAULT_MARGIN,
+            bottom: 0
+        };
 
         this.redrawChart();
     }
@@ -234,11 +260,10 @@ export class TimelineSelectorChart {
                 this.render();
             }
         }
-
     }
 
-    datesEqual(a, b): boolean {
-        return a.toUTCString() === b.toUTCString();
+    datesEqual(date1, date2): boolean {
+        return date1.toUTCString() === date2.toUTCString();
     }
 
     renderExtent(): void {
@@ -251,7 +276,7 @@ export class TimelineSelectorChart {
     }
 
     render(): void {
-        let i = 0;
+        let index = 0;
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
 
         this.width = this.determineWidth() - 2 * DEFAULT_MARGIN;
@@ -265,10 +290,10 @@ export class TimelineSelectorChart {
         let fullDataSet = [];
         if (this.data.data && this.data.data.length > 0) {
             // Get list of all data to calculate min/max and domain
-            for (i = 0; i < this.data.data.length; i++) {
-                fullDataSet = fullDataSet.concat(this.data.data[i].data);
-                if (this.data.data[i].data && !this.approximateBarWidth) {
-                    this.approximateBarWidth = (this.width / this.data.data[i].data.length);
+            for (index = 0; index < this.data.data.length; index++) {
+                fullDataSet = fullDataSet.concat(this.data.data[index].data);
+                if (this.data.data[index].data && !this.approximateBarWidth) {
+                    this.approximateBarWidth = (this.width / this.data.data[index].data.length);
                 }
             }
         } else {
@@ -277,19 +302,19 @@ export class TimelineSelectorChart {
 
         if (this.data.collapsed) {
             svgHeight = this.determineHeight();
-            $(this.element.nativeElement[0]).css('height', svgHeight);
+            this.element.nativeElement.style.height = svgHeight;
             this.heightFocus = Math.max(0, svgHeight - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, svgHeight - this.marginContext.top - this.marginContext.bottom);
         } else {
             svgHeight = DEFAULT_HEIGHT * this.data.data.length;
-            $(this.element.nativeElement[0]).css('height', svgHeight);
+            this.element.nativeElement.style.height = svgHeight;
             this.heightFocus = Math.max(0, DEFAULT_HEIGHT - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, DEFAULT_HEIGHT - this.marginContext.top - this.marginContext.bottom);
         }
 
         // Setup the axes and their scales.
-        this.xFocus = d3.time.scale.utc().range([0, this.width]);
-        this.xContext = d3.time.scale.utc().range([0, this.width]);
+        this.xFocus = d3.time.scale.utc().range([0, this.width]) as any; // Something funky
+        this.xContext = d3.time.scale.utc().range([0, this.width]) as any; // Something funky
 
         // Save the brush as an instance variable to allow interaction on it by client code.
         this.brush = d3.svg.brush().x(this.xContext).on('brush', () => {
@@ -303,27 +328,23 @@ export class TimelineSelectorChart {
             this.addBrushHandler(this.brushHandler);
         }
 
-        function resizePath(d) {
-            let e = +(d === 'e');
-            let x = e ? 1 : -1;
-            let y = heightContext / 3;
-            return 'M' + (0.5 * x) + ',' + y +
-                'A6,6 0 0 ' + e + ' ' + (6.5 * x) + ',' + (y + 6) +
-                'V' + (2 * y - 6) +
-                'A6,6 0 0 ' + e + ' ' + (0.5 * x) + ',' + (2 * y) +
+        function resizePath(dataItem) {
+            let eValue = +(dataItem === 'e');
+            let xValue = eValue ? 1 : -1;
+            let yValue = heightContext / 3;
+            return 'M' + (0.5 * xValue) + ',' + yValue +
+                'A6,6 0 0 ' + eValue + ' ' + (6.5 * xValue) + ',' + (yValue + 6) +
+                'V' + (2 * yValue - 6) +
+                'A6,6 0 0 ' + eValue + ' ' + (0.5 * xValue) + ',' + (2 * yValue) +
                 'Z' +
-                'M' + (2.5 * x) + ',' + (y + 8) +
-                'V' + (2 * y - 8) +
-                'M' + (4.5 * x) + ',' + (y + 8) +
-                'V' + (2 * y - 8);
+                'M' + (2.5 * xValue) + ',' + (yValue + 8) +
+                'V' + (2 * yValue - 8) +
+                'M' + (4.5 * xValue) + ',' + (yValue + 8) +
+                'V' + (2 * yValue - 8);
         }
 
-        let xMin = d3.min(fullDataSet.map((d) => {
-            return d ? d.date : -1;
-        }));
-        let xMax = d3.max(fullDataSet.map((d) => {
-            return d ? d3.time[this.data.granularity].utc.offset(d.date, 1) : -1;
-        }));
+        let xMin = d3.min(fullDataSet.map((dataItem) => dataItem ? dataItem.date : -1));
+        let xMax = d3.max(fullDataSet.map((dataItem) => dataItem ? d3.time[this.data.granularity].utc.offset(dataItem.date, 1) : -1));
 
         this.xDomain = [xMin || new Date(), xMax || new Date()];
         let xFocusDomain = [];
@@ -367,7 +388,7 @@ export class TimelineSelectorChart {
         // Make sure that the tooltip container is present
         d3.select(this.element.nativeElement).html('<div id="tl-tooltip-container"></div>');
 
-        // let xCenterOffset = (this.width + this.marginFocus.left + this.marginFocus.right) / 2;
+        // Let xCenterOffset = (this.width + this.marginFocus.left + this.marginFocus.right) / 2;
         let xCenterOffset = 0;
 
         // Append our chart graphics
@@ -433,18 +454,18 @@ export class TimelineSelectorChart {
                 .attr('transform', 'translate(' + xOffset + ',' +
                     ((this.heightFocus + (this.marginFocus.top * 2) + this.marginFocus.bottom) * seriesPos) + ')')
                 .on('mousemove', () => {
-                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
-                    if (index >= 0 && index < series.focusData.length) {
-                        this.onFocusHover(series.focusData[index]);
+                    let hoverIndex = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (hoverIndex >= 0 && hoverIndex < series.focusData.length) {
+                        this.onFocusHover(series.focusData[hoverIndex]);
                     }
                 })
                 .on('mouseout', () => {
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
-                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
-                    if (index >= 0 && index < series.focusData.length) {
-                        this.onFocusHover(series.focusData[index]);
+                    let hoverIndex = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (hoverIndex >= 0 && hoverIndex < series.focusData.length) {
+                        this.onFocusHover(series.focusData[hoverIndex]);
                     }
                 });
 
@@ -453,20 +474,16 @@ export class TimelineSelectorChart {
                 d3.scale.linear().range([this.heightFocus, 0]);
 
             // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
-            let minY = d3.min(series.data.map((d: any) => {
-                return d.value;
-            }));
+            let minY = d3.min(series.data.map((dataItem: any) => dataItem.value));
             minY = this.data.logarithmic ? 1 : (minY < 0 ? minY : 0);
 
             // Use highest value for Y-axis domain, or 0 if there is no data
-            let maxY = d3.max(series.data.map((d: any) => {
-                return d.value;
-            }));
+            let maxY = d3.max(series.data.map((dataItem: any) => dataItem.value));
             maxY = maxY ? maxY : MIN_VALUE;
 
             yFocus.domain([minY, maxY]);
 
-            let yAxis = d3.svg.axis().scale(yFocus).orient('right').ticks(2);
+            d3.svg.axis().scale(yFocus).orient('right').ticks(2);
 
             // Draw the focus chart
             let focusChart = this.drawFocusChart(series);
@@ -503,49 +520,30 @@ export class TimelineSelectorChart {
                     contextContainer.selectAll('.bar')
                         .data(series.data)
                         .enter().append('rect')
-                        .attr('class', (d) => {
-                            return 'bar ' + d.date;
-                        })
-                        .attr('style', () => {
-                            return style;
-                        })
-                        .attr('x', (d) => {
-                            return this.xContext(d.date);
-                        })
-                        .attr('width', (d) => {
-                            return this.xContext(d3.time[this.data.granularity].utc.offset(d.date, 1)) - this.xContext(d.date);
-                        })
-                        .attr('y', (d) => {
-                            return yContext(Math.max(MIN_VALUE, d.value));
-                        })
-                        .attr('height', (d) => {
-                            let height = isNaN(yContext(d.value) -
-                                yContext(MIN_VALUE)) ? MIN_VALUE : yContext(d.value) - yContext(MIN_VALUE);
+                        .attr('class', (dataItem) => 'bar ' + dataItem.date)
+                        .attr('style', () => style)
+                        .attr('x', (dataItem) => this.xContext(dataItem.date))
+                        .attr('width', (dataItem) => this.xContext(d3.time[this.data.granularity].utc.offset(dataItem.date, 1)) -
+                            this.xContext(dataItem.date))
+                        .attr('y', (dataItem) => yContext(Math.max(MIN_VALUE, dataItem.value)))
+                        .attr('height', (dataItem) => {
+                            let height = isNaN(yContext(dataItem.value) -
+                                yContext(MIN_VALUE)) ? MIN_VALUE : yContext(dataItem.value) - yContext(MIN_VALUE);
                             return Math.abs(height) + barheight;
                         });
                 } else {
                     // If type is line, render a line plot
                     if (series.type === 'line') {
                         chartTypeContext = d3.svg.line()
-                            .x((d: any) => {
-                                return this.xContext(d.date);
-                            })
-                            .y((d: any) => {
-                                return yContext(d.value);
-                            });
+                            .x((dataItem: any) => this.xContext(dataItem.date))
+                            .y((dataItem: any) => yContext(dataItem.value));
                     } else {
                         // Otherwise, default to area, e.g. for bars whose data is too long
                         style += 'fill:' + series.color + ';';
                         chartTypeContext = d3.svg.area()
-                            .x((d: any) => {
-                                return this.xContext(d.date);
-                            })
-                            .y0((d: any) => {
-                                return yContext(Math.min(MIN_VALUE, d.value));
-                            })
-                            .y1((d: any) => {
-                                return yContext(Math.max(MIN_VALUE, d.value));
-                            });
+                            .x((dataItem: any) => this.xContext(dataItem.date))
+                            .y0((dataItem: any) => yContext(Math.min(MIN_VALUE, dataItem.value)))
+                            .y1((dataItem: any) => yContext(Math.max(MIN_VALUE, dataItem.value)));
                     }
 
                     contextContainer.append('path')
@@ -561,15 +559,13 @@ export class TimelineSelectorChart {
                             .attr('class', 'dot')
                             .attr('style', 'fill:' + series.color + ';')
                             .attr('r', 3)
-                            .attr('cx', (d: any) => {
+                            .attr('cx', (dataItem: any) => {
                                 if (series.data.length === 1) {
                                     return this.width / 2;
                                 }
-                                return this.xContext(d.date);
+                                return this.xContext(dataItem.date);
                             })
-                            .attr('cy', (d: any) => {
-                                return yContext(d.value);
-                            });
+                            .attr('cy', (dataItem: any) => yContext(dataItem.value));
                     }
                 }
 
@@ -605,23 +601,23 @@ export class TimelineSelectorChart {
             createSeries(this.data.primarySeries);
         }
         // Render all series
-        for (i = 0; i < this.data.data.length; i++) {
-            if (!this.data.data[i].data) {
+        for (index = 0; index < this.data.data.length; index++) {
+            if (!this.data.data[index].data) {
                 // No data, just stop now
                 return;
-            } else if (this.data.primarySeries && this.data.data[i].name === this.data.primarySeries.name) {
+            } else if (this.data.primarySeries && this.data.data[index].name === this.data.primarySeries.name) {
                 // Just skip it
-            } else if (this.data.data[i].data.length) {
-                createSeries(this.data.data[i]);
+            } else if (this.data.data[index].data.length) {
+                createSeries(this.data.data[index]);
             }
         }
 
         let gBrush = context.append('g')
             .attr('class', 'brush')
             .on('mousemove', () => {
-                let index = this.findHoverIndexInData(this.data.primarySeries.data, this.xContext);
-                if (index >= 0 && index < this.data.primarySeries.data.length) {
-                    this.onHover(this.data.primarySeries.data[index]);
+                let hoverIndex = this.findHoverIndexInData(this.data.primarySeries.data, this.xContext);
+                if (hoverIndex >= 0 && hoverIndex < this.data.primarySeries.data.length) {
+                    this.onHover(this.data.primarySeries.data[hoverIndex]);
                 }
             })
             .on('mouseout', () => {
@@ -667,22 +663,22 @@ export class TimelineSelectorChart {
             .append('path')
             .attr('d', resizePath);
 
-        for (i = 0; i < charts.length; i++) {
-            let focus = this.svg.select('.focus-' + charts[i].name);
+        for (index = 0; index < charts.length; index++) {
+            let focus = this.svg.select('.focus-' + charts[index].name);
 
             // Set the ticks to x-position 0 by subtracting the margin and their default x-position (9).
             focus.append('g')
                 .attr('class', 'y axis series-y')
                 .attr('transform', 'translate(-' + (DEFAULT_MARGIN + 9) + ',' + ((this.heightFocus +
-                    (this.marginFocus.top * 2) + this.marginFocus.bottom) * charts[i].index) + ')')
-                .call(charts[i].yAxis);
+                    (this.marginFocus.top * 2) + this.marginFocus.bottom) * charts[index].index) + ')')
+                .call(charts[index].yAxis);
 
             focus.append('text')
                 .attr('class', 'series-title')
-                .attr('fill', charts[i].color)
+                .attr('fill', charts[index].color)
                 .attr('transform', 'translate(0,' + (((this.heightFocus +
-                    (this.marginFocus.top * 2) + this.marginFocus.bottom) * charts[i].index) - 5) + ')')
-                .text(charts[i].name + ' - Filtered');
+                    (this.marginFocus.top * 2) + this.marginFocus.bottom) * charts[index].index) - 5) + ')')
+                .text(charts[index].name + ' - Filtered');
         }
 
         if (this.data.primarySeries) {
@@ -692,6 +688,8 @@ export class TimelineSelectorChart {
                 .attr('transform', 'translate(0, 5)')
                 .text(this.data.primarySeries.name);
         }
+
+        this.tooltip = document.querySelector(TOOLTIP_ID);
     }
 
     drawFocusChart(series: TimelineSeries): any {
@@ -705,19 +703,15 @@ export class TimelineSelectorChart {
             d3.scale.linear().range([this.heightFocus, 0]);
 
         if (this.data.primarySeries.name === series.name) {
-            this.yFocus = yFocus;
+            this.yFocus = yFocus as any; // Something funky is happening here
         }
 
         // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
-        let minY = d3.min(series.focusData.map((d: any) => {
-            return d.value;
-        }));
+        let minY = d3.min(series.focusData.map((dataItem: any) => dataItem.value));
         minY = this.data.logarithmic ? 1 : (minY < 0 ? minY : 0);
 
         // Use highest value for Y-axis domain, or 0 if there is no data
-        let maxY = d3.max(series.focusData.map((d: any) => {
-            return d.value;
-        }));
+        let maxY = d3.max(series.focusData.map((dataItem: any) => dataItem.value));
         maxY = maxY ? maxY : MIN_VALUE;
 
         yFocus.domain([minY, maxY]);
@@ -744,24 +738,15 @@ export class TimelineSelectorChart {
             focus.selectAll('rect.bar')
                 .data(series.focusData)
                 .enter().append('rect')
-                .attr('class', (d) => {
-                    return 'bar ' + d.date;
-                })
-                .attr('style', () => {
-                    return style;
-                })
-                .attr('x', (d) => {
-                    return this.xFocus(d.date);
-                })
-                .attr('width', (d) => {
-                    return this.xFocus(d3.time[this.data.granularity].utc.offset(d.date, 1)) - this.xFocus(d.date);
-                })
-                .attr('y', (d) => {
-                    return yFocus(Math.max(MIN_VALUE, d.value));
-                })
-                .attr('height', (d) => {
-                    let height = isNaN(yFocus(d.value) - yFocus(MIN_VALUE)) ? MIN_VALUE :
-                        yFocus(d.value) - yFocus(MIN_VALUE);
+                .attr('class', (dataItem) => 'bar ' + dataItem.date)
+                .attr('style', () => style)
+                .attr('x', (dataItem) => this.xFocus(dataItem.date))
+                .attr('width', (dataItem) => this.xFocus(d3.time[this.data.granularity].utc.offset(dataItem.date, 1)) -
+                    this.xFocus(dataItem.date))
+                .attr('y', (dataItem) => yFocus(Math.max(MIN_VALUE, dataItem.value)))
+                .attr('height', (dataItem) => {
+                    let height = isNaN(yFocus(dataItem.value) - yFocus(MIN_VALUE)) ? MIN_VALUE :
+                        yFocus(dataItem.value) - yFocus(MIN_VALUE);
                     return Math.abs(height) + (barheight);
                 });
         } else {
@@ -770,25 +755,15 @@ export class TimelineSelectorChart {
             // If type is line, render a line plot
             if (series.type === 'line') {
                 chartType = d3.svg.line()
-                    .x((d: any) => {
-                        return this.xFocus(d.date);
-                    })
-                    .y((d: any) => {
-                        return yFocus(d.value);
-                    });
+                    .x((dataItem: any) => this.xFocus(dataItem.date))
+                    .y((dataItem: any) => yFocus(dataItem.value));
             } else {
                 // Otherwise, default to area, e.g. for bars whose data is too long
                 style += 'fill:' + series.color + ';';
                 chartType = d3.svg.area()
-                    .x((d: any) => {
-                        return this.xFocus(d.date);
-                    })
-                    .y0((d: any) => {
-                        return yFocus(Math.min(MIN_VALUE, d.value));
-                    })
-                    .y1((d: any) => {
-                        return yFocus(Math.max(MIN_VALUE, d.value));
-                    });
+                    .x((dataItem: any) => this.xFocus(dataItem.date))
+                    .y0((dataItem: any) => yFocus(Math.min(MIN_VALUE, dataItem.value)))
+                    .y1((dataItem: any) => yFocus(Math.max(MIN_VALUE, dataItem.value)));
             }
 
             focus.append('path')
@@ -798,13 +773,9 @@ export class TimelineSelectorChart {
                 .attr('style', style);
 
             if (series.focusData.length < 80) {
-                let func = (d) => {
-                    return this.xFocus(d.date);
-                };
+                let func = (dataItem) => this.xFocus(dataItem.date);
                 if (series.focusData.length === 1) {
-                    func = () => {
-                        return this.width / 2;
-                    };
+                    func = () => this.width / 2;
                 }
 
                 focus.selectAll('circle.dot').remove();
@@ -816,9 +787,7 @@ export class TimelineSelectorChart {
                     .attr('style', 'fill:' + series.color + ';')
                     .attr('r', 3)
                     .attr('cx', func)
-                    .attr('cy', (d: any) => {
-                        return yFocus(d.value);
-                    });
+                    .attr('cy', (dataItem: any) => yFocus(dataItem.value));
             }
         }
 
@@ -857,7 +826,7 @@ export class TimelineSelectorChart {
                     this.brush.clear();
                 });
             } else {
-                // if dragging, preserve the width of the extent
+                // If dragging, preserve the width of the extent
                 if ((d3.event as any).mode === 'move') {
                     let d0 = timeFunction.round(extent0[0]);
                     let range = timeFunction.range(extent0[0], extent0[1]);
@@ -875,7 +844,7 @@ export class TimelineSelectorChart {
             }
             this.data.extent = extent1;
 
-            if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mouseup') {
+            if ('sourceEvent' in d3.event && d3.event.sourceEvent.type === 'mouseup') {
                 _.debounce(() => {
                     // Update the chart
                     this.redrawChart();
@@ -891,31 +860,34 @@ export class TimelineSelectorChart {
         }
 
         // Update mask
-        let brushElement = $(this.element.nativeElement);
-        let xPos = brushElement.find('.extent').attr('x');
-        let extentWidth = brushElement.find('.extent').attr('width');
-        let width = parseInt(brushElement.find('.mask-west').attr('width').replace('px', ''), 10);
+        let brushElement = this.element.nativeElement;
+        let xPos = readDim(brushElement.querySelector('.extent').getAttribute('x'));
+        let extentWidth = readDim(brushElement.querySelector('.extent').getAttribute('width'));
+        let width = readDim(brushElement.querySelector('.mask-west').getAttribute('width'));
 
-        if (parseFloat(xPos) + parseFloat(extentWidth) < 0 || parseFloat(xPos) > width) {
-            xPos = '0';
-            extentWidth = '0';
+        if (xPos + extentWidth < 0 || xPos > width) {
+            xPos = 0;
+            extentWidth = 0;
             width = 0;
         }
 
-        if ((extentWidth === '0') &&
+        const east = brushElement.querySelector('.mask-east') as SVGElement;
+        const west = brushElement.querySelector('.mask-west') as SVGElement;
+
+        if ((extentWidth === 0) &&
             (this.brush.extent() && this.brush.extent().length >= 2 &&
-            ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
+                ((this.brush.extent()[1] as number) - (this.brush.extent()[0] as number) > 0))) {
             // If brush extent exists, but the width is too small, draw masks with a bigger width
-            brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
-            brushElement.find('.mask-east').attr('x', parseFloat(xPos) + 1);
-        } else if (extentWidth === '0' || extentWidth === undefined) {
+            west.setAttribute('x', `${xPos - width}`);
+            east.setAttribute('x', `${xPos + 1}`);
+        } else if (extentWidth === 0 || extentWidth === undefined) {
             // If brush extent has been cleared, reset mask positions
-            brushElement.find('.mask-west').attr('x', (0 - (width + 50)));
-            brushElement.find('.mask-east').attr('x', width + 50);
+            west.setAttribute('x', `${(0 - (width + 50))}`);
+            east.setAttribute('x', `${width + 50}`);
         } else {
             // Otherwise, update mask positions to new extent location
-            brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
-            brushElement.find('.mask-east').attr('x', parseFloat(xPos) + parseFloat(extentWidth));
+            west.setAttribute('x', `${xPos - width}`);
+            east.setAttribute('x', `${xPos + extentWidth}`);
         }
     }
 
@@ -926,11 +898,9 @@ export class TimelineSelectorChart {
         // To get the actual svg, you have to use [0][0]
         let mouseLocation = d3.mouse(this.svg[0][0]);
         // Subtract the margin, or else the cursor location may not match the highlighted bar
-        let graph_x = domain.invert(mouseLocation[0] - DEFAULT_MARGIN);
-        let bisect = d3.bisector((d) => {
-            return d.date;
-        }).right;
-        return data ? bisect(data, graph_x) - 1 : -1;
+        let graphX = domain.invert(mouseLocation[0] - DEFAULT_MARGIN);
+        let bisect = d3.bisector<{ date: Date }, Date>((dataItem) => dataItem.date).right;
+        return data ? bisect(data, graphX) - 1 : -1;
     }
 
     /**
@@ -947,7 +917,7 @@ export class TimelineSelectorChart {
         // Check if there is focus data, and if the selection is within range
         let focusData = this.data.primarySeries.focusData;
         if (focusData.length > 0 && focusData[0].date <= datum.date &&
-                datum.date <= focusData[focusData.length - 1].date) {
+            datum.date <= focusData[focusData.length - 1].date) {
             if (this.data.focusGranularityDifferent) {
                 let startDate = this.data.bucketizer.roundDownBucket(datum.date);
                 let endDate = d3.time[this.data.bucketizer.getGranularity()]
@@ -979,8 +949,8 @@ export class TimelineSelectorChart {
         this.showHighlight(bucketData,
             this.contextHighlight, this.xContext, this.yContext);
 
-         this.showHighlight(datum,
-             this.focusHighlight, this.xFocus, this.yFocus);
+        this.showHighlight(datum,
+            this.focusHighlight, this.xFocus, this.yFocus);
     }
 
     /**
@@ -998,12 +968,12 @@ export class TimelineSelectorChart {
      */
     showFocusMultiHighlight(startDate: Date, endDate: Date) {
         // TODO Create x, width, y, and height functions to combine the calculations for both the highlight bar and the other bars.
-        let x = this.xFocus(startDate);
+        let xValue = this.xFocus(startDate);
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
-        let width = this.xFocus(endDate) - x;
-        let y = this.yFocus(Math.max(MIN_VALUE, 9999) as any);
+        let width = this.xFocus(endDate) - xValue;
+        let yValue = this.yFocus(Math.max(MIN_VALUE, 9999) as any);
         let height = Math.abs(this.yFocus(9999 as any) - this.yFocus(MIN_VALUE as any));
-        this.focusMultiHighlight.attr('x', x - 1).attr('width', width + 2).attr('y', y - 1)
+        this.focusMultiHighlight.attr('x', xValue - 1).attr('width', width + 2).attr('y', yValue - 1)
             .attr('height', ((isNaN(height) ? MIN_VALUE : height) + 2)).style('visibility', 'visible');
     }
 
@@ -1011,14 +981,14 @@ export class TimelineSelectorChart {
      * Shows the given highlight at the given date with the given value using the given
      * xRange and yRange functions (xContext/yContext or xFocus/yFocus).
      */
-    showHighlight(d: TimelineItem, highlight, xRange, yRange) {
+    showHighlight(dataItem: TimelineItem, highlight, xRange, yRange) {
         // TODO Create x, width, y, and height functions to combine the calculations for both the highlight bar and the other bars.
-        let x = xRange(d.date);
+        let xValue = xRange(dataItem.date);
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
-        let width = xRange(d3.time[this.data.granularity].utc.offset(d.date, 1)) - x;
-        let y = yRange(Math.max(MIN_VALUE, d.value));
-        let height = Math.abs(yRange(d.value) - yRange(MIN_VALUE));
-        highlight.attr('x', x - 1).attr('width', width + 2).attr('y', y - 1)
+        let width = xRange(d3.time[this.data.granularity].utc.offset(dataItem.date, 1)) - xValue;
+        let yValue = yRange(Math.max(MIN_VALUE, dataItem.value));
+        let height = Math.abs(yRange(dataItem.value) - yRange(MIN_VALUE));
+        highlight.attr('x', xValue - 1).attr('width', width + 2).attr('y', yValue - 1)
             .attr('height', ((isNaN(height) ? MIN_VALUE : height) + 2)).style('visibility', 'visible');
     }
 
@@ -1041,36 +1011,34 @@ export class TimelineSelectorChart {
         // visualizations)
         let html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
             '<div><strong>Count:</strong> ' + count + '</div>';
-        $(TOOLTIP_ID).html(html);
-        $(TOOLTIP_ID).show();
+        this.tooltip.innerHTML = html;
+        this.tooltip.style.display = 'block';
 
         // Calculate the tooltip position
-        let MIN_VALUE = this.data.logarithmic ? 1 : 0;
+        this.tooltipDimensions = computeOuterDims(this.tooltip);
 
         this.positionTooltip(d3.select(TOOLTIP_ID), mouseEvent);
     }
 
     positionTooltip(tooltip, mouseEvent): void {
-        let tooltipElement = $(TOOLTIP_ID);
-        let tooltipWidth = tooltipElement.outerWidth(true);
-        let tooltipHeight = tooltipElement.outerHeight(true);
+        let { w: tooltipWidth, h: tooltipHeight } = this.tooltipDimensions;
         let attributeLeft = mouseEvent.pageX - this.determineLeft() + 10;
         let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15 - 45;
 
         if ((attributeLeft + tooltipWidth) > this.determineWidth()) {
-            tooltipElement.removeClass('east');
-            tooltipElement.addClass('west');
+            this.tooltip.classList.remove('east');
+            this.tooltip.classList.add('west');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
-            tooltipElement.removeClass('west');
-            tooltipElement.addClass('east');
+            this.tooltip.classList.remove('west');
+            this.tooltip.classList.add('east');
             tooltip.style('top', (attributeTop + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
 
     hideTooltip(): void {
-        $(TOOLTIP_ID).hide();
+        this.tooltip.style.display = 'none';
     }
 }

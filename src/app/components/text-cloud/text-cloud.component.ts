@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -34,18 +33,18 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../models/types';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 import { TextCloud, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { MatDialog } from '@angular/material';
 
@@ -57,7 +56,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -68,16 +66,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textColor: string = '#111';
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected widgetService: AbstractWidgetService,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -133,7 +132,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount)
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this))
         ];
     }
 
@@ -143,7 +142,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             datastore: '',
             database: this.options.database,
             table: this.options.table,
-            field: this.options.dataField as FieldMetaData,
+            field: this.options.dataField as NeonFieldMetaData,
             operator: '=',
             value: value
         } as SimpleFilterDesign;
@@ -253,7 +252,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Term' + (count === 1 ? '' : 's');
     }
 
-    private redrawText(filterDesigns: FilterDesign[]): void {
+    private redrawText(__filterDesigns: FilterDesign[]): void {
         this.textCloudData = this.textCloudData.map((item) => {
             let itemCopy = {
                 color: item.color,

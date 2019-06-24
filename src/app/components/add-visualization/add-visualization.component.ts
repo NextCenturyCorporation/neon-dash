@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,15 +11,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
-import { NeonGridItem } from '../../neon-grid-item';
-import { neonEvents, neonVisualizations } from '../../neon-namespaces';
+import { NeonGridItem } from '../../models/neon-grid-item';
+import { neonEvents, neonVisualizations } from '../../models/neon-namespaces';
 
 import { eventing } from 'neon-framework';
 import * as _ from 'lodash';
@@ -48,13 +47,11 @@ export class AddVisualizationComponent implements OnInit {
 
     ngOnInit() {
         // Ignore the sample visualization.
-        this.visualizations = neonVisualizations.filter((visualization) => {
-            return visualization.type !== 'sample';
-        });
+        this.visualizations = neonVisualizations.filter((visualization) => visualization.type !== 'sample');
         this.messenger.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
     }
 
-    public onItemSelected(shiftKey: boolean, index: number) {
+    public onItemSelected(__shiftKey: boolean, index: number) {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
@@ -71,7 +68,7 @@ export class AddVisualizationComponent implements OnInit {
             duration: 5000,
             verticalPosition: 'top',
             panelClass: ['simpleSnackBar']
-         });
+        });
     }
 
     publishShowVisualizationsShortcut() {

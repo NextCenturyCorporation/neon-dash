@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,11 +11,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 // Includes the filter-builder as well as the current-filters component.
 @Component({
@@ -25,12 +22,9 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 })
 export class FiltersComponent {
     @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
-    public showFilterBuilderView: boolean = true; // if false, show current filters instead
 
     /**
      * Returns the default title.
-     *
-     * @return {string}
      */
     getDefaultTitle(): string {
         return 'Filters';

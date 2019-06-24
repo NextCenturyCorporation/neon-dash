@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 import { DateBucketizer } from './DateBucketizer';
@@ -24,8 +23,8 @@ describe('dateBucketizer', () => {
     });
 
     it('constants are correct', () => {
-       expect(DateBucketizer.DAY).toBe('day');
-       expect(DateBucketizer.HOUR).toBe('hour');
+        expect(DateBucketizer.DAY).toBe('day');
+        expect(DateBucketizer.HOUR).toBe('hour');
     });
 
     it('initial values are correct', () => {
@@ -147,7 +146,7 @@ describe('dateBucketizer', () => {
         expect(bucketizer.getBucketIndex(nextHour)).toBe(1);
     });
 
-    it('daily bucket index of start date plus one day', () => {
+    it('daily bucket index of start date plus one day if given hours', () => {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
         bucketizer.setGranularity(DateBucketizer.HOUR);

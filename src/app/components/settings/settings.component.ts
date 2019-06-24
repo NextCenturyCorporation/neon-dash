@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,26 +11,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, Injector } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSidenav } from '@angular/material';
-import { BehaviorSubject } from 'rxjs';
+import { MatDialog } from '@angular/material';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { DatabaseMetaData, FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-import { neonEvents } from '../../neon-namespaces';
+import { NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { neonEvents } from '../../models/neon-namespaces';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 
-import * as _ from 'lodash';
 import { eventing } from 'neon-framework';
+import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
     selector: 'app-settings',
@@ -39,37 +35,36 @@ import { eventing } from 'neon-framework';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
     @Input() public widgets: Map<string, BaseNeonComponent> = new Map();
 
     public formData: any = {
         currentTheme: 'neon-green-theme'
     };
 
-    public confirmDialogRef: MatDialogRef<ConfirmationDialogComponent>;
     public messenger: eventing.Messenger;
 
-    public fields: FieldMetaData[] = [];
-    public searchField: FieldMetaData;
+    public fields: NeonFieldMetaData[] = [];
+    public searchField: NeonFieldMetaData;
 
     public showFilterTray: boolean = true;
     public showSimpleSearch: boolean;
     public showVisualizationsShortcut: boolean = true;
+    public readonly dashboardState: DashboardState;
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        protected datasetService: DatasetService,
+        private dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
         public widgetService: AbstractWidgetService
     ) {
-        this.datasetService = datasetService;
         this.injector = injector;
         this.messenger = new eventing.Messenger();
+        this.dashboardState = dashboardService.state;
     }
 
     changeSimpleSearchFilter() {
-        this.datasetService.setCurrentDashboardSimpleFilterFieldName(this.searchField);
+        this.dashboardState.setSimpleFilterFieldName(this.searchField);
     }
 
     getExportCallbacks(widgets: Map<string, BaseNeonComponent>): (() => { name: string, data: any }[])[] {
@@ -97,19 +92,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.showVisualizationsShortcut = message.show;
         });
 
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.updateSimpleSearchFilter.bind(this));
+        this.dashboardService.stateSource.subscribe(() => {
+            this.updateSimpleSearchFilter();
+        });
 
         this.changeDetection.detectChanges();
     }
 
     openEditConfigDialog() {
-        let dConfig  = {
+        this.dialog.open(DynamicDialogComponent, {
+            data: {
+                component: 'config-editor'
+            },
             height: '80%',
             width: '80%',
             hasBackdrop: true,
             disableClose: true
-        };
-        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        });
     }
 
     publishShowFilterTray() {
@@ -140,19 +139,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     private updateSimpleSearchFilter() {
-        let simpleFilter: any = (this.datasetService.getCurrentDashboardOptions() || {}).simpleFilter || {};
+        let simpleFilter: any = (this.dashboardState.getOptions() || {}).simpleFilter || {};
 
         if (simpleFilter.databaseName && simpleFilter.tableName && simpleFilter.fieldName) {
-            let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(simpleFilter.databaseName);
-            let table: TableMetaData = this.datasetService.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
-            let field: FieldMetaData = this.datasetService.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
+            let table: NeonTableMetaData = this.dashboardState.getTableWithName(simpleFilter.databaseName, simpleFilter.tableName);
+            let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(simpleFilter.databaseName, simpleFilter.tableName,
                 simpleFilter.fieldName);
 
             this.fields = table.fields;
             this.searchField = field;
             this.showSimpleSearch = true;
         } else {
-            this.fields = this.datasetService.getActiveFields();
+            this.fields = this.dashboardState.getActiveFields();
         }
     }
 }

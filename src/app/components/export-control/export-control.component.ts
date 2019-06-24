@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,25 +11,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { Component, ViewContainerRef, Input } from '@angular/core';
 
-import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
-import { AbstractSearchService, Connection } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ParameterService } from '../../services/parameter.service';
-
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ConfigEditorComponent } from '../config-editor/config-editor.component';
-
-import { neonEvents } from '../../neon-namespaces';
+import { DashboardService } from '../../services/dashboard.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
-  selector: 'app-export-control',
-  templateUrl: './export-control.component.html',
-  styleUrls: ['./export-control.component.scss']
+    selector: 'app-export-control',
+    templateUrl: './export-control.component.html',
+    styleUrls: ['./export-control.component.scss']
 })
 export class ExportControlComponent {
     @Input() exportCallbacks: (() => { name: string, data: any }[])[];
@@ -42,18 +36,25 @@ export class ExportControlComponent {
         value: 1
     }];
 
-    public exportFormat: number = this.exportFormatList[0].value;
+    public exportFormat: number;
+    public readonly dashboardState: DashboardState;
 
     constructor(
-        protected datasetService: DatasetService,
-        protected searchService: AbstractSearchService,
+        dashboardService: DashboardService,
+        protected connectionService: ConnectionService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
+        this.exportFormat = this.exportFormatList[0].value;
+
+        // TODO Why is this needed?
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
         this.handleExportClick = this.handleExportClick.bind(this);
+
+        this.dashboardState = dashboardService.state;
     }
 
-    setExportFormat(value: number) {
+    setExportFormat(__value: number) {
         // Do nothing.
     }
 
@@ -84,8 +85,8 @@ export class ExportControlComponent {
     }
 
     handleExportClick() {
-        let connection: Connection = this.searchService.createConnection(this.datasetService.getDatastoreType(),
-            this.datasetService.getDatastoreHost());
+        let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
+            this.dashboardState.getDatastoreHost());
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,29 +11,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { Datastore } from '../../dataset';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { MatDialogRef } from '@angular/material';
-import { neonEvents } from '../../neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
 import { eventing } from 'neon-framework';
+import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../../models/types';
 
 @Component({
     selector: 'app-custom-connection',
     templateUrl: 'custom-connection.component.html',
     styleUrls: ['custom-connection.component.scss']
 })
-export class CustomConnectionComponent implements AfterViewInit {
+export class CustomConnectionComponent implements AfterContentInit {
     public data: CustomConnectionData = new CustomConnectionData();
-    public dialogRef: MatDialogRef<CustomConnectionComponent>;
     @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: eventing.Messenger;
@@ -44,22 +40,22 @@ export class CustomConnectionComponent implements AfterViewInit {
     private currentStepIndex: number;
 
     constructor(
-        private datasetService: DatasetService,
+        private datasetService: DashboardService,
         private filterService: FilterService,
-        private searchService: AbstractSearchService,
-        dialogRef: MatDialogRef<CustomConnectionComponent>
+        private searchService: AbstractSearchService
     ) {
-        this.dialogRef = dialogRef;
         this.messenger = new eventing.Messenger();
 
         this.steps = [];
         this.currentStepIndex = 0;
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
+        /* TODO THOR-1056
         this.steps = this.stepQueryList.toArray();
-        this.steps.sort((a, b) => a.stepNumber - b.stepNumber);
+        this.steps.sort((step1, step2) => step1.stepNumber - step2.stepNumber);
         this.currentStep = this.steps[0];
+        */
     }
 
     previousStep() {
@@ -80,26 +76,30 @@ export class CustomConnectionComponent implements AfterViewInit {
     }
 
     createDataset() {
-        let dataset = new Datastore(this.data.datasetName, this.data.datastoreHost, this.data.datastoreType);
-        dataset.databases = this.data.selectedDatabases;
-        this.datasetService.addDataset(dataset);
-        this.datasetService.setActiveDataset(dataset);
+        let datastore = NeonDatastoreConfig.get({
+            name: this.data.datasetName,
+            host: this.data.datastoreHost,
+            type: this.data.datastoreType
+        });
+        datastore.databases = this.data.selectedDatabases.reduce((acc, db) => {
+            acc[db.name] = db;
+            return acc;
+        }, {} as { [key: string]: NeonDatabaseMetaData });
+        this.datasetService.setActiveDatastore(datastore);
 
         // TODO: THOR-825:
         // TODO: THOR-1056: fix so that the dashboard is added to existing list
         // TODO: THOR-1056: make enough information available to set entire currentDashboard here.
 
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
-        //this.datasetService.setCurrentDashboard(??)
+        // this.datasetService.setCurrentDashboard(??)
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
-        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
-        this.datasetCreated.emit(dataset);
-        this.dialogRef.close();
+        this.datasetCreated.emit(datastore);
     }
 
     close() {
-        this.dialogRef.close();
+        // TODO
     }
 
     validateStep() {

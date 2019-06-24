@@ -1,1 +1,0 @@
-All icons (except the neon logo, the scatter plot, filters, and filters active, which are custom icons) are originally from http://icomoon.io (specifically from the 'IcoMoon-Free' and 'Font Awesome' sets).
