@@ -1,5 +1,5 @@
 #!/bin/sh
-HOST="http://e2e_es:9200"
+HOST="http://e2e-es:9200"
 DATA_SET="ldc_uyg_jul_18"
 
 until curl -s ${HOST} > /dev/null
