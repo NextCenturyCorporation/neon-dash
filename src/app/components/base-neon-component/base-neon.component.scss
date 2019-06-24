@@ -1,80 +1,75 @@
 /*
- * Copyright 2017 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+* Copyright 2017 Next Century Corporation
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
 @import '../../neon-properties';
 
 $filter-container-height: 40px;
 $footer-height: 35px;
 $contribution-height: 20px;
 
-.visualization-sidenav {
+:host {
     height: 100%;
+    width: 100%;
     cursor: default;
     border-radius: 5px;
+    display: grid;
+    box-sizing: border-box;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+    'header'
+    'body'
+    'footer'
+    'contribution';
 
-    .header.text {
-        font-size: 14px;
-        font-weight: 500;
-        margin: 0 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: var(--color-text-header, grey);
+    .header {
+        grid-area: header;
+
+        &.text {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--color-text-header, grey);
+        }
     }
 
-    .info.text {
-        font-size: 14px;
-        font-weight: 500;
-        margin: 0 5px;
-        overflow: hidden;
-        text-align: right;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .info {
+        &.text {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 5px;
+            overflow: hidden;
+            text-align: right;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .body-container,
+    .footer {
+        background-color: var(--color-background, white);
     }
 
     .body-container {
-        height: calc(100% - #{$vis-title-expected-height});
+        grid-area: body;
+        position: relative;
         overflow-y: auto;
-        position: absolute;
-        top: calc(#{$vis-title-expected-height});
         width: 100%;
-
-        &.with-filter {
-            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
-            top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$contribution-height} - 10px);
-            }
-        }
-
-        &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
-
-            &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
-            }
-
-            &.with-contribution {
-                height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - #{$contribution-height} - 5px);
-            }
-        }
-
-        &.with-contribution {
-            height: calc(100% - #{$vis-title-expected-height} - #{$contribution-height} - 5px);
-        }
+        max-width: 100%;
 
         .chart-container {
             height: 100%;
@@ -89,7 +84,7 @@ $contribution-height: 20px;
             }
 
             .chart-selection {
-                background-color: var(--color-primary-transparent, rgba(128,128,128,0.33));
+                background-color: var(--color-primary-transparent, rgba(128, 128, 128, 0.33));
                 height: 10px;
                 width: 10px;
                 position: absolute;
@@ -102,24 +97,21 @@ $contribution-height: 20px;
             float: left;
         }
     }
+
+    .legend-container {
+        position: absolute;
+        z-index: 1000;
+        top: $vis-title-expected-height;
+    }
+
     .filter-container {
         @extend %filter-container-shared;
     }
 
     .footer {
+        grid-area: footer;
         border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
         height: #{$footer-height};
-        width: 100%;
-    }
-
-    .footer-with-contribution {
-        border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
-        height: calc(#{$footer-height} + #{$contribution-height});
-        width: 100%;
     }
 
     .footer-button-container {
@@ -136,21 +128,20 @@ $contribution-height: 20px;
             height: 25px !important;
             line-height: 15px !important;
             margin: 0 5px;
-        }
 
-        .pagination-button[disabled] {
-            @extend .pagination-button;
-            background-color: #dcdcdc !important;
-            color: #adadad !important;
+            &[disabled] {
+                @extend .pagination-button;
+                background-color: #DCDCDC !important;
+                color: #ADADAD !important;
+            }
         }
     }
 
     .contribution-text {
-        border-top: 2px solid var(--color-accent, lightgrey);
-        position: absolute;
-        bottom: 0;
+        grid-area: contribution;
         height: #{$contribution-height};
-        width: 100%;
+        background-color: var(--color-background, white);
+        border-top: 2px solid var(--color-accent, lightgrey);
     }
 
     .contribution-text-container {
@@ -164,19 +155,6 @@ $contribution-height: 20px;
 
         &:hover {
             text-decoration: underline;
-        }
-    }
-
-    .visualization-sidenav-options {
-        max-width: calc(100% - 20px);
-
-        mat-card {
-            min-width: 240px;
-            max-width: 240px;
-        }
-
-        mat-form-field, mat-input, mat-select, table {
-            width: 100%;
         }
     }
 

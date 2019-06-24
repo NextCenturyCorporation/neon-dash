@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     AfterViewInit,
@@ -19,7 +18,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    HostListener,
     Injector,
     OnDestroy,
     OnInit,
@@ -27,11 +25,9 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { Color } from '../../color';
-
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
@@ -51,20 +47,18 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { CesiumNeonMap } from './map.type.cesium';
-import { FieldMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../models/types';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
-import * as _ from 'lodash';
+} from '../../models/widget-option';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -82,7 +76,6 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -102,24 +95,23 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public mapLayerIdsToTitles: Map<string, string> = new Map<string, string>();
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
             ref,
             dialog
         );
-
-        (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
 
         this.updateOnSelectId = true;
     }
@@ -162,9 +154,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             this.options.type = MapType[this.options.type] || MapType.Leaflet;
         }
         switch (this.options.type) {
-            case MapType.Cesium:
-                this.mapObject = new CesiumNeonMap();
-                break;
             case MapType.Leaflet:
                 this.mapObject = new LeafletNeonMap();
                 break;
@@ -295,9 +284,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             }
 
             // Mark it as active again
-            this.disabledSet = this.disabledSet.filter((set) => {
-                return !(set[0] === fieldName && set[1] === value);
-            }) as [string[]];
+            this.disabledSet = this.disabledSet.filter((set) => !(set[0] === fieldName && set[1] === value)) as [string[]];
         }
     }
 
@@ -310,38 +297,35 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
-     * @arg {FieldMetaData} hoverPopupField
+     * @arg {NeonFieldMetaData} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldMetaData[],
-       lngField: string, latField: string, colorField: string, hoverPopupField: FieldMetaData, data: any[]
-    ): any[] {
-
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: NeonFieldMetaData[],
+        lngField: string, latField: string, colorField: string, hoverPopupField: NeonFieldMetaData, data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
-            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField)),
-                latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField)),
-                colorValue = neonUtilities.deepFind(point, colorField),
-                idValue = neonUtilities.deepFind(point, idField),
-                filterValues = new Map<string, any>(),
-                hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
+            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField));
+            let latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField));
+            let colorValue = neonUtilities.deepFind(point, colorField);
+            let idValue = neonUtilities.deepFind(point, idField);
+            let filterValues = new Map<string, any>();
+            let hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
 
             for (let field of filterFields) {
                 let fieldValue = neonUtilities.deepFind(point, field.columnName);
                 filterValues.set(field.columnName, fieldValue);
             }
 
-            //use first value if deepFind returns an array
+            // Use first value if deepFind returns an array
             colorValue = colorValue instanceof Array ? (colorValue.length ? colorValue[0] : '') : colorValue;
             idValue = idValue instanceof Array ? (idValue.length ? idValue[0] : '') : idValue;
 
             if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-
-                    //check if hover popup value is nested within coordinate array
+                    // Check if hover popup value is nested within coordinate array
                     if (hoverPopupValue instanceof Array) {
                         this.addOrUpdateUniquePoint(map, filterValues, idValue, latCoord[pos], lngCoord[pos], colorField, colorValue,
                             (hoverPopupField.prettyName ? hoverPopupField.prettyName + ':  ' : '') + hoverPopupValue[pos]);
@@ -368,7 +352,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             mapPoints.push(new MapPoint(unique.idField, unique.idList, unique.filterList, unique.filterMap, name, unique.lat, unique.lng,
                 unique.count, color, 'Count: ' + unique.count, unique.colorField, unique.colorValue, unique.hoverPopupMap));
         });
-        mapPoints.sort((a, b) => b.count - a.count);
+        mapPoints.sort((point1, point2) => point2.count - point1.count);
         return mapPoints;
     }
 
@@ -390,7 +374,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
 
         // TODO Move singleColor to layer options.
-        //check if colorField was not defines or (None)
+        // check if colorField was not defines or (None)
         if (options.colorField.columnName === '') {
             this.options.singleColor = true;
         } else {
@@ -458,38 +442,36 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, filterMap: Map<string, any>, idValue: string, lat: number, lng: number,
         colorField: string, colorValue: string, hoverPopupValue: string) {
-
         if (!super.isNumber(lat) || !super.isNumber(lng)) {
             return;
         }
 
-        let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue,
-            obj = map.get(hashCode);
+        let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue;
+        let obj = map.get(hashCode);
 
-        //check if point has already been created
+        // Check if point has already been created
         if (!obj) {
-
             let idList: string[] = [];
-                idList.push(idValue);  //store the id of the unique point
+            idList.push(idValue); // Store the id of the unique point
 
             let filterList: any[] = [];
             filterList.push(filterMap);
 
             let hoverPopupMap = new Map<string, number>();
 
-            //add to map if hover value exists
+            // Add to map if hover value exists
             if (hoverPopupValue) {
                 hoverPopupMap.set(hoverPopupValue, 1);
             }
             obj = new UniqueLocationPoint(idValue, idList, filterList, filterMap, lat, lng, 1, colorField, colorValue, hoverPopupMap);
             map.set(hashCode, obj);
         } else {
-            obj.idList.push(idValue);  //add the id to the list of points
+            obj.idList.push(idValue); // Add the id to the list of points
             obj.filterList.push(filterMap);
             obj.count++;
 
-            //check if popup value already exists increase count in map
-            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue)))  {
+            // Check if popup value already exists increase count in map
+            if (hoverPopupValue && (obj.hoverPopupMap.has(hoverPopupValue))) {
                 obj.hoverPopupMap.set(hoverPopupValue, obj.hoverPopupMap.get(hoverPopupValue));
             } else {
                 obj.hoverPopupMap.set(hoverPopupValue, 1);
@@ -515,7 +497,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         if (this.mapObject) {
             this.mapObject.destroy();
         }
-        this.ngAfterViewInit(); // re-initialize map
+        this.ngAfterViewInit(); // Re-initialize map
     }
 
     /**
@@ -581,22 +563,24 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         };
     }
 
-    mouseWheelUp(e) {
-        const action = (this.shouldZoom(e)
-            ? this.mapObject.zoomIn()
-            : this.overlay()
-        );
+    mouseWheelUp(event: MouseWheelEvent) {
+        if (this.shouldZoom(event)) {
+            this.mapObject.zoomIn();
+        } else {
+            this.overlay();
+        }
     }
 
-    mouseWheelDown(e) {
-        const action = (this.shouldZoom(e)
-            ? this.mapObject.zoomOut()
-            : this.overlay()
-        );
+    mouseWheelDown(event: MouseWheelEvent) {
+        if (this.shouldZoom(event)) {
+            this.mapObject.zoomOut();
+        } else {
+            this.overlay();
+        }
     }
 
-    shouldZoom(e) {
-        const ctrlMetaPressed = e.ctrlKey || e.metaKey;
+    shouldZoom(event: MouseEvent) {
+        const ctrlMetaPressed = event.ctrlKey || event.metaKey;
         const usingLeaflet = this.options.type === MapType.Leaflet;
         const ctrlZoomEnabled = !this.options.disableCtrlZoom;
         return (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet);
@@ -605,15 +589,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     overlay() {
         this.mapOverlayRef.nativeElement.style.zIndex = '1000';
         setTimeout(
-            () => { this.mapOverlayRef.nativeElement.style.zIndex = '-1'; },
-            1400);
+            () => {
+                this.mapOverlayRef.nativeElement.style.zIndex = '-1';
+            },
+            1400
+        );
     }
 
     getOverlayText() {
         return (
-            navigator.platform.toLowerCase().includes('mac')
-                ? 'Use ⌘ + scroll wheel to zoom'
-                : 'Use ctrl + scroll wheel to zoom'
+            navigator.platform.toLowerCase().includes('mac') ?
+                'Use ⌘ + scroll wheel to zoom' :
+                'Use ctrl + scroll wheel to zoom'
         );
     }
 
@@ -683,7 +670,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnValue(layer: any, field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
             datastore: '',
@@ -734,26 +721,23 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetFreeTextOption('clusterPixelRange', 'Cluster Pixel Range', 15),
+            new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', 15),
             new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
             new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
             new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('east', 'East', null),
+            new WidgetNumberOption('east', 'East', null),
             // Properties of hoverSelect:  hoverTime: number
             new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', null),
-            new WidgetFreeTextOption('minClusterSize', 'Minimum Cluster Size', 5),
-            new WidgetFreeTextOption('north', 'North', null),
+            new WidgetNumberOption('minClusterSize', 'Minimum Cluster Size', 5),
+            new WidgetNumberOption('north', 'North', null),
             new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('south', 'South', null),
+            new WidgetNumberOption('south', 'South', null),
             new WidgetSelectOption('type', 'Map Type', MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
-            }, {
-                prettyName: 'Cesium',
-                variable: MapType.Cesium
             }]),
-            new WidgetFreeTextOption('west', 'West', null)
+            new WidgetNumberOption('west', 'West', null)
         ];
     }
 
@@ -832,7 +816,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
                 FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
-
                 let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
                 let north = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '<=');
                 let south = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '>=');

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -25,24 +24,25 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { MediaTypes } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
 export interface MediaTab {
@@ -50,18 +50,18 @@ export interface MediaTab {
     loaded: boolean;
     name: string;
     selected: {
-        border: string,
-        link: string,
-        mask: string,
-        name: string,
-        type: string
+        border: string;
+        link: string;
+        mask: string;
+        name: string;
+        type: string;
     };
     list: {
-        border: string,
-        link: string,
-        mask: string,
-        name: string,
-        type: string
+        border: string;
+        link: string;
+        mask: string;
+        name: string;
+        type: string;
     }[];
 }
 
@@ -81,7 +81,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     protected TAB_HEIGHT: number = 30;
     protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
 
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -94,17 +93,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public selectedTabIndex: number = 0;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
-
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -123,7 +122,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any} metadata
      * @arg {string} name
      */
-    addEventLinks(fields: any[], metadata: any, name: string) {
+    addEventLinks(fields: any[], metadata: any, __name: string) {
         let tabIndex = this.tabsAndMedia.length;
 
         let links = [];
@@ -177,7 +176,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     if (previousTab.name === tab.name) {
                         tabExists = true;
                         tabIndex = index;
-                        return false;
                     }
                 });
 
@@ -268,7 +266,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'One Tab per Array',
                 variable: true
             }]),
-            new WidgetFreeTextOption('sliderValue', 'Slider Value', '0'),
+            new WidgetNumberOption('sliderValue', 'Slider Value', 0),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
             new WidgetFreeTextOption('url', 'URL', '')
         ];
@@ -285,8 +283,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters: FilterClause[] = options.linkFields.map((linkField) =>
-            this.searchService.buildFilterClause(linkField.columnName, '!=', null)
-        );
+            this.searchService.buildFilterClause(linkField.columnName, '!=', null));
 
         if (options.idField.columnName) {
             filters = filters.concat(this.searchService.buildFilterClause(options.idField.columnName, '=', options.id));
@@ -417,7 +414,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * returns the media type for the thumbnail
+     * Returns the media type for the thumbnail
      * @arg {object} item
      * @return string
      */
@@ -478,9 +475,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        let validLinkFields = options.linkFields.length ? options.linkFields.every((linkField) => {
-            return !!linkField.columnName;
-        }) : false;
+        let validLinkFields = options.linkFields.length ? options.linkFields.every((linkField) => !!linkField.columnName) : false;
         return !!(options.database.name && options.table.name && validLinkFields);
     }
 
@@ -502,7 +497,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         if (options.clearMedia && !this.isFiltered()) {
             this.errorMessage = 'No Data';
             options.id = '_id';
-            return;
+            return 0;
         }
 
         results.forEach((result) => {
@@ -560,7 +555,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     initializeProperties() {
-        this.options.sliderValue = Number.parseInt(this.options.sliderValue);
+        this.options.sliderValue = Number.parseInt(this.options.sliderValue, 10);
 
         // Backwards compatibility (linkField deprecated and replaced by linkFields).
         if (this.options.linkField.columnName && !this.options.linkFields.length) {
@@ -580,11 +575,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization() {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         if (!this.changeDetection['destroyed']) {
             this.changeDetection.detectChanges();
         }
-        /* tslint:enable:no-string-literal */
         this.updateOnResize();
     }
 
@@ -680,7 +674,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
             frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
             frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-
         });
 
         images.forEach((image) => {

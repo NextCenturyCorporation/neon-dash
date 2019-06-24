@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,14 +11,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { Color } from '../../color';
+import { Color } from '../../models/color';
 
-import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
@@ -26,28 +24,32 @@ export abstract class AbstractChartJsDataset {
     public xToY: Map<any, any> = new Map<any, any[]>();
 
     constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
-        xList.forEach((x) => {
-            this.xToY.set(x, []);
+        xList.forEach((xValue) => {
+            this.xToY.set(xValue, []);
         });
     }
 
-    public addPoint(x: any, y: any) {
+    public addPoint(xValue: any, yValue: any) {
         // All X values should already exist in the Map (if not, show an error).
-        this.xToY.set(x, this.xToY.get(x).concat(y));
+        this.xToY.set(xValue, this.xToY.get(xValue).concat(yValue));
     }
 
     public abstract finalizeData();
 
     public getColorBackground(): string {
-        return this.color.getComputedCssTransparencyHigh(this.elementRef);
+        return this.color.getComputedCss(this.elementRef);
     }
 
     public getColorDeselected(): string {
-        return this.color.getComputedCssTransparencyMedium(this.elementRef);
+        return this.color.getComputedCssTransparencyHigh(this.elementRef);
     }
 
     public getColorSelected(): string {
         return this.color.getComputedCss(this.elementRef);
+    }
+
+    public getColorHover(): string {
+        return this.color.getComputedCssHoverColor(this.elementRef);
     }
 
     public getLabels(): any[] {
@@ -59,7 +61,7 @@ export class ChartJsData {
     constructor(
         public datasets: AbstractChartJsDataset[],
         public labels: string[]
-    ) {}
+    ) { }
 }
 
 export enum SelectMode {
@@ -84,23 +86,23 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private ignoreSelect: boolean = false;
 
     private selectedBounds: {
-        beginX: number,
-        beginY: number,
-        endX: number,
-        endY: number
+        beginX: number;
+        beginY: number;
+        endX: number;
+        endY: number;
     } = null;
 
     private selectedDomain: {
-        beginIndex: number,
-        beginX: number,
-        endIndex: number,
-        endX: number
+        beginIndex: number;
+        beginX: number;
+        endIndex: number;
+        endX: number;
     } = null;
 
     // Save only the tick labels shown in the chart (adjusted for its size) rather than the chart.data.labels which are all the labels.
     private tickLabels: {
-        x: any[],
-        y: any[]
+        x: any[];
+        y: any[];
     } = {
         x: [],
         y: []
@@ -117,7 +119,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected selectMode: SelectMode = SelectMode.NONE) {
-
         super(options, listener, elementRef);
     }
 
@@ -149,9 +150,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
         }
-        let labelWidth = this.tickLabels.y.reduce((max, yLabel) => {
-            return Math.max(max, this.computeTextWidth(yLabel));
-        }, 0);
+        let labelWidth = this.tickLabels.y.reduce((max, yLabel) => Math.max(max, this.computeTextWidth(yLabel)), 0);
         return Math.min(labelWidth, maxWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0) + this.Y_AXIS_LABEL_WIDTH;
     }
 
@@ -245,19 +244,19 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         };
 
         // Compare here to an empty string so we do not ignore zero!
-        if (this.options.scaleMaxX !== '' && !isNaN(Number(this.options.scaleMaxX))) {
+        if (this.options.scaleMaxX !== null && !isNaN(Number(this.options.scaleMaxX))) {
             defaultOptions.scales.xAxes[0].ticks.max = Number(this.options.scaleMaxX);
         }
 
-        if (this.options.scaleMinX !== '' && !isNaN(Number(this.options.scaleMinX))) {
+        if (this.options.scaleMinX !== null && !isNaN(Number(this.options.scaleMinX))) {
             defaultOptions.scales.xAxes[0].ticks.min = Number(this.options.scaleMinX);
         }
 
-        if (this.options.scaleMaxY !== '' && !isNaN(Number(this.options.scaleMaxY))) {
+        if (this.options.scaleMaxY !== null && !isNaN(Number(this.options.scaleMaxY))) {
             defaultOptions.scales.yAxes[0].ticks.max = Number(this.options.scaleMaxY);
         }
 
-        if (this.options.scaleMinY !== '' && !isNaN(Number(this.options.scaleMinY))) {
+        if (this.options.scaleMinY !== null && !isNaN(Number(this.options.scaleMinY))) {
             defaultOptions.scales.yAxes[0].ticks.min = Number(this.options.scaleMinY);
         }
 
@@ -434,7 +433,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected findChartElementWidth(item: any): number {
+    protected findChartElementWidth(__item: any): number {
         return this.DEFAULT_CHART_ELEMENT_WIDTH;
     }
 
@@ -567,7 +566,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickHeight(axisType: string): number {
+    protected getMinimumTickHeight(__axisType: string): number {
         return 25;
     }
 
@@ -578,7 +577,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {number}
      * @protected
      */
-    protected getMinimumTickWidth(axisType: string): number {
+    protected getMinimumTickWidth(__axisType: string): number {
         return 50;
     }
 
@@ -708,7 +707,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     protected padEndDate(endDate: any) {
         let newEndDate = moment.utc(endDate);
-        newEndDate.add(1, <moment.unitOfTime.DurationConstructor> this.options.granularity);
+        newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
         newEndDate.subtract(1, 'second');
         return moment(newEndDate).toDate();
     }
@@ -806,6 +805,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {boolean} [domainOnly=false]
      * @private
      */
+    // TODO Move this code into separate functions
+    /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
@@ -873,7 +874,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
             let endValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
 
-            let beginLabelX, beginLabelY, endLabelX, endLabelY;
+            let beginLabelX;
+            let beginLabelY;
+            let endLabelX;
+            let endLabelY;
             if (this.findAxisTypeX() === 'string') {
                 beginValueX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
                 endValueX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
@@ -1007,10 +1011,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             return;
         }
 
+        let firstItemSelected = this.selectedLabels.length === 0;
         let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
         let exchangeFilter = !(event.ctrlKey || event.metaKey);
-        if (exchangeFilter) {
+        if (firstItemSelected || exchangeFilter) {
             this.selectedLabels = [labelValue];
         } else {
             this.selectedLabels = this.selectedLabels.indexOf(labelValue) < 0 ? this.selectedLabels.concat(labelValue) :

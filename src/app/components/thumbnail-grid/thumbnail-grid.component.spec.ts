@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,84 +11,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { NeonFieldMetaData } from '../../models/types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { MatAutocompleteModule } from '@angular/material';
-import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
-import { TitleThumbnailSubComponent } from './subcomponent.title-view';
-import { CardThumbnailSubComponent } from './subcomponent.card-view';
 
-let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
-    expect(element.componentInstance.disabled).toEqual(disabled);
-    expect(element.componentInstance.placeholder).toEqual(name);
-    expect(element.componentInstance.required).toEqual(required);
-};
-
-let validateSelectFields = (element: any, required: boolean = false, selected: string = '') => {
-    let options = element.componentInstance.options.toArray();
-    expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + (required ? 0 : 1));
-    if (!required) {
-        expect(options[0].getLabel()).toEqual('(None)');
-    }
-    for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-        let index = (required ? i : (i + 1));
-        expect(options[index].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-        expect(options[index].selected).toEqual(selected ? (DatasetServiceMock.FIELDS[i].columnName === selected) : false);
-    }
-};
-
-let validateToggle = (element: any, value: any, content: string, checked: boolean) => {
-    expect(element.componentInstance.value).toEqual(value);
-    expect(element.nativeElement.textContent).toContain(content);
-    expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
-};
+import { ThumbnailGridModule } from './thumbnail-grid.module';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
     let fixture: ComponentFixture<ThumbnailGridComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            MatAutocompleteModule,
-            ReactiveFormsModule
+            ThumbnailGridModule
         ]
     });
 
@@ -98,7 +53,7 @@ describe('Component: ThumbnailGrid', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected class options properties', () => {
+    it('does have expected default class options properties', () => {
         expect(component.options.border).toEqual('');
         expect(component.options.borderCompareValue).toEqual('');
         expect(component.options.borderPercentThreshold).toEqual(0.5);
@@ -113,18 +68,18 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
-        expect(component.options.categoryField).toEqual(new FieldMetaData());
-        expect(component.options.compareField).toEqual(new FieldMetaData());
+        expect(component.options.categoryField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.compareField).toEqual(NeonFieldMetaData.get());
         expect(component.options.filterFields).toEqual([]);
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.nameField).toEqual(new FieldMetaData());
-        expect(component.options.objectIdField).toEqual(new FieldMetaData());
-        expect(component.options.objectNameField).toEqual(new FieldMetaData());
-        expect(component.options.percentField).toEqual(new FieldMetaData());
-        expect(component.options.predictedNameField).toEqual(new FieldMetaData());
-        expect(component.options.sortField).toEqual(new FieldMetaData());
-        expect(component.options.typeField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.nameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.objectIdField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.objectNameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.percentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.predictedNameField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
 
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
@@ -145,14 +100,14 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show toolbar', () => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
+        let container = fixture.debugElement;
         expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Thumbnail Grid');
     });
@@ -163,11 +118,11 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
         expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('10 Items');
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
@@ -177,27 +132,25 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
+        let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).toBeNull();
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
-
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
     it('does hide loading overlay by default', () => {
         component.changeDetection.detectChanges();
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     });
 
@@ -207,30 +160,42 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
         expect(loadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     }));
 
     it('does show body-container', () => {
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container'));
         expect(bodyContainer).not.toBeNull();
     });
 
     it('does not show thumbnail-grid-div elements if gridArray is empty array', () => {
-        let elements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(0);
     });
 
     it('does show thumbnail-grid-div elements if gridArray is non-empty array', async(() => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.linkField = NeonFieldMetaData.get({
+            columnName: 'testLinkField', prettyName: 'Test Link Field'
+        });
+        component.options.nameField = NeonFieldMetaData.get({
+            columnName: 'testNameField', prettyName: 'Test Name Field'
+        });
+        component.options.objectIdField = NeonFieldMetaData.get({
+            columnName: 'testObjectIdField', prettyName: 'Test Object ID Field'
+        });
+        component.options.objectNameField = NeonFieldMetaData.get({
+            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
+        });
+        component.options.percentField = NeonFieldMetaData.get({
+            columnName: 'testPercentField', prettyName: 'Test Percent Field'
+        });
+        component.options.predictedNameField = NeonFieldMetaData.get({
+            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        });
 
         component.gridArray = [{
             testLinkField: 'link1',
@@ -251,7 +216,7 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let elements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(2);
 
         expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
@@ -260,16 +225,16 @@ describe('Component: ThumbnailGrid', () => {
         expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
         expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
 
-        let divElements = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .thumbnail-grid-div'));
+        let divElements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(divElements.length).toEqual(2);
     }));
 
     it('does not show footer-container or pagination-button elements by default', () => {
         component.changeDetection.detectChanges();
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container.with-footer'));
         expect(bodyContainer).toBeNull();
     });
 
@@ -282,14 +247,12 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
-
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            '.footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(true);
@@ -308,14 +271,12 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
-
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            '.footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(false);
@@ -334,14 +295,12 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let footerContainer = fixture.debugElement.query(By.css('mat-sidenav-container .footer'));
+        let footerContainer = fixture.debugElement.query(By.css('.footer'));
         expect(footerContainer).not.toBeNull();
 
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-footer'));
-        expect(bodyContainer).not.toBeNull();
-
         let footerButtons = fixture.debugElement.queryAll(By.css(
-            'mat-sidenav-container .footer .footer-button-container .pagination-button'));
+            '.footer .footer-button-container .pagination-button'
+        ));
         expect(footerButtons.length).toEqual(2);
 
         expect(footerButtons[0].componentInstance.disabled).toEqual(false);
@@ -352,12 +311,10 @@ describe('Component: ThumbnailGrid', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-
-        let fields = ['testLinkField', 'testSortField'];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -425,7 +382,9 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
+        component.options.objectNameField = NeonFieldMetaData.get({
+            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
+        });
 
         expect(component.getThumbnailLabel({
             testObjectNameField: 'myObjectName',
@@ -436,7 +395,9 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.predictedNameField = NeonFieldMetaData.get({
+            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        });
 
         expect(component.getThumbnailLabel({
             testObjectNameField: 'myObjectName',
@@ -455,7 +416,9 @@ describe('Component: ThumbnailGrid', () => {
             testPercentField: 0.1234
         })).toEqual('');
 
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
+        component.options.percentField = NeonFieldMetaData.get({
+            columnName: 'testPercentField', prettyName: 'Test Percent Field'
+        });
 
         expect(component.getThumbnailPercent({})).toEqual('');
 
@@ -490,10 +453,18 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.nameField = NeonFieldMetaData.get({
+            columnName: 'testNameField', prettyName: 'Test Name Field'
+        });
+        component.options.objectNameField = NeonFieldMetaData.get({
+            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
+        });
+        component.options.percentField = NeonFieldMetaData.get({
+            columnName: 'testPercentField', prettyName: 'Test Percent Field'
+        });
+        component.options.predictedNameField = NeonFieldMetaData.get({
+            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        });
 
         expect(component.getThumbnailTitle({
             testNameField: 'myName',
@@ -504,10 +475,18 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getThumbnailTitle does use textMap', () => {
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.nameField = NeonFieldMetaData.get({
+            columnName: 'testNameField', prettyName: 'Test Name Field'
+        });
+        component.options.objectNameField = NeonFieldMetaData.get({
+            columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
+        });
+        component.options.percentField = NeonFieldMetaData.get({
+            columnName: 'testPercentField', prettyName: 'Test Percent Field'
+        });
+        component.options.predictedNameField = NeonFieldMetaData.get({
+            columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
+        });
         component.options.textMap = {
             actual: 'MyActualText',
             name: 'MyNameText',
@@ -526,30 +505,30 @@ describe('Component: ThumbnailGrid', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual(CompoundFilterType.OR);
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
     });
 
     it('isSelectable does return expected boolean', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = new FieldMetaData();
+        component.options.idField = NeonFieldMetaData.get();
 
         component.options.openOnMouseClick = true;
         expect(component.isSelectable()).toEqual(true);
@@ -562,17 +541,15 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === component.options.filterFields[0] && filterDesign.operator === '=' &&
-                filterDesign.value === 'testFilterValue1';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
+            filterDesign.table === component.options.table && filterDesign.field === component.options.filterFields[0] &&
+            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
 
         expect(component.isSelected({
             testFilterField: 'testFilterValue1'
@@ -596,29 +573,65 @@ describe('Component: ThumbnailGrid', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
-        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
-        component.options.filterFields = [new FieldMetaData('testFilterField', 'Test Filter Field')];
-        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
-        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
-        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
-        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
-        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
+        component.options.categoryField = NeonFieldMetaData.get({
+            columnName: 'testCategoryField',
+            prettyName: 'Test Category Field'
+        });
+        component.options.compareField = NeonFieldMetaData.get({
+            columnName: 'testCompareField',
+            prettyName: 'Test Compare Field'
+        });
+        component.options.filterFields = [NeonFieldMetaData.get({
+            columnName: 'testFilterField',
+            prettyName: 'Test Filter Field'
+        })];
+        component.options.idField = NeonFieldMetaData.get({
+            columnName: '_id',
+            prettyName: 'Test ID Field'
+        });
+        component.options.linkField = NeonFieldMetaData.get({
+            columnName: 'testLinkField',
+            prettyName: 'Test Link Field'
+        });
+        component.options.nameField = NeonFieldMetaData.get({
+            columnName: 'testNameField',
+            prettyName: 'Test Name Field'
+        });
+        component.options.objectIdField = NeonFieldMetaData.get({
+            columnName: 'testObjectIdField',
+            prettyName: 'Test Object ID Field'
+        });
+        component.options.objectNameField = NeonFieldMetaData.get({
+            columnName: 'testObjectNameField',
+            prettyName: 'Test Object Name Field'
+        });
+        component.options.percentField = NeonFieldMetaData.get({
+            columnName: 'testPercentField',
+            prettyName: 'Test Percent Field'
+        });
+        component.options.predictedNameField = NeonFieldMetaData.get({
+            columnName: 'testPredictedNameField',
+            prettyName: 'Test Predicted Name Field'
+        });
+        component.options.sortField = NeonFieldMetaData.get({
+            columnName: 'testSortField',
+            prettyName: 'Test Sort Field'
+        });
+        component.options.typeField = NeonFieldMetaData.get({
+            columnName: 'testTypeField',
+            prettyName: 'Test Type Field'
+        });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -679,8 +692,8 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.fields = DashboardServiceMock.FIELDS;
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -689,12 +702,12 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
-        component.options.percentField = new FieldMetaData('testSizeField', 'Test Size Field');
-        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
+        component.options.fields = DashboardServiceMock.FIELDS;
+        component.options.idField = NeonFieldMetaData.get({ columnName: '_id', prettyName: 'Test ID Field' });
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.nameField = NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field' });
+        component.options.percentField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
+        component.options.typeField = NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field' });
         component.options.linkPrefix = 'prefix/';
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -742,7 +755,7 @@ describe('Component: ThumbnailGrid', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.selectGridItem({
             testIdField: 'id1'
@@ -760,7 +773,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         component.selectGridItem({
             testFilterField: 'filter1'
@@ -770,18 +783,6 @@ describe('Component: ThumbnailGrid', () => {
             testFilterField: 'filter1'
         }]);
     });
-
-    it('isValideMediaType does return true if a MediaType is valid', () => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
-        let random = {
-            testLinkField: 'random'
-        };
-        let correctMedia = {
-            testLinkField: 'img'
-        };
-        expect(!component.isValidMediaType(random));
-        expect(component.isValidMediaType(correctMedia));
-    });
 });
 
 describe('Component: ThumbnailGrid with config', () => {
@@ -789,20 +790,11 @@ describe('Component: ThumbnailGrid with config', () => {
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
     initializeTestBed('Thumbnail Grid', {
-        declarations: [
-            CardThumbnailSubComponent,
-            TitleThumbnailSubComponent,
-            DetailsThumbnailSubComponent,
-            ThumbnailGridComponent,
-            UnsharedFilterComponent
-        ],
-
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },
@@ -835,9 +827,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            ThumbnailGridModule
         ]
     });
 
@@ -848,11 +838,11 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.limit).toEqual(10);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
@@ -884,23 +874,49 @@ describe('Component: ThumbnailGrid with config', () => {
             mov: 'vid'
         });
 
-        expect(component.options.categoryField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
-        expect(component.options.compareField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
-        expect(component.options.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.filterFields).toEqual([new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string')]);
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
-        expect(component.options.nameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
-        expect(component.options.objectIdField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
-        expect(component.options.objectNameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
-        expect(component.options.percentField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
-        expect(component.options.predictedNameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
-        expect(component.options.sortField).toEqual(new FieldMetaData('testSortField', 'Test Sort Field', false, 'string'));
-        expect(component.options.typeField).toEqual(new FieldMetaData('testTypeField', 'Test Type Field', false, 'string'));
+        expect(component.options.categoryField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
+        );
+        expect(component.options.compareField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
+        );
+        expect(component.options.dateField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' })
+        );
+        expect(component.options.filterFields).toEqual(
+            [NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' })]
+        );
+        expect(component.options.idField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+        );
+        expect(component.options.linkField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
+        );
+        expect(component.options.nameField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+        );
+        expect(component.options.objectIdField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+        );
+        expect(component.options.objectNameField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+        );
+        expect(component.options.percentField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' })
+        );
+        expect(component.options.predictedNameField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+        );
+        expect(component.options.sortField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' })
+        );
+        expect(component.options.typeField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' })
+        );
     });
 
     it('does show header in toolbar with visualization title from config', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });

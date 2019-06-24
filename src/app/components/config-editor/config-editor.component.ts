@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,138 +11,77 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, ElementRef,
-  ChangeDetectionStrategy, ChangeDetectorRef, Injector, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { MatSnackBar, MatDialog } from '@angular/material';
-import { NeonGTDConfig } from './../../neon-gtd-config';
+import { MatSnackBar } from '@angular/material';
+import { NeonConfig } from '../../models/types';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { PropertyService } from '../../services/property.service';
 
-import * as JSONEditor from 'jsoneditor';
-declare var editor: any;
-import * as _ from 'lodash';
+import * as yaml from 'js-yaml';
+import { ConfigService } from '../../services/config.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-config-editor',
-  templateUrl: 'config-editor.component.html',
-  styleUrls: ['config-editor.component.scss']
+    selector: 'app-config-editor',
+    templateUrl: 'config-editor.component.html',
+    styleUrls: [
+        'config-editor.component.scss'
+    ]
 })
-export class ConfigEditorComponent implements AfterViewInit, OnInit {
-    @ViewChild('JsonEditorComponent') editorRef: ElementRef;
+export class ConfigEditorComponent implements OnInit, OnDestroy {
     public CONFIG_PROP_NAME: string = 'config';
-    public configEditorRef: any;
-    public currentConfig: NeonGTDConfig;
-    public editorData: NeonGTDConfig;
-    public editorOptions: any;
+    public currentConfig: NeonConfig;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
-    public modes: any[];
-    public editor: any;
+    public configText: string;
+    destroy = new Subject();
 
-    constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar,
-        protected propertyService: PropertyService, protected widgetService: AbstractWidgetService) {
+    constructor(
+        private configService: ConfigService,
+        public snackBar: MatSnackBar,
+        protected widgetService: AbstractWidgetService
+    ) {
         this.snackBar = snackBar;
-        this.currentConfig = neonConfig;
-        if (this.currentConfig.errors) {
-            delete this.currentConfig.errors;
-        }
-        this.editorOptions = this.getJsonEditorOptions();
-        this.editorData = _.cloneDeep(this.currentConfig);
-        this.modes = [
-          {
-              value: 'tree',
-              viewValue: 'Tree'
-          },
-          {
-              value: 'code',
-              viewValue: 'Code'
-          },
-          {
-              value: 'form',
-              viewValue: 'Form'
-          },
-          {
-              value: 'view',
-              viewValue: 'Tree (read only)'
-          },
-          {
-              value: 'text',
-              viewValue: 'Text (read only)'
-          }
-        ];
-        // 'tree' (default), 'view', 'form', 'code', 'text
     }
 
     ngOnInit(): void {
-        // Do nothing.
+        this.configService.getActive()
+            .pipe(takeUntil(this.destroy))
+            .subscribe((neonConfig) => {
+                this.currentConfig = neonConfig;
+                if (this.currentConfig.errors) {
+                    delete this.currentConfig.errors;
+                }
+                this.reset();
+            });
     }
 
-    ngAfterViewInit() {
-        this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
-    }
-
-    public close() {
-        this.configEditorRef.closeAll();
-    }
-
-    public changeMode(evt) {
-        this.editorOptions.mode = evt.value;
-        this.editor.setMode(evt.value);
+    ngOnDestroy() {
+        this.destroy.next();
     }
 
     public save() {
-        let text = JSON.stringify(this.editor.get());
-        this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
-        (response) => {
-            this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
-                duration: this.DEFAULT_SNACK_BAR_DURATION
-            });
-        },
-        (response) => {
-            this.snackBar.open('Error attempting to save configuration', 'OK', {
-                duration: this.DEFAULT_SNACK_BAR_DURATION
-            });
-            console.warn('Error attempting to save configuration:');
-            console.warn(response);
-        }
-      );
-    }
+        const settings = yaml.safeLoad(this.configText);
 
-    public delete() {
-        if (window.confirm('Are you sure you want to delete this?')) {
-            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
-                this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
-                    'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK', {
-                        duration: this.DEFAULT_SNACK_BAR_DURATION
-                    }
-                );
-            },
-            (response) => {
-                this.snackBar.open('Error attempting to delete property configuration', 'OK', {
+        this.configService.save(settings)
+            .subscribe(() => {
+                this.configService.setActive(settings);
+                this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
                     duration: this.DEFAULT_SNACK_BAR_DURATION
                 });
-                console.warn('Error attempting to delete property configuration:');
-                console.warn(response);
+            },
+            (err) => {
+                this.snackBar.open('Error attempting to save configuration', 'OK', {
+                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                });
+                console.warn('Error attempting to save configuration:');
+                console.warn(err);
             });
-        }
     }
 
     public reset() {
-        this.editorData = _.cloneDeep(this.currentConfig);
-        this.editor.set(this.editorData);
-    }
-
-    public getJsonEditorOptions() {
-       return {
-          escapeUnicode: false,
-          sortObjectKeys: false,
-          history: true,
-          mode: 'tree',
-          search: true,
-          indentation: 2
-       };
+        this.configText = yaml.safeDump(this.currentConfig);
     }
 }

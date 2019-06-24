@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,67 +11,92 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { ChangeDetectionStrategy,
-    ChangeDetectorRef, Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    ElementRef,
-    Injector,
-    ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injector } from '@angular/core';
+import { } from 'jasmine-core';
 
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { GearComponent } from '../gear/gear.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { OptionChoices, WidgetOptionCollection, WidgetFieldOption, WidgetFreeTextOption, WidgetSelectOption } from '../../widget-option';
-
-import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonEvents } from '../../neon-namespaces';
-import { eventing } from 'neon-framework';
+import { NeonFieldMetaData } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { neonEvents } from '../../models/neon-namespaces';
+
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
-/* tslint:disable:component-class-suffix */
+import { GearModule } from './gear.module';
+import {
+    WidgetOptionCollection, WidgetFreeTextOption, WidgetNonPrimitiveOption,
+    WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
+} from '../../models/widget-option';
+
+class MockConfigurable implements ConfigurableWidget {
+    options = new WidgetOptionCollection(() => []);
+    calledChangeData = 0;
+    calledChangeFilterData = 0;
+    calledFinalizeCreateLayer = 0;
+    calledFinalizeDeleteLayer = 0;
+    calledCreateLayer = 0;
+    calledDeleteLayer = 0;
+    calledHandleChangeSubcomponentType = 0;
+    calledExportData = 0;
+
+    changeData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
+        this.calledChangeData++;
+    }
+
+    changeFilterData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
+        this.calledChangeFilterData++;
+    }
+
+    finalizeCreateLayer(__layerOptions: any): void {
+        this.calledFinalizeCreateLayer++;
+    }
+
+    finalizeDeleteLayer(__layerOptions: any): void {
+        this.calledFinalizeDeleteLayer++;
+    }
+
+    createLayer(__options: WidgetOptionCollection, __layerBindings?: Record<string, any>): void {
+        this.calledCreateLayer++;
+    }
+
+    deleteLayer(__options: WidgetOptionCollection, __layerOptions: any): boolean {
+        this.calledDeleteLayer++;
+        return undefined;
+    }
+
+    handleChangeSubcomponentType(__options?: WidgetOptionCollection): void {
+        this.calledFinalizeDeleteLayer++;
+    }
+
+    exportData(): { name: string, data: any }[] {
+        this.calledExportData++;
+        return [];
+    }
+}
 
 describe('Component: Gear Component', () => {
     let component: GearComponent;
     let fixture: ComponentFixture<GearComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('gear component', {
-        declarations: [
-            GearComponent,
-            ExportControlComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
-        ],
-        schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+            GearModule
+        ]
     });
 
     beforeEach(() => {
@@ -81,7 +106,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect((component as any).originalOptions).not.toBeDefined();
+        expect(component['originalOptions']).not.toBeDefined();
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -128,40 +153,35 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
-        (component as any).originalOptions.append(new WidgetFreeTextOption('testOption', '', ''), '');
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].testOption).toEqual('');
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.modifiedOptions.testOption).toEqual('testText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testOption).toEqual('testText');
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].testOption).toEqual('testText');
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -173,40 +193,35 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with field change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
-        (component as any).originalOptions.append(new WidgetFieldOption('testField', '', true), new FieldMetaData());
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DatasetServiceMock.NAME_FIELD);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testField).toEqual(new FieldMetaData());
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].testField).toEqual(NeonFieldMetaData.get());
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -218,36 +233,31 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with database change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.database = DatasetServiceMock.DATABASES[1];
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -259,36 +269,31 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with table change does update originalOptions and call handleChangeFilterData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.table = DatasetServiceMock.TABLES[1];
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable2);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
@@ -300,55 +305,42 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with created layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate = 0;
-        (component as any).finalizeCreateLayer = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        (component as any).finalizeDeleteLayer = () => {
-            calledFinalizeDelete++;
-        };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
 
         let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases((component as any).datasetService);
+        layer.updateDatabases(component['dashboardState']);
         component.modifiedOptions.layers.push(layer);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(0);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(0);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(1);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(1);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -359,62 +351,49 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with changed layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate = 0;
-        (component as any).finalizeCreateLayer = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        (component as any).finalizeDeleteLayer = () => {
-            calledFinalizeDelete++;
-        };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
 
         let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases((component as any).datasetService);
+        layer.updateDatabases(component['dashboardState']);
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
-        (component as any).originalOptions.layers.push(layer);
+        component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(component['originalOptions'].layers[0].testNestedOption).toEqual('');
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
         expect(component.modifiedOptions.layers[0].testNestedOption).toEqual('testNestedText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('testNestedText');
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -425,54 +404,41 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with deleted layer does update originalOptions and call handleChangeData', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate = 0;
-        (component as any).finalizeCreateLayer = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        (component as any).finalizeDeleteLayer = () => {
-            calledFinalizeDelete++;
-        };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
 
         let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases((component as any).datasetService);
-        (component as any).originalOptions.layers.push(layer);
+        layer.updateDatabases(component['dashboardState']);
+        component['originalOptions'].layers.push(layer);
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.modifiedOptions.layers.length).toEqual(0);
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.layers.length).toEqual(0);
-        expect(calledChangeData).toEqual(1);
-        expect(calledChangeFilterData).toEqual(0);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].layers.length).toEqual(0);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(1);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -483,74 +449,61 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with many changes does update originalOptions and call expected function', () => {
-        let calledChangeData = 0;
-        (component as any).handleChangeData = () => {
-            calledChangeData++;
-        };
-        let calledChangeFilterData = 0;
-        (component as any).handleChangeFilterData = () => {
-            calledChangeFilterData++;
-        };
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
         let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
+        component['closeSidenav'] = () => {
             calledCloseSidenav++;
         };
-        let calledFinalizeCreate = 0;
-        (component as any).finalizeCreateLayer = () => {
-            calledFinalizeCreate++;
-        };
-        let calledFinalizeDelete = 0;
-        (component as any).finalizeDeleteLayer = () => {
-            calledFinalizeDelete++;
-        };
 
-        (component as any).originalOptions = new WidgetOptionCollection(() => []);
-        (component as any).originalOptions.updateDatabases((component as any).datasetService);
-        (component as any).originalOptions.append(new WidgetFreeTextOption('testOption', '', ''), '');
-        (component as any).originalOptions.append(new WidgetFieldOption('testField', '', true), new FieldMetaData());
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
+        component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases((component as any).datasetService);
-        component.modifiedOptions.database = DatasetServiceMock.DATABASES[1];
-        component.modifiedOptions.table = DatasetServiceMock.TABLES[1];
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
+        component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
-        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DatasetServiceMock.NAME_FIELD);
+        component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases((component as any).datasetService);
+        layer.updateDatabases(component['dashboardState']);
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
-        (component as any).originalOptions.layers.push(layer);
+        component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((component as any).originalOptions.testOption).toEqual('');
-        expect((component as any).originalOptions.testField).toEqual(new FieldMetaData());
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('');
-        expect(component.modifiedOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.modifiedOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component['originalOptions'].testOption).toEqual('');
+        expect(component['originalOptions'].testField).toEqual(NeonFieldMetaData.get());
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(component['originalOptions'].layers[0].testNestedOption).toEqual('');
+        expect(component.modifiedOptions.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component.modifiedOptions.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.modifiedOptions.testOption).toEqual('testText');
-        expect(component.modifiedOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.modifiedOptions.testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
         expect(component.modifiedOptions.layers.length).toEqual(1);
         expect(component.modifiedOptions.layers[0]._id).toEqual(layer._id);
         expect(component.modifiedOptions.layers[0].testNestedOption).toEqual('testNestedText');
 
         component.handleApplyClick();
-        expect((component as any).originalOptions.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect((component as any).originalOptions.table).toEqual(DatasetServiceMock.TABLES[1]);
-        expect((component as any).originalOptions.testOption).toEqual('testText');
-        expect((component as any).originalOptions.testField).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect((component as any).originalOptions.layers.length).toEqual(1);
-        expect((component as any).originalOptions.layers[0]._id).toEqual(layer._id);
-        expect((component as any).originalOptions.layers[0].testNestedOption).toEqual('testNestedText');
-        expect(calledChangeData).toEqual(0);
-        expect(calledChangeFilterData).toEqual(1);
+        expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable2);
+        expect(component['originalOptions'].testOption).toEqual('testText');
+        expect(component['originalOptions'].testField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component['originalOptions'].layers.length).toEqual(1);
+        expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
+        expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
-        expect(calledFinalizeCreate).toEqual(0);
-        expect(calledFinalizeDelete).toEqual(0);
+        expect(mock.calledFinalizeCreateLayer).toEqual(0);
+        expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
         expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -587,50 +540,41 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleCreateLayer does call createLayer', () => {
-        let called = 0;
-        (component as any).createLayer = () => {
-            called++;
-            return {
-                _id: 'testId' + called
-            };
-        };
+        component.comp = new MockConfigurable();
+        let spyCreate = spyOn(component.comp, 'createLayer').and.returnValue({
+            _id: 'testId1'
+        });
 
         component.handleCreateLayer();
-        expect(called).toEqual(1);
+        expect(spyCreate.calls.count()).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(false);
         expect(component.changeMade).toEqual(true);
     });
 
     it('handleDeleteLayer does call deleteLayer', () => {
         component.layerHidden.set('testId1', true);
-        let called = 0;
-        (component as any).deleteLayer = () => {
-            called++;
-            return true;
-        };
+        component.comp = new MockConfigurable();
+        let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(true);
 
         component.handleDeleteLayer({
             _id: 'testId1'
         });
-        expect(called).toEqual(1);
+        expect(spyDelete.calls.count()).toEqual(1);
         expect(component.layerHidden.has('testId1')).toEqual(false);
         expect(component.changeMade).toEqual(true);
     });
 
     it('handleDeleteLayer does not delete a layer if deleteLayer returned false', () => {
-        let spy = spyOn((component as any).messenger, 'publish');
+        let spy = spyOn(component['messenger'], 'publish');
 
         component.layerHidden.set('testId1', true);
-        let called = 0;
-        (component as any).deleteLayer = () => {
-            called++;
-            return false;
-        };
+        component.comp = new MockConfigurable();
+        let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(false);
 
         component.handleDeleteLayer({
             _id: 'testId1'
         });
-        expect(called).toEqual(1);
+        expect(spyDelete.calls.count()).toEqual(1);
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
         expect(spy.calls.count()).toEqual(1);
@@ -666,22 +610,62 @@ describe('Component: Gear Component', () => {
         expect(component.collapseOptionalOptions).toEqual(false);
     });
 
-    it('updateOnChange does update changeMade', () => {
+    it('updateOnChange does update changeMade and detects NonPrimitive options correctly', () => {
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
+        component['originalOptions'] = new WidgetOptionCollection(() => []);
+        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
+
+        component.modifiedOptions = new WidgetOptionCollection(() => []);
+        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
         expect(component.changeMade).toEqual(false);
-        component.updateOnChange('testBindingKey1');
+        expect(component.modifiedOptions.testOption1).toEqual({});
+        component.modifiedOptions['testOption1'] = { foo: true };
+        component.updateOnChange('testOption1');
         expect(component.changeMade).toEqual(true);
-        component.updateOnChange('testBindingKey2');
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.updateOnChange('testOption2');
+        expect(component.changeMade).toEqual(false);
+        expect(component.modifiedOptions.testOption2).toEqual({ foo: true });
+        component.modifiedOptions['testOption2'] = {};
+        component.updateOnChange('testOption2');
         expect(component.changeMade).toEqual(true);
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), {});
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), undefined);
+        component.updateOnChange('testOption3');
+        expect(component.changeMade).toEqual(false);
     });
 
     it('does have expected default HTML elements', () => {
         // TODO
     });
 
+    it('handleRefreshClick does reset options and close menu', () => {
+        const mock = new MockConfigurable();
+        component.comp = mock;
+
+        let calledCloseSidenav = 0;
+        (component as any).closeSidenav = () => {
+            calledCloseSidenav++;
+        };
+
+        component.handleRefreshClick();
+
+        expect(mock.calledChangeData).toEqual(1);
+        expect(component.changeMade).toEqual(false);
+        expect(calledCloseSidenav).toEqual(1);
+    });
+
     it('resetOptionsAndClose does reset HTML elements and close gear menu', () => {
         // TODO
         // component.resetOptionsAndClose();
-        // expect(component.changeMage).toEqual(false);
+        // expect(component.changeMade).toEqual(false);
         // expect(component.collapseOptionalOptions).toEqual(true);
         // expect(component.layerHidden).toEqual(new Map<string, boolean>());
     });
