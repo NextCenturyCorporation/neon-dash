@@ -96,13 +96,6 @@ describe('Dashboard', () => {
         expect(component.createFiltersComponent).toEqual(false);
     });
 
-    it('should be showing correct filter icons', () => {
-        expect(component.filtersIcon).toEqual('filters');
-        component['isFiltered'] = () => true;
-        component.changeDetection.detectChanges();
-        expect(component.filtersIcon).toEqual('filters_active');
-    });
-
     it('should correctly toggle the panels', () => {
         component.setPanel('aboutNeon', 'About Neon');
         expect(component.currentPanel).toEqual('aboutNeon');
