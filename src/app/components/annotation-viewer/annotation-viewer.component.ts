@@ -25,7 +25,7 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService } from '../../services/filter.service';
 
@@ -107,7 +107,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public offset = 0;
 
     constructor(
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,

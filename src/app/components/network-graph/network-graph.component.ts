@@ -32,7 +32,7 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
@@ -225,7 +225,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef,
