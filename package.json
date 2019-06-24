@@ -6,6 +6,7 @@
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json  --host 0.0.0.0 --port 4200",
     "build": "./scripts/build_dashboard.sh",
+    "build-e2e": "ng build --prod --source-map=false",
     "build-prod": "ng build --prod --build-optimizer=false",
     "start-local": "npm start",
     "build-lorelei": "npm run build lorelei",
