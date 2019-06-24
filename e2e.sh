@@ -19,7 +19,7 @@ function cleanup() {
 function build() {
   log "Building UI: $@"
   rm -rf dist/*
-  ng build --delete-output-path=false --prod --source-map=false --build-optimizer=false $@ &
+  ng build --delete-output-path=false --build-optimizer=false --source-map=false $@ &
 }
 
 function find-newest() {
@@ -57,7 +57,7 @@ if [[ "$WATCH" == "0" ]]; then
   NEWEST_DIR=`find-newest src dist 2`
   if [[ "$NEWEST_DIR" == "src" ]]; then
     log "Re-Builiding UI"
-    build  2> /dev/null > /dev/null
+    build --prod  2> /dev/null > /dev/null
   fi
   wait-for-data
   wait-for-dist
@@ -65,7 +65,7 @@ if [[ "$WATCH" == "0" ]]; then
 else
   NEWEST_STAMP=`find-newest e2e dist 1`
   wait-for-data
-  build --watch=true &
+  build --prod --watch=true &
   wait-for-dist
 
   while true; do
