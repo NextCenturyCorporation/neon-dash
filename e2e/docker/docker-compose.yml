@@ -30,6 +30,8 @@ services:
         hard: -1
     ports:
       - 9199:9200
+    expose:
+      - 9200      
     networks:
       esnet:
     healthcheck:
@@ -45,6 +47,8 @@ services:
       - ./resources:/config
     image: com.ncc.neon/server:latest
     container_name: e2e-neon-server
+    expose:
+      - 80
     networks:
       esnet:
   data-load:

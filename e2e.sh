@@ -17,14 +17,13 @@ function in-docker() {
 function setup() {
   if [[ ! -d "node_modules/ts-node-2" ]]; then
     npm i --no-save ts-node
-    mv node_modules/ts-ndoe node_modules/ts-node-2
+    mv node_modules/ts-node node_modules/ts-node-2
   fi
   in-docker "docker-compose --no-ansi up -d" 
 }
 
 function teardown() {
   in-docker "docker-compose --no-ansi down"
-  rm -rf node_modules/ts-node
   kill %1 2> /dev/null
 }
 
@@ -40,7 +39,7 @@ function find-newest() {
 
 function protract() {
   log "Starting protractor"
-  npx protractor e2e/protractor.conf.js
+  npx protractor e2e/docker/protractor.conf.js
 }
 
 function wait-for-data() {
