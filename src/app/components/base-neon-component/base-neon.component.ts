@@ -657,6 +657,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
+        // TODO THOR-1062 Allow multiple datastores
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
             this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
         ));
@@ -689,6 +690,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
+        // TODO THOR-1062 Allow multiple datastores
         return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
@@ -962,6 +964,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
+        // TODO THOR-1062 Allow multiple datastores
         let datastore = this.dataset.datastores[0];
         let matchingDatabase = datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
