@@ -23,8 +23,6 @@
     grid-template-rows: minmax(0, 1fr);
     grid-template-areas:
         'content';
-
-    border: 1px solid  var(--color-background-contrast, lightgrey);
 }
 
 :host.moving {

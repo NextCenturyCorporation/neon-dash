@@ -72,8 +72,11 @@ mat-toolbar {
 
     .neon-grid {
         width: calc(100vw - 15px);
-        .moving:hover {
-            box-shadow: 0 0 15px rgba(128, 128, 128, 0.7);
+        .grid-item {        
+            box-shadow: 0 0 3px rgba(128, 128, 128, 0.6);
+            &.moving:hover {
+                box-shadow: 0 0 15px rgba(128, 128, 128, 0.7);
+            }
         }
     }
 }
