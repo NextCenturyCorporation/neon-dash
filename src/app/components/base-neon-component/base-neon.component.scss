@@ -59,8 +59,18 @@ $contribution-height: 20px;
     }
 
     .body-container,
-    .footer {
-        background-color: var(--color-background, white);
+    .footer,
+    /deep/ mat-toolbar.mat-toolbar {
+        background: var(--color-background, white);
+    }
+
+    /deep/ mat-toolbar.mat-toolbar  {
+        .header.text {
+            font-weight: bold;
+        }
+        [mat-icon-button] {
+            color: var(--color-text, gray);
+        }
     }
 
     .body-container {
@@ -109,7 +119,6 @@ $contribution-height: 20px;
 
     .footer {
         grid-area: footer;
-        border-top: 2px solid var(--color-accent, lightgrey);
         height: #{$footer-height};
     }
 

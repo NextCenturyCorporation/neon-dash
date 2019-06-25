@@ -76,7 +76,8 @@
 }
 
 /deep/ .datatable-header-cell {
-    background: linear-gradient(var(--background, white), var(--background-contrast, lightgrey));
+    opacity: .8;
+    background: var(--color-accent-transparent, white);
     border-bottom: 1px solid var(--color-text-main, dimgrey);
     border-right: 1px solid var(--color-text-main, dimgrey);
     line-height: 20px !important;

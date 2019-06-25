@@ -98,7 +98,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     gridConfig: NgGridConfig = {
         resizable: true,
-        margins: [5, 5, 5, 5],
+        margins: [10, 10, 10, 10],
         min_cols: 1,
         max_cols: 12,
         min_rows: 0,
