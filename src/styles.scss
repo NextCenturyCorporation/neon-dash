@@ -504,8 +504,6 @@ body {
 
 context-menu-content {
     background: var(--color-background-white, lightgray);
-    padding: 5px 0;
-    border-radius: 5px;
     min-width: 200px;
     filter: drop-shadow(0 0 10px rgba(128, 128, 128, 0.6));
 
@@ -528,9 +526,9 @@ context-menu-content {
         li {
             font-size: 0.9em;
             padding: 0 1em;
-            line-height: 2em;
+            line-height: 2.5em;
 
-            &:hover {
+            &:not(.header):hover {
                 background: var(--color-background, gray);
             }
 
