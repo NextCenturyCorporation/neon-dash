@@ -52,7 +52,7 @@ export class OptionsSectionComponent {
         return optionList;
     }
 
-    public getRequiredFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+    public getRequiredFields(modifiedOptions: WidgetOptionCollection): string[] {
         let requiredList: WidgetOption[] = modifiedOptions.list();
         requiredList = this.removeOptionsFromList(requiredList);
         return requiredList.filter((option) => option.isRequired &&
@@ -60,7 +60,7 @@ export class OptionsSectionComponent {
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+    public getOptionalFields(modifiedOptions: WidgetOptionCollection): string[] {
         let optionalList: WidgetOption[] = modifiedOptions.list();
         optionalList = this.removeOptionsFromList(optionalList);
         return optionalList.filter((option) => !option.isRequired &&
@@ -68,7 +68,7 @@ export class OptionsSectionComponent {
             .map((option) => option.bindingKey);
     }
 
-    public getRequiredNonFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+    public getRequiredNonFields(modifiedOptions: WidgetOptionCollection): string[] {
         let requiredNonList: WidgetOption[] = modifiedOptions.list();
         requiredNonList = this.removeOptionsFromList(requiredNonList);
         return requiredNonList.filter((option) => option.isRequired &&
@@ -76,7 +76,7 @@ export class OptionsSectionComponent {
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalNonFields(modifiedOptions: WidgetOptionCollection): WidgetOption[] {
+    public getOptionalNonFields(modifiedOptions: WidgetOptionCollection): string[] {
         let optionalNonList: WidgetOption[] = modifiedOptions.list();
         optionalNonList = this.removeOptionsFromList(optionalNonList);
         return optionalNonList.filter((option) => !option.isRequired &&
@@ -101,15 +101,9 @@ export class OptionsSectionComponent {
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
-        newList = newList.filter((field) => field !== bindingKey);
+        newList = newList.filter((field) => field.bindingKey !== bindingKey);
         return newList;
     }
-
-    // Private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
-    //     let newList = list;
-    //     newList = newList.filter((field) => field.bindingKey !== bindingKey);
-    //     return newList;
-    // }
 
     private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
@@ -132,9 +126,5 @@ export class OptionsSectionComponent {
 
     public optionSectionResetOptions() {
         this.collapseOptionalOptions = true;
-    }
-
-    private delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }

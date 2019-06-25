@@ -22,8 +22,7 @@ import {
     ViewEncapsulation,
     Input,
     ViewChildren,
-    QueryList,
-    ViewChild
+    QueryList
 } from '@angular/core';
 
 import { MatSidenav } from '@angular/material';

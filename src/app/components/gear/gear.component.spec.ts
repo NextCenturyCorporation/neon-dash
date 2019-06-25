@@ -110,7 +110,6 @@ describe('Component: Gear Component', () => {
     it('class options properties are set to expected defaults', () => {
         expect(component['originalOptions']).not.toBeDefined();
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -135,12 +134,6 @@ describe('Component: Gear Component', () => {
         expect(component.getIconForFilter({
             _id: 'testId1'
         })).toEqual('keyboard_arrow_up');
-    });
-
-    it('getIconForOptions does return expected string', () => {
-        expect(component.getIconForOptions()).toEqual('keyboard_arrow_down');
-        component.collapseOptionalOptions = false;
-        expect(component.getIconForOptions()).toEqual('keyboard_arrow_up');
     });
 
     it('getLayerList does return expected list', () => {
@@ -186,7 +179,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -226,7 +218,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -262,7 +253,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -298,7 +288,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -344,7 +333,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledFinalizeCreateLayer).toEqual(1);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -397,7 +385,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -442,7 +429,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(1);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -507,7 +493,6 @@ describe('Component: Gear Component', () => {
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
         expect(component.changeMade).toEqual(false);
-        expect(component.collapseOptionalOptions).toEqual(true);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
         expect(component.modifiedOptions.databases).toEqual([]);
         expect(component.modifiedOptions.fields).toEqual([]);
@@ -604,12 +589,6 @@ describe('Component: Gear Component', () => {
         });
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.layerHidden.get('testId2')).toEqual(false);
-    });
-
-    it('toggleOptionalOptions does update collapseOptionalOptions', () => {
-        expect(component.collapseOptionalOptions).toEqual(true);
-        component.toggleOptionalOptions();
-        expect(component.collapseOptionalOptions).toEqual(false);
     });
 
     it('updateOnChange does update changeMade', () => {
