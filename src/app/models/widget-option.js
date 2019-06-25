@@ -385,3 +385,10 @@ export class WidgetTableOption extends WidgetOption {
         return this.valueCurrent.name;
     }
 }
+
+/**
+ * Returns whether the given WidgetOption object is a FIELD or FIELD_ARRAY.
+ */
+export function isFieldOption(option) {
+    return option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY;
+}

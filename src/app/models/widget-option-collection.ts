@@ -18,18 +18,22 @@ import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import { DashboardState } from './dashboard-state';
 import {
+    isFieldOption,
+    OptionChoices,
     OptionType,
     WidgetDatabaseOption,
     WidgetFieldOption,
-    WidgetFieldArrayOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
     WidgetOption,
+    WidgetSelectOption,
     WidgetTableOption
 } from './widget-option';
 
 /**
- * Manages configurable options for all widgets.
+ * Manages configurable options with databases, tables, and fields.
  */
-export class WidgetOptionCollection {
+export class OptionCollection {
     // An object containing strings mapped to WidgetOption objects.
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
@@ -37,21 +41,15 @@ export class WidgetOptionCollection {
     public database: NeonDatabaseMetaData = null;
     public databases: NeonDatabaseMetaData[] = [];
     public fields: NeonFieldMetaData[] = [];
-    public layers: WidgetOptionCollection[] = [];
     public table: NeonTableMetaData = null;
     public tables: NeonTableMetaData[] = [];
 
     /**
      * @constructor
-     * @arg {function} createFieldOptionsCallback A callback function to create the field options.
      * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
      * @arg {any} [config] An object with bindings; used if injector is undefined.
      */
-    constructor(
-        protected createFieldOptionsCallback: () => (WidgetFieldOption | WidgetFieldArrayOption)[],
-        protected injector?: Injector,
-        protected config?: any
-    ) {
+    constructor(protected injector?: Injector, protected config?: any) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
         this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
@@ -87,24 +85,27 @@ export class WidgetOptionCollection {
         });
     }
 
-    /**
-     * Returns a copy of this object.
-     *
-     * @return {WidgetOptionCollection}
-     */
-    public copy(): WidgetOptionCollection {
-        let copy = new WidgetOptionCollection(this.createFieldOptionsCallback, this.injector, this.config);
+    protected copyCommonProperties(copy: this): this {
         copy._id = this._id;
         copy.database = this.database;
         copy.databases = this.databases;
         copy.fields = this.fields;
-        copy.layers = this.layers.map((layer) => layer.copy());
         copy.table = this.table;
         copy.tables = this.tables;
         this.list().forEach((option: WidgetOption) => {
             copy.append(_.cloneDeep(option), option.valueCurrent);
         });
         return copy;
+    }
+
+    /**
+     * Returns a copy of this object.
+     *
+     * @return {OptionCollection}
+     */
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.injector, this.config);
+        return this.copyCommonProperties(copy);
     }
 
     /**
@@ -145,6 +146,10 @@ export class WidgetOptionCollection {
         ))).filter((fieldsObject) => !!fieldsObject);
     }
 
+    protected getConstructor<T>(this: T): new(...args: any[]) => T {
+        return this.constructor as new(...args: any[]) => T;
+    }
+
     /**
      * Injects the given option(s) into this collection.
      *
@@ -164,6 +169,13 @@ export class WidgetOptionCollection {
      */
     public list(): WidgetOption[] {
         return Object.values(this._collection);
+    }
+
+    /**
+     * Handles updated field options.
+     */
+    protected onUpdateFields(): void {
+        // Override if needed.
     }
 
     /**
@@ -204,15 +216,7 @@ export class WidgetOptionCollection {
             this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
                 .filter((field) => (field && field.columnName));
 
-            // Create the field options and assign the default value as NeonFieldMetaData objects.
-            this.createFieldOptionsCallback().forEach((fieldsOption) => {
-                if (fieldsOption.optionType === OptionType.FIELD) {
-                    this.append(fieldsOption, this.findFieldObject(dashboardState, fieldsOption.bindingKey));
-                }
-                if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
-                    this.append(fieldsOption, this.findFieldObjects(dashboardState, fieldsOption.bindingKey));
-                }
-            });
+            this.onUpdateFields();
         }
     }
 
@@ -248,6 +252,176 @@ export class WidgetOptionCollection {
         }
 
         return this.updateFields(dashboardState);
+    }
+}
+
+/**
+ * Manages configurable options with common widget options and a custom options callback function to initialize them.
+ */
+export class WidgetOptionCollection extends OptionCollection {
+    /**
+     * @constructor
+     * @arg {function} createOptionsCallback A callback function to create the options.
+     * @arg {DashboardState} dashboardState The current dashboard state.
+     * @arg {string} defaultTitle The default value for the injected 'title' option.
+     * @arg {number} defaultLimit The default value for the injected 'limit' option.
+     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
+     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     */
+    constructor(
+        protected createOptionsCallback: () => WidgetOption[],
+        protected dashboardState: DashboardState,
+        defaultTitle: string,
+        defaultLimit: number,
+        injector?: Injector,
+        config?: any
+    ) {
+        super(injector, config);
+
+        let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
+
+        this.inject([
+            new WidgetFreeTextOption('title', 'Title', defaultTitle),
+            new WidgetFreeTextOption('limit', 'Limit', defaultLimit),
+            ...nonFieldOptions
+        ]);
+
+        this.updateDatabases(dashboardState);
+    }
+
+    /**
+     * Returns a copy of this object.
+     *
+     * @return {WidgetOptionCollection}
+     * @override
+     */
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dashboardState, this.title, this.limit, this.injector,
+            this.config);
+        return this.copyCommonProperties(copy);
+    }
+
+    /**
+     * Creates and returns a WidgetOption list for the collection.
+     */
+    protected createOptions(): WidgetOption[] {
+        return this.createOptionsCallback();
+    }
+
+    /**
+     * Handles updated field options.
+     *
+     * @override
+     */
+    protected onUpdateFields(): void {
+        // Create the field options and assign the default value as NeonFieldMetaData objects.
+        this.createOptions().forEach((option) => {
+            if (option.optionType === OptionType.FIELD) {
+                this.append(option, this.findFieldObject(this.dashboardState, option.bindingKey));
+            }
+            if (option.optionType === OptionType.FIELD_ARRAY) {
+                this.append(option, this.findFieldObjects(this.dashboardState, option.bindingKey));
+            }
+        });
+    }
+}
+
+/**
+ * Manages configurable options with common widget options, layers, and custom options callback functions to initialize them.
+ */
+export class RootWidgetOptionCollection extends WidgetOptionCollection {
+    public layers: WidgetOptionCollection[] = [];
+
+    private _nextLayerIndex = 1;
+
+    /**
+     * @constructor
+     * @arg {function} createOptionsCallback A callback function to create the options.
+     * @arg {function} createOptionsForLayerCallback A callback function to create the options for the layers (if any).
+     * @arg {DashboardState} dashboardState The current dashboard state.
+     * @arg {string} defaultTitle The default value for the injected 'title' option.
+     * @arg {number} defaultLimit The default value for the injected 'limit' option.
+     * @arg {boolean} defaultLayer Whether to add a default layer.
+     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
+     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     */
+    constructor(
+        createOptionsCallback: () => WidgetOption[],
+        protected createOptionsForLayerCallback: () => WidgetOption[],
+        dashboardState: DashboardState,
+        defaultTitle: string,
+        defaultLimit: number,
+        defaultLayer: boolean,
+        injector?: Injector,
+        config?: any
+    ) {
+        super(createOptionsCallback, dashboardState, defaultTitle, defaultLimit, injector, config);
+
+        // Backwards compatibility (configFilter deprecated and renamed to filter).
+        this.filter = this.filter || (injector ? injector.get('configFilter', null) : (config || {}).configFilter);
+
+        (injector ? injector.get('layers', []) : ((config || {}).layers || [])).forEach((layerBindings) => {
+            this.addLayer(layerBindings);
+        });
+
+        // Add a new empty default layer if needed.
+        if (!this.layers.length && defaultLayer) {
+            this.addLayer();
+        }
+    }
+
+    /**
+     * Adds a new layer to this option collection and returns the layer.
+     */
+    public addLayer(layerBindings: any = {}): WidgetOptionCollection {
+        let layerOptions = new WidgetOptionCollection(this.createOptionsForLayerCallback, this.dashboardState,
+            'Layer ' + this._nextLayerIndex++, this.limit, undefined, layerBindings);
+        this.layers.push(layerOptions);
+        return layerOptions;
+    }
+
+    /**
+     * Returns a copy of this object.
+     *
+     * @return {RootWidgetOptionCollection}
+     * @override
+     */
+    public copy(): this {
+        let copy = new (this.getConstructor())(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dashboardState,
+            this.title, this.limit, false, this.injector, this.config);
+        copy.layers = this.layers.map((layer) => layer.copy());
+        return this.copyCommonProperties(copy);
+    }
+
+    /**
+     * Creates and returns a WidgetOption list for the collection.
+     *
+     * @override
+     */
+    protected createOptions(): WidgetOption[] {
+        return [
+            new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false, true),
+            new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], true),
+            new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], true),
+            new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null),
+            new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('unsharedFilterValue', 'Local Filter Value', '', true),
+            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true),
+            ...super.createOptions()
+        ];
+    }
+
+    /**
+     * Removes the given layer from the option collection if it is not the final layer and returns if the layer was removed.
+     */
+    public removeLayer(layerOptions: any): boolean {
+        let layers: WidgetOptionCollection[] = this.layers.filter((layer) => layer._id !== layerOptions._id);
+        // Do not delete the final layer!
+        if (layers.length) {
+            this.layers = layers;
+            return true;
+        }
+        return false;
     }
 }
 
