@@ -106,8 +106,9 @@
                 <div class="neon-grid">
                     <div [ngGrid]="gridConfig" #grid>
                         <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
-                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                            (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)" [class.moving]="movingWidgets">
+                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)" [contextMenu]="vizMenu"
+                            [contextMenuSubject]="widgetGridItem" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)"
+                            [class.moving]="movingWidgets">
                             <app-visualization-container [moving]="movingWidgets" [visualization]="widgetGridItem"></app-visualization-container>
                             <ng-content></ng-content>
                         </div>
@@ -117,3 +118,16 @@
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
+
+<context-menu #vizMenu (mouseout)="vizMenu.close()">
+    <ng-template contextMenuItem (execute)="showVizSettings($event.item)">
+        <mat-icon>settings</mat-icon> Settings
+    </ng-template>
+    <ng-template contextMenuItem (execute)="refreshViz($event.item)">
+        <mat-icon>refresh</mat-icon> Refresh
+    </ng-template>
+    <ng-template contextMenuItem divider="true"></ng-template>
+    <ng-template contextMenuItem (execute)="deleteWidget($event.item)">
+        <mat-icon color="warn">close</mat-icon> Delete
+    </ng-template>
+</context-menu>

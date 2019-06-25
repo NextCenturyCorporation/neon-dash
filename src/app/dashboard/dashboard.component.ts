@@ -293,7 +293,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Deletes the widget with the given ID from the grid.
      */
     @DashboardModified()
-    private deleteWidget(eventMessage: { id: string }) {
+    public deleteWidget(eventMessage: { id: string }) {
         this.gridState.delete(eventMessage.id);
     }
 
@@ -405,10 +405,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
-            this.setPanel('gear', 'Component Settings');
-            this.configurableComponent = comp;
-        });
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -509,6 +506,20 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.currentPanel = newPanel;
         this.rightPanelTitle = newTitle;
         this.sideNavRight.open();
+    }
+
+    showVizSettings(cmp: ConfigurableWidget | NeonGridItem) {
+        if (!('options' in cmp)) {
+            this.configurableComponent = this.widgets.get(cmp.id).getOptions();
+        } else {
+            this.configurableComponent = cmp;
+        }
+        this.setPanel('gear', 'Component Settings');
+    }
+
+    refreshViz(item: NeonGridItem) {
+        const cmp = this.widgets.get(item.id).getOptions();
+        cmp.changeData(undefined, false);
     }
 
     /**
