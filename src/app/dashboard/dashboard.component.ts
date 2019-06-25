@@ -46,7 +46,9 @@ import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
 import { Location } from '@angular/common';
-import { ContextMenuComponent, IContextMenuClickEvent } from 'ngx-contextmenu';
+import { ContextMenuComponent } from 'ngx-contextmenu';
+import { takeUntil } from 'rxjs/operators';
+import { Subject, fromEvent } from 'rxjs';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -98,6 +100,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     widgets: Map<string, BaseNeonComponent> = new Map();
 
     movingWidgets = false;
+
+    destroy = new Subject();
 
     gridConfig: NgGridConfig = {
         resizable: true,
@@ -163,15 +167,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
         this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
-
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this.handleMouseMove = this.handleMouseMove.bind(this);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this.handleMouseDown = this.handleMouseDown.bind(this);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this.handleKeydown = this.handleKeydown.bind(this);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this.handleKeyup = this.handleKeyup.bind(this);
     }
 
     get currentDashboard() {
@@ -373,59 +368,56 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.resizeGrid();
     }
 
-    handleKeydown(ev: KeyboardEvent) {
-        if ((ev.key === 'Shift' && ev.altKey || ev.key === 'Alt' && ev.shiftKey) &&
-            !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
-            this.movingWidgets = true;
-        }
-    }
-
-    handleKeyup(ev: KeyboardEvent) {
-        if (ev.key === 'Shift' || ev.key === 'Alt') {
-            this.movingWidgets = false;
-        }
-    }
-
-    handleMouseMove(ev: MouseEvent) {
-        this.movingWidgets = ev.altKey && ev.shiftKey;
-    }
-
-    handleMouseDown(ev: MouseEvent) {
+    get menuRoot(): HTMLElement {
         const root: HTMLElement = document.querySelector('context-menu-content');
-        if (root && !root.hidden && !root.contains(ev.target as HTMLElement)) {
-            document.dispatchEvent(new MouseEvent('click'));
-        }
+        return root && !root.hidden ? root : undefined;
     }
 
     ngOnDestroy(): void {
         this.messageReceiver.unsubscribeAll();
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.removeEventListener('mousemove', this.handleMouseMove);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.removeEventListener('mousedown', this.handleMouseDown);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.removeEventListener('keydown', this.handleKeydown);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.removeEventListener('keyup', this.handleKeyup);
+        this.destroy.next();
     }
 
     ngOnInit(): void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.addEventListener('mousemove', this.handleMouseMove);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.addEventListener('keydown', this.handleKeydown);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        document.addEventListener('keyup', this.handleKeyup);
+        fromEvent(document, 'mousemove')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: MouseEvent) => {
+                this.movingWidgets = ev.altKey && ev.shiftKey;
+            });
 
-        this.contextMenu.open.subscribe(() => {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            document.addEventListener('mousedown', this.handleMouseDown);
-        });
+        fromEvent(document, 'keydown')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: KeyboardEvent) => {
+                if ((ev.key === 'Shift' && ev.altKey || ev.key === 'Alt' && ev.shiftKey) &&
+                    !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
+                    this.movingWidgets = true;
+                }
+            });
 
-        this.contextMenu.close.subscribe(() => {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            document.removeEventListener('mousedown', this.handleMouseDown);
-        });
+        fromEvent(document, 'keyup')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: KeyboardEvent) => {
+                if (ev.key === 'Shift' || ev.key === 'Alt') {
+                    this.movingWidgets = false;
+                }
+            });
+
+        this.contextMenu.open
+            .pipe(takeUntil(this.destroy))
+            .subscribe(() => {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                fromEvent(document, 'mousedown')
+                    .pipe(
+                        takeUntil(this.destroy),
+                        takeUntil(this.contextMenu.close)
+                    )
+                    .subscribe((ev: MouseEvent) => {
+                        const root = this.menuRoot;
+                        if (root && !root.contains(ev.target as HTMLElement)) {
+                            document.dispatchEvent(new MouseEvent('click'));
+                        }
+                    });
+            });
 
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
@@ -531,12 +523,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.sideNavRight.open();
     }
 
-    showVizSettings(cmp: ConfigurableWidget | NeonGridItem) {
-        if (!('options' in cmp)) {
-            this.configurableComponent = this.widgets.get(cmp.id).getOptions();
-        } else {
-            this.configurableComponent = cmp;
-        }
+    showVizSettings(cmp: NeonGridItem) {
+        this.configurableComponent = this.widgets.get(cmp.id).getOptions();
         this.setPanel('gear', 'Component Settings');
     }
 
