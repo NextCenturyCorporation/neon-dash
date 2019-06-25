@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { Color, ColorSet } from '../models/color';
+import { Color, ColorMap, ColorSet } from '../models/color';
 
 /**
  * @interface Theme
@@ -99,10 +99,10 @@ export abstract class AbstractColorThemeService {
     /**
      * Initializes the starting colors using the given input.
      *
-     * @arg {Record<string, Record<string, Record<string, Record<string, string>>>>} colors
+     * @arg {ColorMap} colors
      * @abstract
      */
-    public abstract initializeColors(colors: Record<string, Record<string, Record<string, Record<string, string>>>>): void;
+    public abstract initializeColors(colors: ColorMap): void;
 
     /**
      * Sets the current application theme to the theme with the given ID.
