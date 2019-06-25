@@ -121,7 +121,6 @@ $green-theme: (
     --color-background: #F2F2F2; // $green-theme-white
     --color-background-contrast: #D7D7D7; // $green-theme-white-darker
     --color-body: #F2F2F2; // $green-theme-white
-    --color-bolded: #367588; // $green-theme-primary
     --color-border: #54C8CD; // $green-theme-accent
     --color-text: #333333; // $green-theme-black-darker
 
@@ -131,7 +130,7 @@ $green-theme: (
     --color-dash-item-unselected-text: #F2F2F2; // $green-theme-white
 
     --color-data-item-selectable: #54C8CD; // $green-theme-accent
-    --color-data-item-selectable-dark: #00979C; // $green-theme-accent-darker
+    --color-data-item-selectable-contrast: #00979C; // $green-theme-accent-darker
     --color-data-item-selectable-text: #333333; // $green-theme-black-darker
     --color-data-item-selected: #8BFBFF; // $green-theme-accent-lighter
     --color-data-item-selected-area: rgba(139, 251, 255, 0.33); // $green-theme-accent-lighter

@@ -106,13 +106,17 @@ mat-accordion {
                     height: 1.1em;
                     line-height: 1.1em;
                     overflow: hidden;
-                    color: var(--color-bolded, dimgrey);
                 }
 
                 .date {
+                    color: var(--color-text, dimgrey);
                     font-size: 0.7em;
                     opacity: 0.8;
                     text-align: left;
+                }
+
+                mat-expansion-indicator {
+                    color: var(--color-text, dimgrey) !important;
                 }
             }
         }
@@ -132,7 +136,6 @@ mat-accordion {
             }
 
             h4 {
-                color: var(--color-bolded, dimgrey);
                 padding-top: 0;
                 margin-bottom: 0.25em;
             }
@@ -153,6 +156,7 @@ mat-accordion {
                 .date {
                     grid-area: date;
                     font-size: 0.7em;
+                    line-height: 30px;
                 }
             }
         }
