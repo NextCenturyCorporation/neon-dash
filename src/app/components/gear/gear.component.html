@@ -1,7 +1,7 @@
 <form class="gear-container" #optionsFOrm="ngForm">
     <mat-form-field class="option-container">
-        <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title"
-            (ngModelChange)="updateOnChange('title')" [name]="modifiedOptions._id + '_title'" required="false">
+        <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title" (ngModelChange)="updateOnChange('title')"
+            [name]="modifiedOptions._id + '_title'" required="false">
     </mat-form-field>
     <!-- MultiLayer Support-->
     <div *ngIf="modifiedOptions.layers.length">
@@ -15,31 +15,28 @@
             <mat-toolbar class="subheader tappable" color="primary" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="spacer" *ngIf="modifiedOptions.layers.length > 1"></span>
-                <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1"
-                    (click)="handleDeleteLayer(layer)">delete
+                <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1" (click)="handleDeleteLayer(layer)">delete
                 </mat-icon>
                 <span class="spacer"></span>
                 <mat-icon class="neon-icon-small">{{ getIconForFilter(layer) }}</mat-icon>
             </mat-toolbar>
             <div class="option-well" [hidden]="layerHidden.get(layer._id)">
                 <mat-form-field class="option-container">
-                    <input matInput placeholder="Title" [(ngModel)]="layer.title"
-                        (ngModelChange)="updateOnChange('title')" [name]="layer._id + '_title'" required="false">
+                    <input matInput placeholder="Title" [(ngModel)]="layer.title" (ngModelChange)="updateOnChange('title')"
+                        [name]="layer._id + '_title'" required="false">
                 </mat-form-field>
 
                 <mat-form-field class="option-container">
-                    <mat-select placeholder="Database" [(ngModel)]="layer.database" required="true"
-                        [name]="layer._id + '_database'" (ngModelChange)="handleChangeDatabase(layer)"
-                        [disabled]="layer.databases.length < 2">
+                    <mat-select placeholder="Database" [(ngModel)]="layer.database" required="true" [name]="layer._id + '_database'"
+                        (ngModelChange)="handleChangeDatabase(layer)" [disabled]="layer.databases.length < 2">
                         <mat-option *ngFor="let database of layer.databases" [value]="database">
                             {{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 
                 <mat-form-field class="option-container">
-                    <mat-select placeholder="Table" [(ngModel)]="layer.table" required="true"
-                        [name]="layer._id + '_table'" (ngModelChange)="handleChangeTable(layer)"
-                        [disabled]="layer.tables.length < 2">
+                    <mat-select placeholder="Table" [(ngModel)]="layer.table" required="true" [name]="layer._id + '_table'"
+                        (ngModelChange)="handleChangeTable(layer)" [disabled]="layer.tables.length < 2">
                         <mat-option *ngFor="let table of layer.tables" [value]="table">{{ table.prettyName }}
                         </mat-option>
                     </mat-select>
@@ -60,8 +57,8 @@
     </app-options-section>
 
     <mat-form-field class="option-container">
-        <input matInput placeholder="Limit" [(ngModel)]="modifiedOptions.limit"
-            (ngModelChange)="updateOnChange('limit')" [name]="modifiedOptions._id + '_limit'" required="false">
+        <input matInput placeholder="Limit" [(ngModel)]="modifiedOptions.limit" (ngModelChange)="updateOnChange('limit')"
+            [name]="modifiedOptions._id + '_limit'" required="false">
 
     </mat-form-field>
 
@@ -69,16 +66,16 @@
 </form>
 
 <div class="button-footer" align="right">
-    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below"
-        matTooltip="Cancel all field changes" (click)="resetOptionsAndClose()">
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Cancel all field changes"
+        (click)="resetOptionsAndClose()">
         Cancel
     </button>
     <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Refresh"
         (click)="handleRefreshClick()">
         Refresh
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below"
-        matTooltip="Apply all field changes" [disabled]="!changeMade" (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Apply all field changes"
+        [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>
