@@ -16,6 +16,8 @@
 import { Injectable } from '@angular/core';
 import { FilterService } from './filter.service';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class InjectableFilterService extends FilterService { }
 

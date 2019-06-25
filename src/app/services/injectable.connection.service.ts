@@ -12,24 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { Injectable } from '@angular/core';
-import { ConnectionService, NeonConnection } from './connection.service';
+import { ConnectionService } from './connection.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class InjectableConnectionService {
-    private _service = new ConnectionService();
+export class InjectableConnectionService extends ConnectionService { }
 
-    /**
-     * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
-     * creates and returns a Neon connection if none exists.
-     */
-    public connect<T extends { query: any } = { query: any }>(
-        datastoreType: string,
-        datastoreHost: string,
-        ignoreUpdates: boolean = false
-    ): NeonConnection<T> {
-        return this._service.connect(datastoreType, datastoreHost, ignoreUpdates);
-    }
-}

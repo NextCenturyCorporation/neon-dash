@@ -12,24 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 import { Color, ColorSet } from '../models/color';
 
-/**
- * @interface Theme
- */
 export interface Theme {
     id: string;
     name: string;
 }
 
-/**
- * A service for everything a Neon widget needs.
- *
- * @class AbstractColorThemeService
- * @abstract
- */
-@Injectable()
 export abstract class AbstractColorThemeService {
     /**
      * Returns the color for the given value from an existing color set for the given database/table/field or creates a new color set if
