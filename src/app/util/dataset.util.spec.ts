@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DatasetUtil } from './data.util';
+import { DatasetUtil } from './dataset.util';
 
 describe('Dataset Util Tests', () => {
     it('deconstructDotted should work appropriately', () => {
