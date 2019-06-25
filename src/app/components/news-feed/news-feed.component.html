@@ -42,8 +42,8 @@
                     </div>
                     <div class="appendix">
                         <span class="date">{{ item[options.dateField.columnName] }}</span>
-                        <a matIconButton *ngIf="options.filterField.columnName && item[options.filterField.columnName]"
-                            (click)="filterItem(item)">
+                        <a mat-icon-button *ngIf="options.filterField.columnName && item[options.filterField.columnName]"
+                            class="neon-icon-button-contrast" (click)="filterItem(item)">
                             <mat-icon>filter_list</mat-icon>
                         </a>
                     </div>

@@ -332,6 +332,10 @@ body {
         &.active,
         &:hover {
             color: var(--color-dash-item-selectable, lightgrey) !important;
+
+            &.neon-icon-button-contrast {
+                color: var(--color-dash-item-selectable-contrast, lightgrey) !important;
+            }
         }
     }
 }
@@ -448,10 +452,10 @@ body {
     height: 40px !important;
     min-height: 40px !important;
     padding: 5px 10px !important;
-    border-bottom: 2px solid var(--color-border, lightgrey) !important;
+    border-bottom: 2px solid var(--color-border, lightgrey);
 
     &.neon-toolbar-navbar {
-        border-bottom: none !important;
+        border-bottom: none;
         height: 50px !important;
         line-height: 40px !important;
         min-height: 50px !important;

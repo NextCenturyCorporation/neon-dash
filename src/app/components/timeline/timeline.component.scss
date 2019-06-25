@@ -99,12 +99,12 @@ h3 {
         }
 
         .highlight {
-            background-color: var(--color-data-item-selectable-dark, dimgrey);
-            fill: var(--color-data-item-selectable-dark, dimgrey);
+            background-color: var(--color-data-item-selectable-contrast, dimgrey);
+            fill: var(--color-data-item-selectable-contrast, dimgrey);
         }
 
         .multi-highlight {
-            fill: var(--color-data-item-selectable-dark, dimgrey);
+            fill: var(--color-data-item-selectable-contrast, dimgrey);
             fill-opacity: 0.65;
         }
 

@@ -191,7 +191,6 @@ export class WidgetService extends AbstractWidgetService {
         if (id !== this.currentThemeId) {
             this.currentThemeId = id;
             document.body.className = this.currentThemeId;
-            this.messenger.publish(neonEvents.DASHBOARD_REFRESH, {});
         }
     }
 }

@@ -28,13 +28,13 @@
 
             &:hover {
                 text-decoration: none;
-                color: var(--color-data-item-selectable-dark, dimgrey) !important;
+                color: var(--color-data-item-selectable-contrast, dimgrey) !important;
             }
         }
 
         .filter {
             &:not(:hover) {
-                color: var(--color-data-item-selectable-dark, dimgrey) !important;
+                color: var(--color-data-item-selectable-contrast, dimgrey) !important;
             }
         }
 

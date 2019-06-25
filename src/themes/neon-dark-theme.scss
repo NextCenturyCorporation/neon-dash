@@ -117,21 +117,20 @@ $dark-theme: (
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
     --color-background: #515861; // $dark-theme-primary
-    --color-background-contrast: #7B8087; // $dark-theme-black-lighter
+    --color-background-contrast: #363E49;
     --color-body: #1C2531; // $dark-theme-black-darker
-    --color-bolded: #F1F1F1; // $dark-theme-white
     --color-border: #1C2531; // $dark-theme-black-darker
     --color-text: #F1F1F1; // $dark-theme-white
 
-    --color-dash-item-selectable: #01B7C1; // $dark-theme-accent
-    --color-dash-item-selectable-text: #F1F1F1; // $dark-theme-white
-    --color-dash-item-unselected: #1C2531; // $dark-theme-black-darker
-    --color-dash-item-unselected-text: #F1F1F1; // $dark-theme-white
+    --color-dash-item-selectable: #66D4D9;
+    --color-dash-item-selectable-text: #FFFFFF; // $dark-theme-white-lighter
+    --color-dash-item-unselected: #01B7C1; // $dark-theme-accent
+    --color-dash-item-unselected-text: #363E49;
 
     --color-data-item-selectable: #01B7C1; // $dark-theme-accent
-    --color-data-item-selectable-dark: #008791; // $dark-theme-accent-darker
-    --color-data-item-selectable-text: #F1F1F1; // $dark-theme-white
-    --color-data-item-selected: #F1F1F1; // $dark-theme-accent-lighter
+    --color-data-item-selectable-contrast: #5FEAF4; // $dark-theme-accent-lighter
+    --color-data-item-selectable-text: #FFFFFF; // $dark-theme-white-lighter
+    --color-data-item-selected: #F1F1F1; // $dark-theme-white
     --color-data-item-selected-area: rgba(95, 234, 244, 0.33); // $dark-theme-accent-lighter
     --color-data-item-selected-text: #1C2531; // $dark-theme-black-darker
 
