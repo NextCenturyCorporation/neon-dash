@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,10 +11,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { ElementRef } from '@angular/core';
-import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
+import { AbstractAggregationSubcomponent } from './subcomponent.aggregation.abstract';
 
 import * as _ from 'lodash';
 
@@ -29,20 +27,10 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     protected activeSort: string = '';
     protected ignoreSelect: boolean = false;
     protected selectedData: {
-        element: any,
-        group: string,
-        value: any
+        element: any;
+        group: string;
+        value: any;
     }[] = [];
-
-    /**
-     * @constructor
-     * @arg {any} options
-     * @arg {AggregationSubcomponentListener} listener
-     * @arg {ElementRef} elementRef
-     */
-    constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
-        super(options, listener, elementRef);
-    }
 
     /**
      * Creates a list with the given data.
@@ -85,9 +73,8 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             let rowTitle = item.x + ' (' + item.y + ')';
             let rowElement = document.createElement('tr');
 
-            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => {
-                return selectedItem.group === item.group && selectedItem.value === item.x;
-            });
+            let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === item.group &&
+                selectedItem.value === item.x);
 
             if (selectedIndex >= 0) {
                 rowClass += ' active';
@@ -181,9 +168,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
 
         let group = event.currentTarget.getAttribute('group');
         let value = event.currentTarget.getAttribute('value');
-        let index = _.findIndex(this.selectedData, (selectedItem) => {
-            return selectedItem.group === group && selectedItem.value === value;
-        });
+        let index = _.findIndex(this.selectedData, (selectedItem) => selectedItem.group === group && selectedItem.value === value);
 
         if (index < 0) {
             event.currentTarget.setAttribute('class', event.currentTarget.getAttribute('class') + ' active');

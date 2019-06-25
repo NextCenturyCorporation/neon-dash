@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,15 +11,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { Injectable } from '@angular/core';
 import { AbstractWidgetService, Theme } from './abstract.widget.service';
-import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
-import { Color, ColorSet } from '../color';
-import { DatasetService } from './dataset.service';
-import { neonEvents } from '../neon-namespaces';
-import { eventing } from 'neon-framework';
+import { Color, ColorSet } from '../models/color';
+import { DashboardService } from './dashboard.service';
+import { DashboardState } from '../models/dashboard-state';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 /**
  * @class NeonTheme
@@ -32,7 +30,7 @@ export class NeonTheme implements Theme {
      * @arg {string} main The main color.
      * @arg {string} name The theme name.
      */
-    constructor(public accent: string, public id: string, public main: string, public name: string) {}
+    constructor(public accent: string, public id: string, public main: string, public name: string) { }
 }
 
 /**
@@ -44,18 +42,26 @@ export class NeonTheme implements Theme {
 export class WidgetService extends AbstractWidgetService {
     public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
     public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
-        public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
+    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
     private currentThemeId: string = WidgetService.THEME_TEAL.id;
-    private messenger: eventing.Messenger;
 
-    constructor(protected datasetService: DatasetService) {
+    public readonly dashboardState: DashboardState;
+
+    constructor(dashboardService: DashboardService) {
         super();
-        this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.resetColorMap.bind(this));
+        dashboardService.stateSource
+            .pipe(
+                distinctUntilKeyChanged('id')
+            )
+            .subscribe(() => {
+                this.resetColorMap();
+            });
+
         document.body.className = this.currentThemeId;
+        this.dashboardState = dashboardService.state;
     }
 
     /**
@@ -155,8 +161,8 @@ export class WidgetService extends AbstractWidgetService {
      */
     public resetColorMap() {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        if (this.datasetService.getCurrentDashboardOptions()) {
-            let dashboardOptions = this.datasetService.getCurrentDashboardOptions();
+        if (this.dashboardState.getOptions()) {
+            let dashboardOptions = this.dashboardState.getOptions();
             let colorMaps = dashboardOptions.colorMaps || {};
             Object.keys(colorMaps).forEach((databaseName) => {
                 Object.keys(colorMaps[databaseName]).forEach((tableName) => {
@@ -174,7 +180,6 @@ export class WidgetService extends AbstractWidgetService {
                 });
             });
         }
-
     }
 
     /**

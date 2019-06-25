@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,15 +11,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 
-import { Dashboard } from '../../dataset';
-import { neonEvents } from '../../neon-namespaces';
-import { DashboardDropdownComponent } from '../dashboard-dropdown/dashboard-dropdown.component';
+import { NeonDashboardConfig, NeonDashboardChoiceConfig } from '../../models/types';
 
 import { eventing } from 'neon-framework';
+import { DashboardService } from '../../services/dashboard.service';
+
+import * as _ from 'lodash';
+import { DashboardUtil } from '../../util/dashboard.util';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-dashboard-selector',
@@ -27,58 +29,119 @@ import { eventing } from 'neon-framework';
     styleUrls: ['dashboard-selector.component.scss']
 })
 export class DashboardSelectorComponent implements OnInit, OnDestroy {
-    public dashboardChoice: Dashboard;
+    public dashboardChoice?: NeonDashboardConfig;
 
-    @Input() dashboards: Dashboard;
+    @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @Output() closeDialog: EventEmitter<boolean> = new EventEmitter<boolean>();
+    choices: NeonDashboardChoiceConfig[] = [];
 
-    @ViewChild('dashboardDropdown') dashboardDropdown: DashboardDropdownComponent;
+    dashboards: NeonDashboardConfig;
 
     private messenger: eventing.Messenger;
 
-    constructor() {
+    constructor(
+        public dashboardService: DashboardService,
+        public router: Router
+    ) {
         this.messenger = new eventing.Messenger();
     }
 
     ngOnInit(): void {
-        this.messenger.subscribe(neonEvents.DASHBOARD_STATE, this.onDashboardStateChange.bind(this));
+        this.dashboardService.stateSource.subscribe((state) => {
+            this.dashboards = this.dashboardService.config.dashboards;
+            this.onDashboardStateChange(state.dashboard);
+        });
+
+        this.onDashboardStateChange(undefined);
     }
 
     ngOnDestroy(): void {
         this.messenger.unsubscribeAll();
     }
 
-    private onDashboardStateChange(eventMessage: { dashboard: Dashboard }): void {
-        // If the dashboard state is changed by an external source, update the dropdowns as needed.
-        let paths = eventMessage.dashboard.pathFromTop;
-        this.dashboardDropdown.selectDashboardChoice(this.dashboards, paths, 0, this.dashboardDropdown);
+    get choiceNodes() {
+        return this.choices.filter((db) => 'choices' in db && !_.isEmpty(db.choices));
+    }
+
+    /**
+     * Emits an event to close the component.
+     */
+    public emitCloseComponent() {
+        this.closeComponent.emit(true);
+    }
+
+    public onDashboardStateChange(dashboard: NeonDashboardConfig): void {
+        this.dashboardChoice = dashboard;
+        if (!this.dashboards || !('choices' in this.dashboards)) {
+            this.dashboards = NeonDashboardChoiceConfig.get({
+                category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
+                choices: dashboard ? { [dashboard.name]: dashboard } : {}
+            });
+        }
+        this.choices = this.computePath();
+        if (!this.choices.length) {
+            this.choices = [this.dashboards];
+        }
+    }
+
+    private computePath(root: NeonDashboardConfig = this.dashboards) {
+        if ('choices' in root && !_.isEmpty(root.choices)) {
+            for (const key of Object.keys(root.choices)) {
+                const res = this.computePath(root.choices[key]);
+                if (res.length) {
+                    return [root, ...res];
+                }
+            }
+        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+            return [root];
+        }
+        return [];
+    }
+
+    private computeNamePath(root: NeonDashboardConfig = this.dashboards) {
+        if ('choices' in root && !_.isEmpty(root.choices)) {
+            for (const key of Object.keys(root.choices)) {
+                const res = this.computeNamePath(root.choices[key]);
+                if (res) {
+                    return [key, ...res];
+                }
+            }
+        } else if (this.dashboardChoice && root.fullTitle === this.dashboardChoice.fullTitle) {
+            return [];
+        }
+        return undefined;
     }
 
     /**
      * If selection change event bubbles up from dashboard-dropdown, this will set the
      * dashboardChoice to the appropriate value.
-     * @param {any} event
      */
-    public setDashboardChoice($event: any) {
-        this.dashboardChoice = $event;
+    public selectDashboard(dashboard: NeonDashboardConfig, idx: number) {
+        if ('choices' in dashboard && !_.isEmpty(dashboard.choices)) {
+            this.choices = [...this.choices.slice(0, idx + 1), dashboard];
+        } else {
+            this.dashboardChoice = dashboard;
+        }
     }
 
     /**
      * Updates the current dashboard state to the selected dashboardChoice.
      */
-    public updateDashboardState(dashboard: Dashboard) {
-        if (dashboard) {
-            this.messenger.publish(neonEvents.DASHBOARD_STATE, {
-                dashboard: dashboard
+    public updateDashboardState(dashboard: NeonDashboardConfig) {
+        if (dashboard && 'tables' in dashboard) {
+            this.dashboardChoice = dashboard;
+            this.router.navigate([], {
+                queryParams: {
+                    path: this.computeNamePath().join('.')
+                },
+                relativeTo: this.router.routerState.root
             });
         }
     }
 
-    /**
-     * Emits an event to close the dashboard selector component.
-     */
-    closeDashboardSelectorDialog() {
-        this.closeDialog.emit(true);
+    public getNextChoices(dashboard: NeonDashboardChoiceConfig) {
+        return Object.values(dashboard.choices || {})
+            .filter((db1) => !!db1.name)
+            .sort((db1, db2) => db1.name.localeCompare(db2.name));
     }
 }

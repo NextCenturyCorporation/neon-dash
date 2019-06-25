@@ -13,9 +13,9 @@
  * limitations under the License.
  *
  */
-@import '../base-neon-component/base-neon.component.scss';
+@import '../base-neon-component/base-neon.component';
 
-.visualization-sidenav {
+:host {
 
     .text-cloud {
         overflow-wrap: break-word;

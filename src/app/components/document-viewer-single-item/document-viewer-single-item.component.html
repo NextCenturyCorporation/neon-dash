@@ -1,13 +1,13 @@
 <div>
-	<div class="item" layout="column">
+    <div class="item" layout="column">
         <table>
             <tr class="metadata-row" *ngFor="let metadataElement of metadata">
                 <td class="metadata-bold">{{ metadataElement.name }}: </td>
-                <td >{{ formatMetadataEntry(data.item, metadataElement) }}</td>
+                <td>{{ formatMetadataEntry(data.item, metadataElement) }}</td>
             </tr>
         </table>
-	    <p *ngIf="showText">{{ text }}</p>
-	</div>
+        <p *ngIf="showText">{{ text }}</p>
+    </div>
 
     <div mat-fill class="flex">
         <span class="fill-remaining"></span>

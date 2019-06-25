@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { Injectable } from '@angular/core';
 
@@ -19,175 +18,26 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
-    Connection,
     FilterClause,
     QueryGroup,
-    QueryPayload,
-    RequestWrapper,
     SortOrder,
-    TimeInterval
+    TimeInterval,
+    QueryPayload
 } from '../../app/services/abstract.search.service';
-import { Dashboard, Datastore } from '../dataset';
 import { query } from 'neon-framework';
+import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
 
-// Internal class that wraps AbstractSearchService.Connection.  Exported to use in the unit tests.
-export class NeonConnection implements Connection {
-    constructor(public connection: query.Connection) {}
-
-    /**
-     * Deletes the saved dashboard state with the given name.
-     *
-     * @arg {string} stateName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public deleteState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.deleteState(stateName, onSuccess, onError);
-    }
-
-    /**
-     * Returns the accessible database names.
-     *
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public getDatabaseNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.getDatabaseNames(onSuccess, onError);
-    }
-
-    /**
-     * Returns the types of the fields in the given database/table.
-     *
-     * @arg {string} databaseName
-     * @arg {string} tableName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public getFieldTypes(
-        databaseName: string,
-        tableName: string,
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
-    ): RequestWrapper {
-        return this.connection.getFieldTypes(databaseName, tableName, onSuccess, onError);
-    }
-
-    /**
-     * Returns the saved dashboard state names.
-     *
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public getStateNames(onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.getAllStateNames(onSuccess, onError);
-    }
-
-    /**
-     * Returns the table and field names in the given database.
-     *
-     * @arg {string} databaseName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public getTableNamesAndFieldNames(
-        databaseName: string,
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
-    ): RequestWrapper {
-        return this.connection.getTableNamesAndFieldNames(databaseName, onSuccess, onError);
-    }
-
-    /**
-     * Loads the saved state with the given name.
-     *
-     * @arg {string} stateName
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public loadState(stateName: string, onSuccess: (response: any) => void, onError?: (response: any) => void): RequestWrapper {
-        return this.connection.loadState({
-            stateName: stateName
-        }, onSuccess, onError);
-    }
-
-    /**
-     * Runs an export query with the given data and format.
-     *
-     * @arg {any} exportData
-     * @arg {any} exportFormat
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public runExportQuery(
-        exportData: { data: any },
-        exportFormat: any,
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
-    ): RequestWrapper {
-        return this.connection.executeExport(exportData, onSuccess, onError, exportFormat);
-    }
-
-    /**
-     * Runs a search query with the given payload.
-     *
-     * @arg {NeonQueryWrapper} queryPayload
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public runSearchQuery(
-        queryPayload: NeonQueryWrapper,
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
-    ): RequestWrapper {
-        return this.connection.executeQuery((queryPayload as NeonQueryWrapper).query, null);
-    }
-
-    /**
-     * Saves (or overwrites) a state with the given data.
-     *
-     * @arg {{dashboards:Dashboard,datastores:Datastore[],layouts:any,stateName:string}} stateData
-     * @arg {(response: any) => void} onSuccess
-     * @arg {(response: any) => void} [onError]
-     * @return {RequestWrapper}
-     * @override
-     */
-    public saveState(
-        stateData: { dashboards: Dashboard, datastores: Datastore[], layouts: any, stateName: string },
-        onSuccess: (response: any) => void,
-        onError?: (response: any) => void
-    ): RequestWrapper {
-        return this.connection.saveState(stateData, onSuccess, onError);
-    }
+export class NeonQueryWrapper implements QueryPayload {
+    /* eslint-disable-next-line no-shadow */
+    constructor(public query: query.Query) { }
 }
 
 export class NeonGroupWrapper implements QueryGroup {
-    constructor(public group: string | query.GroupByFunctionClause) {}
-}
-
-export class NeonQueryWrapper implements QueryPayload {
-    /* tslint:disable:no-shadowed-variable */
-    constructor(public query: query.Query) {}
-    /* tslint:enable:no-shadowed-variable */
+    constructor(public group: string | query.GroupByFunctionClause) { }
 }
 
 export class NeonWhereWrapper implements FilterClause {
-    constructor(public where: query.WherePredicate) {}
+    constructor(public where: query.WherePredicate) { }
 }
 
 interface ExportField {
@@ -202,10 +52,7 @@ interface ExportField {
  */
 @Injectable()
 export class SearchService extends AbstractSearchService {
-    // Maps the datastore types to datastore hosts to connections.
-    private connections: Map<string, Map<string, NeonConnection>> = new Map<string, Map<string, NeonConnection>>();
-
-    constructor() {
+    constructor(private connectionService: ConnectionService) {
         super();
     }
 
@@ -228,7 +75,7 @@ export class SearchService extends AbstractSearchService {
         if (filterClauses.length === 1) {
             return filterClauses[0];
         }
-        let wheres = filterClauses.map((filterClause) => (filterClause as NeonWhereWrapper).where);
+        let wheres = filterClauses.map((filterClause) => (filterClause).where);
         return new NeonWhereWrapper(type === CompoundFilterType.AND ? query.and.apply(query, wheres) :
             query.or.apply(query, wheres));
     }
@@ -295,35 +142,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public canRunSearch(datastoreType: string, datastoreHost: string): boolean {
-        return !!(this.createConnection(datastoreType, datastoreHost));
-    }
-
-    /**
-     * Returns an existing connection to the REST server using the given host and the given datastore type (like elasticsearch or sql), or
-     * creates and returns a Neon connection if none exists.
-     *
-     * @arg {String} datastoreType
-     * @arg {String} datastoreHost
-     * @return {NeonConnection}
-     * @override
-     */
-    public createConnection(datastoreType: string, datastoreHost: string): NeonConnection {
-        if (datastoreType && datastoreHost) {
-            if (!this.connections.has(datastoreType)) {
-                this.connections.set(datastoreType, new Map<string, NeonConnection>());
-            }
-            if (!this.connections.get(datastoreType).has(datastoreHost)) {
-                let connection = this.createNeonConnection();
-                connection.connect(datastoreType, datastoreHost);
-                this.connections.get(datastoreType).set(datastoreHost, new NeonConnection(connection));
-            }
-            return this.connections.get(datastoreType).get(datastoreHost);
-        }
-        return null;
-    }
-
-    private createNeonConnection(): query.Connection {
-        return new query.Connection();
+        return !!(this.connectionService.connect(datastoreType, datastoreHost));
     }
 
     /**
@@ -340,11 +159,18 @@ export class SearchService extends AbstractSearchService {
         let isWildcard: boolean = (exportQuery.fields.length === 1 && exportQuery.fields[0] === '*');
 
         // Save each activeField that is a field from the exportQuery in the export fields.
-        let queryFields: ExportField[] = (isWildcard ? activeFields : activeFields.filter((activeField) =>
-            exportQuery.fields.some((exportFieldName) => exportFieldName === activeField.columnName))).map((activeField) => ({
-                query: activeField.columnName,
-                pretty: activeField.prettyName
-            } as ExportField));
+        let queryFields: ExportField[] =
+            (
+                isWildcard ?
+                    activeFields :
+                    activeFields.filter((activeField) =>
+                        exportQuery.fields.some((exportFieldName) =>
+                            exportFieldName === activeField.columnName))
+            )
+                .map((activeField) => ({
+                    query: activeField.columnName,
+                    pretty: activeField.prettyName
+                } as ExportField));
 
         // Save each group function from the exportQuery in the export fields.
         let groupFields: ExportField[] = exportQuery.groupByClauses.filter((group) => group.type === 'function').map((group) => {
@@ -359,11 +185,11 @@ export class SearchService extends AbstractSearchService {
         // Save each aggregation field from the exportQuery in the export fields.
         let aggregationFields: ExportField[] = exportQuery.aggregates.map((aggregate) => {
             // Remove the field of each non-COUNT aggregation from the queryFields.
-            /* tslint:disable:no-string-literal */
+            /* eslint-disable-next-line dot-notation */
             if (aggregate.operation !== query['COUNT']) {
                 queryFields = queryFields.filter((field) => field.query !== aggregate.field);
             }
-            /* tslint:enable:no-string-literal */
+
             return {
                 query: aggregate.name,
                 pretty: this.transformAggregationOperatorToPrettyName(aggregate.operation, aggregate.field, activeFields)
@@ -383,7 +209,7 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public runSearch(datastoreType: string, datastoreHost: string, queryPayload: NeonQueryWrapper): RequestWrapper {
-        let connection: NeonConnection = this.createConnection(datastoreType, datastoreHost);
+        let connection: NeonConnection<NeonQueryWrapper> = this.connectionService.connect(datastoreType, datastoreHost);
         return connection ? connection.runSearchQuery(queryPayload, null) : null;
     }
 
@@ -393,7 +219,8 @@ export class SearchService extends AbstractSearchService {
         fields: { columnName: string, prettyName: string }[]
     ): string {
         let prettyName = (fields.filter((field) => field.columnName === aggregationField)[0] || {} as any).prettyName;
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable dot-notation */
         switch (aggregationOperator) {
             case query['AVG']:
                 return 'Average' + (prettyName ? (' ' + prettyName) : '');
@@ -406,12 +233,12 @@ export class SearchService extends AbstractSearchService {
             case query['SUM']:
                 return 'Sum' + (prettyName ? (' ' + prettyName) : '');
         }
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
         return '';
     }
 
     private transformAggregationType(type: AggregationType): string {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable dot-notation */
         switch (type) {
             case AggregationType.AVG:
                 return query['AVG'];
@@ -424,7 +251,7 @@ export class SearchService extends AbstractSearchService {
             case AggregationType.SUM:
                 return query['SUM'];
         }
-        /* tslint:enable:no-string-literal */
+        /* eslint-enable dot-notation */
         return '';
     }
 
@@ -457,15 +284,13 @@ export class SearchService extends AbstractSearchService {
      * @return {NeonQueryWrapper}
      * @override
      */
-    public transformFilterClauseValues(queryPayload: NeonQueryWrapper, keysToValuesToLabels: { [key: string]: { [value: string]: string } }
-    ): NeonQueryWrapper {
-
-        /* tslint:disable:no-string-literal */
+    public transformFilterClauseValues(queryPayload: NeonQueryWrapper,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): NeonQueryWrapper {
+        /* eslint-disable-next-line dot-notation */
         let wherePredicate: query.WherePredicate = queryPayload.query['filter'].whereClause;
-        /* tslint:enable:no-string-literal */
 
         if (wherePredicate) {
-            this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+            this.transformWherePredicateNestedValues(wherePredicate, keysToValuesToLabels);
         }
 
         return queryPayload;
@@ -504,31 +329,37 @@ export class SearchService extends AbstractSearchService {
      * @arg {query.WherePredicate} wherePredicate
      * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
      */
+    private transformWherePredicateNestedValues(
+        wherePredicate: query.WherePredicate,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): void {
+        switch (wherePredicate.type) {
+            case 'and':
+            case 'or':
+                for (let nestedWherePredicate of wherePredicate.whereClauses) {
+                    this.transformWherePredicateNestedValues(nestedWherePredicate, keysToValuesToLabels);
+                }
+                break;
+            case 'where':
+                this.transformWherePredicateValues(wherePredicate, keysToValuesToLabels);
+                break;
+        }
+    }
+
     private transformWherePredicateValues(
         wherePredicate: query.WherePredicate,
         keysToValuesToLabels: { [key: string]: { [value: string]: string } }
     ): void {
-
-        switch (wherePredicate.type) {
-            case 'and':
-            case 'or':
-                for (let nestedWherePredicate of (wherePredicate as query.BooleanClause).whereClauses) {
-                    this.transformWherePredicateValues(nestedWherePredicate, keysToValuesToLabels);
+        let keys = Object.keys(keysToValuesToLabels);
+        let key = wherePredicate.lhs;
+        if (keys.includes(key)) {
+            let valuesToLabels = keysToValuesToLabels[key];
+            let values = Object.keys(valuesToLabels);
+            for (let value of values) {
+                if (valuesToLabels[value] === wherePredicate.rhs) {
+                    wherePredicate.rhs = value;
                 }
-                break;
-            case 'where':
-                let keys = Object.keys(keysToValuesToLabels);
-                let key = (wherePredicate as query.WhereClause).lhs;
-                if (keys.includes(key)) {
-                    let valuesToLabels = keysToValuesToLabels[key];
-                    let values = Object.keys(valuesToLabels);
-                    for (let value of values) {
-                        if (valuesToLabels[value] === (wherePredicate as query.WhereClause).rhs) {
-                            (wherePredicate as query.WhereClause).rhs = value;
-                        }
-                    }
-                }
-                break;
+            }
         }
     }
 
@@ -638,9 +469,8 @@ export class SearchService extends AbstractSearchService {
      * @override
      */
     public updateSort(queryPayload: NeonQueryWrapper, field: string, order: SortOrder = SortOrder.ASCENDING): AbstractSearchService {
-        /* tslint:disable:no-string-literal */
+        /* eslint-disable-next-line dot-notation */
         queryPayload.query.sortBy(field, order === SortOrder.ASCENDING ? query['ASCENDING'] : query['DESCENDING']);
-        /* tslint:enable:no-string-literal */
         return this;
     }
 }

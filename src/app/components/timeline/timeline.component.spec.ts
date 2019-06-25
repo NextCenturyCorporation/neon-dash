@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,56 +11,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
-import { FieldMetaData } from '../../dataset';
-import { NeonGTDConfig } from '../../neon-gtd-config';
-
-import { AppMaterialModule } from '../../app.material.module';
 import { TimelineComponent } from './timeline.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { WidgetService } from '../../services/widget.service';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
-let d3 = require('../../../assets/d3.min.js');
+import { TimelineModule } from './timeline.module';
+import { NeonFieldMetaData } from '../../models/types';
 
 describe('Component: Timeline', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Timeline', {
-        declarations: [
-            TimelineComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            {provide: AbstractWidgetService, useClass: WidgetService},
-            {provide: DatasetService, useClass: DatasetServiceMock},
+            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
-            {provide: AbstractSearchService, useClass: SearchServiceMock},
-            Injector,
-            {provide: 'config', useValue: testConfig}
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            Injector
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TimelineModule
         ]
     });
 
@@ -80,11 +64,11 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set a new date filter', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 3, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 3, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
 
         component.onTimelineSelection(startDate, endDate, []);
 
@@ -95,16 +79,16 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -114,11 +98,11 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does not set custom filters if filterField does not exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
 
         let selectedData = [
             {
@@ -141,16 +125,16 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -160,12 +144,12 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set custom filters on empty string if filterField does exist but selectedData does not exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear() - 1, date.getUTCMonth(), date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear() - 1, date.getUTCMonth(), date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getDay());
 
         component.onTimelineSelection(startDate, endDate, []);
 
@@ -176,16 +160,16 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
@@ -193,9 +177,9 @@ describe('Component: Timeline', () => {
             // TODO NEON-36
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: ''
         }]]);
@@ -204,12 +188,12 @@ describe('Component: Timeline', () => {
     it('onTimelineSelection does set custom filters if filterField and selectedData both exist', () => {
         let spy = spyOn(component, 'exchangeFilters');
 
-        component.options.dateField = DatasetServiceMock.DATE_FIELD;
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
-        let date = new Date(),
-            startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay()),
-            endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
+        let date = new Date();
+        let startDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 2, date.getDay());
+        let endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() - 1, date.getDay());
 
         let selectedData = [
             {
@@ -232,50 +216,50 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.DATE_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '<=',
                 value: endDate
             }]
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue1'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue2'
         }, {
             root: 'or',
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'filterValue3'
         }]]);
     });
 
     it('finalizeVisualizationQuery does return expected query without id and filter fields', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -286,8 +270,7 @@ describe('Component: Timeline', () => {
             groups: [{
                 field: 'testDateField',
                 type: 'year'
-            }
-            ],
+            }],
             aggregation: [
                 {
                     type: 'min',
@@ -318,11 +301,10 @@ describe('Component: Timeline', () => {
                 field: 'testDateField',
                 type: 'month'
             },
-                {
-                    field: 'testDateField',
-                    type: 'year'
-                }
-            ],
+            {
+                field: 'testDateField',
+                type: 'year'
+            }],
             aggregation: [
                 {
                     type: 'min',
@@ -343,11 +325,11 @@ describe('Component: Timeline', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query with id and filter fields', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -360,8 +342,7 @@ describe('Component: Timeline', () => {
                 {
                     field: 'testDateField',
                     type: 'year'
-                }
-            ],
+                }],
             aggregation: [
                 {
                     type: 'min',
@@ -401,8 +382,7 @@ describe('Component: Timeline', () => {
                 {
                     field: 'testDateField',
                     type: 'year'
-                }
-            ],
+                }],
             aggregation: [
                 {
                     type: 'min',
@@ -423,11 +403,11 @@ describe('Component: Timeline', () => {
     });
 
     it('transformVisualizationQueryResults does return expected data with id and filter fields', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         component.options.granularity = 'month';
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -461,7 +441,7 @@ describe('Component: Timeline', () => {
         }]);
 
         expect(actual).toEqual(4);
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 3,
             ids: ['id1', 'id2', 'id3'],
@@ -478,9 +458,9 @@ describe('Component: Timeline', () => {
     });
 
     it('transformVisualizationQueryResults does return expected data without id and filter fields', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'id1',
@@ -497,7 +477,7 @@ describe('Component: Timeline', () => {
         }]);
 
         expect(actual).toEqual(11);
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 10,
             date: new Date(2017, 9, 26, 12, 33, 13)
@@ -526,13 +506,13 @@ describe('Component: Timeline', () => {
             testIdField: 'id3',
             testFilterField: 'filter3',
             _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
             _month: 1,
             _year: 2018
 
         });
 
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(previousItem).toEqual({
             value: 1,
             ids: ['id2'],
@@ -559,13 +539,13 @@ describe('Component: Timeline', () => {
             testIdField: 'id3',
             testFilterField: 'filter3',
             _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
             _month: 1,
             _year: 2018
 
         });
 
-        //Expected date value equals UTCMonth - 1
+        // Expected date value equals UTCMonth - 1
         expect(previousItem2).toEqual({
             value: 1,
             ids: ['id2'],
@@ -576,11 +556,11 @@ describe('Component: Timeline', () => {
     });
 
     it('findDateInPreviousItem does not return a previous item when the current item is not within range of granularity', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         component.options.granularity = 'hour';
 
         let previousItem = component.findDateInPreviousItem([{
@@ -599,7 +579,7 @@ describe('Component: Timeline', () => {
             testIdField: 'id3',
             testFilterField: 'filter3',
             _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
             _month: 1,
             _year: 2018
 
@@ -625,7 +605,7 @@ describe('Component: Timeline', () => {
             testIdField: 'id3',
             testFilterField: 'filter3',
             _aggregation: 1,
-            _date: 1515123034000, //new Date(2017, 12, 4, 22, 30, 34)
+            _date: 1515123034000, // Date(2017, 12, 4, 22, 30, 34)
             _month: 1,
             _year: 2018
 
@@ -633,5 +613,4 @@ describe('Component: Timeline', () => {
 
         expect(previousItem2).toEqual(undefined);
     });
-
 });

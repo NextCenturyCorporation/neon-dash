@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -28,12 +27,11 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -41,9 +39,10 @@ import {
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
-import * as _ from 'lodash';
+} from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
+
+import * as moment from 'moment';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -57,25 +56,24 @@ import { MatDialog } from '@angular/material';
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('newsFeed') newsFeed: ElementRef;
     @ViewChild('filter') filter: ElementRef;
 
     public newsFeedData: any[] = null;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -95,14 +93,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
         return [
             new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
+            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('linkField', 'Link Field', false),
-            new WidgetFieldOption('primaryTitleField', 'Primary Title Field', false),
-            new WidgetFieldOption('secondaryTitleField', 'Secondary Title Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false)
         ];
+    }
+
+    relativeTime(date: Date) {
+        if (moment(date).diff(Date.now(), 'd', true) < -3) {
+            return moment(date).format('YYYY/MM/DD');
+        }
+        return moment(date).fromNow();
     }
 
     /**
@@ -137,8 +141,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createNonFieldOptions(): WidgetOption[] {
         return [
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
-            new WidgetFreeTextOption('id', 'ID', ''),
+            new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
+            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
+            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
+            new WidgetFreeTextOption('id', 'ID', null),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
         ];
     }
@@ -174,7 +181,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-
         let filters = sharedFilters;
 
         if (this.options.sortField.columnName) {
@@ -208,7 +214,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText,
-            newsFeed: this.newsFeed,
             filter: this.filter
         };
     }
@@ -241,7 +246,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.idField.columnName);
+        return !!(
+            options.database.name &&
+            options.table.name &&
+            options.idField.columnName &&
+            options.dateField.columnName &&
+            options.contentField.columnName
+        );
     }
 
     /**
@@ -254,11 +265,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        this.newsFeedData = results.map((d) => {
+        this.newsFeedData = results.map((result) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(d, field.columnName);
+                    let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
@@ -277,26 +288,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     optionsFilterable(options: any): boolean {
         return options.filterable;
-    }
-
-    /**
-     * Returns whether items are selectable (filterable).
-     *
-     * @return {boolean}
-     */
-    isSelectable() {
-        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
-    }
-
-    /**
-     * Returns whether the given item is selected (filtered).
-     *
-     * @arg {object} item
-     * @return {boolean}
-     */
-    isSelected(item) {
-        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item[this.options.filterField.columnName])));
     }
 
     /**
@@ -321,27 +312,22 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns multiple values as an array
-     *
-     * @arg {any} value
-     * @private
-     */
-    private getArrayValues(value) {
-        return Array.isArray(value) ?
-            value : value.toString().search(/,/g) > -1 ?
-                value.toString().split(',') : [value];
-    }
-
-    /**
-     * Selects the given grid item.
+     * Selects the given item item.
      *
      * @arg {object} item
      * @private
      */
-    selectGridItem(item) {
+    selectItem(item) {
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
+    }
+
+    /**
+     * Filters by the given item
+     * @param item
+     */
+    filterItem(item) {
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }

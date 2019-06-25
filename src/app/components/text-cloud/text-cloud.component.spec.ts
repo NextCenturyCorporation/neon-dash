@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,58 +11,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 
-import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { DataMessageComponent } from '../data-message/data-message.component';
 import { TextCloudComponent } from './text-cloud.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
-
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { TextCloudModule } from './text-cloud.module';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Text Cloud', {
-        declarations: [
-            DataMessageComponent,
-            TextCloudComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
             { provide: AbstractWidgetService, useClass: WidgetService },
             {
-                provide: DatasetService,
-                useClass: DatasetServiceMock
+                provide: DashboardService,
+                useClass: DashboardServiceMock
             },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            TextCloudModule
         ]
     });
 
@@ -79,8 +65,8 @@ describe('Component: TextCloud', () => {
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.sizeField).toEqual(new FieldMetaData());
+        expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sizeField).toEqual(NeonFieldMetaData.get());
     });
 
     it('has expected class properties', () => {
@@ -90,18 +76,18 @@ describe('Component: TextCloud', () => {
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.table = new TableMetaData('testTable1');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     });
 
     it('returns expected query from finalizeVisualizationQuery', () => {
-        component.options.database = new DatabaseMetaData('testDatabase1');
-        component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase1' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable1' });
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -122,7 +108,7 @@ describe('Component: TextCloud', () => {
         });
 
         component.options.aggregation = AggregationType.AVG;
-        component.options.sizeField = new FieldMetaData('testSizeField');
+        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField' });
         component.options.limit = 25;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
@@ -147,21 +133,21 @@ describe('Component: TextCloud', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
         expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
     });
 
     it('onClick does call toggleFilters with expected object', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let spy = spyOn((component as any), 'toggleFilters');
 
         component.onClick({
@@ -172,9 +158,9 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.TEXT,
             operator: '=',
             value: 'testText1'
         }]]);
@@ -189,9 +175,9 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             root: CompoundFilterType.OR,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.TEXT_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.TEXT,
             operator: '=',
             value: 'testText2'
         }]]);
@@ -252,9 +238,7 @@ describe('Component: TextCloud', () => {
             value: 'value2'
         }];
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.value === 'key2';
-        });
+        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.value === 'key2');
 
         (component as any).redrawText();
 
@@ -264,44 +248,6 @@ describe('Component: TextCloud', () => {
             key: 'key1',
             keyTranslated: 'keyTranslated1',
             selected: false,
-            value: 'value1'
-        }, {
-            color: 'color2',
-            fontSize: 'fontSize2',
-            key: 'key2',
-            keyTranslated: 'keyTranslated2',
-            selected: true,
-            value: 'value2'
-        }]);
-    });
-
-    it('redrawText does update textCloudData if some text is selected', () => {
-        component.textCloudData = [{
-            color: 'color1',
-            fontSize: 'fontSize1',
-            key: 'key1',
-            keyTranslated: 'keyTranslated1',
-            selected: false,
-            value: 'value1'
-        }, {
-            color: 'color2',
-            fontSize: 'fontSize2',
-            key: 'key2',
-            keyTranslated: 'keyTranslated2',
-            selected: false,
-            value: 'value2'
-        }];
-
-        spyOn((component as any), 'isFiltered').and.returnValue(true);
-
-        (component as any).redrawText();
-
-        expect(component.textCloudData).toEqual([{
-            color: 'color1',
-            fontSize: 'fontSize1',
-            key: 'key1',
-            keyTranslated: 'keyTranslated1',
-            selected: true,
             value: 'value1'
         }, {
             color: 'color2',
@@ -314,14 +260,14 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with no data does return expected data', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
 
         let actual1 = component.transformVisualizationQueryResults(component.options, []);
 
         expect(component.textCloudData).toEqual([]);
         expect(actual1).toEqual(0);
 
-        component.options.sizeField = new FieldMetaData('testSizeField', 'Test Size Field');
+        component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
 
         let actual2 = component.transformVisualizationQueryResults(component.options, []);
 
@@ -330,7 +276,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('transformVisualizationQueryResults with data does return expected data', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
+        component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
         let data = [{
             _aggregation: 8,
             testTextField: 'First'
@@ -369,9 +315,5 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(actual1).toEqual(3);
-    });
-
-    it('has a requestExport method that does nothing', () => {
-        expect(component.requestExport).toBeDefined();
     });
 });

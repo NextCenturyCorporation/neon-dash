@@ -1,19 +1,19 @@
 /*
- * Copyright 2017 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
- @import '../base-neon-component/base-neon.component.scss';
+* Copyright 2017 Next Century Corporation
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+@import '../base-neon-component/base-neon.component';
 
 .add-visualization-grid-container {
     height: 100%;
@@ -21,23 +21,26 @@
     overflow-y: auto;
     /* Add padding between tile and scrollbar. */
     padding-right: 10px;
-    width: 100%;
+    /* Add width space for the margin. */
+    width: calc(100% - 20px);
 }
 
 .add-visualization-message {
     display: inline;
     font-weight: bold;
     line-height: 15px;
-    margin: 0px;
+    margin: 0;
     padding: 10px;
 }
 
 .add-visualization-tile {
     min-height: 50px;
     min-width: 50px;
-    padding: 0px;
+    padding: 0;
     display: block;
     box-sizing: border-box;
+    border: 1px solid transparent;
+    border-radius: 7px;
 
     a {
         background: none;
@@ -47,12 +50,20 @@
         outline: 0;
         width: 100%;
 
-        &.collapsed:hover,
+        &.collapsed:hover, // sass-lint:disable-line force-pseudo-nesting
         &:focus,
         &:hover {
             cursor: pointer;
             color: var(--color-primary, grey);
         }
+    }
+
+    &:hover {
+        border: 1px solid var(--color-primary, grey);
+    }
+
+    &:active {
+        border: 1px solid  var(--color-primary, grey);
     }
 }
 
@@ -60,16 +71,6 @@
     justify-content: center;
     text-align: center;
     display: flex;
-}
-
-.add-visualization-tile:hover {
-    border: 1px solid var(--color-primary, grey);
-    border-radius: 7px;
-}
-
-.add-visualization-tile:active {
-    border: 1px solid  var(--color-primary, grey);
-    border-radius: 7px;
 }
 
 .app-simple-snack-center {

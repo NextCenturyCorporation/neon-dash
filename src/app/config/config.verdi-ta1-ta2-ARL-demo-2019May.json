@@ -572,7 +572,7 @@
                     "table": "graph",
                     "typeField": "types",
                     "subTypeField": "types",
-                    "valueField": "name",
+                    "valueField": "",
                     "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [
@@ -704,7 +704,7 @@
                     "table": "graph",
                     "typeField": "types",
                     "subTypeField": "types",
-                    "valueField": "name",
+                    "valueField": "",
                     "categoryField": "categories",
                     "sourceIdField": "docIds",
                     "filterFields": [

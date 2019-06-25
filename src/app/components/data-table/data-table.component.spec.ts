@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,53 +11,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { } from 'jasmine-core';
 
-import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
+import { DataTableModule } from './data-table.module';
+
+// TODO Change toHaveBeenCalled to toHaveBeenCalledWith
+/* eslint-disable jasmine/prefer-toHaveBeenCalledWith */
+
 describe('Component: DataTable', () => {
-    let component: DataTableComponent,
-        fixture: ComponentFixture<DataTableComponent>,
-        getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
-        getService = (type: any) => fixture.debugElement.injector.get(type);
+    let component: DataTableComponent;
+    let fixture: ComponentFixture<DataTableComponent>;
 
     initializeTestBed('Data Table', {
-        declarations: [
-            DataTableComponent,
-            UnsharedFilterComponent
-        ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            NgxDatatableModule,
-            BrowserAnimationsModule
+            DataTableModule
         ]
     });
 
@@ -70,65 +57,65 @@ describe('Component: DataTable', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('and');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('and');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
 
         component.options.arrayFilterOperator = 'or';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
 
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD, DatasetServiceMock.TEXT_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
-        expect((actual[1].filterDesign as any).type).toEqual('or');
-        expect((actual[1].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[1].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[1].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[1].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.CATEGORY_FIELD);
-        expect((actual[1].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign as any).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[2].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[2].filterDesign as any).field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[2].filterDesign as any).operator).toEqual('=');
-        expect((actual[2].filterDesign as any).value).toBeUndefined();
-        expect((actual[3].filterDesign as any).type).toEqual('or');
-        expect((actual[3].filterDesign as any).filters.length).toEqual(1);
-        expect((actual[3].filterDesign as any).filters[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[3].filterDesign as any).filters[0].table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[3].filterDesign as any).filters[0].field).toEqual(DatasetServiceMock.TEXT_FIELD);
-        expect((actual[3].filterDesign as any).filters[0].operator).toEqual('=');
-        expect((actual[3].filterDesign as any).filters[0].value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[1].filterDesign).type).toEqual('or');
+        expect((actual[1].filterDesign).filters.length).toEqual(1);
+        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[2].filterDesign).operator).toEqual('=');
+        expect((actual[2].filterDesign).value).toBeUndefined();
+        expect((actual[3].filterDesign).type).toEqual('or');
+        expect((actual[3].filterDesign).filters.length).toEqual(1);
+        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
+        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
     });
 
     it('onResize does call refreshVisualization', () => {
@@ -141,10 +128,10 @@ describe('Component: DataTable', () => {
 
     it('initializeHeadersFromExceptionsToStatus does create the expected headers in order', () => {
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
         component.options.exceptionsToStatus = [
             'date',
@@ -183,10 +170,10 @@ describe('Component: DataTable', () => {
     it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
         component.headers = [];
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
         component.options.allColumnStatus = 'show';
         component.options.fieldsConfig = [
@@ -221,7 +208,6 @@ describe('Component: DataTable', () => {
         expect(component.headers[3].style).toEqual({});
         expect(component.headers[3].cellClass).toBeDefined();
         expect(component.headers[3].width).toEqual(150);
-
     });
 
     it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
@@ -312,9 +298,9 @@ describe('Component: DataTable', () => {
             style: {},
             cellClass: ''
         }];
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[0]['width'] = 50000;
-        /* tslint:enable:no-string-literal */
 
         component.headers = [{
             prop: 'createdDate',
@@ -335,20 +321,24 @@ describe('Component: DataTable', () => {
         expect(component.headers[0].active).toBeTruthy();
         expect(component.headers[0].style).toEqual({});
         expect(component.headers[0].cellClass).toEqual('');
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         expect(component.headers[0]['width']).toBeLessThan(50000);
+        /* eslint-disable-next-line dot-notation */
         expect(component.headers[0]['$$oldWidth']).toBeLessThan(50000);
-        /* tslint:enable:no-string-literal */
+
         expect(component.activeHeaders.length).toBe(1);
         expect(component.activeHeaders[0].prop).toEqual('createdDate');
         expect(component.activeHeaders[0].name).toEqual('Date Created');
         expect(component.activeHeaders[0].active).toBeTruthy();
         expect(component.activeHeaders[0].style).toEqual({});
         expect(component.activeHeaders[0].cellClass).toEqual('');
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         expect(component.activeHeaders[0]['width']).toBeLessThan(50000);
+        /* eslint-disable-next-line dot-notation */
         expect(component.activeHeaders[0]['$$oldWidth']).toBeLessThan(50000);
-        /* tslint:enable:no-string-literal */
+
         expect(component.headerWidths.get('createdDate')).toBeLessThan(50000);
         expect(spy).toHaveBeenCalled();
     });
@@ -567,20 +557,20 @@ describe('Component: DataTable', () => {
     }));
 
     it('validateVisualizationQuery does return false if not all specified options exist', (() => {
-        component.options.database = new DatabaseMetaData(undefined);
-        component.options.table = new TableMetaData('documents');
+        component.options.database = NeonDatabaseMetaData.get({ name: undefined });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
 
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
 
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData(undefined);
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get(undefined);
 
         expect(component.validateVisualizationQuery(component.options)).toBeFalsy();
     }));
 
     it('validateVisualizationQuery does return true if all specified options exist', (() => {
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData('documents');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
 
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
     }));
@@ -629,9 +619,9 @@ describe('Component: DataTable', () => {
     }));
 
     it('finalizeVisualizationQuery does return expected object', () => {
-        component.options.database = new DatabaseMetaData('someDatastore');
-        component.options.table = new TableMetaData('documents');
-        component.options.sortField = new FieldMetaData('testSortField');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'someDatastore' });
+        component.options.table = NeonTableMetaData.get({ name: 'documents' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
         component.options.limit = 25;
         (component as any).page = 1;
 
@@ -673,10 +663,10 @@ describe('Component: DataTable', () => {
     });
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is 1', () => {
-        component.options.fields = component.options.fields = [
-            new FieldMetaData('_id', 'id', false, 'number'),
-            new FieldMetaData('category', 'Category', false, 'string'),
-            new FieldMetaData('testField', 'Test Field', false, 'string')
+        component.options.fields = [
+            NeonFieldMetaData.get({ columnName: '_id', prettyName: 'id', hide: false, type: 'number' }),
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category', hide: false, type: 'string' }),
+            NeonFieldMetaData.get({ columnName: 'testField', prettyName: 'Test Field', hide: false, type: 'string' })
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
@@ -690,10 +680,10 @@ describe('Component: DataTable', () => {
     });
 
     it('transformVisualizationQueryResults does update properties as expected when response.data.length is not equal to 1', () => {
-        component.options.fields = component.options.fields = [
-            new FieldMetaData('_id', 'id', false, 'number'),
-            new FieldMetaData('category', 'Category', false, 'string'),
-            new FieldMetaData('testField', 'Test Field', false, 'string')
+        component.options.fields = [
+            NeonFieldMetaData.get({ columnName: '_id', prettyName: 'id', hide: false, type: 'number' }),
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category', hide: false, type: 'string' }),
+            NeonFieldMetaData.get({ columnName: 'testField', prettyName: 'Test Field', hide: false, type: 'string' })
         ];
 
         let actual = component.transformVisualizationQueryResults(component.options, [
@@ -1033,7 +1023,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalledTimes(0);
@@ -1051,7 +1041,7 @@ describe('Component: DataTable', () => {
             testCategoryField: 'books',
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         component.onSelect({ selected: selected });
 
@@ -1071,9 +1061,9 @@ describe('Component: DataTable', () => {
             testCategoryField: 'books',
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = false;
         (component as any).tableData = [{
@@ -1094,9 +1084,9 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '=',
             value: 'books'
         }]]);
@@ -1111,9 +1101,9 @@ describe('Component: DataTable', () => {
             testCategoryField: 'books',
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = true;
         (component as any).tableData = [{
@@ -1133,9 +1123,9 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.CATEGORY_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.CATEGORY,
             operator: '=',
             value: 'books'
         }]]);
@@ -1151,9 +1141,9 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'and';
@@ -1165,7 +1155,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1178,25 +1168,25 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'shows'
             }]
@@ -1212,9 +1202,9 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'or';
@@ -1226,7 +1216,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1239,25 +1229,25 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'books'
             }, {
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'games'
             }, {
                 root: CompoundFilterType.OR,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'shows'
             }]
@@ -1273,9 +1263,9 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = true;
         component.options.arrayFilterOperator = 'and';
@@ -1287,7 +1277,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1299,25 +1289,25 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'shows'
             }]
@@ -1334,9 +1324,9 @@ describe('Component: DataTable', () => {
             testCategoryField: ['books', 'games', 'shows'],
             testTextField: 'Test'
         }];
-        component.options.idField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.fields = [DatasetServiceMock.CATEGORY_FIELD];
-        component.options.filterFields = [DatasetServiceMock.CATEGORY_FIELD];
+        component.options.idField = DashboardServiceMock.FIELD_MAP.CATEGORY;
+        component.options.fields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         component.options.filterable = true;
         component.options.singleFilter = true;
         component.options.arrayFilterOperator = 'or';
@@ -1348,7 +1338,7 @@ describe('Component: DataTable', () => {
             testTextField: 'Test 2'
         }];
 
-        component.onSelect({selected: selected});
+        component.onSelect({ selected: selected });
 
         expect(component.selected).toEqual(selected);
         expect(publishIdSpy).toHaveBeenCalled();
@@ -1360,25 +1350,25 @@ describe('Component: DataTable', () => {
             filters: [{
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
                 datastore: '',
-                database: DatasetServiceMock.DATABASES[0],
-                table: DatasetServiceMock.TABLES[0],
-                field: DatasetServiceMock.CATEGORY_FIELD,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.CATEGORY,
                 operator: '=',
                 value: 'shows'
             }]
@@ -1402,10 +1392,11 @@ describe('Component: DataTable', () => {
             style: {},
             cellClass: ''
         }];
-        /* tslint:disable:no-string-literal */
+
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[0]['width'] = 75;
+        /* eslint-disable-next-line dot-notation */
         component.activeHeaders[1]['width'] = 150;
-        /* tslint:enable:no-string-literal */
 
         component.onTableResize({ column: { prop: 'someField', width: 100 }, newValue: 50 });
 
@@ -1433,7 +1424,7 @@ describe('Component: DataTable', () => {
     it('getCellClassFunction function with colorField does set color class', () => {
         let cellClassFunction = component.getCellClassFunction();
 
-        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         expect(cellClassFunction({
             column: {
@@ -1466,7 +1457,7 @@ describe('Component: DataTable', () => {
     it('getCellClassFunction function with colorField does not set repeat color class style rules', () => {
         let cellClassFunction = component.getCellClassFunction();
 
-        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         expect(cellClassFunction({
             column: {
@@ -1518,7 +1509,7 @@ describe('Component: DataTable', () => {
     it('getCellClassFunction function with colorField does set hex color class', () => {
         let cellClassFunction = component.getCellClassFunction();
 
-        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         expect(cellClassFunction({
             column: {
@@ -1551,7 +1542,7 @@ describe('Component: DataTable', () => {
     it('getCellClassFunction function with colorField does set RGB color class', () => {
         let cellClassFunction = component.getCellClassFunction();
 
-        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.colorField = DashboardServiceMock.FIELD_MAP.CATEGORY;
 
         expect(cellClassFunction({
             column: {
@@ -1600,7 +1591,7 @@ describe('Component: DataTable', () => {
     it('getRowClassFunction function with simple filters and filterFields does set active to expected boolean', () => {
         let rowClassFunction = component.getRowClassFunction();
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
 
         expect(rowClassFunction({})).toEqual({
             active: false
@@ -1612,11 +1603,9 @@ describe('Component: DataTable', () => {
             active: false
         });
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === DatasetServiceMock.FILTER_FIELD && filterDesign.operator === '=' &&
-                (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.database === component.options.database &&
+            filterDesign.table === component.options.table && filterDesign.field === DashboardServiceMock.FIELD_MAP.FILTER &&
+            filterDesign.operator === '=' && (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'
@@ -1646,17 +1635,15 @@ describe('Component: DataTable', () => {
     it('getRowClassFunction function with compound AND filters and filterFields does set active to expected boolean', () => {
         let rowClassFunction = component.getRowClassFunction();
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'and';
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.type === 'and' && filterDesign.filters && filterDesign.filters.length === 1 &&
-                filterDesign.filters[0].database === component.options.database &&
-                filterDesign.filters[0].table === component.options.table &&
-                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
-                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'and' && filterDesign.filters &&
+            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
+            filterDesign.filters[0].table === component.options.table &&
+            filterDesign.filters[0].field === DashboardServiceMock.FIELD_MAP.FILTER && filterDesign.filters[0].operator === '=' &&
+            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'
@@ -1686,17 +1673,15 @@ describe('Component: DataTable', () => {
     it('getRowClassFunction function with compound OR filters and filterFields does set active to expected boolean', () => {
         let rowClassFunction = component.getRowClassFunction();
 
-        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         component.options.singleFilter = false;
         component.options.arrayFilterOperator = 'or';
 
-        (component as any).isFiltered = (filterDesign) => {
-            return filterDesign.type === 'or' && filterDesign.filters && filterDesign.filters.length === 1 &&
-                filterDesign.filters[0].database === component.options.database &&
-                filterDesign.filters[0].table === component.options.table &&
-                filterDesign.filters[0].field === DatasetServiceMock.FILTER_FIELD && filterDesign.filters[0].operator === '=' &&
-                (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-        };
+        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'or' && filterDesign.filters &&
+            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
+            filterDesign.filters[0].table === component.options.table &&
+            filterDesign.filters[0].field === DashboardServiceMock.FIELD_MAP.FILTER && filterDesign.filters[0].operator === '=' &&
+            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
 
         expect(rowClassFunction({
             testFilterField: 'testFilterValue1'
@@ -1727,7 +1712,7 @@ describe('Component: DataTable', () => {
         let rowClassFunction = component.getRowClassFunction();
 
         component.options.heatmapDivisor = 1.5;
-        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+        component.options.heatmapField = DashboardServiceMock.FIELD_MAP.SIZE;
 
         expect(rowClassFunction({
             testSizeField: 0
@@ -1790,7 +1775,7 @@ describe('Component: DataTable', () => {
         let rowClassFunction = component.getRowClassFunction();
 
         component.options.heatmapDivisor = 0.2;
-        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+        component.options.heatmapField = DashboardServiceMock.FIELD_MAP.SIZE;
 
         expect(rowClassFunction({
             testSizeField: 0
@@ -1853,7 +1838,7 @@ describe('Component: DataTable', () => {
         let rowClassFunction = component.getRowClassFunction();
 
         component.options.heatmapDivisor = 0.2;
-        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+        component.options.heatmapField = DashboardServiceMock.FIELD_MAP.SIZE;
 
         expect(rowClassFunction({})).toEqual({
             'active': false,
@@ -1896,10 +1881,10 @@ describe('Component: DataTable', () => {
         expect(component.headers.length).toEqual(16);
 
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
 
         component.onChangeData();
@@ -1909,10 +1894,10 @@ describe('Component: DataTable', () => {
 
     it('onChangeData does update headers if database or table is updated', () => {
         component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date')
+            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
+            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
+            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
+            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
         ];
 
         component.onChangeData(true);

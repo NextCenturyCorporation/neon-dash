@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -28,13 +27,12 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -43,9 +41,9 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 import * as _ from 'lodash';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
@@ -57,7 +55,6 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -66,17 +63,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -149,7 +147,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),
             new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetSelectOption('hideSource', 'Source Button', false, OptionChoices.ShowFalseHideTrue),
-            // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldMetaData objects!
+            // TODO THOR-950 Change metadataFields and popoutFields to arrays of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', []),
             new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', [])
         ];
@@ -167,12 +165,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
-        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldMetaData objects.
-        let fields = neonUtilities.flatten(options.metadataFields).map((item) => {
-            return item.field;
-        }).concat(neonUtilities.flatten(options.popoutFields).map((item) => {
-            return item.field;
-        }));
+        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of NeonFieldMetaData objects.
+        let fields = neonUtilities.flatten(options.metadataFields).map((item) => item.field)
+            .concat(neonUtilities.flatten(options.popoutFields).map((item) => item.field));
 
         if (fields.length) {
             this.searchService.updateFields(query, fields);
@@ -219,29 +214,24 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
-            neonUtilities.flatten(options.popoutFields));
+            neonUtilities.flatten(options.popoutFields)
+        );
 
-        if (!configFields.some((configField) => {
-            return configField.field === options.dataField.columnName;
-        })) {
+        if (!configFields.some((configField) => configField.field === options.dataField.columnName)) {
             configFields.splice(0, 0, {
                 field: options.dataField.columnName,
                 name: options.dataField.prettyName
             });
         }
 
-        if (options.dateField.columnName && !configFields.some((configField) => {
-            return configField.field === options.dateField.columnName;
-        })) {
+        if (options.dateField.columnName && !configFields.some((configField) => configField.field === options.dateField.columnName)) {
             configFields.push({
                 field: options.dateField.columnName,
                 name: options.dateField.prettyName
             });
         }
 
-        if (options.idField.columnName && !configFields.some((configField) => {
-            return configField.field === options.idField.columnName;
-        })) {
+        if (options.idField.columnName && !configFields.some((configField) => configField.field === options.idField.columnName)) {
             configFields.push({
                 field: options.idField.columnName,
                 name: options.idField.prettyName
@@ -277,7 +267,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     populateActiveItem(activeItem: { data: any, rows: { name: string, text: string }[] }, responseItem: any,
         configFields: { name?: string, field: string, arrayFilter?: any }[], field: string, name: string = '', arrayFilter: any = null,
         nested: boolean = false) {
-
         let activeItemData = neonUtilities.deepFind(responseItem, field);
         if (!nested) {
             activeItem.data[field] = activeItemData;
@@ -298,9 +287,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
                 // Must validate the nested property of the item.
                 if (activeItemData.hasOwnProperty(property)) {
                     // Ignore properties that are defined in the config.
-                    let existsInConfig = configFields.some((configField) => {
-                        return configField.field === field + '.' + property;
-                    });
+                    let existsInConfig = configFields.some((configField) => configField.field === field + '.' + property);
                     if (!existsInConfig) {
                         this.populateActiveItem(activeItem, responseItem, configFields, field + '.' + property, '', arrayFilter, true);
                     }
@@ -375,7 +362,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         if (filter && filter.filterType === '!=') {
-            let matches = true;
             for (let item of filter.filterFor) {
                 let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? record : record[filter.filterOn];
                 if (fieldToFilter === item) {

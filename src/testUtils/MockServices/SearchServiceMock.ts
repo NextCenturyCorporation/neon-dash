@@ -17,20 +17,18 @@ import {
     AbstractSearchService,
     AggregationType,
     CompoundFilterType,
-    Connection,
     FilterClause,
     QueryGroup,
     QueryPayload,
-    RequestWrapper,
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
+import { RequestWrapper } from '../../app/services/connection.service';
 
 /**
  * Saves filter clauses and query payloads as JSON objects.
  */
 export class SearchServiceMock extends AbstractSearchService {
-
     public buildCompoundFilterClause(filterClauses: FilterClause[], type: CompoundFilterType = CompoundFilterType.AND): FilterClause {
         return filterClauses.length ? (filterClauses.length === 1 ? filterClauses[0] : {
             filters: filterClauses,
@@ -69,11 +67,7 @@ export class SearchServiceMock extends AbstractSearchService {
         return !!(datastoreType && datastoreHost);
     }
 
-    public createConnection(datastoreType: string, datastoreHost: string): Connection {
-        return null;
-    }
-
-    public runSearch(datastoreType: string, datastoreHost: string, queryPayload: QueryPayload): RequestWrapper {
+    public runSearch(__datastoreType: string, __datastoreHost: string, __queryPayload: QueryPayload): RequestWrapper {
         return {
             always: () => {
                 // Do nothing.
@@ -109,8 +103,7 @@ export class SearchServiceMock extends AbstractSearchService {
     }
 
     public transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
-        { [key: string]: { [value: string]: string } }): QueryPayload {
-
+    { [key: string]: { [value: string]: string } }): QueryPayload {
         this.transformFilterClauseValuesHelper((queryPayload as any).filter, keysToValuesToLabels);
         return queryPayload;
     }

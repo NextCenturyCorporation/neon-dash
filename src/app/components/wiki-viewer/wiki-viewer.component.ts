@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -29,23 +28,21 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
-    OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
 export class WikiData {
-    constructor(public name: string, public text: SafeHtml) {}
+    constructor(public name: string, public text: SafeHtml) { }
 }
 
 /**
@@ -61,25 +58,24 @@ export class WikiData {
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
     public wikiViewerData: any[] = [];
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         protected http: HttpClient,
         protected sanitizer: DomSanitizer,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
-
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -224,7 +220,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(__options: any, __results: any[]): number {
         // Unused because we override handleTransformVisualizationQueryResults.
         return 0;
     }
@@ -244,7 +240,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         successCallback: (elementCount: number) => void,
         failureCallback: (err: Error) => void
     ): void {
-
         new Promise<number>((resolve, reject) => {
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
@@ -298,9 +293,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
             }
             return this.retrieveWikiPage(links.slice(1), data, callback);
-        }, (error: HttpErrorResponse) => {
-            return handleErrorOrFailure(error.error);
-        });
+        }, (error: HttpErrorResponse) => handleErrorOrFailure(error.error));
     }
 
     sanitize(text) {

@@ -21,6 +21,21 @@ datastores:
                               prettyName: Translated Text
                             - columnName: cluster
                               prettyName: Cluster ID
+                            - columnName: type
+                              prettyName: Type
+                        labelOptions:
+                            type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
                         mappings:
                           date: createdAt
             ariel_simpost:
@@ -39,11 +54,24 @@ datastores:
                               prettyName: Original Text
                             - columnName: translatedText
                               prettyName: Translated Text
-                            - columnName: cluster
-                              prettyName: Cluster ID
+                            - columnName: type
+                              prettyName: Type
+                        labelOptions:
+                            type:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
                         mappings:
                           date: createdAt
-            apan:
+            apan062019:
                 prettyName: ELISA APAN
                 tables:
                     ui_output:
@@ -57,6 +85,50 @@ datastores:
                               prettyName: Original Text
                             - columnName: author
                               prettyName: Author
+                            - columnName: topics
+                              prettyName: Topics
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                          date: createdAt
+            indonesia062019:
+                prettyName: Indonesia
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: topics
+                              prettyName: Topics
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
                         mappings:
                           date: createdAt
 dashboards:
@@ -75,7 +147,7 @@ dashboards:
                         original_text_key: es1.elisa_macedonia.ui_output.originalText
                         translated_text_key: es1.elisa_macedonia.ui_output.translatedText
                         date_field_key: es1.elisa_macedonia.ui_output.createdAt
-                        id_field_key: es1.elisa_macedonia.ui_output._id
+                        id_field_key: es1.elisa_macedonia.ui_output.id
                         group_field_key: es1.elisa_macedonia.ui_output.type
                         cluster_field_key: es1.elisa_macedonia.ui_output.cluster
                         cluster_name_field_key: es1.elisa_macedonia.ui_output.clusterName
@@ -105,10 +177,8 @@ dashboards:
                         original_text_key: es1.ariel_simpost.ui_output.originalText
                         translated_text_key: es1.ariel_simpost.ui_output.translatedText
                         date_field_key: es1.ariel_simpost.ui_output.createdAt
-                        id_field_key: es1.ariel_simpost.ui_output._id
+                        id_field_key: es1.ariel_simpost.ui_output.geoLocation.geohash
                         group_field_key: es1.ariel_simpost.ui_output.need
-                        cluster_field_key: es1.ariel_simpost.ui_output.cluster
-                        cluster_name_field_key: es1.ariel_simpost.ui_output.clusterName
                         latitude_key: es1.ariel_simpost.ui_output.geoLocation.lat
                         longitude_key: es1.ariel_simpost.ui_output.geoLocation.lon
                         text_cloud_data_key: es1.ariel_simpost.ui_output.location
@@ -133,7 +203,7 @@ dashboards:
                             contactEmail: 'awb@cs.cmu.edu'
                             website: 'https://www.cs.cmu.edu/'
                             logo: 'CMU-logo.jpg'
-        apan:
+        apan062019:
             name: 'APAN'
             category: 'Select a datastore...'
             choices:
@@ -141,20 +211,20 @@ dashboards:
                     name: ELISA APAN
                     layout: elisa_apan
                     tables:
-                        table_key_1: es1.apan.ui_output
+                        table_key_1: es1.apan062019.ui_output
                     fields:
-                        original_text_key: es1.apan.ui_output.originalText
-                        author_field_key: es1.apan.ui_output.author
-                        date_field_key: es1.apan.ui_output.createdAt
-                        id_field_key: es1.apan.ui_output._id
-                        thread_name_field_key: es1.apan.ui_output.threadName
-                        latitude_key: es1.apan.ui_output.geoLocations.lat
-                        longitude_key: es1.apan.ui_output.geoLocations.lon
-                        topics_field_key: es1.apan.ui_output.topics
-                        text_cloud_data_key_LOC: es1.apan.ui_output.LOC
-                        text_cloud_data_key_PER: es1.apan.ui_output.PER
-                        text_cloud_data_key_GPE: es1.apan.ui_output.GPE
-                        text_cloud_data_key_ORG: es1.apan.ui_output.ORG
+                        original_text_key: es1.apan062019.ui_output.originalText
+                        author_field_key: es1.apan062019.ui_output.author
+                        date_field_key: es1.apan062019.ui_output.createdAt
+                        id_field_key: es1.apan062019.ui_output._id
+                        thread_name_field_key: es1.apan062019.ui_output.threadName
+                        latitude_key: es1.apan062019.ui_output.geoLocations.lat
+                        longitude_key: es1.apan062019.ui_output.geoLocations.lon
+                        topics_field_key: es1.apan062019.ui_output.topics
+                        text_cloud_data_key_LOC: es1.apan062019.ui_output.LOC
+                        text_cloud_data_key_PER: es1.apan062019.ui_output.PER
+                        text_cloud_data_key_GPE: es1.apan062019.ui_output.GPE
+                        text_cloud_data_key_ORG: es1.apan062019.ui_output.ORG
                     options:
                         connectOnLoad: false
                         simpleFilter:
@@ -183,36 +253,69 @@ dashboards:
                             contactEmail: 'jonmay@isi.edu'
                             website: 'https://www.isi.edu/'
                             logo: 'ISI-logo.png'
-
+        indonesia062019:
+            name: 'Situation Discovery'
+            category: 'Select a datastore...'
+            choices:
+                indonesia062019:
+                    name: Indoensia Flooding 2019
+                    layout: indonesia_layout
+                    tables:
+                        table_key_1: es1.indonesia062019.ui_output
+                    fields:
+                        original_text_key: es1.indonesia062019.ui_output.originalText
+                        translated_text_key: es1.indonesia062019.ui_output.translatedText
+                        date_field_key: es1.indonesia062019.ui_output.createdAt
+                        id_field_key: es1.indonesia062019.ui_output.tweetId
+                        latitude_key: es1.indonesia062019.ui_output.geoLocations.lat
+                        longitude_key: es1.indonesia062019.ui_output.geoLocations.lon
+                        group_field_key: es1.indonesia062019.ui_output.topics
+                        text_cloud_data_key_LOC: es1.indonesia062019.ui_output.LOC
+                        text_cloud_data_key_PER: es1.indonesia062019.ui_output.PER
+                        text_cloud_data_key_GPE: es1.indonesia062019.ui_output.GPE
+                        text_cloud_data_key_ORG: es1.indonesia062019.ui_output.ORG
+                    options:
+                        connectOnLoad: false
+                        simpleFilter:
+                            tableKey: table_key_1
+                            fieldKey: original_text_key
+                            placeHolder: Search
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
 layouts:
     ariel_simpost:
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
           col: 1
           row: 1
           sizex: 4
-          sizey: 10
+          sizey: 14
           bindings:
-            title: Tweets
-            tableKey: table_key_1
-            idField: id_field_key
-            sortField: date_field_key
-            limit: 100
-            showFields:
-                - date_field_key
-                - original_text_key
-                - group_field_key
-            customColumnWidths:
-                - - date_field_key
-                  - 25
-                - - original_text_key
-                  - 300
-                - - group_field_key
-                  - 15
-            filterable: false
-            singleFilter: true
-            ignoreSelf: false
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
         - name: Map
           type: map
           icon: Map64
@@ -268,40 +371,15 @@ layouts:
               limit: 10
               groupField: group_field_key
               sortByAggregation: false
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 1
-          row: 11
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Original Text
-              tableKey: table_key_1
-              linkField: original_text_key
-              idField: id_field_key
-              respondMode: true
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 3
-          row: 11
-          sizex: 2
-          sizey: 4
-          bindings:
-              title: Translated Text
-              tableKey: table_key_1
-              linkField: translated_text_key
-              idField: id_field_key
-              respondMode: true
+              ignoreSelf: true
     elisa_apan:
         - name: Data Table
           type: dataTable
           icon: ViewData64
           col: 1
           row: 1
-          sizex: 3
-          sizey: 9
+          sizex: 4
+          sizey: 14
           bindings:
             title: Posts
             tableKey: table_key_1
@@ -328,10 +406,10 @@ layouts:
         - name: Annotation Viewer
           type: annotationViewer
           icon: documentViewer64
-          col: 1
-          row: 11
-          sizex: 3
-          sizey: 5
+          col: 5
+          row: 8
+          sizex: 5
+          sizey: 7
           bindings:
               title: Thread Posts
               tableKey: table_key_1
@@ -344,10 +422,10 @@ layouts:
         - name: Map
           type: map
           icon: Map64
-          col: 4
+          col: 5
           row: 1
-          sizex: 6
-          sizey: 14
+          sizex: 5
+          sizey: 7
           bindings:
               title: Locations
               tableKey: table_key_1
@@ -362,7 +440,7 @@ layouts:
                     latitudeField: latitude_key
                     longitudeField: longitude_key
                     dateField: date_field_key
-                    colorField: text_cloud_data_key_LOC
+                    colorField: group_field_key
               mapType: leaflet
               west: -75.3
               north: 21.9
@@ -379,13 +457,14 @@ layouts:
           sizex: 3
           sizey: 6
           bindings:
-              title: Topics
+              title: Situation Topics
               type: bar-h
               tableKey: table_key_1
               xField: topics_field_key
               limit: 10
               groupField: topics_field_key
               sortByAggregation: false
+              ignoreSelf: true
               contributionKeys:
                 - apan
                 - isi
@@ -422,34 +501,47 @@ layouts:
                 - apan
                 - rpi
     elisa_macedonia:
-        - name: Data Table
-          type: dataTable
-          icon: ViewData64
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
           col: 1
           row: 1
           sizex: 4
-          sizey: 10
+          sizey: 9
           bindings:
-            title: Tweets
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 8
+          bindings:
+            title: Situation Frame
             tableKey: table_key_1
             idField: id_field_key
             sortField: date_field_key
             limit: 100
             allColumnStatus: hide
-            exceptionsToStatus:
-                - date_field_key
-                - original_text_key
+            showFields:
                 - group_field_key
-            customColumnWidths:
-                - - date_field_key
-                  - 25
-                - - original_text_key
-                  - 300
-                - - group_field_key
-                  - 15
-            filterable: false
+                - text_cloud_data_key
+            filterable: true
             singleFilter: true
             ignoreSelf: false
+            filterFields:
+                - id_field_key
         - name: Map
           type: map
           icon: Map64
@@ -494,9 +586,9 @@ layouts:
           type: aggregation
           icon: bar_chart
           col: 10
-          row: 1
+          row: 10
           sizex: 3
-          sizey: 9
+          sizey: 6
           bindings:
               title: Needs
               type: bar-h
@@ -508,9 +600,9 @@ layouts:
         - name: Bar Chart
           type: aggregation
           icon: bar_chart
-          col: 10
+          col: 1
           row: 10
-          sizex: 3
+          sizex: 4
           sizey: 5
           bindings:
               title: Situation Clusters
@@ -520,29 +612,75 @@ layouts:
               limit: 100
               groupField: group_field_key
               sortByAggregation: true
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
+    indonesia_layout:
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
           col: 1
-          row: 11
-          sizex: 2
-          sizey: 4
+          row: 1
+          sizex: 4
+          sizey: 14
           bindings:
-              title: Original Text
+              title: Tweets
               tableKey: table_key_1
-              linkField: original_text_key
+              contentField: translated_text_key
+              dateField: date_field_key
               idField: id_field_key
-              respondMode: true
-        - name: Annotation Viewer
-          type: annotationViewer
-          icon: documentViewer64
-          col: 3
-          row: 11
-          sizex: 2
-          sizey: 4
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 10
           bindings:
-              title: Translated Text
+              title: Locations
               tableKey: table_key_1
-              linkField: translated_text_key
-              idField: id_field_key
-              respondMode: true
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key
+              mapType: leaflet
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_LOC
+              preFilter: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_1
+              xField: group_field_key
+              limit: 10
+              groupField: group_field_key
+              sortByAggregation: false
+              ignoreSelf: true

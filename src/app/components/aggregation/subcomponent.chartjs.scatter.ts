@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,13 +11,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ElementRef } from '@angular/core';
 import { AbstractChartJsDataset, SelectMode } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
-import { Color } from '../../color';
+import { Color } from '../../models/color';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
 class ChartJsScatterDataset extends ChartJsLineDataset {
@@ -86,7 +85,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @return {boolean}
      * @override
      */
-    protected isSelectable(items: any[]): boolean {
+    protected isSelectable(__items: any[]): boolean {
         // Ignore whether any items exist at the location of the hover event.
         return this.selectMode !== SelectMode.NONE;
     }

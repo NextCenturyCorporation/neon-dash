@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,37 +11,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
-    Injector,
-    OnDestroy,
-    OnInit,
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { DashboardService } from '../../services/dashboard.service';
 
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { DashboardState } from '../../models/dashboard-state';
+import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
 import {
-    OptionChoices,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetOptionCollection,
-    WidgetSelectOption
-} from '../../widget-option';
-
-import { neonEvents } from '../../../app/neon-namespaces';
-import * as uuidv4 from 'uuid/v4';
-import { MatDialog } from '@angular/material';
+    WidgetOptionCollection
+} from '../../models/widget-option';
 
 @Component({
     selector: 'app-filter-builder',
@@ -50,7 +35,8 @@ import { MatDialog } from '@angular/material';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+
+export class FilterBuilderComponent {
     public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
@@ -66,25 +52,18 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
+    readonly dashboardState: DashboardState;
+
     constructor(
-        datasetService: DatasetService,
-        filterService: FilterService,
-        searchService: AbstractSearchService,
-        injector: Injector,
-        ref: ChangeDetectorRef,
-        dialog: MatDialog
+        public dashboardService: DashboardService,
+        public filterService: FilterService,
+        public searchService: AbstractSearchService
     ) {
+        this.dashboardService.stateSource.subscribe(() => {
+            this.clearEveryFilterClause();
+        });
 
-        super(
-            datasetService,
-            filterService,
-            searchService,
-            injector,
-            ref,
-            dialog
-        );
-
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+        this.dashboardState = dashboardService.state;
 
         this.addBlankFilterClause();
     }
@@ -94,8 +73,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.datasetService);
-        filterClause.field = this.createEmptyField();
+        filterClause.updateDatabases(this.dashboardState);
+        filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
 
@@ -122,95 +101,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
-     *
-     * @return {FilterBehavior[]}
-     * @override
-     */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        // TODO THOR-996 The Filter Builder does not update with filters that are set externally, but should it (combined w/ Filter Tray)?
-        return [] as FilterBehavior[];
-    }
-
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createNonFieldOptions(): WidgetOption[] {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return [];
-    }
-
-    /**
-     * Finalizes the given visualization query by adding the aggregations, filters, groups, and sort using the given options.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {QueryPayload} queryPayload
-     * @arg {FilterClause[]} sharedFilters
-     * @return {QueryPayload}
-     * @override
-     */
-    finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return null;
-    }
-
-    /**
-     * Returns an object containing the ElementRef objects for the visualization.
-     *
-     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} visualization
-     * @override
-     */
-    getElementRefs(): any {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return {};
-    }
-
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationDefaultLimit(): number {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return 0;
-    }
-
-    /**
-     * Returns the default title for the visualization.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationDefaultTitle(): string {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        return 'Filter Builder';
-    }
-
-    /**
      * Updates the database, tables, and fields in the given clause.
      *
      * @arg {FilterClauseMetaData} filterClause
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.datasetService);
+        filterClause.updateTables(this.dashboardState);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -219,7 +116,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {FilterClauseMetaData} filterClause
      */
-    public handleChangeDataOfClause(filterClause: FilterClauseMetaData): void {
+    public handleChangeDataOfClause(__filterClause: FilterClauseMetaData): void {
         // Do nothing.
     }
 
@@ -239,17 +136,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.datasetService);
-    }
-
-    /**
-     * Updates and redraws the elements and properties for the visualization.
-     *
-     * @override
-     */
-    refreshVisualization() {
-        // TODO THOR-994 The Filter Builder is no longer a Widget.
-        // Do nothing.
+        filterClause.updateFields(this.dashboardState);
     }
 
     /**
@@ -258,9 +145,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @arg {FilterClauseMetaData} filterClause
      */
     public removeClause(filterClause: FilterClauseMetaData): void {
-        this.filterClauses = this.filterClauses.filter((filterClauseFromGlobalList) => {
-            return filterClause._id !== filterClauseFromGlobalList._id;
-        });
+        this.filterClauses = this.filterClauses.filter((filterClauseFromGlobalList) => filterClause._id !== filterClauseFromGlobalList._id);
 
         if (!this.filterClauses.length) {
             this.addBlankFilterClause();
@@ -277,7 +162,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         // Turn the filter clauses into filter designs.
         let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
-            let operator: string = filterClause.operator.value;
             let value: any = filterClause.value;
             if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
                 value = parseFloat(filterClause.value);
@@ -305,25 +189,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.datasetService.findRelationDataList(),
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
                 this.searchService);
 
             this.clearEveryFilterClause();
         }
-    }
-
-    /**
-     * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
-     * Returns the count of elements shown in the visualization.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any[]} results
-     * @return {number}
-     * @override
-     */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return 0;
     }
 
     /**
@@ -347,18 +217,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     public validateFilters(filterClauses: FilterClauseMetaData[]): boolean {
         return filterClauses.every((filterClause) => this.validateFilter(filterClause));
     }
-
-    /**
-     * Returns whether the visualization query created using the given options is valid.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @return {boolean}
-     * @override
-     */
-    validateVisualizationQuery(options: any): boolean {
-        // TODO THOR-994 The Filter Builder does not run a visualization query.
-        return false;
-    }
 }
 
 class OperatorMetaData {
@@ -367,10 +225,10 @@ class OperatorMetaData {
 }
 
 class FilterClauseMetaData extends WidgetOptionCollection {
-    changeDatabase: DatabaseMetaData;
-    changeTable: TableMetaData;
-    changeField: FieldMetaData;
-    field: FieldMetaData;
+    changeDatabase: NeonDatabaseMetaData;
+    changeTable: NeonTableMetaData;
+    changeField: NeonFieldMetaData;
+    field: NeonFieldMetaData;
     operator: OperatorMetaData;
     value: string;
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { Observable } from 'rxjs';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
@@ -20,12 +19,12 @@ import { map, startWith } from 'rxjs/operators';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
@@ -34,7 +33,7 @@ import {
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 
 import { query } from 'neon-framework';
 import { MatDialog } from '@angular/material';
@@ -45,9 +44,8 @@ import { MatDialog } from '@angular/material';
     styleUrls: ['./query-bar.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QueryBarComponent  extends BaseNeonComponent {
-
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+export class QueryBarComponent extends BaseNeonComponent {
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('queryBar') queryBar: ElementRef;
 
     autoComplete: boolean = true;
@@ -61,7 +59,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
     private previousText: string = '';
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
@@ -69,9 +67,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
-
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -101,9 +98,9 @@ export class QueryBarComponent  extends BaseNeonComponent {
         fieldName: string,
         value?: any
     ): FilterDesign {
-        let database: DatabaseMetaData = this.datasetService.getDatabaseWithName(databaseName);
-        let table: TableMetaData = this.datasetService.getTableWithName(databaseName, tableName);
-        let field: FieldMetaData = this.datasetService.getFieldWithName(databaseName, tableName, fieldName);
+        let database: NeonDatabaseMetaData = this.dashboardState.getDatabaseWithName(databaseName);
+        let table: NeonTableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
+        let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
             datastore: '',
             database: database,
@@ -141,7 +138,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
-            // TODO THOR-950 Rename extensionFields because it is not an array of FieldMetaData objects!
+            // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
@@ -251,14 +248,14 @@ export class QueryBarComponent  extends BaseNeonComponent {
             setValues = false;
         }
 
-        results.forEach((d) => {
+        results.forEach((result) => {
             let item = {};
             for (let field of options.fields) {
                 if (field.columnName === options.filterField.columnName && setValues) {
-                    this.queryValues.push(neonUtilities.deepFind(d, options.filterField.columnName));
+                    this.queryValues.push(neonUtilities.deepFind(result, options.filterField.columnName));
                 }
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(d, field.columnName);
+                    let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
@@ -331,7 +328,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
             let filtersToAdd: FilterDesign[] = [this.createFilterDesignOnText(text)];
             let filtersToDelete: FilterDesign[] = [];
 
-            //gathers ids from the filtered query text in order to extend filtering to the other components
+            // Gathers ids from the filtered query text in order to extend filtering to the other components
             if (this.options.extendedFilter) {
                 this.options.extensionFields.forEach((extensionField) => {
                     let extendedFilter: FilterDesign = this.extensionFilter(text, extensionField, values);
@@ -362,13 +359,13 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     private extensionFilter(text: string, fields: any, array: any[]): FilterDesign {
         if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
-            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table),
-                queryFields = [fields.idField, fields.filterField],
-                execute = this.searchService.runSearch(this.datasetService.getDatastoreType(), this.datasetService.getDatastoreHost(), {
-                    query: extensionQuery
-                }),
-                tempArray = [],
-                queryClauses = [];
+            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
+            let queryFields = [fields.idField, fields.filterField];
+            let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
+                query: extensionQuery
+            });
+            let tempArray = [];
+            let queryClauses = [];
             for (let value of array) {
                 queryClauses.push(query.where(fields.filterField, '=', value[this.options.idField.columnName]));
             }
@@ -376,8 +373,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
             extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
             execute.done((response) => {
                 if (response && response.data && response.data.length) {
-                    response.data.forEach((d) => {
-                        let value = neonUtilities.deepFind(d, fields.idField);
+                    response.data.forEach((result) => {
+                        let value = neonUtilities.deepFind(result, fields.idField);
                         if (typeof value !== 'undefined') {
                             if (value instanceof Array) {
                                 for (let values of value) {
@@ -412,7 +409,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionAddFilter(text: string, fields: any, array: any[]): FilterDesign {
+    private extensionAddFilter(__text: string, fields: any, array: any[]): FilterDesign {
         let filters: FilterDesign[] = array.map((element) => {
             let value: any = ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element);
             return this.createFilterDesignOnExtensionField(fields.database, fields.table, fields.idField, value);
@@ -442,7 +439,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         return false;
     }
 
-    private updateQueryBarText(filters: FilterDesign[]) {
+    private updateQueryBarText(__filters: FilterDesign[]) {
         // TODO AIDA-754
     }
 }
