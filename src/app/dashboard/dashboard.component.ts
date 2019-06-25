@@ -21,7 +21,8 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef
+    ViewContainerRef,
+    ElementRef
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
@@ -54,9 +55,7 @@ export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
-            if (!this.pendingInitialRegistrations) {
-                this.dashboardService.state.modified = true;
-            }
+            this.trackDashboardModify();
             return fn.call(this, ...args);
         };
     };
@@ -75,6 +74,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild(SimpleFilterComponent) simpleFilter: SimpleFilterComponent;
     @ViewChild(MatSidenav) sideNavRight: MatSidenav;
+    @ViewChild('scrollable') scrollArea: ElementRef;
 
     @ViewChild(ContextMenuComponent) contextMenu: ContextMenuComponent;
 
@@ -105,7 +105,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     gridConfig: NgGridConfig = {
         resizable: true,
-        margins: [10, 10, 10, 10],
+        margins: [5, 5, 5, 5],
         min_cols: 1,
         max_cols: 12,
         min_rows: 0,
@@ -259,6 +259,27 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             favicon.setAttribute('type', 'image/x-icon');
             favicon.setAttribute('href', icon);
             head.appendChild(favicon);
+        }
+    }
+
+    trackDashboardModify() {
+        if (!this.pendingInitialRegistrations) {
+            this.dashboardService.state.modified = true;
+        }
+        setTimeout(() => this.enforceScrollingState(), 100);
+    }
+
+    enforceScrollingState() {
+        // Track scrolling state for dashboard
+        const scrollNode = this.scrollArea.nativeElement as HTMLDivElement;
+        const isScrolling = (scrollNode.scrollHeight > scrollNode.clientHeight);
+
+        if (
+            (isScrolling && !scrollNode.classList.contains('scrolling')) ||
+            (!isScrolling && scrollNode.classList.contains('scrolling'))
+        ) {
+            scrollNode.classList.toggle('scrolling');
+            this.grid.triggerResize();
         }
     }
 
