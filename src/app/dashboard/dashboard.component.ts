@@ -369,7 +369,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     handleKeydown(ev: KeyboardEvent) {
-        if (ev.key === 'Shift') {
+        if (ev.key === 'Shift' && !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
             this.movingWidgets = true;
         }
     }
