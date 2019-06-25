@@ -40,7 +40,6 @@ import { NeonFieldMetaData } from '../../models/types';
 import {
     AggregationType,
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
@@ -123,19 +122,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this))
-        ];
-    }
-
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
             root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
@@ -149,13 +135,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('dataField', 'Term Field', true),
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation),
             new WidgetSelectOption('andFilters', 'Filter Operator', true, OptionChoices.OrFalseAndTrue),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
