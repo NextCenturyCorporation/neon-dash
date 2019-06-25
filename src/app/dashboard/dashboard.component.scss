@@ -68,12 +68,23 @@ mat-toolbar {
 .neon-dash {
     grid-area: grid;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100vw;
+    background-color: var(--color-background, lightgrey);
 
-    .neon-grid {
-        .grid {
-            background-color: var(--color-background, lightgrey);
-        }
+    .neon-wrapper {
         width: calc(100vw - 15px);
+        box-sizing: border-box;
+        padding: 5px;
+        overflow-x: hidden;
+    }
+    
+    .neon-grid {
+        width: calc(100vw - 14px);
+        .grid {
+            background: unset;
+        }
+
         .grid-item {        
             background-color: var(--color-background, white);
 
