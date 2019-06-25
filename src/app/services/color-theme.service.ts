@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
-import { Color, ColorSet } from '../models/color';
+import { Color, ColorMap, ColorSet } from '../models/color';
 
 /**
  * @class NeonTheme
@@ -145,10 +145,10 @@ export class ColorThemeService extends AbstractColorThemeService {
     /**
      * Initializes the starting colors using the given input.
      *
-     * @arg {Record<string, Record<string, Record<string, Record<string, string>>>>} colors
+     * @arg {ColorMap} colors
      * @override
      */
-    public initializeColors(colors: Record<string, Record<string, Record<string, Record<string, string>>>>): void {
+    public initializeColors(colors: ColorMap): void {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
         Object.keys(colors || {}).forEach((databaseName) => {
             Object.keys(colors[databaseName]).forEach((tableName) => {
