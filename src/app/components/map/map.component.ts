@@ -805,6 +805,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private redrawFilterBox(filters: FilterDesign[]): void {
+        if (!this.mapObject) {
+            setTimeout(this.redrawFilterBox.bind(this, filters), 100);
+        }
         let removeFilter = true;
 
         // Find the bounds inside the compound filter with an expected structure of createFilterDesignOnBox.
@@ -824,7 +827,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
                 if (this.isNumber(north) && this.isNumber(south) && this.isNumber(east) && this.isNumber(west)) {
                     removeFilter = false;
-                    // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    if (this.mapObject) {
+                        this.mapObject.drawBoundary([north, west], [south, east]);
+                        // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    }
                 }
             }
         }
