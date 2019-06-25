@@ -258,11 +258,7 @@ export class LeafletNeonMap extends AbstractMap {
     drawBoundary(topLeft: [number, number], bottomRight: [number, number]): void {
         if (topLeft.length === 2 && bottomRight.length === 2) {
             this.drawBox([topLeft, bottomRight]);
-            setTimeout(() => {
-                this.map.fitBounds([topLeft, bottomRight], {
-                    animate: false
-                });
-            }, 500);
+            setTimeout(this.map.fitBounds.bind(this.map, [topLeft, bottomRight], { animate: false }), 250);
         }
     }
 
