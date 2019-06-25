@@ -455,7 +455,7 @@ body {
     border-bottom: 2px solid var(--color-border, lightgrey);
 
     &.neon-toolbar-navbar {
-        border-bottom: none;
+        border-bottom: 0;
         height: 50px !important;
         line-height: 40px !important;
         min-height: 50px !important;
