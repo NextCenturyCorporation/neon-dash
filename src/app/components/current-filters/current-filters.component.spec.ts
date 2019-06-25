@@ -19,7 +19,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+import { SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -69,7 +70,7 @@ describe('Component: CurrentFiltersComponent', () => {
     initializeTestBed('Current Filters', {
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [CurrentFiltersModule]

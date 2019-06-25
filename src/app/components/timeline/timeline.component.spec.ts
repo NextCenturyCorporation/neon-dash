@@ -22,7 +22,7 @@ import { TimelineComponent } from './timeline.component';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -38,7 +38,7 @@ describe('Component: Timeline', () => {
         providers: [
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],

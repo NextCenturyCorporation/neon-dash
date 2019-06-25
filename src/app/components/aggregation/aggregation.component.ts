@@ -42,10 +42,10 @@ import {
     CompoundFilterDesign,
     FilterBehavior,
     FilterDesign,
-    FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -183,7 +183,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,

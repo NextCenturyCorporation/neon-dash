@@ -34,7 +34,8 @@ import {
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
@@ -222,7 +223,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         protected colorThemeService: InjectableColorThemeService,

@@ -18,7 +18,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ContributionDialogModule } from './contribution-dialog.module';
 
 import { ContributionDialogComponent } from './contribution-dialog.component';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
@@ -28,7 +28,7 @@ describe('Component: ContributionDialogComponent', () => {
 
     initializeTestBed('ContributionDialogComponent', {
         providers: [
-            FilterService,
+            InjectableFilterService,
             DashboardService,
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }

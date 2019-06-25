@@ -37,10 +37,10 @@ import {
     CompoundFilterDesign,
     FilterBehavior,
     FilterDesign,
-    FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
@@ -91,7 +91,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
