@@ -14,7 +14,7 @@
  */
 import { Injector } from '@angular/core';
 import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
-import { DataUtil } from '../util/data.util';
+import { DatasetUtil } from '../util/dataset.util';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -133,7 +133,7 @@ export class OptionCollection {
      */
     public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
         let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(DataUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
+        return this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
     }
 
     /**
@@ -142,7 +142,7 @@ export class OptionCollection {
     public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
         let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) =>
-            this.findField(DataUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
+            this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
     }
 
     protected getConstructor<T>(this: T): new(...args: any[]) => T {
@@ -189,13 +189,13 @@ export class OptionCollection {
         if (this.databases.length) {
             // By default, set the initial database to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredDatabase = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
                 configuredTableKeys[0]).database;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredDatabase = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
+                configuredDatabase = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
             }
 
             if (configuredDatabase) {
@@ -242,13 +242,13 @@ export class OptionCollection {
         if (this.tables.length > 0) {
             // By default, set the initial table to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredTable = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
                 configuredTableKeys[0]).table;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredTable = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
+                configuredTable = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
             }
 
             if (configuredTable) {

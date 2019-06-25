@@ -22,7 +22,7 @@ import * as uuidv4 from 'uuid/v4';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
-import { DataUtil } from '../util/data.util';
+import { DatasetUtil } from '../util/dataset.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -317,7 +317,7 @@ export class FilterUtil {
         } // Simple filter
         const [field, operator, value, root] = simple as string[];
         return {
-            ...DataUtil.deconstructDottedReference(field),
+            ...DatasetUtil.deconstructDottedReference(field),
             operator,
             value,
             root: root || 'or'
