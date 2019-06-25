@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,37 +11,34 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { SampleComponent } from './sample.component';
-import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
+import { AbstractSubcomponent } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
-import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { NeonFieldMetaData } from '../../models/types';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatDialog } from '@angular/material';
 
+import { CommonWidgetModule } from '../../common-widget.module';
+
 // Helper functions.
 
+/*
 let validateSelect = (element: any, name: string, required: boolean = false, disabled: boolean = false) => {
     expect(element.componentInstance.disabled).toEqual(disabled);
     expect(element.componentInstance.placeholder).toEqual(name);
@@ -50,16 +47,16 @@ let validateSelect = (element: any, name: string, required: boolean = false, dis
 
 let validateSelectFields = (element: any, required: boolean = false, selected: string = '') => {
     let options = element.componentInstance.options.toArray();
-    expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + (required ? 0 : 1));
+    expect(options.length).toEqual(DashboardServiceMock.FIELDS.length + (required ? 0 : 1));
     if (!required) {
         // Check for the empty field!
         expect(options[0].getLabel()).toEqual('(None)');
     }
     // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-    for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+    for (let i = 0; i < DashboardServiceMock.FIELDS.length; ++i) {
         let index = (required ? i : (i + 1));
-        expect(options[index].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-        expect(options[index].selected).toEqual(selected ? (DatasetServiceMock.FIELDS[i].columnName === selected) : false);
+        expect(options[index].getLabel()).toEqual(DashboardServiceMock.FIELDS[i].prettyName);
+        expect(options[index].selected).toEqual(selected ? (DashboardServiceMock.FIELDS[i].columnName === selected) : false);
     }
 };
 
@@ -68,44 +65,48 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
     expect(element.nativeElement.textContent).toContain(content);
     expect(element.nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(checked);
 };
+*/
 
 // Must define the test component.
 @Component({
-        selector: 'app-test-sample',
-        templateUrl: './sample.component.html',
-        styleUrls: ['./sample.component.scss'],
-        encapsulation: ViewEncapsulation.Emulated,
-        changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-test-sample',
+    templateUrl: './sample.component.html',
+    styleUrls: ['./sample.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
+/* eslint-disable @typescript-eslint/no-useless-constructor */
 class TestSampleComponent extends SampleComponent {
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        visualization: ElementRef
     ) {
-
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
             ref,
-            dialog
+            dialog,
+            visualization
         );
     }
 
     // TODO Add any needed custom functions here.
 }
+/* eslint-enable @typescript-eslint/no-useless-constructor */
 
 // TODO Create a test implementation of your subcomponent so you can test its behavior.
 
-/* tslint:disable:component-class-suffix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 class TestSubcomponent extends AbstractSubcomponent {
-    buildElements(elementRef: ElementRef) {
+    buildElements(_elementRef: ElementRef) {
         // TODO
     }
 
@@ -113,33 +114,29 @@ class TestSubcomponent extends AbstractSubcomponent {
         // TODO
     }
 
-    updateData(data: any[]) {
+    updateData(_data: any[]) {
         // TODO
     }
 }
-/* tslint:enable:component-class-suffix */
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 describe('Component: Sample', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
-            UnsharedFilterComponent
+            TestSampleComponent
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            CommonWidgetModule
         ]
     });
 
@@ -150,8 +147,8 @@ describe('Component: Sample', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
-        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.sampleOptionalField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sampleRequiredField).toEqual(NeonFieldMetaData.get());
         expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
     });
@@ -176,20 +173,23 @@ describe('Component: Sample', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.sampleRequiredField = DatasetServiceMock.FILTER_FIELD;
+        component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -211,10 +211,16 @@ describe('Component: Sample', () => {
     });
 
     it('finalizeVisualizationQuery does return expected query with sampleOptionalField', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
+        component.options.sampleOptionalField = NeonFieldMetaData.get({
+            columnName: 'testOptionalField1',
+            prettyName: 'Test Optional Field 1'
+        });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
@@ -250,7 +256,10 @@ describe('Component: Sample', () => {
     });
 
     it('filterFromSubcomponent does call filterOnItem', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
         let spy = spyOn(component, 'filterOnItem');
 
         component.filterFromSubcomponent('testInput');
@@ -266,16 +275,16 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DatasetServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             value: 'testFilterValue'
         }, true);
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -287,7 +296,7 @@ describe('Component: Sample', () => {
         let spyToggle = spyOn((component as any), 'toggleFilters');
 
         (component as any).filterOnItem({
-            field: DatasetServiceMock.FILTER_FIELD,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             value: 'testFilterValue'
         });
 
@@ -295,9 +304,9 @@ describe('Component: Sample', () => {
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -345,18 +354,24 @@ describe('Component: Sample', () => {
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _count: 2,
@@ -380,7 +395,10 @@ describe('Component: Sample', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
         expect(component.visualizationData).toEqual([]);
@@ -388,8 +406,14 @@ describe('Component: Sample', () => {
     });
 
     it('transformVisualizationQueryResults with aggregation query data and optional field does return expected data', () => {
-        component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.options.sampleOptionalField = NeonFieldMetaData.get({
+            columnName: 'testOptionalField1',
+            prettyName: 'Test Optional Field 1'
+        });
+        component.options.sampleRequiredField = NeonFieldMetaData.get({
+            columnName: 'testRequiredField1',
+            prettyName: 'Test Required Field 1'
+        });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _count: 2,
@@ -439,32 +463,30 @@ describe('Component: Sample', () => {
     });
 
     it('does show toolbarand body-container', () => {
-        let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
+        let container = fixture.debugElement;
         expect(container).not.toBeNull();
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        let bodyContainer = fixture.debugElement.query(By.css('.body-container'));
         expect(bodyContainer).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
     it('does show settings icon button in toolbar', () => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
-
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
     it('does hide loading overlay by default', () => {
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     });
 
@@ -474,15 +496,15 @@ describe('Component: Sample', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+        let loadingOverlay = fixture.debugElement.query(By.css('.loading-overlay'));
         expect(loadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+        let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     });
 
     it('does not show data-item elements if active data is empty array', () => {
-        let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
+        let dataItems = fixture.debugElement.queryAll(By.css('.body-container .data-item'));
         expect(dataItems.length).toEqual(0);
     });
 
@@ -500,19 +522,19 @@ describe('Component: Sample', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let dataItems = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item'));
+        let dataItems = fixture.debugElement.queryAll(By.css('.body-container .data-item'));
         expect(dataItems.length).toEqual(2);
 
-        let dataItemLabels = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item .text'));
+        let dataItemLabels = fixture.debugElement.queryAll(By.css('.body-container .data-item .text'));
         expect(dataItemLabels.length).toEqual(2);
 
         expect(dataItemLabels[0].nativeElement.textContent).toContain('alpha: 2');
         expect(dataItemLabels[1].nativeElement.textContent).toContain('omega: 1');
 
-        let dataItemButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item button'));
+        let dataItemButtons = fixture.debugElement.queryAll(By.css('.body-container .data-item button'));
         expect(dataItemButtons.length).toEqual(4);
 
-        let dataItemIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .body-container .data-item mat-icon'));
+        let dataItemIcons = fixture.debugElement.queryAll(By.css('.body-container .data-item mat-icon'));
         expect(dataItemIcons.length).toEqual(4);
 
         expect(dataItemIcons[0].nativeElement.textContent).toEqual('search');
@@ -525,19 +547,16 @@ describe('Component: Sample', () => {
 describe('Component: Sample with config', () => {
     let component: TestSampleComponent;
     let fixture: ComponentFixture<TestSampleComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed('Sample', {
         declarations: [
-            TestSampleComponent,
-            UnsharedFilterComponent
+            TestSampleComponent
         ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchService },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
@@ -553,9 +572,7 @@ describe('Component: Sample with config', () => {
             { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            CommonWidgetModule
         ]
     });
 
@@ -566,11 +583,11 @@ describe('Component: Sample with config', () => {
     });
 
     it('superclass options properties are set to expected values from config', () => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
-        expect(component.options.unsharedFilterField).toEqual(DatasetServiceMock.FILTER_FIELD);
+        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
         expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'test_publish_event',
@@ -592,8 +609,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('class options properties are set to expected values from config', () => {
-        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(component.options.sampleRequiredField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
@@ -604,12 +621,12 @@ describe('Component: Sample with config', () => {
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
-        // expect(component.subcomponentElementRef).toBeDefined();
+        // TODO expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
     });
 
     it('does show header in toolbar with visualization title from config', () => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });

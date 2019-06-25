@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,95 +11,52 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    DebugElement,
-    Injector,
-    ViewEncapsulation
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDividerModule, MatRadioModule, MatSelectModule, MatFormFieldModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { AppMaterialModule } from '../../app.material.module';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { NeonGTDConfig } from '../../neon-gtd-config';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-// Must define the test component.
-@Component({
-    selector: 'app-settings',
-    templateUrl: 'settings.component.html',
-    styleUrls: ['settings.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated,
-    changeDetection: ChangeDetectionStrategy.OnPush
-})
-
-class TestSettingsComponent extends SettingsComponent {
-    constructor(
-        changeDetection: ChangeDetectorRef,
-        datasetService: DatasetService,
-        dialog: MatDialog,
-        injector: Injector,
-        widgetService: AbstractWidgetService
-    ) {
-
-        super(
-            changeDetection,
-            datasetService,
-            dialog,
-            injector,
-            widgetService
-        );
-    }
-
-    // TODO Add any needed custom functions here.
-}
+import { SettingsModule } from './settings.module';
+import { ExportControlModule } from '../export-control/export-control.module';
+import { FormsModule } from '@angular/forms';
 
 describe('Component: Settings', () => {
-    let component: TestSettingsComponent;
-    let fixture: ComponentFixture<TestSettingsComponent>,
-        getService = (type: any) => fixture.debugElement.injector.get(type);
-    let debugElement: DebugElement;
+    let fixture: ComponentFixture<SettingsComponent>;
+    // TODO let component: SettingsComponent;
 
     initializeTestBed('Settings', {
         declarations: [
-            TestSettingsComponent
+            SettingsComponent
         ],
         providers: [
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractWidgetService, useClass: WidgetService }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            MatDividerModule,
+            MatRadioModule,
+            MatSelectModule,
+            MatFormFieldModule,
+            ExportControlModule,
+            FormsModule,
+            SettingsModule
         ]
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestSettingsComponent);
-        component = fixture.componentInstance;
+        fixture = TestBed.createComponent(SettingsComponent);
+        // TODO component = fixture.componentInstance;
         fixture.detectChanges();
-
-        debugElement = fixture.debugElement;
     });
-
 });

@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,10 +11,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 
 /**
  * Component for managing the unshared filter of a visualization.
@@ -36,30 +35,33 @@ export class UnsharedFilterComponent {
      * This should be bound to the 'meta' component from the BaseNeonComponent class
      */
     @Input() public meta: {
-        databases: DatabaseMetaData[],
-        database: DatabaseMetaData,
-        tables: TableMetaData[],
-        table: TableMetaData,
-        unsharedFilterField: FieldMetaData,
-        unsharedFilterValue: string,
-        fields: FieldMetaData[]
+        databases: NeonDatabaseMetaData[];
+        database: NeonDatabaseMetaData;
+        tables: NeonTableMetaData[];
+        table: NeonTableMetaData;
+        unsharedFilterField: NeonFieldMetaData;
+        unsharedFilterValue: string;
+        fields: NeonFieldMetaData[];
     };
 
     /**
      * Triggered when the filter field has changed.
-     * @type {EventEmitter<FieldMetaData>}
+     * @type {EventEmitter<NeonFieldMetaData>}
      */
-    @Output() unsharedFilterFieldChanged = new EventEmitter<FieldMetaData>();
+    @Output() unsharedFilterFieldChanged = new EventEmitter<NeonFieldMetaData>();
+
     /**
      * Triggered when the filter has been cleared
      * @type {EventEmitter<void>}
      */
     @Output() unsharedFilterRemoved = new EventEmitter<void>();
+
     /**
      * Triggered when the filter value has changed
      * @type {EventEmitter<string>}
      */
     @Output() unsharedFilterValueChanged = new EventEmitter<string>();
+
     /**
      * Triggered when either the filter's field or value has changed.
      * Either bind to this, or to the filter/value change events. Both events will be triggered either way.
@@ -74,7 +76,7 @@ export class UnsharedFilterComponent {
 
     handleRemoveUnsharedFilter(): void {
         this.meta.unsharedFilterValue = null;
-        this.meta.unsharedFilterField = new FieldMetaData();
+        this.meta.unsharedFilterField = NeonFieldMetaData.get();
         this.unsharedFilterRemoved.emit();
     }
 

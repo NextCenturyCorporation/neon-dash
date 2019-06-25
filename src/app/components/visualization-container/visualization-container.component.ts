@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,20 +11,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { NeonGridItem } from '../../neon-grid-item';
-import { neonEvents } from '../../neon-namespaces';
+import { NeonGridItem } from '../../models/neon-grid-item';
+import { neonEvents } from '../../models/neon-namespaces';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 
 @Component({
-  selector: 'app-visualization-container',
-  templateUrl: 'visualization-container.component.html',
-  styleUrls: ['visualization-container.component.scss']
+    selector: 'app-visualization-container',
+    templateUrl: 'visualization-container.component.html',
+    styleUrls: ['visualization-container.component.scss']
 })
 export class VisualizationContainerComponent implements OnInit {
     @ViewChild(VisualizationInjectorComponent) injector: VisualizationInjectorComponent;
@@ -72,7 +71,6 @@ export class VisualizationContainerComponent implements OnInit {
         setTimeout(() => {
             this.onResizeStop();
         }, 300);
-
     }
 
     moveToTop() {

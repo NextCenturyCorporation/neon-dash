@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -27,22 +26,21 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { NeonFieldMetaData } from '../../models/types';
+import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
-    WidgetOptionCollection,
     WidgetSelectOption
-} from '../../widget-option';
+} from '../../models/widget-option';
 import * as _ from 'lodash';
 import { MatDialog } from '@angular/material';
 
@@ -54,7 +52,6 @@ import { MatDialog } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -64,7 +61,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     private DEFAULT_COLUMN_WIDTH: number = 150;
     private MINIMUM_COLUMN_WIDTH: number = 100;
 
-    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
+    public activeHeaders: { prop: string, name: string, active: boolean, style: Record<string, any>, cellClass: any }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public headers: any[] = [];
     public selected: any[] = [];
@@ -73,34 +70,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public tableData: any[] = null;
 
     public drag: {
-        mousedown: boolean,
-        downIndex: number,
-        currentIndex: number,
-        field: { prop: string, name: string, active: boolean },
-        x: number,
-        y: number
+        mousedown: boolean;
+        downIndex: number;
+        currentIndex: number;
+        field: { prop: string, name: string, active: boolean };
+        x: number;
+        y: number;
     } = {
-            mousedown: false,
-            downIndex: -1,
-            currentIndex: -1,
-            field: null,
-            x: 0,
-            y: 0
-        };
+        mousedown: false,
+        downIndex: -1,
+        currentIndex: -1,
+        field: null,
+        x: 0,
+        y: 0
+    };
 
     public duplicateNumber = 0;
     public seenValues = [];
 
     constructor(
-        datasetService: DatasetService,
+        dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        dialog: MatDialog
+        dialog: MatDialog,
+        public visualization: ElementRef
     ) {
         super(
-            datasetService,
+            dashboardService,
             filterService,
             searchService,
             injector,
@@ -150,7 +148,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnOneValue(field: FieldMetaData, value?: any): FilterDesign {
+    private createFilterDesignOnOneValue(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
             root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
@@ -173,7 +171,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createNonFieldOptions(): WidgetOption[] {
         return [
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
+            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue,
+                this.optionsFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
             new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
                 prettyName: 'OR',
@@ -181,9 +180,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }, {
                 prettyName: 'AND',
                 variable: 'and'
-            }], this.optionsFilterable),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable),
-            new WidgetFreeTextOption('heatmapDivisor', 'Heatmap Divisor', '0', this.optionsHeatmapTable),
+            }], this.optionsFilterable.bind(this)),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
+            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
                 prettyName: 'Yes',
@@ -268,7 +267,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     // TODO THOR-1135 (Delete this)
     initializeHeadersFromExceptionsToStatus() {
         let initialHeaderLimit = 25;
-        let numHeaders = 0;
         let orderedHeaders = [];
         let unorderedHeaders = [];
 
@@ -343,7 +341,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
                     active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.getColumnWidth(fieldObject.name)
+                    width: this.getColumnWidth(fieldObject['name']) // TODO: Investigate
                 });
             }
         }
@@ -355,7 +353,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.datasetService.translateFieldKeyToValue(miniArray[0]);
+            let name = this.dashboardState.translateFieldKeyToValue(miniArray[0]);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -405,7 +403,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let pName = header.prettyName;
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.datasetService.translateFieldKeyToValue(exception);
+            let name = this.dashboardState.translateFieldKeyToValue(exception);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -418,7 +416,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let sorted = [];
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.datasetService.translateFieldKeyToValue(exception);
+            let header = this.dashboardState.translateFieldKeyToValue(exception);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -430,9 +428,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     recalculateActiveHeaders() {
         // Update the widths of the headers based on the width of the visualization itself.
         let refs = this.getElementRefs();
-        let tableWidth = this.activeHeaders.reduce((sum, header: any) => {
-            return sum + (this.headerWidths.get(header.prop) || 0);
-        }, 0);
+        let tableWidth = this.activeHeaders.reduce((sum, header: any) => sum + (this.headerWidths.get(header.prop) || 0), 0);
 
         // Subtract 30 to adjust for the margins and the scrollbar.
         let visualizationWidth = refs.visualization.nativeElement.clientWidth - 30;
@@ -441,8 +437,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // width) is not bigger than the visualization, reduce the width of the columns to try to fit the table inside the visualization.
         if ((visualizationWidth < tableWidth) && (visualizationWidth > this.activeHeaders.length * this.MINIMUM_COLUMN_WIDTH)) {
             // Start with the last column and work backward.
-            for (let i = this.activeHeaders.length - 1; i >= 0; --i) {
-                let header: any = this.activeHeaders[i];
+            for (let index = this.activeHeaders.length - 1; index >= 0; --index) {
+                let header: any = this.activeHeaders[index];
                 let oldHeaderWidth = this.headerWidths.get(header.prop) || 0;
                 let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), this.MINIMUM_COLUMN_WIDTH);
                 this.headerWidths.set(header.prop, newHeaderWidth);
@@ -569,35 +565,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-            .filter((el) => {
-                return el;
-            })
+            .filter((el) => el)
             .map((base) => {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
                     return this.arrayToString(base);
-                } else {
-                    return base;
                 }
+                return base;
             });
         return '[' + modArr + ']';
     }
 
-    objectToString(base) {
+    objectToString(__base) {
         return '';
     }
 
-    toCellString(base, type) {
+    toCellString(base, __type) {
         if (base === null) {
             return '';
         } else if (Array.isArray(base)) {
             return this.arrayToString(base);
         } else if (typeof base === 'object') {
             return this.objectToString(base);
-        } else {
-            return base;
         }
+        return base;
     }
 
     /**
@@ -610,11 +602,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
-        this.tableData = results.map((d) => {
+        this.tableData = results.map((result) => {
             let row = {};
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
                 }
             }
             return row;
@@ -626,22 +618,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return (this.drag.mousedown && this.drag.downIndex >= 0);
     }
 
-    // mouse up in a drag and drop element
-    onMouseUp(i) {
+    // Mouse up in a drag and drop element
+    onMouseUp(index) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
             let length = this.headers.length;
-            if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
+            if (this.drag.downIndex >= length || index >= length || this.drag.downIndex < 0 || index < 0) {
                 // Do nothing
             } else {
-                let h = this.headers;
-                let si = this.drag.downIndex; // startIndex
-                let ei = i; // endIndex
+                let headers = this.headers;
+                let si = this.drag.downIndex; // StartIndex
+                let ei = index; // EndIndex
                 let dir = (si > ei ? -1 : 1);
-                let moved = h[si];
+                let moved = headers[si];
                 for (let ci = si; ci !== ei; ci += dir) {
-                    h[ci] = h[ci + dir];
+                    headers[ci] = headers[ci + dir];
                 }
-                h[ei] = moved;
+                headers[ei] = moved;
                 this.recalculateActiveHeaders();
             }
         }
@@ -650,46 +642,46 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.drag.mousedown = false;
     }
 
-    // clicks on a drag and drop icon of an element
-    onMouseDown(i) {
-        if (i >= 0) {
-            this.drag.downIndex = i;
+    // Clicks on a drag and drop icon of an element
+    onMouseDown(index) {
+        if (index >= 0) {
+            this.drag.downIndex = index;
             this.drag.mousedown = true;
-            this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'grey dashed 1px');
+            this.setStyle(index, 'backgroundColor', 'rgba(0, 0, 0, .2)');
+            this.setStyle(index, 'border', 'grey dashed 1px');
         }
     }
 
-    // enters a NEW drag and drop element
-    onMouseEnter(i) {
+    // Enters a NEW drag and drop element
+    onMouseEnter(index) {
         if (this.isDragging()) {
-            this.drag.currentIndex = i;
+            this.drag.currentIndex = index;
             let style = 'thick solid grey';
-            if (i < this.drag.downIndex) {
-                this.setStyle(i, 'borderTop', style);
-            } else if (i > this.drag.downIndex) {
-                this.setStyle(i, 'borderBottom', style);
+            if (index < this.drag.downIndex) {
+                this.setStyle(index, 'borderTop', style);
+            } else if (index > this.drag.downIndex) {
+                this.setStyle(index, 'borderBottom', style);
             }
         }
     }
 
-    onMouseLeaveItem(i) {
+    onMouseLeaveItem(index) {
         if (this.isDragging()) {
-            if (i !== this.drag.downIndex) {
-                this.setStyle(i, 'borderBottom', null);
-                this.setStyle(i, 'borderTop', null);
+            if (index !== this.drag.downIndex) {
+                this.setStyle(index, 'borderBottom', null);
+                this.setStyle(index, 'borderTop', null);
             }
         }
     }
 
-    // leaves drag and drop area
+    // Leaves drag and drop area
     onMouseLeaveArea() {
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
         this.clearHeaderStyles();
     }
 
-    // moving in drag and drop area
+    // Moving in drag and drop area
     onMouseMove(event) {
         if (this.isDragging()) {
             this.drag.x = event.screenX;
@@ -799,10 +791,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {function}
      */
     getCellClassFunction(): any {
-        let self = this;
-        return function({ column, value }): any {
+        return ({ column, value }): any => {
             let cellClass: any = {};
-            if (column && self.options.colorField.columnName === column.prop) {
+            if (column && this.options.colorField.columnName === column.prop) {
                 let colorClass = value;
                 let colorValue = value;
                 if (colorClass.indexOf('#') === 0) {
@@ -815,9 +806,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                 }
                 if (colorClass && colorValue) {
-                    if (self.styleRules.indexOf(colorClass) < 0) {
-                        self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
-                        self.styleRules.push(colorClass);
+                    if (this.styleRules.indexOf(colorClass) < 0) {
+                        this.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                        this.styleRules.push(colorClass);
                     }
                     cellClass['color-field'] = true;
                     cellClass[colorClass] = true;
@@ -848,31 +839,30 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @return {function}
      */
     getRowClassFunction(): any {
-        let self = this;
-        return function(row): any {
+        return (row): any => {
             let rowClass: any = {};
-            rowClass.active = !self.options.filterFields.length ? false : self.options.filterFields.every((filterField: any) => {
+            rowClass.active = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
                 if (filterField.columnName) {
-                    let dataFilterDesign: FilterDesign = self.createFilterDesignOnOneValue(filterField, row[filterField.columnName]);
-                    return self.isFiltered(dataFilterDesign) || self.isFiltered(self.createFilterDesignOnArrayValue([dataFilterDesign]));
+                    let dataFilterDesign: FilterDesign = this.createFilterDesignOnOneValue(filterField, row[filterField.columnName]);
+                    return this.isFiltered(dataFilterDesign) || this.isFiltered(this.createFilterDesignOnArrayValue([dataFilterDesign]));
                 }
                 return false;
             });
 
-            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
+            if (this.options.heatmapField.columnName && this.options.heatmapDivisor) {
                 let heatmapClass = 'heat-0';
-                let heatmapDivisor = Number.parseFloat(self.options.heatmapDivisor);
-                let heatmapValue = row[self.options.heatmapField.columnName];
+                let heatmapDivisor = Number.parseFloat(this.options.heatmapDivisor);
+                let heatmapValue = row[this.options.heatmapField.columnName];
 
                 // Ignore undefined, nulls, strings, or NaNs.
-                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
+                if (typeof heatmapValue !== 'undefined' && this.isNumber(heatmapValue)) {
                     // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
                     if (heatmapDivisor % 1) {
                         // Find the number of digits following the decimal point in the divisor.
                         let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
                         // Transform the divisor and the value into whole numbers using the number of digits.
-                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
-                        heatmapValue = heatmapValue * Math.pow(10, digits);
+                        heatmapDivisor *= Math.pow(10, digits);
+                        heatmapValue *= Math.pow(10, digits);
                     }
                     heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
                     heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
@@ -902,11 +892,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     onChangeData(databaseOrTableChange?: boolean) {
-        // if database or table has been updated, need to update list of available headers/fields
+        // If database or table has been updated, need to update list of available headers/fields
         if (databaseOrTableChange) {
             let initialHeaderLimit = 25;
             let unorderedHeaders = [];
-            let show = true; // show all columns up to the limit, since now the user will need to decide what to show/not show
+            let show = true; // Show all columns up to the limit, since now the user will need to decide what to show/not show
 
             for (let fieldObject of this.options.fields) {
                 unorderedHeaders.push({

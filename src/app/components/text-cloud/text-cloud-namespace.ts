@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,12 +11,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-/*
- * Reimplemented from: jquery.tagcloud.js at https://github.com/addywaddy/jquery.tagcloud.js by Adam Groves Copyright 2008
- */
+//  Reimplemented from: jquery.tagcloud.js at https://github.com/addywaddy/jquery.tagcloud.js by Adam Groves Copyright 2008
 
 export class TextCloud {
     private size: SizeOptions;
@@ -36,13 +33,13 @@ export class TextCloud {
             lowest = data[0].value;
             highest = data[0].value;
         }
-        for (let d of data) {
-            let v = d.value;
-            if (v > highest) {
-                highest = v;
+        for (let item of data) {
+            let value = item.value;
+            if (value > highest) {
+                highest = value;
             }
-            if (v < lowest) {
-                lowest = v;
+            if (value < lowest) {
+                lowest = value;
             }
         }
         let range = highest - lowest;
@@ -72,26 +69,22 @@ export class TextCloud {
     }
 
     private colorIncrement(color: ColorOptions, range: number): number[] {
-        return this.toRGB(color.end).map((n, i) => {
-            return (n - this.toRGB(color.start)[i]) / range;
-        });
+        return this.toRGB(color.end).map((element, index) => (element - this.toRGB(color.start)[index]) / range);
     }
 
     // Converts hex to an RGB array
     private toRGB(code: string): number[] {
-        let hex = /(\w{2})(\w{2})(\w{2})/.exec((code.length === 4 ? code.replace(/(\w)(\w)(\w)/gi, '\$1\$1\$2\$2\$3\$3') : code));
+        let hex = (/(\w{2})(\w{2})(\w{2})/).exec((code.length === 4 ? code.replace(/(\w)(\w)(\w)/gi, '$1$1$2$2$3$3') : code));
         return [parseInt(hex[1], 16), parseInt(hex[2], 16), parseInt(hex[3], 16)];
     }
 
     private tagColor(color: ColorOptions, increment: number[], weighting: number) {
-        let rgb = this.toRGB(color.start).map((n, i) => {
-            let ref = Math.round(n + (increment[i] * weighting));
+        let rgb = this.toRGB(color.start).map((element, index) => {
+            let ref = Math.round(element + (increment[index] * weighting));
             if (ref > 255) {
                 ref = 255;
-            } else {
-                if (ref < 0) {
-                    ref = 0;
-                }
+            } else if (ref < 0) {
+                ref = 0;
             }
             return ref;
         });
@@ -100,13 +93,12 @@ export class TextCloud {
 
     // Converts an RGB array to hex
     private toHex(ary: number[]): string {
-        return '#' + ary.map((i) => {
-            let hex = i.toString(16);
+        return '#' + ary.map((element) => {
+            let hex = element.toString(16);
             hex = (hex.length === 1) ? '0' + hex : hex;
             return hex;
         }).join('');
     }
-
 }
 
 export class SizeOptions {

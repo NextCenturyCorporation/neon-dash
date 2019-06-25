@@ -387,6 +387,7 @@ layouts:
               limit: 11
               groupField: topic
               sortByAggregation: true
+              ignoreSelf: true
           minPixelx: 320
           minPixely: 240
           minSizex: 2

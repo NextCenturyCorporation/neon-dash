@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,18 +11,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { Color } from '../../color';
 import { ElementRef } from '@angular/core';
 
 export const whiteString = 'rgb(255,255,255)';
 
-export enum MapType {Leaflet, Cesium}
+export enum MapType { Leaflet }
 
-// create array of name/value pairs for map types
-export const MapTypePairs: {name: string, value: number}[] =
-    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({name: name, value: MapType[name]}));
+// Create array of name/value pairs for map types
+export const MapTypePairs: { name: string, value: number }[] =
+    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key, 10))).map((name) => ({ name: name, value: MapType[name] }));
 
 export class BoundingBoxByDegrees {
     constructor(
@@ -70,11 +68,15 @@ export abstract class AbstractMap {
     abstract doCustomInitialization(mapContainer: ElementRef);
 
     // Location Filter
-    isExact() { return this.isDrawnFilterExact; }
+    isExact() {
+        return this.isDrawnFilterExact;
+    }
+
     markInexact() {
         this.isDrawnFilterExact = false;
         this.makeSelectionInexact();
     }
+
     abstract makeSelectionInexact();
     abstract removeFilterBox();
 
@@ -111,9 +113,9 @@ export abstract class AbstractMap {
     abstract zoomOut();
     abstract zoomIn();
 
-    // utility
+    // Utility
     areBoundsSet() {
-        return this.mapOptions.west != null && this.mapOptions.east != null &&
-            this.mapOptions.north != null && this.mapOptions.south != null;
+        return this.mapOptions.west !== null && this.mapOptions.east !== null &&
+            this.mapOptions.north !== null && this.mapOptions.south !== null;
     }
 }

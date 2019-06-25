@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,21 +11,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     Component,
-    Injector,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
     Input,
-    Output,
-    EventEmitter,
-    ViewChild,
     ViewChildren,
     QueryList
 } from '@angular/core';
@@ -33,13 +28,14 @@ import {
 import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FieldMetaData, SimpleFilter, TableMetaData } from '../../dataset';
-import { OptionType, WidgetFieldOption, WidgetOption, WidgetOptionCollection } from '../../widget-option';
+import { DashboardService } from '../../services/dashboard.service';
+import { OptionType, WidgetOption, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option';
 import { OptionsListComponent } from '../options-list/options-list.component';
 
-import { neonEvents } from '../../neon-namespaces';
+import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
+import { DashboardState } from '../../models/dashboard-state';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-gear',
@@ -49,11 +45,12 @@ import { eventing } from 'neon-framework';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class GearComponent implements OnInit, OnDestroy {
+    @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsListComponent>;
 
     private messenger: eventing.Messenger;
-    private originalOptions: any;
+    private originalOptions: WidgetOptionCollection;
 
     // Set to a stub object to stop initialization errors.
     public modifiedOptions: any = {
@@ -69,26 +66,20 @@ export class GearComponent implements OnInit, OnDestroy {
     public optionalList: string[] = [];
     public optionalListNonField: string[] = [];
 
-    private createLayer: (options: any, layerBinding?: any) => any;
-    private deleteLayer: (options: any, layerOptions: any) => boolean;
-    private finalizeCreateLayer: (layerOptions: any) => void;
-    private finalizeDeleteLayer: (layerOptions: any) => void;
-    private handleChangeData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeFilterData: (options?: any, databaseOrTableChange?: boolean) => void;
-    private handleChangeSubcomponentType: (options?: any) => void;
-
     private changeSubcomponentType: boolean = false;
     public changeMade: boolean = false;
     public collapseOptionalOptions: boolean = true;
     public layerHidden: Map<string, boolean> = new Map<string, boolean>();
 
+    public readonly dashboardState: DashboardState;
+
     constructor(
         private changeDetection: ChangeDetectorRef,
-        public injector: Injector,
-        protected datasetService: DatasetService,
+        dashboardService: DashboardService,
         protected widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();
+        this.dashboardState = dashboardService.state;
     }
 
     private closeSidenav() {
@@ -112,7 +103,7 @@ export class GearComponent implements OnInit, OnDestroy {
         let requiredFieldList: WidgetOption[] = [];
         let optionalFieldList: WidgetOption[] = [];
 
-        optionList.forEach(function(element) {
+        optionList.forEach((element) => {
             if (element.isRequired) {
                 requiredList.push(element);
             } else {
@@ -120,14 +111,14 @@ export class GearComponent implements OnInit, OnDestroy {
             }
         });
 
-        requiredList.forEach(function(element) {
+        requiredList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 requiredFieldList.push(element);
                 requiredList.splice(requiredList.indexOf(element), 1);
             }
         });
 
-        optionalList.forEach(function(element) {
+        optionalList.forEach((element) => {
             if (element.optionType === 'FIELD') {
                 optionalFieldList.push(element);
                 optionalList.splice(optionalList.indexOf(element), 1);
@@ -202,7 +193,6 @@ export class GearComponent implements OnInit, OnDestroy {
             if (this.originalOptions[option.bindingKey] !== option.valueCurrent && this.isFilterData(option.optionType)) {
                 filterDataChange = true;
             }
-            // TODO THOR-1044 Validate number free text options
             this.originalOptions[option.bindingKey] = option.valueCurrent;
         });
 
@@ -210,14 +200,14 @@ export class GearComponent implements OnInit, OnDestroy {
         this.originalOptions.layers.forEach((layer) => {
             // If the layer was deleted, finalize its deletion.
             if (modifiedLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeDeleteLayer(layer);
+                this.comp.finalizeDeleteLayer(layer);
             }
         });
         let originalLayerIds = this.originalOptions.layers.map((layer) => layer._id);
         this.modifiedOptions.layers.forEach((layer) => {
             // If the layer was created, finalize its creation.
             if (originalLayerIds.indexOf(layer._id) < 0) {
-                this.finalizeCreateLayer(layer);
+                this.comp.finalizeCreateLayer(layer);
             }
         });
 
@@ -225,13 +215,13 @@ export class GearComponent implements OnInit, OnDestroy {
 
         // TODO THOR-1061
         if (this.changeSubcomponentType) {
-            this.handleChangeSubcomponentType();
+            this.comp.handleChangeSubcomponentType();
         }
 
         if (filterDataChange) {
-            this.handleChangeFilterData(undefined, databaseOrTableChange);
+            this.comp.changeFilterData(undefined, databaseOrTableChange);
         } else {
-            this.handleChangeData(undefined, databaseOrTableChange);
+            this.comp.changeData(undefined, databaseOrTableChange);
         }
 
         this.resetOptionsAndClose();
@@ -242,8 +232,8 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeDatabase(options: any): void {
-        options.updateTables(this.datasetService);
+    public handleChangeDatabase(options: WidgetOptionCollection): void {
+        options.updateTables(this.dashboardState);
         this.changeMade = true;
     }
 
@@ -252,8 +242,8 @@ export class GearComponent implements OnInit, OnDestroy {
      *
      * @arg {any} options A WidgetOptionCollection
      */
-    public handleChangeTable(options: any): void {
-        options.updateFields(this.datasetService);
+    public handleChangeTable(options: WidgetOptionCollection): void {
+        options.updateFields(this.dashboardState);
         this.changeMade = true;
     }
 
@@ -261,7 +251,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Creates a new layer.
      */
     public handleCreateLayer() {
-        let layer: any = this.createLayer(this.modifiedOptions);
+        let layer: any = this.comp.createLayer(this.modifiedOptions);
         this.layerHidden.set(layer._id, false);
         this.changeMade = true;
     }
@@ -270,7 +260,7 @@ export class GearComponent implements OnInit, OnDestroy {
      * Deletes the given layer.
      */
     public handleDeleteLayer(layer: any) {
-        let successful: boolean = this.deleteLayer(this.modifiedOptions, layer);
+        let successful: boolean = this.comp.deleteLayer(this.modifiedOptions, layer);
         if (successful) {
             this.layerHidden.delete(layer._id);
             this.changeMade = true;
@@ -279,6 +269,11 @@ export class GearComponent implements OnInit, OnDestroy {
                 message: 'Cannot delete final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
             });
         }
+    }
+
+    public handleRefreshClick() {
+        this.comp.changeData(undefined, false);
+        this.resetOptionsAndClose();
     }
 
     private isFilterData(optionType: OptionType): boolean {
@@ -300,32 +295,33 @@ export class GearComponent implements OnInit, OnDestroy {
         this.messenger.unsubscribeAll();
     }
 
+    /**
+     * Receives
+     */
     ngOnInit() {
-        this.messenger.subscribe(neonEvents.SHOW_OPTION_MENU, (message) => this.updateOptions(message));
-        this.changeDetection.detectChanges();
+        if (this.comp) {
+            this.originalOptions = this.comp.options;
+            this.exportCallbacks = [this.comp.exportData.bind(this.comp)];
+            this.resetOptions();
+            this.constructOptions();
+        }
     }
 
     private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.bindingKey !== bindingKey;
-        });
+        newList = newList.filter((field) => field.bindingKey !== bindingKey);
         return newList;
     }
 
     private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.enableInMenu !== enableInMenu;
-        });
+        newList = newList.filter((field) => field.enableInMenu !== enableInMenu);
         return newList;
     }
 
     private removeOptionsByType(list: any[], optionType: string): any[] {
         let newList = list;
-        newList = newList.filter(function(field) {
-            return field.optionType !== optionType;
-        });
+        newList = newList.filter((field) => field.optionType !== optionType);
         return newList;
     }
 
@@ -379,31 +375,29 @@ export class GearComponent implements OnInit, OnDestroy {
      * @arg {string} bindingKey
      */
     public updateOnChange(bindingKey: string) {
+        // If the original binding key has been changed and added before
+        if (this.originalOptions.access(bindingKey) !== undefined) {
+            if (this.originalOptions.access(bindingKey).optionType === OptionType.NON_PRIMITIVE) {
+                if (_.isEqual(this.originalOptions[bindingKey], this.modifiedOptions[bindingKey])) {
+                    this.changeMade = false;
+                    return;
+                }
+            }
+        }
+        // If the modified gets cleared while original has already been set
+        if (_.isEmpty(this.modifiedOptions[bindingKey]) && !_.isEmpty(this.originalOptions[bindingKey])) {
+            this.changeMade = true;
+            return;
+        }
+        // If modified has never been set (undefined) and the original has already been set before (currently empty)
+        if (typeof (this.modifiedOptions[bindingKey]) === 'undefined' && _.isPlainObject(this.originalOptions[bindingKey])) {
+            this.changeMade = false;
+            return;
+        }
         this.changeMade = true;
         // TODO THOR-1061
         if (bindingKey === 'type') {
             this.changeSubcomponentType = true;
         }
     }
-
-    /**
-     * Receives the message object with the WidgetOptionCollection object and callbacks from the widget
-     *
-     * @arg {message} message
-     */
-    private updateOptions(message) {
-        this.createLayer = message.createLayer;
-        this.deleteLayer = message.deleteLayer;
-        this.finalizeCreateLayer = message.finalizeCreateLayer;
-        this.finalizeDeleteLayer = message.finalizeDeleteLayer;
-        this.originalOptions = message.options;
-        this.handleChangeData = message.changeData;
-        this.handleChangeFilterData = message.changeFilterData;
-        this.handleChangeSubcomponentType = message.handleChangeSubcomponentType;
-        this.exportCallbacks = [message.exportData];
-
-        this.resetOptions();
-        this.constructOptions();
-    }
-
 }

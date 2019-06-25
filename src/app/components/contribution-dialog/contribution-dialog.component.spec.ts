@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,40 +11,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { FormsModule } from '@angular/forms';
+
+import { ContributionDialogModule } from './contribution-dialog.module';
 
 import { ContributionDialogComponent } from './contribution-dialog.component';
 import { FilterService } from '../../services/filter.service';
-import { DatasetService } from '../../services/dataset.service';
-import { NeonGTDConfig } from '../../neon-gtd-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppMaterialModule } from '../../app.material.module';
+import { DashboardService } from '../../services/dashboard.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: ContributionDialogComponent', () => {
     let fixture: ComponentFixture<ContributionDialogComponent>;
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: ContributionDialogComponent;
 
     initializeTestBed('ContributionDialogComponent', {
-        declarations: [
-            ContributionDialogComponent
-        ],
         providers: [
             FilterService,
-            DatasetService,
-            { provide: 'config', useValue: testConfig },
+            DashboardService,
             { provide: MatDialogRef, useValue: {} },
             { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         imports: [
-            AppMaterialModule,
-            FormsModule,
-            BrowserAnimationsModule
+            ContributionDialogModule
         ]
     });
 

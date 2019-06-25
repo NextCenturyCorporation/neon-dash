@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 import {
     ChangeDetectionStrategy,
@@ -25,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ColorSet } from '../../color';
+import { ColorSet } from '../../models/color';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 
@@ -36,7 +35,8 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
     selector: 'app-legend',
     templateUrl: './legend.component.html',
     styleUrls: ['./legend.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.Default
 })
 export class LegendComponent implements OnInit {
     /**
@@ -124,7 +124,6 @@ export class LegendComponent implements OnInit {
             currentlyActive: !this.isDisabled(setName, key)
         });
         this.stopPropagation($event);
-
     }
 
     /**
@@ -141,8 +140,8 @@ export class LegendComponent implements OnInit {
                         return true;
                     }
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (error) {
+                console.error(error);
                 // Let errors pass
             }
         }
@@ -158,17 +157,15 @@ export class LegendComponent implements OnInit {
             return 'stop';
         } else if (this.isDisabled(setName, key)) {
             return 'check_box_outline_blank';
-        } else {
-            return 'check_box';
         }
+        return 'check_box';
     }
 
     getTextDecoration(setName: string, key: string): string {
         if (this.isDisabled(setName, key)) {
             return 'line-through';
-        } else {
-            return '';
         }
+        return '';
     }
 
     onMenuOpen() {

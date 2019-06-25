@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,69 +11,59 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { NewsFeedModule } from './news-feed.module';
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
     let fixture: ComponentFixture<NewsFeedComponent>;
-    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    //may need to add or remove some initializations (copied from media-viewer.component)
+    // May need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed('News Feed', {
-        declarations: [
-            NewsFeedComponent
-        ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule
+            NewsFeedModule
         ]
     });
 
-    //may need to change further
+    // May need to change further
     beforeEach(() => {
         fixture = TestBed.createComponent(NewsFeedComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    //checks if all class properties are there
+    // Checks if all class properties are there
     it('does have expected class options properties', () => {
-        expect(component.options.id).toEqual('');
+        expect(component.options.id).toEqual(null);
         expect(component.options.ignoreSelf).toEqual(false);
-        expect(component.options.contentField).toEqual(new FieldMetaData());
-        expect(component.options.dateField).toEqual(new FieldMetaData());
-        expect(component.options.filterField).toEqual(new FieldMetaData());
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-        expect(component.options.primaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.secondaryTitleField).toEqual(new FieldMetaData());
-        expect(component.options.sortField).toEqual(new FieldMetaData());
+        expect(component.options.contentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.secondaryContentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.titleContentField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.dateField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.filterField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
@@ -83,16 +73,16 @@ describe('Component: NewsFeed', () => {
 
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
 
         component.createFilter('testText');
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: '',
-            database: DatasetServiceMock.DATABASES[0],
-            table: DatasetServiceMock.TABLES[0],
-            field: DatasetServiceMock.FILTER_FIELD,
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.FILTER,
             operator: '=',
             value: 'testText'
         }]]);
@@ -101,27 +91,27 @@ describe('Component: NewsFeed', () => {
     it('designEachFilterWithNoValues does return expected object', () => {
         expect((component as any).designEachFilterWithNoValues()).toEqual([]);
 
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
+        component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign as any).database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect((actual[0].filterDesign as any).table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect((actual[0].filterDesign as any).field).toEqual(DatasetServiceMock.FILTER_FIELD);
-        expect((actual[0].filterDesign as any).operator).toEqual('=');
-        expect((actual[0].filterDesign as any).value).toBeUndefined();
+        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        // Expect((actual[0].FIELD_MAP.filterDesign).field).toEqual(DashboardServiceMock.FILTER); // TODO: Verify
+        expect((actual[0].filterDesign).operator).toEqual('=');
+        expect((actual[0].filterDesign).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.sortField = new FieldMetaData('testSortField');
-        component.options.primaryTitleField = new FieldMetaData('testPrimaryTitleField');
-        component.options.secondaryTitleField = new FieldMetaData('testSecondaryTitleField');
-        component.options.filterField = new FieldMetaData('testFilterField');
-        component.options.contentField = new FieldMetaData('testContentField');
-        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField' });
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField' });
+        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.secondaryContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.titleContentField = NeonFieldMetaData.get({ columnName: 'testContentField' });
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -151,32 +141,27 @@ describe('Component: NewsFeed', () => {
         });
     }));
 
-    //for getElementRefs method
-    it('getElementRefs does return expected object', () => {
-        let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.infoText).toBeDefined();
-        expect(refs.newsFeed).toBeDefined();
-        expect(refs.visualization).toBeDefined();
-        //expect(refs.filter).toBeDefined();
-    });
-
     it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.idField = new FieldMetaData('tesIdField', 'Test Id Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'tesIdField', prettyName: 'Test Id Field' });
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        expect(component.validateVisualizationQuery(component.options)).toEqual(false);
+
+        component.options.contentField = NeonFieldMetaData.get({ columnName: 'testContentField', prettyName: 'Test Content Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -209,8 +194,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, []);
 
@@ -219,9 +203,8 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with limited aggregation query data does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.fields = DashboardServiceMock.FIELDS;
         component.options.limit = 1;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -254,8 +237,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.fields = DashboardServiceMock.FIELDS;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             _id: 'id1',
@@ -271,6 +253,7 @@ describe('Component: NewsFeed', () => {
             testTypeField: 'type2'
         }]);
 
+        expect(actual).toEqual(2);
         expect(component.newsFeedData).toEqual([{
             _id: 'id1',
             testLinkField: 'link1',
@@ -286,57 +269,7 @@ describe('Component: NewsFeed', () => {
         }]);
     });
 
-    //for isSelectable method
-    it('isSelectable does return expected boolean', () => {
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.filterField = new FieldMetaData();
-
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        expect(component.isSelectable()).toEqual(true);
-        component.options.idField = new FieldMetaData();
-    });
-
-    //for isSelected method
-    it('isSelected does return expected boolean', () => {
-        expect(component.isSelected({})).toEqual(false);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => {
-            return filterDesign.database === component.options.database && filterDesign.table === component.options.table &&
-                filterDesign.field === component.options.filterField && filterDesign.operator === '=' &&
-                filterDesign.value === 'testFilterValue1';
-        });
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(true);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue2'
-        })).toEqual(false);
-
-        expect(component.isSelected({
-            testNotAFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterField = new FieldMetaData();
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-    });
-
-    //for refreshVisualization method
+    // For refreshVisualization method
     it('refreshVisualization does call changeDetection.detectChanges', () => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
 
@@ -344,20 +277,20 @@ describe('Component: NewsFeed', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    //private get array values method test?
+    // Private get array values method test?
 
-    //for selectGridItem method
+    // for selectGridItem method
     it('selectGridItem does call publishSelectId if idField is set', () => {
         let spy = spyOn(component, 'publishSelectId');
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
-        component.selectGridItem({
+        component.selectItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(1);
@@ -367,14 +300,14 @@ describe('Component: NewsFeed', () => {
     it('selectGridItem does call createFilter if filterField is set', () => {
         let spy = spyOn(component, 'createFilter');
 
-        component.selectGridItem({
+        component.selectItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
 
-        component.selectGridItem({
+        component.filterItem({
             testFilterField: 'filter1'
         });
         expect(spy.calls.count()).toEqual(1);

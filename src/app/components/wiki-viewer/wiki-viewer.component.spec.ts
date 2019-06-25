@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,51 +11,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-import { AppMaterialModule } from '../../app.material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { By } from '@angular/platform-browser';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { DatasetService } from '../../services/dataset.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+
+import { WikiViewerModule } from './wiki-viewer.module';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -70,18 +60,18 @@ describe('Component: WikiViewer', () => {
         expect(component).toBeTruthy();
     }));
 
-    it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
+    it('does set expected default options properties', () => {
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
         expect(component.options.id).toEqual('');
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
-        component.options.database = new DatabaseMetaData('testDatabase');
-        component.options.table = new TableMetaData('testTable');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -109,21 +99,21 @@ describe('Component: WikiViewer', () => {
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.database = NeonDatabaseMetaData.get({ name: 'testDatabase' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.table = new TableMetaData('testTable');
+        component.options.table = NeonTableMetaData.get({ name: 'testTable' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
         component.options.id = 'testId';
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
 
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField' });
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
@@ -134,45 +124,44 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show toolbar and sidenav', (() => {
-        let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
+        let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
     }));
 
     it('does show header in toolbar with visualization name', (() => {
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Wiki Viewer');
     }));
 
     it('does hide error-message in toolbar and sidenav if errorMessage is undefined', (() => {
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
     }));
 
     it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
+        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
-        let icon = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button mat-icon'));
+        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
         expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {
-
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        let hiddenSpinner = fixture.debugElement.query(By.css('.not-loading-overlay mat-spinner'));
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does hide wiki-text tabs if active data is empty', inject([DomSanitizer], (sanitizer) => {
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+    it('does hide wiki-text tabs if active data is empty', () => {
+        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
 
-        let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
+        let text = fixture.debugElement.queryAll(By.css('mat-tab-group .wiki-text'));
         expect(text.length).toBe(0);
-    }));
+    });
 });
 
 describe('Component: WikiViewer with mock HTTP', () => {
@@ -181,21 +170,15 @@ describe('Component: WikiViewer with mock HTTP', () => {
     let backend;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
-            DatasetService,
+            DashboardService,
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() }
+            Injector
+
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -234,7 +217,8 @@ describe('Component: WikiViewer with mock HTTP', () => {
             expect(component.wikiViewerData.length).toEqual(1);
             expect(component.wikiViewerData[0].name).toEqual('Test Title');
             expect(component.wikiViewerData[0].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)'
+            );
             done();
         };
 
@@ -304,9 +288,11 @@ describe('Component: WikiViewer with mock HTTP', () => {
             expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
             expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
             expect(component.wikiViewerData[0].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)'
+            );
             expect(component.wikiViewerData[1].text.toString()).toBe(
-                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
+                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)'
+            );
             done();
         };
 
@@ -356,15 +342,11 @@ describe('Component: WikiViewer with config', () => {
     let fixture: ComponentFixture<WikiViewerComponent>;
 
     initializeTestBed('Wiki Viewer', {
-        declarations: [
-            WikiViewerComponent
-        ],
         providers: [
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'tableKey', useValue: 'table_key_1' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'idField', useValue: 'testIdField' },
@@ -372,10 +354,7 @@ describe('Component: WikiViewer with config', () => {
             { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
-            AppMaterialModule,
-            BrowserAnimationsModule,
-            FormsModule,
-            HttpClientModule,
+            WikiViewerModule,
             HttpClientTestingModule
         ]
     });
@@ -387,22 +366,26 @@ describe('Component: WikiViewer with config', () => {
     });
 
     it('does set expected superclass options properties', (() => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(component.options.databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
+        expect(component.options.fields).toEqual(DashboardServiceMock.FIELDS);
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
+        expect(component.options.idField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+        );
+        expect(component.options.linkField).toEqual(
+            NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
+        );
         expect(component.options.id).toEqual('testId');
     });
 
     it('does show header in toolbar with title from config', (() => {
         fixture.detectChanges();
-        let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
+        let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toBe('Test Title');
     }));
