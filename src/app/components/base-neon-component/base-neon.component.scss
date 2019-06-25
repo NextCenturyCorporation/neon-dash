@@ -15,8 +15,6 @@
 */
 @import '../../neon-properties';
 
-$filter-container-height: 40px;
-
 :host {
     height: 100%;
     width: 100%;
@@ -24,35 +22,33 @@ $filter-container-height: 40px;
     display: grid;
     box-sizing: border-box;
     grid-template-rows: auto 1fr auto auto;
+    align-content: center;
     grid-template-areas:
     'header'
     'body'
     'footer'
     'contribution';
 
-    .header {
-        grid-area: header;
-
-        &.text {
-            font-size: 14px;
-            font-weight: 500;
-            margin: 0 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--color-text-header, grey);
-        }
-    }
-
+    .header,
     .info {
         &.text {
-            font-size: 14px;
-            font-weight: 500;
-            margin: 0 5px;
+            font-size: 13px;
             overflow: hidden;
             text-align: right;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+    }
+
+    mat-toolbar {
+        grid-area: header;
+        height: $vis-title-expected-height;
+        line-height: $vis-title-expected-height;
+        min-height: $vis-title-expected-height;
+
+        .header.text {
+            font-weight: bold;
+            color: var(--color-text-header, grey);
         }
     }
 
@@ -63,9 +59,11 @@ $filter-container-height: 40px;
     }
 
     /deep/ mat-toolbar.mat-toolbar  {
+
         .header.text {
-            font-weight: bold;
+            font-weight: normal;
         }
+
         [mat-icon-button] {
             color: var(--color-text, gray);
         }
@@ -102,7 +100,7 @@ $filter-container-height: 40px;
     .legend-container {
         position: absolute;
         z-index: 1000;
-        top: $vis-title-expected-height;
+        top: $vis-title-expected-height + 2;
     }
 
     .legend {

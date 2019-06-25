@@ -19,7 +19,8 @@
     background-color: var(--color-background, white);
     display: grid;
     grid-template-columns: auto 1fr;
-    border-bottom: 2px solid #BBBBBB;
+    padding-top: 5px;
+    padding-left: 10px;
 
     .remove-all {
         align-self: flex-start;
