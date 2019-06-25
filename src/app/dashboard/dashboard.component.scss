@@ -28,6 +28,7 @@ mat-sidenav-container {
 mat-sidenav-content {
     display: grid;
     grid-template-rows: auto auto auto 1fr;
+    overflow-x: hidden;
     grid-template-areas:
     'header'
     'panel'
@@ -72,15 +73,24 @@ mat-toolbar {
     width: 100vw;
     background-color: var(--color-background, lightgrey);
 
+    &.scrolling {
+        .neon-wrapper {
+            width: calc(100vw - 15px);
+        }        
+        .neon-grid {
+            width: calc(100vw - 14px);
+        }    
+    }
+
     .neon-wrapper {
-        width: calc(100vw - 15px);
+        width: 100vw;
         box-sizing: border-box;
         padding: 5px;
         overflow-x: hidden;
     }
     
     .neon-grid {
-        width: calc(100vw - 14px);
+        width: calc(100vw - 1px);
         .grid {
             background: unset;
         }
@@ -88,9 +98,9 @@ mat-toolbar {
         .grid-item {        
             background-color: var(--color-background, white);
 
-            box-shadow: 0 0 15px rgba(128, 128, 128, 0.6);
+            box-shadow: 0 0 10px rgba(128, 128, 128, 0.4);
             &.moving:hover {
-                box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 0 10px rgba(128, 128, 128, 0.6);
             }
         }
     }
