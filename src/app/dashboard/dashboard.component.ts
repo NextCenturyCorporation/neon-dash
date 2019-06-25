@@ -369,20 +369,20 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     handleKeydown(ev: KeyboardEvent) {
-        if ((ev.key === 'Shift' && ev.ctrlKey || ev.key === 'Ctrl' && ev.shiftKey) &&
+        if ((ev.key === 'Shift' && ev.altKey || ev.key === 'Alt' && ev.shiftKey) &&
             !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
             this.movingWidgets = true;
         }
     }
 
     handleKeyup(ev: KeyboardEvent) {
-        if (ev.key === 'Shift' || ev.key === 'Ctrl') {
+        if (ev.key === 'Shift' || ev.key === 'Alt') {
             this.movingWidgets = false;
         }
     }
 
     handleMouseMove(ev: MouseEvent) {
-        this.movingWidgets = ev.ctrlKey && ev.shiftKey;
+        this.movingWidgets = ev.altKey && ev.shiftKey;
     }
 
     ngOnDestroy(): void {

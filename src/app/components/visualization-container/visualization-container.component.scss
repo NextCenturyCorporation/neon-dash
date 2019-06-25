@@ -39,13 +39,16 @@
 
     .icon-container {
         position: absolute;
+        padding-left: 50px;
+        padding-right: 5px;
         top: 0;
-        width: 100%;
-        background-color: var(--color-background, white);
+        right: 0;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, var(--color-background, white) 20%, var(--color-background, white) 100%);
     }
 
     .drag-handle {
         grid-row:  0;
+        margin-top: $vis-title-expected-height - 3px;
         color: transparent;
         font-weight: bold;
         font-size: 3em;

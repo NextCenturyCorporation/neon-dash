@@ -71,15 +71,15 @@ mat-toolbar {
 
     .neon-grid {
         .grid {
-            background-color: var(--color-background-contrast, lightgrey);
+            background-color: var(--color-background, lightgrey);
         }
         width: calc(100vw - 15px);
         .grid-item {        
             background-color: var(--color-background, white);
 
-            box-shadow: 0 0 3px rgba(128, 128, 128, 0.6);
+            box-shadow: 0 0 15px rgba(128, 128, 128, 0.6);
             &.moving:hover {
-                box-shadow: 0 0 15px rgba(128, 128, 128, 0.7);
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
             }
         }
     }
