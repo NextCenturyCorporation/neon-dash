@@ -72,14 +72,14 @@
 }
 
 /deep/ .datatable-header-inner {
-    border-right: 1px solid var(--color-text-main, dimgrey);
+    border-right: 1px solid var(--color-background-accent, lightgrey);
 }
 
 /deep/ .datatable-header-cell {
-    opacity: .8;
-    background: var(--color-accent-transparent, white);
-    border-bottom: 1px solid var(--color-text-main, dimgrey);
-    border-right: 1px solid var(--color-text-main, dimgrey);
+    opacity: 1;
+    background: var(--color-background, white);
+    border-bottom: 1px solid var(--color-background-accent, lightgrey);
+    border-right: 1px solid var(--color-background-accent, lightgrey);
     line-height: 20px !important;
     height: 30px;
     text-align: center;
@@ -157,7 +157,7 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px dashed var(--color-text-main, dimgrey);
+    border-right: 1px solid var(--color-background-contrast, lightgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }

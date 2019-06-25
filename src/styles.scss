@@ -437,6 +437,12 @@ body {
     background-color: var(--color-background-contrast);
 }
 
+.grid-item {
+    .mat-toolbar {
+        border-bottom: 2px solid var(--color-accent, lightgrey) !important;
+    }
+}
+
 .mat-toolbar {
     line-height: 30px !important;
     height: 40px !important;

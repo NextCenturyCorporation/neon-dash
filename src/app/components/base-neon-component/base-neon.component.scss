@@ -149,7 +149,6 @@ $contribution-height: 20px;
         grid-area: contribution;
         height: #{$contribution-height};
         background-color: var(--color-background, white);
-        border-top: 2px solid var(--color-accent, lightgrey);
     }
 
     .contribution-text-container {
