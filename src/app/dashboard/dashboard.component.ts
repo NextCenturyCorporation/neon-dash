@@ -205,7 +205,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (!urlFilter && currentFilter) {
             const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(`${path}#${currentFilter}`, url.searchParams.toString());
+            this.location.replaceState(`${path}?${url.searchParams.toString()}#${currentFilter}`);
         }
 
         // Clean on different dashboard
@@ -266,12 +266,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridState.add(eventMessage.widgetGridItem, eventMessage.gridName);
     }
 
-    changeFilterTrayIcon() {
-        this.filtersIcon = this.isFiltered() ? 'filters_active' : 'filters';
-        // TODO Does this function really have to return a boolean value?
-        return true;
-    }
-
     /**
      * Contracts the given widget to its previous size.
      */
@@ -326,10 +320,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         // TODO THOR-916
         console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
         this.snackBar.open(eventMessage.message, 'Ok');
-    }
-
-    private isFiltered(): boolean {
-        return !!this.filterService.getFilters().length;
     }
 
     /**
