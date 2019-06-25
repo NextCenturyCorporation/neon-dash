@@ -926,13 +926,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Publishes the component's option object to the gear component
-     */
-    publishOptions() {
-        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, this.getOptions());
-    }
-
-    /**
      * Publishes the given ID and metadata to the select_id event channel.
      *
      * @arg {any} id
@@ -957,13 +950,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     protected onSelectId(__options: any, __id: any) {
         // Override if needed.
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    toggleGear() {
-        this.publishOptions();
     }
 
     /**

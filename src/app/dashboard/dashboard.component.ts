@@ -46,6 +46,7 @@ import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
 import { Location } from '@angular/common';
+import { ContextMenuComponent, IContextMenuClickEvent } from 'ngx-contextmenu';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -72,6 +73,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild(SimpleFilterComponent) simpleFilter: SimpleFilterComponent;
     @ViewChild(MatSidenav) sideNavRight: MatSidenav;
+
+    @ViewChild(ContextMenuComponent) contextMenu: ContextMenuComponent;
 
     updatedData = 0;
 
@@ -163,6 +166,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
         this.handleMouseMove = this.handleMouseMove.bind(this);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.handleMouseDown = this.handleMouseDown.bind(this);
         // eslint-disable-next-line @typescript-eslint/unbound-method
         this.handleKeydown = this.handleKeydown.bind(this);
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -385,10 +390,19 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.movingWidgets = ev.altKey && ev.shiftKey;
     }
 
+    handleMouseDown(ev: MouseEvent) {
+        const root: HTMLElement = document.querySelector('context-menu-content');
+        if (root && !root.hidden && !root.contains(ev.target as HTMLElement)) {
+            document.dispatchEvent(new MouseEvent('click'));
+        }
+    }
+
     ngOnDestroy(): void {
         this.messageReceiver.unsubscribeAll();
         // eslint-disable-next-line @typescript-eslint/unbound-method
         document.removeEventListener('mousemove', this.handleMouseMove);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        document.removeEventListener('mousedown', this.handleMouseDown);
         // eslint-disable-next-line @typescript-eslint/unbound-method
         document.removeEventListener('keydown', this.handleKeydown);
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -403,9 +417,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         document.addEventListener('keyup', this.handleKeyup);
 
+        this.contextMenu.open.subscribe(() => {
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            document.addEventListener('mousedown', this.handleMouseDown);
+        });
+
+        this.contextMenu.close.subscribe(() => {
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            document.removeEventListener('mousedown', this.handleMouseDown);
+        });
+
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));

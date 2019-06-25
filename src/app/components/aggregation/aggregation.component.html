@@ -9,9 +9,6 @@
             {{ getButtonText() }}
         </span>
     </span>
-    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
-        <mat-icon>settings</mat-icon>
-    </button>
 </mat-toolbar>
 
 <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
@@ -37,9 +34,8 @@
     <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
         [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
 
-        <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
-            [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
-            [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+        <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height"
+            [style.left.px]="selectedAreaOffset.x + selectedArea.x" [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
 
         <div #subcomponentMain class="subcomponent-element"></div>
     </div>
