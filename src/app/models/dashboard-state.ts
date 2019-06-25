@@ -14,7 +14,7 @@
  */
 import { Dataset, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData, SingleField } from './dataset';
 import { NeonDashboardLeafConfig } from './types';
-import { DataUtil } from '../util/data.util';
+import { DatasetUtil } from '../util/dataset.util';
 
 export class DashboardState {
     modified = false;
@@ -32,14 +32,14 @@ export class DashboardState {
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructTableName(key: string) {
-        return DataUtil.deconstructTableName(this.dashboard.tables, key);
+        return DatasetUtil.deconstructTableName(this.dashboard.tables, key);
     }
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructFieldName(key: string) {
-        return DataUtil.deconstructFieldName(this.dashboard.fields, key);
+        return DatasetUtil.deconstructFieldName(this.dashboard.fields, key);
     }
 
     /**
@@ -286,7 +286,7 @@ export class DashboardState {
      * If field key is referenced in config file, find field value using current dashboard.
      */
     public translateFieldKeyToValue(fieldKey: string): string {
-        return DataUtil.translateFieldKeyToValue(this.dashboard.fields, fieldKey);
+        return DatasetUtil.translateFieldKeyToValue(this.dashboard.fields, fieldKey);
     }
 
     /**
