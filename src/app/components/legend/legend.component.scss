@@ -13,15 +13,17 @@
 * limitations under the License.
 *
 */
+:host {
+    display: block;
+}
 
 .legend-container {
-    margin: 5px;
     background-color: white;
-    border: 2px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 5px;
 
     .legend-button {
-        border-radius: 3px !important;
+        border-radius: 1px !important;
 
         &:not([disabled]) {
             &:hover {

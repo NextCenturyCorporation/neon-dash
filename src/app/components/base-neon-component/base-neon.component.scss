@@ -16,8 +16,6 @@
 @import '../../neon-properties';
 
 $filter-container-height: 40px;
-$footer-height: 35px;
-$contribution-height: 20px;
 
 :host {
     height: 100%;
@@ -101,25 +99,18 @@ $contribution-height: 20px;
         }
     }
 
-    %filter-container-shared {
-        app-legend {
-            float: left;
-        }
-    }
-
     .legend-container {
         position: absolute;
         z-index: 1000;
         top: $vis-title-expected-height;
     }
 
-    .filter-container {
-        @extend %filter-container-shared;
+    .legend {
+        margin: 5px;
     }
 
     .footer {
         grid-area: footer;
-        height: #{$footer-height};
     }
 
     .footer-button-container {
@@ -147,7 +138,6 @@ $contribution-height: 20px;
 
     .contribution-text {
         grid-area: contribution;
-        height: #{$contribution-height};
         background-color: var(--color-background, white);
     }
 
