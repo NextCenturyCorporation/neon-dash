@@ -27,7 +27,6 @@ import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../.
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
@@ -79,19 +78,6 @@ export class QueryBarComponent extends BaseNeonComponent {
         this.filterFormControl = new FormControl();
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('filterField', 'Filter Field', true),
-            new WidgetFieldOption('idField', 'ID Field', true)
-        ];
-    }
-
     private createFilterDesignOnExtensionField(
         databaseName: string,
         tableName: string,
@@ -130,13 +116,15 @@ export class QueryBarComponent extends BaseNeonComponent {
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('filterField', 'Filter Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true),
             new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
             new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),

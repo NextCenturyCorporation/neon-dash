@@ -94,36 +94,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('categoryField', 'Category Field', false),
-            new WidgetFieldOption('compareField', 'Comparison Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false), // Deprecated
-            new WidgetFieldOption('flagLabel', 'Flag Field', false),
-            new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
-            new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
-            new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFieldOption('nameField', 'Name Field', false),
-            new WidgetFieldOption('objectIdField', 'Object ID Field', false),
-            new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
-            new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
-            new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-
-        ];
-    }
-
-    /**
      * Creates Neon and visualization filter objects for the given text.
      *
      * @arg {string} text
@@ -162,13 +132,31 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('categoryField', 'Category Field', false),
+            new WidgetFieldOption('compareField', 'Comparison Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false), // Deprecated
+            new WidgetFieldOption('flagLabel', 'Flag Field', false),
+            new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
+            new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
+            new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('objectIdField', 'Object ID Field', false),
+            new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
+            new WidgetFieldOption('percentField', 'Predicted Probability Field', false),
+            new WidgetFieldOption('predictedNameField', 'Predicted Name Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
