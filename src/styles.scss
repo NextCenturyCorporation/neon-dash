@@ -122,13 +122,10 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
-    background-color: var(--color-background, white) !important;
     position: relative;
 }
 
 .grid-item {
-    background-color: inherit !important;
-
     &.moving {
         z-index: z-index + 1;
     }
@@ -445,8 +442,7 @@ body {
     height: 40px !important;
     min-height: 40px !important;
     padding: 5px 10px !important;
-    border-bottom: 2px solid var(--color-accent, lightgrey) !important;
-
+    
     &.neon-toolbar-large {
         height: 50px !important;
         line-height: 40px !important;

@@ -67,12 +67,16 @@ mat-toolbar {
 
 .neon-dash {
     grid-area: grid;
-    background-color: var(--color-background, white);
     overflow-y: auto;
 
     .neon-grid {
+        .grid {
+            background-color: var(--color-background-contrast, lightgrey);
+        }
         width: calc(100vw - 15px);
         .grid-item {        
+            background-color: var(--color-background, white);
+
             box-shadow: 0 0 3px rgba(128, 128, 128, 0.6);
             &.moving:hover {
                 box-shadow: 0 0 15px rgba(128, 128, 128, 0.7);
