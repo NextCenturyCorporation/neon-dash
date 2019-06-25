@@ -382,16 +382,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     handleMouseMove(ev: MouseEvent) {
         this.movingWidgets = ev.shiftKey;
-        if (ev.shiftKey && !document.hasFocus()) {
-            const inp = document.createElement('input');
-            inp.id = 'focus-me';
-            inp.style.opacity = '0.001';
-            inp.style.position = 'absolute';
-            inp.style.bottom = '0';
-            document.body.append(inp);
-            document.querySelector('#focus-me').dispatchEvent(new FocusEvent('focus'));
-            setTimeout(() => document.body.removeChild(inp), 10);
-        }
     }
 
     ngOnDestroy(): void {
