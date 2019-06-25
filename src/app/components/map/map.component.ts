@@ -778,10 +778,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private findMatchingFilterDesign(filterDesigns: SimpleFilterDesign[], fieldBinding: string, operator: string) {
-        let matching: SimpleFilterDesign[] = filterDesigns.filter((filterDesign) => filterDesign.operator === operator &&
-            this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
-                layer.table.name === filterDesign.table.name && layer[fieldBinding].columnName === filterDesign.field.columnName));
-        return matching.length ? matching[0].value : undefined;
+        const matching: SimpleFilterDesign = filterDesigns.find((filterDesign) => filterDesign.operator === operator &&
+                this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
+                        layer.table.name === filterDesign.table.name &&
+                        layer[fieldBinding].columnName === filterDesign.field.columnName));
+        return matching ? matching.value : undefined;
     }
 
     /**
