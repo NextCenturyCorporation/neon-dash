@@ -20,7 +20,6 @@ import { SettingsComponent } from './settings.component';
 
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -39,7 +38,6 @@ describe('Component: Settings', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
             InjectableColorThemeService
         ],
         imports: [

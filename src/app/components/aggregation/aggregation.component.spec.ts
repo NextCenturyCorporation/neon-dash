@@ -27,7 +27,8 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -46,7 +47,7 @@ describe('Component: Aggregation', () => {
         providers: [
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],
@@ -3961,7 +3962,7 @@ describe('Component: Aggregation with config', () => {
         providers: [
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4062,7 +4063,7 @@ describe('Component: Aggregation with XY config', () => {
         providers: [
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4163,7 +4164,7 @@ describe('Component: Aggregation with date config', () => {
         providers: [
             InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },

@@ -19,7 +19,8 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { DashboardState } from '../../models/dashboard-state';
@@ -54,7 +55,7 @@ export class FilterBuilderComponent {
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         public searchService: AbstractSearchService
     ) {
         this.dashboardState = dashboardService.state;

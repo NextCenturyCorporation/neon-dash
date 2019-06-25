@@ -18,7 +18,7 @@ import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
 import { Injectable } from '@angular/core';
-import { FilterService } from '../../app/services/filter.service';
+import { InjectableFilterService } from '../../app/services/injectable.filter.service';
 import { SearchServiceMock } from './SearchServiceMock';
 import {
     DATABASES,
@@ -76,7 +76,7 @@ export class DashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
 
@@ -91,7 +91,7 @@ export class EmptyDashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
     }

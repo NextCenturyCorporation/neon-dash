@@ -17,7 +17,7 @@ import { } from 'jasmine-core';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -28,7 +28,8 @@ describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
 
     beforeEach(() => {
-        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new FilterService(), new SearchServiceMock());
+        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new InjectableFilterService(),
+            new SearchServiceMock());
     });
 
     it('class properties are set to expected defaults', () => {

@@ -27,7 +27,8 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
-import { FilterService, FilterUtil } from './filter.service';
+import { FilterUtil } from './filter.service';
+import { InjectableFilterService } from './injectable.filter.service';
 import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable({
@@ -45,7 +46,7 @@ export class DashboardService {
     constructor(
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
-        private filterService: FilterService,
+        private filterService: InjectableFilterService,
         private searchService: AbstractSearchService
     ) {
         this.configSource = this.configService

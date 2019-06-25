@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
 import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
@@ -435,7 +434,6 @@ export class FilterCollection {
 
 export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => void;
 
-@Injectable()
 export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
 

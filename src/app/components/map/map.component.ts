@@ -32,10 +32,10 @@ import {
     CompoundFilterDesign,
     FilterBehavior,
     FilterDesign,
-    FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
     AbstractMap,
@@ -96,7 +96,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         protected colorThemeService: InjectableColorThemeService,
