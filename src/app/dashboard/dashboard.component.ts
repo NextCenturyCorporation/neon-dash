@@ -21,7 +21,8 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef
+    ViewContainerRef,
+    Inject
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
@@ -45,7 +46,7 @@ import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
-import { Location } from '@angular/common';
+import { Location, APP_BASE_HREF } from '@angular/common';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -131,7 +132,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
-        public location: Location
+        public location: Location,
+        @Inject(APP_BASE_HREF) private baseHref: string
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -204,8 +206,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         const currentFilter = this.filterService.getFiltersToSaveInURL();
 
         if (!urlFilter && currentFilter) {
-            const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(`${path}?${url.searchParams.toString()}#${currentFilter}`);
+            let [, path] = url.pathname.split(this.baseHref);
+
+            if (!path.startsWith('/')) {
+                path = `/${path}`;
+            }
+
+            let params = url.searchParams.toString();
+            if (params) {
+                params = `?${params}`;
+
+            }
+            this.location.replaceState(`${path}${params}#${currentFilter}`);
         }
 
         // Clean on different dashboard
