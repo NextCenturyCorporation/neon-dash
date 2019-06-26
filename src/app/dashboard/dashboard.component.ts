@@ -41,7 +41,7 @@ import { SimpleFilterComponent } from '../components/simple-filter/simple-filter
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { GridState } from '../models/grid-state';
-import { ConfigurableWidget } from '../models/widget-option';
+import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';

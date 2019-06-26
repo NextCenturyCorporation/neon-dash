@@ -34,7 +34,6 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -84,24 +83,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.visualizationQueryPaginates = true;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
-            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('sortField', 'Sort Field', false)
-        ];
-    }
-
     relativeTime(date: Date) {
         if (moment(date).diff(Date.now(), 'd', true) < -3) {
             return moment(date).format('YYYY/MM/DD');
@@ -134,13 +115,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
+            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
