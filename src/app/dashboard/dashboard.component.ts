@@ -206,7 +206,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         const currentFilter = this.filterService.getFiltersToSaveInURL();
 
         if (!urlFilter && currentFilter) {
-            let [, path] = url.pathname.split(this.baseHref)
+            let [, path] = url.pathname.split(this.baseHref);
 
             if (!path.startsWith('/')) {
                 path = `/${path}`;
@@ -215,7 +215,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             let params = url.searchParams.toString();
             if (params) {
                 params = `?${params}`;
-
             }
             this.location.replaceState(`${path}${params}#${currentFilter}`);
         }
