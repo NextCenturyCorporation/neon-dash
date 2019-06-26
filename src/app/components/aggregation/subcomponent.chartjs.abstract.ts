@@ -19,6 +19,9 @@ import { Color } from '../../models/color';
 import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
+export interface ChartData { group: string, color: Color, x: any, y: any }
+export interface ChartMetaData { xList?: any[], yList?: any[] }
+
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
     public xToY: Map<any, any> = new Map<any, any[]>();
@@ -78,9 +81,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private X_AXIS_HEIGHT = 20;
     private Y_AXIS_LABEL_WIDTH = 20;
 
-    private canvas: any;
-    private chart: any;
-    private hiddenCanvas: any;
+    private canvas: HTMLCanvasElement;
+    private chart: Chart;
+    private hiddenCanvas: CanvasRenderingContext2D;
 
     private cancelSelect: boolean = false;
     private ignoreSelect: boolean = false;
@@ -100,23 +103,13 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     } = null;
 
     // Save only the tick labels shown in the chart (adjusted for its size) rather than the chart.data.labels which are all the labels.
-    private tickLabels: {
-        x: any[];
-        y: any[];
-    } = {
+    private tickLabels: { x: any[], y: any[] } = {
         x: [],
         y: []
     };
 
     protected selectedLabels: any[] = [];
 
-    /**
-     * @constructor
-     * @arg {any} options
-     * @arg {AggregationSubcomponentListener} listener
-     * @arg {ElementRef} elementRef
-     * @arg {SelectMode} [selectMode=NONE]
-     */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef,
         protected selectMode: SelectMode = SelectMode.NONE) {
         super(options, listener, elementRef);
@@ -124,10 +117,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Calculates and returns the pixel width of the given text.
-     *
-     * @arg {string} text
-     * @return {number}
-     * @private
      */
     private computeTextWidth(text: string) {
         if (!text) {
@@ -139,13 +128,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Calculates and returns the pixel width of the current longest y-axis label.
-     *
-     * @arg {number} chartWidth
-     * @arg {boolean} [withMargins=false]
-     * @return {number}
-     * @private
      */
-    private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false) {
+    private computeCurrentWidthAxisY(chartWidth: number, withMargins: boolean = false): number {
         let maxWidth = this.computeMaximumWidthAxisY(chartWidth);
         if (!this.tickLabels.y || !this.tickLabels.y.length) {
             return maxWidth;
@@ -156,23 +140,15 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Calculates and returns the pixel width of the maximum longest y-axis label.
-     *
-     * @arg {number} chartWidth
-     * @arg {boolean} [withMargins=false]
-     * @return {number}
-     * @private
      */
-    private computeMaximumWidthAxisY(chartWidth: number, withMargins: boolean = false) {
+    private computeMaximumWidthAxisY(chartWidth: number, withMargins: boolean = false): number {
         return Math.floor(this.options.yPercentage * chartWidth) + (withMargins ? (2 * this.HORIZONTAL_MARGIN) : 0);
     }
 
     /**
      * Creates and returns the chart options.
-     *
-     * @arg {any} meta
-     * @return {any}
      */
-    private createChartOptions(meta: any): any {
+    private createChartOptions(meta: ChartMetaData): any {
         let defaultOptions: any = {
             animation: {
                 duration: 0
@@ -265,13 +241,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Creates and returns the chart data and options from the given query data and metadata.
-     *
-     * @arg {array} data
-     * @arg {any} meta
-     * @return {{ data: ChartJsData, options: any }}
-     * @protected
      */
-    protected createChartDataAndOptions(data: any[], meta: any): { data: ChartJsData, options: any } {
+    protected createChartDataAndOptions(
+        data: ChartData[],
+        meta: ChartMetaData
+    ): { data: ChartJsData, options: any } {
         let groupsToDatasets = new Map<string, any>();
         data.forEach((item) => {
             let dataset = groupsToDatasets.get(item.group);
@@ -295,23 +269,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Creates and returns the chart dataset object for the given color and label and array of X values.
-     *
-     * @arg {Color} color
-     * @arg {string} label
-     * @arg {any[]} xList
-     * @return {AbstractChartJsDataset}
-     * @protected
-     * @abstract
      */
     protected abstract createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset;
 
     /**
      * Creates and returns a tooltip label for the given item and data.
-     *
-     * @arg {any} tooltipItem
-     * @arg {any} chartData
-     * @return {string}
-     * @private
      */
     private createTooltipLabel(tooltipItem: any, chartData: any): string {
         let axisType = this.findAxisTypeY();
@@ -334,11 +296,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Creates and returns a tooltip title for the given list and data.
-     *
-     * @arg {any[]} tooltipList
-     * @arg {any} chartData
-     * @return {string}
-     * @private
      */
     private createTooltipTitle(tooltipList: any[], chartData: any): string {
         let axisType = this.findAxisTypeX();
@@ -375,63 +332,43 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Draws all the subcomponent elements with the given data and metadata.
-     *
-     * @arg {array} data
-     * @arg {any} meta
      * @override
      */
-    public draw(data: any[], meta: any) {
+    public draw(data: ChartData[], meta: ChartMetaData) {
         if (this.chart) {
             let dataAndOptions = this.createChartDataAndOptions(data, meta);
             this.chart.data = dataAndOptions.data;
-            this.chart.options = dataAndOptions.options;
+            this.chart['options'] = dataAndOptions.options;
             this.chart.update();
         }
     }
 
     /**
      * Returns the type of the x-axis as date, number, or string.
-     *
-     * @return {string}
-     * @protected
      */
     protected findAxisTypeX(): string {
-        let axisType = this.chart.options.scales.xAxes[0].type;
+        let axisType = this.chart.config.options.scales.xAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
     /**
      * Returns the type of the y-axis as date, number, or string.
-     *
-     * @return {string}
-     * @protected
      */
     protected findAxisTypeY(): string {
-        let axisType = this.chart.options.scales.yAxes[0].type;
+        let axisType = this.chart.config.options.scales.yAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
     }
 
     /**
      * Returns an item to select from the given items and chart.
-     *
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @return {any}
-     * @protected
      */
-    protected findItemInDataToSelect(items: any[], chart: any): any {
-        if (this.isHorizontal()) {
-            return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].y;
-        }
-        return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].x;
+    protected findItemInDataToSelect(items: any[], chart: Chart): any {
+        const data = chart.data.datasets[items[0]._datasetIndex].data as Chart.ChartPoint[];
+        return data[items[0]._index][this.isHorizontal() ? 'y' : 'x'];
     }
 
     /**
      * Returns the width of the given chart element.
-     *
-     * @arg {any} item
-     * @return {number}
-     * @protected
      */
     protected findChartElementWidth(__item: any): number {
         return this.DEFAULT_CHART_ELEMENT_WIDTH;
@@ -439,23 +376,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Finalizes and returns the given chart options.
-     *
-     * @arg {any} chartOptions
-     * @arg {any} meta
-     * @return {any}
-     * @protected
-     * @abstract
      */
-    protected abstract finalizeChartOptions(chartOptions: any, meta: any): any;
+    protected abstract finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: ChartMetaData): Chart.ChartOptions;
 
     /**
      * Returns the given min or max if the pixel value does not fit; otherwise returns the given pixel value.
-     *
-     * @arg {number} pixel
-     * @arg {number} min
-     * @arg {number} max
-     * @return {number}
-     * @private
      */
     private forceInChart(pixel: number, min: number, max: number): number {
         return pixel < min ? min : (pixel > max ? max : pixel);
@@ -463,10 +388,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Formats, truncates (if needed), and returns the given x-label text to fit inside the chart.
-     *
-     * @arg {string} text
-     * @return {string}
-     * @private
      */
     private formatAndTruncateTextX(text: string) {
         // Only truncate text of string x-axes.
@@ -486,12 +407,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Formats, truncates (if needed), and returns the given y-label text to fit inside the chart.
-     *
-     * @arg {string} text
-     * @return {string}
-     * @private
      */
-    private formatAndTruncateTextY(text: string) {
+    private formatAndTruncateTextY(text: string): string {
         // Always truncate y-axes regardless type.
         let textToTruncate = text;
         let axisType = this.findAxisTypeY();
@@ -507,18 +424,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns the ChartJs chart type.
-     *
-     * @return {string}
-     * @protected
-     * @abstract
      */
     protected abstract getChartType(): string;
 
     /**
      * Returns the minimum dimensions needed for the subcomponent.
-     *
-     * @return { { height: number, width: number } }
-     * @override
      */
     public getMinimumDimensions(): { height: number, width: number } {
         let axisTypeX = this.findAxisTypeX();
@@ -535,11 +445,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns the minimum number of X ticks.
-     *
-     * @arg {string} axisType
-     * @arg {number} tickLength
-     * @return {number}
-     * @protected
      */
     protected getMinimumTickCountX(axisType: string, tickLength: number): number {
         // Default of non-string axes is 3 ticks (begin, middle, end).
@@ -548,11 +453,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns the minimum number of Y ticks.
-     *
-     * @arg {string} axisType
-     * @arg {number} tickLength
-     * @return {number}
-     * @protected
      */
     protected getMinimumTickCountY(axisType: string, tickLength: number): number {
         // Default of non-string axes is 3 ticks (begin, middle, end).
@@ -561,10 +461,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns the minimum tick height.
-     *
-     * @arg {string} axisType
-     * @return {number}
-     * @protected
      */
     protected getMinimumTickHeight(__axisType: string): number {
         return 25;
@@ -572,10 +468,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns the minimum tick width.
-     *
-     * @arg {string} axisType
-     * @return {number}
-     * @protected
      */
     protected getMinimumTickWidth(__axisType: string): number {
         return 50;
@@ -583,13 +475,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Handles the given click event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @private
      */
-    private handleClickEvent(event, items: any[], chart: any) {
+    private handleClickEvent(event, items: any[], chart: Chart) {
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.ITEM) {
                 this.selectItem(event, items, chart);
@@ -599,13 +486,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Handles the given hover event as needed by this subcomponent.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @private
      */
-    private handleHoverEvent(event, items: any[], chart: any) {
+    private handleHoverEvent(event, items: any[], chart: Chart) {
         if (this.isSelectable(items)) {
             if (this.selectMode === SelectMode.DOMAIN) {
                 this.selectDomain(event, items, chart);
@@ -621,7 +503,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Configures the visualization to ignore any of the user's "select" events.
-     *
      * @override
      */
     public ignoreSelectEvents(): void {
@@ -630,7 +511,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Initializes all the subcomponent elements.
-     *
      * @override
      */
     public initialize() {
@@ -656,8 +536,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns whether the chart is horizontal.
-     *
-     * @return {boolean}
      * @override
      */
     public isHorizontal(): boolean {
@@ -666,9 +544,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Returns whether the location of the chart with the given items is selectable.
-     *
-     * @arg {any[]} items
-     * @return {boolean}
      * @protected
      */
     protected isSelectable(items: any[]): boolean {
@@ -677,9 +552,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Handles the given click event.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
      */
     public onClickEvent(event, items: any[]) {
         this.handleClickEvent(event, items, this.chart);
@@ -687,9 +559,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Handles the given hover event.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
      */
     public onHoverEvent(event, items: any[]) {
         this.elementRef.nativeElement.style.cursor = this.isSelectable(items) ? 'pointer' : 'default';
@@ -701,11 +570,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * initially the chart labels are what is used to determine date values (for example, if
      * the bar representing "August 2018" is selected, make sure range is "August 1st at 12:00 AM
      * to August 31st at 11:59 PM" rather than "August 1st at 12:00 AM to August 1st 12:00 AM").
-     *
-     * @arg {any} endDate
-     * @protected
      */
-    protected padEndDate(endDate: any) {
+    protected padEndDate(endDate: any): Date {
         let newEndDate = moment.utc(endDate);
         newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
         newEndDate.subtract(1, 'second');
@@ -714,7 +580,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Redraws all the subcomponent elements.
-     *
      * @override
      */
     public redraw() {
@@ -724,9 +589,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Resizes the given x-axis object as needed.
-     *
-     * @arg {any} xAxis
-     * @private
      */
     private resizeAxisX(xAxis: any) {
         xAxis.paddingLeft = this.computeCurrentWidthAxisY(this.canvas.clientWidth, true);
@@ -736,9 +598,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Resizes the given y-axis object as needed.
-     *
-     * @arg {any} yAxis
-     * @private
      */
     private resizeAxisY(yAxis: any) {
         yAxis.width = this.computeCurrentWidthAxisY(this.canvas.clientWidth);
@@ -746,9 +605,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Saves the tick labels for the given x-axis.
-     *
-     * @arg {any} xAxis
-     * @private
      */
     private saveTickLabelsX(xAxis: any) {
         this.tickLabels.x = [].concat(xAxis.ticks);
@@ -756,9 +612,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Saves the tick labels for the given y-axis.
-     *
-     * @arg {any} yAxis
-     * @private
      */
     private saveTickLabelsY(yAxis: any) {
         this.tickLabels.y = [].concat(yAxis.ticks);
@@ -766,8 +619,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Selects the given items and deselects all other items.
-     *
-     * @arg {any[]} items
      * @override
      */
     public select(items: any[]) {
@@ -798,16 +649,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Selects a bounds using the given event and items.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @arg {boolean} [domainOnly=false]
-     * @private
      */
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
-    private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
+    private selectBounds(event, items: any[], chart: Chart, domainOnly: boolean = false) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -869,18 +714,18 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedBounds && event.buttons === 0) {
-            let beginValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
-            let beginValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
-            let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
-            let endValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
+            let beginValueX = chart.config.options.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
+            let beginValueY = chart.config.options.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
+            let endValueX = chart.config.options.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
+            let endValueY = chart.config.options.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
 
             let beginLabelX;
             let beginLabelY;
             let endLabelX;
             let endLabelY;
             if (this.findAxisTypeX() === 'string') {
-                beginValueX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
-                endValueX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
+                beginValueX = chart.config.options.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
+                endValueX = chart.config.options.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
                 beginLabelX = beginValueX < endValueX ? beginValueX : endValueX;
                 endLabelX = beginValueX > endValueX ? beginValueX : endValueX;
             } else if (this.findAxisTypeX() === 'date') {
@@ -892,8 +737,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (this.findAxisTypeY() === 'string') {
-                beginValueY = chart.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
-                endValueY = chart.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
+                beginValueY = chart.config.options.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
+                endValueY = chart.config.options.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
                 beginLabelY = beginValueY < endValueY ? beginValueY : endValueY;
                 endLabelY = beginValueY > endValueY ? beginValueY : endValueY;
             } else {
@@ -913,13 +758,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Selects a domain using the given event and items.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @private
      */
-    private selectDomain(event, items: any[], chart: any) {
+    private selectDomain(event, items: any[], chart: Chart) {
         if (event.type === 'mouseover' && event.buttons > 0) {
             this.ignoreSelect = true;
         }
@@ -979,9 +819,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedDomain && event.buttons === 0) {
-            let beginLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.min(this.selectedDomain.beginIndex,
+            let beginLabelX = chart.config.options.scales['x-axis-0'].getLabelForIndex(Math.min(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
-            let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
+            let endLabelX = chart.config.options.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
             if (this.findAxisTypeX() === 'date') {
                 beginLabelX = moment.utc(beginLabelX).toDate();
@@ -1000,13 +840,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Selects an item using the given event and items.
-     *
-     * @arg {event} event
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @private
      */
-    private selectItem(event, items: any[], chart) {
+    private selectItem(event, items: any[], chart: Chart) {
         if (!items.length) {
             return;
         }
@@ -1026,12 +861,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Truncates and returns the given text (if needed) to fit inside a chart with the given width.
-     *
-     * @arg {number} openWidth
-     * @arg {string} text
-     * @arg {string} [suffix='']
-     * @return {string}
-     * @private
      */
     private truncateText(openWidth: number, text: string, suffix: string = ''): string {
         // Subtract three characters for the ellipsis.
@@ -1057,11 +886,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
     /**
      * Truncates and returns the given tooltip text (if needed) to fit inside the chart.
-     *
-     * @arg {string} text
-     * @arg {string} suffix
-     * @return {string}
-     * @private
      */
     private truncateTooltipLabel(text: string, suffix: string): string {
         return this.truncateText((this.canvas.clientWidth - (2 * this.HORIZONTAL_MARGIN)), text, suffix);

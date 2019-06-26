@@ -48,12 +48,12 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         let superclassOptions = super.finalizeChartOptions(chartOptions, meta);
         superclassOptions.scales.xAxes[0].barPercentage = 1.0;
-        superclassOptions.scales.yAxes[0].barPercentage = 1.0;
+        superclassOptions.scales.yAxes[0]['barPercentage'] = 1.0; // This property doesn't exist
         superclassOptions.scales.xAxes[0].categoryPercentage = 1.0;
-        superclassOptions.scales.yAxes[0].categoryPercentage = 1.0;
+        superclassOptions.scales.yAxes[0]['categoryPercentage'] = 1.0; // This property doesn't exist
         return chartOptions;
     }
 

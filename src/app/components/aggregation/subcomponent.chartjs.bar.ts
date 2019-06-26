@@ -102,7 +102,7 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         // Use a category axis for number and date data, but save the true type.
         this.axisTypeX = this.horizontal ? meta.yAxis : meta.xAxis;
         this.axisTypeY = this.horizontal ? meta.xAxis : meta.yAxis;
@@ -113,9 +113,9 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
         chartOptions.scales.yAxes[0].type = this.horizontal ? 'category' : (this.axisTypeY === 'number' ?
             (this.options.logScaleY && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
         chartOptions.scales.xAxes[0].barPercentage = 0.9;
-        chartOptions.scales.yAxes[0].barPercentage = 0.9;
+        chartOptions.scales.yAxes[0]['barPercentage'] = 0.9; // TODO: This property doesn't exist
         chartOptions.scales.xAxes[0].categoryPercentage = 0.9;
-        chartOptions.scales.yAxes[0].categoryPercentage = 0.9;
+        chartOptions.scales.yAxes[0]['categoryPercentage'] = 0.9; // TODO: This property doesn't exist
         chartOptions.scales.xAxes[0].stacked = true;
         chartOptions.scales.yAxes[0].stacked = true;
         chartOptions.tooltips.position = 'average';
