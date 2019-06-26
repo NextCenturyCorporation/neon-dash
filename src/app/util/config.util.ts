@@ -166,10 +166,8 @@ export class ConfigUtil {
         const out = {
             filename,
             filters,
-            params,
-            url,
             fullPath: finalPath,
-            path: dashboardPath,
+            dashboardPath,
             pathParts
         };
 
