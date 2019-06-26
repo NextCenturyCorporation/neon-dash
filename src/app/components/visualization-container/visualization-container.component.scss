@@ -31,6 +31,7 @@
     top: 0;
     right: 5px;
     transform: translate(30%, -10%) scale(0.7, 0.7);
+    color: var(--color-text-header, black);
 }
 
 :host.moving {
@@ -47,9 +48,11 @@
 
     .icon-container {
         position: absolute;
+        height: $vis-title-expected-height;
         padding-left: 80px;
         padding-right: 5px;
         top: 0;
+        margin-top: -4px;
         right: 0;
         background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, var(--color-background, white) 20%, var(--color-background, white) 100%);
     }
@@ -66,8 +69,8 @@
     }
 
     &:hover .drag-handle {
-        color: white;
-        background: rgba(60, 60, 60, 0.5);
+        color: var(--color-primary-contrast, white);
+        background: var(--color-primary-transparent, #333333);
     }
 }
 
