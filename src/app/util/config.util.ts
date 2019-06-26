@@ -15,6 +15,8 @@
 import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
 export class ConfigUtil {
+    static DEFAULT_CONFIG_NAME = '-'; // TODO: Remove when config moved to saved
+
     static encodeFiltersMap = {
         '[': '⟦',
         ']': '⟧',
@@ -92,7 +94,7 @@ export class ConfigUtil {
                 const name = [
                     { name: prefix }, ...choices
                 ]
-                    .filter((ds) => !!ds.name)
+                    .filter((ds) => !!ds.name && ds.name !== this.DEFAULT_CONFIG_NAME)
                     .map((ds) => ds.name)
                     .join(' / ');
 
@@ -140,5 +142,37 @@ export class ConfigUtil {
                 return undefined;
             }
         });
+    }
+
+    static getUrlConfig(urlStr: string | Location, baseHref: string) {
+        const searchHref = `/${baseHref}/`.replace(/^[/]+|[/]+$/g, '/');
+        const url = new URL(urlStr.toString());
+        const rel = url.pathname.substring(url.pathname.indexOf(searchHref) + searchHref.length);
+
+        const [path, ...subPath] = rel.split('/').filter((part) => !!part);
+        const dashboardPath = subPath.join('.');
+
+        const filters = decodeURIComponent(url.hash.replace(/^#/g, ''));
+        const filename = path || this.DEFAULT_CONFIG_NAME;
+        const params = url.searchParams.toString();
+
+        let pathParts = [filename, ...subPath];
+        let finalPath = ['', ...pathParts].join('/');
+
+        if (params) {
+            finalPath = `${finalPath}?${params}`;
+        }
+
+        const out = {
+            filename,
+            filters,
+            params,
+            url,
+            fullPath: finalPath,
+            path: dashboardPath,
+            pathParts
+        };
+
+        return out;
     }
 }
