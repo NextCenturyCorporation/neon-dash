@@ -20,9 +20,17 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    position: relative;
     grid-template-rows: minmax(0, 1fr);
     grid-template-areas:
         'content';
+}
+
+.settings {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    transform: translate(30%, -10%) scale(0.7, 0.7);
 }
 
 :host.moving {
@@ -32,7 +40,7 @@
 }
 
 .visualization-toolbar {
-    grid-area: content; 
+    grid-area: content;
     display: none;
     grid-template-rows: 1fr;
     z-index: 9999;

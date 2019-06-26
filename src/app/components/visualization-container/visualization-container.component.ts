@@ -54,6 +54,10 @@ export class VisualizationContainerComponent implements OnInit {
         });
     }
 
+    openSettings() {
+        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, this.visualization);
+    }
+
     contract() {
         this.onResizeStart();
         this.expanded = false;
