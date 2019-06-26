@@ -246,7 +246,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     protected createChartDataAndOptions(
         data: ChartData[],
         meta: ChartMetaData
-    ): { data: ChartJsData, options: any } {
+    ): { data: ChartJsData, options: Chart.ChartOptions } {
         let groupsToDatasets = new Map<string, AbstractChartJsDataset>();
         data.forEach((item) => {
             let dataset = groupsToDatasets.get(item.group);
@@ -718,18 +718,18 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedBounds && event.buttons === 0) {
-            let beginValueX = chart.config.options.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
-            let beginValueY = chart.config.options.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
-            let endValueX = chart.config.options.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
-            let endValueY = chart.config.options.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
+            let beginValueX = chart.config.options.scales.xAxes[0]['getValueForPixel'](this.selectedBounds.beginX);
+            let beginValueY = chart.config.options.scales.yAxes[0]['getValueForPixel'](this.selectedBounds.beginY);
+            let endValueX = chart.config.options.scales.xAxes[0]['getValueForPixel'](this.selectedBounds.endX);
+            let endValueY = chart.config.options.scales.yAxes[0]['getValueForPixel'](this.selectedBounds.endY);
 
             let beginLabelX;
             let beginLabelY;
             let endLabelX;
             let endLabelY;
             if (this.findAxisTypeX() === 'string') {
-                beginValueX = chart.config.options.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
-                endValueX = chart.config.options.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
+                beginValueX = chart.config.options.scales.xAxes[0]['getLabelForIndex'](beginValueX, 0);
+                endValueX = chart.config.options.scales.xAxes[0]['getLabelForIndex'](endValueX, 0);
                 beginLabelX = beginValueX < endValueX ? beginValueX : endValueX;
                 endLabelX = beginValueX > endValueX ? beginValueX : endValueX;
             } else if (this.findAxisTypeX() === 'date') {
@@ -741,8 +741,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (this.findAxisTypeY() === 'string') {
-                beginValueY = chart.config.options.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
-                endValueY = chart.config.options.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
+                beginValueY = chart.config.options.scales.yAxes[0]['getLabelForIndex'](beginValueY, 0);
+                endValueY = chart.config.options.scales.yAxes[0]['getLabelForIndex'](endValueY, 0);
                 beginLabelY = beginValueY < endValueY ? beginValueY : endValueY;
                 endLabelY = beginValueY > endValueY ? beginValueY : endValueY;
             } else {
@@ -823,9 +823,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedDomain && event.buttons === 0) {
-            let beginLabelX = chart.config.options.scales['x-axis-0'].getLabelForIndex(Math.min(this.selectedDomain.beginIndex,
+            let beginLabelX = chart.config.options.scales.xAxes[0]['getLabelForIndex'](Math.min(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
-            let endLabelX = chart.config.options.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
+            let endLabelX = chart.config.options.scales.xAxes[0]['getLabelForIndex'](Math.max(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
             if (this.findAxisTypeX() === 'date') {
                 beginLabelX = moment.utc(beginLabelX).toDate();

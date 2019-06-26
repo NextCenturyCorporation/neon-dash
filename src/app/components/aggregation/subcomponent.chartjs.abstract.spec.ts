@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-'use strict';
+/* eslint-disable @typescript-eslint/unbound-method */
 
 import { AbstractChartJsDataset, AbstractChartJsSubcomponent } from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
@@ -109,7 +109,7 @@ class TestChartJsSubcomponent extends AbstractChartJsSubcomponent {
 
 describe('ChartJsSubcomponent', () => {
     let listener;
-    let subcomponent;
+    let subcomponent: TestChartJsSubcomponent;
 
     beforeEach(() => {
         listener = new TestAggregationSubcomponentListener();
@@ -117,32 +117,37 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('createChartDataAndOptions does return expected object', () => {
-        let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: Color.fromRgb(1, 2, 3),
-            group: 'a',
-            x: 1,
-            y: 2
-        }, {
-            color: Color.fromRgb(1, 2, 3),
-            group: 'a',
-            x: 3,
-            y: 4
-        }, {
-            color: Color.fromRgb(4, 5, 6),
-            group: 'b',
-            x: 5,
-            y: 6
-        }, {
-            color: Color.fromRgb(4, 5, 6),
-            group: 'b',
-            x: 7,
-            y: 8
-        }], {
-            xAxis: 'number',
-            xList: [1, 3, 5, 7],
-            yAxis: 'number',
-            yList: [2, 4, 6, 8]
-        });
+        let dataAndOptions = subcomponent.getChartDataAndOptions(
+            [
+                {
+                    color: Color.fromRgb(1, 2, 3),
+                    group: 'a',
+                    x: 1,
+                    y: 2
+                }, {
+                    color: Color.fromRgb(1, 2, 3),
+                    group: 'a',
+                    x: 3,
+                    y: 4
+                }, {
+                    color: Color.fromRgb(4, 5, 6),
+                    group: 'b',
+                    x: 5,
+                    y: 6
+                }, {
+                    color: Color.fromRgb(4, 5, 6),
+                    group: 'b',
+                    x: 7,
+                    y: 8
+                }
+            ],
+            {
+                xAxis: 'number',
+                xList: [1, 3, 5, 7],
+                yAxis: 'number',
+                yList: [2, 4, 6, 8]
+            }
+        );
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
         expect(dataAndOptions.options.events).toEqual(['click',
@@ -161,7 +166,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.xAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].gridLines.display).toEqual(true);
-        expect(dataAndOptions.options.scales.xAxes[0].labels).toEqual([1, 3, 5, 7]);
+        expect(dataAndOptions.options.scales.xAxes[0]['labels']).toEqual([1, 3, 5, 7]);
         expect(dataAndOptions.options.scales.xAxes[0].position).toEqual('bottom');
         expect(dataAndOptions.options.scales.xAxes[0].ticks.display).toEqual(true);
         expect(dataAndOptions.options.scales.xAxes[0].ticks.maxRotation).toEqual(0);
@@ -171,14 +176,14 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.yAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].gridLines.display).toEqual(true);
-        expect(dataAndOptions.options.scales.yAxes[0].labels).toEqual([2, 4, 6, 8]);
+        expect(dataAndOptions.options.scales.yAxes[0]['labels']).toEqual([2, 4, 6, 8]);
         expect(dataAndOptions.options.scales.yAxes[0].position).toEqual('left');
         expect(dataAndOptions.options.scales.yAxes[0].ticks.display).toEqual(true);
         expect(dataAndOptions.options.scales.yAxes[0].ticks.maxRotation).toEqual(0);
         expect(dataAndOptions.options.scales.yAxes[0].ticks.minRotation).toEqual(0);
         expect(dataAndOptions.options.scales.yAxes[0].ticks.callback).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].type).toEqual('category');
-        expect(dataAndOptions.options.test).toEqual(true);
+        expect(dataAndOptions.options['test']).toEqual(true);
         expect(dataAndOptions.options.tooltips.intersect).toEqual(false);
         expect(dataAndOptions.options.tooltips.mode).toEqual('index');
         expect(dataAndOptions.options.tooltips.position).toEqual('nearest');
@@ -221,40 +226,45 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('createChartDataAndOptions with config does return expected object', () => {
-        subcomponent.options.hideGridLines = true;
-        subcomponent.options.hideGridTicks = true;
-        subcomponent.options.scaleMaxX = 4;
-        subcomponent.options.scaleMaxY = 3;
-        subcomponent.options.scaleMinX = 2;
-        subcomponent.options.scaleMinY = 1;
+        subcomponent['options'].hideGridLines = true;
+        subcomponent['options'].hideGridTicks = true;
+        subcomponent['options'].scaleMaxX = 4;
+        subcomponent['options'].scaleMaxY = 3;
+        subcomponent['options'].scaleMinX = 2;
+        subcomponent['options'].scaleMinY = 1;
         subcomponent.horizontal = true;
 
-        let dataAndOptions = subcomponent.getChartDataAndOptions([{
-            color: Color.fromRgb(1, 2, 3),
-            group: 'a',
-            x: 1,
-            y: 2
-        }, {
-            color: Color.fromRgb(1, 2, 3),
-            group: 'a',
-            x: 3,
-            y: 4
-        }, {
-            color: Color.fromRgb(4, 5, 6),
-            group: 'b',
-            x: 5,
-            y: 6
-        }, {
-            color: Color.fromRgb(4, 5, 6),
-            group: 'b',
-            x: 7,
-            y: 8
-        }], {
-            xAxis: 'number',
-            xList: [1, 3, 5, 7],
-            yAxis: 'number',
-            yList: [2, 4, 6, 8]
-        });
+        let dataAndOptions = subcomponent.getChartDataAndOptions(
+            [
+                {
+                    color: Color.fromRgb(1, 2, 3),
+                    group: 'a',
+                    x: 1,
+                    y: 2
+                }, {
+                    color: Color.fromRgb(1, 2, 3),
+                    group: 'a',
+                    x: 3,
+                    y: 4
+                }, {
+                    color: Color.fromRgb(4, 5, 6),
+                    group: 'b',
+                    x: 5,
+                    y: 6
+                }, {
+                    color: Color.fromRgb(4, 5, 6),
+                    group: 'b',
+                    x: 7,
+                    y: 8
+                }
+            ],
+            {
+                xAxis: 'number',
+                xList: [1, 3, 5, 7],
+                yAxis: 'number',
+                yList: [2, 4, 6, 8]
+            }
+        );
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
         expect(dataAndOptions.options.events).toEqual(['click',
@@ -273,7 +283,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.xAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.xAxes[0].gridLines.display).toEqual(false);
-        expect(dataAndOptions.options.scales.xAxes[0].labels).toEqual([2, 4, 6, 8]);
+        expect(dataAndOptions.options.scales.xAxes[0]['labels']).toEqual([2, 4, 6, 8]);
         expect(dataAndOptions.options.scales.xAxes[0].position).toEqual('bottom');
         expect(dataAndOptions.options.scales.xAxes[0].ticks.display).toEqual(false);
         expect(dataAndOptions.options.scales.xAxes[0].ticks.maxRotation).toEqual(0);
@@ -285,7 +295,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.yAxes[0].afterTickToLabelConversion).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].afterFit).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].gridLines.display).toEqual(false);
-        expect(dataAndOptions.options.scales.yAxes[0].labels).toEqual([1, 3, 5, 7]);
+        expect(dataAndOptions.options.scales.yAxes[0]['labels']).toEqual([1, 3, 5, 7]);
         expect(dataAndOptions.options.scales.yAxes[0].position).toEqual('left');
         expect(dataAndOptions.options.scales.yAxes[0].ticks.display).toEqual(false);
         expect(dataAndOptions.options.scales.yAxes[0].ticks.maxRotation).toEqual(0);
@@ -294,7 +304,7 @@ describe('ChartJsSubcomponent', () => {
         expect(dataAndOptions.options.scales.yAxes[0].ticks.min).toEqual(1);
         expect(dataAndOptions.options.scales.yAxes[0].ticks.callback).toBeDefined();
         expect(dataAndOptions.options.scales.yAxes[0].type).toEqual('category');
-        expect(dataAndOptions.options.test).toEqual(true);
+        expect(dataAndOptions.options['test']).toEqual(true);
         expect(dataAndOptions.options.tooltips.intersect).toEqual(false);
         expect(dataAndOptions.options.tooltips.mode).toEqual('index');
         expect(dataAndOptions.options.tooltips.position).toEqual('nearest');
@@ -317,9 +327,9 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
@@ -346,21 +356,21 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
@@ -387,37 +397,45 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
-                },
-                'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['A', 'B', 'C', 'D'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
+                            } as Chart.ChartXAxe
+                        ],
+                        yAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['E', 'F', 'G', 'H'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+                            } as Chart.ChartYAxe
+                        ]
+                    }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 0
         }, [], chart);
 
@@ -442,37 +460,45 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
-                },
-                'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['A', 'B', 'C', 'D'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
+                            } as Chart.ChartXAxe
+                        ],
+                        yAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['E', 'F', 'G', 'H'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+                            } as Chart.ChartYAxe
+                        ]
+                    }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 0
         }, [], chart);
 
@@ -499,34 +525,42 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
-            scales: {
-                'x-axis-0': {
-                    getValueForPixel: (pixel) => pixel === 10 ? new Date('2018-01-02T00:00:00.000Z').getTime() :
-                        new Date('2018-01-03T00:00:00.000Z').getTime()
-                },
-                'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getValueForPixel: (pixel) => pixel === 10 ? new Date('2018-01-02T00:00:00.000Z').getTime() :
+                                    new Date('2018-01-03T00:00:00.000Z').getTime()
+                            } as Chart.ChartXAxe
+                        ],
+                        yAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['E', 'F', 'G', 'H'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+                            } as Chart.ChartYAxe
+                        ]
+                    }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 0
         }, [], chart);
 
@@ -554,29 +588,33 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
-            scales: {
-                'x-axis-0': {
-                    getValueForPixel: (pixel) => pixel === 10 ? 1234 : 5678
-                },
-                'y-axis-0': {
-                    getValueForPixel: (pixel) => pixel === 20 ? 4321 : 8765
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [{
+                            getValueForPixel: (pixel) => pixel === 10 ? 1234 : 5678
+                        } as any as Chart.ChartXAxe],
+                        yAxes: [{
+                            getValueForPixel: (pixel) => pixel === 20 ? 4321 : 8765
+                        } as any as Chart.ChartYAxe]
+                    }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 0
         }, [], chart);
 
@@ -601,15 +639,15 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 2,
             offsetX: 100,
             offsetY: 200
@@ -635,9 +673,9 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
@@ -647,7 +685,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
@@ -678,37 +716,45 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
-                },
-                'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
-                    getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['A', 'B', 'C', 'D'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
+                            } as Chart.ChartXAxe
+                        ],
+                        yAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['E', 'F', 'G', 'H'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
+                            } as Chart.ChartYAxe
+                        ]
+                    }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20
         }, [], chart, true);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 100,
             offsetY: 200
         }, [], chart, true);
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 0
         }, [], chart, true);
 
@@ -734,9 +780,9 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectBounds({
+        subcomponent['selectBounds']({
             buttons: 1,
             offsetX: 10,
             offsetY: 20,
@@ -761,9 +807,9 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -792,9 +838,9 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -804,7 +850,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -814,7 +860,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 2,
@@ -843,17 +889,24 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['A', 'B', 'C', 'D'];
+                                    return labels[index];
+                                },
+                                getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
+                            } as Chart.ChartXAxe
+                        ]
                     }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -863,7 +916,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 2,
@@ -873,7 +926,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 0
         }, [], chart);
 
@@ -896,17 +949,23 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['A', 'B', 'C', 'D'];
+                                    return labels[index];
+                                }
+                            } as Chart.ChartXAxe
+                        ]
                     }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 2,
@@ -916,7 +975,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -926,7 +985,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 0
         }, [], chart);
 
@@ -939,7 +998,7 @@ describe('ChartJsSubcomponent', () => {
     });
 
     it('selectDomain with time axis does create expected filter', () => {
-        subcomponent.options.granularity = 'day';
+        subcomponent['options'].granularity = 'day';
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
         let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
@@ -952,22 +1011,28 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = [
-                            '2018-01-01T00:00:00.000Z',
-                            '2018-01-02T00:00:00.000Z',
-                            '2018-01-03T00:00:00.000Z',
-                            '2018-01-04T00:00:00.000Z'
-                        ];
-                        return labels[index];
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = [
+                                        '2018-01-01T00:00:00.000Z',
+                                        '2018-01-02T00:00:00.000Z',
+                                        '2018-01-03T00:00:00.000Z',
+                                        '2018-01-04T00:00:00.000Z'
+                                    ];
+                                    return labels[index];
+                                }
+                            } as Chart.ChartXAxe
+                        ]
                     }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -977,7 +1042,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 2,
@@ -987,7 +1052,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 0
         }, [], chart);
 
@@ -1012,17 +1077,23 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['0', '1,234', '5,678,901', '100,000,000'];
-                        return labels[index];
+            config: {
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                getLabelForIndex: (index) => {
+                                    let labels = ['0', '1,234', '5,678,901', '100,000,000'];
+                                    return labels[index];
+                                }
+                            } as Chart.ChartXAxe
+                        ]
                     }
                 }
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -1032,7 +1103,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 2,
@@ -1042,7 +1113,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 0
         }, [], chart);
 
@@ -1065,9 +1136,9 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1
         }, [{
             _index: 1,
@@ -1077,7 +1148,7 @@ describe('ChartJsSubcomponent', () => {
             }
         }], chart);
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 2
         }, [{
             _index: 2,
@@ -1105,9 +1176,9 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             }
-        };
+        } as Chart;
 
-        (subcomponent).selectDomain({
+        subcomponent['selectDomain']({
             buttons: 1,
             type: 'mouseover'
         }, [{
@@ -1138,14 +1209,14 @@ describe('ChartJsSubcomponent', () => {
                     }]
                 }]
             }
-        };
+        } as Chart;
 
         let item1 = {
             _datasetIndex: 0,
             _index: 0
         };
 
-        (subcomponent).selectItem({}, [item1], chart);
+        subcomponent['selectItem']({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
@@ -1177,7 +1248,7 @@ describe('ChartJsSubcomponent', () => {
                     }]
                 }]
             }
-        };
+        } as Chart;
 
         let item1 = {
             _datasetIndex: 0,
@@ -1199,25 +1270,25 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        (subcomponent).selectItem({}, [item1], chart);
+        subcomponent['selectItem']({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([1]);
 
-        (subcomponent).selectItem({}, [item2], chart);
+        subcomponent['selectItem']({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
         expect(spy1.calls.argsFor(1)).toEqual(['a', 3, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([3]);
 
-        (subcomponent).selectItem({}, [item3], chart);
+        subcomponent['selectItem']({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
         expect(spy1.calls.argsFor(2)).toEqual(['b', 5, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([5]);
 
-        (subcomponent).selectItem({}, [item4], chart);
+        subcomponent['selectItem']({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
         expect(spy1.calls.argsFor(3)).toEqual(['b', 7, false]);
@@ -1249,7 +1320,7 @@ describe('ChartJsSubcomponent', () => {
                     }]
                 }]
             }
-        };
+        } as Chart;
 
         let item1 = {
             _datasetIndex: 0,
@@ -1271,7 +1342,7 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        (subcomponent).selectItem({
+        subcomponent['selectItem']({
             ctrlKey: true
         }, [item1], chart);
 
@@ -1279,7 +1350,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(0)).toEqual(['a', 1, true]);
         expect(subcomponent.getSelectedLabels()).toEqual([1]);
 
-        (subcomponent).selectItem({
+        subcomponent['selectItem']({
             ctrlKey: true
         }, [item2], chart);
 
@@ -1287,7 +1358,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(1)).toEqual(['a', 3, true]);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3]);
 
-        (subcomponent).selectItem({
+        subcomponent['selectItem']({
             metaKey: true
         }, [item3], chart);
 
@@ -1295,7 +1366,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.argsFor(2)).toEqual(['b', 5, true]);
         expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5]);
 
-        (subcomponent).selectItem({
+        subcomponent['selectItem']({
             metaKey: true
         }, [item4], chart);
 
@@ -1331,7 +1402,7 @@ describe('ChartJsSubcomponent', () => {
                     }]
                 }]
             }
-        };
+        } as Chart;
 
         let item1 = {
             _datasetIndex: 0,
@@ -1353,25 +1424,25 @@ describe('ChartJsSubcomponent', () => {
             _index: 1
         };
 
-        (subcomponent).selectItem({}, [item1], chart);
+        subcomponent['selectItem']({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual(['a', 2, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([2]);
 
-        (subcomponent).selectItem({}, [item2], chart);
+        subcomponent['selectItem']({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
         expect(spy1.calls.argsFor(1)).toEqual(['a', 4, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([4]);
 
-        (subcomponent).selectItem({}, [item3], chart);
+        subcomponent['selectItem']({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
         expect(spy1.calls.argsFor(2)).toEqual(['b', 6, false]);
         expect(subcomponent.getSelectedLabels()).toEqual([6]);
 
-        (subcomponent).selectItem({}, [item4], chart);
+        subcomponent['selectItem']({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
         expect(spy1.calls.argsFor(3)).toEqual(['b', 8, false]);
