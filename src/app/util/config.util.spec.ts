@@ -15,7 +15,7 @@
 import { ConfigUtil } from './config.util';
 import { NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
-fdescribe('Config Util Tests', () => {
+describe('Config Util Tests', () => {
     it('findAutoShowDashboard does return expected object', () => {
         expect(ConfigUtil.findAutoShowDashboard(NeonDashboardLeafConfig.get())).toBeFalsy();
 
@@ -184,7 +184,7 @@ fdescribe('Config Util Tests', () => {
         }
 
         // Ensure default filename if missing
-        const res = ConfigUtil.getUrlState(`http://localhost/?random#filters`, '/');
+        const res = ConfigUtil.getUrlState('http://localhost/?random#filters', '/');
         expect(res.filename).toEqual(ConfigUtil.DEFAULT_CONFIG_NAME);
         expect(res.fullPath).toEqual(`/${ConfigUtil.DEFAULT_CONFIG_NAME}?random=`);
     });
