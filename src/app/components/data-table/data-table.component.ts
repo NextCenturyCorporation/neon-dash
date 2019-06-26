@@ -120,23 +120,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('colorField', 'Color Field', false),
-            new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
-            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false)
-        ];
-    }
-
     private createFilterDesignOnArrayValue(filters: FilterDesign[]): FilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return {
@@ -163,13 +146,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('colorField', 'Color Field', false),
+            new WidgetFieldOption('heatmapField', 'Heatmap Field', false),
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
+            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false),
             new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
@@ -207,9 +196,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], false),
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], true),
             // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], false),
+            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], true),
             // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
             new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
         ];
