@@ -153,7 +153,7 @@ export class ConfigUtil {
         });
     }
 
-    static getUrlConfig(urlStr: string | Location, baseHref: string): URLConfigState {
+    static getUrlState(urlStr: string | Location, baseHref: string): URLConfigState {
         const searchHref = `/${baseHref}/`.replace(/^[/]+|[/]+$/g, '/');
         const url = new URL(urlStr.toString());
         const rel = url.pathname.substring(url.pathname.indexOf(searchHref) + searchHref.length);

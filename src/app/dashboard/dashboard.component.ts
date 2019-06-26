@@ -202,7 +202,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
         const currentFilter = this.filterService.getFiltersToSaveInURL();
-        const { fullPath, filters, url } = ConfigUtil.getUrlConfig(window.location, this.baseHref);
+        const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
         if ((!filters && currentFilter) || url.pathname === '/') {
             this.location.replaceState(`${fullPath}#${currentFilter}`);
         }
@@ -375,7 +375,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @DashboardModified()
     onFiltersChanged() {
-        const { pathParts } = ConfigUtil.getUrlConfig(window.location, this.baseHref);
+        const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
         this.router.navigate(pathParts, {
             fragment: this.filterService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
