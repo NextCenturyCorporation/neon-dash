@@ -147,7 +147,7 @@ export class ConfigService {
     /**
      * Loads config state by URL, given a base path
      */
-    setActiveByURL(url: string, base: string) {
+    setActiveByURL(url: string | Location, base: string) {
         const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
 
         setTimeout(() => {

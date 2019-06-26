@@ -47,6 +47,7 @@ import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
 import { Location, APP_BASE_HREF } from '@angular/common';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -120,7 +121,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentTitle: string;
+    private currentDashboardId: string;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -158,8 +159,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showCustomConnectionButton = true;
         this.snackBar = snackBar;
 
-        this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
-        this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .subscribe((config) => this.onConfigChange(config));
+        this.dashboardService.stateSource
+            .subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .pipe(distinctUntilKeyChanged('fileName'))
+            .subscribe((config) => {
+                this.setTitleAndIcon(
+                    config.projectTitle || 'Neon',
+                    config.projectIcon || 'assets/favicon.blue.ico?v=1'
+                );
+            });
     }
 
     get currentDashboard() {
@@ -182,11 +193,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', config.errors);
         }
 
-        this.setTitleAndIcon(
-            config.projectTitle || 'Neon',
-            config.projectIcon || 'assets/favicon.blue.ico?v=1'
-        );
-
         const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
 
         if (dashboard) {
@@ -208,7 +214,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         }
 
         // Clean on different dashboard
-        if (this.currentTitle !== state.dashboard.fullTitle) {
+        if (this.currentDashboardId !== state.id) {
+            this.dashboardService.state.modified = false;
+
             this.pendingInitialRegistrations = this.widgets.size;
 
             this.gridState.clear();
@@ -231,7 +239,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
         }
 
-        this.currentTitle = state.dashboard.fullTitle;
+        this.currentDashboardId = state.id;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {
