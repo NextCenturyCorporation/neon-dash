@@ -32,7 +32,7 @@
     .header,
     .info {
         &.text {
-            font-size: 13px;
+            font-size: 12px;
             overflow: hidden;
             text-align: right;
             text-overflow: ellipsis;
@@ -45,6 +45,8 @@
         height: $vis-title-expected-height;
         line-height: $vis-title-expected-height;
         min-height: $vis-title-expected-height;
+        padding-left: 7px;
+        padding-right: 22px;
 
         .header.text {
             font-weight: bold;

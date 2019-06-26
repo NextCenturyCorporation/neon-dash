@@ -71,19 +71,21 @@ mat-toolbar {
     overflow-y: auto;
     overflow-x: hidden;
     width: 100vw;
+    min-height: 100%;
     background-color: var(--color-background, lightgrey);
 
     &.scrolling {
         .neon-wrapper {
-            width: calc(100vw - 15px);
+            width: calc(100vw - 17px);
         }        
         .neon-grid {
-            width: calc(100vw - 14px);
+            width: calc(100vw - 16px);
         }    
     }
 
     .neon-wrapper {
         width: 100vw;
+        min-height: 100%;
         box-sizing: border-box;
         padding: 5px;
         overflow-x: hidden;
