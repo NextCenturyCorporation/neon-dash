@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 import { ElementRef } from '@angular/core';
-import { AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode } from './subcomponent.chartjs.abstract';
+import {
+    AbstractChartJsDataset, AbstractChartJsSubcomponent, SelectMode,
+    ChartData, ChartMetaData, ChartJsData
+} from './subcomponent.chartjs.abstract';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../models/color';
 
@@ -28,13 +31,23 @@ export class ChartJsPieDataset extends AbstractChartJsDataset {
     }
 
     public finalizeData() {
-        Array.from(this.xToY.keys()).forEach((xValue) => {
+        Array.from(this.xToY.keys()).forEach((xValue, idx) => {
             let yList = this.xToY.get(xValue);
+
             (yList.length ? yList : [null]).forEach((yValue) => {
-                this.hoverBackgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(xValue) < 0 ? this.getColorSelected() : this.getColorHover());
-                this.backgroundColor.push(this.xSelected.length > 0 &&
-                    this.xSelected.indexOf(xValue) < 0 ? this.getColorDeselected() : this.getColorSelected());
+                this.hoverBackgroundColor.push(
+                    (this.xSelected.length > 0 &&
+                        this.xSelected.indexOf(xValue) < 0) ?
+                        this.groupedColors[idx].getComputedCss(this.elementRef) :
+                        this.groupedColors[idx].getComputedCssHoverColor(this.elementRef)
+                );
+                this.backgroundColor.push(
+                    (this.xSelected.length > 0 &&
+                        this.xSelected.indexOf(xValue) < 0) ?
+                        this.groupedColors[idx].getComputedCssTransparencyHigh(this.elementRef) :
+                        this.groupedColors[idx].getComputedCss(this.elementRef)
+                );
+
                 this.slices.push(xValue);
                 this.data.push(yValue);
             });
@@ -50,24 +63,12 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
     protected axisTypeX: string;
     protected axisTypeY: string;
 
-    /**
-     * @constructor
-     * @arg {any} options
-     * @arg {AggregationSubcomponentListener} listener
-     * @arg {ElementRef} elementRef
-     * @arg {boolean} [cannotSelect=false]
-     */
     constructor(options: any, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
         super(options, listener, elementRef, SelectMode.ITEM);
     }
 
     /**
      * Creates and returns the chart dataset object for the given color and label and array of X values.
-     *
-     * @arg {Color} color
-     * @arg {string} label
-     * @arg {any[]} xList
-     * @return {AbstractChartJsDataset}
      * @override
      */
     protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
@@ -76,8 +77,6 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * Returns the type of the x-axis as date, number, or string.
-     *
-     * @return {string}
      */
     protected findAxisTypeX(): string {
         return this.axisTypeX;
@@ -85,8 +84,6 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * Returns the type of the y-axis as date, number, or string.
-     *
-     * @return {string}
      */
     protected findAxisTypeY(): string {
         return this.axisTypeY;
@@ -94,25 +91,18 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * Returns an item to select from the given items and chart.
-     *
-     * @arg {any[]} items
-     * @arg {any} chart
-     * @return {any}
      * @override
      */
-    protected findItemInDataToSelect(items: any[], chart: any): any {
-        return chart.data.datasets[items[0]._datasetIndex].slices[items[0]._index];
+    protected findItemInDataToSelect(items: any[], chart: Chart): any {
+        return (chart.data.datasets[0] as ChartJsPieDataset)
+            .slices[items[0]._index];
     }
 
     /**
      * Finalizes and returns the given chart options.
-     *
-     * @arg {any} chartOptions
-     * @arg {any} meta
-     * @return {any}
      * @override
      */
-    protected finalizeChartOptions(chartOptions: any, meta: any): any {
+    protected finalizeChartOptions(chartOptions: Chart.ChartOptions, meta: any): Chart.ChartOptions {
         // Use a category axis for date data, but save the true type.
         this.axisTypeX = meta.xAxis;
         this.axisTypeY = meta.yAxis;
@@ -126,8 +116,6 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * Returns the ChartJs chart type.
-     *
-     * @return {string}
      * @override
      */
     protected getChartType(): string {
@@ -136,12 +124,19 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
 
     /**
      * Returns the label for a visualization element using the given count to determine plurality.
-     *
-     * @arg {number} count
-     * @return {string}
      * @override
      */
     public getVisualizationElementLabel(count: number): string {
         return 'Slice' + (count === 1 ? '' : 's');
+    }
+
+    protected createChartDataAndOptions(
+        data: ChartData[],
+        meta: ChartMetaData
+    ): { data: ChartJsData, options: any } {
+        data.forEach((el) => {
+            el.group = 'pie';
+        });
+        return super.createChartDataAndOptions(data, meta);
     }
 }

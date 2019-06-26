@@ -24,7 +24,8 @@ export interface ChartMetaData { xList?: any[], yList?: any[] }
 
 export abstract class AbstractChartJsDataset {
     public data: any[] = [];
-    public xToY: Map<any, any> = new Map<any, any[]>();
+    public xToY = new Map<any, any[]>();
+    public groupedColors?: Color[];
 
     constructor(protected elementRef: ElementRef, public color: Color, public label: string, xList: string[]) {
         xList.forEach((xValue) => {
@@ -246,12 +247,15 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         data: ChartData[],
         meta: ChartMetaData
     ): { data: ChartJsData, options: any } {
-        let groupsToDatasets = new Map<string, any>();
+        let groupsToDatasets = new Map<string, AbstractChartJsDataset>();
         data.forEach((item) => {
             let dataset = groupsToDatasets.get(item.group);
             if (!dataset) {
                 dataset = this.createChartDataset(item.color, item.group, meta.xList);
                 groupsToDatasets.set(item.group, dataset);
+            } else {
+                dataset.groupedColors = dataset.groupedColors || [dataset.color];
+                dataset.groupedColors.push(item.color);
             }
             dataset.addPoint(item.x, item.y);
         });
