@@ -201,23 +201,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const url = new URL(window.location.toString());
-        const urlFilter = url.searchParams.get('filter');
         const currentFilter = this.filterService.getFiltersToSaveInURL();
-
-        if (!urlFilter && currentFilter) {
-            let [, path] = url.pathname.split(this.baseHref)
-
-            if (!path.startsWith('/')) {
-                path = `/${path}`;
-            }
-
-            let params = url.searchParams.toString();
-            if (params) {
-                params = `?${params}`;
-
-            }
-            this.location.replaceState(`${path}${params}#${currentFilter}`);
+        const { fullPath, filters, url } = ConfigUtil.getUrlConfig(window.location, this.baseHref);
+        if ((!filters && currentFilter) || url.pathname === '/') {
+            this.location.replaceState(`${fullPath}#${currentFilter}`);
         }
 
         // Clean on different dashboard
@@ -388,7 +375,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @DashboardModified()
     onFiltersChanged() {
-        this.router.navigate([], {
+        const { pathParts } = ConfigUtil.getUrlConfig(window.location, this.baseHref);
+        this.router.navigate(pathParts, {
             fragment: this.filterService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root

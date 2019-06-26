@@ -71,8 +71,11 @@ export class ConfigService {
                 rnd: `${Math.random() * 1000000}.${Date.now()}`
             }
         })
-            .pipe(map((response: any) => yaml.load(response) as NeonConfig))
-            .pipe(catchError((error) => this.handleConfigFileError(error)));
+            .pipe(
+                map((response: any) => yaml.load(response) as NeonConfig),
+                tap((config) => { config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME }),
+                catchError((error) => this.handleConfigFileError(error))
+            );
     }
 
     private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
@@ -142,22 +145,17 @@ export class ConfigService {
     /**
      * Loads config state by URL, given a base path
      */
-    setActiveByURL(url: string, base: string | RegExp) {
-        const urlObj = new URL(url);
-        const [, fullPath] = urlObj.pathname.split(base);
-        const [path] = fullPath.split('/').filter(x => !!x);
-        const params = decodeURIComponent(urlObj.hash.replace(/^#/g, ''));
-        const dashboardPath = urlObj.searchParams.get('path');
-        const cleanPath = path.replace(/^[/]+/g, '');
+    setActiveByURL(url: string, base: string) {
+        const { filename, filters, path } = ConfigUtil.getUrlConfig(url, base);
 
         setTimeout(() => {
-            from(cleanPath ? this.load(cleanPath) : throwError(null)).pipe(
+            from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe( // TODO: handle when we get rid of default
                 catchError((err) => this.getDefault(environment.config).pipe(
                     tap((conf) => {
                         conf.errors = [err ? err.message as string : err];
                     })
                 )),
-                map((config) => this.finalizeConfig(config, params, dashboardPath)),
+                map((config) => this.finalizeConfig(config, filters, path)),
                 tap((config) => this.setActive(config))
             ).subscribe();
         }, 1);

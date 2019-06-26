@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
                 mergeMap(() => this.service.setActiveByURL(window.location.toString(), this.baseHref)),
-                distinctUntilKeyChanged('projectTitle')
+                distinctUntilKeyChanged('fileName')
             )
             .subscribe((config) => {
                 this.loading = false;
