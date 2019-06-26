@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit, HostBinding } from '@angular/core';
+import { Component, OnInit, HostBinding, Inject } from '@angular/core';
 import { ConfigService } from './services/config.service';
 import { NeonConfig } from './models/types';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, mergeMap, distinctUntilKeyChanged } from 'rxjs/operators';
+import { APP_BASE_HREF } from '@angular/common';
 
 @Component({
     selector: 'app-root',
@@ -29,20 +30,17 @@ export class AppComponent implements OnInit {
     @HostBinding('class.loading')
     loading = true;
 
-    static get base() {
-        const bases = document.getElementsByTagName('base');
-        const base = (bases.length > 0 ? bases.item(0).attributes.getNamedItem('href').value : '');
-        return base === '/' || !base ? /^\// : base;
-    }
-
-    constructor(private service: ConfigService, private router: Router) {
-    }
+    constructor(
+        private service: ConfigService,
+        private router: Router,
+        @Inject(APP_BASE_HREF) private baseHref: string
+    ) { }
 
     ngOnInit() {
         this.router.events
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.service.setActiveByURL(window.location.toString(), AppComponent.base)),
+                mergeMap(() => this.service.setActiveByURL(window.location.toString(), this.baseHref)),
                 distinctUntilKeyChanged('projectTitle')
             )
             .subscribe((config) => {
