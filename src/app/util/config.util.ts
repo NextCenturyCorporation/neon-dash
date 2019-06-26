@@ -14,6 +14,15 @@
  */
 import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
+interface URLConfigState {
+    filename: string;
+    filters: string;
+    url: URL;
+    fullPath: string;
+    dashboardPath: string;
+    pathParts: string[];
+}
+
 export class ConfigUtil {
     static DEFAULT_CONFIG_NAME = '-'; // TODO: Remove when config moved to saved
 
@@ -144,7 +153,7 @@ export class ConfigUtil {
         });
     }
 
-    static getUrlConfig(urlStr: string | Location, baseHref: string) {
+    static getUrlConfig(urlStr: string | Location, baseHref: string): URLConfigState {
         const searchHref = `/${baseHref}/`.replace(/^[/]+|[/]+$/g, '/');
         const url = new URL(urlStr.toString());
         const rel = url.pathname.substring(url.pathname.indexOf(searchHref) + searchHref.length);
@@ -166,6 +175,7 @@ export class ConfigUtil {
         const out = {
             filename,
             filters,
+            url,
             fullPath: finalPath,
             dashboardPath,
             pathParts
