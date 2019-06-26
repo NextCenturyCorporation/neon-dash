@@ -145,7 +145,7 @@ export class ConfigService {
     setActiveByURL(url: string, base: string | RegExp) {
         const urlObj = new URL(url);
         const [, fullPath] = urlObj.pathname.split(base);
-        const [path] = fullPath.split('/');
+        const [path] = fullPath.split('/').filter(x => !!x);
         const params = decodeURIComponent(urlObj.hash.replace(/^#/g, ''));
         const dashboardPath = urlObj.searchParams.get('path');
         const cleanPath = path.replace(/^[/]+/g, '');
