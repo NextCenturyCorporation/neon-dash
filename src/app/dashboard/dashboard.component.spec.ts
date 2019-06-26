@@ -123,7 +123,7 @@ describe('Dashboard', () => {
         component.onFiltersChanged();
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual([]);
+        expect(path).toEqual(['context.html']);
         expect(params.queryParamsHandling).toEqual('merge');
         expect(params.fragment).toBeTruthy();
     });
