@@ -73,7 +73,9 @@ export class ConfigService {
         })
             .pipe(
                 map((response: any) => yaml.load(response) as NeonConfig),
-                tap((config) => { config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME }),
+                tap((config) => {
+                    config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
+                }),
                 catchError((error) => this.handleConfigFileError(error))
             );
     }
@@ -149,7 +151,8 @@ export class ConfigService {
         const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
 
         setTimeout(() => {
-            from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe( // TODO: handle when we get rid of default
+            // TODO: handle when we get rid of default
+            from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe(
                 catchError((err) => this.getDefault(environment.config).pipe(
                     tap((conf) => {
                         conf.errors = [err ? err.message as string : err];
