@@ -146,7 +146,7 @@ export class ConfigService {
      * Loads config state by URL, given a base path
      */
     setActiveByURL(url: string, base: string) {
-        const { filename, filters, dashboardPath } = ConfigUtil.getUrlConfig(url, base);
+        const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
 
         setTimeout(() => {
             from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe( // TODO: handle when we get rid of default
