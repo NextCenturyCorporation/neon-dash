@@ -778,10 +778,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private findMatchingFilterDesign(filterDesigns: SimpleFilterDesign[], fieldBinding: string, operator: string) {
-        let matching: SimpleFilterDesign[] = filterDesigns.filter((filterDesign) => filterDesign.operator === operator &&
-            this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
-                layer.table.name === filterDesign.table.name && layer[fieldBinding].columnName === filterDesign.field.columnName));
-        return matching.length ? matching[0].value : undefined;
+        const matching: SimpleFilterDesign = filterDesigns.find((filterDesign) => filterDesign.operator === operator &&
+                this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
+                        layer.table.name === filterDesign.table.name &&
+                        layer[fieldBinding].columnName === filterDesign.field.columnName));
+        return matching ? matching.value : undefined;
     }
 
     /**
@@ -805,6 +806,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private redrawFilterBox(filters: FilterDesign[]): void {
+        if (!this.mapObject) {
+            setTimeout(this.redrawFilterBox.bind(this, filters), 100);
+        }
         let removeFilter = true;
 
         // Find the bounds inside the compound filter with an expected structure of createFilterDesignOnBox.
@@ -824,7 +828,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
                 if (this.isNumber(north) && this.isNumber(south) && this.isNumber(east) && this.isNumber(west)) {
                     removeFilter = false;
-                    // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    if (this.mapObject) {
+                        this.mapObject.drawBoundary([north, west], [south, east]);
+                        // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    }
                 }
             }
         }
