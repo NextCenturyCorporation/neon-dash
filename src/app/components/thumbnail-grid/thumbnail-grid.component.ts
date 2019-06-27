@@ -682,7 +682,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             } else {
                 let img: HTMLImageElement = new Image();
-                img.src = './assets/icons/visualization/document-viewer.svg';
+                img.src = './assets/icons/dashboard/document.svg';
 
                 img.onload = () => {
                     if (this.options.viewType === ViewType.CARD) {

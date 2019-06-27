@@ -40,7 +40,7 @@ export class AddVisualizationComponent implements OnInit {
 
     constructor(
         public snackBar: MatSnackBar,
-        protected widgetService: AbstractWidgetService
+        public widgetService: AbstractWidgetService
     ) {
         this.messenger = new eventing.Messenger();
     }
