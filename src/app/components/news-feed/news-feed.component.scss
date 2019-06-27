@@ -70,6 +70,7 @@ mat-accordion {
         margin: 0;
         box-shadow: none;
         border-bottom: 1px solid var(--color-background-contrast, #333333);
+        background-color: var(--color-background, white);
 
         mat-expansion-panel-header {
             padding: 0 12px;
