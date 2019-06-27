@@ -90,7 +90,7 @@
     /* This is only needed if the table is reorderable. */
     &.longpress {
         background: linear-gradient(#DDDDDD, #B3B3B3);
-        border: 1px dashed var(--color-text, dimgrey);
+        border: 1px dashed var(--color-background, dimgrey);
         z-index: 100;
     }
 }
@@ -157,7 +157,7 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px solid var(--color-text, dimgrey);
+    border-right: 1px solid var(--color-background, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
