@@ -163,14 +163,14 @@ mat-accordion {
 ::ng-deep {
     .mat-expansion-panel {
         .mat-expansion-indicator {
-            &:after {
+            &::after {
                 color: var(--color-text, dimgrey) !important;
             }
         }
 
         &.selected {
             .mat-expansion-indicator {
-                &:after {
+                &::after {
                     color: var(--color-data-item-selected-text, white) !important;
                 }
             }
@@ -178,7 +178,7 @@ mat-accordion {
 
         &.selectedable {
             .mat-expansion-indicator {
-                &:after {
+                &::after {
                     color: var(--color-data-item-selectable-text, white) !important;
                 }
             }

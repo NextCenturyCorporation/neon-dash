@@ -497,8 +497,8 @@ describe('Component: Map', () => {
         expect((actual3[2].filterDesign).value).toBeUndefined();
 
         component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
-        DashboardServiceMock.FIELD_MAP.NAME,
-        DashboardServiceMock.FIELD_MAP.TYPE];
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
         let actual4 = (component as any).designEachFilterWithNoValues();
         expect(actual4.length).toEqual(8);
         expect((actual4[0].filterDesign)).toEqual((actual3[0].filterDesign));
@@ -746,8 +746,8 @@ describe('Component: Map', () => {
 
         updateMapLayer2(component);
         component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
-        DashboardServiceMock.FIELD_MAP.NAME,
-        DashboardServiceMock.FIELD_MAP.TYPE];
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
 
         let filterDataB = new Map<string, any>();
         filterDataB.set(DashboardServiceMock.FIELD_MAP.FILTER.columnName, 'testFilterB');
@@ -882,8 +882,8 @@ describe('Component: Map', () => {
 
         updateMapLayer2(component);
         component.options.layers[1].filterFields = [DashboardServiceMock.FIELD_MAP.FILTER,
-        DashboardServiceMock.FIELD_MAP.NAME,
-        DashboardServiceMock.FIELD_MAP.TYPE];
+            DashboardServiceMock.FIELD_MAP.NAME,
+            DashboardServiceMock.FIELD_MAP.TYPE];
 
         component.filterByMapPoint([new Map<string, any>()], 3, 4);
 
@@ -1089,7 +1089,7 @@ describe('Component: Map', () => {
             field: NeonFieldMetaData.get({ columnName: val % 2 ? 'latitudeField' : 'longitudeField' })
         }));
 
-        const col = new WidgetOptionCollection(() => [], undefined, {});
+        const col = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
         const lat = NeonFieldMetaData.get({
             columnName: 'latitudeField'
         });
