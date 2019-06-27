@@ -13,14 +13,15 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
 
 import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 
-import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -30,7 +31,6 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { TextCloudModule } from './text-cloud.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
@@ -45,8 +45,7 @@ describe('Component: TextCloud', () => {
             },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [

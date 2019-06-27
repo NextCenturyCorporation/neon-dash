@@ -23,8 +23,9 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
@@ -32,9 +33,8 @@ import { WidgetService } from '../../services/widget.service';
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData, NeonConfig } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: Aggregation', () => {
     let component: AggregationComponent;
@@ -49,8 +49,7 @@ describe('Component: Aggregation', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             AggregationModule
@@ -85,10 +84,10 @@ describe('Component: Aggregation', () => {
         expect(component.options.notFilterable).toEqual(false);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
-        expect(component.options.scaleMaxX).toEqual('');
-        expect(component.options.scaleMaxY).toEqual('');
-        expect(component.options.scaleMinX).toEqual('');
-        expect(component.options.scaleMinY).toEqual('');
+        expect(component.options.scaleMaxX).toEqual(null);
+        expect(component.options.scaleMaxY).toEqual(null);
+        expect(component.options.scaleMinX).toEqual(null);
+        expect(component.options.scaleMinY).toEqual(null);
         expect(component.options.showHeat).toEqual(false);
         expect(component.options.showLegend).toEqual(true);
         expect(component.options.sortByAggregation).toEqual(false);
@@ -3762,128 +3761,6 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('getBindings does set expected properties in bindings', () => {
-        expect(component.getBindings()).toEqual({
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 10000,
-            table: 'testTable1',
-            title: 'Aggregation',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            aggregationField: '',
-            groupField: '',
-            xField: '',
-            yField: '',
-            aggregation: AggregationType.COUNT,
-            axisLabelX: '',
-            axisLabelY: 'count',
-            contributionKeys: null,
-            countByAggregation: false,
-            dualView: '',
-            granularity: 'year',
-            hideGridLines: false,
-            hideGridTicks: false,
-            ignoreSelf: true,
-            lineCurveTension: 0.3,
-            lineFillArea: false,
-            logScaleX: false,
-            logScaleY: false,
-            notFilterable: false,
-            requireAll: false,
-            savePrevious: false,
-            scaleMaxX: '',
-            scaleMaxY: '',
-            scaleMinX: '',
-            scaleMinY: '',
-            showHeat: false,
-            showLegend: true,
-            sortByAggregation: false,
-            timeFill: false,
-            type: 'line',
-            yPercentage: 0.3
-        });
-
-        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
-        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
-
-        component.options.aggregation = AggregationType.SUM;
-        component.options.countByAggregation = true;
-        component.options.dualView = 'on';
-        component.options.granularity = 'day';
-        component.options.hideGridLines = true;
-        component.options.hideGridTicks = true;
-        component.options.ignoreSelf = false;
-        component.options.lineCurveTension = 0;
-        component.options.lineFillArea = true;
-        component.options.logScaleX = true;
-        component.options.logScaleY = true;
-        component.options.notFilterable = true;
-        component.options.requireAll = true;
-        component.options.savePrevious = true;
-        component.options.scaleMaxX = '44';
-        component.options.scaleMaxY = '33';
-        component.options.scaleMinX = '22';
-        component.options.scaleMinY = '11';
-        component.options.showHeat = true;
-        component.options.showLegend = true;
-        component.options.sortByAggregation = true;
-        component.options.timeFill = true;
-        component.options.type = 'line-xy';
-        component.options.yPercentage = 0.5;
-
-        expect(component.getBindings()).toEqual({
-            contributionKeys: null,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 10000,
-            table: 'testTable1',
-            title: 'Aggregation',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            aggregationField: 'testSizeField',
-            groupField: 'testCategoryField',
-            xField: 'testXField',
-            yField: 'testYField',
-            aggregation: AggregationType.SUM,
-            axisLabelX: '',
-            axisLabelY: 'count',
-            countByAggregation: true,
-            dualView: 'on',
-            granularity: 'day',
-            hideGridLines: true,
-            hideGridTicks: true,
-            ignoreSelf: false,
-            lineCurveTension: 0,
-            lineFillArea: true,
-            logScaleX: true,
-            logScaleY: true,
-            notFilterable: true,
-            requireAll: true,
-            savePrevious: true,
-            scaleMaxX: '44',
-            scaleMaxY: '33',
-            scaleMinX: '22',
-            scaleMinY: '11',
-            showHeat: true,
-            showLegend: true,
-            sortByAggregation: true,
-            timeFill: true,
-            type: 'line-xy',
-            yPercentage: 0.5
-        });
-    });
-
     it('updateOnResize does work as expected', () => {
         component.minimumDimensionsMain = null;
         component.minimumDimensionsZoom = null;
@@ -4088,7 +3965,6 @@ describe('Component: Aggregation with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4190,7 +4066,6 @@ describe('Component: Aggregation with XY config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },
@@ -4292,7 +4167,6 @@ describe('Component: Aggregation with date config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_2' },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 1234 },

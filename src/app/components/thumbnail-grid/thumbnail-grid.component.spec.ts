@@ -14,7 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonConfig, NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/types';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -29,7 +29,6 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { ThumbnailGridModule } from './thumbnail-grid.module';
-import { ConfigService } from '../../services/config.service';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -40,8 +39,7 @@ describe('Component: ThumbnailGrid', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
 
         ],
         imports: [
@@ -797,7 +795,6 @@ describe('Component: ThumbnailGrid with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'filter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'limit', useValue: 10 },
             { provide: 'border', useValue: 'percentCompare' },

@@ -29,7 +29,6 @@ import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
@@ -61,10 +60,11 @@ import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
 import {
+    AggregationType,
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
@@ -178,6 +178,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public xList: any[] = [];
     public yList: any[] = [];
 
+    private viewInitialized = false;
+    private pendingFilters: FilterDesign[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: FilterService,
@@ -220,6 +223,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 (this.subcomponentMain && this.subcomponentMain.isHorizontal()) ?
                     this.options.xField.prettyName :
                     this.options.aggregation || this.options.yField.prettyName;
+        }
+    }
+
+    ngAfterViewInit() {
+        super.ngAfterViewInit();
+        this.viewInitialized = true;
+        if (this.pendingFilters && this.pendingFilters.length) {
+            this.redrawFilteredItems(this.pendingFilters);
+            delete this.pendingFilters;
         }
     }
 
@@ -325,21 +337,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetFieldOption('groupField', 'Group Field', false),
-            new WidgetFieldOption('xField', 'X Field', true),
-            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this))
-        ];
-    }
-
     private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
@@ -420,13 +417,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
+            new WidgetFieldOption('groupField', 'Group Field', false),
+            new WidgetFieldOption('xField', 'X Field', true),
+            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY.bind(this)),
             new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
@@ -487,10 +488,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('scaleMinX', 'Scale Min X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxX', 'Scale Max X', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMinY', 'Scale Min Y', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('scaleMaxY', 'Scale Max Y', '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinX', 'Scale Min X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxX', 'Scale Max X', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinY', 'Scale Min Y', null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', null, this.optionsTypeUsesGrid.bind(this)),
             new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList.bind(this)),
             new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
@@ -1163,6 +1164,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
+        if (!this.subcomponentMain && !this.viewInitialized) {
+            this.pendingFilters = filterDesigns;
+        }
         if (this.subcomponentMain) {
             // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
             this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
@@ -1217,6 +1221,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization(redrawMain: boolean = false) {
+        if (!this.aggregationData) {
+            return;
+        }
+
         let findAxisType = (type) => {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
             if (type === 'long' || type === 'integer' || type === 'short' || type === 'byte' || type === 'double' || type === 'float' ||

@@ -16,7 +16,6 @@ import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentI
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { neonEvents } from '../../models/neon-namespaces';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
@@ -96,7 +95,6 @@ export class CustomConnectionComponent implements AfterContentInit {
         // this.datasetService.setCurrentDashboard(??)
 
         this.filterService.deleteFilters('CustomConnection', this.searchService);
-        this.messenger.publish(neonEvents.DASHBOARD_RESET, {});
         this.datasetCreated.emit(datastore);
     }
 

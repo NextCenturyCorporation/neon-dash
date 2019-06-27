@@ -24,12 +24,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { DashboardState } from '../../models/dashboard-state';
 import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
-import {
-    WidgetOptionCollection
-} from '../../models/widget-option';
-
-import { eventing } from 'neon-framework';
-import { neonEvents } from '../../models/neon-namespaces';
+import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
     selector: 'app-filter-builder',
@@ -40,7 +35,6 @@ import { neonEvents } from '../../models/neon-namespaces';
 })
 
 export class FilterBuilderComponent {
-    protected messenger: eventing.Messenger;
     public filterClauses: FilterClauseMetaData[] = [];
     public operators: OperatorMetaData[] = [
         { value: 'contains', prettyName: 'contains' },
@@ -63,8 +57,9 @@ export class FilterBuilderComponent {
         public filterService: FilterService,
         public searchService: AbstractSearchService
     ) {
-        this.messenger = new eventing.Messenger();
-        this.messenger.subscribe(neonEvents.DASHBOARD_RESET, this.clearEveryFilterClause.bind(this));
+        this.dashboardService.stateSource.subscribe(() => {
+            this.clearEveryFilterClause();
+        });
 
         this.dashboardState = dashboardService.state;
 
@@ -75,7 +70,7 @@ export class FilterBuilderComponent {
      * Adds a blank filter clause to the global list.
      */
     public addBlankFilterClause(): void {
-        let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
+        let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
         filterClause.updateDatabases(this.dashboardState);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
@@ -227,7 +222,7 @@ class OperatorMetaData {
     prettyName: string;
 }
 
-class FilterClauseMetaData extends WidgetOptionCollection {
+class FilterClauseMetaData extends OptionCollection {
     changeDatabase: NeonDatabaseMetaData;
     changeTable: NeonTableMetaData;
     changeField: NeonFieldMetaData;

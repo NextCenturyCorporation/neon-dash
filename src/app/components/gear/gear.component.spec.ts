@@ -23,7 +23,7 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { WidgetService } from '../../services/widget.service';
 
-import { NeonConfig, NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/types';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -32,14 +32,18 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { GearModule } from './gear.module';
-import { ConfigService } from '../../services/config.service';
+import { DashboardState } from '../../models/dashboard-state';
 import {
-    WidgetOptionCollection, WidgetFreeTextOption,
-    WidgetFieldOption, WidgetSelectOption, OptionChoices, ConfigurableWidget
+    OptionChoices,
+    WidgetFieldOption,
+    WidgetFreeTextOption,
+    WidgetNonPrimitiveOption,
+    WidgetSelectOption
 } from '../../models/widget-option';
+import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
-    options = new WidgetOptionCollection(() => []);
+    options: WidgetOptionCollection;
     calledChangeData = 0;
     calledChangeFilterData = 0;
     calledFinalizeCreateLayer = 0;
@@ -48,6 +52,10 @@ class MockConfigurable implements ConfigurableWidget {
     calledDeleteLayer = 0;
     calledHandleChangeSubcomponentType = 0;
     calledExportData = 0;
+
+    constructor(dashboardState: DashboardState) {
+        this.options = new RootWidgetOptionCollection(() => [], () => [], dashboardState, 'Test Layer', 100, false, null, {});
+    }
 
     changeData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
         this.calledChangeData++;
@@ -93,8 +101,7 @@ describe('Component: Gear Component', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             GearModule
@@ -137,18 +144,18 @@ describe('Component: Gear Component', () => {
     });
 
     it('getLayerList does return expected list', () => {
-        let layer: any = new WidgetOptionCollection(() => []);
-        expect(component.getLayerList(layer)).toEqual([]);
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
+        expect(component.getLayerList(layer)).toEqual(['limit']);
 
         layer.append(new WidgetFieldOption('field', '', true));
         layer.append(new WidgetFreeTextOption('freeText', '', ''));
         layer.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        layer.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
-        expect(component.getLayerList(layer)).toEqual(['field', 'freeText', 'select']);
+        layer.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
+        expect(component.getLayerList(layer)).toEqual(['limit', 'field', 'freeText', 'select']);
     });
 
     it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -156,12 +163,12 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -175,8 +182,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testOption).toEqual('testText');
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -187,7 +194,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with field change does update originalOptions and call handleChangeFilterData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -195,12 +202,12 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -226,7 +233,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with database change does update originalOptions and call handleChangeFilterData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -234,11 +241,11 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -261,7 +268,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with table change does update originalOptions and call handleChangeFilterData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -269,11 +276,11 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -296,7 +303,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with created layer does update originalOptions and call handleChangeData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -304,14 +311,13 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases(component['dashboardState']);
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
         component.modifiedOptions.layers.push(layer);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -327,8 +333,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(1);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -341,7 +347,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with changed layer does update originalOptions and call handleChangeData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -349,17 +355,16 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases(component['dashboardState']);
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
         component['originalOptions'].layers.push(layer);
-        component.modifiedOptions.layers.push(layer.copy());
+        component.modifiedOptions.layers.push(layer.copy(component['dashboardState']));
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -379,8 +384,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -393,7 +398,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with deleted layer does update originalOptions and call handleChangeData', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -401,15 +406,14 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
-        let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases(component['dashboardState']);
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
         component['originalOptions'].layers.push(layer);
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -423,8 +427,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(0);
-        expect(mock.calledChangeData).toEqual(1);
-        expect(mock.calledChangeFilterData).toEqual(0);
+        expect(mock.calledChangeData).toEqual(0);
+        expect(mock.calledChangeFilterData).toEqual(1);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(1);
@@ -437,7 +441,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleApplyClick with many changes does update originalOptions and call expected function', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
@@ -445,23 +449,22 @@ describe('Component: Gear Component', () => {
             calledCloseSidenav++;
         };
 
-        component['originalOptions'] = new WidgetOptionCollection(() => []);
-        component['originalOptions'].updateDatabases(component['dashboardState']);
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
         component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
-        component.modifiedOptions = new WidgetOptionCollection(() => []);
-        component.modifiedOptions.updateDatabases(component['dashboardState']);
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
         component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
-        let layer: any = new WidgetOptionCollection(() => []);
-        layer.updateDatabases(component['dashboardState']);
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
         component['originalOptions'].layers.push(layer);
-        component.modifiedOptions.layers.push(layer.copy());
+        component.modifiedOptions.layers.push(layer.copy(component['dashboardState']));
         component.modifiedOptions.layers[0].testNestedOption = 'testNestedText';
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -527,7 +530,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleCreateLayer does call createLayer', () => {
-        component.comp = new MockConfigurable();
+        component.comp = new MockConfigurable(component['dashboardState']);
         let spyCreate = spyOn(component.comp, 'createLayer').and.returnValue({
             _id: 'testId1'
         });
@@ -540,7 +543,7 @@ describe('Component: Gear Component', () => {
 
     it('handleDeleteLayer does call deleteLayer', () => {
         component.layerHidden.set('testId1', true);
-        component.comp = new MockConfigurable();
+        component.comp = new MockConfigurable(component['dashboardState']);
         let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(true);
 
         component.handleDeleteLayer({
@@ -555,7 +558,7 @@ describe('Component: Gear Component', () => {
         let spy = spyOn(component['messenger'], 'publish');
 
         component.layerHidden.set('testId1', true);
-        component.comp = new MockConfigurable();
+        component.comp = new MockConfigurable(component['dashboardState']);
         let spyDelete = spyOn(component.comp, 'deleteLayer').and.returnValue(false);
 
         component.handleDeleteLayer({
@@ -591,12 +594,42 @@ describe('Component: Gear Component', () => {
         expect(component.layerHidden.get('testId2')).toEqual(false);
     });
 
-    it('updateOnChange does update changeMade', () => {
+    it('toggleOptionalOptions does update collapseOptionalOptions', () => {
+        expect(component.collapseOptionalOptions).toEqual(true);
+        component.toggleOptionalOptions();
+        expect(component.collapseOptionalOptions).toEqual(false);
+    });
+
+    it('updateOnChange does update changeMade and detects NonPrimitive options correctly', () => {
+        const mock = new MockConfigurable(component['dashboardState']);
+        component.comp = mock;
+
+        component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
+
+        component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'], 'Test Layer', 100,
+            false, null, {});
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
         expect(component.changeMade).toEqual(false);
-        component.updateOnChange('testBindingKey1');
+        expect(component.modifiedOptions.testOption1).toEqual({});
+        component.modifiedOptions['testOption1'] = { foo: true };
+        component.updateOnChange('testOption1');
         expect(component.changeMade).toEqual(true);
-        component.updateOnChange('testBindingKey2');
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption2', 'TestOption', ''), { foo: true });
+        component.updateOnChange('testOption2');
+        expect(component.changeMade).toEqual(false);
+        expect(component.modifiedOptions.testOption2).toEqual({ foo: true });
+        component.modifiedOptions['testOption2'] = {};
+        component.updateOnChange('testOption2');
         expect(component.changeMade).toEqual(true);
+
+        component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), {});
+        component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption3', 'TestOption', ''), undefined);
+        component.updateOnChange('testOption3');
+        expect(component.changeMade).toEqual(false);
     });
 
     it('does have expected default HTML elements', () => {
@@ -604,7 +637,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('handleRefreshClick does reset options and close menu', () => {
-        const mock = new MockConfigurable();
+        const mock = new MockConfigurable(component['dashboardState']);
         component.comp = mock;
 
         let calledCloseSidenav = 0;
