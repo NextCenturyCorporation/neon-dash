@@ -26,9 +26,11 @@ import { getConfigService } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
+    let saveSpy;
 
     beforeEach(() => {
         component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new FilterService(), new SearchServiceMock());
+        saveSpy = spyOn(component, 'clearEveryFilterClause').and.callThrough();
     });
 
     it('class properties are set to expected defaults', () => {
@@ -73,11 +75,30 @@ describe('Component: Filter Builder', () => {
     });
 
     it('clearEveryFilterClause does remove all the filter clauses from the internal list', () => {
-        // TODO THOR-701
+        component.addBlankFilterClause();
+        expect(component.filterClauses.length).toEqual(2);
+
+        component.clearEveryFilterClause();
+        expect(component.filterClauses.length).toEqual(1);
+
+        component.addBlankFilterClause();
+        component.addBlankFilterClause();
+        component.addBlankFilterClause();
+        expect(component.filterClauses.length).toEqual(4);
+
+        component.clearEveryFilterClause();
+        expect(component.filterClauses.length).toEqual(1);
     });
 
     it('handleChangeDatabaseOfClause does update database/tables/fields', () => {
-        // TODO THOR-701
+        component.addBlankFilterClause();
+        component.filterClauses[1].changeDatabase = DashboardServiceMock.DATABASES.testDatabase2;
+
+        expect(component.filterClauses[1].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
+        expect(component.filterClauses[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+
+        component.handleChangeDatabaseOfClause(component.filterClauses[1]);
+        expect(component.filterClauses[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
     });
 
     it('handleChangeFieldOfClause does update field', () => {
@@ -89,11 +110,17 @@ describe('Component: Filter Builder', () => {
     });
 
     it('removeClause does remove the given filter clause from the internal list of filter clauses', () => {
-        // TODO THOR-701
+        component.addBlankFilterClause();
+        component.filterClauses[1].value = 'test Filter';
+        component.addBlankFilterClause();
+
+        component.removeClause(component.filterClauses[1]);
+        expect(component.filterClauses[1].value).toEqual('');
     });
 
     it('removeClause does add a blank filter clause to the internal list if it is empty', () => {
-        // TODO THOR-701
+        component.removeClause(component.filterClauses[0]);
+        expect(component.filterClauses.length).toEqual(1);
     });
 
     it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
@@ -113,7 +140,15 @@ describe('Component: Filter Builder', () => {
     });
 
     it('saveFilter does parse number strings of non-CONTAINS filters', () => {
-        // TODO THOR-701
+        component.addBlankFilterClause();
+        component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].value = '53';
+
+        component.saveFilter();
+
+        expect(component.filterClauses[0].operator.value).toEqual('!=');
+
+        expect(component.clearEveryFilterClause).toHaveBeenCalled();
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
@@ -121,6 +156,10 @@ describe('Component: Filter Builder', () => {
     });
 
     it('validateFilter does return expected boolean', () => {
-        // TODO THOR-701
+        component.addBlankFilterClause();
+        component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].value = '53';
+
+        expect(component.validateFilters(component.filterClauses)).toEqual(true);
     });
 });
