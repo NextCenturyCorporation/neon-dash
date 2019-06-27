@@ -24,8 +24,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
-
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
@@ -39,7 +37,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatAccordion } from '@angular/material';
 
 import * as moment from 'moment';
 
@@ -58,6 +56,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('filter') filter: ElementRef;
+    @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
 
@@ -67,7 +66,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -80,6 +78,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
+        this.redrawOnResize = true;
         this.visualizationQueryPaginates = true;
     }
 
@@ -297,6 +296,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
+    }
+
+    onResize() {
+        if (this.accordion) {
+            this['last_state'] = !this['last_state'];
+            this.accordion._openCloseAllActions.next(this['last_state']);
+        }
     }
 
     /**

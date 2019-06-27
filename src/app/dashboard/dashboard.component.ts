@@ -392,6 +392,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.visualizations.toArray()[index].onResizeStart();
     }
 
+    onResize(index, __event) {
+        this.visualizations.toArray()[index].onResize();
+    }
+
     @DashboardModified()
     onResizeStop(index, __event) {
         this.visualizations.toArray()[index].onResizeStop();
