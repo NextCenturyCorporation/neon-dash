@@ -1,4 +1,4 @@
-<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+<mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
     <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
@@ -24,8 +24,6 @@
         (mouseWheelDown)="mouseWheelDown($event)">
         <div #mapOverlay class="overlay"> {{ getOverlayText() }} </div>
         <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
-        <div class="map-selection" *ngIf="false"
-            [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
     </div>
 </div>
 

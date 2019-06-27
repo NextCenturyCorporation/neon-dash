@@ -24,9 +24,7 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { DashboardState } from '../../models/dashboard-state';
 import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
-import {
-    WidgetOptionCollection
-} from '../../models/widget-option';
+import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
     selector: 'app-filter-builder',
@@ -59,11 +57,11 @@ export class FilterBuilderComponent {
         public filterService: FilterService,
         public searchService: AbstractSearchService
     ) {
+        this.dashboardState = dashboardService.state;
+
         this.dashboardService.stateSource.subscribe(() => {
             this.clearEveryFilterClause();
         });
-
-        this.dashboardState = dashboardService.state;
 
         this.addBlankFilterClause();
     }
@@ -72,7 +70,7 @@ export class FilterBuilderComponent {
      * Adds a blank filter clause to the global list.
      */
     public addBlankFilterClause(): void {
-        let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
+        let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
         filterClause.updateDatabases(this.dashboardState);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
@@ -224,7 +222,7 @@ class OperatorMetaData {
     prettyName: string;
 }
 
-class FilterClauseMetaData extends WidgetOptionCollection {
+class FilterClauseMetaData extends OptionCollection {
     changeDatabase: NeonDatabaseMetaData;
     changeTable: NeonTableMetaData;
     changeField: NeonFieldMetaData;

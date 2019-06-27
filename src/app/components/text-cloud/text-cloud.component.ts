@@ -26,7 +26,6 @@ import {
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryPayload,
@@ -39,8 +38,8 @@ import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/types';
 import {
+    AggregationType,
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
@@ -62,8 +61,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textCloud: TextCloud;
 
     public textCloudData: any[] = [];
-
-    public textColor: string = '#111';
 
     constructor(
         dashboardService: DashboardService,
@@ -93,9 +90,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     initializeProperties() {
         // Backwards compatibility (sizeAggregation deprecated and replaced by aggregation).
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
-
-        // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.widgetService.getThemeMainColorHex();
     }
 
     /**
@@ -104,7 +98,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     constructVisualization() {
-        this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
+        let accentColorHex = this.widgetService.getThemeAccentColorHex();
+        let textColorHex = this.widgetService.getThemeTextColorHex();
+        this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
     }
 
     refreshVisualization() {
@@ -123,19 +119,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('dataField', 'Term Field', true),
-            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this))
-        ];
-    }
-
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
             root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
@@ -149,13 +132,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('dataField', 'Term Field', true),
+            new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation),
             new WidgetSelectOption('andFilters', 'Filter Operator', true, OptionChoices.OrFalseAndTrue),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),

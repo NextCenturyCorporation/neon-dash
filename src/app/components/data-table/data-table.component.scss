@@ -36,7 +36,7 @@
         vertical-align: middle;
         font-size: 14px;
         font-weight: 500;
-        border: 1px solid var(--color-accent, lightgrey);
+        border: 1px solid var(--color-border, lightgrey);
     }
 
     .column-selector-close {
@@ -68,18 +68,18 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: var(--background, white);
+    background-color: var(--color-background-contrast, white);
 }
 
 /deep/ .datatable-header-inner {
-    border-right: 1px solid var(--color-background-accent, lightgrey);
+    border-right: 1px solid var(--color-color-text, lightgrey);
 }
 
 /deep/ .datatable-header-cell {
     opacity: 1;
     background: var(--color-background, white);
-    border-bottom: 1px solid var(--color-background-accent, lightgrey);
-    border-right: 1px solid var(--color-background-accent, lightgrey);
+    border-bottom: 1px solid var(--color-color-text, lightgrey);
+    border-right: 1px solid var(--color-color-text, lightgrey);
     line-height: 20px !important;
     height: 30px;
     text-align: center;
@@ -90,7 +90,7 @@
     /* This is only needed if the table is reorderable. */
     &.longpress {
         background: linear-gradient(#DDDDDD, #B3B3B3);
-        border: 1px dashed var(--color-text-main, dimgrey);
+        border: 1px dashed var(--color-text, dimgrey);
         z-index: 100;
     }
 }
@@ -157,7 +157,7 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px solid var(--color-background-contrast, lightgrey);
+    border-right: 1px solid var(--color-text, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
@@ -195,8 +195,9 @@
 
     &.active {
         .datatable-row-group {
-            background-color: var(--color-primary, grey);
-            color: var(--color-primary-contrast, white);
+            /* Invert colors */
+            background-color: var(--color-data-item-selected, dimgrey);
+            color: var(--color-data-item-selected-text, white);
         }
 
         &.heat-1 {
@@ -255,7 +256,7 @@
     font-size: 14px;
 
     /deep/ .datatable-row-odd {
-        background-color: var(--color-background-contrast, lightgrey);
+        background-color: var(--color-background-contrast, white);
     }
 
     /deep/ .datatable-header-cell {
@@ -290,8 +291,8 @@
     /deep/ .datatable-body-row.active:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
-        background-color: var(--color-accent, lightgrey);
-        color: var(--color-text-main, dimgrey);
+        background-color: var(--color-data-item-selectable, lightgrey);
+        color: var(--color-data-item-selectable-text, dimgrey);
         cursor: pointer;
     }
 

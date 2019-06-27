@@ -38,7 +38,6 @@
     }
 }
 
-
 .detail-ellipses {
     flex: 1;
     white-space: pre;
@@ -77,7 +76,7 @@
 .thumbnail-flags {
     display: flex;
     border-bottom: solid 1px darkgray;
-    padding: 0 0 0.6em 0.4em;
+    padding: 0.4em;
     flex: 1 1;
     max-height: 113px;
     flex-flow: row nowrap;
@@ -98,7 +97,6 @@
         &:first-child {
             @extend .title-bold;
             font-size: 0.9em;
-            color: #27607E;
         }
     }
 }
@@ -131,14 +129,10 @@
     }
 }
 
-.text-highlight {
-    color: #027276; /*#4dbec2;*/
-}
-
 .thumbnail-card {
     display: flex;
-    background-color: #E8E8E8;
-    padding: 0 0 0.6em 0.4em;
+    background-color: var(--color-background, white);
+    padding: 0.4em;
     flex: 1 1;
     width: 224px;
     flex-flow: column nowrap;
@@ -158,7 +152,6 @@
     p {
         @extend .title-bold;
         font-size: 0.9em;
-        color: #000000;
     }
 }
 
@@ -178,4 +171,41 @@
 .thumbnail-card-canvas {
     align-self: center;
     margin-bottom: 1em;
+}
+
+.selected {
+    background-color: var(--color-data-item-selected, dimgrey);
+    color: var(--color-data-item-selected-text, white);
+
+    /* Override custom subcomponent text colors */
+    &.thumbnail-card,
+    &.thumbnail-flags {
+        p {
+            color: var(--color-data-item-selected-text, white);
+
+            &:first-child {
+                color: var(--color-data-item-selected-text, white);
+            }
+        }
+    }
+}
+
+.selectable {
+    &:hover {
+        background-color: var(--color-data-item-selectable, lightgrey);
+        color: var(--color-data-item-selectable-text, dimgrey);
+        cursor: pointer;
+
+        /* Override custom subcomponent text colors */
+        &.thumbnail-card,
+        &.thumbnail-flags {
+            p {
+                color: var(--color-data-item-selectable-text, dimgrey);
+
+                &:first-child {
+                    color: var(--color-data-item-selectable-text, dimgrey);
+                }
+            }
+        }
+    }
 }
