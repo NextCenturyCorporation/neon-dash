@@ -28,7 +28,7 @@ export class BoundingBoxByDegrees {
         public north: number,
         public west: number,
         public east: number
-    ) {}
+    ) { }
 }
 
 export class MapPoint {
@@ -46,7 +46,7 @@ export class MapPoint {
         public colorByField: string,
         public colorByValue: string,
         public hoverPopupMap: Map<string, number>
-    ) {}
+    ) { }
 }
 
 export interface FilterListener {
@@ -112,6 +112,7 @@ export abstract class AbstractMap {
 
     abstract zoomOut();
     abstract zoomIn();
+    abstract drawBoundary(topLeft: [number, number], bottomRight: [number, number]): void;
 
     // Utility
     areBoundsSet() {

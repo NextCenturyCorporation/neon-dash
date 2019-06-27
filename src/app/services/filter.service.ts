@@ -295,10 +295,14 @@ export class FilterUtil {
             if (this.isCompoundFilterDesign(filter)) {
                 out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
             } else if (this.isSimpleFilterDesign(filter)) {
+                let val = filter.value;
+                if (typeof val === 'number' && (/[<>]=?/).test(filter.operator) && (/[.]\d{4,100}/).test(`${val}`)) {
+                    val = parseFloat(val.toFixed(3));
+                }
                 out.push([
                     `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
                     filter.operator,
-                    filter.value,
+                    val,
                     filter.root
                 ]);
             }
