@@ -34,6 +34,7 @@
 }
 
 .add-visualization-tile {
+    color: var(--color-text, dimgrey);
     min-height: 50px;
     min-width: 50px;
     padding: 0;
@@ -44,6 +45,7 @@
 
     a {
         background: none;
+        color: var(--color-text, dimgrey);
         border: 1px solid transparent;
         display: block;
         padding: 15px 5px;
@@ -54,16 +56,14 @@
         &:focus,
         &:hover {
             cursor: pointer;
-            color: var(--color-primary, grey);
+            color: var(--color-dash-item-selectable, lightgrey);
         }
     }
 
+    &:active,
     &:hover {
-        border: 1px solid var(--color-primary, grey);
-    }
-
-    &:active {
-        border: 1px solid  var(--color-primary, grey);
+        border: 1px solid var(--color-dash-item-selectable, lightgrey);
+        color: var(--color-dash-item-selectable, lightgrey);
     }
 }
 

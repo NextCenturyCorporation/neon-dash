@@ -118,8 +118,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
-            // Don't pass the event message as an argument to handleChangeData.
-            this.handleChangeData();
+            this.destroyVisualization();
+            this.constructVisualization();
+            this.cachedFilters = new FilterCollection();
+            this.handleChangeFilterField();
         });
         this.messenger.subscribe(neonEvents.FILTERS_REFRESH, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
@@ -730,17 +732,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        let optionsToUpdate = options || this.options;
         this.updateCollectionWithGlobalCompatibleFilters();
-        this.handleChangeData(optionsToUpdate, databaseOrTableChange);
+        this.handleChangeData(options, databaseOrTableChange);
     }
 
     /**
      * Updates elements and properties whenever the widget config is changed.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     protected onChangeData(__databaseOrTableChange?: boolean) {
         // Override if needed.
@@ -750,7 +751,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
         this.layerIdToElementCount.set((options || this.options)._id, 0);
