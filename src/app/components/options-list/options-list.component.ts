@@ -31,7 +31,6 @@ import { WidgetOption, WidgetOptionCollection } from '../../models/widget-option
 export class OptionsListComponent {
     @Input() bindingsList: string[];
     @Input() fields: NeonFieldMetaData[];
-    @Input() index: number;
     @Input() options: WidgetOptionCollection;
     @Input() updateOnChange: Function;
 

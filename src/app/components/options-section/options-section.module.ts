@@ -15,9 +15,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OptionsSectionComponent } from './options-section.component';
-import { MatToolbarModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatInputModule } from '@angular/material';
+import { MatToolbarModule, MatFormFieldModule, MatSelectModule, MatIconModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { OptionsListModule } from '../options-list/options-list.module';
 
 @NgModule({
@@ -26,9 +25,7 @@ import { OptionsListModule } from '../options-list/options-list.module';
     imports: [
         MatToolbarModule,
         MatFormFieldModule,
-        MatInputModule,
         MatIconModule,
-        MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         MatSelectModule,
         FormsModule,
         OptionsListModule,
