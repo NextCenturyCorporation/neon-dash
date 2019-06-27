@@ -403,13 +403,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         fromEvent(document, 'mousemove')
             .pipe(takeUntil(this.destroy))
             .subscribe((ev: MouseEvent) => {
-                this.movingWidgets = ev.altKey && ev.shiftKey;
+                this.movingWidgets = (ev.metaKey || ev.altKey) && ev.shiftKey;
             });
 
         fromEvent(document, 'keydown')
             .pipe(takeUntil(this.destroy))
             .subscribe((ev: KeyboardEvent) => {
-                if ((ev.key === 'Shift' && ev.altKey || ev.key === 'Alt' && ev.shiftKey) &&
+                if ((ev.key === 'Shift' && (ev.metaKey || ev.altKey) || (ev.key === 'Meta' || ev.key === 'Alt') && ev.shiftKey) &&
                     !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
                     this.movingWidgets = true;
                 }
@@ -418,7 +418,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         fromEvent(document, 'keyup')
             .pipe(takeUntil(this.destroy))
             .subscribe((ev: KeyboardEvent) => {
-                if (ev.key === 'Shift' || ev.key === 'Alt') {
+                if (ev.key === 'Shift' || ev.key === 'Alt' || ev.key === 'Meta') {
                     this.movingWidgets = false;
                 }
             });
