@@ -15,11 +15,9 @@
 
 export namespace neonEvents {
     export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';
-    export const DASHBOARD_READY = 'DASHBOARD_READY';
     export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
-    export const DASHBOARD_RESET = 'DASHBOARD_RESET';
-    export const DASHBOARD_STATE = 'DASHBOARD_STATE';
     export const FILTERS_CHANGED = 'filters_changed'; // Lowercase to maintain backwards compatibility
+    export const FILTERS_REFRESH = 'FILTERS_REFRESH';
     export const SELECT_ID = 'SELECT_ID';
     export const SHOW_OPTION_MENU = 'SHOW_OPTION_MENU';
     export const TOGGLE_FILTER_TRAY = 'TOGGLE_FILTER_TRAY';

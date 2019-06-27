@@ -31,6 +31,14 @@
                 [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)" required="true">
         </mat-form-field>
     </div>
+    <!-- Number Option Type-->
+    <div mat-fill class="flex center" *ngSwitchCase="'NUMBER'">
+        <mat-form-field class='option-container'>
+            <mat-label>{{getOption(bindingKey).prettyName}}</mat-label>
+            <input matInput placeholder={{getOption(bindingKey).valueDefault}} [(ngModel)]="getOption(bindingKey).intermediateValue"
+                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey);" required="true">
+        </mat-form-field>
+    </div>
     <!-- Non Primitive Option Type-->
     <div mat-fill class="editor" *ngSwitchCase="'NON_PRIMITIVE'">
         <label>{{ getOption(bindingKey).prettyName }}</label>

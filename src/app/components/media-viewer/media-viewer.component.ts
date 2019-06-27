@@ -38,6 +38,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
@@ -225,31 +226,20 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
-            new WidgetFieldOption('maskField', 'Mask Field', false),
-            new WidgetFieldOption('nameField', 'Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
+            new WidgetFieldOption('maskField', 'Mask Field', false),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true),
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetSelectOption('clearMedia', 'Clear Media', false, OptionChoices.NoFalseYesTrue),
@@ -265,7 +255,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'One Tab per Array',
                 variable: true
             }]),
-            new WidgetFreeTextOption('sliderValue', 'Slider Value', '0'),
+            new WidgetNumberOption('sliderValue', 'Slider Value', 0),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
             new WidgetFreeTextOption('url', 'URL', '')
         ];

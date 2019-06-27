@@ -30,9 +30,7 @@ import { FilterService } from '../../services/filter.service';
 import { WidgetService } from '../../services/widget.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { NeonConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { ConfigService } from '../../services/config.service';
 
 // Must define the test component.
 @Component({
@@ -67,7 +65,6 @@ describe('Component: AddVisualization', () => {
             TestAddVisualizationComponent
         ],
         providers: [
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             {

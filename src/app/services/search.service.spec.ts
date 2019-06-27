@@ -14,7 +14,8 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
+import { AggregationType } from '../models/widget-option';
+import { CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
 import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';

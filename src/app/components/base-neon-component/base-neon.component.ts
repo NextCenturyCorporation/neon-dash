@@ -16,7 +16,6 @@ import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@
 
 import {
     AbstractSearchService,
-    AggregationType,
     FilterClause,
     QueryPayload
 } from '../../services/abstract.search.service';
@@ -30,17 +29,11 @@ import {
 import { NeonFieldMetaData } from '../../models/types';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
-    OptionChoices,
+    AggregationType,
     OptionType,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetOptionCollection,
-    WidgetSelectOption,
-    ConfigurableWidget
+    WidgetOption
 } from '../../models/widget-option';
+import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
@@ -60,8 +53,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /* eslint-disable-next-line no-invalid-this */
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
     protected TOOLBAR_HEIGHT: number = 40;
-
-    private nextLayerIndex = 1;
 
     protected id: string;
     protected messenger: eventing.Messenger;
@@ -91,7 +82,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected page: number = 1;
     protected savedPages: Map<string, number> = new Map<string, number>();
 
-    public options: WidgetOptionCollection & { [key: string]: any };
+    public options: RootWidgetOptionCollection & { [key: string]: any };
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
     readonly dashboardState: DashboardState;
@@ -130,7 +121,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // Don't pass the event message as an argument to handleChangeData.
             this.handleChangeData();
         });
-        this.messenger.subscribe(neonEvents.FILTERS_CHANGED, this.handleFiltersChanged.bind(this));
+        this.messenger.subscribe(neonEvents.FILTERS_REFRESH, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
@@ -186,24 +177,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Override if needed.
     }
 
-    /**
-     * Adds a new layer for the visualization using the given bindings.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} [layerBindings={}]
-     */
-    public addLayer(options: WidgetOptionCollection, layerBindings: any = {}): any {
-        let layerOptions = this.createLayer(options, layerBindings);
-        this.finalizeCreateLayer(layerOptions);
-    }
-
     private createLayer(options: WidgetOptionCollection, layerBindings: any = {}): any {
-        let layerOptions = new WidgetOptionCollection(this.createLayerFieldOptions.bind(this), undefined, layerBindings);
-        layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
-        layerOptions.inject(this.createLayerNonFieldOptions());
-        layerOptions.updateDatabases(this.dashboardState);
-        options.layers.push(layerOptions);
-        return layerOptions;
+        return options.addLayer(layerBindings);
     }
 
     private finalizeCreateLayer(layerOptions: any): void {
@@ -212,13 +187,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean {
-        let layers: any[] = options.layers.filter((layer) => layer._id !== layerOptions._id);
-        // Do not delete the final layer!
-        if (layers.length) {
-            options.layers = layers;
-            return true;
-        }
-        return false;
+        return options.removeLayer(layerOptions);
     }
 
     private finalizeDeleteLayer(layerOptions: any): void {
@@ -520,8 +489,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private getGlobalFilterClauses(options: WidgetOptionCollection): FilterClause[] {
-        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] : this.cachedFilters.getDataSources().reduce((list, dataSource) =>
-            list.concat(this.cachedFilters.getFilters(dataSource).map((filter) => filter.toDesign())), [] as FilterDesign[]);
+        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] :
+            this.cachedFilters.getDataSources()
+                .map((dataSource) => this.cachedFilters.getFilters(dataSource))
+                .reduce((acc, filters) => [...acc, ...filters], [])
+                .map((filter) => filter.toDesign());
         return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
     }
 
@@ -1041,42 +1013,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @abstract
-     */
-    public abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
-
-    private createFieldOptionsFull(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return this.createFieldOptions().concat(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false));
-    }
-
-    /**
-     * Creates and returns an array of field options for a layer for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     */
-    public createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for a layer for the visualization.
-     *
-     * @return {WidgetOption[]}
-     */
-    public createLayerNonFieldOptions(): WidgetOption[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
      */
-    public abstract createNonFieldOptions(): WidgetOption[];
+    protected abstract createOptions(): WidgetOption[];
+
+    /**
+     * Creates and returns an array of options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     */
+    protected createOptionsForLayer(): WidgetOption[] {
+        return [];
+    }
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
@@ -1087,35 +1038,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
+        let options = new RootWidgetOptionCollection(this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
+            this.dashboardState, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), injector);
+
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
-        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
-        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], false));
-        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null, false));
-
-        options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
-        options.inject(new WidgetFreeTextOption('limit', 'Limit', defaultLimit));
-        options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
-        options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
-
-        options.inject(new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, false));
-
-        // Backwards compatibility (configFilter deprecated and renamed to filter).
-        options.filter = options.filter || this.injector.get('configFilter', null);
-
-        options.inject(this.createNonFieldOptions());
-
-        options.updateDatabases(this.dashboardState);
-
-        this.injector.get('layers', []).forEach((layerBindings) => {
-            this.addLayer(options, layerBindings);
+        options.layers.forEach((layerOptions) => {
+            this.finalizeCreateLayer(layerOptions);
         });
-
-        // Add a new empty layer if needed.
-        if (!options.layers.length && this.shouldCreateDefaultLayer()) {
-            this.addLayer(options);
-        }
 
         return options;
     }
@@ -1144,22 +1074,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
         // Otherwise, just return value from layouts section of config
         return configValue;
-    }
-
-    /**
-     * Returns the bindings object with the current options for the visualization.
-     */
-    public getBindings(options?: WidgetOptionCollection): any {
-        return (options || this.options).list().reduce(
-            (bindings, option) => {
-                bindings[option.bindingKey] = option.getValueToSaveInBindings();
-                return bindings;
-            }, {
-                layers: (options || this.options).layers.length ?
-                    (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                    undefined
-            }
-        );
     }
 
     /**

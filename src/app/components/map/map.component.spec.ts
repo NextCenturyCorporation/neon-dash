@@ -31,8 +31,8 @@ import { WidgetService } from '../../services/widget.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
-import { WidgetOptionCollection } from '../../models/widget-option';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -40,7 +40,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { LegendModule } from '../legend/legend.module';
 import { CommonWidgetModule } from '../../common-widget.module';
-import { ConfigService } from '../../services/config.service';
 
 @Component({
     selector: 'app-map',
@@ -121,7 +120,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], undefined, {});
+    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -146,7 +145,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], undefined, {});
+    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
@@ -182,8 +181,7 @@ describe('Component: Map', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            { provide: AbstractWidgetService, useClass: WidgetService }
 
         ],
         imports: [
@@ -1150,7 +1148,6 @@ describe('Component: Map with config', () => {
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: AbstractWidgetService, useClass: WidgetService },
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',

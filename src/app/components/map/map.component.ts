@@ -54,7 +54,7 @@ import {
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
-    WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
     WidgetSelectOption
@@ -563,7 +563,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         };
     }
 
-    mouseWheelUp(event) {
+    mouseWheelUp(event: MouseWheelEvent) {
         if (this.shouldZoom(event)) {
             this.mapObject.zoomIn();
         } else {
@@ -571,7 +571,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    mouseWheelDown(event) {
+    mouseWheelDown(event: MouseWheelEvent) {
         if (this.shouldZoom(event)) {
             this.mapObject.zoomOut();
         } else {
@@ -579,7 +579,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
     }
 
-    shouldZoom(event) {
+    shouldZoom(event: MouseEvent) {
         const ctrlMetaPressed = event.ctrlKey || event.metaKey;
         const usingLeaflet = this.options.type === MapType.Leaflet;
         const ctrlZoomEnabled = !this.options.disableCtrlZoom;
@@ -602,16 +602,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 'Use ⌘ + scroll wheel to zoom' :
                 'Use ctrl + scroll wheel to zoom'
         );
-    }
-
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
     }
 
     private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
@@ -683,12 +673,12 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Creates and returns an array of field options for a layer for the visualization.
+     * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptionsForLayer(): WidgetOption[] {
         return [
             new WidgetFieldOption('latitudeField', 'Latitude Field', true),
             new WidgetFieldOption('longitudeField', 'Longitude Field', true),
@@ -697,47 +687,36 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sizeField', 'Size Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for a layer for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createLayerNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('cluster', 'Cluster', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
-            new WidgetFreeTextOption('clusterPixelRange', 'Cluster Pixel Range', 15),
+            new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', 15),
             new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
             new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
             new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('east', 'East', null),
+            new WidgetNumberOption('east', 'East', null),
             // Properties of hoverSelect:  hoverTime: number
             new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', null),
-            new WidgetFreeTextOption('minClusterSize', 'Minimum Cluster Size', 5),
-            new WidgetFreeTextOption('north', 'North', null),
+            new WidgetNumberOption('minClusterSize', 'Minimum Cluster Size', 5),
+            new WidgetNumberOption('north', 'North', null),
             new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('south', 'South', null),
+            new WidgetNumberOption('south', 'South', null),
             new WidgetSelectOption('type', 'Map Type', MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetFreeTextOption('west', 'West', null)
+            new WidgetNumberOption('west', 'West', null)
         ];
     }
 

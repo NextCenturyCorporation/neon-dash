@@ -109,8 +109,11 @@ export class GridState {
         const out: { gridName: string, widgetGridItem: NeonGridItem }[] = [];
 
         // Should map the grid name to the layout list
-        // TODO: Understand what the layout structure should be
         let gridNameToLayout = !Array.isArray(layout) ? layout : { '': layout };
+        if (!gridNameToLayout) {
+            return [];
+        }
+
         for (const layoutName of Object.keys(gridNameToLayout)) {
             const layoutConf = gridNameToLayout[layoutName];
             if (Array.isArray(layoutConf)) {

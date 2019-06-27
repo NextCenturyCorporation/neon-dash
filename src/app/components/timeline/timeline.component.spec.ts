@@ -17,8 +17,6 @@ import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
 
-import { NeonConfig, NeonFieldMetaData } from '../../models/types';
-
 import { TimelineComponent } from './timeline.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
@@ -31,10 +29,9 @@ import { WidgetService } from '../../services/widget.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { ConfigService } from '../../services/config.service';
+import { NeonFieldMetaData } from '../../models/types';
 
 describe('Component: Timeline', () => {
-    let testConfig: NeonConfig = NeonConfig.get();
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 
@@ -44,9 +41,7 @@ describe('Component: Timeline', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(testConfig) }
-
+            Injector
         ],
         imports: [
             TimelineModule

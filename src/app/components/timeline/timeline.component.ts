@@ -26,7 +26,6 @@ import {
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryPayload,
@@ -48,12 +47,12 @@ import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    AggregationType,
     OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption,
-    WidgetFieldArrayOption
+    WidgetSelectOption
 } from '../../models/widget-option';
 import { TimelineSelectorChart, TimelineSeries, TimelineData, TimelineItem } from './TimelineSelectorChart';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
@@ -113,20 +112,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('dateField', 'Date Field', true),
-            new WidgetFieldOption('idField', 'Id Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false)
-        ];
-    }
-
     private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
@@ -161,13 +146,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('dateField', 'Date Field', true),
+            new WidgetFieldOption('idField', 'Id Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
             new WidgetFreeTextOption('yLabel', 'Count', '')
         ];

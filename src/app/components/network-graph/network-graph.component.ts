@@ -44,6 +44,7 @@ import {
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
+    WidgetNumberOption,
     WidgetOption,
     WidgetSelectOption,
     WidgetColorOption
@@ -262,30 +263,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
             datastore: '',
@@ -316,13 +293,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('isReified', 'Data Format', false, [{
                 prettyName: 'Tabular',
@@ -346,7 +336,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
             new WidgetColorOption('edgeColor', 'Edge Color', '#2b7ce9', this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('edgeWidth', 'Edge Width', '1'),
+            new WidgetNumberOption('edgeWidth', 'Edge Width', 1),
             new WidgetColorOption('fontColor', 'Font Color', '#343434', this.optionsNotReified.bind(this)),
             new WidgetColorOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified.bind(this)),
             new WidgetColorOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified.bind(this)),
@@ -355,30 +345,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Creates and returns an array of field options for a layer for the visualization.
+     * Creates and returns an array of options for layers of visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptionsForLayer(): WidgetOption[] {
         return [
             new WidgetFieldOption('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for layers of visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    public createLayerNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetFreeTextOption('layerType', 'Layer Type', '', false)
         ];
     }

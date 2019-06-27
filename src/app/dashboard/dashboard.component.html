@@ -53,7 +53,7 @@
             </button>
             <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
                 id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
-                <mat-icon class="neon-icon-large" *ngIf="changeFilterTrayIcon()" svgIcon="{{filtersIcon}}"></mat-icon>
+                <mat-icon class="neon-icon-large">filter_list</mat-icon>
             </button>
 
             <button mat-icon-button class="neon-icon-button-large" [matMenuTriggerFor]="appMenu">
@@ -94,7 +94,7 @@
 
         <div class="header-toggle-container" id="dashboard.selector">
             <div class="dashboard-selector-container">
-                <app-dashboard-selector [dashboards]="dashboards" (closeComponent)="toggleDashboardSelectorDialog(!showDashboardSelector)">
+                <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog(!showDashboardSelector)">
                 </app-dashboard-selector>
                 <div class="header-toggle-footer"></div>
             </div>
