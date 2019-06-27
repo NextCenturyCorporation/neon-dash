@@ -65,31 +65,6 @@ mat-accordion {
         box-shadow: none;
         border-bottom: solid 1px var(--color-text, dimgrey);
 
-        &.mat-expanded {
-            background-color: var(--color-background-contrast, lightgrey);
-        }
-
-        &.selected {
-            background-color: var(--color-data-item-selected, dimgrey);
-            color: var(--color-data-item-selected-text, white);
-
-            .text {
-                color: var(--color-data-item-selected-text, white);
-            }
-        }
-
-        &.selectable {
-            &:hover {
-                background-color: var(--color-data-item-selectable, lightgrey);
-                color: var(--color-data-item-selectable-text, dimgrey);
-                cursor: pointer;
-
-                .text {
-                    color: var(--color-data-item-selectable-text, dimgrey);
-                }
-            }
-        }
-
         mat-expansion-panel-header {
             padding: 0 12px;
 
@@ -109,14 +84,9 @@ mat-accordion {
                 }
 
                 .date {
-                    color: var(--color-text, dimgrey);
                     font-size: 0.7em;
                     opacity: 0.8;
                     text-align: left;
-                }
-
-                mat-expansion-indicator {
-                    color: var(--color-text, dimgrey) !important;
                 }
             }
         }
@@ -157,6 +127,59 @@ mat-accordion {
                     grid-area: date;
                     font-size: 0.7em;
                     line-height: 30px;
+                }
+            }
+        }
+
+        &.mat-expanded {
+            background-color: var(--color-background-contrast, lightgrey);
+        }
+
+        &.selected {
+            background-color: var(--color-data-item-selected, dimgrey);
+            color: var(--color-data-item-selected-text, white);
+
+            .date,
+            .text {
+                color: var(--color-data-item-selected-text, white);
+            }
+        }
+
+        &.selectable {
+            &:hover {
+                background-color: var(--color-data-item-selectable, lightgrey);
+                color: var(--color-data-item-selectable-text, dimgrey);
+                cursor: pointer;
+
+                .date,
+                .text {
+                    color: var(--color-data-item-selectable-text, white);
+                }
+            }
+        }
+    }
+}
+
+::ng-deep {
+    .mat-expansion-panel {
+        .mat-expansion-indicator {
+            &:after {
+                color: var(--color-text, dimgrey) !important;
+            }
+        }
+
+        &.selected {
+            .mat-expansion-indicator {
+                &:after {
+                    color: var(--color-data-item-selected-text, white) !important;
+                }
+            }
+        }
+
+        &.selectedable {
+            .mat-expansion-indicator {
+                &:after {
+                    color: var(--color-data-item-selectable-text, white) !important;
                 }
             }
         }
