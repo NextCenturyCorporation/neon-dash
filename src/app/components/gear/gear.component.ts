@@ -219,16 +219,6 @@ export class GearComponent implements OnInit, OnDestroy {
             optionType === OptionType.FIELD_ARRAY;
     }
 
-    /**
-     * Returns whether the given item is a number.
-     *
-     * @arg {any} item
-     * @return {boolean}
-     */
-    private isNumber(item: any): boolean {
-        return !isNaN(parseFloat(item)) && isFinite(item);
-    }
-
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
     }
@@ -236,7 +226,7 @@ export class GearComponent implements OnInit, OnDestroy {
     /**
      * Receives
      */
-    ngOnInit() {
+    ngAfterViewInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
             /* eslint-disable-next-line @typescript-eslint/unbound-method */
