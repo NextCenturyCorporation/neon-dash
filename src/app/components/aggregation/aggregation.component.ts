@@ -29,7 +29,6 @@ import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
@@ -61,8 +60,8 @@ import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
 import {
+    AggregationType,
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNumberOption,
@@ -338,21 +337,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetFieldOption('groupField', 'Group Field', false),
-            new WidgetFieldOption('xField', 'X Field', true),
-            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this))
-        ];
-    }
-
     private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
         return {
             type: CompoundFilterType.AND,
@@ -433,13 +417,17 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('aggregationField', 'Aggregation Field', true, this.optionsAggregationIsNotCount.bind(this)),
+            new WidgetFieldOption('groupField', 'Group Field', false),
+            new WidgetFieldOption('xField', 'X Field', true),
+            new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
             new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY.bind(this)),
             new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
@@ -737,35 +725,36 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     initializeSubcomponent(elementRef: ElementRef, cannotSelect: boolean = false): AbstractAggregationSubcomponent {
         let subcomponentObject = null;
+        let textColorHex = this.widgetService.getThemeTextColorHex();
 
         switch (this.options.type) {
             case 'bar-h':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, true);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex, true);
                 break;
             case 'bar-v':
-                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'doughnut':
-                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'histogram':
-                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'line':
             case 'line-xy':
-                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'list':
                 subcomponentObject = new ListSubcomponent(this.options, this, elementRef);
                 break;
             case 'pie':
-                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
             case 'scatter':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, true);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, textColorHex, true);
                 break;
             case 'scatter-xy':
-                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, textColorHex);
                 break;
         }
 

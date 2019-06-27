@@ -24,6 +24,7 @@
 
     .legend-button {
         border-radius: 1px !important;
+        background-color: var(--color-background, white) !important;
 
         &:not([disabled]) {
             &:hover {

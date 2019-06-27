@@ -96,7 +96,12 @@ export class VisualizationContainerComponent implements OnInit {
         this.injector.onResizeStart();
     }
 
+    onResize() {
+        this.injector.onResize();
+    }
+
     onResizeStop() {
+        this.onResize();
         this.injector.onResizeStop();
     }
 }

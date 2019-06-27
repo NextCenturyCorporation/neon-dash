@@ -604,16 +604,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
     private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
         return {
             type: CompoundFilterType.AND,
@@ -683,12 +673,12 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Creates and returns an array of field options for a layer for the visualization.
+     * Creates and returns an array of options for a layer for the visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptionsForLayer(): WidgetOption[] {
         return [
             new WidgetFieldOption('latitudeField', 'Latitude Field', true),
             new WidgetFieldOption('longitudeField', 'Longitude Field', true),
@@ -697,29 +687,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFieldOption('hoverPopupField', 'Hover Popup Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sizeField', 'Size Field', false),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for a layer for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createLayerNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('cluster', 'Cluster', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
             new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', 15),
             new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
@@ -778,10 +757,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private findMatchingFilterDesign(filterDesigns: SimpleFilterDesign[], fieldBinding: string, operator: string) {
-        let matching: SimpleFilterDesign[] = filterDesigns.filter((filterDesign) => filterDesign.operator === operator &&
-            this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
-                layer.table.name === filterDesign.table.name && layer[fieldBinding].columnName === filterDesign.field.columnName));
-        return matching.length ? matching[0].value : undefined;
+        const matching: SimpleFilterDesign = filterDesigns.find((filterDesign) => filterDesign.operator === operator &&
+                this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
+                        layer.table.name === filterDesign.table.name &&
+                        layer[fieldBinding].columnName === filterDesign.field.columnName));
+        return matching ? matching.value : undefined;
     }
 
     /**
@@ -805,6 +785,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     private redrawFilterBox(filters: FilterDesign[]): void {
+        if (!this.mapObject) {
+            setTimeout(this.redrawFilterBox.bind(this, filters), 100);
+        }
         let removeFilter = true;
 
         // Find the bounds inside the compound filter with an expected structure of createFilterDesignOnBox.
@@ -824,7 +807,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
                 if (this.isNumber(north) && this.isNumber(south) && this.isNumber(east) && this.isNumber(west)) {
                     removeFilter = false;
-                    // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    if (this.mapObject) {
+                        this.mapObject.drawBoundary([north, west], [south, east]);
+                        // TODO THOR-1103 Update the bounding box element in the mapObject.
+                    }
                 }
             }
         }
