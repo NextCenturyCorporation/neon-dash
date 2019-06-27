@@ -32,7 +32,6 @@ export class OptionsSectionComponent {
     @Input() updateOnChange: Function;
     @Input() handleChangeDatabase: Function;
     @Input() handleChangeTable: Function;
-    @Input() index: number;
 
     public collapseOptionalOptions: boolean = true;
 
