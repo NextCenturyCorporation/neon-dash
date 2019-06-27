@@ -244,6 +244,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Override if needed.
     }
 
+    public onResize() {
+        // Override if needed
+    }
+
     /**
      * Handles any needed behavior once the widget is resized.
      */
