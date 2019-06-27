@@ -808,7 +808,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
-        if (event.type === 'mouseover' && event.buttons > 0) {
+        if (event.type === 'mouseover' && event.buttons === 1) {
             this.ignoreSelect = true;
         }
 
@@ -819,15 +819,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
             return;
-        }
-
-        // Selection yes, mouse press cancel...
-        if (this.selectedBounds && event.buttons > 1) {
-            this.selectedLabels = [];
-            this.listener.subcomponentRequestsDeselect();
-            this.listener.subcomponentRequestsRedraw(event);
-            this.selectedBounds = null;
-            this.cancelSelect = true;
         }
 
         // Selection no, mouse press yes...
