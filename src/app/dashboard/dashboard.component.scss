@@ -71,7 +71,6 @@ mat-toolbar {
     overflow-y: auto;
     overflow-x: hidden;
     width: 100vw;
-    min-height: 100%;
     background-color: var(--color-background, lightgrey);
 
     &.scrolling {
