@@ -108,7 +108,7 @@
                 <div [ngGrid]="gridConfig" #grid>
                     <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
                         name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                        (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
+                        (onResize)="onResize(i, $event)" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
                         <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
                         <ng-content></ng-content>
                     </div>
