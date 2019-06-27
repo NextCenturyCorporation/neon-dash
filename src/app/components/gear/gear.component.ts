@@ -18,7 +18,6 @@ import {
     ChangeDetectionStrategy,
     Component,
     OnDestroy,
-    OnInit,
     ViewEncapsulation,
     Input,
     ViewChildren,
@@ -43,7 +42,7 @@ import { DashboardState } from '../../models/dashboard-state';
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.Emulated
 })
-export class GearComponent implements OnInit, OnDestroy {
+export class GearComponent implements OnDestroy {
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
     @ViewChildren('listChildren') listChildren: QueryList<OptionsSectionComponent>;
