@@ -4,7 +4,7 @@
 
 <!-- Non MultiLayer Support-->
 <div class="option-well">
-    <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
+    <mat-form-field class="option-container">
         <mat-select placeholder="Database" [(ngModel)]="modifiedOptions.database" required="true" [name]="modifiedOptions._id + '_database'"
             (ngModelChange)="handleChangeDatabase" [disabled]="modifiedOptions.databases.length < 2">
             <mat-option *ngFor="let database of modifiedOptions.databases" [value]="database">
@@ -12,7 +12,7 @@
         </mat-select>
     </mat-form-field>
 
-    <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
+    <mat-form-field class="option-container">
         <mat-select placeholder="Table" [(ngModel)]="modifiedOptions.table" required="true" [name]="modifiedOptions._id + '_table'"
             (ngModelChange)="handleChangeTable" [disabled]="modifiedOptions.tables.length < 2">
             <mat-option *ngFor="let table of modifiedOptions.tables" [value]="table">{{ table.prettyName }}
