@@ -199,7 +199,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         if (dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
         } else {
-            this.toggleDashboardSelectorDialog(true);
+            this.showDashboardSelector = true;
         }
     }
 
@@ -235,7 +235,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             }
 
             this.simpleFilter.updateSimpleFilterConfig();
-            this.toggleDashboardSelectorDialog(false);
+            this.showDashboardSelector = false;
             this.refreshDashboard();
         } else {
             this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
@@ -475,27 +475,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleFiltersDialog() {
-        // Added this to create the filters component at first click so it's after dataset initialization
-        if (!this.createFiltersComponent) {
-            this.createFiltersComponent = true;
-        }
         this.showFiltersComponent = !this.showFiltersComponent;
-        let filtersContainer: HTMLElement = document.getElementById('filters');
-        if (this.showFiltersComponent && filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
-        } else if (filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: none');
-        }
+        this.showDashboardSelector = false;
     }
 
-    toggleDashboardSelectorDialog(showSelector: boolean) {
-        this.showDashboardSelector = showSelector;
-        let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
-        if (this.showDashboardSelector && dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
-        } else if (dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: none');
-        }
+    toggleDashboardSelectorDialog() {
+        this.showDashboardSelector = !this.showDashboardSelector;
+        this.showFiltersComponent = false;
     }
 
     /**

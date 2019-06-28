@@ -112,24 +112,28 @@ mat-toolbar {
 }
 
 
-.header-toggle-container {
+app-filters,
+app-dashboard-selector {
     grid-area: panel;
-    padding: 0.5em;
+    transition: 0.5s all ease-in-out;
+    display: none;
+    width: 100%;
+    background-color: var(--color-background, lightgrey);
+    border-bottom: 1px solid var(--color-border, lightgrey);
+    margin-bottom: 0.5em;
 
-    .filters-container {
-        height: 200px;
+    /deep/ mat-toolbar {
+        padding-right: 5px !important;
+        .text {
+            font-size: 16px !important;
+            font-weight: normal !important;
+        }
+        border-bottom: 1px solid var(--color-border, lightgrey);
     }
 
-    .filters-container,
-    .dashboard-selector-container {
-        padding-left: 10px;
-        padding-right: 10px;
-        width: 100%;
-
-        .header-toggle-footer {
-            height: 1px;
-            background-color: grey;
-        }
+    &.visible {
+        display: block;
+        min-height: 150px;
     }
 }
 
