@@ -82,21 +82,10 @@
 
         <app-current-filters></app-current-filters>
 
-        <div class="header-toggle-container" id="filters" *ngIf="createFiltersComponent">
-            <div class="filters-container">
-                <app-filters (closeDialog)="toggleFiltersDialog()"></app-filters>
-                <div class="header-toggle-footer">
-                </div>
-            </div>
-        </div>
+        <app-filters (closeDialog)="toggleFiltersDialog()" [class.visible]="showFiltersComponent"></app-filters>
 
-        <div class="header-toggle-container" id="dashboard.selector">
-            <div class="dashboard-selector-container">
-                <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog(!showDashboardSelector)">
-                </app-dashboard-selector>
-                <div class="header-toggle-footer"></div>
-            </div>
-        </div>
+        <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog()" [class.visible]="showDashboardSelector">
+        </app-dashboard-selector>
 
         <div class="neon-dash" mat-fill layout="col" #scrollable>
             <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">

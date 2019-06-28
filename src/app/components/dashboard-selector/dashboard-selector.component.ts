@@ -134,6 +134,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
                 queryParams: {
                     path: this.computeNamePath().join('.')
                 },
+                fragment: '',
                 relativeTo: this.router.routerState.root
             });
         }
