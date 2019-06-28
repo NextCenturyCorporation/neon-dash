@@ -29,7 +29,7 @@ import { WidgetOptionCollection } from '../../models/widget-option-collection';
     changeDetection: ChangeDetectionStrategy.Default
 })
 export class OptionsSectionComponent {
-    @Input() modifiedOptions: WidgetOptionCollection;
+    @Input() optionCollection: WidgetOptionCollection;
     @Input() updateOnChange: Function;
     @Input() handleChangeDatabase: Function;
     @Input() handleChangeTable: Function;
@@ -52,32 +52,32 @@ export class OptionsSectionComponent {
         return optionList;
     }
 
-    public getRequiredFields(modifiedOptions: WidgetOptionCollection): string[] {
-        let requiredList: WidgetOption[] = modifiedOptions.list();
+    public getRequiredFields(optionCollection: WidgetOptionCollection): string[] {
+        let requiredList: WidgetOption[] = optionCollection.list();
         requiredList = this.removeOptionsFromList(requiredList);
         return requiredList.filter((option) => option.isRequired &&
             (option['optionType'] === 'FIELD' || option['optionType'] === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalFields(modifiedOptions: WidgetOptionCollection): string[] {
-        let optionalList: WidgetOption[] = modifiedOptions.list();
+    public getOptionalFields(optionCollection: WidgetOptionCollection): string[] {
+        let optionalList: WidgetOption[] = optionCollection.list();
         optionalList = this.removeOptionsFromList(optionalList);
         return optionalList.filter((option) => !option.isRequired &&
             (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getRequiredNonFields(modifiedOptions: WidgetOptionCollection): string[] {
-        let requiredNonList: WidgetOption[] = modifiedOptions.list();
+    public getRequiredNonFields(optionCollection: WidgetOptionCollection): string[] {
+        let requiredNonList: WidgetOption[] = optionCollection.list();
         requiredNonList = this.removeOptionsFromList(requiredNonList);
         return requiredNonList.filter((option) => option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
-    public getOptionalNonFields(modifiedOptions: WidgetOptionCollection): string[] {
-        let optionalNonList: WidgetOption[] = modifiedOptions.list();
+    public getOptionalNonFields(optionCollection: WidgetOptionCollection): string[] {
+        let optionalNonList: WidgetOption[] = optionCollection.list();
         optionalNonList = this.removeOptionsFromList(optionalNonList);
         return optionalNonList.filter((option) => !option.isRequired &&
             !(option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))

@@ -43,7 +43,7 @@
                 </mat-form-field>
 
                 <!-- layer option list -->
-                <app-options-section [modifiedOptions]="layer" [updateOnChange]="updateOnChange.bind(this)"
+                <app-options-section [optionCollection]="layer" [updateOnChange]="updateOnChange.bind(this)"
                     [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
                     [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
                 </app-options-section>
@@ -51,7 +51,7 @@
         </div>
     </div>
     <!-- Non Multilayer option list-->
-    <app-options-section [modifiedOptions]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
+    <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
         [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
         [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
     </app-options-section>
