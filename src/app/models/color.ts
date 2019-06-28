@@ -14,6 +14,8 @@
  */
 import { ElementRef } from '@angular/core';
 
+export type ColorMap = Record<string, Record<string, Record<string, Record<string, string>>>>;
+
 /**
  * General color class.
  * This class can provide colors in a hex string, RGB formatted, or in RGB percent.

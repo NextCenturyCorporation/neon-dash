@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { ColorMap } from './color';
 import { DeepPartial, NeonDatastoreConfig, translateValues } from './dataset';
 
 export interface NeonSimpleSearchFilter {
@@ -28,7 +29,7 @@ export interface NeonSimpleSearchFilter {
 
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
-    colorMaps?: Record<string, any>;
+    colorMaps?: ColorMap;
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
