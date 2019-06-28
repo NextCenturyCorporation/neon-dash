@@ -452,15 +452,11 @@ body {
 .mat-toolbar {
     
 
-    &.neon-toolbar-navbar {
+    &.neon-toolbar-large {
         border-bottom: 0;
         height: 50px !important;
         line-height: 40px !important;
         min-height: 50px !important;
-        padding: 5px 20px !important;
-    }
-
-    &.neon-toolbar-wide {
         padding: 5px 20px !important;
     }
 
@@ -498,9 +494,8 @@ body {
     }
 }
 
-
 context-menu-content {
-    background: var(--color-background-white, lightgray);
+    background: var(--color-background, lightgray);
     min-width: 200px;
     filter: drop-shadow(0 0 10px rgba(128, 128, 128, 0.6));
 
@@ -526,7 +521,7 @@ context-menu-content {
             line-height: 2.5em;
 
             &:not(.header):hover {
-                background: var(--color-background, gray);
+                background: var(--color-background-contrast, gray);
             }
 
             &.divider {
@@ -536,7 +531,7 @@ context-menu-content {
             a {
                 width: 100%;
                 display: block;
-                color: var(--color-text-main, black);
+                color: var(--color-text, black);
                 text-decoration: none;
 
                 .mat-icon {

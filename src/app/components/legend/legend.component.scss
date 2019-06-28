@@ -18,17 +18,17 @@
 }
 
 .legend-container {
-    background-color: white;
+    background-color: var(--color-background, white);
     border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
 
     .legend-button {
         border-radius: 1px !important;
         background-color: var(--color-background, white) !important;
+        color: var(--color-text, #333333) !important;
 
         &:not([disabled]) {
             &:hover {
-                background-color: #F4F4F4 !important;
+                background-color: var(--color-background-contrast, white) !important;
             }
         }
     }

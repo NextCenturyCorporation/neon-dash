@@ -76,10 +76,11 @@ mat-toolbar {
     &.scrolling {
         .neon-wrapper {
             width: calc(100vw - 17px);
-        }        
+        }
+
         .neon-grid {
             width: calc(100vw - 16px);
-        }    
+        }
     }
 
     .neon-wrapper {
@@ -89,23 +90,27 @@ mat-toolbar {
         padding: 5px;
         overflow-x: hidden;
     }
-    
+
     .neon-grid {
         width: calc(100vw - 1px);
+
         .grid {
             background: unset;
         }
 
-        .grid-item {        
+        .grid-item {
             background-color: var(--color-background, white);
 
-            box-shadow: 0 0 10px rgba(128, 128, 128, 0.4);
+            box-shadow: 0 0 10px var(--color-grid-shadow, transparent);
+            border: 1px solid var(--color-grid-border, transparent);
+
             &.moving:hover {
-                box-shadow: 0 0 10px rgba(128, 128, 128, 0.6);
+                box-shadow: 0 0 10px var(--color-grid-shadow, transparent);
             }
         }
     }
 }
+
 
 .header-toggle-container {
     grid-area: panel;
