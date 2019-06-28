@@ -19,9 +19,7 @@ import { } from 'jasmine-core';
 import { GearComponent } from '../gear/gear.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { WidgetService } from '../../services/widget.service';
 
 import { NeonFieldMetaData } from '../../models/dataset';
 
@@ -100,7 +98,6 @@ describe('Component: Gear Component', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector
         ],
         imports: [

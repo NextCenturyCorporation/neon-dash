@@ -36,7 +36,7 @@ import {
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -188,7 +188,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         public visualization: ElementRef
     ) {
         super(
@@ -797,14 +797,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(options.database.name, options.table.name, '',
+            groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getColor(options.database.name, options.table.name, '',
                 this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.widgetService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
+                color = this.colorThemeService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -1264,7 +1264,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.updateOnResize();
 
-        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+        this.colorKeys = [this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
     }
 
