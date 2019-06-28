@@ -25,7 +25,7 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, FilterService } from '../../services/filter.service';
 
@@ -107,7 +107,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public offset = 0;
 
     constructor(
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         dashboardService: DashboardService,
         filterService: FilterService,
         searchService: AbstractSearchService,
@@ -429,7 +429,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
-                    let highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, currentType,
+                    let highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, currentType,
                         currentType).getComputedCssTransparencyHigh(this.visualization);
 
                     currentPart.highlightColor = highlightColor;
@@ -444,7 +444,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
-                this.colorKeys = this.seenTypes.map((type) => this.widgetService.getColorKey(this.options.database.name,
+                this.colorKeys = this.seenTypes.map((type) => this.colorThemeService.getColorKey(this.options.database.name,
                     this.options.table.name, type));
             }
 
@@ -646,7 +646,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 if (disabledValues.includes(part.type)) {
                     part.highlightColor = 'rgb(255,255,255)';
                 } else if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
-                    part.highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, part.type,
+                    part.highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, part.type,
                         part.type).getComputedCssTransparencyHigh(this.visualization);
                 }
             }

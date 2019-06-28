@@ -890,7 +890,7 @@ describe('BaseNeonComponent', () => {
     it('getButtonText with multiple layers does return expected string', () => {
         expect(component.getButtonText()).toEqual('');
 
-        let layerA: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+        let layerA: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
         layerA.title = 'Layer A';
         component.options.layers.push(layerA);
 
@@ -903,7 +903,7 @@ describe('BaseNeonComponent', () => {
         component['layerIdToElementCount'].set(layerA._id, 2);
         expect(component.getButtonText()).toEqual('2 Results');
 
-        let layerB: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+        let layerB: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
         layerB.title = 'Layer B';
         component.options.layers.push(layerB);
 
@@ -1359,7 +1359,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleTransformVisualizationQueryResults does call success callback function', (done) => {
-        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (options, results) => {
@@ -1381,7 +1381,7 @@ describe('BaseNeonComponent', () => {
 
     it('handleTransformVisualizationQueryResults does call failure callback function', (done) => {
         let expectedError = new Error('Test Error');
-        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (__options, __results) => {

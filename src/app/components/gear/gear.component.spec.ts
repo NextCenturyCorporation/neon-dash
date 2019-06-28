@@ -19,9 +19,7 @@ import { } from 'jasmine-core';
 import { GearComponent } from '../gear/gear.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { WidgetService } from '../../services/widget.service';
 
 import { NeonFieldMetaData } from '../../models/dataset';
 
@@ -54,7 +52,7 @@ class MockConfigurable implements ConfigurableWidget {
     calledExportData = 0;
 
     constructor(dashboardState: DashboardState) {
-        this.options = new RootWidgetOptionCollection(() => [], () => [], dashboardState.asDataset(), 'Test Layer', 100, false, null, {});
+        this.options = new RootWidgetOptionCollection(() => [], () => [], dashboardState.asDataset(), 'Test Layer', 100, false);
     }
 
     changeData(__options?: WidgetOptionCollection, __databaseOrTableChange?: boolean): void {
@@ -100,7 +98,6 @@ describe('Component: Gear Component', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
             Injector
         ],
         imports: [
@@ -151,7 +148,7 @@ describe('Component: Gear Component', () => {
     });
 
     it('getLayerList does return expected list', () => {
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100, null, {});
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
         expect(component.getLayerList(layer)).toEqual(['limit']);
 
         layer.append(new WidgetFieldOption('field', '', true));
@@ -171,11 +168,11 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -211,11 +208,11 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -251,10 +248,10 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -287,10 +284,10 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -323,12 +320,12 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100, null, {});
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
         component.modifiedOptions.layers.push(layer);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
@@ -368,12 +365,12 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100, null, {});
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
         component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
@@ -420,13 +417,13 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100, null, {});
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
         component['originalOptions'].layers.push(layer);
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
 
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -464,18 +461,18 @@ describe('Component: Gear Component', () => {
         };
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component['originalOptions'].append(new WidgetFreeTextOption('testOption', '', ''), '');
         component['originalOptions'].append(new WidgetFieldOption('testField', '', true), NeonFieldMetaData.get());
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.modifiedOptions.table = DashboardServiceMock.TABLES.testTable2;
         component.modifiedOptions.append(new WidgetFreeTextOption('testOption', '', ''), 'testText');
         component.modifiedOptions.append(new WidgetFieldOption('testField', '', true), DashboardServiceMock.FIELD_MAP.NAME);
 
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100, null, {});
+        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
         layer.append(new WidgetFreeTextOption('testNestedOption', '', ''), '');
         component['originalOptions'].layers.push(layer);
         component.modifiedOptions.layers.push(layer.copy());
@@ -620,11 +617,11 @@ describe('Component: Gear Component', () => {
         component.comp = mock;
 
         component['originalOptions'] = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component['originalOptions'].append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
 
         component.modifiedOptions = new RootWidgetOptionCollection(() => [], () => [], component['dashboardState'].asDataset(),
-            'Test Layer', 100, false, null, {});
+            'Test Layer', 100, false);
         component.modifiedOptions.append(new WidgetNonPrimitiveOption('testOption1', 'TestOption', ''), {});
         expect(component.changeMade).toEqual(false);
         expect(component.modifiedOptions.testOption1).toEqual({});

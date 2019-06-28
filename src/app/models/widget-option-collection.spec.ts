@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ReflectiveInjector } from '@angular/core';
 
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
 import {
@@ -25,7 +24,7 @@ import {
     WidgetSelectOption,
     WidgetTableOption
 } from './widget-option';
-import { OptionCollection, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
+import { OptionCollection, OptionConfig, RootWidgetOptionCollection, WidgetOptionCollection } from './widget-option-collection';
 
 import { DATABASES, DATABASES_LIST, DATASET, FIELD_MAP, FIELDS, TABLES, TABLES_LIST } from '../../testUtils/mock-dataset';
 
@@ -36,34 +35,17 @@ describe('OptionCollection', () => {
     let options: OptionCollection;
 
     beforeEach(() => {
-        options = new OptionCollection(ReflectiveInjector.resolveAndCreate([{
-            provide: 'keyA',
-            useValue: 'provideA'
-        }, {
-            provide: 'keyB',
-            useValue: 'provideB'
-        }, {
-            provide: 'testDate',
-            useValue: 'testDateField'
-        }, {
-            provide: 'testFake',
-            useValue: 'testFakeField'
-        }, {
-            provide: 'testList',
-            useValue: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField']
-        }, {
-            provide: 'testName',
-            useValue: 'testNameField'
-        }, {
-            provide: 'testSize',
-            useValue: 'testSizeField'
-        }, {
-            provide: 'testFieldKey',
-            useValue: 'field_key_1'
-        }, {
-            provide: 'testListWithFieldKey',
-            useValue: ['field_key_1', 'field_key_2']
-        }]));
+        options = new OptionCollection(new OptionConfig({
+            keyA: 'provideA',
+            keyB: 'provideB',
+            testDate: 'testDateField',
+            testFake: 'testFakeField',
+            testList: ['testDateField', 'testFakeField', 'testNameField', 'testSizeField'],
+            testName: 'testNameField',
+            testSize: 'testSizeField',
+            testFieldKey: 'field_key_1',
+            testListWithFieldKey: ['field_key_1', 'field_key_2']
+        }));
     });
 
     it('does have an _id', () => {
@@ -316,25 +298,14 @@ describe('WidgetOptionCollection', () => {
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
-        ], DATASET, 'Test Title', 100, ReflectiveInjector.resolveAndCreate([{
-            provide: 'tableKey',
-            useValue: 'table_key_2'
-        }, {
-            provide: 'limit',
-            useValue: '1234'
-        }, {
-            provide: 'title',
-            useValue: 'Test Custom Title'
-        }, {
-            provide: 'testCustomField',
-            useValue: 'testTextField'
-        }, {
-            provide: 'testCustomFieldArray',
-            useValue: ['testNameField', 'testTypeField']
-        }, {
-            provide: 'testCustomKey',
-            useValue: 'testCustomValue'
-        }]));
+        ], DATASET, 'Test Title', 100, new OptionConfig({
+            tableKey: 'table_key_2',
+            limit: '1234',
+            title: 'Test Custom Title',
+            testCustomField: 'testTextField',
+            testCustomFieldArray: ['testNameField', 'testTypeField'],
+            testCustomKey: 'testCustomValue'
+        }));
     });
 
     it('does have databases, fields, tables, and custom properties', () => {
@@ -421,7 +392,7 @@ describe('WidgetOptionCollection with no bindings', () => {
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
-        ], DATASET, 'Test Title', 100, ReflectiveInjector.resolveAndCreate([]));
+        ], DATASET, 'Test Title', 100);
     });
 
     it('does have databases, fields, tables, and custom properties with default values', () => {
@@ -452,42 +423,19 @@ describe('RootWidgetOptionCollection', () => {
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
             new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
-        ], DATASET, 'Test Title', 100, true, ReflectiveInjector.resolveAndCreate([{
-            provide: 'tableKey',
-            useValue: 'table_key_2'
-        }, {
-            provide: 'contributionKeys',
-            useValue: ['next_century']
-        }, {
-            provide: 'filter',
-            useValue: { lhs: 'a', operator: '!=', rhs: 'b' }
-        }, {
-            provide: 'hideUnfiltered',
-            useValue: true
-        }, {
-            provide: 'limit',
-            useValue: '1234'
-        }, {
-            provide: 'title',
-            useValue: 'Test Custom Title'
-        }, {
-            provide: 'unsharedFilterField',
-            useValue: 'testFilterField'
-        }, {
-            provide: 'unsharedFilterValue',
-            useValue: 'testFilterValue'
-        }, {
-            provide: 'testCustomField',
-            useValue: 'testTextField'
-        }, {
-            provide: 'testCustomFieldArray',
-            useValue: ['testNameField', 'testTypeField']
-        }, {
-            provide: 'testCustomKey',
-            useValue: 'testCustomValue'
-        }, {
-            provide: 'layers',
-            useValue: [{
+        ], DATASET, 'Test Title', 100, true, new OptionConfig({
+            tableKey: 'table_key_2',
+            contributionKeys: ['next_century'],
+            filter: { lhs: 'a', operator: '!=', rhs: 'b' },
+            hideUnfiltered: true,
+            limit: '1234',
+            title: 'Test Custom Title',
+            unsharedFilterField: 'testFilterField',
+            unsharedFilterValue: 'testFilterValue',
+            testCustomField: 'testTextField',
+            testCustomFieldArray: ['testNameField', 'testTypeField'],
+            testCustomKey: 'testCustomValue',
+            layers: [{
                 tableKey: 'table_key_2',
                 limit: 5678,
                 title: 'Test Layer Title',
@@ -495,7 +443,7 @@ describe('RootWidgetOptionCollection', () => {
                 testCustomLayerFieldArray: ['testXField', 'testYField'],
                 testCustomLayerKey: 'testCustomLayerValue'
             }]
-        }]));
+        }));
     });
 
     it('does have databases, fields, tables, custom properties, and custom layers', () => {
@@ -602,7 +550,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
             new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
-        ], DATASET, 'Test Title', 100, true, ReflectiveInjector.resolveAndCreate([]));
+        ], DATASET, 'Test Title', 100, true);
     });
 
     it('does have databases, fields, tables, custom properties, and custom layers with default values', () => {

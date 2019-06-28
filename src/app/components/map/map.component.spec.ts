@@ -24,10 +24,10 @@ import {
 import { MapComponent } from './map.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
@@ -120,7 +120,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -145,7 +145,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100, undefined, {});
+    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
@@ -181,7 +181,7 @@ describe('Component: Map', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: AbstractColorThemeService, useClass: ColorThemeService }
 
         ],
         imports: [
@@ -252,12 +252,12 @@ describe('Component: Map', () => {
         let filter4 = new Map<string, any>().set('filterFields', [2, 4]);
         let filter5 = new Map<string, any>().set('filterFields', [5]);
 
-        let widgetService = getService(AbstractWidgetService);
+        let colorThemeService = getService(AbstractColorThemeService);
 
-        let aColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
-        let bColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
-        let cColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
-        let dColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
+        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
+        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
+        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
+        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
 
         let dataset1 = {
             data: [
@@ -1147,7 +1147,7 @@ describe('Component: Map with config', () => {
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',

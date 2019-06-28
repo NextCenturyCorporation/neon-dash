@@ -31,7 +31,7 @@ import {
     QueryPayload,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -95,7 +95,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -294,8 +294,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
-            .updateGroups(query, groups).updateAggregation(query, AggregationType.MIN, '_date', options.dateField.columnName)
-            .updateSort(query, '_date').updateAggregation(query, AggregationType.COUNT, '_aggregation', '_' + options.granularity);
+            .updateGroups(query, groups)
+            .updateAggregation(query, AggregationType.MIN, this.searchService.getAggregationName('date'), options.dateField.columnName)
+            .updateSort(query, this.searchService.getAggregationName('date'))
+            .updateAggregation(query, AggregationType.COUNT, this.searchService.getAggregationName(), '_' + options.granularity);
 
         return query;
     }
@@ -330,8 +332,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                         value: 1,
                         ids: [uniqueIdentifier],
                         filters: [currentItem[options.filterField.columnName]],
-                        origDate: currentItem._date,
-                        date: new Date(currentItem._date)
+                        origDate: currentItem[this.searchService.getAggregationName('date')],
+                        date: new Date(currentItem[this.searchService.getAggregationName('date')])
                     });
                 }
 
@@ -339,8 +341,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }, []);
         } else {
             this.timelineQueryResults = results.map((item) => ({
-                value: item._aggregation,
-                date: new Date(item._date)
+                value: item[this.searchService.getAggregationName()],
+                date: new Date(item[this.searchService.getAggregationName('date')])
             }));
         }
 
@@ -358,7 +360,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     findDateInPreviousItem(previousItems: any[], current: any) {
         if (previousItems.length) {
-            let currentDate = new Date(current._date);
+            let currentDate = new Date(current[this.searchService.getAggregationName('date')]);
             let currentMonth = currentDate.getUTCMonth();
             let currentYear = currentDate.getUTCFullYear();
 
@@ -403,7 +405,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterAndRefreshData(data: any[]) {
         let series: TimelineSeries = {
-            color: this.widgetService.getThemeMainColorHex(),
+            color: this.colorThemeService.getThemeMainColorHex(),
             name: 'Total',
             type: 'bar',
             options: {},

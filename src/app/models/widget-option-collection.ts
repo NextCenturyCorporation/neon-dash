@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injector } from '@angular/core';
 import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
 import { DatasetUtil } from '../util/dataset.util';
 import * as _ from 'lodash';
@@ -30,6 +29,15 @@ import {
     WidgetTableOption
 } from './widget-option';
 
+export class OptionConfig {
+    constructor(protected config: any) { }
+
+    public get(bindingKey: string, defaultValue: any): any {
+        // Assume config is just a Record<string, any>
+        return typeof this.config[bindingKey] === 'undefined' ? defaultValue : this.config[bindingKey];
+    }
+}
+
 /**
  * Manages configurable options with databases, tables, and fields.
  */
@@ -46,12 +54,11 @@ export class OptionCollection {
 
     /**
      * @constructor
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
-    constructor(protected injector?: Injector, protected config?: any) {
+    constructor(protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
-        this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
+        this._id = this.config.get('_id', uuidv4());
         this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
         this.append(new WidgetTableOption(), NeonTableMetaData.get());
     }
@@ -104,7 +111,7 @@ export class OptionCollection {
      * @return {OptionCollection}
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.injector, this.config);
+        let copy = new (this.getConstructor())(this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -132,7 +139,7 @@ export class OptionCollection {
      * Returns the field object for the given binding key or an empty field object.
      */
     public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
-        let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
+        let fieldKey = this.config.get(bindingKey, '');
         return this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
     }
 
@@ -140,7 +147,7 @@ export class OptionCollection {
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      */
     public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
-        let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
+        let bindings = this.config.get(bindingKey, []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) =>
             this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
     }
@@ -156,8 +163,7 @@ export class OptionCollection {
      */
     public inject(options: WidgetOption | WidgetOption[]): void {
         (Array.isArray(options) ? options : [options]).forEach((option) => {
-            this.append(option, (this.injector ? this.injector.get(option.bindingKey, option.valueDefault) :
-                ((this.config || {})[option.bindingKey] || option.valueDefault)));
+            this.append(option, this.config.get(option.bindingKey, option.valueDefault));
         });
     }
 
@@ -193,7 +199,7 @@ export class OptionCollection {
                 configuredTableKeys[0]).database;
 
             // Look for the table key configured for the specific visualization.
-            let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
                 configuredDatabase = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
             }
@@ -246,7 +252,7 @@ export class OptionCollection {
                 configuredTableKeys[0]).table;
 
             // Look for the table key configured for the specific visualization.
-            let configuredTableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
+            let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
                 configuredTable = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
             }
@@ -275,18 +281,16 @@ export class WidgetOptionCollection extends OptionCollection {
      * @arg {Dataset} dataset The current dataset.
      * @arg {string} defaultTitle The default value for the injected 'title' option.
      * @arg {number} defaultLimit The default value for the injected 'limit' option.
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
         protected createOptionsCallback: () => WidgetOption[],
         protected dataset: Dataset,
         defaultTitle: string,
         defaultLimit: number,
-        injector?: Injector,
-        config?: any
+        config?: OptionConfig
     ) {
-        super(injector, config);
+        super(config);
 
         let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
@@ -306,8 +310,7 @@ export class WidgetOptionCollection extends OptionCollection {
      * @override
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dataset, this.title, this.limit, this.injector,
-            this.config);
+        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dataset, this.title, this.limit, this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -352,8 +355,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * @arg {string} defaultTitle The default value for the injected 'title' option.
      * @arg {number} defaultLimit The default value for the injected 'limit' option.
      * @arg {boolean} defaultLayer Whether to add a default layer.
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
         createOptionsCallback: () => WidgetOption[],
@@ -362,15 +364,14 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
         defaultTitle: string,
         defaultLimit: number,
         defaultLayer: boolean,
-        injector?: Injector,
-        config?: any
+        config?: OptionConfig
     ) {
-        super(createOptionsCallback, dataset, defaultTitle, defaultLimit, injector, config);
+        super(createOptionsCallback, dataset, defaultTitle, defaultLimit, config);
 
         // Backwards compatibility (configFilter deprecated and renamed to filter).
-        this.filter = this.filter || (injector ? injector.get('configFilter', null) : (config || {}).configFilter);
+        this.filter = this.filter || this.config.get('configFilter', null);
 
-        (injector ? injector.get('layers', []) : ((config || {}).layers || [])).forEach((layerBindings) => {
+        this.config.get('layers', []).forEach((layerBindings) => {
             this.addLayer(layerBindings);
         });
 
@@ -385,7 +386,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      */
     public addLayer(layerBindings: any = {}): WidgetOptionCollection {
         let layerOptions = new WidgetOptionCollection(this.createOptionsForLayerCallback, this.dataset,
-            'Layer ' + this._nextLayerIndex++, this.limit, undefined, layerBindings);
+            'Layer ' + this._nextLayerIndex++, this.limit, new OptionConfig(layerBindings));
         this.layers.push(layerOptions);
         return layerOptions;
     }
@@ -398,7 +399,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      */
     public copy(): this {
         let copy = new (this.getConstructor())(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dataset,
-            this.title, this.limit, false, this.injector, this.config);
+            this.title, this.limit, false, this.config);
         copy.layers = this.layers.map((layer) => layer.copy());
         return this.copyCommonProperties(copy);
     }
