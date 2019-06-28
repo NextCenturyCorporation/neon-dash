@@ -26,7 +26,6 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService } from '../../services/filter.service';
 
@@ -66,7 +65,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog,

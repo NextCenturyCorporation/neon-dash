@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
-import { Color, ColorSet } from '../models/color';
+import { Color, ColorMap, ColorSet } from '../models/color';
 
 /**
  * @interface Theme
@@ -26,11 +26,11 @@ export interface Theme {
 /**
  * A service for everything a Neon widget needs.
  *
- * @class AbstractWidgetService
+ * @class AbstractColorThemeService
  * @abstract
  */
 @Injectable()
-export abstract class AbstractWidgetService {
+export abstract class AbstractColorThemeService {
     /**
      * Returns the color for the given value from an existing color set for the given database/table/field or creates a new color set if
      * none exists.
@@ -95,6 +95,14 @@ export abstract class AbstractWidgetService {
      * @abstract
      */
     public abstract getThemeMainColorHex(): string;
+
+    /**
+     * Initializes the starting colors using the given input.
+     *
+     * @arg {ColorMap} colors
+     * @abstract
+     */
+    public abstract initializeColors(colors: ColorMap): void;
 
     /**
      * Sets the current application theme to the theme with the given ID.

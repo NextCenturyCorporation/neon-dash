@@ -31,7 +31,7 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
@@ -70,7 +70,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -94,7 +94,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
 
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.widgetService.getThemeMainColorHex();
+        this.textColor = this.colorThemeService.getThemeMainColorHex();
     }
 
     /**
@@ -188,8 +188,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filter)))
             .updateGroups(query, [this.searchService.buildQueryGroup(options.dataField.columnName)])
-            .updateAggregation(query, options.aggregation, '_aggregation', aggregationField)
-            .updateSort(query, '_aggregation', SortOrder.DESCENDING);
+            .updateAggregation(query, options.aggregation, this.searchService.getAggregationName(), aggregationField)
+            .updateSort(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
 
         return query;
     }
@@ -274,7 +274,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 key: key,
                 keyTranslated: key,
                 selected: this.isFiltered(this.createFilterDesignOnText(key)),
-                value: item._aggregation
+                value: item[this.searchService.getAggregationName()]
             };
         });
 

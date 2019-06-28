@@ -1,4 +1,4 @@
-<mat-sidenav-container class="neon-sidenav" [ngClass]="widgetService.getTheme()">
+<mat-sidenav-container class="neon-sidenav" [ngClass]="colorThemeService.getTheme()">
     <mat-sidenav class="neon-sidenav neon-sidenav-info" mat-fill position="end" (closed)="currentPanel = ''">
         <div>
             <mat-toolbar class="title" color="primary">
@@ -60,7 +60,7 @@
                 <mat-icon class="neon-icon-large">menu</mat-icon>
             </button>
 
-            <mat-menu #appMenu="matMenu" [backdropClass]="widgetService.getTheme()" yPosition="below" [overlapTrigger]="false">
+            <mat-menu #appMenu="matMenu" [backdropClass]="colorThemeService.getTheme()" yPosition="below" [overlapTrigger]="false">
                 <button mat-menu-item (click)="setPanel('addVis', 'Add Visualizations');">
                     <mat-icon color="secondary">add_circle</mat-icon>Add Visualizations
                 </button>
