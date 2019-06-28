@@ -523,10 +523,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
-        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length ||
+            response.data[0][this.searchService.getAggregationName('count')] === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
-            this.layerIdToElementCount.set(options._id, response.data[0]._count);
+            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationName('count')]);
         }
         this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
@@ -581,7 +582,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
+                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
+                        this.searchService.getAggregationName('count'), '*');
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {

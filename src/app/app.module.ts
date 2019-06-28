@@ -18,12 +18,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 
 import { AbstractSearchService } from './services/abstract.search.service';
-import { AbstractWidgetService } from './services/abstract.widget.service';
+import { AbstractColorThemeService } from './services/abstract.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
 import { FilterService } from './services/filter.service';
 import { PropertyService } from './services/property.service';
 import { SearchService } from './services/search.service';
-import { WidgetService } from './services/widget.service';
+import { ColorThemeService } from './services/color-theme.service';
 
 import { AppComponent } from './app.component';
 
@@ -57,8 +57,8 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
             useClass: SearchService
         },
         {
-            provide: AbstractWidgetService,
-            useClass: WidgetService
+            provide: AbstractColorThemeService,
+            useClass: ColorThemeService
         }
     ],
     entryComponents: [AppComponent, DynamicDialogComponent],

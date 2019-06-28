@@ -189,8 +189,9 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
-            .updateGroups(query, groups).updateAggregation(query, AggregationType.COUNT, '_count', countField)
-            .updateSort(query, '_count', SortOrder.DESCENDING);
+            .updateGroups(query, groups)
+            .updateAggregation(query, AggregationType.COUNT, this.searchService.getAggregationName(), countField)
+            .updateSort(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
 
         return query;
     }
@@ -326,13 +327,13 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     transformVisualizationQueryResults(options: any, results: any[]): number {
         // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
-        // The aggregation query response data will have a _count field and all visualization fields.
+        // The aggregation query response data will have an _aggregation field and all visualization fields.
         this.visualizationData = results.map((item) => {
             let label = item[options.sampleRequiredField.columnName] + (options.sampleOptionalField.columnName ? ' - ' +
                 item[options.sampleOptionalField.columnName] : '');
 
             return {
-                count: item._count,
+                count: item[this.searchService.getAggregationName()],
                 field: options.sampleRequiredField,
                 label: label,
                 value: item[options.sampleRequiredField.columnName]
