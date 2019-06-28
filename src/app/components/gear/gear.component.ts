@@ -28,8 +28,8 @@ import { MatSidenav } from '@angular/material';
 
 import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { OptionType, WidgetOption } from '../../models/widget-option';
-import { WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
+import { OptionType } from '../../models/widget-option';
+import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 import { OptionsSectionComponent } from '../options-section/options-section.component';
 
 import { neonEvents } from '../../models/neon-namespaces';
@@ -50,10 +50,10 @@ export class GearComponent implements OnDestroy {
     @ViewChildren('listChildren') listChildren: QueryList<OptionsSectionComponent>;
 
     private messenger: eventing.Messenger;
-    private originalOptions: WidgetOptionCollection;
+    private originalOptions: RootWidgetOptionCollection;
 
     // Set to a stub object to stop initialization errors.
-    public modifiedOptions: any = new WidgetOptionCollection(() => []);
+    public modifiedOptions: RootWidgetOptionCollection;
 
     public exportCallbacks: (() => { name: string, data: any }[])[] = [];
 
@@ -70,6 +70,7 @@ export class GearComponent implements OnDestroy {
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        this.modifiedOptions = this.createEmptyOptionsCollection();
     }
 
     private closeSidenav() {
@@ -81,6 +82,10 @@ export class GearComponent implements OnDestroy {
      */
     private constructOptions() {
         this.modifiedOptions = this.originalOptions.copy();
+    }
+
+    private createEmptyOptionsCollection(): RootWidgetOptionCollection {
+        return new RootWidgetOptionCollection(() => [], () => [], new DashboardState(), '', 0, false);
     }
 
     /**
@@ -209,17 +214,13 @@ export class GearComponent implements OnDestroy {
     /**
      * Receives
      */
-    ngAfterViewInit() {
+    ngOnInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
             this.exportCallbacks = [this.comp.exportData.bind(this.comp)];
             this.resetOptions();
             this.constructOptions();
         }
-    }
-
-    private removeOptions(list: any[], property: string, compareValue: boolean|string): any[] {
-        return list.filter((optionObject) => optionObject[property] !== compareValue);
     }
 
     /**
@@ -241,7 +242,7 @@ export class GearComponent implements OnDestroy {
             child.optionSectionResetOptions();
         });
 
-        this.modifiedOptions = new WidgetOptionCollection(() => []);
+        this.modifiedOptions = this.createEmptyOptionsCollection();
     }
 
     /**

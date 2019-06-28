@@ -23,14 +23,14 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { ConfigService } from '../../services/config.service';
-import { NeonConfig } from '../../models/types';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import {
-    WidgetOptionCollection, WidgetFieldOption,
+    WidgetFieldOption,
     WidgetFreeTextOption, WidgetSelectOption,
     OptionChoices
 } from '../../models/widget-option';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
+import { DashboardState } from '../../models/dashboard-state';
 
 describe('Component: Options-Section', () => {
     let component: OptionsSectionComponent;
@@ -41,8 +41,7 @@ describe('Component: Options-Section', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: AbstractWidgetService, useClass: WidgetService },
-            Injector,
-            { provide: ConfigService, useValue: ConfigService.as(NeonConfig.get()) }
+            Injector
         ],
         imports: [
             OptionsSectionModule
@@ -75,42 +74,42 @@ describe('Component: Options-Section', () => {
     });
 
     it('getRequiredFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => []);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
         optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
+        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getRequiredFields(optionList)).toEqual(['field']);
     });
 
     it('getRequiredNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => []);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
         optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
+        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getRequiredNonFields(optionList)).toEqual(['select']);
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => []);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
         optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
+        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getOptionalNonFields(optionList)).toEqual(['freeText']);
     });
 
     it('getOptionalFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => []);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
         optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, false));
+        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getOptionalFields(optionList)).toEqual([]);
     });
 });
