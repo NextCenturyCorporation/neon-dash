@@ -15,7 +15,7 @@
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
 import { FilterService } from '../../services/filter.service';
 

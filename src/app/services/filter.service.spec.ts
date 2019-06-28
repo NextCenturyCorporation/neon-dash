@@ -28,7 +28,7 @@ import {
     SimpleFilterDesign
 } from './filter.service';
 
-import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/types';
+import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/dataset';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
