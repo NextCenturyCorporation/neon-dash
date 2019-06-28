@@ -33,13 +33,25 @@ import {
     OptionType,
     WidgetOption
 } from '../../models/widget-option';
-import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
+import {
+    ConfigurableWidget,
+    OptionConfig,
+    RootWidgetOptionCollection,
+    WidgetOptionCollection
+} from '../../models/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+
+export class InjectorOptionConfig extends OptionConfig {
+    public get(bindingKey: string, defaultValue: any): any {
+        // Assume config is an Angular Injector
+        return this.config.get(bindingKey, defaultValue);
+    }
+}
 
 /**
  * @class BaseNeonComponent
@@ -511,10 +523,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
-        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length ||
+            response.data[0][this.searchService.getAggregationName('count')] === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
-            this.layerIdToElementCount.set(options._id, response.data[0]._count);
+            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationName('count')]);
         }
         this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
@@ -569,7 +582,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
+                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
+                        this.searchService.getAggregationName('count'), '*');
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
@@ -1007,7 +1021,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            this.dataset, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), injector);
+            this.dataset, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 

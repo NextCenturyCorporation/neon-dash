@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -99,7 +99,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef
@@ -340,11 +340,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         }
 
         let mapPoints: MapPoint[] = [];
-        let rgbColor = this.widgetService.getThemeAccentColorHex();
+        let rgbColor = this.colorThemeService.getThemeAccentColorHex();
         map.forEach((unique) => {
             let color = rgbColor;
             if (!this.options.singleColor) {
-                color = !unique.colorValue ? whiteString : this.widgetService.getColor(databaseName, tableName, colorField,
+                color = !unique.colorValue ? whiteString : this.colorThemeService.getColor(databaseName, tableName, colorField,
                     unique.colorValue).getComputedCss(this.visualization);
             }
 
@@ -419,7 +419,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         let colorKeys: string[] = [];
         for (let layer of this.options.layers) {
             if (layer.colorField.columnName !== '') {
-                colorKeys.push(this.widgetService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
+                colorKeys.push(this.colorThemeService.getColorKey(layer.database.name, layer.table.name, layer.colorField.columnName));
             }
         }
         this.colorKeys = colorKeys;
