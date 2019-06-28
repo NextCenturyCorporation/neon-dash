@@ -214,7 +214,7 @@ export class GearComponent implements OnDestroy {
     /**
      * Receives
      */
-    ngOnInit() {
+    ngAfterViewInit() {
         if (this.comp) {
             this.originalOptions = this.comp.options;
             this.exportCallbacks = [this.comp.exportData.bind(this.comp)];
@@ -236,11 +236,6 @@ export class GearComponent implements OnDestroy {
         this.changeMade = false;
         this.changeSubcomponentType = false;
         this.layerHidden = new Map<string, boolean>();
-
-        // Call options-section reset to reset the lists
-        this.listChildren.forEach((child) => {
-            child.optionSectionResetOptions();
-        });
 
         this.modifiedOptions = this.createEmptyOptionsCollection();
     }
