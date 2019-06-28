@@ -34,16 +34,14 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { GearModule } from './gear.module';
 import { DashboardState } from '../../models/dashboard-state';
 import {
-    OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
-    WidgetNonPrimitiveOption,
-    WidgetSelectOption
+    WidgetNonPrimitiveOption
 } from '../../models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
 
 class MockConfigurable implements ConfigurableWidget {
-    options: WidgetOptionCollection;
+    options: RootWidgetOptionCollection;
     calledChangeData = 0;
     calledChangeFilterData = 0;
     calledFinalizeCreateLayer = 0;
@@ -141,17 +139,6 @@ describe('Component: Gear Component', () => {
         expect(component.getIconForFilter({
             _id: 'testId1'
         })).toEqual('keyboard_arrow_up');
-    });
-
-    it('getLayerList does return expected list', () => {
-        let layer: any = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, null, {});
-        expect(component.getLayerList(layer)).toEqual(['limit']);
-
-        layer.append(new WidgetFieldOption('field', '', true));
-        layer.append(new WidgetFreeTextOption('freeText', '', ''));
-        layer.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        layer.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
-        expect(component.getLayerList(layer)).toEqual(['limit', 'field', 'freeText', 'select']);
     });
 
     it('handleApplyClick with non-field change does update originalOptions and call handleChangeData', () => {
@@ -592,12 +579,6 @@ describe('Component: Gear Component', () => {
         });
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.layerHidden.get('testId2')).toEqual(false);
-    });
-
-    it('toggleOptionalOptions does update collapseOptionalOptions', () => {
-        expect(component.collapseOptionalOptions).toEqual(true);
-        component.toggleOptionalOptions();
-        expect(component.collapseOptionalOptions).toEqual(false);
     });
 
     it('updateOnChange does update changeMade and detects NonPrimitive options correctly', () => {

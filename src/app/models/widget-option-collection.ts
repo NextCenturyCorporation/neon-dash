@@ -146,8 +146,8 @@ export class OptionCollection {
         ))).filter((fieldsObject) => !!fieldsObject);
     }
 
-    protected getConstructor<T>(this: T): new(...args: any[]) => T {
-        return this.constructor as new(...args: any[]) => T;
+    protected getConstructor<T>(this: T): new (...args: any[]) => T {
+        return this.constructor as new (...args: any[]) => T;
     }
 
     /**
@@ -426,7 +426,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 }
 
 export interface ConfigurableWidget {
-    options: WidgetOptionCollection;
+    options: RootWidgetOptionCollection;
     changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;

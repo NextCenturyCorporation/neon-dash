@@ -18,7 +18,8 @@ import {
     Input,
     ViewEncapsulation
 } from '@angular/core';
-import { WidgetOptionCollection, WidgetOption } from '../../models/widget-option';
+import { WidgetOption } from '../../models/widget-option';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 @Component({
     selector: 'app-options-section',
@@ -43,11 +44,11 @@ export class OptionsSectionComponent {
      */
     private removeOptionsFromList(optList: WidgetOption[]): WidgetOption[] {
         let optionList: WidgetOption[] = optList;
-        optionList = this.removeOptionsByEnableInMenu(optionList, false);
-        optionList = this.removeOptionsByBindingKey(optionList, 'title');
-        optionList = this.removeOptionsByBindingKey(optionList, 'limit');
-        optionList = this.removeOptionsByType(optionList, 'DATABASE');
-        optionList = this.removeOptionsByType(optionList, 'TABLE');
+        optionList = this.removeOptions(optionList, 'bindingKey', 'title');
+        optionList = this.removeOptions(optionList, 'hideFromMenu', true);
+        optionList = this.removeOptions(optionList, 'bindingKey', 'limit');
+        optionList = this.removeOptions(optionList, 'optionType', 'DATABASE');
+        optionList = this.removeOptions(optionList, 'optionType', 'TABLE');
         return optionList;
     }
 
@@ -55,7 +56,7 @@ export class OptionsSectionComponent {
         let requiredList: WidgetOption[] = modifiedOptions.list();
         requiredList = this.removeOptionsFromList(requiredList);
         return requiredList.filter((option) => option.isRequired &&
-            (option.optionType === 'FIELD' || option.optionType === 'FIELD_ARRAY'))
+            (option['optionType'] === 'FIELD' || option['optionType'] === 'FIELD_ARRAY'))
             .map((option) => option.bindingKey);
     }
 
@@ -98,22 +99,8 @@ export class OptionsSectionComponent {
         return icon;
     }
 
-    private removeOptionsByBindingKey(list: any[], bindingKey: string): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.bindingKey !== bindingKey);
-        return newList;
-    }
-
-    private removeOptionsByEnableInMenu(list: any[], enableInMenu: boolean): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.enableInMenu !== enableInMenu);
-        return newList;
-    }
-
-    private removeOptionsByType(list: any[], optionType: string): any[] {
-        let newList = list;
-        newList = newList.filter((field) => field.optionType !== optionType);
-        return newList;
+    private removeOptions(list: any[], property: string, compareValue: boolean | string): any[] {
+        return list.filter((optionObject) => optionObject[property] !== compareValue);
     }
 
     /**
