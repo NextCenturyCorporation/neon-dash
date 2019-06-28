@@ -15,13 +15,13 @@
 import { inject } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Subscription } from 'rxjs';
 
 import { AbstractSearchService, CompoundFilterType } from './abstract.search.service';
 import { DashboardService } from './dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
-    FilterChangeListener,
     FilterCollection,
     FilterDataSource,
     FilterDesign,
@@ -3354,7 +3354,7 @@ describe('FilterService with no filters', () => {
     it('should have expected properties with no filters', () => {
         expect(filterService['filterCollection']).toBeDefined();
         expect((filterService['filterCollection'])['data'].size).toEqual(0);
-        expect(filterService['_listeners']).toEqual(new Map<string, FilterChangeListener>());
+        expect(filterService['_subscriptions']).toEqual(new Map<string, Subscription>());
         expect(filterService['_notifier'].toString()).toEqual(filterService.notifyFilterChangeListeners.bind(filterService).toString());
     });
 
@@ -3586,7 +3586,7 @@ describe('FilterService with filters', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-        expect(filterService['_listeners']).toEqual(new Map<string, FilterChangeListener>());
+        expect(filterService['_subscriptions']).toEqual(new Map<string, Subscription>());
         expect(filterService['_notifier'].toString()).toEqual(filterService.notifyFilterChangeListeners.bind(filterService).toString());
     });
 
@@ -4229,10 +4229,10 @@ describe('FilterService with filters', () => {
             calledB++;
         };
 
-        filterService['_listeners'] = new Map<string, FilterChangeListener>();
-
-        filterService['_listeners'].set('testIdA', listenerA);
-        filterService['_listeners'].set('testIdB', listenerB);
+        filterService['_filterChange'].asObservable().subscribe((event) => {
+            listenerA(event.callerId, event.changeCollection);
+            listenerB(event.callerId, event.changeCollection);
+        });
 
         filterService.notifyFilterChangeListeners(expectedCallerId, expectedChangeCollection);
 
@@ -4250,17 +4250,17 @@ describe('FilterService with filters', () => {
         expect(filterService['_notifier']).toBe(notifier);
     });
 
-    it('registerFilterChangeListener does update _listeners', () => {
+    it('registerFilterChangeListener does update _subscriptions', () => {
         const listener = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
             // Do nothing.
         };
 
-        filterService['_listeners'] = new Map<string, FilterChangeListener>();
+        filterService['_subscriptions'] = new Map<string, Subscription>();
 
         filterService.registerFilterChangeListener('testIdA', listener);
 
-        expect(filterService['_listeners'].get('testIdA')).toBe(listener);
-        expect(filterService['_listeners'].get('testIdB')).toBe(undefined);
+        expect(filterService['_subscriptions'].get('testIdA')).not.toBe(undefined);
+        expect(filterService['_subscriptions'].get('testIdB')).toBe(undefined);
     });
 
     it('setFiltersFromConfig should change filterCollection', () => {
@@ -5375,20 +5375,18 @@ describe('FilterService with filters', () => {
         } as CompoundFilterDesign)).toEqual(false);
     });
 
-    it('unregisterFilterChangeListener does update _listeners', () => {
-        const listener = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
-            // Do nothing.
-        };
+    it('unregisterFilterChangeListener does update _subscriptions', () => {
+        const subscription = new Subscription();
 
-        filterService['_listeners'] = new Map<string, FilterChangeListener>();
+        filterService['_subscriptions'] = new Map<string, Subscription>();
 
-        filterService['_listeners'].set('testIdA', listener);
-        filterService['_listeners'].set('testIdB', listener);
+        filterService['_subscriptions'].set('testIdA', subscription);
+        filterService['_subscriptions'].set('testIdB', subscription);
 
         filterService.unregisterFilterChangeListener('testIdA');
 
-        expect(filterService['_listeners'].get('testIdA')).toBe(undefined);
-        expect(filterService['_listeners'].get('testIdB')).toBe(listener);
+        expect(filterService['_subscriptions'].get('testIdA')).toBe(undefined);
+        expect(filterService['_subscriptions'].get('testIdB')).toBe(subscription);
     });
 
     it('updateCollectionWithGlobalCompatibleFilters should update argument filter collection and call redraw callback', () => {

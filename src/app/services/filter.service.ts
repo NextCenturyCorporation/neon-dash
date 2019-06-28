@@ -17,6 +17,7 @@ import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstr
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
 import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 
+import { Subject, Subscription } from 'rxjs';
 import * as uuidv4 from 'uuid/v4';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
@@ -433,15 +434,18 @@ export class FilterCollection {
     }
 }
 
+export interface FilterChange { callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]> }
 export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => void;
 
 @Injectable()
 export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
 
-    private _listeners: Map<string, FilterChangeListener> = new Map<string, FilterChangeListener>();
+    private _filterChange: Subject<FilterChange> = new Subject<FilterChange>();
 
     private _notifier: FilterChangeListener;
+
+    private _subscriptions: Map<string, Subscription> = new Map<string, Subscription>();
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
@@ -789,9 +793,10 @@ export class FilterService {
      * Notifies all the filter-change listeners using the given caller ID and change collection.
      */
     public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
-        for (const listener of Array.from(this._listeners.values())) {
-            listener(callerId, changeCollection);
-        }
+        this._filterChange.next({
+            callerId: callerId,
+            changeCollection: changeCollection
+        });
     }
 
     /**
@@ -807,7 +812,10 @@ export class FilterService {
      * Registers the given ID with the given filter-change listener callback function.
      */
     public registerFilterChangeListener(id: string, listener: FilterChangeListener): void {
-        this._listeners.set(id, listener);
+        const subscription = this._filterChange.asObservable().subscribe((event) => {
+            listener(event.callerId, event.changeCollection);
+        });
+        this._subscriptions.set(id, subscription);
     }
 
     /**
@@ -953,7 +961,7 @@ export class FilterService {
      * Unregisters the given ID of a registered filter-change listener.
      */
     public unregisterFilterChangeListener(id: string): void {
-        this._listeners.delete(id);
+        this._subscriptions.delete(id);
     }
 }
 
