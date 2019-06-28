@@ -31,7 +31,7 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 
@@ -70,7 +70,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -94,7 +94,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.options.aggregation = (this.options.aggregation || this.injector.get('sizeAggregation', AggregationType.COUNT)).toLowerCase();
 
         // This should happen before execute query as #refreshVisualization() depends on this.textCloud
-        this.textColor = this.widgetService.getThemeMainColorHex();
+        this.textColor = this.colorThemeService.getThemeMainColorHex();
     }
 
     /**

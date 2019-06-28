@@ -24,11 +24,11 @@ import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -45,7 +45,7 @@ describe('Component: Aggregation', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -3960,7 +3960,7 @@ describe('Component: Aggregation with config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -4061,7 +4061,7 @@ describe('Component: Aggregation with XY config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
@@ -4162,7 +4162,7 @@ describe('Component: Aggregation with date config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
