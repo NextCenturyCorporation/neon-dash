@@ -31,7 +31,7 @@
     top: 0;
     right: 5px;
     transform: translate(30%, -10%) scale(0.7, 0.7);
-    color: var(--color-text-header, black);
+    color: var(--color-text, black);
 }
 
 :host.moving {
@@ -69,8 +69,8 @@
     }
 
     &:hover .drag-handle {
-        color: var(--color-primary-contrast, white);
-        background: var(--color-primary-transparent, #333333);
+        color: white;
+        background: rgba(0, 0, 0, 0.3);
     }
 }
 
