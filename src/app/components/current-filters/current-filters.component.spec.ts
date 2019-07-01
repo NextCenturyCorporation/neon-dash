@@ -26,13 +26,11 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { CompoundFilterType, AbstractSearchService } from '../../services/abstract.search.service';
-import { SearchService } from '../../services/search.service';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let component: CurrentFiltersComponent;
-    const search = new SearchService(null as any);
 
     function simple(field: string, op: string, value: any) {
         const out = new SimpleFilter('store',
@@ -55,7 +53,7 @@ describe('Component: CurrentFiltersComponent', () => {
             },
             op,
             value,
-            search);
+            new SearchServiceMock());
         return out;
     }
 
@@ -63,7 +61,7 @@ describe('Component: CurrentFiltersComponent', () => {
         return new CompoundFilter(
             CompoundFilterType.AND,
             filters,
-            search
+            new SearchServiceMock()
         );
     }
 
