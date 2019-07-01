@@ -15,8 +15,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { neonEvents, neonVisualizations } from '../../models/neon-namespaces';
 
@@ -38,10 +37,7 @@ export class AddVisualizationComponent implements OnInit {
 
     public messenger: eventing.Messenger;
 
-    constructor(
-        public snackBar: MatSnackBar,
-        protected widgetService: AbstractWidgetService
-    ) {
+    constructor(public colorThemeService: AbstractColorThemeService, public snackBar: MatSnackBar) {
         this.messenger = new eventing.Messenger();
     }
 

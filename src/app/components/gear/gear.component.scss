@@ -16,13 +16,14 @@
 
 .gear-container {
     padding: 0 15px;
+}
 
-    mat-toolbar {
-        margin: 10px 0 0;
+mat-toolbar {
+    background-color: var(--color-background-contrast, lightgrey) !important;
+    margin: 10px 0 0;
 
-        .spacer {
-            padding: 5px;
-        }
+    .spacer {
+        padding: 5px;
     }
 }
 
@@ -39,7 +40,7 @@
     top: 0;
     bottom: 1px;
     z-index: 9999;
-    background: var(--color-background-white);
+    background: var(--color-background, white);
 
     > button {
         margin: 5px;
@@ -50,22 +51,16 @@
     cursor: pointer;
 
     &:hover {
-        color: var(--color-accent, lightgrey);
+        color: var(--color-data-item-selectable, lightgrey);
     }
 }
 
-.subheader {
-    font-size: 14px;
-    font-weight: 500;
-}
-
 .option-well {
-    background-color: var(--color-primary-contrast);
+    background-color: var(--color-background-contrast, lightgrey);
     margin-bottom: 5px;
     padding: 5px;
     width: calc(100% - 10px);
 }
-
 
 ngx-monaco-editor /deep/ .monaco-editor,
 ngx-monaco-editor  {
