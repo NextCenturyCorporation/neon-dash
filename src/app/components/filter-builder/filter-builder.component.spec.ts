@@ -24,13 +24,14 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
 
-describe('Component: Filter Builder', () => {
+/* eslint-disable jasmine/no-focused-tests */
+fdescribe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
-    let saveSpy;
+    let filterService: FilterService;
 
     beforeEach(() => {
-        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new FilterService(), new SearchServiceMock());
-        saveSpy = spyOn(component, 'clearEveryFilterClause').and.callThrough();
+        filterService = jasmine.createSpyObj('FilterService', ['toggleFilters']);
+        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), filterService, new SearchServiceMock());
     });
 
     it('class properties are set to expected defaults', () => {
@@ -124,11 +125,31 @@ describe('Component: Filter Builder', () => {
     });
 
     it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
-        // TODO THOR-701
+        component.filterClauses[0].field.columnName = 'testColumn';
+        component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].operator.value = '!=';
+        component.filterClauses[0].value = '53';
+
+        // Blank filter clause is invalid
+        component.addBlankFilterClause();
+
+        component.saveFilter();
+
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        expect(filterService.toggleFilters).not.toHaveBeenCalled();
     });
 
     it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
-        // TODO THOR-701
+        spyOn(component.filterService, 'getFilters');
+        component.filterClauses[0].field.columnName = 'testColumn';
+        component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].operator.value = '!=';
+        component.filterClauses[0].value = '53';
+
+        component.saveFilter();
+
+        //expect(filterSpy.calls.mostRecent().args[1][0].filters[0].value).toEqual(53);
+        expect(component.filterService.getFilters.arguments()[1][0].filters[0].value).toEqual(53);
     });
 
     it('saveFilter does call filterService.toggleFilters with a compound OR filter and clear the internal list of filter clauses', () => {
@@ -140,23 +161,24 @@ describe('Component: Filter Builder', () => {
     });
 
     it('saveFilter does parse number strings of non-CONTAINS filters', () => {
-        component.addBlankFilterClause();
+        component.filterClauses[0].field.columnName = 'testColumn';
         component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].operator.value = '!=';
         component.filterClauses[0].value = '53';
 
         component.saveFilter();
 
-        expect(component.filterClauses[0].operator.value).toEqual('!=');
-
-        expect(component.clearEveryFilterClause).toHaveBeenCalled();
+        /* eslint-disable-next-line @typescript-eslint/unbound-method */
+        expect(filterService.toggleFilters).toHaveBeenCalledTimes(1);
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
         // TODO THOR-701
     });
 
-    it('validateFilter does return expected boolean', () => {
-        component.addBlankFilterClause();
+    it('validateFilters does return expected boolean', () => {
+        // Must have column name to be a valid filter
+        component.filterClauses[0].field.columnName = 'testColumn';
         component.filterClauses[0].operator = component.operators[3];
         component.filterClauses[0].value = '53';
 
