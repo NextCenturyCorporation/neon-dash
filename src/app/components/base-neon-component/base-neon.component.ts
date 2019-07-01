@@ -136,8 +136,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
-            // Don't pass the event message as an argument to handleChangeData.
-            this.handleChangeData();
+            this.destroyVisualization();
+            this.constructVisualization();
+            this.cachedFilters = new FilterCollection();
+            this.handleChangeFilterField();
         });
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
@@ -261,6 +263,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     protected updateOnResize() {
         // Override if needed.
+    }
+
+    public onResize() {
+        // Override if needed
     }
 
     /**
@@ -674,6 +680,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
+        // TODO THOR-1062 Allow multiple datastores
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
             this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
         ));
@@ -706,6 +713,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
+        // TODO THOR-1062 Allow multiple datastores
         return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
@@ -753,17 +761,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        let optionsToUpdate = options || this.options;
         this.updateCollectionWithGlobalCompatibleFilters();
-        this.handleChangeData(optionsToUpdate, databaseOrTableChange);
+        this.handleChangeData(options, databaseOrTableChange);
     }
 
     /**
      * Updates elements and properties whenever the widget config is changed.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     protected onChangeData(__databaseOrTableChange?: boolean) {
         // Override if needed.
@@ -773,7 +780,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
         this.layerIdToElementCount.set((options || this.options)._id, 0);
@@ -979,6 +986,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
+        // TODO THOR-1062 Allow multiple datastores
         let datastore = this.dataset.datastores[0];
         let matchingDatabase = datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
@@ -1020,8 +1028,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options = new RootWidgetOptionCollection(this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            this.dataset, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
+        let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
+            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 

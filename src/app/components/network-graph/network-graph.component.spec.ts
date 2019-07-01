@@ -906,7 +906,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
-        component.options.layers = [new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100)];
+        component.options.layers = [new WidgetOptionCollection(component['dataset'])];
         component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.layers[0].layerType = 'nodes';
         component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];

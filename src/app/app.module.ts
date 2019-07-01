@@ -15,8 +15,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
+import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
+import { AbstractColorThemeService } from './services/abstract.color-theme.service';
 import { AbstractSearchService } from './services/abstract.search.service';
 import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
@@ -33,6 +34,10 @@ import { AppLazyModule } from './app-lazy.module';
 import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
 import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
 
+export function getBaseHref(platformLocation: PlatformLocation): string {
+    return platformLocation.getBaseHrefFromDOM();
+}
+
 @NgModule({
     declarations: [AppComponent],
     imports: [
@@ -46,9 +51,13 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
         AppLazyModule
     ],
     providers: [
+        { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
         ConfigService,
         DashboardService,
-        InjectableColorThemeService,
+        {
+            provide: AbstractColorThemeService,
+            useClass: InjectableColorThemeService
+        },
         InjectableFilterService,
         {
             provide: AbstractSearchService,

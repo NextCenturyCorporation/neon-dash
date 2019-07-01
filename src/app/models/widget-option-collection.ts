@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
-import { DataUtil } from '../util/data.util';
+import { DatasetUtil } from '../util/dataset.util';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -140,7 +140,7 @@ export class OptionCollection {
      */
     public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
         let fieldKey = this.config.get(bindingKey, '');
-        return this.findField(DataUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
+        return this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
     }
 
     /**
@@ -149,11 +149,11 @@ export class OptionCollection {
     public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
         let bindings = this.config.get(bindingKey, []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) =>
-            this.findField(DataUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
+            this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
     }
 
-    protected getConstructor<T>(this: T): new(...args: any[]) => T {
-        return this.constructor as new(...args: any[]) => T;
+    protected getConstructor<T>(this: T): new (...args: any[]) => T {
+        return this.constructor as new (...args: any[]) => T;
     }
 
     /**
@@ -195,13 +195,13 @@ export class OptionCollection {
         if (this.databases.length) {
             // By default, set the initial database to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredDatabase = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
                 configuredTableKeys[0]).database;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredDatabase = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
+                configuredDatabase = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
             }
 
             if (configuredDatabase) {
@@ -248,13 +248,13 @@ export class OptionCollection {
         if (this.tables.length > 0) {
             // By default, set the initial table to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredTable = !configuredTableKeys.length ? null : DataUtil.deconstructTableName(dataset.tableKeys,
+            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
                 configuredTableKeys[0]).table;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredTable = DataUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
+                configuredTable = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
             }
 
             if (configuredTable) {
@@ -277,18 +277,18 @@ export class OptionCollection {
 export class WidgetOptionCollection extends OptionCollection {
     /**
      * @constructor
-     * @arg {function} createOptionsCallback A callback function to create the options.
-     * @arg {Dataset} dataset The current dataset.
-     * @arg {string} defaultTitle The default value for the injected 'title' option.
-     * @arg {number} defaultLimit The default value for the injected 'limit' option.
+     * @arg {Dataset} [dataset] The current dataset.
+     * @arg {function} [createOptionsCallback] A callback function to create the options.
+     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
+     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
      * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        protected createOptionsCallback: () => WidgetOption[],
-        protected dataset: Dataset,
-        defaultTitle: string,
-        defaultLimit: number,
-        config?: OptionConfig
+        protected dataset: Dataset = Dataset.get(),
+        protected createOptionsCallback: () => WidgetOption[] = () => [],
+        defaultTitle: string = '',
+        defaultLimit: number = 0,
+        config: OptionConfig = new OptionConfig({})
     ) {
         super(config);
 
@@ -310,7 +310,7 @@ export class WidgetOptionCollection extends OptionCollection {
      * @override
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dataset, this.title, this.limit, this.config);
+        let copy = new (this.getConstructor())(this.dataset, this.createOptionsCallback, this.title, this.limit, this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -349,24 +349,24 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
     /**
      * @constructor
-     * @arg {function} createOptionsCallback A callback function to create the options.
-     * @arg {function} createOptionsForLayerCallback A callback function to create the options for the layers (if any).
-     * @arg {Dataset} dataset The current dataset.
-     * @arg {string} defaultTitle The default value for the injected 'title' option.
-     * @arg {number} defaultLimit The default value for the injected 'limit' option.
-     * @arg {boolean} defaultLayer Whether to add a default layer.
+     * @arg {Dataset} [dataset] The current dataset.
+     * @arg {function} [createOptionsCallback] A callback function to create the options.
+     * @arg {function} [createOptionsForLayerCallback] A callback function to create the options for the layers (if any).
+     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
+     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
+     * @arg {boolean} [defaultLayer] Whether to add a default layer.
      * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        createOptionsCallback: () => WidgetOption[],
-        protected createOptionsForLayerCallback: () => WidgetOption[],
-        dataset: Dataset,
-        defaultTitle: string,
-        defaultLimit: number,
-        defaultLayer: boolean,
-        config?: OptionConfig
+        dataset: Dataset = Dataset.get(),
+        createOptionsCallback: () => WidgetOption[] = () => [],
+        protected createOptionsForLayerCallback: () => WidgetOption[] = () => [],
+        defaultTitle: string = '',
+        defaultLimit: number = 0,
+        defaultLayer: boolean = false,
+        config: OptionConfig = new OptionConfig({})
     ) {
-        super(createOptionsCallback, dataset, defaultTitle, defaultLimit, config);
+        super(dataset, createOptionsCallback, defaultTitle, defaultLimit, config);
 
         // Backwards compatibility (configFilter deprecated and renamed to filter).
         this.filter = this.filter || this.config.get('configFilter', null);
@@ -385,7 +385,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * Adds a new layer to this option collection and returns the layer.
      */
     public addLayer(layerBindings: any = {}): WidgetOptionCollection {
-        let layerOptions = new WidgetOptionCollection(this.createOptionsForLayerCallback, this.dataset,
+        let layerOptions = new WidgetOptionCollection(this.dataset, this.createOptionsForLayerCallback,
             'Layer ' + this._nextLayerIndex++, this.limit, new OptionConfig(layerBindings));
         this.layers.push(layerOptions);
         return layerOptions;
@@ -398,7 +398,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * @override
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dataset,
+        let copy = new (this.getConstructor())(this.dataset, this.createOptionsCallback, this.createOptionsForLayerCallback,
             this.title, this.limit, false, this.config);
         copy.layers = this.layers.map((layer) => layer.copy());
         return this.copyCommonProperties(copy);
@@ -437,7 +437,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 }
 
 export interface ConfigurableWidget {
-    options: WidgetOptionCollection;
+    options: RootWidgetOptionCollection;
     changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;

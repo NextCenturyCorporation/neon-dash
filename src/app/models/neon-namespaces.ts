@@ -245,7 +245,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Taxonomy Viewer',
     type: 'taxonomyViewer',
-    icon: 'taxonomy_viewer-03'
+    icon: 'taxonomy_viewer'
 }, {
     name: 'Text Cloud',
     type: 'textCloud',

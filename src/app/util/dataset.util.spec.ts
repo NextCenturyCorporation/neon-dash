@@ -12,32 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataUtil } from './data.util';
+import { DatasetUtil } from './dataset.util';
 
-describe('Data Util Tests', () => {
+describe('Dataset Util Tests', () => {
     it('deconstructDotted should work appropriately', () => {
-        expect(DataUtil.deconstructDottedReference('')).toEqual({
+        expect(DatasetUtil.deconstructDottedReference('')).toEqual({
             datastore: '',
             database: '',
             table: '',
             field: ''
         });
 
-        expect(DataUtil.deconstructDottedReference('a.b')).toEqual({
+        expect(DatasetUtil.deconstructDottedReference('a.b')).toEqual({
             datastore: 'a',
             database: 'b',
             table: '',
             field: ''
         });
 
-        expect(DataUtil.deconstructDottedReference('...b')).toEqual({
+        expect(DatasetUtil.deconstructDottedReference('...b')).toEqual({
             datastore: '',
             database: '',
             table: '',
             field: 'b'
         });
 
-        expect(DataUtil.deconstructDottedReference('a.b.c.d.e.f')).toEqual({
+        expect(DatasetUtil.deconstructDottedReference('a.b.c.d.e.f')).toEqual({
             datastore: 'a',
             database: 'b',
             table: 'c',

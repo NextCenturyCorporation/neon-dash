@@ -23,10 +23,11 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { DashboardService } from '../../services/dashboard.service';
+import { CompoundFilterDesign } from '../../services/filter.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
@@ -82,6 +83,10 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
+    drawBoundary() {
+        /* NO-OP */
+    }
+
     doCustomInitialization(__mapContainer: ElementRef) {
         /* NO-OP */
     }
@@ -119,7 +124,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+    component.options.layers[0] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -144,7 +149,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+    component.options.layers[1] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
@@ -1071,15 +1076,56 @@ describe('Component: Map', () => {
         // TODO
     });
 
-    it('redrawFilterBox with no filter arguments does remove old filter box', () => {
+    it('redrawFilterBox with filter arguments does draw one new filter box', () => {
         component.assignTestMap();
-        let mapSpy = component.spyOnTestMap('removeFilterBox');
-        (component as any).redrawFilterBox([]);
+        let mapSpy = component.spyOnTestMap('drawBoundary');
+        const filters = [1, 2, 3, 4].map((val) => ({
+            root: CompoundFilterType.AND,
+            datastore: 'ds1',
+            database: NeonDatabaseMetaData.get({ name: 'db1' }),
+            table: NeonTableMetaData.get({ name: 'tb1' }),
+            value: val,
+            operator: val < 3 ? '<=' : '>=',
+            field: NeonFieldMetaData.get({ columnName: val % 2 ? 'latitudeField' : 'longitudeField' })
+        }));
+
+        const col = new WidgetOptionCollection(component['dashboardState'].asDataset());
+        const lat = NeonFieldMetaData.get({
+            columnName: 'latitudeField'
+        });
+        const lon = NeonFieldMetaData.get({
+            columnName: 'longitudeField'
+        });
+
+        col._id = 'testLayer1';
+        col.databases = [];
+        col.database = NeonDatabaseMetaData.get({ name: 'db1' });
+        col.fields = [lat, lon];
+        col[lat.columnName] = lat;
+        col[lon.columnName] = lon;
+        col.tables = [];
+        col.table = NeonTableMetaData.get({ name: 'tb1' });
+        col.title = 'Layer A';
+        col.unsharedFilterField = NeonFieldMetaData.get();
+        col.unsharedFilterValue = '';
+        component.options.layers[0] = col;
+
+        component['redrawFilterBox']([{
+            root: CompoundFilterType.AND,
+            type: CompoundFilterType.AND,
+            name: 'blah',
+            filters
+        } as CompoundFilterDesign]);
         expect(mapSpy.calls.count()).toEqual(1);
     });
 
-    it('redrawFilterBox with filter arguments does draw one new filter box', () => {
-        // TODO THOR-1103
+    it('redrawFilterBox with no filter arguments does remove old filter box', () => {
+        component.assignTestMap();
+        let mapSpy = component.spyOnTestMap('removeFilterBox');
+        component['redrawFilterBox']([
+
+        ]);
+        expect(mapSpy.calls.count()).toEqual(1);
     });
 
     it('redrawFilterBox with multiple filter arguments does draw multiple new filter boxes', () => {

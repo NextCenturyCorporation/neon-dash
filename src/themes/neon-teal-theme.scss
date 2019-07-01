@@ -1,3 +1,18 @@
+/**
+ * Copyright 2019 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 $teal-theme-primary: #367588;
 $teal-theme-primary-lighter: #AFD4DE;
 $teal-theme-primary-darker: #254855;
@@ -6,12 +21,12 @@ $teal-theme-accent: #54C8CD;
 $teal-theme-accent-lighter: #8BFBFF;
 $teal-theme-accent-darker: #00979C;
 
-$teal-theme-grey: #666666;
-$teal-theme-grey-lighter: #999999;
-$teal-theme-grey-darker: #333333;
+// $teal-theme-black: #666666;
+// $teal-theme-black-lighter: #999999;
+$teal-theme-black-darker: #333333;
 
 $teal-theme-white: #F2F2F2;
-$teal-theme-white-lighter: #FFFFFF;
+// $teal-theme-white-lighter: #FFFFFF;
 $teal-theme-white-darker: #D7D7D7;
 
 $teal-theme-base: (
@@ -30,61 +45,58 @@ $teal-theme-base: (
     A400: $teal-theme-accent,
     A700: $teal-theme-accent-darker,
     contrast: (
-        50: $teal-theme-grey-darker,
-        100: $teal-theme-grey-darker,
-        200: $teal-theme-grey-darker,
-        300: $teal-theme-white-lighter,
-        400: $teal-theme-white-lighter,
-        500: $teal-theme-white-lighter,
-        600: $teal-theme-white-lighter,
-        700: $teal-theme-white-lighter,
-        800: $teal-theme-white-lighter,
-        900: $teal-theme-white-lighter,
-        A100: $teal-theme-grey-darker,
-        A200: $teal-theme-grey-darker,
-        A400: $teal-theme-grey-darker,
-        A700: $teal-theme-white-lighter
+        50: $teal-theme-black-darker,
+        100: $teal-theme-black-darker,
+        200: $teal-theme-black-darker,
+        300: $teal-theme-white,
+        400: $teal-theme-white,
+        500: $teal-theme-white,
+        600: $teal-theme-white,
+        700: $teal-theme-white,
+        800: $teal-theme-white,
+        900: $teal-theme-white,
+        A100: $teal-theme-black-darker,
+        A200: $teal-theme-black-darker,
+        A400: $teal-theme-black-darker,
+        A700: $teal-theme-white
     )
 );
 
-// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L674
-// TODO Update default angular material design light theme background as needed.
-// sass-lint:disable-block function-name-format
+// Based on https://github.com/angular/components/blob/master/src/material/core/theming/_palette.scss#L673
 $teal-theme-background: (
-    status-bar:               map_get($mat-grey, 300),
-    app-bar:                  map_get($mat-grey, 100),
-    background:               map_get($mat-grey, 50),
-    hover:                    rgba(black, 0.04),
-    card:                     white,
-    dialog:                   white,
-    disabled-button:          rgba(black, 0.12),
-    raised-button:            white,
-    focused-button:           $dark-focused,
-    selected-button:          map_get($mat-grey, 300),
-    selected-disabled-button: map_get($mat-grey, 400),
-    disabled-button-toggle:   map_get($mat-grey, 200),
-    unselected-chip:          map_get($mat-grey, 300),
-    disabled-list-option:     map_get($mat-grey, 200),
+    status-bar:               $teal-theme-white,
+    app-bar:                  $teal-theme-white,
+    background:               $teal-theme-white,
+    hover:                    $teal-theme-accent,
+    card:                     $teal-theme-white,
+    dialog:                   $teal-theme-white,
+    disabled-button:          $teal-theme-white-darker,
+    raised-button:            $teal-theme-primary,
+    focused-button:           $teal-theme-white-darker,
+    selected-button:          $teal-theme-accent,
+    selected-disabled-button: $teal-theme-white-darker,
+    disabled-button-toggle:   $teal-theme-white-darker,
+    unselected-chip:          $teal-theme-primary,
+    disabled-list-option:     $teal-theme-white-darker,
 );
 
-// https://github.com/angular/material2/blob/master/src/lib/core/theming/_palette.scss#L710
-// TODO Update default angular material design light theme foreground as needed.
+// Based on https://github.com/angular/components/blob/master/src/material/core/theming/_palette.scss#L710
 $teal-theme-foreground: (
-    base:              black,
-    divider:           $dark-dividers,
-    dividers:          $dark-dividers,
-    disabled:          $dark-disabled-text,
-    disabled-button:   rgba(black, 0.26),
-    disabled-text:     $dark-disabled-text,
-    elevation:         black,
-    hint-text:         $dark-disabled-text,
-    secondary-text:    $dark-secondary-text,
-    icon:              rgba(black, 0.54),
-    icons:             rgba(black, 0.54),
-    text:              rgba(black, 0.87),
-    slider-min:        rgba(black, 0.87),
-    slider-off:        rgba(black, 0.26),
-    slider-off-active: rgba(black, 0.38),
+    base:              $teal-theme-black-darker,
+    divider:           $teal-theme-black-darker,
+    dividers:          $teal-theme-black-darker,
+    disabled:          $teal-theme-black-darker,
+    disabled-button:   $teal-theme-black-darker,
+    disabled-text:     $teal-theme-black-darker,
+    elevation:         $teal-theme-black-darker,
+    hint-text:         $teal-theme-black-darker,
+    secondary-text:    $teal-theme-black-darker,
+    icon:              $teal-theme-black-darker,
+    icons:             $teal-theme-black-darker,
+    text:              $teal-theme-black-darker,
+    slider-min:        $teal-theme-black-darker,
+    slider-off:        $teal-theme-black-darker,
+    slider-off-active: $teal-theme-black-darker,
 );
 
 $teal-theme-primary-palette: mat-palette($teal-theme-base, 500, 50, 900);
@@ -104,17 +116,23 @@ $teal-theme: (
     @include angular-material-theme($teal-theme);
 
     /* DO NOT USE SASS VARIABLES ($VAR) HERE!  YOU MUST HARDCODE ALL COLORS! */
-    --color-accent: #54C8CD;
-    --color-accent-contrast: #333333;
-    --color-accent-transparent: rgba(84, 200, 205, 0.33);
-    --color-primary: #367588;
-    --color-primary-contrast: #F2F2F2;
-    --color-primary-transparent: rgba(54, 117, 136, 0.33);
-    --color-background: #F2F2F2;
-    --color-background-white: #FFFFFF;
-    --color-background-contrast: #D7D7D7;
-    --color-text-header: #666666;
-    --color-text-main: #333333;
+    --color-background: #F2F2F2; // $teal-theme-white
+    --color-background-contrast: #D7D7D7; // $teal-theme-white-darker
+    --color-body: #F2F2F2; // $teal-theme-white
+    --color-border: #54C8CD; // $teal-theme-accent
+    --color-text: #333333; // $teal-theme-black-darker
+
+    --color-dash-item-selectable: #54C8CD; // $teal-theme-accent
+    --color-dash-item-selectable-text: #F2F2F2; // $teal-theme-white
+    --color-dash-item-unselected: #367588; // $teal-theme-primary
+    --color-dash-item-unselected-text: #F2F2F2; // $teal-theme-white
+
+    --color-data-item-selectable: #54C8CD; // $teal-theme-accent
+    --color-data-item-selectable-contrast: #00979C; // $teal-theme-accent-darker
+    --color-data-item-selectable-text: #333333; // $teal-theme-black-darker
+    --color-data-item-selected: #8BFBFF; // $teal-theme-accent-lighter
+    --color-data-item-selected-area: rgba(139, 251, 255, 0.33); // $teal-theme-accent-lighter
+    --color-data-item-selected-text: #333333; // $teal-theme-black-darker
 
     --color-set-1: rgb(94, 80, 143); // #5E508F deep purple
     --color-set-2: rgb(255, 135, 55); // #FF8737 orange
@@ -132,7 +150,7 @@ $teal-theme: (
     --color-set-light-5: rgb(255, 139, 158); // #FF8B9E pink
     --color-set-light-6: rgb(105, 204, 255); // #69CCFF blue
     --color-set-light-7: rgb(255, 255, 82); // #FFFF52 yellow
-    --color-set-light-8: rgb(54, 154, 82); // #369A52 sea green
+    --color-set-light-8: rgb(157, 255, 175); // #369A52 sea green
 
     --color-set-dark-1: rgb(49, 39, 97); // #312761 deep purple
     --color-set-dark-2: rgb(198, 88, 0); // #C65800 orange
@@ -159,7 +177,7 @@ $teal-theme: (
     --color-set-light-5-transparency-medium: rgba(255, 139, 158, 0.66);
     --color-set-light-6-transparency-medium: rgba(105, 204, 255, 0.66);
     --color-set-light-7-transparency-medium: rgba(255, 255, 82, 0.66);
-    --color-set-light-8-transparency-medium: rgba(54, 154, 82, 0.66);
+    --color-set-light-8-transparency-medium: rgba(157, 255, 175, 0.66);
 
     --color-set-dark-1-transparency-medium: rgba(49, 39, 97, 0.66);
     --color-set-dark-2-transparency-medium: rgba(198, 88, 0, 0.66);
@@ -186,7 +204,7 @@ $teal-theme: (
     --color-set-light-5-transparency-high: rgba(255, 139, 158, 0.33);
     --color-set-light-6-transparency-high: rgba(105, 204, 255, 0.33);
     --color-set-light-7-transparency-high: rgba(255, 255, 82, 0.33);
-    --color-set-light-8-transparency-high: rgba(54, 154, 82, 0.33);
+    --color-set-light-8-transparency-high: rgba(157, 255, 175, 0.33);
 
     --color-set-dark-1-transparency-high: rgba(49, 39, 97, 0.33);
     --color-set-dark-2-transparency-high: rgba(198, 88, 0, 0.33);

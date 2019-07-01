@@ -19,7 +19,7 @@ import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData
 import * as uuidv4 from 'uuid/v4';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
-import { DataUtil } from '../util/data.util';
+import { DatasetUtil } from '../util/dataset.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -291,10 +291,14 @@ export class FilterUtil {
             if (this.isCompoundFilterDesign(filter)) {
                 out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
             } else if (this.isSimpleFilterDesign(filter)) {
+                let val = filter.value;
+                if (typeof val === 'number' && (/[<>]=?/).test(filter.operator) && (/[.]\d{4,100}/).test(`${val}`)) {
+                    val = parseFloat(val.toFixed(3));
+                }
                 out.push([
                     `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
                     filter.operator,
-                    filter.value,
+                    val,
                     filter.root
                 ]);
             }
@@ -314,7 +318,7 @@ export class FilterUtil {
         } // Simple filter
         const [field, operator, value, root] = simple as string[];
         return {
-            ...DataUtil.deconstructDottedReference(field),
+            ...DatasetUtil.deconstructDottedReference(field),
             operator,
             value,
             root: root || 'or'

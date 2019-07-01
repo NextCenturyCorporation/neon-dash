@@ -50,6 +50,8 @@ export class DashboardServiceMock extends DashboardService {
     static init(svc: DashboardServiceMock) {
         const datastore = DATASTORE;
 
+        svc.config.fileName = '-';
+
         svc.setActiveDatastore(datastore);
 
         const dashboard = NeonDashboardLeafConfig.get({

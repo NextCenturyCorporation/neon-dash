@@ -58,20 +58,11 @@ describe('Component: TextCloud', () => {
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeTruthy();
-    });
-
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
         expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
         expect(component.options.sizeField).toEqual(NeonFieldMetaData.get());
-    });
-
-    it('has expected class properties', () => {
-        // TODO This color should not be hard-coded...
-        expect(component.textColor).toBe('#367588');
     });
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
@@ -292,7 +283,7 @@ describe('Component: TextCloud', () => {
 
         expect(component.textCloudData).toEqual([{
             fontSize: '140%',
-            color: '#367588',
+            color: '#54c8cd',
             selected: false,
             value: 8,
             key: 'First',
@@ -300,7 +291,7 @@ describe('Component: TextCloud', () => {
         },
         {
             fontSize: '114.28571428571428%',
-            color: '#688c97',
+            color: '#46888b',
             selected: false,
             value: 5,
             key: 'Second',
@@ -308,7 +299,7 @@ describe('Component: TextCloud', () => {
         },
         {
             fontSize: '80%',
-            color: '#aaaaaa',
+            color: '#333333',
             selected: false,
             value: 1,
             key: 'Third',

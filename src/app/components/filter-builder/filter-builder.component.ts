@@ -23,8 +23,7 @@ import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../se
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DashboardState } from '../../models/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
+import { Dataset, NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -51,16 +50,17 @@ export class FilterBuilderComponent {
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
-    readonly dashboardState: DashboardState;
+    private _dataset: Dataset;
 
     constructor(
         public dashboardService: DashboardService,
         public filterService: InjectableFilterService,
         public searchService: AbstractSearchService
     ) {
-        this.dashboardState = dashboardService.state;
+        this._dataset = dashboardService.state.asDataset();
 
         this.dashboardService.stateSource.subscribe(() => {
+            this._dataset = this.dashboardService.state.asDataset();
             this.clearEveryFilterClause();
         });
 
@@ -74,7 +74,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this.dashboardState.asDataset());
+        filterClause.updateDatabases(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -108,7 +108,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.dashboardState.asDataset());
+        filterClause.updateTables(this._dataset);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -190,9 +190,7 @@ export class FilterBuilderComponent {
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
-                this.searchService);
-
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations, this.searchService);
             this.clearEveryFilterClause();
         }
     }

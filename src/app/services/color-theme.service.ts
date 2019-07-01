@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
-import { Color, ColorSet } from '../models/color';
+import { Color, ColorMap, ColorSet } from '../models/color';
 
 export class NeonTheme implements Theme {
     /**
      * @constructor
      * @arg {string} accent The accent color.
      * @arg {string} id The theme ID.
-     * @arg {string} main The main color.
+     * @arg {string} text The text color.
      * @arg {string} name The theme name.
      */
-    constructor(public accent: string, public id: string, public main: string, public name: string) { }
+    constructor(public accent: string, public id: string, public text: string, public name: string) {}
 }
 
 export class ColorThemeService extends AbstractColorThemeService {
-    public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#515861', 'Dark');
-    public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#39B54A', 'Green');
-    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#367588', 'Teal');
+    public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#FFFFFF', 'Dark');
+    public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#333333', 'Green');
+    public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#333333', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
@@ -104,8 +104,7 @@ export class ColorThemeService extends AbstractColorThemeService {
      */
     public getThemes(): Theme[] {
         return [
-            // TODO THOR-853 Add dark theme
-            // ColorThemeService.THEME_DARK,
+            ColorThemeService.THEME_DARK,
             // TODO THOR-852 Add green theme
             // ColorThemeService.THEME_GREEN,
             ColorThemeService.THEME_TEAL
@@ -123,22 +122,22 @@ export class ColorThemeService extends AbstractColorThemeService {
     }
 
     /**
-     * Returns the hex for the main color for the current application theme.
+     * Returns the hex for the text color for the current application theme.
      *
      * @return {string}
      * @override
      */
-    public getThemeMainColorHex(): string {
-        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).main;
+    public getThemeTextColorHex(): string {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).text;
     }
 
     /**
      * Initializes the starting colors using the given input.
      *
-     * @arg {Record<string, Record<string, Record<string, Record<string, string>>>>} colors
+     * @arg {ColorMap} colors
      * @override
      */
-    public initializeColors(colors: Record<string, Record<string, Record<string, Record<string, string>>>>): void {
+    public initializeColors(colors: ColorMap): void {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
         Object.keys(colors || {}).forEach((databaseName) => {
             Object.keys(colors[databaseName]).forEach((tableName) => {
@@ -164,7 +163,9 @@ export class ColorThemeService extends AbstractColorThemeService {
      * @override
      */
     public setTheme(id: string): void {
-        this.currentThemeId = id;
-        document.body.className = this.currentThemeId;
+        if (id !== this.currentThemeId) {
+            this.currentThemeId = id;
+            document.body.className = this.currentThemeId;
+        }
     }
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-export class DataUtil {
+export class DatasetUtil {
     /**
      * Returns dotted reference in constituent parts(datastore.database.table.field).
      */
@@ -34,7 +34,7 @@ export class DataUtil {
         tableKeys: Record<string, string>,
         tableKey: string
     ): { datastore: string, database: string, table: string, field: string } {
-        return DataUtil.deconstructDottedReference(tableKeys[tableKey] || tableKey);
+        return DatasetUtil.deconstructDottedReference(tableKeys[tableKey] || tableKey);
     }
 
     /**
@@ -44,13 +44,13 @@ export class DataUtil {
         fieldKeys: Record<string, string>,
         fieldKey: string
     ): { datastore: string, database: string, table: string, field: string } {
-        return DataUtil.deconstructDottedReference(fieldKeys[fieldKey] || fieldKey);
+        return DatasetUtil.deconstructDottedReference(fieldKeys[fieldKey] || fieldKey);
     }
 
     /**
      * Returns the field for the given field key.
      */
     static translateFieldKeyToValue(fieldKeys: Record<string, string>, fieldKey: string): string {
-        return DataUtil.deconstructFieldName(fieldKeys, fieldKey).field || fieldKey;
+        return DatasetUtil.deconstructFieldName(fieldKeys, fieldKey).field || fieldKey;
     }
 }

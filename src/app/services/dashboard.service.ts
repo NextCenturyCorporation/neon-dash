@@ -105,7 +105,6 @@ export class DashboardService {
 
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
-        this.state.modified = false;
 
         // Assign first datastore
         const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
