@@ -19,9 +19,7 @@ import {
     Component,
     OnDestroy,
     ViewEncapsulation,
-    Input,
-    ViewChildren,
-    QueryList
+    Input
 } from '@angular/core';
 
 import { MatSidenav } from '@angular/material';
@@ -30,7 +28,6 @@ import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { OptionType } from '../../models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
-import { OptionsSectionComponent } from '../options-section/options-section.component';
 
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
@@ -47,7 +44,6 @@ import * as _ from 'lodash';
 export class GearComponent implements OnDestroy {
     @Input() comp: ConfigurableWidget;
     @Input() sideNavRight: MatSidenav;
-    @ViewChildren('listChildren') listChildren: QueryList<OptionsSectionComponent>;
 
     private messenger: eventing.Messenger;
     private originalOptions: RootWidgetOptionCollection;
