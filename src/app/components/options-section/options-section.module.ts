@@ -14,29 +14,22 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GearComponent } from './gear.component';
-import { MatToolbarModule, MatFormFieldModule, MatIconModule, MatSelectModule, MatInputModule, MatButtonModule } from '@angular/material';
-import { ExportControlModule } from '../export-control/export-control.module';
-import { OptionsListModule } from '../options-list/options-list.module';
-import { OptionsSectionModule } from '../options-section/options-section.module';
+import { OptionsSectionComponent } from './options-section.component';
+import { MatToolbarModule, MatFormFieldModule, MatSelectModule, MatIconModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
+import { OptionsListModule } from '../options-list/options-list.module';
 
 @NgModule({
-    declarations: [GearComponent],
-    exports: [GearComponent],
-    entryComponents: [GearComponent],
+    declarations: [OptionsSectionComponent],
+    exports: [OptionsSectionComponent],
     imports: [
-        ExportControlModule,
-        OptionsListModule,
-        OptionsSectionModule,
-        MatButtonModule,
         MatToolbarModule,
         MatFormFieldModule,
         MatIconModule,
         MatSelectModule,
-        MatInputModule,
         FormsModule,
+        OptionsListModule,
         CommonModule
     ]
 })
-export class GearModule { }
+export class OptionsSectionModule { }
