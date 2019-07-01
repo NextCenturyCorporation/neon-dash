@@ -24,10 +24,10 @@ import {
 import { MapComponent } from './map.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService, CompoundFilterDesign } from '../../services/filter.service';
-import { ColorThemeService } from '../../services/color-theme.service';
+import { CompoundFilterDesign } from '../../services/filter.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
@@ -182,10 +182,10 @@ describe('Component: Map', () => {
         ],
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractColorThemeService, useClass: ColorThemeService }
+            InjectableColorThemeService
 
         ],
         imports: [
@@ -256,7 +256,7 @@ describe('Component: Map', () => {
         let filter4 = new Map<string, any>().set('filterFields', [2, 4]);
         let filter5 = new Map<string, any>().set('filterFields', [5]);
 
-        let colorThemeService = getService(AbstractColorThemeService);
+        let colorThemeService = getService(InjectableColorThemeService);
 
         let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
         let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
@@ -1189,10 +1189,10 @@ describe('Component: Map with config', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractColorThemeService, useClass: ColorThemeService },
+            InjectableColorThemeService,
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',

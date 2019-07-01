@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { inject } from '@angular/core/testing';
 
 import { AggregationType } from '../models/widget-option';
 import { CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
+import { ConnectionService } from './connection.service';
 import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
-
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { query } from 'neon-framework';
 
@@ -28,15 +26,9 @@ import { query } from 'neon-framework';
 describe('Service: Search', () => {
     let service: SearchService;
 
-    initializeTestBed('Search Service', {
-        providers: [
-            SearchService
-        ]
+    beforeEach(() => {
+        service = new SearchService(new ConnectionService());
     });
-
-    beforeEach(inject([SearchService], (searchService) => {
-        service = searchService;
-    }));
 
     it('buildCompoundFilterClause does return expected filter clause', () => {
         expect(service.buildCompoundFilterClause([

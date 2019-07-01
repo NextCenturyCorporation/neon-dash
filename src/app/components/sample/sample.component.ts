@@ -31,7 +31,8 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -76,7 +77,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     /* eslint-disable @typescript-eslint/no-useless-constructor */
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,

@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 
 import { AggregationType } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface QueryPayload { }
 
 export enum CompoundFilterType {
     AND = 'and',
@@ -43,15 +39,9 @@ export interface FilterClause { }
 
 export interface QueryGroup { }
 
+export interface QueryPayload { }
 /* eslint-enable @typescript-eslint/no-empty-interface */
 
-/**
- * A service to run searches.
- *
- * @class AbstractSearchService
- * @abstract
- */
-@Injectable()
 export abstract class AbstractSearchService {
     /**
      * Returns a new compound filter clause using the given list of filter clauses.  If only one filter clause is given, just return that

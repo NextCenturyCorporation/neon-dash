@@ -27,11 +27,12 @@ import {
 
 import { eventing } from 'neon-framework';
 
-import { AbstractColorThemeService } from '../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterService } from '../services/filter.service';
+import { FilterDataSource, FilterDesign } from '../services/filter.service';
+import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../models/neon-grid-item';
@@ -123,14 +124,19 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     private currentDashboardId: string;
 
+    private _filterChangeData: {
+        callerId: string;
+        changeCollection: Map<FilterDataSource[], FilterDesign[]>;
+    };
+
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
         private domSanitizer: DomSanitizer,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public colorThemeService: AbstractColorThemeService,
+        public colorThemeService: InjectableColorThemeService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
         public location: Location,
@@ -237,8 +243,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.simpleFilter.updateSimpleFilterConfig();
             this.toggleDashboardSelectorDialog(false);
             this.refreshDashboard();
-        } else {
-            this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
+        } else if (this._filterChangeData) {
+            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId, this._filterChangeData.changeCollection);
+            this._filterChangeData = null;
         }
 
         this.currentDashboardId = state.id;
@@ -363,6 +370,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.filterService.overrideFilterChangeNotifier(this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
@@ -379,12 +387,15 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
     }
 
     @DashboardModified()
-    onFiltersChanged() {
+    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) {
+        this._filterChangeData = {
+            callerId: callerId,
+            changeCollection: changeCollection
+        };
         const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
         this.router.navigate(pathParts, {
             fragment: this.filterService.getFiltersToSaveInURL(),

@@ -17,12 +17,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
-import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractColorThemeService } from './services/abstract.color-theme.service';
+import { AbstractSearchService } from './services/abstract.search.service';
+import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
-import { FilterService } from './services/filter.service';
-import { SearchService } from './services/search.service';
-import { ColorThemeService } from './services/color-theme.service';
+import { InjectableFilterService } from './services/injectable.filter.service';
+import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
 
@@ -52,16 +52,16 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
     ],
     providers: [
         { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-        DashboardService,
-        FilterService,
         ConfigService,
-        {
-            provide: AbstractSearchService,
-            useClass: SearchService
-        },
+        DashboardService,
         {
             provide: AbstractColorThemeService,
-            useClass: ColorThemeService
+            useClass: InjectableColorThemeService
+        },
+        InjectableFilterService,
+        {
+            provide: AbstractSearchService,
+            useClass: InjectableSearchService
         }
     ],
     entryComponents: [AppComponent, DynamicDialogComponent],
