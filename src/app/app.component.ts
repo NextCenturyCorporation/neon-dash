@@ -40,8 +40,8 @@ export class AppComponent implements OnInit {
         this.router.events
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.service.setActiveByURL(window.location.toString(), this.baseHref)),
-                distinctUntilKeyChanged('projectTitle')
+                mergeMap(() => this.service.setActiveByURL(window.location, this.baseHref)),
+                distinctUntilKeyChanged('fileName')
             )
             .subscribe((config) => {
                 this.loading = false;
