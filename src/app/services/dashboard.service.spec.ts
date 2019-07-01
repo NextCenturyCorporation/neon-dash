@@ -15,7 +15,8 @@
 import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
-import { NeonConfig, NeonDatastoreConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
+import { NeonDatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -81,10 +82,6 @@ describe('Service: DashboardService', () => {
             type: '',
             databases: {}
         });
-    });
-
-    it('getCurrentDatabase does return undefined', () => {
-        expect(dashboardService.state.getDatabase()).not.toBeDefined();
     });
 });
 
@@ -427,10 +424,6 @@ describe('Service: DashboardService with Mock Data', () => {
         }));
 
         expect(dashboardService.state.findRelationDataList()).toEqual([]);
-    });
-
-    it('getCurrentDatabase does return expected object', () => {
-        expect(extractNames(dashboardService.state.getDatabase())).toEqual(extractNames(DashboardServiceMock.DATABASES.testDatabase1));
     });
 
     it('translateFieldKeyToValue does return expected string', () => {

@@ -97,8 +97,8 @@ describe('Component: Dashboard Selector', () => {
         component.updateDashboardState(dashboards.choices.dash1);
         expect(spy.calls.count()).toEqual(1);
         const [path, params] = spy.calls.argsFor(0);
-        expect(path).toEqual([]);
-        expect(params.queryParams).toEqual({ path: 'dash1' });
+        expect(path).toEqual(['-', 'dash1']);
+        expect(params.queryParams).toBeUndefined();
     }));
 
     it('selectDashboard() should set dashboardChoice if no more choices exists', (() => {

@@ -32,12 +32,12 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
@@ -225,7 +225,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef,
@@ -263,30 +263,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
             datastore: '',
@@ -317,13 +293,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('nodeField', 'Node Field', true, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('nodeNameField', 'Node Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('targetNameField', 'Target Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('linkField', 'Link Field', true, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('linkNameField', 'Link Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('nodeColorField', 'Node Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('edgeColorField', 'Edge Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('targetColorField', 'Target Color Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('xPositionField', 'X Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('yPositionField', 'Y Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('xTargetPositionField', 'X Target Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('isReified', 'Data Format', false, [{
                 prettyName: 'Tabular',
@@ -356,30 +345,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Creates and returns an array of field options for a layer for the visualization.
+     * Creates and returns an array of options for layers of visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptionsForLayer(): WidgetOption[] {
         return [
             new WidgetFieldOption('idField', 'Id Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('nameField', 'Name Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('colorField', 'Color Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
-            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for layers of visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    public createLayerNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
             new WidgetFreeTextOption('layerType', 'Layer Type', '', false)
         ];
     }
@@ -916,7 +894,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             // If there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
             if (colorField && this.prettifiedNodeLabels.length === 0) {
-                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
+                color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
                     colorMapVal).getComputedCss(this.visualization);
             }
 
@@ -931,7 +909,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         let shortName = this.labelCleanUp(colorMapVal);
                         for (const nodeLabel of this.prettifiedNodeLabels) {
                             if (nodeLabel === shortName) {
-                                color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
+                                color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
                                     nodeLabel).getComputedCss(this.visualization);
                                 break;
                             }
@@ -959,7 +937,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         // If there is a valid colorField and no modifications to the legend labels, override the default colorString
         if (colorField && this.prettifiedEdgeLabels.length === 0) {
-            color = this.widgetService.getColor(this.options.database.name, this.options.table.name, colorField,
+            color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
                 colorMapVal).getComputedCss(this.visualization);
         }
 
@@ -974,7 +952,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 for (const edgeLabel of this.prettifiedEdgeLabels) {
                     if (edgeLabel === shortName) {
                         colorMapVal = edgeLabel;
-                        color = this.widgetService.getColor(this.options.database.name, this.options.table.name,
+                        color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name,
                             colorField, edgeLabel).getComputedCss(this.visualization);
                         colorObject = { color: color, highlight: color };
                         break;
@@ -1177,10 +1155,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     updateLegend() {
         let colorKeys: string[] = [];
         if (this.options.nodeColorField.columnName !== '') {
-            colorKeys.push(this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+            colorKeys.push(this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
                 this.options.nodeColorField.columnName));
         } else if (this.options.edgeColorField.columnName !== '') {
-            colorKeys.push(this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+            colorKeys.push(this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
                 this.options.edgeColorField.columnName));
         }
         this.colorKeys = colorKeys;

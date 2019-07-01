@@ -16,20 +16,20 @@ import { inject } from '@angular/core/testing';
 
 import { AbstractSearchService } from './abstract.search.service';
 import { DashboardService } from './dashboard.service';
-import { WidgetService } from './widget.service';
+import { ColorThemeService } from './color-theme.service';
 
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { FilterService } from './filter.service';
 
-describe('Service: Widget', () => {
+describe('Service: Color Theme', () => {
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    let service: WidgetService;
+    let service: ColorThemeService;
 
     initializeTestBed('Widget Service', {
         providers: [
-            WidgetService,
+            ColorThemeService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             FilterService
@@ -37,8 +37,8 @@ describe('Service: Widget', () => {
         ]
     });
 
-    beforeEach(inject([WidgetService], (widgetService: WidgetService) => {
-        service = widgetService;
+    beforeEach(inject([ColorThemeService], (colorThemeService: ColorThemeService) => {
+        service = colorThemeService;
     }));
 
     it('does have expected default theme and no existing ColorSets', () => {
@@ -73,7 +73,15 @@ describe('Service: Widget', () => {
         // TODO THOR-936
     });
 
-    it('getThemeMainColorHex does return expected theme color', () => {
+    it('getThemeTextColorHex does return expected theme color', () => {
+        // TODO THOR-936
+    });
+
+    it('initializeColors does update colorKeyToColorSet with given hex colors', () => {
+        // TODO THOR-936
+    });
+
+    it('initializeColors does update colorKeyToColorSet with given RGB colors', () => {
         // TODO THOR-936
     });
 
@@ -83,9 +91,9 @@ describe('Service: Widget', () => {
 });
 
 describe('ColorSet', () => {
-    initializeTestBed('Widget Service ColorSet', {
+    initializeTestBed('Color Theme Service ColorSet', {
         providers: [
-            WidgetService,
+            ColorThemeService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock }
 
