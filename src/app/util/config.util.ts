@@ -24,7 +24,7 @@ interface URLConfigState {
 }
 
 export class ConfigUtil {
-    static DEFAULT_CONFIG_NAME = '-'; // TODO: Remove when config moved to saved
+    static DEFAULT_CONFIG_NAME = '-'; // TODO THOR-1300 Remove when config moved to saved
 
     static encodeFiltersMap = {
         '[': '⟦',
