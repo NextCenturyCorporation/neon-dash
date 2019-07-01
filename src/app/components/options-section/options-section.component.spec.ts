@@ -30,7 +30,6 @@ import {
     OptionChoices
 } from '../../models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { DashboardState } from '../../models/dashboard-state';
 
 describe('Component: Options-Section', () => {
     let component: OptionsSectionComponent;
@@ -74,7 +73,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getRequiredFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -84,7 +83,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getRequiredNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -94,7 +93,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -104,7 +103,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getOptionalFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));

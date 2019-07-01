@@ -141,3 +141,15 @@ export interface Dataset {
     fieldKeys: Record<string, string>;
     relations: SingleField[][][];
 }
+
+export class Dataset {
+    static get(dataset: DeepPartial<Dataset> = {}) {
+        return {
+            datastores: [],
+            tableKeys: {},
+            fieldKeys: {},
+            relations: [],
+            ...dataset
+        } as Dataset;
+    }
+}

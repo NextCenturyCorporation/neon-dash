@@ -294,11 +294,11 @@ describe('WidgetOptionCollection', () => {
     let options: WidgetOptionCollection;
 
     beforeEach(() => {
-        options = new WidgetOptionCollection(() => [
+        options = new WidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
-        ], DATASET, 'Test Title', 100, new OptionConfig({
+        ], 'Test Title', 100, new OptionConfig({
             tableKey: 'table_key_2',
             limit: '1234',
             title: 'Test Custom Title',
@@ -388,11 +388,11 @@ describe('WidgetOptionCollection with no bindings', () => {
     let options: WidgetOptionCollection;
 
     beforeEach(() => {
-        options = new WidgetOptionCollection(() => [
+        options = new WidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
-        ], DATASET, 'Test Title', 100);
+        ], 'Test Title', 100);
     });
 
     it('does have databases, fields, tables, and custom properties with default values', () => {
@@ -415,7 +415,7 @@ describe('RootWidgetOptionCollection', () => {
     let options: RootWidgetOptionCollection;
 
     beforeEach(() => {
-        options = new RootWidgetOptionCollection(() => [
+        options = new RootWidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
@@ -423,7 +423,7 @@ describe('RootWidgetOptionCollection', () => {
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
             new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
-        ], DATASET, 'Test Title', 100, true, new OptionConfig({
+        ], 'Test Title', 100, true, new OptionConfig({
             tableKey: 'table_key_2',
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
@@ -542,7 +542,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
     let options: RootWidgetOptionCollection;
 
     beforeEach(() => {
-        options = new RootWidgetOptionCollection(() => [
+        options = new RootWidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
             new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
@@ -550,7 +550,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
             new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
-        ], DATASET, 'Test Title', 100, true);
+        ], 'Test Title', 100, true);
     });
 
     it('does have databases, fields, tables, custom properties, and custom layers with default values', () => {
