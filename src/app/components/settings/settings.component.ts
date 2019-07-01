@@ -21,7 +21,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { eventing } from 'neon-framework';
@@ -56,7 +56,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         private dashboardService: DashboardService,
         private dialog: MatDialog,
         public injector: Injector,
-        public colorThemeService: AbstractColorThemeService
+        public colorThemeService: InjectableColorThemeService
     ) {
         this.injector = injector;
         this.messenger = new eventing.Messenger();

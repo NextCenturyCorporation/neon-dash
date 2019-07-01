@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 
 import {
     AbstractSearchService,
@@ -24,7 +23,7 @@ import {
     QueryPayload
 } from './abstract.search.service';
 import { AggregationType } from '../models/widget-option';
-import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
+import { ConnectionService, NeonConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';
 
@@ -46,12 +45,6 @@ interface ExportField {
     pretty: string;
 }
 
-/**
- * A service to run searches.
- *
- * @class SearchService
- */
-@Injectable()
 export class SearchService extends AbstractSearchService {
     constructor(private connectionService: ConnectionService) {
         super();

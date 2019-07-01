@@ -21,15 +21,16 @@ import { DashboardService } from './dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
+    FilterChangeListener,
     FilterCollection,
     FilterDataSource,
+    FilterDesign,
     FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from './filter.service';
 
 import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/dataset';
-import { neonEvents } from '../models/neon-namespaces';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
@@ -3353,7 +3354,8 @@ describe('FilterService with no filters', () => {
     it('should have expected properties with no filters', () => {
         expect(filterService['filterCollection']).toBeDefined();
         expect((filterService['filterCollection'])['data'].size).toEqual(0);
-        expect(filterService['messenger']).toBeDefined();
+        expect(filterService['_listeners']).toEqual(new Map<string, FilterChangeListener>());
+        expect(filterService['_notifier'].toString()).toEqual(filterService.notifyFilterChangeListeners.bind(filterService).toString());
     });
 
     it('getFilters with no filters should return expected array', () => {
@@ -3584,11 +3586,12 @@ describe('FilterService with filters', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
         expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-        expect(filterService['messenger']).toBeDefined();
+        expect(filterService['_listeners']).toEqual(new Map<string, FilterChangeListener>());
+        expect(filterService['_notifier'].toString()).toEqual(filterService.notifyFilterChangeListeners.bind(filterService).toString());
     });
 
-    it('deleteFilter should delete filter and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('deleteFilter should delete filter and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilter('testCaller', design1A);
 
@@ -3602,16 +3605,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('deleteFilter should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilter('testCaller', relationDesign1);
 
@@ -3627,14 +3627,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('deleteFilters should delete all filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('deleteFilters should delete all filters and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilters('testCaller', searchService);
 
@@ -3648,14 +3645,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('deleteFilters with filter-list-to-delete should delete argument filters', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [design1A]);
 
@@ -3669,16 +3663,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('deleteFilters should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [relationDesign1]);
 
@@ -3694,14 +3685,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('deleteFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilters('testCaller', searchService, [{
             datastore: '',
@@ -3727,8 +3715,8 @@ describe('FilterService with filters', () => {
         expect(spy.calls.count()).toEqual(0);
     });
 
-    it('exchangeFilters should add new filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('exchangeFilters should add new filters and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -3772,14 +3760,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('exchangeFilters should delete old filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('exchangeFilters should delete old filters and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -3813,14 +3798,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters should work with custom root filters', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.OR,
@@ -3864,16 +3846,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters should also add new relation filters', () => {
         generateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.exchangeFilters(
             'testCaller',
@@ -3916,16 +3895,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([relationDesign2]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters should also delete old relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
@@ -3982,14 +3958,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([testDesign2]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters with filter-list-to-delete should delete argument filters', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [design1A]);
 
@@ -4003,16 +3976,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters with filter-list-to-delete should also delete relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService, [relationDesign1]);
 
@@ -4028,14 +3998,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('exchangeFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.exchangeFilters('testCaller', [], [], searchService);
 
@@ -4241,6 +4208,59 @@ describe('FilterService with filters', () => {
         }]);
 
         expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A, design2A])).toEqual([]);
+    });
+
+    it('notifyFilterChangeListeners does call each listener callback function', () => {
+        let calledA = 0;
+        let calledB = 0;
+
+        const expectedCallerId = 'testCaller';
+        const expectedChangeCollection = new Map<FilterDataSource[], FilterDesign[]>();
+
+        const listenerA = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
+            expect(callerId).toBe(expectedCallerId);
+            expect(changeCollection).toBe(expectedChangeCollection);
+            calledA++;
+        };
+
+        const listenerB = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
+            expect(callerId).toBe(expectedCallerId);
+            expect(changeCollection).toBe(expectedChangeCollection);
+            calledB++;
+        };
+
+        filterService['_listeners'] = new Map<string, FilterChangeListener>();
+
+        filterService['_listeners'].set('testIdA', listenerA);
+        filterService['_listeners'].set('testIdB', listenerB);
+
+        filterService.notifyFilterChangeListeners(expectedCallerId, expectedChangeCollection);
+
+        expect(calledA).toBe(1);
+        expect(calledB).toBe(1);
+    });
+
+    it('overrideFilterChangeNotifier does update _notifier', () => {
+        const notifier = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
+            // Do nothing.
+        };
+
+        filterService.overrideFilterChangeNotifier(notifier);
+
+        expect(filterService['_notifier']).toBe(notifier);
+    });
+
+    it('registerFilterChangeListener does update _listeners', () => {
+        const listener = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
+            // Do nothing.
+        };
+
+        filterService['_listeners'] = new Map<string, FilterChangeListener>();
+
+        filterService.registerFilterChangeListener('testIdA', listener);
+
+        expect(filterService['_listeners'].get('testIdA')).toBe(listener);
+        expect(filterService['_listeners'].get('testIdB')).toBe(undefined);
     });
 
     it('setFiltersFromConfig should change filterCollection', () => {
@@ -4449,8 +4469,8 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].value).toEqual(20);
     });
 
-    it('toggleFilters should add new filters to an existing data source and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('toggleFilters should add new filters to an existing data source and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4488,14 +4508,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should add new filters to a new data source and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('toggleFilters should add new filters to a new data source and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4539,14 +4556,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should delete old argument filters and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('toggleFilters should delete old argument filters and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.toggleFilters('testCaller', [design1A, design1C], [], searchService);
 
@@ -4560,14 +4574,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('toggleFilters should add new argument filters, delete old argument filters, and publish a FILTERS_CHANGED event', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+    it('toggleFilters should add new argument filters, delete old argument filters, and call the _notifier', () => {
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.AND,
@@ -4611,14 +4622,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should work with custom root filters', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
             root: CompoundFilterType.OR,
@@ -4662,16 +4670,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should also add new relation filters', () => {
         generateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.toggleFilters(
             'testCaller',
@@ -4714,16 +4719,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([relationDesign2]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should keep old relation filters and add new relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
@@ -4782,16 +4784,13 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([relationDesign2, testDesign2]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should also delete old relation filters', () => {
         activateRelationFilters();
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.toggleFilters(
             'testCaller',
@@ -4814,10 +4813,7 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should keep non-argument relation filters and delete argument relation filters', () => {
@@ -4855,7 +4851,7 @@ describe('FilterService with filters', () => {
         filterService['filterCollection'].setFilters(relationSource1, [relationFilter1, testFilter1]);
         filterService['filterCollection'].setFilters(relationSource2, [relationFilter2, testFilter2]);
 
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.toggleFilters('testCaller',
             [relationDesign1], datasetService.state.findRelationDataList(), searchService);
@@ -4874,14 +4870,11 @@ describe('FilterService with filters', () => {
         expect(actual.get(keys[3])).toEqual([testDesign2]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([neonEvents.FILTERS_CHANGED, {
-            change: actual,
-            caller: 'testCaller'
-        }]);
+        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
     it('toggleFilters should not publish any event if no filters are affected', () => {
-        let spy = spyOn(filterService['messenger'], 'publish');
+        let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.toggleFilters('testCaller', [], [], searchService);
 
@@ -5380,6 +5373,22 @@ describe('FilterService with filters', () => {
                 value: 50
             } as SimpleFilterDesign]
         } as CompoundFilterDesign)).toEqual(false);
+    });
+
+    it('unregisterFilterChangeListener does update _listeners', () => {
+        const listener = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
+            // Do nothing.
+        };
+
+        filterService['_listeners'] = new Map<string, FilterChangeListener>();
+
+        filterService['_listeners'].set('testIdA', listener);
+        filterService['_listeners'].set('testIdB', listener);
+
+        filterService.unregisterFilterChangeListener('testIdA');
+
+        expect(filterService['_listeners'].get('testIdA')).toBe(undefined);
+        expect(filterService['_listeners'].get('testIdB')).toBe(listener);
     });
 
     it('updateCollectionWithGlobalCompatibleFilters should update argument filter collection and call redraw callback', () => {

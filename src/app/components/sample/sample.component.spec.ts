@@ -24,8 +24,7 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { SearchService } from '../../services/search.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { NeonFieldMetaData } from '../../models/dataset';
 
@@ -80,7 +79,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 class TestSampleComponent extends SampleComponent {
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
@@ -130,7 +129,7 @@ describe('Component: Sample', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
 
@@ -554,8 +553,8 @@ describe('Component: Sample with config', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
-            { provide: AbstractSearchService, useClass: SearchService },
+            InjectableFilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },
