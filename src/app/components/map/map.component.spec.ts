@@ -124,7 +124,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+    component.options.layers[0] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -149,7 +149,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+    component.options.layers[1] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
@@ -1089,7 +1089,7 @@ describe('Component: Map', () => {
             field: NeonFieldMetaData.get({ columnName: val % 2 ? 'latitudeField' : 'longitudeField' })
         }));
 
-        const col = new WidgetOptionCollection(() => [], component['dashboardState'].asDataset(), 'Test Layer', 100);
+        const col = new WidgetOptionCollection(component['dashboardState'].asDataset());
         const lat = NeonFieldMetaData.get({
             columnName: 'latitudeField'
         });
