@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-    NeonDatastoreConfig, NeonDatabaseMetaData,
-    NeonTableMetaData, NeonFieldMetaData, SingleField, NeonDashboardLeafConfig
-} from './types';
-
-import * as _ from 'lodash';
-import { ConfigUtil } from '../util/config.util';
+import { Dataset, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData, SingleField } from './dataset';
+import { NeonDashboardLeafConfig } from './types';
+import { DatasetUtil } from '../util/dataset.util';
 
 export class DashboardState {
     modified = false;
@@ -36,14 +32,14 @@ export class DashboardState {
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructTableName(key: string) {
-        return ConfigUtil.deconstructDottedReference(this.dashboard.tables[key] || key);
+        return DatasetUtil.deconstructTableName(this.dashboard.tables, key);
     }
 
     /**
      * Returns database name from matching table key within the dashboard passed in.
      */
     deconstructFieldName(key: string) {
-        return ConfigUtil.deconstructDottedReference(this.dashboard.fields[key] || key);
+        return DatasetUtil.deconstructFieldName(this.dashboard.fields, key);
     }
 
     /**
@@ -131,16 +127,9 @@ export class DashboardState {
     }
 
     /**
-     * Returns the databases for the active datastore.
-     */
-    public getDatabases(): NeonDatabaseMetaData[] {
-        return Object.values(this.datastore.databases).sort((db1, db2) => db1.name.localeCompare(db2.name));
-    }
-
-    /**
      * Returns the database with the given name or an Object with an empty name if no such database exists in the datastore.
      * @param  The database name
-     * @return The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * @return The database containing {String} name, {Array} fields, and {Object} labelOptions if a match exists
      * or undefined otherwise.
      */
     public getDatabaseWithName(databaseName: string): NeonDatabaseMetaData {
@@ -148,28 +137,8 @@ export class DashboardState {
     }
 
     /**
-     * Returns the database with the given Dashboard name or an Object with an empty name if no such database exists in the datastore.
-     * @return The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.  Dashboard name only includes part of the database pretty name
-     */
-    public getDatabase(): NeonDatabaseMetaData {
-        if (!this.dashboard) {
-            return undefined;
-        }
-        let tableKeys = this.dashboard.tables;
-
-        let keyArray = Object.keys(tableKeys || {});
-
-        if (keyArray.length) {
-            const { database } = this.deconstructTableName(keyArray[0]);
-            return this.getDatabaseWithName(database);
-        }
-        return undefined;
-    }
-
-    /**
      * Returns the tables for the database with the given name in the active datastore.
-     * @return An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
+     * @return An array of table Objects containing {String} name, {Array} fields, and {Object} labelOptions.
      */
     public getTables(databaseName: string): { [key: string]: NeonTableMetaData } {
         let database = this.getDatabaseWithName(databaseName);
@@ -178,7 +147,7 @@ export class DashboardState {
 
     /**
      * Returns the table with the given name or an Object with an empty name if no such table exists in the database with the given name.
-     * @return {Object} The table containing {String} name, {Array} fields, and {Object} mappings if a match exists
+     * @return {Object} The table containing {String} name, {Array} fields, and {Object} labelOptions if a match exists
      * or undefined otherwise.
      */
     public getTableWithName(databaseName: string, tableName: string): NeonTableMetaData {
@@ -215,88 +184,6 @@ export class DashboardState {
         }
 
         return table.fields;
-    }
-
-    /**
-     * Returns a sorted copy of the array of field objects for the database and table with the given names,
-     * ignoring hidden fields if specified.
-     * @param Whether to ignore fields in the table marked as hidden (optional)
-     * @return The sorted copy of the array of field objects if a match exists or an empty array otherwise.
-     */
-    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): NeonFieldMetaData[] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return [];
-        }
-
-        let fields = _.cloneDeep(table.fields).filter((field) => (ignoreHiddenFields ? !field.hide : true));
-
-        fields.sort((field1, field2) => {
-            if (!field1.prettyName || !field2.prettyName) {
-                return 0;
-            }
-            // Compare field pretty names and ignore case.
-            return (field1.prettyName.toUpperCase() < field2.prettyName.toUpperCase()) ?
-                -1 : ((field1.prettyName.toUpperCase() > field2.prettyName.toUpperCase()) ? 1 : 0);
-        });
-
-        return fields;
-    }
-
-    /**
-    /**
-     * Returns the the first table in the database with the given name containing all the given mappings.
-     * @param The array of mapping keys that the table must contain.
-     * @return The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
-     * or undefined otherwise.
-     */
-    public getFirstTableWithMappings(databaseName: string, keys: string[]): NeonTableMetaData {
-        let tables = this.getTables(databaseName);
-        for (const table of Object.values(tables)) {
-            for (let key of keys) {
-                if (!(table.mappings[key])) {
-                    return table;
-                }
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Returns an object containing the first database, table, and fields found in the active datastore with all the given mappings.
-     * @param The array of mapping keys that the database and table must contain.
-     * @return An object containing {String} database, {String} table,
-     * and {Object} fields linking {String} mapping to {String} field.
-     * If no match was found, an empty object is returned instead.
-     */
-    public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
-        for (let database of Object.values(this.datastore.databases)) {
-            for (let table of Object.values(database.tables)) {
-                let success = true;
-                let fields = {};
-                if (keys && keys.length > 0) {
-                    for (let key of keys) {
-                        if (table.mappings[key]) {
-                            fields[key] = table.mappings[key];
-                        } else {
-                            success = false;
-                        }
-                    }
-                }
-
-                if (success) {
-                    return {
-                        database: database.name,
-                        table: table.name,
-                        fields: fields
-                    };
-                }
-            }
-        }
-
-        return {};
     }
 
     /**
@@ -399,6 +286,18 @@ export class DashboardState {
      * If field key is referenced in config file, find field value using current dashboard.
      */
     public translateFieldKeyToValue(fieldKey: string): string {
-        return this.deconstructFieldName(fieldKey).field || fieldKey;
+        return DatasetUtil.translateFieldKeyToValue(this.dashboard.fields, fieldKey);
+    }
+
+    /**
+     * Returns the current dashboard state as a dataset.
+     */
+    public asDataset(): Dataset {
+        return {
+            datastores: [this.datastore],
+            tableKeys: this.dashboard.tables,
+            fieldKeys: this.dashboard.fields,
+            relations: this.findRelationDataList()
+        };
     }
 }

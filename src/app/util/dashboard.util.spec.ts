@@ -13,10 +13,7 @@
  * limitations under the License.
  */
 
-import {
-    NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData,
-    NeonTableMetaData
-} from '../models/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 
 import { DashboardUtil } from './dashboard.util';
 
@@ -40,10 +37,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table1: {
                                 prettyName: 'Table 1',
-                                mappings: {
-                                    mappingA: 'fieldA',
-                                    mappingB: 'fieldB'
-                                },
                                 labelOptions: {
                                     valueA: 'labelA',
                                     valueB: 'labelB'
@@ -76,10 +69,6 @@ describe('Util: DashboardUtil', () => {
             labelOptions: {
                 valueA: 'labelA',
                 valueB: 'labelB'
-            },
-            mappings: {
-                mappingA: 'fieldA',
-                mappingB: 'fieldB'
             }
         });
         let database1 = NeonDatabaseMetaData.get({
@@ -113,10 +102,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table1: {
                                 prettyName: 'Table 1',
-                                mappings: {
-                                    mappingA: 'fieldA',
-                                    mappingB: 'fieldB'
-                                },
                                 labelOptions: {
                                     valueA: 'labelA',
                                     valueB: 'labelB'
@@ -146,10 +131,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table2: {
                                 prettyName: 'Table 2',
-                                mappings: {
-                                    mappingC: 'fieldC',
-                                    mappingD: 'fieldD'
-                                },
                                 labelOptions: {
                                     valueC: 'labelC',
                                     valueD: 'labelD'
@@ -186,10 +167,6 @@ describe('Util: DashboardUtil', () => {
                                 valueA: 'labelA',
                                 valueB: 'labelB'
                             },
-                            mappings: {
-                                mappingA: 'fieldA',
-                                mappingB: 'fieldB'
-                            },
                             fields: [
                                 { columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' },
                                 { columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' }
@@ -214,10 +191,6 @@ describe('Util: DashboardUtil', () => {
                             labelOptions: {
                                 valueC: 'labelC',
                                 valueD: 'labelD'
-                            },
-                            mappings: {
-                                mappingC: 'fieldC',
-                                mappingD: 'fieldD'
                             },
                             fields: [
                                 { columnName: 'fieldC', prettyName: 'Field C', hide: false, type: 'text' },
@@ -245,10 +218,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table1: {
                                 prettyName: 'Table 1',
-                                mappings: {
-                                    mappingA: 'fieldA',
-                                    mappingB: 'fieldB'
-                                },
                                 labelOptions: {
                                     valueA: 'labelA',
                                     valueB: 'labelB'
@@ -280,10 +249,6 @@ describe('Util: DashboardUtil', () => {
             valueA: 'labelA',
             valueB: 'labelB'
         };
-        table1.mappings = {
-            mappingA: 'fieldA',
-            mappingB: 'fieldB'
-        };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
         let datastore1 = NeonDatastoreConfig.get({ name: 'datastore1', host: 'host1', type: 'type1' });
@@ -300,10 +265,6 @@ describe('Util: DashboardUtil', () => {
         table1.labelOptions = {
             valueA: 'labelA',
             valueB: 'labelB'
-        };
-        table1.mappings = {
-            mappingA: 'fieldA',
-            mappingB: 'fieldB'
         };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
@@ -322,10 +283,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table2: {
                                 prettyName: 'Table 2',
-                                mappings: {
-                                    mappingC: 'fieldC',
-                                    mappingD: 'fieldD'
-                                },
                                 labelOptions: {
                                     valueC: 'labelC',
                                     valueD: 'labelD'
@@ -357,10 +314,6 @@ describe('Util: DashboardUtil', () => {
             valueC: 'labelC',
             valueD: 'labelD'
         };
-        table2.mappings = {
-            mappingC: 'fieldC',
-            mappingD: 'fieldD'
-        };
         let database2 = NeonDatabaseMetaData.get({ name: 'database2', prettyName: 'Database 2' });
         database2.tables = { [table2.name]: table2 };
         let datastore2 = { name: 'datastore2', host: 'host2', type: 'type2', databases: {} };
@@ -377,10 +330,6 @@ describe('Util: DashboardUtil', () => {
         table1.labelOptions = {
             valueA: 'labelA',
             valueB: 'labelB'
-        };
-        table1.mappings = {
-            mappingA: 'fieldA',
-            mappingB: 'fieldB'
         };
         let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
         database1.tables = { [table1.name]: table1 };
@@ -399,10 +348,6 @@ describe('Util: DashboardUtil', () => {
                         tables: {
                             table1: {
                                 prettyName: 'Table 1',
-                                mappings: {
-                                    mappingA: 'fieldA',
-                                    mappingB: 'fieldB'
-                                },
                                 labelOptions: {
                                     valueA: 'labelA',
                                     valueB: 'labelB'

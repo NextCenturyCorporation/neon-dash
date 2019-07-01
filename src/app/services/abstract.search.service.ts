@@ -13,18 +13,12 @@
  * limitations under the License.
  */
 import { Injectable } from '@angular/core';
+
+import { AggregationType } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface QueryPayload { }
-
-export enum AggregationType {
-    AVG = 'avg',
-    COUNT = 'count',
-    MAX = 'max',
-    MIN = 'min',
-    SUM = 'sum'
-}
 
 export enum CompoundFilterType {
     AND = 'and',
@@ -122,6 +116,16 @@ export abstract class AbstractSearchService {
     public abstract canRunSearch(datastoreType: string, datastoreHost: string): boolean;
 
     /**
+     * Returns an aggregation name from the given descriptor.
+     *
+     * @arg {string} [descriptor]
+     * @return {string}
+     */
+    public getAggregationName(descriptor?: string): string {
+        return descriptor ? ('_' + descriptor) : '_aggregation';
+    }
+
+    /**
      * Runs the given search using the given datastore type and host.
      *
      * @arg {string} datastoreType
@@ -140,8 +144,9 @@ export abstract class AbstractSearchService {
      * @return {QueryPayload}
      * @abstract
      */
-    public abstract transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
-    { [key: string]: { [value: string]: string } }): QueryPayload;
+    public abstract transformFilterClauseValues(queryPayload: QueryPayload,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): QueryPayload;
 
     /**
      * Transforms the given search query payload into an object to export.
@@ -157,6 +162,18 @@ export abstract class AbstractSearchService {
         queryPayload: QueryPayload,
         uniqueName: string
     ): any;
+
+    /**
+     * Transforms the values in the given search query results using the given map of keys-to-values-to-labels.
+     *
+     * @arg {{ data: any[] }} queryResults
+     * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
+     * @return {{ data: any[] }}
+     * @abstract
+     */
+    public abstract transformQueryResultsValues(queryResults: { data: any[] },
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): { data: any[] };
 
     /**
      * Sets the aggregation data on the given search query payload.

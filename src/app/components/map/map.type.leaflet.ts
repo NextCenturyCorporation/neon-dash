@@ -244,17 +244,26 @@ export class LeafletNeonMap extends AbstractMap {
         this.map.zoomOut(1);
     }
 
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Filter support
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    private handleBoxZoom(event: any) {
-        let bounds: L.LatLngBounds = event.boxZoomBounds;
-        this.isDrawnFilterExact = true;
+    drawBox(bounds: L.LatLngBoundsExpression) {
         if (!this.box) {
             this.box = new L.Rectangle(bounds, { color: this.getBoxColor(), weight: 1, fill: false }).addTo(this.map);
         } else {
-            this.box.setBounds(bounds).setStyle({ color: this.getBoxColor() });
+            this.box.setBounds(bounds);
         }
+    }
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Filter support
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    drawBoundary(topLeft: [number, number], bottomRight: [number, number]): void {
+        this.drawBox([topLeft, bottomRight]);
+        setTimeout(this.map.fitBounds.bind(this.map, [topLeft, bottomRight], { animate: false }), 250);
+    }
+
+    private handleBoxZoom(event: any) {
+        let bounds: L.LatLngBounds = event.boxZoomBounds;
+        this.isDrawnFilterExact = true;
+        this.drawBox(bounds);
         this.filterListener.filterByLocation(new BoundingBoxByDegrees(
             bounds.getSouth(),
             bounds.getNorth(),

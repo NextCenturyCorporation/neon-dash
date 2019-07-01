@@ -24,10 +24,10 @@ import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
-import { AbstractWidgetService } from '../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../services/abstract.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { FilterService } from '../services/filter.service';
-import { WidgetService } from '../services/widget.service';
+import { ColorThemeService } from '../services/color-theme.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
@@ -64,7 +64,7 @@ describe('Dashboard', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: AbstractColorThemeService, useClass: ColorThemeService }
         ]
     }, false);
 
@@ -123,7 +123,7 @@ describe('Dashboard', () => {
         component.onFiltersChanged();
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual([]);
+        expect(path).toEqual(['context.html']);
         expect(params.queryParamsHandling).toEqual('merge');
         expect(params.fragment).toBeTruthy();
     });
@@ -844,7 +844,7 @@ describe('Dashboard Custom', () => {
             { provide: DashboardService, useClass: EmptyDashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: AbstractColorThemeService, useClass: ColorThemeService }
         ]
     }, false);
 
