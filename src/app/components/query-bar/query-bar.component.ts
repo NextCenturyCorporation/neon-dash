@@ -18,12 +18,12 @@ import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
@@ -62,7 +62,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         filterService: FilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog
     ) {
