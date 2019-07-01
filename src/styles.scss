@@ -456,6 +456,7 @@ body {
 
     &.neon-toolbar-navbar {
         border-bottom: 0;
+        font-size: 20px;
         height: 50px !important;
         line-height: 40px !important;
         min-height: 50px !important;
@@ -463,20 +464,11 @@ body {
     }
 
     &.neon-toolbar-thin {
+        font-size: 14px;
         line-height: 20px !important;
         height: 32px !important;
         min-height: 32px !important;
         padding: 6px !important;
-    }
-
-    &.titlebar-header-text {
-        font-size: 20px;
-        font-weight: 400;
-    }
-
-    &.widget-header-text {
-        font-size: 14px;
-        font-weight: 500;
     }
 }
 
