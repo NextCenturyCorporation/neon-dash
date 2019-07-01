@@ -165,4 +165,27 @@ describe('Config Util Tests', () => {
         expect(ConfigUtil.findDashboardByKey(config, ''.split('.'))).toBeUndefined();
         expect(ConfigUtil.findDashboardByKey(config, [])).toEqual(config);
     });
+
+    it('should properly parse URL states', () => {
+        // Ensure baseHREF works
+        for (const ctx of ['ctx', '/ctx', 'ctx/', '/ctx/']) {
+            const res = ConfigUtil.getUrlState('http://localhost/ctx/file/path1/path2?random#filters', ctx);
+            expect(res.dashboardPath).toEqual('path1.path2');
+            expect(res.pathParts).toEqual(['file', 'path1', 'path2']);
+            expect(res.filters).toEqual('filters');
+        }
+
+        // Ensure path parsing is happy
+        for (const path of ['path1/path2', '/path1/path2', '/path1/path2/']) {
+            const res = ConfigUtil.getUrlState(`http://localhost/file/${path}?random#filters`, '/');
+            expect(res.dashboardPath).toEqual('path1.path2');
+            expect(res.pathParts).toEqual(['file', 'path1', 'path2']);
+            expect(res.filters).toEqual('filters');
+        }
+
+        // Ensure default filename if missing
+        const res = ConfigUtil.getUrlState('http://localhost/?random#filters', '/');
+        expect(res.filename).toEqual(ConfigUtil.DEFAULT_CONFIG_NAME);
+        expect(res.fullPath).toEqual(`/${ConfigUtil.DEFAULT_CONFIG_NAME}?random=`);
+    });
 });
