@@ -21,7 +21,8 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef
+    ViewContainerRef,
+    Inject
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
@@ -45,7 +46,8 @@ import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
-import { Location } from '@angular/common';
+import { Location, APP_BASE_HREF } from '@angular/common';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -119,7 +121,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentTitle: string;
+    private currentDashboardId: string;
 
     constructor(
         public changeDetection: ChangeDetectorRef,
@@ -131,7 +133,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
-        public location: Location
+        public location: Location,
+        @Inject(APP_BASE_HREF) private baseHref: string
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -156,8 +159,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showCustomConnectionButton = true;
         this.snackBar = snackBar;
 
-        this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
-        this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .subscribe((config) => this.onConfigChange(config));
+        this.dashboardService.stateSource
+            .subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .pipe(distinctUntilKeyChanged('fileName'))
+            .subscribe((config) => {
+                this.setTitleAndIcon(
+                    config.projectTitle || 'Neon',
+                    config.projectIcon || 'assets/favicon.blue.ico?v=1'
+                );
+            });
     }
 
     get currentDashboard() {
@@ -180,11 +193,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', config.errors);
         }
 
-        this.setTitleAndIcon(
-            config.projectTitle || 'Neon',
-            config.projectIcon || 'assets/favicon.blue.ico?v=1'
-        );
-
         const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
 
         if (dashboard) {
@@ -199,17 +207,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const url = new URL(window.location.toString());
-        const urlFilter = url.searchParams.get('filter');
         const currentFilter = this.filterService.getFiltersToSaveInURL();
-
-        if (!urlFilter && currentFilter) {
-            const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(`${path}?${url.searchParams.toString()}#${currentFilter}`);
+        const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
+        if ((!filters && currentFilter) || url.pathname === '/') {
+            this.location.replaceState(`${fullPath}#${currentFilter}`);
         }
 
         // Clean on different dashboard
-        if (this.currentTitle !== state.dashboard.fullTitle) {
+        if (this.currentDashboardId !== state.id) {
+            this.dashboardService.state.modified = false;
+
             this.pendingInitialRegistrations = this.widgets.size;
 
             this.gridState.clear();
@@ -232,7 +239,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
         }
 
-        this.currentTitle = state.dashboard.fullTitle;
+        this.currentDashboardId = state.id;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {
@@ -376,7 +383,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @DashboardModified()
     onFiltersChanged() {
-        this.router.navigate([], {
+        const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
+        this.router.navigate(pathParts, {
             fragment: this.filterService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root

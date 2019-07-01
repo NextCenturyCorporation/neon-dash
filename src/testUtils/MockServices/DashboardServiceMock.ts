@@ -84,6 +84,8 @@ export class DashboardServiceMock extends DashboardService {
             hasUpdatedFields: true
         });
 
+        svc.config.fileName = '-';
+
         svc.setActiveDatastore(datastore);
 
         const dashboard = NeonDashboardLeafConfig.get({

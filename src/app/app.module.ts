@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
+import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
 import { AbstractSearchService } from './services/abstract.search.service';
 import { AbstractWidgetService } from './services/abstract.widget.service';
@@ -34,6 +34,10 @@ import { AppLazyModule } from './app-lazy.module';
 import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
 import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
 
+export function getBaseHref(platformLocation: PlatformLocation): string {
+    return platformLocation.getBaseHrefFromDOM();
+}
+
 @NgModule({
     declarations: [AppComponent],
     imports: [
@@ -47,6 +51,7 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
         AppLazyModule
     ],
     providers: [
+        { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
         DashboardService,
         FilterService,
         ConfigService,
