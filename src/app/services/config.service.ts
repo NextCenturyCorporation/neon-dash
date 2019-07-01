@@ -151,7 +151,7 @@ export class ConfigService {
         const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
 
         setTimeout(() => {
-            // TODO: handle when we get rid of default
+            // TODO THOR-1300 Handle when we get rid of default
             from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe(
                 catchError((err) => this.getDefault(environment.config).pipe(
                     tap((conf) => {
