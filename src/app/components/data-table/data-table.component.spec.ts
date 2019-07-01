@@ -22,7 +22,7 @@ import { DataTableComponent } from './data-table.component';
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';

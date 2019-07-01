@@ -1,4 +1,4 @@
-<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+<mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
     <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}
     </div>
     <span class="fill-remaining"></span>
@@ -29,22 +29,19 @@
                         <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
                             (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
                             [class.node-content-wrapper-focused]="node.isFocused">
-                            <div *ngIf="node.data.description.columnName !== options.valueField.columnName">
+                            <div *ngIf="node.data.description != options.valueField.columnName">
                                 <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
                                     [checked]="node.data.checked">
                                 <span>{{ node.data.name }}
                                     <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
                                 </span>
                             </div>
-                            <div *ngIf="node.data.description.columnName === options.valueField.columnName">
-                                <span>{{ node.data.name }}
-                                    <em *ngIf="node.data.duplicateLabel">[{{node.data.externalId}}]</em>
-                                </span>
+                            <div *ngIf="node.data.description === options.valueField.columnName">
+                                <span>{{ node.data.name }}<span *ngIf="node.data.nodeCount > 0"></span></span>
                             </div>
                         </div>
                     </div>
-                    <tree-node-children [class.leaf]="node.data.leafCount > node.data.nodeCount/2" [node]="node" [templates]="templates">
-                    </tree-node-children>
+                    <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
                 </div>
             </ng-template>
         </tree-root>

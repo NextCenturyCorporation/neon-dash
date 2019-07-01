@@ -6,14 +6,14 @@
 
     <!-- MultiLayer Support-->
     <div *ngIf="modifiedOptions.layers.length">
-        <mat-toolbar class="subheader tappable" color="primary" (click)="handleCreateLayer()">
+        <mat-toolbar class="neon-toolbar-thin tappable" (click)="handleCreateLayer()">
             <mat-icon class="neon-icon-small">add_circle</mat-icon>
             <span class="spacer"></span>
             <div>Add Layer</div>
         </mat-toolbar>
 
         <div *ngFor="let layer of modifiedOptions.layers; let i = index;">
-            <mat-toolbar class="subheader tappable" color="primary" (click)="toggleFilter(layer)">
+            <mat-toolbar class="neon-toolbar-thin tappable" (click)="toggleFilter(layer)">
                 <span>{{ layer.title }}</span>
                 <span class="spacer" *ngIf="modifiedOptions.layers.length > 1"></span>
                 <mat-icon class="neon-icon-small" *ngIf="modifiedOptions.layers.length > 1" (click)="handleDeleteLayer(layer)">delete
@@ -43,78 +43,38 @@
                     </mat-select>
                 </mat-form-field>
 
-                <app-options-list [options]=layer [fields]=layer.fields [bindingsList]=getLayerList(layer)
-                    [updateOnChange]=updateOnChange.bind(this) [index]=i>
-                </app-options-list>
+                <!-- layer option list -->
+                <app-options-section [optionCollection]="layer" [updateOnChange]="updateOnChange.bind(this)"
+                    [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
+                    [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
+                </app-options-section>
             </div>
         </div>
     </div>
+    <!-- Non Multilayer option list-->
+    <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
+        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
+        [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
+    </app-options-section>
 
-    <mat-toolbar class="subheader" color="primary">
-        <span>Required Config</span>
-    </mat-toolbar>
+    <mat-form-field class="option-container">
+        <input matInput placeholder="Limit" [(ngModel)]="modifiedOptions.limit" (ngModelChange)="updateOnChange('limit')"
+            [name]="modifiedOptions._id + '_limit'" required="false">
 
-    <!-- Non MultiLayer Support-->
-    <div class="option-well">
-        <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
-            <mat-select placeholder="Database" [(ngModel)]="modifiedOptions.database" required="true"
-                [name]="modifiedOptions._id + '_database'" (ngModelChange)="handleChangeDatabase(modifiedOptions)"
-                [disabled]="modifiedOptions.databases.length < 2">
-                <mat-option *ngFor="let database of modifiedOptions.databases" [value]="database">
-                    {{ database.prettyName }}</mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <mat-form-field *ngIf=!modifiedOptions.layers.length class="option-container">
-            <mat-select placeholder="Table" [(ngModel)]="modifiedOptions.table" required="true" [name]="modifiedOptions._id + '_table'"
-                (ngModelChange)="handleChangeTable(modifiedOptions)" [disabled]="modifiedOptions.tables.length < 2">
-                <mat-option *ngFor="let table of modifiedOptions.tables" [value]="table">{{ table.prettyName }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <!-- Required Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredList
-            [updateOnChange]=updateOnChange.bind(this)>
-        </app-options-list>
-
-        <!-- Required Non-Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=requiredListNonField
-            [updateOnChange]=updateOnChange.bind(this)>
-        </app-options-list>
-    </div>
-
-    <mat-toolbar class="subheader tappable" (click)="toggleOptionalOptions()" color="primary">
-        <span>Optional Config</span>
-        <span class="spacer"></span>
-        <mat-icon class="neon-icon-small">{{ getIconForOptions() }}</mat-icon>
-    </mat-toolbar>
-
-    <div class="option-well" [hidden]="collapseOptionalOptions">
-        <!-- Optional Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalList
-            [updateOnChange]=updateOnChange.bind(this)>
-        </app-options-list>
-
-        <!-- Optional Non-Field Config-->
-        <app-options-list [options]=modifiedOptions [fields]=modifiedOptions.fields [bindingsList]=optionalListNonField
-            [updateOnChange]=updateOnChange.bind(this)>
-        </app-options-list>
-    </div>
+    </mat-form-field>
 
     <app-export-control [exportCallbacks]="exportCallbacks"></app-export-control>
 </form>
 
 <div class="button-footer" align="right">
-    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Cancel all field changes"
+    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Cancel all field changes"
         (click)="resetOptionsAndClose()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Refresh"
-        (click)="handleRefreshClick()">
+    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Refresh" (click)="handleRefreshClick()">
         Refresh
     </button>
-    <button mat-raised-button class="neon-button-large" color="primary" matTooltipPosition="below" matTooltip="Apply all field changes"
+    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes"
         [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
