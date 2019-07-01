@@ -27,7 +27,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
 import { SearchService } from '../../services/search.service';
 
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -194,7 +194,7 @@ describe('Component: Sample', () => {
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
                 field: 'testRequiredField1',
-                name: '_count',
+                name: '_aggregation',
                 type: 'count'
             }],
             filter: {
@@ -204,7 +204,7 @@ describe('Component: Sample', () => {
             },
             groups: ['testRequiredField1'],
             sort: {
-                field: '_count',
+                field: '_aggregation',
                 order: -1
             }
         });
@@ -225,7 +225,7 @@ describe('Component: Sample', () => {
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
                 field: 'testOptionalField1',
-                name: '_count',
+                name: '_aggregation',
                 type: 'count'
             }],
             filter: {
@@ -242,7 +242,7 @@ describe('Component: Sample', () => {
             },
             groups: ['testRequiredField1', 'testOptionalField1'],
             sort: {
-                field: '_count',
+                field: '_aggregation',
                 order: -1
             }
         });
@@ -374,10 +374,10 @@ describe('Component: Sample', () => {
         });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            _count: 2,
+            _aggregation: 2,
             testRequiredField1: 'a'
         }, {
-            _count: 1,
+            _aggregation: 1,
             testRequiredField1: 'z'
         }]);
         expect(component.visualizationData).toEqual([{
@@ -416,11 +416,11 @@ describe('Component: Sample', () => {
         });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            _count: 2,
+            _aggregation: 2,
             testOptionalField1: 'alpha',
             testRequiredField1: 'a'
         }, {
-            _count: 1,
+            _aggregation: 1,
             testOptionalField1: 'omega',
             testRequiredField1: 'z'
         }]);

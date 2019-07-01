@@ -24,7 +24,6 @@ import {
 
 import { MatSidenav } from '@angular/material';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { OptionType } from '../../models/widget-option';
 import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
@@ -61,8 +60,7 @@ export class GearComponent implements OnDestroy {
 
     constructor(
         private changeDetection: ChangeDetectorRef,
-        dashboardService: DashboardService,
-        protected widgetService: AbstractWidgetService
+        dashboardService: DashboardService
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
@@ -81,7 +79,7 @@ export class GearComponent implements OnDestroy {
     }
 
     private createEmptyOptionsCollection(): RootWidgetOptionCollection {
-        return new RootWidgetOptionCollection(() => [], () => [], new DashboardState(), '', 0, false);
+        return new RootWidgetOptionCollection(() => [], () => [], new DashboardState().asDataset(), '', 0, false);
     }
 
     /**
@@ -155,7 +153,7 @@ export class GearComponent implements OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeDatabase(options: WidgetOptionCollection): void {
-        options.updateTables(this.dashboardState);
+        options.updateTables(this.dashboardState.asDataset());
         this.changeMade = true;
     }
 
@@ -165,7 +163,7 @@ export class GearComponent implements OnDestroy {
      * @arg {any} options A WidgetOptionCollection
      */
     public handleChangeTable(options: WidgetOptionCollection): void {
-        options.updateFields(this.dashboardState);
+        options.updateFields();
         this.changeMade = true;
     }
 

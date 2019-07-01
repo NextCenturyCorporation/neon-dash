@@ -31,7 +31,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, MediaTypes } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
+import { MediaTypes } from '../../models/types';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,

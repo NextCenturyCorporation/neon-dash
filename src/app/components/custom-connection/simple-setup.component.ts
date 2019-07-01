@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
-import { NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../../models/dataset';
 import { ConnectionService, Connection } from '../../services/connection.service';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
