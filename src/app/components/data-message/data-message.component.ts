@@ -21,8 +21,6 @@ import {
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-
 @Component({
     selector: 'app-data-message',
     templateUrl: 'data-message.component.html',
@@ -34,7 +32,6 @@ export class DataMessageComponent implements OnInit {
     constructor(
         private changeDetection: ChangeDetectorRef,
         public snackBar: MatSnackBar,
-        protected widgetService: AbstractWidgetService
     ) {
     }
 

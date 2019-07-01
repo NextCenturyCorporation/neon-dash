@@ -518,6 +518,112 @@ describe('Service: Search', () => {
         });
     });
 
+    it('transformQueryResultsValues does work as expected', () => {
+        let map = {
+            field: {
+                oldValue: 'newValue'
+            }
+        };
+
+        expect(service.transformQueryResultsValues({ data: [] }, map)).toEqual({ data: [] });
+
+        expect(service.transformQueryResultsValues({
+            data: [{
+                field: 'oldValue'
+            }]
+        }, map)).toEqual({
+            data: [{
+                field: 'newValue'
+            }]
+        });
+
+        expect(service.transformQueryResultsValues({
+            data: [{
+                field: 'otherValue'
+            }]
+        }, map)).toEqual({
+            data: [{
+                field: 'otherValue'
+            }]
+        });
+
+        expect(service.transformQueryResultsValues({
+            data: [{
+                field: ['oldValue', 'otherValue']
+            }]
+        }, map)).toEqual({
+            data: [{
+                field: ['newValue', 'otherValue']
+            }]
+        });
+
+        expect(service.transformQueryResultsValues({
+            data: [{
+                otherField: 'oldValue'
+            }]
+        }, map)).toEqual({
+            data: [{
+                otherField: 'oldValue'
+            }]
+        });
+
+        expect(service.transformQueryResultsValues({
+            data: [{
+                field: 'oldValue'
+            }, {
+                field: 'newValue'
+            }, {
+                field: 'otherValue'
+            }, {
+                field: ['oldValue', 'otherValue']
+            }, {
+                otherField: 'oldValue'
+            }, {
+                field: 'oldValue',
+                otherField: 'oldValue'
+            }]
+        }, map)).toEqual({
+            data: [{
+                field: 'newValue'
+            }, {
+                field: 'newValue'
+            }, {
+                field: 'otherValue'
+            }, {
+                field: ['newValue', 'otherValue']
+            }, {
+                otherField: 'oldValue'
+            }, {
+                field: 'newValue',
+                otherField: 'oldValue'
+            }]
+        });
+    });
+
+    it('transformQueryResultsValues does not change the input data', () => {
+        let map = {
+            field: {
+                oldValue: 'newValue'
+            }
+        };
+
+        let input = [{
+            field: 'oldValue'
+        }];
+
+        let output = service.transformQueryResultsValues({
+            data: input
+        }, map);
+
+        expect(output).toEqual({
+            data: [{
+                field: 'newValue'
+            }]
+        });
+
+        expect(output.data).not.toEqual(input);
+    });
+
     it('updateAggregation does update given query payload and does not remove previous aggregations', () => {
         let input: query.Query = new query.Query();
 

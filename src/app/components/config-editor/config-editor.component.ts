@@ -17,8 +17,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { NeonConfig } from '../../models/types';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-
 import * as yaml from 'js-yaml';
 import { ConfigService } from '../../services/config.service';
 import { Subject } from 'rxjs';
@@ -41,7 +39,6 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
     constructor(
         private configService: ConfigService,
         public snackBar: MatSnackBar,
-        protected widgetService: AbstractWidgetService
     ) {
         this.snackBar = snackBar;
     }
