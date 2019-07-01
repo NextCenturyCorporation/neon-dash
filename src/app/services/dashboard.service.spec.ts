@@ -23,7 +23,6 @@ import { initializeTestBed, getConfigService } from '../../testUtils/initializeT
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
-import { SearchService } from './search.service';
 
 import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
@@ -581,7 +580,7 @@ describe('Service: DashboardService with Mock Data', () => {
             localConfigService,
             conn,
             new InjectableFilterService(),
-            new SearchService(conn)
+            new SearchServiceMock()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -643,7 +642,7 @@ describe('Service: DashboardService with Mock Data', () => {
             localConfigService,
             conn,
             new InjectableFilterService(),
-            new SearchService(conn)
+            new SearchServiceMock()
         );
 
         localDashboardService.stateSource.subscribe(() => {

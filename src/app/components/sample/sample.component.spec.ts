@@ -25,7 +25,6 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SearchService } from '../../services/search.service';
 
 import { NeonFieldMetaData } from '../../models/dataset';
 
@@ -555,7 +554,7 @@ describe('Component: Sample with config', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchService },
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },

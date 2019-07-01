@@ -21,7 +21,7 @@ import { AbstractSearchService } from './services/abstract.search.service';
 import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
 import { InjectableFilterService } from './services/injectable.filter.service';
-import { SearchService } from './services/search.service';
+import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
 
@@ -52,7 +52,7 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
         InjectableFilterService,
         {
             provide: AbstractSearchService,
-            useClass: SearchService
+            useClass: InjectableSearchService
         }
     ],
     entryComponents: [AppComponent, DynamicDialogComponent],
