@@ -95,13 +95,6 @@ describe('Dashboard', () => {
         expect(component.createFiltersComponent).toEqual(false);
     });
 
-    it('should be showing correct filter icons', () => {
-        expect(component.filtersIcon).toEqual('filters');
-        component['isFiltered'] = () => true;
-        component.changeDetection.detectChanges();
-        expect(component.filtersIcon).toEqual('filters_active');
-    });
-
     it('should correctly toggle the panels', () => {
         component.setPanel('aboutNeon', 'About Neon');
         expect(component.currentPanel).toEqual('aboutNeon');
@@ -129,7 +122,7 @@ describe('Dashboard', () => {
         component.onFiltersChanged('testCaller', null);
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual([]);
+        expect(path).toEqual(['context.html']);
         expect(params.queryParamsHandling).toEqual('merge');
         expect(params.fragment).toBeTruthy();
     });

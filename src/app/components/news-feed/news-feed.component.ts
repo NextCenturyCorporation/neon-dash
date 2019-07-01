@@ -24,8 +24,6 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
-
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
@@ -40,7 +38,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatAccordion } from '@angular/material';
 
 import * as moment from 'moment';
 
@@ -59,6 +57,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('filter') filter: ElementRef;
+    @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
 
@@ -68,7 +67,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -81,6 +79,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
+        this.redrawOnResize = true;
         this.visualizationQueryPaginates = true;
     }
 
@@ -300,6 +299,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.changeDetection.detectChanges();
     }
 
+    onResize() {
+        if (this.accordion) {
+            this['last_state'] = !this['last_state'];
+            this.accordion._openCloseAllActions.next(this['last_state']);
+        }
+    }
+
     /**
      * Selects the given item item.
      *
@@ -320,5 +326,26 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
+    }
+
+    /**
+     * Returns whether items are selectable (filterable).
+     *
+     * @return {boolean}
+     */
+    isSelectable() {
+        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
+    }
+
+    /**
+     * Returns whether the given item is selected (filtered).
+     *
+     * @arg {object} item
+     * @return {boolean}
+     */
+    isSelected(item) {
+        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
+            item[this.options.filterField.columnName]
+        )));
     }
 }

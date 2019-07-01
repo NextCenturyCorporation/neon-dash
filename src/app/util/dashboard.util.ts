@@ -17,7 +17,7 @@ import * as _ from 'lodash';
 import { NeonDashboardConfig } from '../models/types';
 import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 import { ConfigUtil } from './config.util';
-import { DataUtil } from './data.util';
+import { DatasetUtil } from './dataset.util';
 
 /**
  * Common Utility functions for dashboards, specifically
@@ -82,14 +82,14 @@ export class DashboardUtil {
                     if (filter.tableKey) {
                         let tableKey = filter.tableKey;
 
-                        const { database, table } = DataUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                        const { database, table } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
                         filter.databaseName = database;
                         filter.tableName = table;
 
                         if (filter.fieldKey) {
                             let fieldKey = filter.fieldKey;
-                            const { field: fieldName } = DataUtil.deconstructDottedReference(leaf.fields[fieldKey]);
+                            const { field: fieldName } = DatasetUtil.deconstructDottedReference(leaf.fields[fieldKey]);
 
                             filter.fieldName = fieldName;
                         } else {
@@ -121,7 +121,7 @@ export class DashboardUtil {
                 const parent = path[path.length - 1];
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DataUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                    const { database } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete parent.choices[leaf.name];

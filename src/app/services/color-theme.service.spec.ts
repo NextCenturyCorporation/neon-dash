@@ -54,7 +54,7 @@ describe('Service: Color Theme', () => {
         // TODO THOR-936
     });
 
-    it('getThemeMainColorHex does return expected theme color', () => {
+    it('getThemeTextColorHex does return expected theme color', () => {
         // TODO THOR-936
     });
 

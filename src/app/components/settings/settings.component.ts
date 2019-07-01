@@ -135,6 +135,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     setCurrentTheme(themeId: any) {
         if (themeId) {
             this.colorThemeService.setTheme(themeId);
+            this.messenger.publish(neonEvents.DASHBOARD_REFRESH, {});
         }
     }
 
