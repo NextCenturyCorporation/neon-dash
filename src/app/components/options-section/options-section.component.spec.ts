@@ -17,8 +17,8 @@ import { OptionsSectionComponent } from '../options-section/options-section.comp
 import { OptionsSectionModule } from '../options-section/options-section.module';
 
 import { Injector } from '@angular/core';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { WidgetService } from '../../services/widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { DashboardService } from '../../services/dashboard.service';
@@ -40,7 +40,7 @@ describe('Component: Options-Section', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             Injector
         ],
         imports: [
@@ -74,7 +74,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getRequiredFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -84,7 +84,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getRequiredNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -94,7 +94,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));
@@ -104,7 +104,7 @@ describe('Component: Options-Section', () => {
     });
 
     it('getOptionalFields removes options from list and returns a new list', () => {
-        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState(), 'Test Title', 100);
+        let optionList: any = new WidgetOptionCollection(() => [], new DashboardState().asDataset(), 'Test Title', 100);
 
         optionList.append(new WidgetFieldOption('field', '', true));
         optionList.append(new WidgetFreeTextOption('freeText', '', ''));

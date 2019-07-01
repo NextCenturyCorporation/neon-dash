@@ -18,10 +18,10 @@ import { } from 'jasmine-core';
 
 import { SettingsComponent } from './settings.component';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -41,7 +41,7 @@ describe('Component: Settings', () => {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            { provide: AbstractColorThemeService, useClass: ColorThemeService }
         ],
         imports: [
             MatDividerModule,

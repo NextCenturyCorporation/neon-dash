@@ -20,14 +20,14 @@ import { } from 'jasmine-core';
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { AnnotationViewerModule } from './annotation-viewer.module';
@@ -38,7 +38,7 @@ describe('Component: AnnotationViewer', () => {
 
     initializeTestBed('Annotation Viewer', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
             FilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },

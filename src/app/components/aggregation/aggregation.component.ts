@@ -36,7 +36,7 @@ import {
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
@@ -188,7 +188,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: AbstractColorThemeService,
         public visualization: ElementRef
     ) {
         super(
@@ -306,14 +306,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
                 // Falls through
             }
-            this.searchService.updateAggregation(query, AggregationType.MIN, '_date', options.xField.columnName).updateSort(query, '_date');
+            this.searchService.updateAggregation(query, AggregationType.MIN, this.searchService.getAggregationName('date'),
+                options.xField.columnName).updateSort(query, this.searchService.getAggregationName('date'));
             countField = '_' + options.granularity;
         } else if (!options.sortByAggregation) {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
             this.searchService.updateSort(query, options.xField.columnName);
         } else {
             groups.push(this.searchService.buildQueryGroup(options.xField.columnName));
-            this.searchService.updateSort(query, '_aggregation', SortOrder.DESCENDING);
+            this.searchService.updateSort(query, this.searchService.getAggregationName(), SortOrder.DESCENDING);
         }
 
         if (this.optionsTypeIsXY(options)) {
@@ -327,7 +328,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (!this.optionsTypeIsXY(options)) {
-            this.searchService.updateAggregation(query, options.aggregation, '_aggregation',
+            this.searchService.updateAggregation(query, options.aggregation, this.searchService.getAggregationName(),
                 (options.aggregation === AggregationType.COUNT ? countField : options.aggregationField.columnName));
         }
 
@@ -725,7 +726,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     initializeSubcomponent(elementRef: ElementRef, cannotSelect: boolean = false): AbstractAggregationSubcomponent {
         let subcomponentObject = null;
-        let textColorHex = this.widgetService.getThemeTextColorHex();
+        let textColorHex = this.colorThemeService.getThemeTextColorHex();
 
         switch (this.options.type) {
             case 'bar-h':
@@ -797,14 +798,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.widgetService.getColor(options.database.name, options.table.name, '',
+            groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getColor(options.database.name, options.table.name, '',
                 this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
             let color = groupsToColors.get(group);
             if (!color) {
-                color = this.widgetService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
+                color = this.colorThemeService.getColor(options.database.name, options.table.name, options.groupField.columnName, group);
                 groupsToColors.set(group, color);
             }
             return color;
@@ -816,7 +817,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 color: findGroupColor(group),
                 group: group,
                 x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : (Math.round((item._aggregation) * 10000) / 10000)
+                y: isXY ? item[options.yField.columnName] : (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
             };
         };
 
@@ -824,7 +825,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let shownResults = [];
 
         if (!isXY) {
-            queryResults = queryResults.filter((item) => item._aggregation !== 'NaN');
+            queryResults = queryResults.filter((item) => item[this.searchService.getAggregationName()] !== 'NaN');
         }
 
         if (options.xField.type === 'date' && queryResults.length) {
@@ -846,9 +847,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     break;
             }
 
-            let beginDate = options.savePrevious && this.xList.length ? this.xList[0] : queryResults[0]._date;
+            let beginDate = options.savePrevious && this.xList.length ? this.xList[0] :
+                queryResults[0][this.searchService.getAggregationName('date')];
             let endDate = options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
-                queryResults[queryResults.length - 1]._date;
+                queryResults[queryResults.length - 1][this.searchService.getAggregationName('date')];
             this.dateBucketizer.setStartDate(new Date(beginDate));
             this.dateBucketizer.setEndDate(new Date(endDate));
 
@@ -869,7 +871,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     transformations = new Array(xDomainLength).fill(undefined).map(() => []);
                     groupToTransformations.set(transformation.group, transformations);
                 }
-                let index = this.dateBucketizer.getBucketIndex(new Date(item._date));
+                let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationName('date')]));
                 // Fix the X so it is a readable date string.
                 transformation.x = moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
                 transformations[index].push(transformation);
@@ -1263,7 +1265,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         this.updateOnResize();
 
-        this.colorKeys = [this.widgetService.getColorKey(this.options.database.name, this.options.table.name,
+        this.colorKeys = [this.colorThemeService.getColorKey(this.options.database.name, this.options.table.name,
             this.options.groupField.columnName || '')];
     }
 

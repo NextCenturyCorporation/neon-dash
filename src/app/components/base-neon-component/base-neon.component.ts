@@ -26,20 +26,32 @@ import {
     FilterDesign,
     FilterService
 } from '../../services/filter.service';
-import { NeonFieldMetaData } from '../../models/types';
+import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionType,
     WidgetOption
 } from '../../models/widget-option';
-import { RootWidgetOptionCollection, WidgetOptionCollection, ConfigurableWidget } from '../../models/widget-option-collection';
+import {
+    ConfigurableWidget,
+    OptionConfig,
+    RootWidgetOptionCollection,
+    WidgetOptionCollection
+} from '../../models/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+
+export class InjectorOptionConfig extends OptionConfig {
+    public get(bindingKey: string, defaultValue: any): any {
+        // Assume config is an Angular Injector
+        return this.config.get(bindingKey, defaultValue);
+    }
+}
 
 /**
  * @class BaseNeonComponent
@@ -86,6 +98,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
     readonly dashboardState: DashboardState;
+    protected dataset: Dataset;
 
     constructor(
         protected dashboardService: DashboardService,
@@ -97,6 +110,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        this.dataset = this.dashboardState.asDataset();
+        dashboardService.stateSource.subscribe((dashboardState) => {
+            this.dataset = dashboardState.asDataset();
+        });
     }
 
     /**
@@ -326,7 +343,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService, filterDesignListToDelete);
+            this.dataset.relations, this.searchService, filterDesignListToDelete);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -349,7 +366,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService);
+            this.dataset.relations, this.searchService);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -512,10 +529,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
-        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length ||
+            response.data[0][this.searchService.getAggregationName('count')] === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
-            this.layerIdToElementCount.set(options._id, response.data[0]._count);
+            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationName('count')]);
         }
         this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
@@ -570,7 +588,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
+                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
+                        this.searchService.getAggregationName('count'), '*');
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
@@ -658,8 +677,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
+        // TODO THOR-1062 Allow multiple datastores
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), query
+            this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
         ));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
@@ -667,7 +687,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
-            callback(options, this.prettifyLabels(options, response), this.finishQueryExecution.bind(this));
+            callback(options, this.searchService.transformQueryResultsValues(response, this.getLabelOptions(options)),
+                this.finishQueryExecution.bind(this));
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
@@ -689,7 +710,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        return (!this.searchService.canRunSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost()) ||
+        // TODO THOR-1062 Allow multiple datastores
+        return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
 
@@ -956,54 +978,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns the result of converting labels in the response query data into pretty labels specified in the config.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {{data:any[]}} response
-     * @return {{data:any[]}}
-     */
-    private prettifyLabels(options: WidgetOptionCollection, response: { data: any[] }): { data: any[] } {
-        let labelOptions = this.getLabelOptions(options);
-        let labelKeys = Object.keys(labelOptions);
-        let itemKeys;
-        // Go through each item in the response data
-        for (let item of response.data) {
-            itemKeys = Object.keys(item);
-            // For each key in the data item
-            for (let key of itemKeys) {
-                // If that key exists in the labelOptions as keys for which there is a value to change
-                if (labelKeys.includes(key)) {
-                    // Data items can have arrays of values, and we have to change all of them otherwise,
-                    // there is only one, and we have to change that one
-                    let value = item[key];
-                    if (value instanceof Array) {
-                        let newItemParam = [];
-                        // For each value in that array, if that element is a key in the options,
-                        // push into the new array the pretty name, otherwize push the original value
-                        for (let element of value) {
-                            let possibleNewValue = labelOptions[key][element];
-                            let newValue = possibleNewValue ? possibleNewValue : element;
-                            newItemParam.push(newValue);
-                        }
-                        item[key] = newItemParam;
-                    } else if (labelOptions[key][value]) {
-                        // If it's not an array, check to see if its a value in the options, set it if it is
-                        item[key] = labelOptions[key][value];
-                    }
-                }
-            }
-        }
-        return response;
-    }
-
-    /**
      * Returns the labelOptions from the config for the database and table in the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        let dashboard = this.dashboardState.datastore;
-        let matchingDatabase = dashboard.databases[options.database.name];
+        // TODO THOR-1062 Allow multiple datastores
+        let datastore = this.dataset.datastores[0];
+        let matchingDatabase = datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }
@@ -1044,7 +1026,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
         let options = new RootWidgetOptionCollection(this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
-            this.dashboardState, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), injector);
+            this.dataset, visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
 
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
