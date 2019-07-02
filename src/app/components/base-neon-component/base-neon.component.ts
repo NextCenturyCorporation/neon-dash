@@ -45,7 +45,6 @@ import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
-import { query } from '@angular/core/src/render3';
 
 export class InjectorOptionConfig extends OptionConfig {
     public get(bindingKey: string, defaultValue: any): any {
