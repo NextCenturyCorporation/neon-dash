@@ -45,6 +45,7 @@ import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+import { query } from '@angular/core/src/render3';
 
 export class InjectorOptionConfig extends OptionConfig {
     public get(bindingKey: string, defaultValue: any): any {
@@ -289,6 +290,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Angular lifecycle hook:  Removes the visualization from the page and unregisters from listeners as needed.
      */
     public ngOnDestroy() {
+        let queryMap: Map<string, RequestWrapper>;
+        Array.from(this.layerIdToQueryIdToQueryObject.keys()).forEach((layerId) => {
+            queryMap = this.layerIdToQueryIdToQueryObject.get(layerId);
+            Array.from(queryMap.keys()).forEach((queryId) => {
+                queryMap.get(queryId).abort();
+            });
+        });
         this.changeDetection.detach();
         this.messenger.unsubscribeAll();
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
