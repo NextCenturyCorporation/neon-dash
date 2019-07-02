@@ -189,7 +189,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         protected colorThemeService: AbstractColorThemeService,
-        public visualization: ElementRef
+        public visualization: ElementRef,
+        private thisElementRef: ElementRef
     ) {
         super(
             dashboardService,
@@ -1423,7 +1424,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     toggleBodyContainer() {
-        let bodyContainer = document.getElementsByClassName('body-container').item(0) as HTMLElement;
+        let bodyContainer = this.thisElementRef.nativeElement.getElementsByClassName('body-container').item(0) as HTMLElement;
         bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
     }
 
