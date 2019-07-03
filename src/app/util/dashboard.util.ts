@@ -14,11 +14,10 @@
  */
 import * as _ from 'lodash';
 
-import {
-    NeonDashboardConfig, NeonDatastoreConfig, NeonDatabaseMetaData,
-    NeonTableMetaData, NeonFieldMetaData
-} from '../models/types';
+import { NeonDashboardConfig } from '../models/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 import { ConfigUtil } from './config.util';
+import { DatasetUtil } from './dataset.util';
 
 /**
  * Common Utility functions for dashboards, specifically
@@ -46,7 +45,6 @@ export class DashboardUtil {
             } else {
                 table.prettyName = table.prettyName || table.name;
                 table.fields = table.fields || [];
-                table.mappings = table.mappings || {};
                 table.labelOptions = table.labelOptions || {};
                 DashboardUtil.validateFields(table);
             }
@@ -84,14 +82,14 @@ export class DashboardUtil {
                     if (filter.tableKey) {
                         let tableKey = filter.tableKey;
 
-                        const { database, table } = ConfigUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                        const { database, table } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
                         filter.databaseName = database;
                         filter.tableName = table;
 
                         if (filter.fieldKey) {
                             let fieldKey = filter.fieldKey;
-                            const { field: fieldName } = ConfigUtil.deconstructDottedReference(leaf.fields[fieldKey]);
+                            const { field: fieldName } = DatasetUtil.deconstructDottedReference(leaf.fields[fieldKey]);
 
                             filter.fieldName = fieldName;
                         } else {
@@ -123,7 +121,7 @@ export class DashboardUtil {
                 const parent = path[path.length - 1];
 
                 for (const tableKey of tableKeys) {
-                    const { database } = ConfigUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                    const { database } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
                     if (database === invalidDatabaseName) {
                         delete parent.choices[leaf.name];
@@ -170,7 +168,6 @@ export class DashboardUtil {
 
                     // Create copies to maintain original config data.
                     outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
-                    outputTable.mappings = _.cloneDeep(configTable.mappings);
 
                     acc[outputTable.name] = outputTable;
 

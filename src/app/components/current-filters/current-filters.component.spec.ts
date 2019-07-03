@@ -44,7 +44,6 @@ describe('Component: CurrentFiltersComponent', () => {
                 name: 'table',
                 prettyName: 'Table',
                 fields: [],
-                mappings: {},
                 labelOptions: {}
             },
             {

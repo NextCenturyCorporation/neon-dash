@@ -31,7 +31,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, MediaTypes } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
+import { MediaTypes } from '../../models/types';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
@@ -670,7 +671,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             } else {
                 let img: HTMLImageElement = new Image();
-                img.src = './assets/icons/visualization/document-viewer.svg';
+                img.src = './assets/icons/dashboard/document.svg';
 
                 img.onload = () => {
                     if (this.options.viewType === ViewType.CARD) {

@@ -14,11 +14,8 @@
  */
 import { Injectable } from '@angular/core';
 
-import {
-    NeonConfig, NeonDatastoreConfig,
-    NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData,
-    NeonDashboardLeafConfig, NeonDashboardChoiceConfig
-} from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
@@ -106,7 +103,6 @@ export class DashboardService {
 
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
-        this.state.modified = false;
 
         // Assign first datastore
         const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
@@ -124,7 +120,7 @@ export class DashboardService {
      * Sets the active dataset to the given dataset.
      * @param {Object} The dataset containing {String} name, {String} layout, {String} datastore, {String} hostname,
      * and {Array} databases.  Each database is an Object containing {String} name and {Array} tables.
-     * Each table is an Object containing {String} name, {Array} fields, and {Object} mappings.  Each
+     * Each table is an Object containing {String} name, {Array} fields, and {Object} labelOptions.  Each
      * field is an Object containing {String} columnName and {String} prettyName.  Each mapping key is a unique
      * identifier used by the visualizations and each value is a field name.
      */
