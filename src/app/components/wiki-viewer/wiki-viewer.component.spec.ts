@@ -24,7 +24,7 @@ import { WikiViewerComponent } from './wiki-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -39,7 +39,7 @@ describe('Component: WikiViewer', () => {
     initializeTestBed('Wiki Viewer', {
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
 
@@ -172,7 +172,7 @@ describe('Component: WikiViewer with mock HTTP', () => {
     initializeTestBed('Wiki Viewer', {
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
 
@@ -344,7 +344,7 @@ describe('Component: WikiViewer with config', () => {
     initializeTestBed('Wiki Viewer', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_1' },

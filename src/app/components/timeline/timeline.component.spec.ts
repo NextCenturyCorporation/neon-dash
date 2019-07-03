@@ -20,12 +20,11 @@ import { } from 'jasmine-core';
 import { TimelineComponent } from './timeline.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { ColorThemeService } from '../../services/color-theme.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
@@ -37,9 +36,9 @@ describe('Component: Timeline', () => {
 
     initializeTestBed('Timeline', {
         providers: [
-            { provide: AbstractColorThemeService, useClass: ColorThemeService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],

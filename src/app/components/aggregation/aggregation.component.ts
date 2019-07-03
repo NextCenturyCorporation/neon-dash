@@ -36,16 +36,16 @@ import {
     SortOrder,
     TimeInterval
 } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
     FilterDesign,
-    FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
     AbstractAggregationSubcomponent,
@@ -183,12 +183,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         public visualization: ElementRef
     ) {
         super(
@@ -1423,7 +1423,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     toggleBodyContainer() {
-        let bodyContainer = document.getElementsByClassName('body-container').item(0) as HTMLElement;
+        let bodyContainer = this.visualization.nativeElement.getElementsByClassName('body-container').item(0) as HTMLElement;
         bodyContainer.setAttribute('style', 'display: ' + (this.showNoData ? 'none' : 'show'));
     }
 

@@ -22,7 +22,7 @@ import { AddVisualizationModule } from './add-visualization.module';
 import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { ColorThemeService } from '../../services/color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -36,7 +36,7 @@ describe('Component: AddVisualization', () => {
         providers: [
             { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService
+            InjectableFilterService
         ],
         imports: [
             MatDividerModule,

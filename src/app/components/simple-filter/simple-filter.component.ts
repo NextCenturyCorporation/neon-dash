@@ -16,7 +16,8 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnIni
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { SimpleFilterDesign } from '../../services/filter.service';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
@@ -38,7 +39,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     constructor(
         private changeDetection: ChangeDetectorRef,
         dashboardService: DashboardService,
-        protected filterService: FilterService,
+        protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService
     ) {
         this.dashboardState = dashboardService.state;
