@@ -31,9 +31,10 @@ import {
     QueryPayload,
     SortOrder
 } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
@@ -66,11 +67,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {

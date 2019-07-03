@@ -19,14 +19,16 @@ import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonField
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { ConnectionService, Connection } from './connection.service';
+import { Connection } from './connection.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
 
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
-import { FilterService, FilterUtil } from './filter.service';
+import { FilterUtil } from './filter.service';
+import { InjectableFilterService } from './injectable.filter.service';
 import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable({
@@ -43,8 +45,8 @@ export class DashboardService {
 
     constructor(
         private configService: ConfigService,
-        private connectionService: ConnectionService,
-        private filterService: FilterService,
+        private connectionService: InjectableConnectionService,
+        private filterService: InjectableFilterService,
         private searchService: AbstractSearchService
     ) {
         this.configSource = this.configService

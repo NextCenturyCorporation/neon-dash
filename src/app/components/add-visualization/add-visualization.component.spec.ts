@@ -20,7 +20,7 @@ import { AddVisualizationComponent } from './add-visualization.component';
 import { AddVisualizationModule } from './add-visualization.module';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -33,7 +33,7 @@ describe('Component: AddVisualization', () => {
     initializeTestBed('Add Visualization', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService
+            InjectableFilterService
         ],
         imports: [
             MatDividerModule,

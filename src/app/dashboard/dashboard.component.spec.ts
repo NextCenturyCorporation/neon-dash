@@ -24,10 +24,9 @@ import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
-import { AbstractColorThemeService } from '../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
-import { FilterService } from '../services/filter.service';
-import { ColorThemeService } from '../services/color-theme.service';
+import { InjectableFilterService } from '../services/injectable.filter.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
@@ -62,9 +61,9 @@ describe('Dashboard', () => {
         providers: [
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractColorThemeService, useClass: ColorThemeService }
+            InjectableColorThemeService
         ]
     }, false);
 
@@ -849,9 +848,9 @@ describe('Dashboard Custom', () => {
         providers: [
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: EmptyDashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractColorThemeService, useClass: ColorThemeService }
+            InjectableColorThemeService
         ]
     }, false);
 

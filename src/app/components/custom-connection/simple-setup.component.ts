@@ -18,7 +18,8 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../../models/dataset';
-import { ConnectionService, Connection } from '../../services/connection.service';
+import { Connection } from '../../services/connection.service';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
 
@@ -54,7 +55,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         }[];
     }[];
 
-    constructor(private datasetService: DashboardService, private connectionService: ConnectionService) {
+    constructor(private datasetService: DashboardService, private connectionService: InjectableConnectionService) {
         super();
         this.selected = true;
         this.stepNumber = 1;

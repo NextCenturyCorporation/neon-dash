@@ -16,9 +16,9 @@ import { NeonDashboardLeafConfig } from '../../app/models/types';
 import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../app/models/dataset';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
-import { ConnectionService } from '../../app/services/connection.service';
+import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
 import { Injectable } from '@angular/core';
-import { FilterService } from '../../app/services/filter.service';
+import { InjectableFilterService } from '../../app/services/injectable.filter.service';
 import { SearchServiceMock } from './SearchServiceMock';
 import {
     DATABASES,
@@ -32,7 +32,7 @@ import {
     TABLES_LIST
 } from '../mock-dataset';
 
-export class MockConnectionService extends ConnectionService {
+export class MockConnectionService extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
         return null as any;
     }
@@ -76,7 +76,7 @@ export class DashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
 
@@ -91,7 +91,7 @@ export class EmptyDashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
     }

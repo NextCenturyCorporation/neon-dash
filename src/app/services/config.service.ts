@@ -22,7 +22,7 @@ import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
 import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
-import { ConnectionService } from './connection.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 import { ConfigUtil } from '../util/config.util';
 
 @Injectable({
@@ -44,7 +44,7 @@ export class ConfigService {
 
     constructor(
         private http: HttpClient,
-        private connectionService: ConnectionService
+        private connectionService: InjectableConnectionService
     ) {
         neon.setNeonServerUrl('../neon');
     }

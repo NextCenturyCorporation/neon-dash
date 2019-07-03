@@ -16,7 +16,8 @@ import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
-import { FilterDesign, FilterService, AbstractFilter, SimpleFilter, CompoundFilter } from '../../services/filter.service';
+import { FilterDesign, AbstractFilter, SimpleFilter, CompoundFilter } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import * as moment from 'moment';
 
@@ -131,7 +132,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     public groups: FilterGroup[] = [];
 
     constructor(
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         public dashboardService: DashboardService
     ) {
         this.messenger = new eventing.Messenger();

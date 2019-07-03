@@ -26,11 +26,12 @@ import {
 
 import { eventing } from 'neon-framework';
 
-import { AbstractColorThemeService } from '../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterDesign, FilterService } from '../services/filter.service';
+import { FilterDataSource, FilterDesign } from '../services/filter.service';
+import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../models/neon-grid-item';
@@ -130,10 +131,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
         private domSanitizer: DomSanitizer,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public colorThemeService: AbstractColorThemeService,
+        public colorThemeService: InjectableColorThemeService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
         public location: Location

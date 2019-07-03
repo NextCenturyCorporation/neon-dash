@@ -24,9 +24,9 @@ import {
     FilterBehavior,
     FilterCollection,
     FilterDataSource,
-    FilterDesign,
-    FilterService
+    FilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
@@ -103,7 +103,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     constructor(
         protected dashboardService: DashboardService,
-        protected filterService: FilterService,
+        protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
         public changeDetection: ChangeDetectorRef,

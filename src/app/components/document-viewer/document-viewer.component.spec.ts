@@ -21,7 +21,7 @@ import { DocumentViewerComponent } from './document-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -40,7 +40,7 @@ describe('Component: DocumentViewer', () => {
                 provide: DashboardService,
                 useClass: DashboardServiceMock
             },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],
@@ -879,7 +879,7 @@ describe('Component: Document Viewer with Config', () => {
     initializeTestBed('Document Viewer', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'title', useValue: 'Document Viewer Title' },

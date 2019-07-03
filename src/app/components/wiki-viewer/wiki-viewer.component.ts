@@ -29,7 +29,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService } from '../../services/filter.service';
+import { FilterBehavior } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
@@ -64,7 +65,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
