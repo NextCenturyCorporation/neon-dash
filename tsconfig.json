@@ -1,7 +1,6 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "allowJs": true,
         "importHelpers": true,
         "sourceMap": true,
         "declaration": false,
