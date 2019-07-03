@@ -430,7 +430,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showFiltersComponent = !this.showFiltersComponent;
         let filtersContainer: HTMLElement = document.getElementById('filters');
         if (this.showFiltersComponent && filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
+            filtersContainer.setAttribute('style', 'display: block');
         } else if (filtersContainer) {
             filtersContainer.setAttribute('style', 'display: none');
         }
@@ -440,7 +440,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showDashboardSelector = showSelector;
         let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
         if (this.showDashboardSelector && dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: show'); // FIXME: Display show is not valid
+            dashboardSelectorContainer.setAttribute('style', 'display: block');
         } else if (dashboardSelectorContainer) {
             dashboardSelectorContainer.setAttribute('style', 'display: none');
         }
