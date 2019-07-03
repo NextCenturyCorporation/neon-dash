@@ -19,7 +19,8 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { Dataset, NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
@@ -53,7 +54,7 @@ export class FilterBuilderComponent {
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         public searchService: AbstractSearchService
     ) {
         this._dataset = dashboardService.state.asDataset();

@@ -15,22 +15,13 @@
 import { query } from 'neon-framework';
 
 import { ConnectionService, NeonConnection } from './connection.service';
-import { inject } from '@angular/core/testing';
-
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('ConnectionService', () => {
     let service: ConnectionService;
 
-    initializeTestBed('Connection Service', {
-        providers: [
-            ConnectionService
-        ]
+    beforeEach(() => {
+        service = new ConnectionService();
     });
-
-    beforeEach(inject([ConnectionService], (svc) => {
-        service = svc;
-    }));
 
     it('createConnection does return a new connection', () => {
         let connection = new query.Connection();

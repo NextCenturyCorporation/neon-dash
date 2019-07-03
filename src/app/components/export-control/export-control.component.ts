@@ -17,7 +17,7 @@ import { Component, ViewContainerRef, Input } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { ConnectionService } from '../../services/connection.service';
+import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
@@ -41,7 +41,7 @@ export class ExportControlComponent {
 
     constructor(
         dashboardService: DashboardService,
-        protected connectionService: ConnectionService,
+        protected connectionService: InjectableConnectionService,
         private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {

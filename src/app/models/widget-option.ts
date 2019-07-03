@@ -15,19 +15,18 @@
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
 
-export const AggregationType = {
-    AVG: 'avg',
-    COUNT: 'count',
-    MAX: 'max',
-    MIN: 'min',
-    SUM: 'sum'
-};
+export enum AggregationType {
+    AVG = 'avg',
+    COUNT = 'count',
+    MAX = 'max',
+    MIN = 'min',
+    SUM = 'sum'
+}
+
+type OptionCallback = (options: any) => boolean;
 
 class OptionChoice {
-    constructor(prettyName, variable) {
-        this.prettyName = prettyName;
-        this.variable = variable;
-    }
+    constructor(public prettyName: string, public variable: any) { }
 }
 
 export const OptionChoices = {
@@ -78,20 +77,22 @@ export const OptionChoices = {
     ]
 };
 
-export const OptionType = {
-    COLOR: 'COLOR',
-    DATABASE: 'DATABASE',
-    FIELD: 'FIELD',
-    FIELD_ARRAY: 'FIELD_ARRAY',
-    FREE_TEXT: 'FREE_TEXT',
-    MULTIPLE_SELECT: 'MULTIPLE_SELECT',
-    NON_PRIMITIVE: 'NON_PRIMITIVE',
-    NUMBER: 'NUMBER',
-    SELECT: 'SELECT',
-    TABLE: 'TABLE'
-};
+export enum OptionType {
+    COLOR = 'COLOR',
+    DATABASE = 'DATABASE',
+    FIELD = 'FIELD',
+    FIELD_ARRAY = 'FIELD_ARRAY',
+    FREE_TEXT = 'FREE_TEXT',
+    MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+    NON_PRIMITIVE = 'NON_PRIMITIVE',
+    NUMBER = 'NUMBER',
+    SELECT = 'SELECT',
+    TABLE = 'TABLE'
+}
 
 export class WidgetOption {
+    public valueCurrent: any;
+
     /**
      * @constructor
      * @arg {OptionType} optionType
@@ -103,22 +104,14 @@ export class WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        optionType,
-        isRequired,
-        bindingKey,
-        prettyName,
-        valueDefault,
-        valueChoices,
-        hideFromMenu
-    ) {
-        this.optionType = optionType;
-        this.isRequired = isRequired;
-        this.bindingKey = bindingKey;
-        this.prettyName = prettyName;
-        this.valueDefault = valueDefault;
-        this.valueChoices = valueChoices;
-        this.hideFromMenu = hideFromMenu || false;
-    }
+        public optionType: OptionType,
+        public isRequired: boolean,
+        public bindingKey: string,
+        public prettyName: string,
+        public valueDefault: any,
+        public valueChoices: OptionChoice[],
+        public hideFromMenu: boolean | OptionCallback = false
+    ) { }
 
     /**
      * Returns the current value to save in the bindings.
@@ -139,12 +132,12 @@ export class WidgetColorOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu || false);
+        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
@@ -176,9 +169,9 @@ export class WidgetFieldArrayOption extends WidgetOption {
      * @arg {boolean} isRequired
      * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey, prettyName, isRequired, hideFromMenu) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean, hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
-        super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu || false);
+        super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
 
     /**
@@ -200,9 +193,9 @@ export class WidgetFieldOption extends WidgetOption {
      * @arg {boolean} [isRequired=false]
      * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey, prettyName, isRequired, hideFromMenu) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
-        super(OptionType.FIELD, isRequired || false, bindingKey, prettyName, undefined, undefined, hideFromMenu || false);
+        super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
 
     /**
@@ -225,12 +218,12 @@ export class WidgetFreeTextOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu || false);
+        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
@@ -244,17 +237,19 @@ export class WidgetMultipleSelectOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        valueChoices,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        valueChoices: OptionChoice[],
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu || false);
+        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
 export class WidgetNonPrimitiveOption extends WidgetOption {
+    private _intermediateValue: string;
+
     /**
      * @constructor
      * @arg {string} bindingKey
@@ -263,12 +258,12 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu || false);
+        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -301,6 +296,8 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
 }
 
 export class WidgetNumberOption extends WidgetOption {
+    private _intermediateValue: number|string;
+
     /**
      * @constructor
      * @arg {string} bindingKey
@@ -309,12 +306,12 @@ export class WidgetNumberOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu || false);
+        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -356,13 +353,13 @@ export class WidgetSelectOption extends WidgetOption {
      * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        bindingKey,
-        prettyName,
-        valueDefault,
-        valueChoices,
-        hideFromMenu
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        valueChoices: OptionChoice[],
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu || false);
+        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
