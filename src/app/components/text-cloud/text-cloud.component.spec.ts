@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 
 import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -38,7 +38,7 @@ describe('Component: TextCloud', () => {
 
     initializeTestBed('Text Cloud', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             {
                 provide: DashboardService,
                 useClass: DashboardServiceMock
@@ -59,20 +59,11 @@ describe('Component: TextCloud', () => {
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeTruthy();
-    });
-
     it('has expected options properties', () => {
         expect(component.options.aggregation).toBe(AggregationType.COUNT);
         expect(component.options.andFilters).toBe(true);
         expect(component.options.dataField).toEqual(NeonFieldMetaData.get());
         expect(component.options.sizeField).toEqual(NeonFieldMetaData.get());
-    });
-
-    it('has expected class properties', () => {
-        // TODO This color should not be hard-coded...
-        expect(component.textColor).toBe('#367588');
     });
 
     it('has an validateVisualizationQuery method that properly checks whether or not a valid query can be made', () => {
@@ -293,7 +284,7 @@ describe('Component: TextCloud', () => {
 
         expect(component.textCloudData).toEqual([{
             fontSize: '140%',
-            color: '#367588',
+            color: '#54c8cd',
             selected: false,
             value: 8,
             key: 'First',
@@ -301,7 +292,7 @@ describe('Component: TextCloud', () => {
         },
         {
             fontSize: '114.28571428571428%',
-            color: '#688c97',
+            color: '#46888b',
             selected: false,
             value: 5,
             key: 'Second',
@@ -309,7 +300,7 @@ describe('Component: TextCloud', () => {
         },
         {
             fontSize: '80%',
-            color: '#aaaaaa',
+            color: '#333333',
             selected: false,
             value: 1,
             key: 'Third',

@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input, ReflectiveInjector, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, Input, ReflectiveInjector, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
 import { NeonGridItem } from '../../models/neon-grid-item';
 import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -22,7 +23,7 @@ import { ReactiveComponentLoader } from '@wishtack/reactive-component-loader';
         <div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
-    currentComponent = null;
+    currentComponent: ComponentRef<BaseNeonComponent> = null;
 
     @ViewChild('dynamicComponentContainer', { read: ViewContainerRef }) dynamicComponentContainer: ViewContainerRef;
 
@@ -54,7 +55,7 @@ export class VisualizationInjectorComponent {
 
             // We create the component using the factory and the injector
             this.currentComponent = input.ngModuleFactory.create(injector).componentFactoryResolver
-                .resolveComponentFactory(input.componentType)
+                .resolveComponentFactory<BaseNeonComponent>(input.componentType)
                 .create(injector);
 
             // We insert the component into the dom container
@@ -75,6 +76,12 @@ export class VisualizationInjectorComponent {
     onResizeStart() {
         if (this.currentComponent) {
             this.currentComponent.instance.onResizeStart();
+        }
+    }
+
+    onResize() {
+        if (this.currentComponent) {
+            this.currentComponent.instance.onResize();
         }
     }
 
