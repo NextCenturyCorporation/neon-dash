@@ -25,7 +25,7 @@ import {
     FilterCollection,
     FilterDataSource,
     FilterDesign
-} from '../../services/filter.service';
+} from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -326,7 +326,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
     public deleteFilters(filterDesignListToDelete?: FilterDesign[]) {
-        let results: Map<any, FilterDesign[]> = this.filterService.deleteFilters(this.id, this.searchService, filterDesignListToDelete);
+        let results: Map<any, FilterDesign[]> = this.filterService.deleteFilters(this.id, filterDesignListToDelete);
 
         // Return to the previously saved page that was being viewed when the deleted filter was first added.
         let page = this.page;
@@ -353,7 +353,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.dataset.relations, this.searchService, filterDesignListToDelete);
+            this.dataset.relations, filterDesignListToDelete);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -375,8 +375,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterDesign[]} filterDesignList
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
-        let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.dataset.relations, this.searchService);
+        let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList, this.dataset.relations);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {

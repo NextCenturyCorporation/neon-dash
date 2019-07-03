@@ -14,7 +14,6 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { AbstractSearchService } from './abstract.search.service';
 import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
 import { NeonDatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
@@ -22,7 +21,6 @@ import { DashboardService } from './dashboard.service';
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
@@ -49,7 +47,6 @@ describe('Service: DashboardService', () => {
 
     initializeTestBed('Dashboard Service', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             InjectableFilterService
         ]
@@ -579,8 +576,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -641,8 +637,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {

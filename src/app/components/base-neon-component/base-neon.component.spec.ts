@@ -28,7 +28,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior } from '../../services/filter.service';
+import { FilterBehavior } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -1668,7 +1668,7 @@ describe('BaseNeonComponent', () => {
         component.deleteFilters();
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', component['searchService'], undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', undefined]);
         expect(component['savedPages'].has('filterId1')).toEqual(false);
         expect(component['page']).toEqual(10);
     });
@@ -1687,7 +1687,7 @@ describe('BaseNeonComponent', () => {
         component.deleteFilters();
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', component['searchService'], undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', undefined]);
         expect(component['savedPages'].has('filterId1')).toEqual(false);
         expect(component['page']).toEqual(5);
     });
@@ -1707,7 +1707,7 @@ describe('BaseNeonComponent', () => {
 
         let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService'], undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1727,7 +1727,7 @@ describe('BaseNeonComponent', () => {
 
         let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService'], undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(1);
     });
@@ -1747,7 +1747,7 @@ describe('BaseNeonComponent', () => {
 
         let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService']]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1767,7 +1767,7 @@ describe('BaseNeonComponent', () => {
 
         let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, component['searchService']]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(1);
     });

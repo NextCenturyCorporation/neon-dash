@@ -27,7 +27,7 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign } from '../../util/filter.util';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
