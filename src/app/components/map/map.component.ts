@@ -26,16 +26,16 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
     CompoundFilterDesign,
     FilterBehavior,
     FilterDesign,
-    FilterService,
     FilterUtil,
     SimpleFilterDesign
 } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
     AbstractMap,
@@ -96,10 +96,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected colorThemeService: AbstractColorThemeService,
+        protected colorThemeService: InjectableColorThemeService,
         ref: ChangeDetectorRef,
         dialog: MatDialog,
         public visualization: ElementRef

@@ -12,34 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { inject } from '@angular/core/testing';
-
-import { AbstractSearchService } from './abstract.search.service';
-import { DashboardService } from './dashboard.service';
 import { ColorThemeService } from './color-theme.service';
-
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
-import { FilterService } from './filter.service';
 
 describe('Service: Color Theme', () => {
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     let service: ColorThemeService;
 
-    initializeTestBed('Widget Service', {
-        providers: [
-            ColorThemeService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            DashboardService,
-            FilterService
-
-        ]
+    beforeEach(() => {
+        service = new ColorThemeService();
     });
-
-    beforeEach(inject([ColorThemeService], (colorThemeService: ColorThemeService) => {
-        service = colorThemeService;
-    }));
 
     it('does have expected default theme and no existing ColorSets', () => {
         // TODO THOR-936
@@ -90,16 +71,7 @@ describe('Service: Color Theme', () => {
     });
 });
 
-describe('ColorSet', () => {
-    initializeTestBed('Color Theme Service ColorSet', {
-        providers: [
-            ColorThemeService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DashboardService, useClass: DashboardServiceMock }
-
-        ]
-    });
-
+describe('ColorThemeService ColorSet', () => {
     it('creates ColorSets for the colorMaps in the dataset', () => {
         // TODO THOR-936
     });

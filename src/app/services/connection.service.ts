@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 import { NeonConfig } from '../models/types';
 import { query } from 'neon-framework';
 
@@ -276,9 +275,6 @@ export class NeonConnection<T extends { query: any } = { query: any }> implement
     }
 }
 
-@Injectable({
-    providedIn: 'root'
-})
 export class ConnectionService {
     // Maps the datastore types to datastore hosts to connections.
     private connections = new Map<string, Map<string, NeonConnection<any>>>();

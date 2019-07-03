@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
@@ -41,7 +41,7 @@ export class CustomConnectionComponent implements AfterContentInit {
 
     constructor(
         private datasetService: DashboardService,
-        private filterService: FilterService,
+        private filterService: InjectableFilterService,
         private searchService: AbstractSearchService
     ) {
         this.messenger = new eventing.Messenger();

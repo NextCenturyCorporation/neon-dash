@@ -79,7 +79,7 @@ export class GearComponent implements OnDestroy {
     }
 
     private createEmptyOptionsCollection(): RootWidgetOptionCollection {
-        return new RootWidgetOptionCollection(() => [], () => [], new DashboardState().asDataset(), '', 0, false);
+        return new RootWidgetOptionCollection();
     }
 
     /**

@@ -23,10 +23,9 @@ import { initializeTestBed, getConfigService } from '../../testUtils/initializeT
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
-import { SearchService } from './search.service';
 
 import * as _ from 'lodash';
-import { FilterService } from './filter.service';
+import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
 
 function extractNames(data: { [key: string]: any } | any[]) {
@@ -52,7 +51,7 @@ describe('Service: DashboardService', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
-            FilterService
+            InjectableFilterService
         ]
     });
 
@@ -580,8 +579,8 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new FilterService(),
-            new SearchService(conn)
+            new InjectableFilterService(),
+            new SearchServiceMock()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -642,8 +641,8 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new FilterService(),
-            new SearchService(conn)
+            new InjectableFilterService(),
+            new SearchServiceMock()
         );
 
         localDashboardService.stateSource.subscribe(() => {

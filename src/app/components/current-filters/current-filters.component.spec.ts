@@ -19,19 +19,18 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService, SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+import { SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
 import { CompoundFilterType, AbstractSearchService } from '../../services/abstract.search.service';
-import { SearchService } from '../../services/search.service';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
     let component: CurrentFiltersComponent;
-    const search = new SearchService(null as any);
 
     function simple(field: string, op: string, value: any) {
         const out = new SimpleFilter('store',
@@ -54,7 +53,7 @@ describe('Component: CurrentFiltersComponent', () => {
             },
             op,
             value,
-            search);
+            new SearchServiceMock());
         return out;
     }
 
@@ -62,14 +61,14 @@ describe('Component: CurrentFiltersComponent', () => {
         return new CompoundFilter(
             CompoundFilterType.AND,
             filters,
-            search
+            new SearchServiceMock()
         );
     }
 
     initializeTestBed('Current Filters', {
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock }
         ],
         imports: [CurrentFiltersModule]

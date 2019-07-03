@@ -20,6 +20,7 @@ $footer-height: 35px;
 $contribution-height: 20px;
 
 :host {
+    background-color: var(--color-background, white);
     height: 100%;
     width: 100%;
     cursor: default;
@@ -36,7 +37,7 @@ $contribution-height: 20px;
     .text {
         color: var(--color-text, dimgrey);
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 400;
         line-height: 20px;
         margin: 0 5px;
         overflow: hidden;

@@ -28,7 +28,8 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService } from '../../services/filter.service';
+import { FilterBehavior } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
@@ -45,7 +46,6 @@ import {
     WidgetSelectOption
 } from '../../models/widget-option';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
-import { eventing } from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -70,7 +70,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         changeDetection: ChangeDetectorRef,
@@ -183,7 +183,7 @@ describe('BaseNeonComponent', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
@@ -254,10 +254,9 @@ describe('BaseNeonComponent', () => {
         expect(component['initializing']).toEqual(false);
         expect(component.options).toBeDefined();
         expect(spyInitialize.calls.count()).toEqual(1);
-        expect(spyMessengerSubscribe.calls.count()).toEqual(3);
+        expect(spyMessengerSubscribe.calls.count()).toEqual(2);
         expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_REFRESH);
-        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual(neonEvents.FILTERS_REFRESH);
-        expect(spyMessengerSubscribe.calls.argsFor(2)[0]).toEqual(neonEvents.SELECT_ID);
+        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual(neonEvents.SELECT_ID);
     });
 
     it('ngAfterViewInit does work as expected', () => {
@@ -890,7 +889,7 @@ describe('BaseNeonComponent', () => {
     it('getButtonText with multiple layers does return expected string', () => {
         expect(component.getButtonText()).toEqual('');
 
-        let layerA: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+        let layerA: any = new WidgetOptionCollection(component['dataset']);
         layerA.title = 'Layer A';
         component.options.layers.push(layerA);
 
@@ -903,7 +902,7 @@ describe('BaseNeonComponent', () => {
         component['layerIdToElementCount'].set(layerA._id, 2);
         expect(component.getButtonText()).toEqual('2 Results');
 
-        let layerB: any = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+        let layerB: any = new WidgetOptionCollection(component['dataset']);
         layerB.title = 'Layer B';
         component.options.layers.push(layerB);
 
@@ -1359,7 +1358,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleTransformVisualizationQueryResults does call success callback function', (done) => {
-        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+        let expectedOptions = new WidgetOptionCollection(component['dataset']);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (options, results) => {
@@ -1381,7 +1380,7 @@ describe('BaseNeonComponent', () => {
 
     it('handleTransformVisualizationQueryResults does call failure callback function', (done) => {
         let expectedError = new Error('Test Error');
-        let expectedOptions = new WidgetOptionCollection(() => [], component['dataset'], 'Test Layer', 100);
+        let expectedOptions = new WidgetOptionCollection(component['dataset']);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (__options, __results) => {
@@ -1603,65 +1602,53 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, component['cachedFilters']]);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if ID=source', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event if ID=source', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if !filterSelf', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event if !filterSelf', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does not call executeAllQueryChain on FILTERS_REFRESH event if ID equals source AND shouldFilterSelf()=>false', () => {
+    it('does not call executeAllQueryChain on filter-change event if ID equals source AND shouldFilterSelf()=>false', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            caller: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(0);
@@ -1832,7 +1819,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         ],
         providers: [
             { provide: DashboardService, useValue: dashboardService },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
