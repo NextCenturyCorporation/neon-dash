@@ -27,7 +27,7 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';

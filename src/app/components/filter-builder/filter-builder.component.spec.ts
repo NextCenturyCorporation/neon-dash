@@ -20,7 +20,6 @@ import { NeonFieldMetaData } from '../../models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
 
@@ -28,8 +27,7 @@ describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
 
     beforeEach(() => {
-        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new InjectableFilterService(),
-            new SearchServiceMock());
+        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), new InjectableFilterService());
     });
 
     it('class properties are set to expected defaults', () => {

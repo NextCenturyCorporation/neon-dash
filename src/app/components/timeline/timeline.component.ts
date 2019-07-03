@@ -39,7 +39,7 @@ import {
     FilterDesign,
     FilterUtil,
     SimpleFilterDesign
-} from '../../services/filter.service';
+} from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';

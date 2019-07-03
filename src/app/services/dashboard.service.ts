@@ -27,9 +27,8 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
-import { FilterUtil } from './filter.service';
+import { FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
-import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable({
     providedIn: 'root'
@@ -46,8 +45,7 @@ export class DashboardService {
     constructor(
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
-        private filterService: InjectableFilterService,
-        private searchService: AbstractSearchService
+        private filterService: InjectableFilterService
     ) {
         this.configSource = this.configService
             .getActive()
@@ -114,7 +112,7 @@ export class DashboardService {
         const filters = typeof dashboard.filters === 'string' ?
             FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
 
-        this.filterService.setFiltersFromConfig(filters || [], this.state, this.searchService);
+        this.filterService.setFiltersFromConfig(filters || [], this.state);
         this.stateSubject.next(this.state);
     }
 

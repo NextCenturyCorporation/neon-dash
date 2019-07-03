@@ -14,13 +14,11 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterDesign } from '../../services/filter.service';
+import { SimpleFilterDesign } from '../../util/filter.util';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
@@ -43,7 +41,6 @@ describe('Component: SimpleFilter', () => {
 
     initializeTestBed('Simple Filter', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService
         ],
@@ -183,7 +180,6 @@ describe('Component: SimpleFilter unconfigured', () => {
 
     initializeTestBed('Simple Filter', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardService },
             InjectableFilterService
         ],

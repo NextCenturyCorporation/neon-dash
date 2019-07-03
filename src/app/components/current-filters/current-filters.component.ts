@@ -16,7 +16,7 @@ import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
-import { FilterDesign, AbstractFilter, SimpleFilter, CompoundFilter } from '../../services/filter.service';
+import { FilterDesign, AbstractFilter, SimpleFilter, CompoundFilter } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import * as moment from 'moment';
@@ -156,10 +156,9 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     }
 
     removeAll() {
-        this.filterService.deleteFilters('FilterList', null as any,
-            this.groups
-                .reduce((acc, group) => acc.concat(group.filters), [] as FilterDisplay[])
-                .map((filter) => filter.full));
+        this.filterService.deleteFilters('FilterList', this.groups
+            .reduce((acc, group) => acc.concat(group.filters), [] as FilterDisplay[])
+            .map((filter) => filter.full));
     }
 
     updateFilters() {

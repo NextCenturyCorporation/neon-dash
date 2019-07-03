@@ -19,14 +19,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CurrentFiltersComponent, FilterDisplayUtil } from './current-filters.component';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { SimpleFilter, CompoundFilter, AbstractFilter } from '../../services/filter.service';
+import { SimpleFilter, CompoundFilter, AbstractFilter } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { CurrentFiltersModule } from './current-filters.module';
-import { CompoundFilterType, AbstractSearchService } from '../../services/abstract.search.service';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
+import { CompoundFilterType } from '../../services/abstract.search.service';
 
 describe('Component: CurrentFiltersComponent', () => {
     let fixture: ComponentFixture<CurrentFiltersComponent>;
@@ -52,24 +51,18 @@ describe('Component: CurrentFiltersComponent', () => {
                 type: value instanceof Date ? 'date' : typeof value === 'number' ? 'double' : typeof value
             },
             op,
-            value,
-            new SearchServiceMock());
+            value);
         return out;
     }
 
     function and(...filters: AbstractFilter[]) {
-        return new CompoundFilter(
-            CompoundFilterType.AND,
-            filters,
-            new SearchServiceMock()
-        );
+        return new CompoundFilter(CompoundFilterType.AND, filters);
     }
 
     initializeTestBed('Current Filters', {
         providers: [
             DashboardService,
-            InjectableFilterService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock }
+            InjectableFilterService
         ],
         imports: [CurrentFiltersModule]
     });
