@@ -16,7 +16,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { SimpleFilterDesign } from '../../services/filter.service';
 import { SimpleFilterComponent } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -28,7 +29,7 @@ import { SimpleFilterModule } from './simple-filter.module';
 describe('Component: SimpleFilter', () => {
     let component: SimpleFilterComponent;
     let fixture: ComponentFixture<SimpleFilterComponent>;
-    let filterService: FilterService;
+    let filterService: InjectableFilterService;
     let setInput = (input: string) => {
         component.showSimpleSearch = true;
         component['changeDetection'].detectChanges();
@@ -44,7 +45,7 @@ describe('Component: SimpleFilter', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService
+            InjectableFilterService
         ],
         imports: [
             SimpleFilterModule
@@ -54,7 +55,7 @@ describe('Component: SimpleFilter', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SimpleFilterComponent);
         component = fixture.componentInstance;
-        filterService = fixture.debugElement.injector.get(FilterService);
+        filterService = fixture.debugElement.injector.get(InjectableFilterService);
         fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
             fieldKey: '',
             tableKey: '',
@@ -184,7 +185,7 @@ describe('Component: SimpleFilter unconfigured', () => {
         providers: [
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             { provide: DashboardService, useClass: DashboardService },
-            FilterService
+            InjectableFilterService
         ],
         imports: [
             SimpleFilterModule

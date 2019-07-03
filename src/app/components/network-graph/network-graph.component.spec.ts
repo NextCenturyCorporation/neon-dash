@@ -17,10 +17,9 @@ import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
-import { ColorThemeService } from '../../services/color-theme.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -36,10 +35,10 @@ describe('Component: NetworkGraph', () => {
     initializeTestBed('Network Graph', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractColorThemeService, useClass: ColorThemeService },
+            InjectableColorThemeService,
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [
