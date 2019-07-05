@@ -887,8 +887,8 @@ describe('Dashboard Custom', () => {
         });
 
         const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', root: '' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', root: '' }
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({
@@ -970,8 +970,8 @@ describe('Dashboard Custom', () => {
         });
 
         const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
+            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', root: '' },
+            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', root: '' }
         ];
 
         let testDashboard = NeonDashboardLeafConfig.get({

@@ -534,7 +534,6 @@ describe('Service: DashboardService with Mock Data', () => {
         const { config, layouts, filters } = getConfig([
             {
                 root: 'or',
-                name: 'field1',
                 datastore: '',
                 database: 'databaseZ',
                 table: 'tableA',
@@ -544,12 +543,10 @@ describe('Service: DashboardService with Mock Data', () => {
             },
             {
                 root: 'and',
-                name: 'combo',
                 type: 'and',
                 filters: [
                     {
                         root: 'or',
-                        name: 'field2',
                         datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
@@ -559,7 +556,6 @@ describe('Service: DashboardService with Mock Data', () => {
                     },
                     {
                         root: 'or',
-                        name: 'field2b',
                         datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
@@ -672,7 +668,6 @@ describe('Service: DashboardService with Mock Data', () => {
             expect(data.dashboards.filters).toEqual([
                 {
                     root: 'or',
-                    name: 'databaseZ / tableA / Field1 = value1',
                     datastore: '',
                     database: 'databaseZ',
                     table: 'tableA',
@@ -682,12 +677,10 @@ describe('Service: DashboardService with Mock Data', () => {
                 },
                 {
                     root: 'and',
-                    name: 'and',
                     type: 'and',
                     filters: [
                         {
                             root: 'or',
-                            name: 'databaseY / tableB / Field2 != ',
                             datastore: '',
                             database: 'databaseY',
                             table: 'tableB',
@@ -697,7 +690,6 @@ describe('Service: DashboardService with Mock Data', () => {
                         },
                         {
                             root: 'or',
-                            name: 'databaseY / tableB / Field2 != null',
                             datastore: '',
                             database: 'databaseY',
                             table: 'tableB',

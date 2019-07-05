@@ -187,19 +187,12 @@ describe('FilterService with filters', () => {
         filter2A = FilterUtil.createFilterFromDesign(design2A);
 
         design1A.id = filter1A.id;
-        design1A.name = filter1A.name;
         design1B.id = filter1B.id;
-        design1B.name = filter1B.name;
         design1C.id = filter1C.id;
-        design1C.name = filter1C.name;
         design1D.id = filter1D.id;
-        design1D.name = filter1D.name;
         design2A.id = filter2A.id;
-        design2A.name = filter2A.name;
         design2A.filters[0].id = filter2A.filters[0].id;
-        design2A.filters[0].name = filter2A.filters[0].name;
         design2A.filters[1].id = filter2A.filters[1].id;
-        design2A.filters[1].name = filter2A.filters[1].name;
 
         filterService['filterCollection'].setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
         filterService['filterCollection'].setFilters(source2, [filter2A]);
@@ -263,9 +256,7 @@ describe('FilterService with filters', () => {
         relationFilter2.relations = [relationFilter1.id];
 
         relationDesign1.id = relationFilter1.id;
-        relationDesign1.name = relationFilter1.name;
         relationDesign2.id = relationFilter2.id;
-        relationDesign2.name = relationFilter2.name;
 
         /* eslint-disable-next-line jasmine/no-unsafe-spy */
         spyOn(datasetService.state, 'findRelationDataList').and.returnValue([[
@@ -452,7 +443,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testText');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -489,7 +479,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testId5');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
@@ -538,7 +527,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testText');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -570,7 +558,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testRelation');
 
         relationDesign1.id = listComplete[0].id;
-        relationDesign1.name = listComplete[0].name;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2) as any[]; // TODO: Typings;
         expect(listComplete.length).toEqual(1);
@@ -581,7 +568,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testRelation');
 
         relationDesign2.id = listComplete[0].id;
-        relationDesign2.name = listComplete[0].name;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -625,7 +611,6 @@ describe('FilterService with filters', () => {
 
         let testDesign1 = {
             id: listComplete[0].id,
-            name: listComplete[0].name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
@@ -644,7 +629,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testExchangeRelation');
 
         testDesign2.id = listComplete[0].id;
-        testDesign2.name = listComplete[0].name;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -730,7 +714,6 @@ describe('FilterService with filters', () => {
 
     it('getFiltersToSaveInConfig should return expected array', () => {
         expect(filterService.getFiltersToSaveInConfig()).toEqual([{
-            name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -739,7 +722,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -748,7 +730,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            name: design1C.name,
             root: CompoundFilterType.OR,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -757,7 +738,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId3'
         }, {
-            name: design1D.name,
             root: CompoundFilterType.OR,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -766,11 +746,9 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId4'
         }, {
-            name: design2A.name,
             root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -779,7 +757,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -967,7 +944,6 @@ describe('FilterService with filters', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([]);
 
         filterService.setFiltersFromConfig([{
-            name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -987,7 +963,6 @@ describe('FilterService with filters', () => {
         expect(actual[0].root).toEqual(CompoundFilterType.AND);
 
         filterService.setFiltersFromConfig([{
-            name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -996,7 +971,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1005,7 +979,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            name: design1C.name,
             root: CompoundFilterType.OR,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1014,7 +987,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId3'
         }, {
-            name: design1D.name,
             root: CompoundFilterType.OR,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1052,11 +1024,9 @@ describe('FilterService with filters', () => {
         expect(actual[3].root).toEqual(CompoundFilterType.OR);
 
         filterService.setFiltersFromConfig([{
-            name: design2A.name,
             root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1065,7 +1035,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1093,7 +1062,6 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].value).toEqual(20);
 
         filterService.setFiltersFromConfig([{
-            name: design1A.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1102,7 +1070,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            name: design1B.name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1111,11 +1078,9 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            name: design2A.name,
             root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                name: design2A.filters[0].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1124,7 +1089,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                name: design2A.filters[1].name,
                 root: CompoundFilterType.AND,
                 datastore: '',
                 database: DashboardServiceMock.DATABASES.testDatabase1.name,
@@ -1194,7 +1158,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[4].value).toEqual('testId5');
 
         testDesign.id = listComplete[4].id;
-        testDesign.name = listComplete[4].name;
 
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
@@ -1243,7 +1206,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testText');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -1309,7 +1271,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testText');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -1357,7 +1318,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testText');
 
         testDesign.id = listComplete[0].id;
-        testDesign.name = listComplete[0].name;
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -1389,7 +1349,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testRelation');
 
         relationDesign1.id = listComplete[0].id;
-        relationDesign1.name = listComplete[0].name;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2) as any[]; // TODO: Typings;;
         expect(listComplete.length).toEqual(1);
@@ -1400,7 +1359,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[0].value).toEqual('testRelation');
 
         relationDesign2.id = listComplete[0].id;
-        relationDesign2.name = listComplete[0].name;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -1445,7 +1403,6 @@ describe('FilterService with filters', () => {
 
         let testDesign1 = {
             id: listComplete[1].id,
-            name: listComplete[1].name,
             root: CompoundFilterType.AND,
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
@@ -1465,7 +1422,6 @@ describe('FilterService with filters', () => {
         expect(listComplete[1].value).toEqual('testToggleRelation');
 
         testDesign2.id = listComplete[1].id;
-        testDesign2.name = listComplete[1].name;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -1531,9 +1487,7 @@ describe('FilterService with filters', () => {
         testFilter2.relations = [testFilter1.id];
 
         testDesign1.id = testFilter1.id;
-        testDesign1.name = testFilter1.name;
         testDesign2.id = testFilter2.id;
-        testDesign2.name = testFilter2.name;
 
         filterService['filterCollection'].setFilters(relationSource1, [relationFilter1, testFilter1]);
         filterService['filterCollection'].setFilters(relationSource2, [relationFilter2, testFilter2]);
