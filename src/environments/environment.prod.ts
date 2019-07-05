@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 Next Century Corporation
+/**
+ * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,10 +11,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 export const environment = {
     config: ['./app/config/config.json', './app/config/config.yaml'],
     production: true,
-    version: '{BUILD_VERSION}'
+    version: '{BUILD_VERSION}',
+    buildDate:'Jul-05,2019--12:01pm',
+    recentGit:'bae7f10618187dfa69f985a0d59cdcf63a2e6e6c'
 };
