@@ -13,6 +13,9 @@ function in-docker() {
 }
 
 function setup() {
+  if [[ ! -d "dist" ]]; then
+    mkdir dist > /dev/null
+  fi
   if [[ ! -d "node_modules/ts-node-2" ]]; then
     npm i --no-save ts-node
     mv node_modules/ts-node node_modules/ts-node-2
@@ -21,16 +24,18 @@ function setup() {
     npx webdriver-manager update
   fi
   in-docker "docker-compose --no-ansi up -d" 
+  in-docker "(docker-compose --no-ansi logs -f > run.logs) &"
 }
 
 function teardown() {
   in-docker "docker-compose --no-ansi down"
   kill %1 2> /dev/null
+  kill %2 2> /dev/null
 }
 
 function build() {
   log "Building UI: $@"
-  rm -rf dist/*
+  # rm -rf dist/*
   ng build --delete-output-path=false --build-optimizer=false --source-map=false $@ &
 }
 
@@ -93,8 +98,8 @@ if [[ "$WATCH" == "0" ]]; then
   protract
 else
   NEWEST_STAMP=`find-newest e2e dist 1`
+  build --prod --watch=true
   wait-for-data
-  build --prod --watch=true &
   wait-for-dist
 
   while true; do

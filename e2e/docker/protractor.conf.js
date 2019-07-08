@@ -34,6 +34,7 @@ exports.config = {
         defaultTimeoutInterval: 30000,
         print: function () {}
     },
+    skipSourceMapSupport: true,
     beforeLaunch: function () {
         require('ts-node-2').register({
             project: 'e2e/tsconfig.e2e.json'

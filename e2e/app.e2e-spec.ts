@@ -25,7 +25,7 @@ describe('neon-gtd App', () => {
     });
 
     beforeEach(async () => {
-        await page.goTo('/config.yaml');
+        await page.goTo('/');
     });
 
     it('should load the dashboard', async () => {
