@@ -20,16 +20,15 @@ import { } from 'jasmine-core';
 import { TimelineComponent } from './timeline.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { WidgetService } from '../../services/widget.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -37,9 +36,9 @@ describe('Component: Timeline', () => {
 
     initializeTestBed('Timeline', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],

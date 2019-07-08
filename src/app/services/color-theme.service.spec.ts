@@ -12,34 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { inject } from '@angular/core/testing';
+import { ColorThemeService } from './color-theme.service';
 
-import { AbstractSearchService } from './abstract.search.service';
-import { DashboardService } from './dashboard.service';
-import { WidgetService } from './widget.service';
-
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
-import { FilterService } from './filter.service';
-
-describe('Service: Widget', () => {
+describe('Service: Color Theme', () => {
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    let service: WidgetService;
+    let service: ColorThemeService;
 
-    initializeTestBed('Widget Service', {
-        providers: [
-            WidgetService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            DashboardService,
-            FilterService
-
-        ]
+    beforeEach(() => {
+        service = new ColorThemeService();
     });
-
-    beforeEach(inject([WidgetService], (widgetService: WidgetService) => {
-        service = widgetService;
-    }));
 
     it('does have expected default theme and no existing ColorSets', () => {
         // TODO THOR-936
@@ -77,21 +58,20 @@ describe('Service: Widget', () => {
         // TODO THOR-936
     });
 
+    it('initializeColors does update colorKeyToColorSet with given hex colors', () => {
+        // TODO THOR-936
+    });
+
+    it('initializeColors does update colorKeyToColorSet with given RGB colors', () => {
+        // TODO THOR-936
+    });
+
     it('setTheme does update theme ID', () => {
         // TODO THOR-936
     });
 });
 
-describe('ColorSet', () => {
-    initializeTestBed('Widget Service ColorSet', {
-        providers: [
-            WidgetService,
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: DashboardService, useClass: DashboardServiceMock }
-
-        ]
-    });
-
+describe('ColorThemeService ColorSet', () => {
     it('creates ColorSets for the colorMaps in the dataset', () => {
         // TODO THOR-936
     });

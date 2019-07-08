@@ -12,16 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
-import { AbstractWidgetService, Theme } from './abstract.widget.service';
-import { Color, ColorSet } from '../models/color';
-import { DashboardService } from './dashboard.service';
-import { DashboardState } from '../models/dashboard-state';
-import { distinctUntilKeyChanged } from 'rxjs/operators';
+import { AbstractColorThemeService, Theme } from './abstract.color-theme.service';
+import { Color, ColorMap, ColorSet } from '../models/color';
 
-/**
- * @class NeonTheme
- */
 export class NeonTheme implements Theme {
     /**
      * @constructor
@@ -33,35 +26,18 @@ export class NeonTheme implements Theme {
     constructor(public accent: string, public id: string, public text: string, public name: string) {}
 }
 
-/**
- * A service for everything a Neon Dashboard widget needs.
- *
- * @class WidgetService
- */
-@Injectable()
-export class WidgetService extends AbstractWidgetService {
+export class ColorThemeService extends AbstractColorThemeService {
     public static THEME_DARK: Theme = new NeonTheme('#01B7C1', 'neon-dark', '#FFFFFF', 'Dark');
     public static THEME_GREEN: Theme = new NeonTheme('#FFA600', 'neon-green', '#333333', 'Green');
     public static THEME_TEAL: Theme = new NeonTheme('#54C8CD', 'neon-teal', '#333333', 'Teal');
 
     // TODO Let different databases and tables in the same dataset have different color maps.
     private colorKeyToColorSet: Map<string, ColorSet> = new Map<string, ColorSet>();
-    private currentThemeId: string = WidgetService.THEME_TEAL.id;
+    private currentThemeId: string = ColorThemeService.THEME_TEAL.id;
 
-    public readonly dashboardState: DashboardState;
-
-    constructor(dashboardService: DashboardService) {
+    constructor() {
         super();
-        dashboardService.stateSource
-            .pipe(
-                distinctUntilKeyChanged('id')
-            )
-            .subscribe(() => {
-                this.resetColorMap();
-            });
-
         document.body.className = this.currentThemeId;
-        this.dashboardState = dashboardService.state;
     }
 
     /**
@@ -128,10 +104,10 @@ export class WidgetService extends AbstractWidgetService {
      */
     public getThemes(): Theme[] {
         return [
-            WidgetService.THEME_DARK,
+            ColorThemeService.THEME_DARK,
             // TODO THOR-852 Add green theme
-            // WidgetService.THEME_GREEN,
-            WidgetService.THEME_TEAL
+            // ColorThemeService.THEME_GREEN,
+            ColorThemeService.THEME_TEAL
         ];
     }
 
@@ -156,29 +132,28 @@ export class WidgetService extends AbstractWidgetService {
     }
 
     /**
-     * Resets the color map and initializes it with colors of the active datasets from the config.
+     * Initializes the starting colors using the given input.
+     *
+     * @arg {ColorMap} colors
+     * @override
      */
-    public resetColorMap() {
+    public initializeColors(colors: ColorMap): void {
         this.colorKeyToColorSet = new Map<string, ColorSet>();
-        if (this.dashboardState.getOptions()) {
-            let dashboardOptions = this.dashboardState.getOptions();
-            let colorMaps = dashboardOptions.colorMaps || {};
-            Object.keys(colorMaps).forEach((databaseName) => {
-                Object.keys(colorMaps[databaseName]).forEach((tableName) => {
-                    Object.keys(colorMaps[databaseName][tableName]).forEach((fieldName) => {
-                        let valueToColor = new Map<string, Color>();
-                        Object.keys(colorMaps[databaseName][tableName][fieldName]).forEach((valueName) => {
-                            let color = colorMaps[databaseName][tableName][fieldName][valueName];
-                            let isRGB = (color.indexOf('#') < 0);
-                            valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
-                        });
-                        let colorKey = this.getColorKey(databaseName, tableName, fieldName);
-                        let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
-                        this.colorKeyToColorSet.set(colorKey, colorSet);
+        Object.keys(colors || {}).forEach((databaseName) => {
+            Object.keys(colors[databaseName]).forEach((tableName) => {
+                Object.keys(colors[databaseName][tableName]).forEach((fieldName) => {
+                    let valueToColor = new Map<string, Color>();
+                    Object.keys(colors[databaseName][tableName][fieldName]).forEach((valueName) => {
+                        let color = colors[databaseName][tableName][fieldName][valueName];
+                        let isRGB = (color.indexOf('#') < 0);
+                        valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
                     });
+                    let colorKey = this.getColorKey(databaseName, tableName, fieldName);
+                    let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);
+                    this.colorKeyToColorSet.set(colorKey, colorSet);
                 });
             });
-        }
+        });
     }
 
     /**

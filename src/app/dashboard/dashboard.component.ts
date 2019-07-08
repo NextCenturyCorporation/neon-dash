@@ -22,16 +22,18 @@ import {
     ViewChild,
     ViewChildren,
     ViewContainerRef,
+    Inject,
     ElementRef
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
 
-import { AbstractWidgetService } from '../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterService } from '../services/filter.service';
+import { FilterDataSource, FilterDesign } from '../services/filter.service';
+import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { NeonGridItem } from '../models/neon-grid-item';
@@ -46,10 +48,11 @@ import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
-import { Location } from '@angular/common';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { takeUntil } from 'rxjs/operators';
 import { Subject, fromEvent } from 'rxjs';
+import { Location, APP_BASE_HREF } from '@angular/common';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
@@ -128,19 +131,25 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     messageReceiver: eventing.Messenger;
     messageSender: eventing.Messenger;
 
-    private currentTitle: string;
+    private currentDashboardId: string;
+
+    private _filterChangeData: {
+        callerId: string;
+        changeCollection: Map<FilterDataSource[], FilterDesign[]>;
+    };
 
     constructor(
         public changeDetection: ChangeDetectorRef,
         public dashboardService: DashboardService,
         private domSanitizer: DomSanitizer,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
-        public widgetService: AbstractWidgetService,
+        public colorThemeService: InjectableColorThemeService,
         public viewContainerRef: ViewContainerRef,
         public router: Router,
-        public location: Location
+        public location: Location,
+        @Inject(APP_BASE_HREF) private baseHref: string
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -165,8 +174,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.showCustomConnectionButton = true;
         this.snackBar = snackBar;
 
-        this.dashboardService.configSource.subscribe((config) => this.onConfigChange(config));
-        this.dashboardService.stateSource.subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .subscribe((config) => this.onConfigChange(config));
+        this.dashboardService.stateSource
+            .subscribe((state) => this.onDashboardStateChange(state));
+        this.dashboardService.configSource
+            .pipe(distinctUntilKeyChanged('fileName'))
+            .subscribe((config) => {
+                this.setTitleAndIcon(
+                    config.projectTitle || 'Neon',
+                    config.projectIcon || 'assets/favicon.blue.ico?v=1'
+                );
+            });
     }
 
     get currentDashboard() {
@@ -189,11 +208,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', config.errors);
         }
 
-        this.setTitleAndIcon(
-            config.projectTitle || 'Neon',
-            config.projectIcon || 'assets/favicon.blue.ico?v=1'
-        );
-
         const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
 
         if (dashboard) {
@@ -208,22 +222,23 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const url = new URL(window.location.toString());
-        const urlFilter = url.searchParams.get('filter');
         const currentFilter = this.filterService.getFiltersToSaveInURL();
-
-        if (!urlFilter && currentFilter) {
-            const path = this.location.prepareExternalUrl(url.pathname);
-            this.location.replaceState(`${path}?${url.searchParams.toString()}#${currentFilter}`);
+        const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
+        if ((!filters && currentFilter) || url.pathname === '/') {
+            this.location.replaceState(`${fullPath}#${currentFilter}`);
         }
 
         // Clean on different dashboard
-        if (this.currentTitle !== state.dashboard.fullTitle) {
+        if (this.currentDashboardId !== state.id) {
+            this.dashboardService.state.modified = false;
+
             this.pendingInitialRegistrations = this.widgets.size;
 
             this.gridState.clear();
             this.widgets.clear();
             this.changeDetection.detectChanges();
+
+            this.colorThemeService.initializeColors(state.getOptions().colorMaps);
 
             const layout = this.dashboardService.config.layouts[state.getLayout()];
 
@@ -237,11 +252,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             this.simpleFilter.updateSimpleFilterConfig();
             this.showDashboardSelector = false;
             this.refreshDashboard();
-        } else {
-            this.messageSender.publish(neonEvents.FILTERS_REFRESH, {});
+        } else if (this._filterChangeData) {
+            this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId, this._filterChangeData.changeCollection);
+            this._filterChangeData = null;
         }
 
-        this.currentTitle = state.dashboard.fullTitle;
+        this.currentDashboardId = state.id;
     }
 
     setTitleAndIcon(titleText: string, icon: string) {
@@ -430,6 +446,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
                     });
             });
 
+        this.filterService.overrideFilterChangeNotifier(this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
@@ -442,14 +459,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
-        this.messageReceiver.subscribe(neonEvents.FILTERS_CHANGED, this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
     }
 
     @DashboardModified()
-    onFiltersChanged() {
-        this.router.navigate([], {
+    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) {
+        this._filterChangeData = {
+            callerId: callerId,
+            changeCollection: changeCollection
+        };
+        const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
+        this.router.navigate(pathParts, {
             fragment: this.filterService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root

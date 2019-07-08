@@ -26,7 +26,7 @@ import {
 
 import { ColorSet } from '../../models/color';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 
 /**
  * Shows a legend of colors using the given color keys.
@@ -76,7 +76,7 @@ export class LegendComponent implements OnInit {
     public colorSets: ColorSet[] = [];
     private _colorKeys: string[];
 
-    constructor(public widgetService: AbstractWidgetService) {
+    constructor(public colorThemeService: InjectableColorThemeService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 
@@ -95,7 +95,7 @@ export class LegendComponent implements OnInit {
     private loadAllColorSets() {
         this.colorSets = [];
         for (let colorKey of (this.colorKeys || [])) {
-            let colorSet = this.widgetService.getColorSet(colorKey || '');
+            let colorSet = this.colorThemeService.getColorSet(colorKey || '');
             if (colorSet) {
                 this.colorSets.push(colorSet);
             }
