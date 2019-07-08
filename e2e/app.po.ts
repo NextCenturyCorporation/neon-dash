@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { browser, ElementFinder, By, by, $$, $, ElementArrayFinder, Locator } from 'protractor';
+import { browser, ElementFinder, By, by, $$, $, until } from 'protractor';
 
 interface PageInfo { start?: number, end?: number, count: number }
-
-function nest(locator: Locator, sub: string) {
-    return by.css(`${locator['value']} ${sub}`);
-}
 
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-await-in-loop */
@@ -113,7 +109,7 @@ export class NeonGtdPage {
         await button.click();
     }
 
-    async getSettingsPanel() {
+    async getSettingsPanel(): Promise<ElementFinder> {
         return $('mat-sidenav app-gear');
     }
 
