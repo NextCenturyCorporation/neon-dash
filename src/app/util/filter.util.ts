@@ -715,36 +715,29 @@ export class CompoundFilter extends AbstractFilter {
         return null;
     }
 
-    public asListEqualsFilter(): SimpleFilter[] {
-        if (this.type === CompoundFilterType.AND && this.filters.length &&
-            this.filters.every((filter) => filter instanceof SimpleFilter)) {
+    public asListFilter(): SimpleFilter[] {
+        if (this.filters.length && this.filters.every((filter) => filter instanceof SimpleFilter)) {
             let sample = this.filters[0] as SimpleFilter;
             let fieldKey = sample.database.name + '.' + sample.table.name + '.' + sample.field.columnName;
+            let operator = sample.operator;
 
             return this.filters.every((filter) => {
                 let simple = filter as SimpleFilter;
                 return (simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName) === fieldKey &&
-                    simple.operator === '=';
+                    simple.operator === operator;
             }) ? this.filters as SimpleFilter[] : null;
         }
         return null;
     }
 
-    public asPairEqualsFilter(): { one: SimpleFilter, two: SimpleFilter } {
+    public asPairFilter(): SimpleFilter[] {
         if (this.type === CompoundFilterType.AND && this.filters.length === 2 &&
             this.filters.every((filter) => filter instanceof SimpleFilter)) {
             let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
                 let simple = filter as SimpleFilter;
                 return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
             }));
-
-            if (uniqueFieldKeys.length === 2) {
-                let pairFilter = {
-                    one: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '='),
-                    two: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[1], '=')
-                };
-                return (pairFilter.one && pairFilter.two) ? pairFilter : null;
-            }
+            return uniqueFieldKeys.length === 2 ? this.filters as SimpleFilter[] : null;
         }
         return null;
     }
@@ -800,7 +793,8 @@ export class CompoundFilter extends AbstractFilter {
     public getLabelForField(abridged: boolean = false): string {
         let boundsFilter = this.asBoundsFilter();
         if (boundsFilter) {
-            return '(' + boundsFilter.lowerA.getLabelForField(abridged) + ', ' + boundsFilter.lowerB.getLabelForField(abridged) + ')';
+            return '(' + boundsFilter.lowerA.getLabelForField(abridged) + ' ' + this.type + ' ' +
+                boundsFilter.lowerB.getLabelForField(abridged) + ')';
         }
 
         let domainFilter = this.asDomainFilter();
@@ -808,12 +802,17 @@ export class CompoundFilter extends AbstractFilter {
             return domainFilter.lower.getLabelForField(abridged);
         }
 
-        let pairEqualsFilter = this.asPairEqualsFilter();
-        if (pairEqualsFilter) {
-            return '(' + pairEqualsFilter.one.getLabelForField(abridged) + ', ' + pairEqualsFilter.two.getLabelForField(abridged) + ')';
+        let listFilter = this.asListFilter();
+        if (listFilter) {
+            return listFilter[0].getLabelForField(abridged);
         }
 
-        return '(' + this.filters.map((filter) => filter.getLabelForField(abridged)).join(', ') + ')';
+        let pairFilter = this.asPairFilter();
+        if (pairFilter) {
+            return '(' + pairFilter[0].getLabelForField(abridged) + ' ' + this.type + ' ' + pairFilter[1].getLabelForField(abridged) + ')';
+        }
+
+        return '(' + this.filters.map((filter) => filter.getLabelForField(abridged)).join(' ' + this.type + ' ') + ')';
     }
 
     /**
@@ -842,16 +841,33 @@ export class CompoundFilter extends AbstractFilter {
             return 'between ' + domainFilter.lower.getLabelForValue() + ' and ' + domainFilter.upper.getLabelForValue();
         }
 
-        let pairEqualsFilter = this.asPairEqualsFilter();
-        if (pairEqualsFilter) {
-            return '(' + pairEqualsFilter.one.getLabelForValue() + ', ' + pairEqualsFilter.two.getLabelForValue() + ')';
+        let listFilter = this.asListFilter();
+        if (listFilter) {
+            if (listFilter.length > 5) {
+                return listFilter[0].operator + ' (' + listFilter.slice(0, 5).map((filter) =>
+                    filter.getLabelForValue()).join(' ' + this.type + ' ') + ' ' + this.type + ' ' + (listFilter.length - 5) + ' more...)';
+            }
+            return listFilter[0].operator + ' (' + listFilter.map((filter) => filter.getLabelForValue()).join(' ' + this.type + ' ') + ')';
+        }
+
+        let pairFilter = this.asPairFilter();
+        if (pairFilter) {
+            return '(' + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' + pairFilter[1].getLabelForValue() + ')';
+        }
+
+        // TODO THOR-1333 Improve label for custom compound filter
+        if (this.filters.length > 5) {
+            return '(' + this.filters.slice(0, 5).map((filter) => {
+                let operator = filter.getLabelForOperator();
+                return (operator ? (operator + ' ') : '') + filter.getLabelForValue();
+            }).join(' ' + this.type + ' ') + ' ' + this.type + ' ' + (this.filters.length - 5) + ' more...)';
         }
 
         // TODO THOR-1333 Improve label for custom compound filter
         return '(' + this.filters.map((filter) => {
             let operator = filter.getLabelForOperator();
             return (operator ? (operator + ' ') : '') + filter.getLabelForValue();
-        }).join(', ') + ')';
+        }).join(' ' + this.type + ' ') + ')';
     }
 
     /**
