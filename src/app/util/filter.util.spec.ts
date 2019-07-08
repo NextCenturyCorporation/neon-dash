@@ -3337,11 +3337,11 @@ describe('Filter Labels', () => {
             (filter as SimpleFilter).datastore = 'testDatastore1';
         });
 
-        expect(boundsFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test X Field, Test Database 1 / Test Table 1 / ' +
+        expect(boundsFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / Test Table 1 / ' +
             'Test Y Field) from (-50, -100) to (50, 100)');
-        expect(boundsFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test X Field, Test Database 1 / ' +
+        expect(boundsFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
             'Test Table 1 / Test Y Field)');
-        expect(boundsFilter.getLabelForField(true)).toEqual('(Test X Field, Test Y Field)');
+        expect(boundsFilter.getLabelForField(true)).toEqual('(Test X Field and Test Y Field)');
         expect(boundsFilter.getLabelForOperator()).toEqual('');
         expect(boundsFilter.getLabelForValue()).toEqual('from (-50, -100) to (50, 100)');
     });
@@ -3378,13 +3378,13 @@ describe('Filter Labels', () => {
         });
 
         // TODO THOR-1333 Improve label for custom compound filter
-        expect(compoundFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field, Test Database 1 / Test Table 1 / ' +
-            'Test Text Field, Test Database 1 / Test Table 1 / Test Type Field) (= testName, = testText, = testType)');
-        expect(compoundFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field, Test Database 1 / ' +
-            'Test Table 1 / Test Text Field, Test Database 1 / Test Table 1 / Test Type Field)');
-        expect(compoundFilter.getLabelForField(true)).toEqual('(Test Name Field, Test Text Field, Test Type Field)');
+        expect(compoundFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / Test Table 1 / ' +
+            'Test Text Field or Test Database 1 / Test Table 1 / Test Type Field) (= testName or = testText or = testType)');
+        expect(compoundFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
+            'Test Table 1 / Test Text Field or Test Database 1 / Test Table 1 / Test Type Field)');
+        expect(compoundFilter.getLabelForField(true)).toEqual('(Test Name Field or Test Text Field or Test Type Field)');
         expect(compoundFilter.getLabelForOperator()).toEqual('');
-        expect(compoundFilter.getLabelForValue()).toEqual('(= testName, = testText, = testType)');
+        expect(compoundFilter.getLabelForValue()).toEqual('(= testName or = testText or = testType)');
     });
 
     it('getLabel functions on domain filter should return expected strings', () => {
