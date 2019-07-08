@@ -21,7 +21,7 @@ import {
 } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
-    FilterBehavior,
+    AbstractFilter,
     FilterCollection,
     FilterDataSource,
     FilterDesign
@@ -69,9 +69,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     protected id: string;
     protected messenger: eventing.Messenger;
-
-    // Maps a specific filter data source list to its filter list.
-    private cachedFilters: FilterCollection = new FilterCollection();
 
     // Maps the options/layer ID to the element count.
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
@@ -138,7 +135,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
             this.destroyVisualization();
             this.constructVisualization();
-            this.cachedFilters = new FilterCollection();
             this.handleChangeFilterField();
         });
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
@@ -164,8 +160,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.initializeProperties();
-
-        this.updateCollectionWithGlobalCompatibleFilters();
 
         this.initializing = false;
     }
@@ -283,6 +277,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // second transition so wait until that has finished before redrawing.
             setTimeout(() => {
                 this.refreshVisualization();
+                this.changeDetection.detectChanges();
             }, 300);
         }
     }
@@ -505,28 +500,31 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {FilterClause[]}
      */
     public createSharedFilters(options: WidgetOptionCollection): FilterClause[] {
-        let globalFilters: FilterClause[] = this.getGlobalFilterClauses(options);
+        let filterClauses: FilterClause[] = this.retrieveApplicableFilters(options).map((filter) =>
+            this.searchService.generateFilterClauseFromFilter(filter));
 
         if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
-            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
+            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
                 options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter(options)) {
-            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
+            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
                 options.unsharedFilterValue));
         }
 
-        return globalFilters;
+        return filterClauses;
     }
 
-    private getGlobalFilterClauses(options: WidgetOptionCollection): FilterClause[] {
-        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] :
-            this.cachedFilters.getDataSources()
-                .map((dataSource) => this.cachedFilters.getFilters(dataSource))
-                .reduce((acc, filters) => [...acc, ...filters], [])
-                .map((filter) => filter.toDesign());
-        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
+    private retrieveApplicableFilters(options: WidgetOptionCollection): AbstractFilter[] {
+        let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
+
+        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.shouldFilterSelf() ? [] :
+            compatibleFilters.map((filter) => filter.toDesign()));
+    }
+
+    private retrieveCompatibleFilters(): FilterCollection {
+        return this.filterService.retrieveCompatibleFilterCollection(this.designEachFilterWithNoValues());
     }
 
     /**
@@ -565,7 +563,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         failureCallback: (err: Error) => void
     ): void {
         try {
-            let data = this.transformVisualizationQueryResults(options, results);
+            let data = this.transformVisualizationQueryResults(options, results, this.retrieveCompatibleFilters());
             successCallback(data);
         } catch (err) {
             failureCallback(err);
@@ -582,7 +580,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
-            this.transformVisualizationQueryResults(options, []);
+            this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
             this.errorMessage = 'No Data';
             this.layerIdToElementCount.set(options._id, 0);
             callback();
@@ -615,7 +613,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         };
 
         let failureCallback = (err: Error) => {
-            this.transformVisualizationQueryResults(options, []);
+            this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
             this.errorMessage = 'Error';
             this.layerIdToElementCount.set(options._id, 0);
             this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
@@ -634,10 +632,18 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @abstract
      */
-    public abstract transformVisualizationQueryResults(options: WidgetOptionCollection, results: any[]): number;
+    public abstract transformVisualizationQueryResults(options: WidgetOptionCollection, results: any[], filters: FilterCollection): number;
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     */
+    protected redrawFilters(__filters: FilterCollection): void {
+        // Override if needed.
+    }
 
     /**
      * Updates and redraws the elements and properties for the visualization.
@@ -721,47 +727,31 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
         // TODO THOR-1062 Allow multiple datastores
         return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
-            (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
+            (this.options.hideUnfiltered && !this.retrieveApplicableFilters(options).length));
     }
 
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
     private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
-        this.updateCollectionWithGlobalCompatibleFilters();
-
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
         if (callerId !== this.id || this.shouldFilterSelf()) {
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
+        } else {
+            this.redrawFilters(this.retrieveCompatibleFilters());
+            this.refreshVisualization();
+            this.changeDetection.detectChanges();
         }
     }
 
     /**
-     * Replaces the existing global widget filters with all the compatible (matching) dash filters.
-     */
-    private updateCollectionWithGlobalCompatibleFilters(): void {
-        let behaviors: FilterBehavior[] = this.designEachFilterWithNoValues();
-        this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters);
-    }
-
-    /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      */
-    protected abstract designEachFilterWithNoValues(): FilterBehavior[];
-
-    /**
-     * Returns if the visualization is filtered (optionally, filtered matching the given filter design).
-     *
-     * @arg {FilterDesign} [filterDesign]
-     * @return {boolean}
-     */
-    protected isFiltered(filterDesign?: FilterDesign): boolean {
-        return this.filterService.isFiltered(this.cachedFilters, filterDesign);
-    }
+    protected abstract designEachFilterWithNoValues(): FilterDesign[];
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
@@ -770,7 +760,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        this.updateCollectionWithGlobalCompatibleFilters();
         this.handleChangeData(options, databaseOrTableChange);
     }
 
@@ -844,9 +833,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the query was empty, show the relevant text.
         if (!elementCount) {
-            let filtered: boolean = this.cachedFilters.getDataSources().some((dataSource) =>
-                !!this.cachedFilters.getFilters(dataSource).length);
-            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : ('0' + (elementLabel ? (' ' + elementLabel) : ''));
+            let filtered = !!this.retrieveApplicableFilters(options).length;
+            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) : 'None');
         }
 
         // If the visualization query does pagination, show the pagination text.

@@ -28,6 +28,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
 
 describe('Component: Timeline', () => {
@@ -437,7 +438,7 @@ describe('Component: Timeline', () => {
             _date: 1515110400000,
             _month: 1,
             _year: 2018
-        }]);
+        }], new FilterCollection());
 
         expect(actual).toEqual(4);
         // Expected date value equals UTCMonth - 1
@@ -473,7 +474,7 @@ describe('Component: Timeline', () => {
             _date: 1515110400000,
             _month: 1,
             _year: 2018
-        }]);
+        }], new FilterCollection());
 
         expect(actual).toEqual(11);
         // Expected date value equals UTCMonth - 1
