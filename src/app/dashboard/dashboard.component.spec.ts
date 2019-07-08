@@ -27,7 +27,8 @@ import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../m
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
-import { AbstractSearchService, CompoundFilterType } from '../services/abstract.search.service';
+import { AbstractSearchService } from '../services/abstract.search.service';
+import { CompoundFilterType } from '../models/widget-option';
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
