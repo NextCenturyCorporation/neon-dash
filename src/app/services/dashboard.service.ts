@@ -27,6 +27,7 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
+import { ConfigUtil } from '../util/config.util';
 import { FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
 
@@ -109,10 +110,13 @@ export class DashboardService {
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
-        const filters = typeof dashboard.filters === 'string' ?
-            FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
+        let filters = dashboard.filters;
+        if (typeof filters === 'string') {
+            const stringFilters = ConfigUtil.translate(dashboard.filters as string, ConfigUtil.decodeFiltersMap);
+            filters = (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter));
+        }
 
-        this.filterService.setFiltersFromConfig(filters || [], this.state);
+        this.filterService.setFiltersFromConfig(filters || [], this.state.asDataset());
         this.stateSubject.next(this.state);
     }
 

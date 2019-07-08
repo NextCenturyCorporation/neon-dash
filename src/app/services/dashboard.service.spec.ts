@@ -79,6 +79,51 @@ describe('Service: DashboardService', () => {
             databases: {}
         });
     });
+
+    it('setActiveDashboard should translate string filter list', () => {
+        let spy = spyOn(dashboardService['filterService'], 'setFiltersFromConfig');
+
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
+            filters: ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+                [".databaseZ.tableA.field1","=","value1","or"],
+                ["and", "and",
+                    [".databaseY.tableB.field2", "!=", "", "or"],
+                    [".databaseY.tableB.field2", "!=", null, "or"]
+                ]
+            ]`)), ConfigUtil.encodeFiltersMap)
+        }));
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual([{
+            root: 'or',
+            datastore: '',
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
+            operator: '=',
+            value: 'value1'
+        }, {
+            root: 'and',
+            type: 'and',
+            filters: [{
+                root: 'or',
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: ''
+            }, {
+                root: 'or',
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: null
+            }]
+        }]);
+    });
 });
 
 describe('Service: DashboardService with Mock Data', () => {

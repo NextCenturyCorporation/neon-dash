@@ -15,10 +15,7 @@
 
 import { CompoundFilterType } from '../services/abstract.search.service';
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
-
-import { DashboardState } from '../models/dashboard-state';
-import { ConfigUtil } from './config.util';
+import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
 
 import * as _ from 'lodash';
@@ -148,18 +145,20 @@ export class FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dashboardState: DashboardState): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dataset: Dataset): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if ('database' in filterObject && 'table' in filterObject && 'field' in filterObject && 'operator' in filterObject) {
-            let database: NeonDatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
-            let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
-            let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            // TODO THOR-1062 Allow multiple datastores
+            let datastore: NeonDatastoreConfig = dataset.datastores[0];
+            let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
+            let table: NeonTableMetaData = database.tables[filterObject.table];
+            let fields: NeonFieldMetaData[] = table.fields.filter((field) => field.columnName === filterObject.field);
             return {
                 root: filterObject.root || '',
                 datastore: filterObject.datastore || '',
                 database,
                 table,
-                field,
+                field: fields[0],
                 operator: filterObject.operator,
                 value: filterObject.value
             } as SimpleFilterDesign;
@@ -170,7 +169,7 @@ export class FilterUtil {
                 root: filterObject.root || '',
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
+                    this.createFilterDesignFromJsonObject(nestedObject, dataset))
             } as CompoundFilterDesign;
         }
 
@@ -310,17 +309,6 @@ export class FilterUtil {
             value,
             root: root || 'or'
         } as SimpleFilterConfig;
-    }
-
-    static toSimpleFilterQueryString(filters: FilterDesign[]): string {
-        return ConfigUtil.translate(JSON.stringify(this.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
-    }
-
-    static fromSimpleFilterQueryString(query: string): FilterConfig[] {
-        const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
-        const arr = JSON.parse(text) as any[];
-        const res = arr.map((val) => this.fromPlainFilterJSON(val));
-        return res;
     }
 }
 

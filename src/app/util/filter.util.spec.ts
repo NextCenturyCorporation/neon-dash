@@ -31,7 +31,6 @@ import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../m
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
-import { ConfigUtil } from '../util/config.util';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
@@ -607,19 +606,6 @@ describe('FilterUtil', () => {
     });
 
     describe('simpleFiltering', () => {
-        const queryString = `[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
-            ]
-        ]`;
-
-        const queryStringCompact = ConfigUtil.translate(
-            JSON.stringify(JSON.parse(queryString)),
-            ConfigUtil.encodeFiltersMap
-        );
-
         const filtersSimple = [
             {
                 root: 'or',
@@ -701,8 +687,6 @@ describe('FilterUtil', () => {
                 ['.databaseY.tableB.field2', '!=', null, 'or']]
         ];
 
-        const empty = ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap);
-
         it('toPlainFilterJSON should return expected output', () => {
             expect(FilterUtil.toPlainFilterJSON(filterDesigns)).toEqual(expected);
             expect(FilterUtil.toPlainFilterJSON([])).toEqual([]);
@@ -725,16 +709,6 @@ describe('FilterUtil', () => {
                 type: 'and',
                 filters: []
             });
-        });
-
-        it('toSimpleFilterQueryString should return expected output', () => {
-            expect(FilterUtil.toSimpleFilterQueryString(filterDesigns)).toEqual(queryStringCompact);
-            expect(FilterUtil.toSimpleFilterQueryString([])).toEqual(empty);
-        });
-
-        it('fromSimpleFilterQueryString should return expected output', () => {
-            expect(FilterUtil.fromSimpleFilterQueryString(queryStringCompact)).toEqual(filtersSimple);
-            expect(FilterUtil.fromSimpleFilterQueryString(empty)).toEqual([]);
         });
     });
 });

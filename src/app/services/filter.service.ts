@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 import { CompoundFilterType } from './abstract.search.service';
+import { Dataset, SingleField } from '../models/dataset';
 import { FilterConfig } from '../models/types';
-import { SingleField } from '../models/dataset';
 import {
     AbstractFilter,
     CompoundFilter,
@@ -23,8 +23,6 @@ import {
     FilterDesign,
     FilterUtil
 } from '../util/filter.util';
-
-import { DashboardState } from '../models/dashboard-state';
 
 export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => void;
 
@@ -276,13 +274,6 @@ export class FilterService {
     }
 
     /**
-     * Returns the filters as string for use in URL
-     */
-    public getFiltersToSaveInURL(): string {
-        return FilterUtil.toSimpleFilterQueryString(this.getFilters());
-    }
-
-    /**
      * Returns all the filters to search on the given datastore/database/table (ignoring filters from the given data sources).
      *
      * @arg {string} datastoreName
@@ -379,10 +370,10 @@ export class FilterService {
     /**
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      */
-    public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dashboardState: DashboardState) {
+    public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dataset: Dataset) {
         let collection: FilterCollection = new FilterCollection();
         for (const filterFromConfig of filtersFromConfig) {
-            const filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dashboardState);
+            const filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dataset);
             if (filterDesign) {
                 const filterDataSourceList = collection.findFilterDataSources(filterDesign);
                 const filter = FilterUtil.createFilterFromDesign(filterDesign);
