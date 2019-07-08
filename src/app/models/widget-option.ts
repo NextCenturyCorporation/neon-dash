@@ -23,6 +23,14 @@ export enum AggregationType {
     SUM = 'sum'
 }
 
+export enum TimeInterval {
+    MINUTE = 'minute',
+    HOUR = 'hour',
+    DAY_OF_MONTH = 'dayOfMonth',
+    MONTH = 'month',
+    YEAR = 'year'
+}
+
 type OptionCallback = (options: any) => boolean;
 
 class OptionChoice {
@@ -44,11 +52,11 @@ export const OptionChoices = {
     ],
 
     DateGranularity: [
-        new OptionChoice('Year', 'year'),
-        new OptionChoice('Month', 'month'),
-        new OptionChoice('Day', 'day'),
-        new OptionChoice('Hour', 'hour'),
-        new OptionChoice('Minute', 'minute')
+        new OptionChoice('Year', TimeInterval.YEAR),
+        new OptionChoice('Month', TimeInterval.MONTH),
+        new OptionChoice('Day', TimeInterval.DAY_OF_MONTH),
+        new OptionChoice('Hour', TimeInterval.HOUR),
+        new OptionChoice('Minute', TimeInterval.MINUTE)
     ],
 
     HideFalseShowTrue: [

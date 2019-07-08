@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { AggregationType } from '../models/widget-option';
-import { CompoundFilterType, SortOrder, TimeInterval } from './abstract.search.service';
+import { AggregationType, TimeInterval } from '../models/widget-option';
+import { CompoundFilterType, SortOrder } from './abstract.search.service';
 import { ConnectionService } from './connection.service';
 import { SearchService, NeonGroupWrapper, NeonWhereWrapper, NeonQueryWrapper } from './search.service';
 
