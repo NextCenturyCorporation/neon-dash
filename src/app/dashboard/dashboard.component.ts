@@ -31,7 +31,7 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterDesign } from '../util/filter.util';
+import { FilterDataSource, FilterDesign, FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -213,7 +213,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const currentFilter = this.filterService.getFiltersToSaveInURL();
+        const currentFilter = this.getFiltersToSaveInURL();
         const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
         if ((!filters && currentFilter) || url.pathname === '/') {
             this.location.replaceState(`${fullPath}#${currentFilter}`);
@@ -398,7 +398,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         };
         const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
         this.router.navigate(pathParts, {
-            fragment: this.filterService.getFiltersToSaveInURL(),
+            fragment: this.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root
         });
@@ -507,5 +507,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowFilterTray(eventMessage: { show: boolean }) {
         this.showFilterTray = eventMessage.show;
+    }
+
+    /**
+     * Returns the filters as string for use in URL
+     */
+    private getFiltersToSaveInURL(): string {
+        let filters: FilterDesign[] = this.filterService.getFilters();
+        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
     }
 }
