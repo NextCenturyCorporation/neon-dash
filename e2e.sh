@@ -17,6 +17,9 @@ function setup() {
     npm i --no-save ts-node
     mv node_modules/ts-node node_modules/ts-node-2
   fi
+  if [[ ! -d "node_modules/protractor/node_modules/webdriver-manager/selenium" ]]; then
+    npx webdriver-manager update
+  fi
   in-docker "docker-compose --no-ansi up -d" 
 }
 
