@@ -13,64 +13,30 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    ViewEncapsulation
-} from '@angular/core';
-import { MatSnackBar, MatGridListModule, MatDividerModule } from '@angular/material';
+import { MatGridListModule, MatDividerModule } from '@angular/material';
 import { } from 'jasmine-core';
 
 import { AddVisualizationComponent } from './add-visualization.component';
 import { AddVisualizationModule } from './add-visualization.module';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
+import { ColorThemeService } from '../../services/color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-// Must define the test component.
-@Component({
-    selector: 'app-test-add-visualization',
-    templateUrl: 'add-visualization.component.html',
-    styleUrls: ['add-visualization.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated,
-    changeDetection: ChangeDetectionStrategy.OnPush
-})
-
-class TestAddVisualizationComponent extends AddVisualizationComponent {
-    constructor(
-        widgetService: AbstractWidgetService,
-        snackBar: MatSnackBar
-    ) {
-        super(
-            snackBar,
-            widgetService
-        );
-    }
-
-    // TODO Add any needed custom functions here.
-}
-
 describe('Component: AddVisualization', () => {
-    let component: TestAddVisualizationComponent;
-    let fixture: ComponentFixture<TestAddVisualizationComponent>;
+    let component: AddVisualizationComponent;
+    let fixture: ComponentFixture<AddVisualizationComponent>;
     let spyOnInit;
 
     initializeTestBed('Add Visualization', {
-        declarations: [
-            TestAddVisualizationComponent
-        ],
         providers: [
+            { provide: AbstractColorThemeService, useClass: ColorThemeService },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
-            {
-                provide: AbstractWidgetService,
-                useClass: WidgetService
-            }
+            InjectableFilterService
         ],
         imports: [
             MatDividerModule,
@@ -80,7 +46,7 @@ describe('Component: AddVisualization', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(TestAddVisualizationComponent);
+        fixture = TestBed.createComponent(AddVisualizationComponent);
         component = fixture.componentInstance;
         spyOnInit = spyOn(component, 'ngOnInit');
         fixture.detectChanges();

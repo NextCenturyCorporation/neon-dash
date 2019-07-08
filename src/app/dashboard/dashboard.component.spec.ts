@@ -24,10 +24,9 @@ import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
-import { AbstractWidgetService } from '../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
-import { FilterService } from '../services/filter.service';
-import { WidgetService } from '../services/widget.service';
+import { InjectableFilterService } from '../services/injectable.filter.service';
 
 import { DashboardServiceMock, EmptyDashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
@@ -62,9 +61,9 @@ describe('Dashboard', () => {
         providers: [
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            InjectableColorThemeService
         ]
     }, false);
 
@@ -96,13 +95,6 @@ describe('Dashboard', () => {
         expect(component.createFiltersComponent).toEqual(false);
     });
 
-    it('should be showing correct filter icons', () => {
-        expect(component.filtersIcon).toEqual('filters');
-        component['isFiltered'] = () => true;
-        component.changeDetection.detectChanges();
-        expect(component.filtersIcon).toEqual('filters_active');
-    });
-
     it('should correctly toggle the panels', () => {
         component.setPanel('aboutNeon', 'About Neon');
         expect(component.currentPanel).toEqual('aboutNeon');
@@ -127,10 +119,10 @@ describe('Dashboard', () => {
 
     it('should navigate on filters changed', () => {
         let spyOnRouter = spyOn(component.router, 'navigate');
-        component.onFiltersChanged();
+        component.onFiltersChanged('testCaller', null);
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual([]);
+        expect(path).toEqual(['context.html']);
         expect(params.queryParamsHandling).toEqual('merge');
         expect(params.fragment).toBeTruthy();
     });
@@ -849,9 +841,9 @@ describe('Dashboard Custom', () => {
         providers: [
             { provide: APP_BASE_HREF, useValue: '/' },
             { provide: DashboardService, useClass: EmptyDashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            InjectableColorThemeService
         ]
     }, false);
 

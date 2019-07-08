@@ -12,18 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-    NeonDatastoreConfig,
-    NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData, NeonDashboardLeafConfig
-} from '../../app/models/types';
+import { NeonDashboardLeafConfig } from '../../app/models/types';
+import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../app/models/dataset';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
-import { ConnectionService } from '../../app/services/connection.service';
+import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
 import { Injectable } from '@angular/core';
-import { FilterService } from '../../app/services/filter.service';
+import { InjectableFilterService } from '../../app/services/injectable.filter.service';
 import { SearchServiceMock } from './SearchServiceMock';
+import {
+    DATABASES,
+    DATABASES_LIST,
+    DATASTORE,
+    FIELD_KEYS,
+    FIELD_MAP,
+    FIELDS,
+    TABLE_KEYS,
+    TABLES,
+    TABLES_LIST
+} from '../mock-dataset';
 
-export class MockConnectionService extends ConnectionService {
+export class MockConnectionService extends InjectableConnectionService {
     public connect(__datastoreType: string, __datastoreHost: string) {
         return null as any;
     }
@@ -31,72 +40,25 @@ export class MockConnectionService extends ConnectionService {
 
 @Injectable()
 export class DashboardServiceMock extends DashboardService {
-    public static FIELD_MAP = {
-        CATEGORY: NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', type: 'string' }),
-        DATE: NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', type: 'date' }),
-        FIELD_KEY: NeonFieldMetaData.get({ columnName: 'testFieldKeyField', prettyName: 'Test Field Key Field', type: 'string' }),
-        FILTER: NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', type: 'string' }),
-        ID: NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', type: 'string' }),
-        LINK: NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', type: 'string' }),
-        NAME: NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', type: 'string' }),
-        RELATION_A: NeonFieldMetaData.get({ columnName: 'testRelationFieldA', prettyName: 'Test Relation Field A', type: 'string' }),
-        RELATION_B: NeonFieldMetaData.get({ columnName: 'testRelationFieldB', prettyName: 'Test Relation Field B', type: 'string' }),
-        SIZE: NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', type: 'float' }),
-        SORT: NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', type: 'string' }),
-        TEXT: NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field', type: 'string' }),
-        TYPE: NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', type: 'string' }),
-        X: NeonFieldMetaData.get({ columnName: 'testXField', prettyName: 'Test X Field', type: 'float' }),
-        Y: NeonFieldMetaData.get({ columnName: 'testYField', prettyName: 'Test Y Field', type: 'float' }),
-        ES_ID: NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id' })
-    };
-
-    // Keep in alphabetical order.
-    public static FIELDS: NeonFieldMetaData[] = Object.values(DashboardServiceMock.FIELD_MAP);
-
-    public static TABLES = {
-        testTable1: NeonTableMetaData.get({ name: 'testTable1', prettyName: 'Test Table 1', fields: DashboardServiceMock.FIELDS }),
-        testTable2: NeonTableMetaData.get({ name: 'testTable2', prettyName: 'Test Table 2', fields: DashboardServiceMock.FIELDS })
-    };
-
-    public static TABLES_LIST = [DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.TABLES.testTable2];
-
-    public static DATABASES = {
-        testDatabase1: NeonDatabaseMetaData.get({
-            name: 'testDatabase1',
-            prettyName: 'Test Database 1',
-            tables: DashboardServiceMock.TABLES
-        }),
-        testDatabase2: NeonDatabaseMetaData.get({
-            name: 'testDatabase2',
-            prettyName: 'Test Database 2',
-            tables: DashboardServiceMock.TABLES
-        })
-    };
-
-    public static DATABASES_LIST = [DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.DATABASES.testDatabase2];
+    public static FIELD_MAP = FIELD_MAP;
+    public static FIELDS = FIELDS;
+    public static TABLES = TABLES;
+    public static TABLES_LIST = TABLES_LIST;
+    public static DATABASES = DATABASES;
+    public static DATABASES_LIST = DATABASES_LIST;
 
     static init(svc: DashboardServiceMock) {
-        const datastore = NeonDatastoreConfig.get({
-            name: 'datastore1',
-            host: 'testHostname',
-            type: 'testDatastore',
-            databases: DashboardServiceMock.DATABASES,
-            hasUpdatedFields: true
-        });
+        const datastore = DATASTORE;
+
+        svc.config.fileName = '-';
 
         svc.setActiveDatastore(datastore);
 
         const dashboard = NeonDashboardLeafConfig.get({
             name: 'Test Discovery Config',
             layout: 'DISCOVERY',
-
-            tables: {
-                table_key_1: 'datastore1.testDatabase1.testTable1',
-                table_key_2: 'datastore1.testDatabase2.testTable2'
-            },
-            fields: {
-                field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
-            },
+            tables: TABLE_KEYS,
+            fields: FIELD_KEYS,
             visualizationTitles: {
                 dataTableTitle: 'Documents'
             },
@@ -116,7 +78,7 @@ export class DashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
 
@@ -131,7 +93,7 @@ export class EmptyDashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new FilterService(),
+            new InjectableFilterService(),
             new SearchServiceMock()
         );
     }

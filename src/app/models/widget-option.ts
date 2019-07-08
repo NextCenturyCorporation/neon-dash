@@ -12,31 +12,85 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injector } from '@angular/core';
-import { AggregationType } from '../services/abstract.search.service';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
 import * as _ from 'lodash';
 import * as yaml from 'js-yaml';
-import * as uuidv4 from 'uuid/v4';
-import { DashboardState } from './dashboard-state';
+
+export enum AggregationType {
+    AVG = 'avg',
+    COUNT = 'count',
+    MAX = 'max',
+    MIN = 'min',
+    SUM = 'sum'
+}
 
 type OptionCallback = (options: any) => boolean;
-interface OptionChoice { prettyName: string, variable: any }
+
+class OptionChoice {
+    constructor(public prettyName: string, public variable: any) { }
+}
+
+export const OptionChoices = {
+    Aggregation: [
+        new OptionChoice('Count', AggregationType.COUNT),
+        new OptionChoice('Average', AggregationType.AVG),
+        new OptionChoice('Max', AggregationType.MAX),
+        new OptionChoice('Min', AggregationType.MIN),
+        new OptionChoice('Sum', AggregationType.SUM)
+    ],
+
+    AscendingFalseDescendingTrue: [
+        new OptionChoice('Ascending', false),
+        new OptionChoice('Descending', true)
+    ],
+
+    DateGranularity: [
+        new OptionChoice('Year', 'year'),
+        new OptionChoice('Month', 'month'),
+        new OptionChoice('Day', 'day'),
+        new OptionChoice('Hour', 'hour'),
+        new OptionChoice('Minute', 'minute')
+    ],
+
+    HideFalseShowTrue: [
+        new OptionChoice('Hide', false),
+        new OptionChoice('Show', true)
+    ],
+
+    NoFalseYesTrue: [
+        new OptionChoice('No', false),
+        new OptionChoice('Yes', true)
+    ],
+
+    OrFalseAndTrue: [
+        new OptionChoice('OR', false),
+        new OptionChoice('AND', true)
+    ],
+
+    ShowFalseHideTrue: [
+        new OptionChoice('Show', false),
+        new OptionChoice('Hide', true)
+    ],
+
+    YesFalseNoTrue: [
+        new OptionChoice('Yes', false),
+        new OptionChoice('No', true)
+    ]
+};
 
 export enum OptionType {
+    COLOR = 'COLOR',
     DATABASE = 'DATABASE',
     FIELD = 'FIELD',
     FIELD_ARRAY = 'FIELD_ARRAY',
     FREE_TEXT = 'FREE_TEXT',
-    NUMBER = 'NUMBER',
     MULTIPLE_SELECT = 'MULTIPLE_SELECT',
     NON_PRIMITIVE = 'NON_PRIMITIVE',
-    COLOR = 'COLOR',
+    NUMBER = 'NUMBER',
     SELECT = 'SELECT',
     TABLE = 'TABLE'
 }
 
-export abstract class WidgetOption {
+export class WidgetOption {
     public valueCurrent: any;
 
     /**
@@ -47,7 +101,7 @@ export abstract class WidgetOption {
      * @arg {string} prettyName
      * @arg {any} valueDefault
      * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
         public optionType: OptionType,
@@ -56,7 +110,7 @@ export abstract class WidgetOption {
         public prettyName: string,
         public valueDefault: any,
         public valueChoices: OptionChoice[],
-        public enableInMenu: boolean | OptionCallback = true
+        public hideFromMenu: boolean | OptionCallback = false
     ) { }
 
     /**
@@ -64,8 +118,26 @@ export abstract class WidgetOption {
      *
      * @return {any}
      */
-    public getValueToSaveInBindings(): any {
+    getValueToSaveInBindings() {
         return this.valueCurrent;
+    }
+}
+
+export class WidgetColorOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|function} [hideFromMenu=false]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
+        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
@@ -75,7 +147,7 @@ export class WidgetDatabaseOption extends WidgetOption {
      */
     constructor() {
         // Value default and choices are set elsewhere.
-        super(OptionType.DATABASE, true, 'database', 'Database', undefined, undefined, true);
+        super(OptionType.DATABASE, true, 'database', 'Database', undefined, undefined, false);
     }
 
     /**
@@ -84,7 +156,7 @@ export class WidgetDatabaseOption extends WidgetOption {
      * @return {any}
      * @override
      */
-    public getValueToSaveInBindings(): any {
+    getValueToSaveInBindings() {
         return this.valueCurrent.name;
     }
 }
@@ -95,11 +167,11 @@ export class WidgetFieldArrayOption extends WidgetOption {
      * @arg {string} bindingKey
      * @arg {string} prettyName
      * @arg {boolean} isRequired
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, enableInMenu: boolean | OptionCallback = true) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean, hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
-        super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
+        super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
 
     /**
@@ -108,7 +180,7 @@ export class WidgetFieldArrayOption extends WidgetOption {
      * @return {any}
      * @override
      */
-    public getValueToSaveInBindings(): any {
+    getValueToSaveInBindings() {
         return this.valueCurrent.map((fieldElement) => fieldElement.columnName);
     }
 }
@@ -118,12 +190,12 @@ export class WidgetFieldOption extends WidgetOption {
      * @constructor
      * @arg {string} bindingKey
      * @arg {string} prettyName
-     * @arg {boolean} isRequired
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean} [isRequired=false]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, enableInMenu: boolean | OptionCallback = true) {
+    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
-        super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, enableInMenu);
+        super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
 
     /**
@@ -132,7 +204,7 @@ export class WidgetFieldOption extends WidgetOption {
      * @return {any}
      * @override
      */
-    public getValueToSaveInBindings(): any {
+    getValueToSaveInBindings() {
         return this.valueCurrent.columnName;
     }
 }
@@ -143,35 +215,104 @@ export class WidgetFreeTextOption extends WidgetOption {
      * @arg {string} bindingKey
      * @arg {string} prettyName
      * @arg {any} valueDefault
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
         bindingKey: string,
         prettyName: string,
         valueDefault: any,
-        enableInMenu: boolean | OptionCallback = true
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
-export class WidgetNumberOption extends WidgetOption {
-    private _intermediateValue: number;
+export class WidgetMultipleSelectOption extends WidgetOption {
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {OptionChoice[]} valueChoices
+     * @arg {boolean|function} [hideFromMenu=false]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        valueChoices: OptionChoice[],
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
+        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
+    }
+}
+
+export class WidgetNonPrimitiveOption extends WidgetOption {
+    private _intermediateValue: string;
 
     /**
      * @constructor
      * @arg {string} bindingKey
      * @arg {string} prettyName
      * @arg {any} valueDefault
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
         bindingKey: string,
         prettyName: string,
         valueDefault: any,
-        enableInMenu: boolean | OptionCallback = true
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
+        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        this._intermediateValue = undefined;
+    }
+
+    get intermediateValue() {
+        if (this._intermediateValue === undefined) {
+            try {
+                const value = this.valueCurrent || this.valueDefault;
+                this._intermediateValue = _.isEmpty(value) ? '' : yaml.safeDump(value);
+            } catch {
+                console.error('ERROR WidgetNonPrimitiveOption: get intermediateValue() failed');
+            }
+            this._intermediateValue = this._intermediateValue || '';
+        }
+        return this._intermediateValue;
+    }
+
+    set intermediateValue(value) {
+        this._intermediateValue = value;
+        try {
+            this.valueCurrent = _.isEmpty(value) ? undefined : yaml.safeLoad(this._intermediateValue);
+        } catch {
+            console.error('ERROR WidgetNonPrimitiveOption: set intermediateValue() failed');
+        }
+    }
+
+    getValueToSaveInBindings() {
+        delete this._intermediateValue;
+        return this.valueCurrent || this.valueDefault;
+    }
+}
+
+export class WidgetNumberOption extends WidgetOption {
+    private _intermediateValue: number|string;
+
+    /**
+     * @constructor
+     * @arg {string} bindingKey
+     * @arg {string} prettyName
+     * @arg {any} valueDefault
+     * @arg {boolean|function} [hideFromMenu=false]
+     */
+    constructor(
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
+        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        this._intermediateValue = undefined;
     }
 
     get intermediateValue() {
@@ -187,99 +328,12 @@ export class WidgetNumberOption extends WidgetOption {
         return this._intermediateValue;
     }
 
-    set intermediateValue(value: any) {
+    set intermediateValue(value) {
         this._intermediateValue = value;
         try {
             this.valueCurrent = !_.isNaN(Number(value)) ? this._intermediateValue : null;
         } catch {
             console.error('ERROR WidgetNumberOption: set intermediateValue() failed');
-        }
-    }
-
-    getValueToSaveInBindings() {
-        delete this._intermediateValue;
-        return this.valueCurrent || this.valueDefault;
-    }
-}
-
-export class WidgetColorOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
-     */
-    constructor(
-        bindingKey: string,
-        prettyName: string,
-        valueDefault: any,
-        enableInMenu: boolean | OptionCallback = true
-    ) {
-        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, enableInMenu);
-    }
-}
-
-export class WidgetMultipleSelectOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
-     */
-    constructor(
-        public bindingKey: string,
-        public prettyName: string,
-        public valueDefault: any,
-        public valueChoices: OptionChoice[],
-        public enableInMenu: boolean | OptionCallback = true
-    ) {
-        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, enableInMenu);
-    }
-}
-
-export class WidgetNonPrimitiveOption extends WidgetOption {
-    private _intermediateValue: string;
-
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
-     */
-    constructor(
-        bindingKey: string,
-        prettyName: string,
-        valueDefault: any = undefined as any,
-        enableInMenu: boolean | OptionCallback = true
-    ) {
-        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName,
-            valueDefault, undefined, enableInMenu);
-    }
-
-    get intermediateValue() {
-        if (this._intermediateValue === undefined) {
-            try {
-                const value = this.valueCurrent || this.valueDefault;
-                this._intermediateValue = _.isEmpty(value) ? '' : yaml.safeDump(value);
-            } catch {
-                // Consume error
-            }
-            this._intermediateValue = this._intermediateValue || '';
-        }
-
-        return this._intermediateValue;
-    }
-
-    set intermediateValue(value: any) {
-        this._intermediateValue = value;
-        try {
-            this.valueCurrent = _.isEmpty(value) ? undefined : yaml.safeLoad(this._intermediateValue);
-        } catch {
-            // Ignore error
         }
     }
 
@@ -296,16 +350,16 @@ export class WidgetSelectOption extends WidgetOption {
      * @arg {string} prettyName
      * @arg {any} valueDefault
      * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|OptionCallback} [enableInMenu=true]
+     * @arg {boolean|function} [hideFromMenu=false]
      */
     constructor(
-        public bindingKey: string,
-        public prettyName: string,
-        public valueDefault: any,
-        public valueChoices: OptionChoice[],
-        public enableInMenu: boolean | OptionCallback = true
+        bindingKey: string,
+        prettyName: string,
+        valueDefault: any,
+        valueChoices: OptionChoice[],
+        hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, enableInMenu);
+        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
@@ -315,7 +369,7 @@ export class WidgetTableOption extends WidgetOption {
      */
     constructor() {
         // Value default and choices are set elsewhere.
-        super(OptionType.TABLE, true, 'table', 'Table', undefined, undefined, true);
+        super(OptionType.TABLE, true, 'table', 'Table', undefined, undefined, false);
     }
 
     /**
@@ -324,328 +378,14 @@ export class WidgetTableOption extends WidgetOption {
      * @return {any}
      * @override
      */
-    public getValueToSaveInBindings(): any {
+    getValueToSaveInBindings() {
         return this.valueCurrent.name;
     }
 }
 
 /**
- * Manages configurable options for all widgets.
+ * Returns whether the given WidgetOption object is a FIELD or FIELD_ARRAY.
  */
-export class WidgetOptionCollection {
-    // An object containing strings mapped to WidgetOption objects.
-    private _collection: { [bindingKey: string]: WidgetOption } = {};
-
-    public _id: string;
-    public database: NeonDatabaseMetaData = null;
-    public databases: NeonDatabaseMetaData[] = [];
-    public fields: NeonFieldMetaData[] = [];
-    public layers: WidgetOptionCollection[] = [];
-    public table: NeonTableMetaData = null;
-    public tables: NeonTableMetaData[] = [];
-
-    /**
-     * @constructor
-     * @arg {function} createFieldOptionsCallback A callback function to create the field options.
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
-     */
-    constructor(
-        protected createFieldOptionsCallback: () => (WidgetFieldOption | WidgetFieldArrayOption)[],
-        protected injector?: Injector,
-        protected config?: any
-    ) {
-        // TODO Do not use a default _id.  Throw an error if undefined!
-        this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
-        this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
-        this.append(new WidgetTableOption(), NeonTableMetaData.get());
-    }
-
-    [key: string]: any; // Ordering demands it be placed here
-
-    /**
-     * Returns the option with the given binding key.
-     *
-     * @arg {string} bindingKey
-     * @return {WidgetOption}
-     */
-    public access(bindingKey: string): WidgetOption {
-        return this._collection[bindingKey];
-    }
-
-    /**
-     * Appends the given option with the given current value into this collection and creates accessor methods.
-     *
-     * @arg {WidgetOption} option
-     * @arg {any} valueCurrent
-     */
-    public append(option: WidgetOption, valueCurrent: any): void {
-        option.valueCurrent = valueCurrent;
-        this._collection[option.bindingKey] = option;
-        Object.defineProperty(this, option.bindingKey, {
-            get: () => this._collection[option.bindingKey].valueCurrent,
-            set: (value: any) => {
-                this._collection[option.bindingKey].valueCurrent = value;
-            }
-        });
-    }
-
-    /**
-     * Returns a copy of this object.
-     *
-     * @return {WidgetOptionCollection}
-     */
-    public copy(): WidgetOptionCollection {
-        let copy = new WidgetOptionCollection(this.createFieldOptionsCallback, this.injector, this.config);
-        copy._id = this._id;
-        copy.database = this.database;
-        copy.databases = this.databases;
-        copy.fields = this.fields;
-        copy.layers = this.layers.map((layer) => layer.copy());
-        copy.table = this.table;
-        copy.tables = this.tables;
-        this.list().forEach((option: WidgetOption) => {
-            copy.append(_.cloneDeep(option), option.valueCurrent);
-        });
-        return copy;
-    }
-
-    /**
-     * Returns the field object with the given column name or undefinied if the field does not exist.
-     *
-     * @arg {string} columnName
-     * @return {NeonFieldMetaData}
-     */
-    public findField(columnName: string): NeonFieldMetaData {
-        let outputFields = !columnName ? [] : this.fields.filter((field: NeonFieldMetaData) => field.columnName === columnName);
-
-        if (!outputFields.length && this.fields.length) {
-            // Check if the column name is actually an array index rather than a name.
-            let fieldIndex = parseInt(columnName, 10);
-            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
-                outputFields = [this.fields[fieldIndex]];
-            }
-        }
-
-        return outputFields.length ? outputFields[0] : undefined;
-    }
-
-    /**
-     * Returns the field object for the given binding key or an empty field object.
-     */
-    public findFieldObject(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData {
-        let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || NeonFieldMetaData.get();
-    }
-
-    /**
-     * Returns the array of field objects for the given binding key or an array of empty field objects.
-     */
-    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData[] {
-        let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
-            fieldKey
-        ))).filter((fieldsObject) => !!fieldsObject);
-    }
-
-    /**
-     * Injects the given option(s) into this collection.
-     *
-     * @arg {WidgetOption|WidgetOption[]} options
-     */
-    public inject(options: WidgetOption | WidgetOption[]): void {
-        (Array.isArray(options) ? options : [options]).forEach((option) => {
-            this.append(option, (this.injector ? this.injector.get(option.bindingKey, option.valueDefault) :
-                ((this.config || {})[option.bindingKey] || option.valueDefault)));
-        });
-    }
-
-    /**
-     * Returns the list of options in this collection.
-     *
-     * @return {WidgetOption[]}
-     */
-    public list(): WidgetOption[] {
-        return Object.values(this._collection);
-    }
-
-    /**
-     * Updates all the databases, tables, and fields in the options.
-     */
-    public updateDatabases(dashboardState: DashboardState): void {
-        this.databases = dashboardState.getDatabases();
-        this.database = dashboardState.getDatabase() || this.databases[0] || this.database;
-
-        if (this.databases.length) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.dashboard;
-            let configDatabase: any;
-
-            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = dashboardState.deconstructTableName(tableKey).database;
-
-                if (configDatabase) {
-                    for (let database of this.databases) {
-                        if (configDatabase === database.name) {
-                            this.database = database;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return this.updateTables(dashboardState);
-    }
-
-    /**
-     * Updates all the fields in the options.
-     */
-    public updateFields(dashboardState: DashboardState): void {
-        if (this.database && this.table) {
-            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
-                .filter((field) => (field && field.columnName));
-
-            // Create the field options and assign the default value as NeonFieldMetaData objects.
-            this.createFieldOptionsCallback().forEach((fieldsOption) => {
-                if (fieldsOption.optionType === OptionType.FIELD) {
-                    this.append(fieldsOption, this.findFieldObject(dashboardState, fieldsOption.bindingKey));
-                }
-                if (fieldsOption.optionType === OptionType.FIELD_ARRAY) {
-                    this.append(fieldsOption, this.findFieldObjects(dashboardState, fieldsOption.bindingKey));
-                }
-            });
-        }
-    }
-
-    /**
-     * Updates all the tables and fields in the options.
-     */
-    public updateTables(dashboardState: DashboardState): void {
-        this.tables = this.database ?
-            Object
-                .values(dashboardState.getTables(this.database.name))
-                .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
-            [];
-
-        this.table = this.tables[0] || this.table;
-
-        if (this.tables.length > 0) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.dashboard;
-            let configTable: any;
-
-            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = dashboardState.deconstructTableName(tableKey).table;
-
-                if (configTable) {
-                    for (let table of this.tables) {
-                        if (configTable === table.name) {
-                            this.table = table;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return this.updateFields(dashboardState);
-    }
-}
-
-export namespace OptionChoices {
-    export const Aggregation: OptionChoice[] = [{
-        prettyName: 'Count',
-        variable: AggregationType.COUNT
-    }, {
-        prettyName: 'Average',
-        variable: AggregationType.AVG
-    }, {
-        prettyName: 'Max',
-        variable: AggregationType.MAX
-    }, {
-        prettyName: 'Min',
-        variable: AggregationType.MIN
-    }, {
-        prettyName: 'Sum',
-        variable: AggregationType.SUM
-    }];
-
-    export const AscendingFalseDescendingTrue: OptionChoice[] = [{
-        prettyName: 'Ascending',
-        variable: false
-    }, {
-        prettyName: 'Descending',
-        variable: true
-    }];
-
-    export const DateGranularity: OptionChoice[] = [{
-        prettyName: 'Year',
-        variable: 'year'
-    }, {
-        prettyName: 'Month',
-        variable: 'month'
-    }, {
-        prettyName: 'Day',
-        variable: 'day'
-    }, {
-        prettyName: 'Hour',
-        variable: 'hour'
-    }, {
-        prettyName: 'Minute',
-        variable: 'minute'
-    }];
-
-    export const HideFalseShowTrue: OptionChoice[] = [{
-        prettyName: 'Hide',
-        variable: false
-    }, {
-        prettyName: 'Show',
-        variable: true
-    }];
-
-    export const NoFalseYesTrue: OptionChoice[] = [{
-        prettyName: 'No',
-        variable: false
-    }, {
-        prettyName: 'Yes',
-        variable: true
-    }];
-
-    export const OrFalseAndTrue: OptionChoice[] = [{
-        prettyName: 'OR',
-        variable: false
-    }, {
-        prettyName: 'AND',
-        variable: true
-    }];
-
-    export const ShowFalseHideTrue: OptionChoice[] = [{
-        prettyName: 'Show',
-        variable: false
-    }, {
-        prettyName: 'Hide',
-        variable: true
-    }];
-
-    export const YesFalseNoTrue: OptionChoice[] = [{
-        prettyName: 'Yes',
-        variable: false
-    }, {
-        prettyName: 'No',
-        variable: true
-    }];
-}
-
-export interface ConfigurableWidget {
-    options: WidgetOptionCollection;
-    changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
-    changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
-    createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;
-    finalizeCreateLayer(layerOptions: any): void;
-    deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean;
-    finalizeDeleteLayer(layerOptions: any): void;
-    handleChangeSubcomponentType(options?: WidgetOptionCollection): void;
-    exportData(): { name: string, data: any }[];
+export function isFieldOption(option) {
+    return option.optionType === OptionType.FIELD || option.optionType === OptionType.FIELD_ARRAY;
 }

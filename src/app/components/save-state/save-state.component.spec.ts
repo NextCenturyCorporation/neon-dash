@@ -19,10 +19,8 @@ import { ViewContainerRef, NgModuleFactoryLoader } from '@angular/core';
 import { SaveStateComponent } from './save-state.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { MatSnackBar } from '@angular/material';
 import { NeonConfig } from '../../models/types';
@@ -56,9 +54,8 @@ describe('Component: SaveStateComponent', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
             MatSnackBar,
             ViewContainerRef
         ]

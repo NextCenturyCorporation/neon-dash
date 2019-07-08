@@ -28,7 +28,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService } from '../../services/filter.service';
+import { FilterBehavior } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MediaTypes } from '../../models/types';
@@ -94,7 +95,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
@@ -226,31 +227,20 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', false, false), // DEPRECATED
-            new WidgetFieldOption('maskField', 'Mask Field', false),
-            new WidgetFieldOption('nameField', 'Name Field', false),
-            new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false),
-            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('idField', 'ID Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
+            new WidgetFieldOption('maskField', 'Mask Field', false),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true),
             new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('border', 'Border', ''),
             new WidgetSelectOption('clearMedia', 'Clear Media', false, OptionChoices.NoFalseYesTrue),
