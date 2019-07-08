@@ -13,9 +13,7 @@
     <mat-spinner></mat-spinner>
 </div>
 
-<div class="data-message-container" *ngIf="showNoData">
-    <app-data-message> </app-data-message>
-</div>
+<app-data-message *ngIf="showNoData"></app-data-message>
 
 <div *ngIf="options.url == ''">
     <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>

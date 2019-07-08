@@ -19,11 +19,11 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DashboardState } from '../../models/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
+import { Dataset, NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
 import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
@@ -50,20 +50,23 @@ export class FilterBuilderComponent {
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
-    readonly dashboardState: DashboardState;
+    private _dataset: Dataset;
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         public searchService: AbstractSearchService
     ) {
-        this.dashboardState = dashboardService.state;
+        this._dataset = dashboardService.state.asDataset();
 
         this.dashboardService.stateSource.subscribe(() => {
+            this._dataset = this.dashboardService.state.asDataset();
             this.clearEveryFilterClause();
         });
 
-        this.addBlankFilterClause();
+        if (!this.filterClauses.length) {
+            this.addBlankFilterClause();
+        }
     }
 
     /**
@@ -71,7 +74,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this.dashboardState);
+        filterClause.updateDatabases(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -105,7 +108,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.dashboardState);
+        filterClause.updateTables(this._dataset);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -134,7 +137,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.dashboardState);
+        filterClause.updateFields();
     }
 
     /**
@@ -187,9 +190,7 @@ export class FilterBuilderComponent {
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
-                this.searchService);
-
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations, this.searchService);
             this.clearEveryFilterClause();
         }
     }

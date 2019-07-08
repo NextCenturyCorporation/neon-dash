@@ -661,7 +661,7 @@ layouts:
           col: 1
           row: 1
           sizex: 4
-          sizey: 12
+          sizey: 11
           bindings:
               title: Tweets
               tableKey: table_key_1
@@ -680,7 +680,7 @@ layouts:
           col: 5
           row: 1
           sizex: 5
-          sizey: 8
+          sizey: 7
           bindings:
               title: Locations
               tableKey: table_key_1
@@ -720,7 +720,7 @@ layouts:
           col: 10
           row: 1
           sizex: 3
-          sizey: 7
+          sizey: 6
           bindings:
             title: Situation Frames
             tableKey: table_key_2
@@ -740,8 +740,7 @@ layouts:
             filterable: true
             singleFilter: true
             ignoreSelf: false
-            filterFields
-            .+3: 
+            filterFields:
                 - id_field_key_2
         - name: Bar Chart
           type: aggregation
