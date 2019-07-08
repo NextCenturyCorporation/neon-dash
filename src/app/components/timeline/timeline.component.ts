@@ -26,7 +26,6 @@ import {
 
 import {
     AbstractSearchService,
-    CompoundFilterType,
     FilterClause,
     QueryPayload
 } from '../../services/abstract.search.service';
@@ -48,6 +47,7 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
     TimeInterval,
     WidgetFieldOption,
