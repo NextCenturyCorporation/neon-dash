@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -207,31 +207,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        this.options.filterFields.forEach((filterField) => {
-            behaviors.push({
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        return this.options.filterFields.reduce((designs, filterField) => {
+            if (filterField.columnName) {
                 // Match a single EQUALS filter on the specific filter field.
-                filterDesign: this.createFilterDesignOnItem(filterField),
-                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            });
-            behaviors.push({
+                designs.push(this.createFilterDesignOnItem(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField)]),
-                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            });
-        });
-
-        return behaviors;
+                designs.push(this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField)]));
+            }
+            return designs;
+        }, [] as FilterDesign[]);
     }
 
     /**
@@ -375,19 +366,30 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.gridArray = [];
 
         results.forEach((result) => {
-            let item = {};
-            let links = [];
+            let item = {
+                _filtered: this.options.filterFields.length ? this.options.filterFields.every((filterField) => {
+                    if (filterField.columnName) {
+                        let filterDesign: FilterDesign = this.createFilterDesignOnItem(filterField, result[filterField.columnName]);
+                        return filters.isFiltered(filterDesign) || filters.isFiltered(this.createFilterDesignOnList([filterDesign]));
+                    }
+                    return false;
+                }) : false
+            };
 
+            let links = [];
             if (options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(result, options.linkField.columnName) || '');
             }
+
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             if (options.categoryField.columnName) {
                 item[options.categoryField.columnName] = neonUtilities.deepFind(result, options.categoryField.columnName);
             }
@@ -489,14 +491,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {boolean}
      */
     isSelected(item): boolean {
-        if (!item || !this.options.filterFields.length) {
-            return false;
-        }
-
-        return this.options.filterFields.every((filterField) => !filterField.columnName ||
-            this.isFiltered(this.createFilterDesignOnItem(filterField, item[filterField.columnName])) ||
-            this.isFiltered(this.createFilterDesignOnList([this.createFilterDesignOnItem(filterField,
-                item[filterField.columnName])])));
+        return item ? !!item._filtered : false;
     }
 
     /**
@@ -516,6 +511,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.filterField.columnName && !this.options.filterFields.length) {
             this.options.filterFields = [this.options.filterField];
         }
+    }
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this.gridArray.forEach((item) => {
+            item._filtered = this.options.filterFields.every((filterField) => {
+                if (filterField.columnName) {
+                    let filterDesign: FilterDesign = this.createFilterDesignOnItem(filterField, item[filterField.columnName]);
+                    return filters.isFiltered(filterDesign) || filters.isFiltered(this.createFilterDesignOnList([filterDesign]));
+                }
+                return false;
+            });
+        });
     }
 
     /**

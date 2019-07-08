@@ -16,11 +16,9 @@ import { inject } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { AbstractSearchService, CompoundFilterType } from './abstract.search.service';
+import { CompoundFilterType } from './abstract.search.service';
 import {
     CompoundFilterDesign,
-    FilterBehavior,
-    FilterCollection,
     FilterDataSource,
     FilterDesign,
     FilterUtil,
@@ -30,7 +28,6 @@ import { DashboardService } from './dashboard.service';
 import { FilterChangeListener, FilterService } from './filter.service';
 
 import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('FilterService with no filters', () => {
@@ -39,9 +36,7 @@ describe('FilterService with no filters', () => {
     initializeTestBed('Filter Service with no filters', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: FilterService, useClass: FilterService },
-            { provide: AbstractSearchService, useClass: SearchServiceMock }
-
+            { provide: FilterService, useClass: FilterService }
         ],
         imports: [
             HttpClientModule,
@@ -68,7 +63,6 @@ describe('FilterService with no filters', () => {
 describe('FilterService with filters', () => {
     let datasetService: DashboardService;
     let filterService: FilterService;
-    let searchService: AbstractSearchService;
     let source1: FilterDataSource[];
     let source2: FilterDataSource[];
     let design1A: SimpleFilterDesign;
@@ -91,15 +85,13 @@ describe('FilterService with filters', () => {
     initializeTestBed('Filter Service with filters', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            { provide: FilterService, useClass: FilterService },
-            { provide: AbstractSearchService, useClass: SearchServiceMock }
+            { provide: FilterService, useClass: FilterService }
         ]
     });
 
-    beforeEach(inject([DashboardService, FilterService, AbstractSearchService], (_datasetService, _filterService, _searchService) => {
+    beforeEach(inject([DashboardService, FilterService], (_datasetService, _filterService) => {
         datasetService = _datasetService;
         filterService = _filterService;
-        searchService = _searchService;
 
         source1 = [{
             datastoreName: '',
@@ -769,119 +761,66 @@ describe('FilterService with filters', () => {
     });
 
     it('getFiltersToSearch should return expected array', () => {
-        expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1', searchService)).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1', searchService)).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1', searchService)).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService)).toEqual([{
-            type: 'and',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId1'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId2'
-            }]
+        expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1')).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1')).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1')).toEqual([]);
+
+        let filters = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1');
+        expect(filters.map((filter) => {
+            let design = filter.toDesign();
+            delete design.id;
+            delete design.root;
+            return design;
+        })).toEqual([{
+            type: CompoundFilterType.AND,
+            filters: [filter1A.toDesign(), filter1B.toDesign()]
         }, {
-            type: 'or',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId3'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId4'
-            }]
+            type: CompoundFilterType.OR,
+            filters: [filter1C.toDesign(), filter1D.toDesign()]
         }, {
-            type: 'and',
-            filters: [{
-                field: 'testSizeField',
-                operator: '>',
-                value: 10
-            }, {
-                field: 'testSizeField',
-                operator: '<',
-                value: 20
-            }]
+            type: CompoundFilterType.AND,
+            filters: [filter2A.toDesign()]
         }]);
     });
 
     it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [])).toEqual([{
+        let filters1 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A]);
+        expect(filters1.map((filter) => {
+            let design = filter.toDesign();
+            delete design.id;
+            delete design.root;
+            return design;
+        })).toEqual([{
+            type: CompoundFilterType.AND,
+            filters: [filter2A.toDesign()]
+        }]);
+
+        let filters2 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1D]);
+        expect(filters2.map((filter) => {
+            let design = filter.toDesign();
+            delete design.id;
+            delete design.root;
+            return design;
+        })).toEqual([{
+            type: CompoundFilterType.AND,
+            filters: [filter2A.toDesign()]
+        }]);
+
+        let filters3 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design2A]);
+        expect(filters3.map((filter) => {
+            let design = filter.toDesign();
+            delete design.id;
+            delete design.root;
+            return design;
+        })).toEqual([{
             type: 'and',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId1'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId2'
-            }]
+            filters: [filter1A.toDesign(), filter1B.toDesign()]
         }, {
             type: 'or',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId3'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId4'
-            }]
-        }, {
-            type: 'and',
-            filters: [{
-                field: 'testSizeField',
-                operator: '>',
-                value: 10
-            }, {
-                field: 'testSizeField',
-                operator: '<',
-                value: 20
-            }]
+            filters: [filter1C.toDesign(), filter1D.toDesign()]
         }]);
 
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A])).toEqual([{
-            type: 'and',
-            filters: [{
-                field: 'testSizeField',
-                operator: '>',
-                value: 10
-            }, {
-                field: 'testSizeField',
-                operator: '<',
-                value: 20
-            }]
-        }]);
-
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design2A])).toEqual([{
-            type: 'and',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId1'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId2'
-            }]
-        }, {
-            type: 'or',
-            filters: [{
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId3'
-            }, {
-                field: 'testIdField',
-                operator: '=',
-                value: 'testId4'
-            }]
-        }]);
-
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', searchService, [design1A, design2A])).toEqual([]);
+        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A, design2A])).toEqual([]);
     });
 
     it('notifyFilterChangeListeners does call each listener callback function', () => {
@@ -935,6 +874,74 @@ describe('FilterService with filters', () => {
 
         expect(filterService['_listeners'].get('testIdA')).toBe(listener);
         expect(filterService['_listeners'].get('testIdB')).toBe(undefined);
+    });
+
+    it('retrieveCompatibleFilterCollection should return expected filter collection', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let testCollection = filterService.retrieveCompatibleFilterCollection([design1A]);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+    });
+
+    it('retrieveCompatibleFilterCollection should copy multiple filters if multiple designs have compatible filters', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let testCollection = filterService.retrieveCompatibleFilterCollection([design1A, design2A]);
+
+        expect(testCollection.getDataSources()).toEqual([source1, source2]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(testCollection.getFilters(source2)).toEqual([filter2A]);
+    });
+
+    it('retrieveCompatibleFilterCollection should not copy the same filters if designs have the same data source', () => {
+        // Remove the filter value to make the design compatible with each filter of its data source
+        design1A.value = undefined;
+
+        let testDesign = {
+            type: 'and',
+            root: CompoundFilterType.AND,
+            filters: [{
+                root: CompoundFilterType.AND,
+                datastore: '',
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.ID,
+                operator: '='
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign;
+
+        let testCollection = filterService.retrieveCompatibleFilterCollection([design1A, testDesign]);
+
+        expect(testCollection.getDataSources()).toEqual([source1]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+    });
+
+    it('retrieveCompatibleFilterCollection should do nothing with no compatible filters', () => {
+        let testDesign = {
+            root: CompoundFilterType.AND,
+            datastore: '',
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.TEXT,
+            operator: '='
+        } as SimpleFilterDesign;
+
+        let testSource = [{
+            datastoreName: '',
+            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
+            tableName: DashboardServiceMock.TABLES.testTable1.name,
+            fieldName: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+            operator: '='
+        } as FilterDataSource];
+
+        let testCollection = filterService.retrieveCompatibleFilterCollection([testDesign]);
+
+        expect(testCollection.getDataSources()).toEqual([testSource]);
+        expect(testCollection.getFilters(testSource)).toEqual([]);
     });
 
     it('setFiltersFromConfig should change filterCollection', () => {
@@ -1531,491 +1538,6 @@ describe('FilterService with filters', () => {
         expect(spy.calls.count()).toEqual(0);
     });
 
-    it('isFiltererd should return expected boolean', () => {
-        let testCollection = new FilterCollection();
-        expect(filterService.isFiltered(testCollection)).toEqual(false);
-
-        testCollection.setFilters(source1, []);
-        expect(filterService.isFiltered(testCollection)).toEqual(false);
-
-        testCollection.setFilters(source1, [filter1A]);
-        expect(filterService.isFiltered(testCollection)).toEqual(true);
-        expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
-        expect(filterService.isFiltered(testCollection, design2A)).toEqual(false);
-
-        testCollection.setFilters(source2, [filter2A]);
-        expect(filterService.isFiltered(testCollection)).toEqual(true);
-        expect(filterService.isFiltered(testCollection, design1A)).toEqual(true);
-        expect(filterService.isFiltered(testCollection, design2A)).toEqual(true);
-        expect(filterService.isFiltered(testCollection, {
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
-            operator: '!='
-        } as SimpleFilterDesign)).toEqual(false);
-    });
-
-    it('isFiltered with compound filter designs that have a single data source should return expected boolean', () => {
-        let testDesign = {
-            type: 'or',
-            root: CompoundFilterType.AND,
-            filters: [{
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign;
-
-        let testFilter = FilterUtil.createFilterFromDesign(testDesign);
-
-        let testSource = [{
-            datastoreName: '',
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let testCollection = new FilterCollection();
-        testCollection.setFilters(testSource, [testFilter]);
-
-        // Same design (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Same data source but too few nested filters (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Same data source but too many nested filters (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // With correct values (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // With correct values in different order (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // With incorrect values (should return false)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 1
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-    });
-
-    it('isFiltered with compound filter designs that have multiple data sources should return expected boolean', () => {
-        let testDesign = {
-            type: 'or',
-            root: CompoundFilterType.AND,
-            filters: [{
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign;
-
-        let testFilter = FilterUtil.createFilterFromDesign(testDesign);
-
-        let testSource = [{
-            datastoreName: '',
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
-            operator: '='
-        } as FilterDataSource, {
-            datastoreName: '',
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
-            operator: '!='
-        } as FilterDataSource];
-
-        let testCollection = new FilterCollection();
-        testCollection.setFilters(testSource, [testFilter]);
-
-        // Same design (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Same design in different order (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Same data source but too few nested filters (should return false)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-
-        // Same data source but too many nested filters (should return false)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-
-        // With correct values (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // With correct values in different order (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 40
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Same design in different order With correct values (should return true)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // With incorrect values (should return false)
-        expect(filterService.isFiltered(testCollection, {
-            type: 'or',
-            filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '=',
-                value: 20
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 30
-            } as SimpleFilterDesign, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
-                operator: '!=',
-                value: 50
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-    });
-
     it('unregisterFilterChangeListener does update _listeners', () => {
         const listener = (__callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>) => {
             // Do nothing.
@@ -2031,200 +1553,5 @@ describe('FilterService with filters', () => {
         expect(filterService['_listeners'].get('testIdA')).toBe(undefined);
         expect(filterService['_listeners'].get('testIdB')).toBe(listener);
     });
-
-    it('updateCollectionWithGlobalCompatibleFilters should update argument filter collection and call redraw callback', () => {
-        // Remove the filter value to make the design compatible with each filter of its data source
-        design1A.value = undefined;
-
-        let calls = 0;
-        let testRedrawCallback = (filters) => {
-            calls++;
-            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        };
-
-        let testBehaviorList = [{
-            filterDesign: design1A,
-            redrawCallback: testRedrawCallback
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(calls).toEqual(1);
-    });
-
-    it('updateCollectionWithGlobalCompatibleFilters should copy multiple filters if multiple behaviors have compatible filters', () => {
-        // Remove the filter value to make the design compatible with each filter of its data source
-        design1A.value = undefined;
-
-        let calls1 = 0;
-        let testRedrawCallback1 = (filters) => {
-            calls1++;
-            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        };
-
-        let calls2 = 0;
-        let testRedrawCallback2 = (filters) => {
-            calls2++;
-            expect(filters).toEqual([filter2A]);
-        };
-
-        let testBehaviorList = [{
-            filterDesign: design1A,
-            redrawCallback: testRedrawCallback1
-        }, {
-            filterDesign: design2A,
-            redrawCallback: testRedrawCallback2
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([source1, source2]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(testCollection.getFilters(source2)).toEqual([filter2A]);
-        expect(calls1).toEqual(1);
-        expect(calls2).toEqual(1);
-    });
-
-    it('updateCollectionWithGlobalCompatibleFilters should update existing filters', () => {
-        // Remove the filter value to make the design compatible with each filter of its data source
-        design1A.value = undefined;
-
-        let calls = 0;
-        let testRedrawCallback = (filters) => {
-            calls++;
-            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        };
-
-        let testBehaviorList = [{
-            filterDesign: design1A,
-            redrawCallback: testRedrawCallback
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-        testCollection.setFilters(source1, [filter1A, filter1C]);
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(calls).toEqual(1);
-    });
-
-    it('updateCollectionWithGlobalCompatibleFilters should remove existing filters', () => {
-        // Remove filters.
-        filterService['filterCollection'].setFilters(source1, []);
-
-        // Remove the filter value to make the design compatible with each filter of its data source
-        design1A.value = undefined;
-
-        let calls = 0;
-        let testRedrawCallback = (filters) => {
-            calls++;
-            expect(filters).toEqual([]);
-        };
-
-        let testBehaviorList = [{
-            filterDesign: design1A,
-            redrawCallback: testRedrawCallback
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-        testCollection.setFilters(source1, [filter1A, filter1C]);
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([]);
-        expect(calls).toEqual(1);
-    });
-
-    it('updateCollectionWithGlobalCompatibleFilters should not copy the same filters if behaviors have the same data source', () => {
-        // Remove the filter value to make the design compatible with each filter of its data source
-        design1A.value = undefined;
-
-        let testDesign = {
-            type: 'and',
-            root: CompoundFilterType.AND,
-            filters: [{
-                root: CompoundFilterType.AND,
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign;
-
-        let calls1 = 0;
-        let testRedrawCallback1 = (filters) => {
-            calls1++;
-            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        };
-
-        let calls2 = 0;
-        let testRedrawCallback2 = (filters) => {
-            calls2++;
-            expect(filters).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        };
-
-        let testBehaviorList = [{
-            filterDesign: design1A,
-            redrawCallback: testRedrawCallback1
-        }, {
-            filterDesign: testDesign,
-            redrawCallback: testRedrawCallback2
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(calls1).toEqual(1);
-        expect(calls2).toEqual(1);
-    });
-
-    it('updateCollectionWithGlobalCompatibleFilters should do nothing with no compatible filters', () => {
-        let testDesign = {
-            root: CompoundFilterType.AND,
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TEXT,
-            operator: '='
-        } as SimpleFilterDesign;
-
-        let testSource = [{
-            datastoreName: '',
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let calls = 0;
-        let testRedrawCallback = (__filters) => {
-            calls++;
-        };
-
-        let testBehaviorList = [{
-            filterDesign: testDesign,
-            redrawCallback: testRedrawCallback
-        } as FilterBehavior];
-
-        let testCollection = new FilterCollection();
-
-        filterService.updateCollectionWithGlobalCompatibleFilters(testBehaviorList, testCollection);
-
-        expect(testCollection.getDataSources()).toEqual([testSource]);
-        expect(testCollection.getFilters(testSource)).toEqual([]);
-        expect(calls).toEqual(0);
-    });
 });
+

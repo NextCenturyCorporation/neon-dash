@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
+import { CompoundFilterType } from './abstract.search.service';
 import { FilterConfig } from '../models/types';
 import { SingleField } from '../models/dataset';
 import {
     AbstractFilter,
     CompoundFilter,
-    FilterBehavior,
     FilterCollection,
     FilterDataSource,
     FilterDesign,
@@ -266,9 +265,7 @@ export class FilterService {
         if (filterDataSourceList) {
             return this.filterCollection.getFilters(filterDataSourceList);
         }
-        return this.filterCollection.getDataSources().reduce((returnList, globalDataSource) => returnList.concat(
-            this.filterCollection.getFilters(globalDataSource)
-        ), [] as AbstractFilter[]);
+        return this.filterCollection.getFilters();
     }
 
     /**
@@ -291,7 +288,6 @@ export class FilterService {
      * @arg {string} datastoreName
      * @arg {string} databaseName
      * @arg {string} tableName
-     * @arg {AbstractSearchService} searchService
      * @arg {FilterDesign[]} [filterDesignListToIgnore=[]]
      * @return {AbstractFilter[]}
      */
@@ -299,9 +295,8 @@ export class FilterService {
         datastoreName: string,
         databaseName: string,
         tableName: string,
-        searchService: AbstractSearchService,
         filterDesignListToIgnore: FilterDesign[] = []
-    ): FilterClause[] {
+    ): AbstractFilter[] {
         return this.filterCollection.getDataSources().reduce((returnList, filterDataSourceList) => {
             let ignore = filterDesignListToIgnore.some((filterDesignToIgnore) => {
                 let filterDataSourceListToIgnore: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesignToIgnore);
@@ -317,38 +312,7 @@ export class FilterService {
             let filterAND: AbstractFilter = filterListToAND.length ? new CompoundFilter(CompoundFilterType.AND, filterListToAND) : null;
             let filterOR: AbstractFilter = filterListToOR.length ? new CompoundFilter(CompoundFilterType.OR, filterListToOR) : null;
             return returnList.concat(filterAND || []).concat(filterOR || []);
-        }, [] as AbstractFilter[]).map((filter) => searchService.generateFilterClauseFromFilter(filter));
-    }
-
-    /**
-     * Returns all the filters compatible with the given filter design.
-     *
-     * @arg {FilterDesign} filterDesign
-     * @return {[AbstractFilter[], AbstractFilter[]]}
-     * @private
-     */
-    private _getFiltersWithDesign(filterDesign: FilterDesign): AbstractFilter[] {
-        let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
-        return this.filterCollection.getFilters(filterDataSourceList);
-    }
-
-    /**
-     * Returns if the visualization is filtered by the given filter collection (optionally, filtered matching the given filter design).
-     *
-     * @arg {FilterCollection} filterCollection
-     * @arg {FilterDesign} [filterDesign]
-     * @return {boolean}
-     */
-    public isFiltered(filterCollection: FilterCollection, filterDesign?: FilterDesign): boolean {
-        if (filterDesign) {
-            let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(filterDesign);
-            let filterList: AbstractFilter[] = filterCollection.getFilters(filterDataSourceList);
-
-            // Return true if the given category has any filters compatible with the given filter design.
-            return filterList.some((filter) => filter.isCompatibleWithDesign(filterDesign));
-        }
-        // Return true if any category has any filters.
-        return !!(filterCollection.getDataSources().some((key) => !!filterCollection.getFilters(key).length));
+        }, [] as AbstractFilter[]);
     }
 
     /**
@@ -387,6 +351,29 @@ export class FilterService {
      */
     public registerFilterChangeListener(id: string, listener: FilterChangeListener): void {
         this._listeners.set(id, listener);
+    }
+
+    /**
+     * Returns the filters from the global filter collection that are compatible (matching) the given filter designs.
+     */
+    public retrieveCompatibleFilterCollection(filterDesignList: FilterDesign[]): FilterCollection {
+        let compatibleCollection: FilterCollection = new FilterCollection();
+
+        for (const filterDesign of filterDesignList) {
+            // Find the data source for the filter design.
+            let filterDataSourceList: FilterDataSource[] = compatibleCollection.findFilterDataSources(filterDesign);
+
+            // Find the global filter list that is compatible with the filter design.
+            let filterList: AbstractFilter[] = this.filterCollection.getFilters(this.filterCollection.findFilterDataSources(filterDesign));
+
+            // Add the new filters to the existing list from the collection, but don't add the same filter twice.
+            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, nextFilter) =>
+                list.concat((list.indexOf(nextFilter) < 0 ? nextFilter : [])), compatibleCollection.getFilters(filterDataSourceList));
+
+            compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
+        }
+
+        return compatibleCollection;
     }
 
     /**
@@ -472,58 +459,6 @@ export class FilterService {
         }
 
         return returnCollection;
-    }
-
-    /**
-     * Swaps the existing filters in the given filter collection with all the compatible (matching) global filters.
-     *
-     * @arg {FilterBehavior[]} compatibleFilterBehaviorList
-     * @arg {FilterCollection} filterCollection
-     */
-    public updateCollectionWithGlobalCompatibleFilters(
-        compatibleFilterBehaviorList: FilterBehavior[],
-        filterCollection: FilterCollection
-    ): void {
-        let compatibleCollection: FilterCollection = new FilterCollection();
-
-        for (const filter of compatibleFilterBehaviorList) {
-            // Find the data source for the filter design.
-            let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(filter.filterDesign);
-
-            // Find the global filter list that is compatible with the filter design.
-            let filterList: AbstractFilter[] = this._getFiltersWithDesign(filter.filterDesign);
-
-            // Save the filter list and continue the loop.  We need an intermediary collection here because multiple filter designs from
-            // compatibleFilterBehaviorList could have the same filterDataSourceList so saving filters directly into filterCollection would
-            // overwrite compatible filter lists from previous filter designs.  Also, don't add the same filter to the list twice!
-            let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, subFilter) =>
-                list.concat((list.indexOf(subFilter) < 0 ? subFilter : [])), compatibleCollection.getFilters(filterDataSourceList));
-            compatibleCollection.setFilters(filterDataSourceList, compatibleFilterList);
-        }
-
-        for (const datasourceList of compatibleCollection.getDataSources()) {
-            let filterList: AbstractFilter[] = compatibleCollection.getFilters(datasourceList);
-            let cachedFilterList: AbstractFilter[] = filterCollection.getFilters(datasourceList);
-
-            // If the new (compatible global) filter list is not equal to the old (cached) filter list, update the filter collection.
-            let equals: boolean = filterList.length === cachedFilterList.length && filterList.every((filterItem, index) =>
-                filterItem.isEquivalentToFilter(cachedFilterList[index]));
-
-            if (!equals) {
-                filterCollection.setFilters(datasourceList, filterList);
-
-                // Call the redrawCallback of each compatibleFilterBehaviorList object with an equivalent filterDataSourceList.
-                for (const behavior of compatibleFilterBehaviorList) {
-                    let callbackFilterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(
-                        behavior.filterDesign
-                    );
-
-                    if (FilterUtil.areFilterDataSourceListsEquivalent(datasourceList, callbackFilterDataSourceList)) {
-                        behavior.redrawCallback(filterList);
-                    }
-                }
-            }
-        }
     }
 
     /**

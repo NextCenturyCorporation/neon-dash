@@ -25,11 +25,6 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as uuidv4 from 'uuid/v4';
 
-export interface FilterBehavior {
-    filterDesign: FilterDesign;
-    redrawCallback(filters: AbstractFilter[]): void;
-}
-
 export interface FilterDataSource {
     datastoreName: string;
     databaseName: string;
@@ -360,6 +355,15 @@ export class FilterCollection {
     }
 
     /**
+     * Returns the list of filters in this filter collection that are compatible with the given filter design.
+     */
+    public getCompatibleFilters(filterDesign: FilterDesign): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterDesign);
+        let filterList: AbstractFilter[] = this.getFilters(filterDataSourceList);
+        return filterList.filter((filter) => filter.isCompatibleWithDesign(filterDesign));
+    }
+
+    /**
      * Returns the data sources within this collection.
      *
      * @return {FilterDataSource[][]}
@@ -371,10 +375,15 @@ export class FilterCollection {
     /**
      * Returns the filters for the given data source (or an existing matching data source within this collection).
      *
-     * @arg {FilterDataSource[]} filterDataSourceList
+     * @arg {FilterDataSource[]} [filterDataSourceList]
      * @return {AbstractFilter[]}
      */
-    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
+        if (!filterDataSourceList) {
+            return this.getDataSources().reduce((filterList, dataSourceList) => filterList.concat(this.getFilters(dataSourceList)),
+                [] as AbstractFilter[]);
+        }
+
         if (this.data.has(filterDataSourceList)) {
             return this.data.get(filterDataSourceList) || [];
         }
@@ -394,6 +403,13 @@ export class FilterCollection {
         this.data.set(filterDataSourceList, []);
 
         return this.data.get(filterDataSourceList);
+    }
+
+    /**
+     * Returns if this filter collection contains any filters (optionally, matching the given filter design).
+     */
+    public isFiltered(filterDesign?: FilterDesign): boolean {
+        return filterDesign ? !!this.getCompatibleFilters(filterDesign).length : !!this.getFilters().length;
     }
 
     /**
