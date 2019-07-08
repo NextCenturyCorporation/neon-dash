@@ -16,7 +16,6 @@ import { AfterViewInit, ChangeDetectorRef, Injector, OnDestroy, OnInit } from '@
 
 import {
     AbstractSearchService,
-    AggregationType,
     FilterClause,
     QueryPayload
 } from '../../services/abstract.search.service';
@@ -24,30 +23,36 @@ import { DashboardService } from '../../services/dashboard.service';
 import {
     FilterBehavior,
     FilterCollection,
-    FilterDesign,
-    FilterService
+    FilterDataSource,
+    FilterDesign
 } from '../../services/filter.service';
-import { NeonFieldMetaData } from '../../models/types';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
+import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
-    OptionChoices,
+    AggregationType,
     OptionType,
-    WidgetFieldArrayOption,
-    WidgetFieldOption,
-    WidgetFreeTextOption,
-    WidgetNumberOption,
-    WidgetNonPrimitiveOption,
-    WidgetOption,
-    WidgetOptionCollection,
-    WidgetSelectOption,
-    ConfigurableWidget
+    WidgetOption
 } from '../../models/widget-option';
+import {
+    ConfigurableWidget,
+    OptionConfig,
+    RootWidgetOptionCollection,
+    WidgetOptionCollection
+} from '../../models/widget-option-collection';
 
 import { eventing } from 'neon-framework';
 import { MatDialogRef, MatDialog } from '@angular/material';
 import { DynamicDialogComponent } from '../dynamic-dialog/dynamic-dialog.component';
 import { RequestWrapper } from '../../services/connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+
+export class InjectorOptionConfig extends OptionConfig {
+    public get(bindingKey: string, defaultValue: any): any {
+        // Assume config is an Angular Injector
+        return this.config.get(bindingKey, defaultValue);
+    }
+}
 
 /**
  * @class BaseNeonComponent
@@ -61,8 +66,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /* eslint-disable-next-line no-invalid-this */
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
     protected TOOLBAR_HEIGHT: number = 40;
-
-    private nextLayerIndex = 1;
 
     protected id: string;
     protected messenger: eventing.Messenger;
@@ -92,14 +95,15 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected page: number = 1;
     protected savedPages: Map<string, number> = new Map<string, number>();
 
-    public options: WidgetOptionCollection & { [key: string]: any };
+    public options: RootWidgetOptionCollection & { [key: string]: any };
 
     private contributorsRef: MatDialogRef<DynamicDialogComponent>;
     readonly dashboardState: DashboardState;
+    protected dataset: Dataset;
 
     constructor(
         protected dashboardService: DashboardService,
-        protected filterService: FilterService,
+        protected filterService: InjectableFilterService,
         protected searchService: AbstractSearchService,
         protected injector: Injector,
         public changeDetection: ChangeDetectorRef,
@@ -107,6 +111,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     ) {
         this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
+        this.dataset = this.dashboardState.asDataset();
+        dashboardService.stateSource.subscribe((dashboardState) => {
+            this.dataset = dashboardState.asDataset();
+        });
     }
 
     /**
@@ -128,10 +136,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.id = this.options._id;
 
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
-            // Don't pass the event message as an argument to handleChangeData.
-            this.handleChangeData();
+            this.destroyVisualization();
+            this.constructVisualization();
+            this.cachedFilters = new FilterCollection();
+            this.handleChangeFilterField();
         });
-        this.messenger.subscribe(neonEvents.FILTERS_REFRESH, this.handleFiltersChanged.bind(this));
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
             if (this.updateOnSelectId) {
                 (this.options.layers.length ? this.options.layers : [this.options]).forEach((layer) => {
@@ -146,6 +155,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 });
             }
         });
+
+        this.filterService.registerFilterChangeListener(this.id, this.handleFiltersChanged.bind(this));
 
         this.messenger.publish(neonEvents.WIDGET_REGISTER, {
             id: this.id,
@@ -187,24 +198,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Override if needed.
     }
 
-    /**
-     * Adds a new layer for the visualization using the given bindings.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {any} [layerBindings={}]
-     */
-    public addLayer(options: WidgetOptionCollection, layerBindings: any = {}): any {
-        let layerOptions = this.createLayer(options, layerBindings);
-        this.finalizeCreateLayer(layerOptions);
-    }
-
     private createLayer(options: WidgetOptionCollection, layerBindings: any = {}): any {
-        let layerOptions = new WidgetOptionCollection(this.createLayerFieldOptions.bind(this), undefined, layerBindings);
-        layerOptions.inject(new WidgetFreeTextOption('title', 'Title', 'Layer ' + this.nextLayerIndex++));
-        layerOptions.inject(this.createLayerNonFieldOptions());
-        layerOptions.updateDatabases(this.dashboardState);
-        options.layers.push(layerOptions);
-        return layerOptions;
+        return options.addLayer(layerBindings);
     }
 
     private finalizeCreateLayer(layerOptions: any): void {
@@ -213,13 +208,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     private deleteLayer(options: WidgetOptionCollection, layerOptions: any): boolean {
-        let layers: any[] = options.layers.filter((layer) => layer._id !== layerOptions._id);
-        // Do not delete the final layer!
-        if (layers.length) {
-            options.layers = layers;
-            return true;
-        }
-        return false;
+        return options.removeLayer(layerOptions);
     }
 
     private finalizeDeleteLayer(layerOptions: any): void {
@@ -276,6 +265,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         // Override if needed.
     }
 
+    public onResize() {
+        // Override if needed
+    }
+
     /**
      * Handles any needed behavior once the widget is resized.
      */
@@ -298,11 +291,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Angular lifecycle hook:  Removes the visualization from the page and unregisters from listeners as needed.
      */
     public ngOnDestroy() {
+        let queryMap: Map<string, RequestWrapper>;
+        Array.from(this.layerIdToQueryIdToQueryObject.keys()).forEach((layerId) => {
+            queryMap = this.layerIdToQueryIdToQueryObject.get(layerId);
+            Array.from(queryMap.keys()).forEach((queryId) => {
+                queryMap.get(queryId).abort();
+            });
+        });
         this.changeDetection.detach();
         this.messenger.unsubscribeAll();
         this.messenger.publish(neonEvents.WIDGET_UNREGISTER, {
             id: this.id
         });
+        this.filterService.unregisterFilterChangeListener(this.id);
         this.destroyVisualization();
     }
 
@@ -345,14 +346,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
     /**
      * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
-     * given, also deletes the filters of each data source in the list (useful if you want to do both with a single FILTERS_CHANGED event).
+     * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
      *
      * @arg {FilterDesign[]} filterDesignList
      * @arg {FilterDesign[]} [filterDesignListToDelete]
      */
     public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService, filterDesignListToDelete);
+            this.dataset.relations, this.searchService, filterDesignListToDelete);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -375,7 +376,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public toggleFilters(filterDesignList: FilterDesign[]): void {
         let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.dashboardState.findRelationDataList(), this.searchService);
+            this.dataset.relations, this.searchService);
 
         // Save the page that is being viewed.
         Array.from(results ? results.keys() : []).forEach((key) => {
@@ -538,10 +539,11 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @abstract
      */
     private handleSuccessfulTotalCountQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
-        if (!response || !response.data || !response.data.length || response.data[0]._count === undefined) {
+        if (!response || !response.data || !response.data.length ||
+            response.data[0][this.searchService.getAggregationName('count')] === undefined) {
             this.layerIdToElementCount.set(options._id, 0);
         } else {
-            this.layerIdToElementCount.set(options._id, response.data[0]._count);
+            this.layerIdToElementCount.set(options._id, response.data[0][this.searchService.getAggregationName('count')]);
         }
         this.lastPage = ((this.page * this.options.limit) >= this.layerIdToElementCount.get(options._id));
         // Decrease loadingCount because of the visualization query.
@@ -596,7 +598,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
                 if (countQuery) {
                     // Add a count aggregation on '*' to get the total hit count.
                     // Do not add a limit or an offset!
-                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT, '_count', '*');
+                    this.searchService.updateAggregation(countQuery, AggregationType.COUNT,
+                        this.searchService.getAggregationName('count'), '*');
                     this.executeQuery(options, countQuery, 'total count query', this.handleSuccessfulTotalCountQuery.bind(this));
                     // Ignore our own callback since the visualization will be refreshed within handleSuccessfulTotalCountQuery.
                 } else {
@@ -684,8 +687,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
+        // TODO THOR-1062 Allow multiple datastores
         this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), query
+            this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
         ));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
@@ -693,7 +697,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).done((response) => {
-            callback(options, this.prettifyLabels(options, response), this.finishQueryExecution.bind(this));
+            callback(options, this.searchService.transformQueryResultsValues(response, this.getLabelOptions(options)),
+                this.finishQueryExecution.bind(this));
         });
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
@@ -715,18 +720,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        return (!this.searchService.canRunSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost()) ||
+        // TODO THOR-1062 Allow multiple datastores
+        return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
             (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
     }
 
     /**
-     * Handles any needed behavior on a FILTERS_CHANGED event and then runs the visualization query.
+     * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(eventMessage: any): void {
+    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
         this.updateCollectionWithGlobalCompatibleFilters();
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
-        if (eventMessage.caller !== this.id || this.shouldFilterSelf()) {
+        if (callerId !== this.id || this.shouldFilterSelf()) {
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
         }
@@ -762,17 +768,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Updates filters whenever a filter field is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        let optionsToUpdate = options || this.options;
         this.updateCollectionWithGlobalCompatibleFilters();
-        this.handleChangeData(optionsToUpdate, databaseOrTableChange);
+        this.handleChangeData(options, databaseOrTableChange);
     }
 
     /**
      * Updates elements and properties whenever the widget config is changed.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     protected onChangeData(__databaseOrTableChange?: boolean) {
         // Override if needed.
@@ -782,7 +787,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Handles any behavior needed whenever the widget config is changed and then runs the visualization query.
      *
      * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @arg {boolean} databaseOrTableChange
+     * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
         this.layerIdToElementCount.set((options || this.options)._id, 0);
@@ -983,54 +988,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Returns the result of converting labels in the response query data into pretty labels specified in the config.
-     *
-     * @arg {any} options A WidgetOptionCollection object.
-     * @arg {{data:any[]}} response
-     * @return {{data:any[]}}
-     */
-    private prettifyLabels(options: WidgetOptionCollection, response: { data: any[] }): { data: any[] } {
-        let labelOptions = this.getLabelOptions(options);
-        let labelKeys = Object.keys(labelOptions);
-        let itemKeys;
-        // Go through each item in the response data
-        for (let item of response.data) {
-            itemKeys = Object.keys(item);
-            // For each key in the data item
-            for (let key of itemKeys) {
-                // If that key exists in the labelOptions as keys for which there is a value to change
-                if (labelKeys.includes(key)) {
-                    // Data items can have arrays of values, and we have to change all of them otherwise,
-                    // there is only one, and we have to change that one
-                    let value = item[key];
-                    if (value instanceof Array) {
-                        let newItemParam = [];
-                        // For each value in that array, if that element is a key in the options,
-                        // push into the new array the pretty name, otherwize push the original value
-                        for (let element of value) {
-                            let possibleNewValue = labelOptions[key][element];
-                            let newValue = possibleNewValue ? possibleNewValue : element;
-                            newItemParam.push(newValue);
-                        }
-                        item[key] = newItemParam;
-                    } else if (labelOptions[key][value]) {
-                        // If it's not an array, check to see if its a value in the options, set it if it is
-                        item[key] = labelOptions[key][value];
-                    }
-                }
-            }
-        }
-        return response;
-    }
-
-    /**
      * Returns the labelOptions from the config for the database and table in the given options.
      *
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        let dashboard = this.dashboardState.datastore;
-        let matchingDatabase = dashboard.databases[options.database.name];
+        // TODO THOR-1062 Allow multiple datastores
+        let datastore = this.dataset.datastores[0];
+        let matchingDatabase = datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }
@@ -1045,42 +1010,21 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @abstract
-     */
-    public abstract createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[];
-
-    private createFieldOptionsFull(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return this.createFieldOptions().concat(new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false));
-    }
-
-    /**
-     * Creates and returns an array of field options for a layer for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     */
-    public createLayerFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for a layer for the visualization.
-     *
-     * @return {WidgetOption[]}
-     */
-    public createLayerNonFieldOptions(): WidgetOption[] {
-        return [];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @abstract
      */
-    public abstract createNonFieldOptions(): WidgetOption[];
+    protected abstract createOptions(): WidgetOption[];
+
+    /**
+     * Creates and returns an array of options for a layer for the visualization.
+     *
+     * @return {WidgetOption[]}
+     */
+    protected createOptionsForLayer(): WidgetOption[] {
+        return [];
+    }
 
     /**
      * Creates and returns the options for the visualization with the given title and limit.
@@ -1091,35 +1035,14 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {any}
      */
     private createWidgetOptions(injector: Injector, visualizationTitle: string, defaultLimit: number): any {
-        let options = new WidgetOptionCollection(this.createFieldOptionsFull.bind(this), injector);
+        let options = new RootWidgetOptionCollection(this.dataset, this.createOptions.bind(this), this.createOptionsForLayer.bind(this),
+            visualizationTitle, defaultLimit, this.shouldCreateDefaultLayer(), new InjectorOptionConfig(injector));
+
         this.layerIdToQueryIdToQueryObject.set(options._id, new Map<string, RequestWrapper>());
 
-        options.inject(new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], false));
-        options.inject(new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], false));
-        options.inject(new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null, false));
-
-        options.inject(new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue));
-        options.inject(new WidgetNumberOption('limit', 'Limit', defaultLimit));
-        options.inject(new WidgetFreeTextOption('title', 'Title', visualizationTitle));
-        options.inject(new WidgetFreeTextOption('unsharedFilterValue', 'Unshared Filter Value', ''));
-
-        options.inject(new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, false));
-
-        // Backwards compatibility (configFilter deprecated and renamed to filter).
-        options.filter = options.filter || this.injector.get('configFilter', null);
-
-        options.inject(this.createNonFieldOptions());
-
-        options.updateDatabases(this.dashboardState);
-
-        this.injector.get('layers', []).forEach((layerBindings) => {
-            this.addLayer(options, layerBindings);
+        options.layers.forEach((layerOptions) => {
+            this.finalizeCreateLayer(layerOptions);
         });
-
-        // Add a new empty layer if needed.
-        if (!options.layers.length && this.shouldCreateDefaultLayer()) {
-            this.addLayer(options);
-        }
 
         return options;
     }
@@ -1148,22 +1071,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
         // Otherwise, just return value from layouts section of config
         return configValue;
-    }
-
-    /**
-     * Returns the bindings object with the current options for the visualization.
-     */
-    public getBindings(options?: WidgetOptionCollection): any {
-        return (options || this.options).list().reduce(
-            (bindings, option) => {
-                bindings[option.bindingKey] = option.getValueToSaveInBindings();
-                return bindings;
-            }, {
-                layers: (options || this.options).layers.length ?
-                    (options || this.options).layers.map((layer) => this.getBindings(layer)) :
-                    undefined
-            }
-        );
     }
 
     /**

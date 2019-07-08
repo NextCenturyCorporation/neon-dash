@@ -15,7 +15,6 @@
  */
 import {
     AbstractSearchService,
-    AggregationType,
     CompoundFilterType,
     FilterClause,
     QueryGroup,
@@ -23,11 +22,16 @@ import {
     SortOrder,
     TimeInterval
 } from '../../app/services/abstract.search.service';
+import { AggregationType } from '../../app/models/widget-option';
 import { RequestWrapper } from '../../app/services/connection.service';
+import { Injectable } from '@angular/core';
 
 /**
  * Saves filter clauses and query payloads as JSON objects.
  */
+@Injectable({
+    providedIn: 'root'
+})
 export class SearchServiceMock extends AbstractSearchService {
     public buildCompoundFilterClause(filterClauses: FilterClause[], type: CompoundFilterType = CompoundFilterType.AND): FilterClause {
         return filterClauses.length ? (filterClauses.length === 1 ? filterClauses[0] : {
@@ -102,8 +106,9 @@ export class SearchServiceMock extends AbstractSearchService {
         };
     }
 
-    public transformFilterClauseValues(queryPayload: QueryPayload, keysToValuesToLabels:
-    { [key: string]: { [value: string]: string } }): QueryPayload {
+    public transformFilterClauseValues(queryPayload: QueryPayload,
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): QueryPayload {
         this.transformFilterClauseValuesHelper((queryPayload as any).filter, keysToValuesToLabels);
         return queryPayload;
     }
@@ -131,6 +136,30 @@ export class SearchServiceMock extends AbstractSearchService {
         for (let nestedFilterClause of (filter.filters || [])) {
             this.transformFilterClauseValuesHelper(nestedFilterClause, keysToValuesToLabels);
         }
+    }
+
+    public transformQueryResultsValues(queryResults: { data: any[] },
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }
+    ): { data: any[] } {
+        let transformedResults = [];
+        for (let result of queryResults.data) {
+            let transformedResult = {};
+            for (let key of Object.keys(result)) {
+                transformedResult[key] = result[key];
+                if (keysToValuesToLabels[key]) {
+                    let value = transformedResult[key];
+                    if (value instanceof Array) {
+                        transformedResult[key] = value.map((element) => keysToValuesToLabels[key][element] || element);
+                    } else {
+                        transformedResult[key] = keysToValuesToLabels[key][value] || value;
+                    }
+                }
+            }
+            transformedResults.push(transformedResult);
+        }
+        return {
+            data: transformedResults
+        };
     }
 
     public updateAggregation(queryPayload: QueryPayload, type: AggregationType, name: string, field: string): AbstractSearchService {

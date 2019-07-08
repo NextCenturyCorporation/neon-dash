@@ -24,23 +24,21 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
-
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatAccordion } from '@angular/material';
 
 import * as moment from 'moment';
 
@@ -59,16 +57,16 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('filter') filter: ElementRef;
+    @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -81,25 +79,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
+        this.redrawOnResize = true;
         this.visualizationQueryPaginates = true;
-    }
-
-    /**
-     * Creates and returns an array of field options for the visualization.
-     *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
-     * @override
-     */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [
-            new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
-            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
-            new WidgetFieldOption('dateField', 'Date Field', false),
-            new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('sortField', 'Sort Field', false)
-        ];
     }
 
     relativeTime(date: Date) {
@@ -134,13 +115,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns an array of non-field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
      * @return {WidgetOption[]}
      * @override
      */
-    createNonFieldOptions(): WidgetOption[] {
+    protected createOptions(): WidgetOption[] {
         return [
+            new WidgetFieldOption('contentField', 'Content Field', false),
+            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
+            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
+            new WidgetFieldOption('dateField', 'Date Field', false),
+            new WidgetFieldOption('filterField', 'Filter Field', false),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
@@ -311,6 +299,13 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.changeDetection.detectChanges();
     }
 
+    onResize() {
+        if (this.accordion) {
+            this['last_state'] = !this['last_state'];
+            this.accordion._openCloseAllActions.next(this['last_state']);
+        }
+    }
+
     /**
      * Selects the given item item.
      *
@@ -331,5 +326,26 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
+    }
+
+    /**
+     * Returns whether items are selectable (filterable).
+     *
+     * @return {boolean}
+     */
+    isSelectable() {
+        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
+    }
+
+    /**
+     * Returns whether the given item is selected (filtered).
+     *
+     * @arg {object} item
+     * @return {boolean}
+     */
+    isSelected(item) {
+        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
+            item[this.options.filterField.columnName]
+        )));
     }
 }

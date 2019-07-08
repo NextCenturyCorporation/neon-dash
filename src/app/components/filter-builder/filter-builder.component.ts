@@ -19,14 +19,12 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
-import { DashboardState } from '../../models/dashboard-state';
-import { NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/types';
-import {
-    WidgetOptionCollection
-} from '../../models/widget-option';
+import { Dataset, NeonFieldMetaData, NeonTableMetaData, NeonDatabaseMetaData } from '../../models/dataset';
+import { OptionCollection } from '../../models/widget-option-collection';
 
 @Component({
     selector: 'app-filter-builder',
@@ -52,28 +50,31 @@ export class FilterBuilderComponent {
     public compoundTypeIsOr: boolean = false;
     public parentFilterIsOr: boolean = false;
 
-    readonly dashboardState: DashboardState;
+    private _dataset: Dataset;
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: FilterService,
+        public filterService: InjectableFilterService,
         public searchService: AbstractSearchService
     ) {
+        this._dataset = dashboardService.state.asDataset();
+
         this.dashboardService.stateSource.subscribe(() => {
+            this._dataset = this.dashboardService.state.asDataset();
             this.clearEveryFilterClause();
         });
 
-        this.dashboardState = dashboardService.state;
-
-        this.addBlankFilterClause();
+        if (!this.filterClauses.length) {
+            this.addBlankFilterClause();
+        }
     }
 
     /**
      * Adds a blank filter clause to the global list.
      */
     public addBlankFilterClause(): void {
-        let filterClause: FilterClauseMetaData = new FilterClauseMetaData(() => []);
-        filterClause.updateDatabases(this.dashboardState);
+        let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
+        filterClause.updateDatabases(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -107,7 +108,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeDatabaseOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.database = filterClause.changeDatabase;
-        filterClause.updateTables(this.dashboardState);
+        filterClause.updateTables(this._dataset);
         filterClause.changeTable = filterClause.table;
     }
 
@@ -136,7 +137,7 @@ export class FilterBuilderComponent {
      */
     public handleChangeTableOfClause(filterClause: FilterClauseMetaData): void {
         filterClause.table = filterClause.changeTable;
-        filterClause.updateFields(this.dashboardState);
+        filterClause.updateFields();
     }
 
     /**
@@ -189,9 +190,7 @@ export class FilterBuilderComponent {
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this.dashboardState.findRelationDataList(),
-                this.searchService);
-
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations, this.searchService);
             this.clearEveryFilterClause();
         }
     }
@@ -224,7 +223,7 @@ class OperatorMetaData {
     prettyName: string;
 }
 
-class FilterClauseMetaData extends WidgetOptionCollection {
+class FilterClauseMetaData extends OptionCollection {
     changeDatabase: NeonDatabaseMetaData;
     changeTable: NeonTableMetaData;
     changeField: NeonFieldMetaData;

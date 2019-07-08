@@ -26,13 +26,16 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
-import { AbstractSearchService, AggregationType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService } from '../../services/filter.service';
+import { FilterBehavior } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NeonFieldMetaData, NeonConfig } from '../../models/types';
+import { NeonConfig } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import {
+    AggregationType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -40,10 +43,9 @@ import {
     WidgetMultipleSelectOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
-    WidgetOptionCollection,
     WidgetSelectOption
 } from '../../models/widget-option';
-import { eventing } from 'neon-framework';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -68,7 +70,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         changeDetection: ChangeDetectorRef,
@@ -88,11 +90,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return [];
     }
 
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
-        return [];
-    }
-
-    createNonFieldOptions(): WidgetOption[] {
+    createOptions(): WidgetOption[] {
         return [];
     }
 
@@ -136,16 +134,11 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 class TestAdvancedNeonComponent extends TestBaseNeonComponent {
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
             new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
-            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false)
-        ];
-    }
-
-    createNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
             new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
             new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
                 prettyName: 'A',
@@ -190,7 +183,7 @@ describe('BaseNeonComponent', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
@@ -261,10 +254,9 @@ describe('BaseNeonComponent', () => {
         expect(component['initializing']).toEqual(false);
         expect(component.options).toBeDefined();
         expect(spyInitialize.calls.count()).toEqual(1);
-        expect(spyMessengerSubscribe.calls.count()).toEqual(3);
+        expect(spyMessengerSubscribe.calls.count()).toEqual(2);
         expect(spyMessengerSubscribe.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_REFRESH);
-        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual(neonEvents.FILTERS_REFRESH);
-        expect(spyMessengerSubscribe.calls.argsFor(2)[0]).toEqual(neonEvents.SELECT_ID);
+        expect(spyMessengerSubscribe.calls.argsFor(1)[0]).toEqual(neonEvents.SELECT_ID);
     });
 
     it('ngAfterViewInit does work as expected', () => {
@@ -276,7 +268,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('ngAfterViewInit on multi layer widget does work as expected', () => {
-        component.addLayer(component.options);
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         let spyConstruct = spyOn(component, 'constructVisualization');
         let spyExecute = spyOn(component, 'executeAllQueryChain');
         component.ngAfterViewInit();
@@ -295,85 +287,6 @@ describe('BaseNeonComponent', () => {
         expect(spyMessengerPublish.calls.argsFor(0)).toEqual([neonEvents.WIDGET_UNREGISTER, {
             id: component['id']
         }]);
-    });
-
-    it('addLayer with this.options does add a new layer to this.options', () => {
-        expect(component.options.layers.length).toEqual(0);
-        let spyPostAddLayer = spyOn(component, 'postAddLayer');
-        component.addLayer(component.options);
-        expect(component.options.layers.length).toEqual(1);
-        expect(component.options.layers[0].title).toEqual('Layer 1');
-        expect(component.options.layers[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(component.options.layers[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(component.options.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component['layerIdToQueryIdToQueryObject'].get(component.options.layers[0]._id)).toEqual(new Map<string, any>());
-        expect(spyPostAddLayer.calls.count()).toEqual(1);
-        expect(spyPostAddLayer.calls.argsFor(0)).toEqual([component.options.layers[0]]);
-    });
-
-    it('addLayer with options does add a new layer to it', () => {
-        let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
-        expect(inputOptions.layers.length).toEqual(0);
-        let spyPostAddLayer = spyOn(component, 'postAddLayer');
-        component.addLayer(inputOptions);
-        expect(inputOptions.layers.length).toEqual(1);
-        expect(inputOptions.layers[0].title).toEqual('Layer 1');
-        expect(inputOptions.layers[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(inputOptions.layers[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(inputOptions.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(inputOptions.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(inputOptions.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[0]._id)).toEqual(new Map<string, any>());
-        expect(spyPostAddLayer.calls.count()).toEqual(1);
-        expect(spyPostAddLayer.calls.argsFor(0)).toEqual([inputOptions.layers[0]]);
-    });
-
-    it('addLayer with options with existing layers does add a new layer to it', () => {
-        let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
-        inputOptions.layers.push(new WidgetOptionCollection(() => [], undefined, {}));
-        expect(inputOptions.layers.length).toEqual(1);
-        let spyPostAddLayer = spyOn(component, 'postAddLayer');
-        component.addLayer(inputOptions);
-        expect(inputOptions.layers.length).toEqual(2);
-        expect(inputOptions.layers[1].title).toEqual('Layer 1');
-        expect(inputOptions.layers[1].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(inputOptions.layers[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(inputOptions.layers[1].tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(inputOptions.layers[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(inputOptions.layers[1].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[1]._id)).toEqual(new Map<string, any>());
-        expect(spyPostAddLayer.calls.count()).toEqual(1);
-        expect(spyPostAddLayer.calls.argsFor(0)).toEqual([inputOptions.layers[1]]);
-    });
-
-    it('addLayer with options and bindings does add a new layer to it', () => {
-        let inputOptions: any = new WidgetOptionCollection(() => [], undefined, {});
-        expect(inputOptions.layers.length).toEqual(0);
-        /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        component.createLayerFieldOptions = () => [new WidgetFieldOption('testField', 'Test Field', false)];
-        /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        component.createLayerNonFieldOptions = () => [new WidgetFreeTextOption('testValue', 'Test Value', '')];
-        let spyPostAddLayer = spyOn(component, 'postAddLayer');
-        component.addLayer(inputOptions, {
-            tableKey: 'table_key_2',
-            testField: 'testCategoryField',
-            testValue: 'value binding',
-            title: 'Title Binding'
-        });
-        expect(inputOptions.layers.length).toEqual(1);
-        expect(inputOptions.layers[0].title).toEqual('Title Binding');
-        expect(inputOptions.layers[0].databases).toEqual(DashboardServiceMock.DATABASES_LIST);
-        expect(inputOptions.layers[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(inputOptions.layers[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
-        expect(inputOptions.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(inputOptions.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(inputOptions.layers[0].testField).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect(inputOptions.layers[0].testValue).toEqual('value binding');
-        expect(component['layerIdToQueryIdToQueryObject'].get(inputOptions.layers[0]._id)).toEqual(new Map<string, any>());
-        expect(spyPostAddLayer.calls.count()).toEqual(1);
-        expect(spyPostAddLayer.calls.argsFor(0)).toEqual([inputOptions.layers[0]]);
     });
 
     it('createCompleteVisualizationQuery does return expected query object', () => {
@@ -489,8 +402,8 @@ describe('BaseNeonComponent', () => {
 
     it('createExportData with multiple layers does return expected data', () => {
         // Setup:  Create multiple layers
-        component.addLayer(component.options);
-        component.addLayer(component.options);
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
         expect(component.options.layers[0].title).toEqual('Layer 1');
         expect(component.options.layers[1].title).toEqual('Layer 2');
@@ -694,7 +607,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('deleteLayer does work as expected', () => {
-        component.addLayer(component.options);
+        component.options.addLayer();
         let id1 = component.options.layers[0]._id;
         expect(component.options.layers.length).toEqual(1);
 
@@ -703,7 +616,7 @@ describe('BaseNeonComponent', () => {
         expect(component.options.layers[0]._id).toEqual(id1);
         expect(result).toEqual(false);
 
-        component.addLayer(component.options);
+        component.options.addLayer();
         let id2 = component.options.layers[1]._id;
         expect(component.options.layers.length).toEqual(2);
 
@@ -725,8 +638,8 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([component.options]);
 
-        component.addLayer(component.options);
-        component.addLayer(component.options);
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
 
         component['executeAllQueryChain']();
@@ -742,8 +655,8 @@ describe('BaseNeonComponent', () => {
         component['executeAllQueryChain']();
         expect(spy.calls.count()).toEqual(0);
 
-        component.addLayer(component.options);
-        component.addLayer(component.options);
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
+        component['finalizeCreateLayer'](component['createLayer'](component.options));
         expect(component.options.layers.length).toEqual(2);
 
         component['initializing'] = true;
@@ -957,42 +870,6 @@ describe('BaseNeonComponent', () => {
         expect(component.showNoData).toEqual(false);
     });
 
-    it('getBindings does return expected object', () => {
-        expect(component.getBindings()).toEqual({
-            contributionKeys: null,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 1000,
-            table: 'testTable1',
-            title: 'Mock Superclass',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-
-        component.options.append(new WidgetFieldOption('testField', 'Test Field', false), NeonFieldMetaData.get());
-        component.options.append(new WidgetFreeTextOption('testValue', 'Test Value', ''), '');
-        expect(component.getBindings()).toEqual({
-            contributionKeys: null,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 1000,
-            table: 'testTable1',
-            testField: '',
-            testValue: '',
-            title: 'Mock Superclass',
-            unsharedFilterValue: '',
-            unsharedFilterField: ''
-        });
-    });
-
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('');
 
@@ -1012,7 +889,7 @@ describe('BaseNeonComponent', () => {
     it('getButtonText with multiple layers does return expected string', () => {
         expect(component.getButtonText()).toEqual('');
 
-        let layerA: any = new WidgetOptionCollection(() => [], undefined, {});
+        let layerA: any = new WidgetOptionCollection(component['dataset']);
         layerA.title = 'Layer A';
         component.options.layers.push(layerA);
 
@@ -1025,7 +902,7 @@ describe('BaseNeonComponent', () => {
         component['layerIdToElementCount'].set(layerA._id, 2);
         expect(component.getButtonText()).toEqual('2 Results');
 
-        let layerB: any = new WidgetOptionCollection(() => [], undefined, {});
+        let layerB: any = new WidgetOptionCollection(component['dataset']);
         layerB.title = 'Layer B';
         component.options.layers.push(layerB);
 
@@ -1481,7 +1358,7 @@ describe('BaseNeonComponent', () => {
     });
 
     it('handleTransformVisualizationQueryResults does call success callback function', (done) => {
-        let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
+        let expectedOptions = new WidgetOptionCollection(component['dataset']);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (options, results) => {
@@ -1503,7 +1380,7 @@ describe('BaseNeonComponent', () => {
 
     it('handleTransformVisualizationQueryResults does call failure callback function', (done) => {
         let expectedError = new Error('Test Error');
-        let expectedOptions = new WidgetOptionCollection(() => [], undefined, {});
+        let expectedOptions = new WidgetOptionCollection(component['dataset']);
         let expectedResults = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         component.transformVisualizationQueryResults = (__options, __results) => {
@@ -1725,65 +1602,53 @@ describe('BaseNeonComponent', () => {
         expect(spy.calls.argsFor(1)).toEqual([compatibleFilterBehaviorList, component['cachedFilters']]);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if ID=source', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event if ID=source', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on FILTERS_REFRESH event if !filterSelf', () => {
+    it('does call updateCollectionWithGlobalCompatibleFilters and executeAllQueryChain on filter-change event if !filterSelf', () => {
         component['id'] = 'testId';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            source: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(1);
     });
 
-    it('does not call executeAllQueryChain on FILTERS_REFRESH event if ID equals source AND shouldFilterSelf()=>false', () => {
+    it('does not call executeAllQueryChain on filter-change event if ID equals source AND shouldFilterSelf()=>false', () => {
         component['id'] = 'testSource';
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
 
         let spyUpdateFilters = spyOn((component as any), 'updateCollectionWithGlobalCompatibleFilters');
         let spyExecuteQuery = spyOn((component as any), 'executeAllQueryChain');
 
-        let messenger = new eventing.Messenger();
-        messenger.publish(neonEvents.FILTERS_REFRESH, {
-            caller: 'testSource'
-        });
+        component['filterService'].notifyFilterChangeListeners('testSource', null);
 
         expect(spyUpdateFilters.calls.count()).toEqual(1);
         expect(spyExecuteQuery.calls.count()).toEqual(0);
@@ -1954,7 +1819,7 @@ describe('Advanced BaseNeonComponent with config', () => {
         ],
         providers: [
             { provide: DashboardService, useValue: dashboardService },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: ConfigService, useValue: getConfigService(testConfig) },
@@ -2053,11 +1918,11 @@ describe('Advanced BaseNeonComponent with config', () => {
             table: 'testTable2',
             fields: [
                 'testConfigField',
+                'testFilterField',
                 'testSizeField',
                 'testNameField',
                 'testXField',
                 'testYField',
-                'testFilterField',
                 'testPublishColumnName',
                 'testReceiveColumnName'
             ],
@@ -2088,52 +1953,11 @@ describe('Advanced BaseNeonComponent with config', () => {
         }]);
     });
 
-    it('getBindings on widget with advanced config does return expected object', () => {
-        expect(component.getBindings()).toEqual({
-            contributionKeys: ['organization1', 'organization2'],
-            customEventsToPublish: [{
-                id: 'testPublishId',
-                fields: [{
-                    columnName: 'testPublishColumnName',
-                    prettyName: 'testPublishPrettyName'
-                }]
-            }],
-            customEventsToReceive: [{
-                id: 'testReceiveId',
-                fields: [{
-                    columnName: 'testReceiveColumnName',
-                    type: 'testReceiveType'
-                }]
-            }],
-            database: 'testDatabase2',
-            filter: {
-                lhs: 'testConfigField',
-                operator: '!=',
-                rhs: 'testConfigValue'
-            },
-            hideUnfiltered: true,
-            layers: undefined,
-            limit: 10,
-            table: 'testTable2',
-            testArray: [4, 3, 2, 1],
-            testFreeText: 'the quick brown fox jumps over the lazy dog',
-            testMultipleFields: ['testXField', 'testYField'],
-            testMultipleSelect: ['b', 'c'],
-            testObject: {
-                key: 'value'
-            },
-            testOptionalField: 'testNameField',
-            testRequiredField: 'testSizeField',
-            testSelect: 'z',
-            testToggle: true,
-            title: 'VisualizationTitle',
-            unsharedFilterValue: 'testFilterValue',
-            unsharedFilterField: 'testFilterField'
-        });
-    });
-
     it('getExportFields on widget with advanced config does return expected array', () => {
         expect(component.getExportFields()).toEqual([{
+            columnName: 'testFilterField',
+            prettyName: 'Test Filter Field'
+        }, {
             columnName: 'testSizeField',
             prettyName: 'Test Size Field'
         }, {
@@ -2145,9 +1969,6 @@ describe('Advanced BaseNeonComponent with config', () => {
         }, {
             columnName: 'testYField',
             prettyName: 'Test Y Field'
-        }, {
-            columnName: 'testFilterField',
-            prettyName: 'Test Filter Field'
         }]);
     });
 

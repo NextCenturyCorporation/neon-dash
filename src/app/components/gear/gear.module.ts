@@ -18,6 +18,7 @@ import { GearComponent } from './gear.component';
 import { MatToolbarModule, MatFormFieldModule, MatIconModule, MatSelectModule, MatInputModule, MatButtonModule } from '@angular/material';
 import { ExportControlModule } from '../export-control/export-control.module';
 import { OptionsListModule } from '../options-list/options-list.module';
+import { OptionsSectionModule } from '../options-section/options-section.module';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -27,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     imports: [
         ExportControlModule,
         OptionsListModule,
+        OptionsSectionModule,
         MatButtonModule,
         MatToolbarModule,
         MatFormFieldModule,

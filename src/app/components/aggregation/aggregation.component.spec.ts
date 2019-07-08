@@ -23,16 +23,17 @@ import { AggregationComponent } from './aggregation.component';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
-import { AbstractSearchService, AggregationType, CompoundFilterType } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {
@@ -44,9 +45,9 @@ describe('Component: Aggregation', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],
@@ -3760,128 +3761,6 @@ describe('Component: Aggregation', () => {
         expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
-    it('getBindings does set expected properties in bindings', () => {
-        expect(component.getBindings()).toEqual({
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 10000,
-            table: 'testTable1',
-            title: 'Aggregation',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            aggregationField: '',
-            groupField: '',
-            xField: '',
-            yField: '',
-            aggregation: AggregationType.COUNT,
-            axisLabelX: '',
-            axisLabelY: 'count',
-            contributionKeys: null,
-            countByAggregation: false,
-            dualView: '',
-            granularity: 'year',
-            hideGridLines: false,
-            hideGridTicks: false,
-            ignoreSelf: true,
-            lineCurveTension: 0.3,
-            lineFillArea: false,
-            logScaleX: false,
-            logScaleY: false,
-            notFilterable: false,
-            requireAll: false,
-            savePrevious: false,
-            scaleMaxX: null,
-            scaleMaxY: null,
-            scaleMinX: null,
-            scaleMinY: null,
-            showHeat: false,
-            showLegend: true,
-            sortByAggregation: false,
-            timeFill: false,
-            type: 'line',
-            yPercentage: 0.3
-        });
-
-        component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
-        component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
-
-        component.options.aggregation = AggregationType.SUM;
-        component.options.countByAggregation = true;
-        component.options.dualView = 'on';
-        component.options.granularity = 'day';
-        component.options.hideGridLines = true;
-        component.options.hideGridTicks = true;
-        component.options.ignoreSelf = false;
-        component.options.lineCurveTension = 0;
-        component.options.lineFillArea = true;
-        component.options.logScaleX = true;
-        component.options.logScaleY = true;
-        component.options.notFilterable = true;
-        component.options.requireAll = true;
-        component.options.savePrevious = true;
-        component.options.scaleMaxX = '44';
-        component.options.scaleMaxY = '33';
-        component.options.scaleMinX = '22';
-        component.options.scaleMinY = '11';
-        component.options.showHeat = true;
-        component.options.showLegend = true;
-        component.options.sortByAggregation = true;
-        component.options.timeFill = true;
-        component.options.type = 'line-xy';
-        component.options.yPercentage = 0.5;
-
-        expect(component.getBindings()).toEqual({
-            contributionKeys: null,
-            customEventsToPublish: [],
-            customEventsToReceive: [],
-            database: 'testDatabase1',
-            filter: null,
-            hideUnfiltered: false,
-            layers: undefined,
-            limit: 10000,
-            table: 'testTable1',
-            title: 'Aggregation',
-            unsharedFilterValue: '',
-            unsharedFilterField: '',
-            aggregationField: 'testSizeField',
-            groupField: 'testCategoryField',
-            xField: 'testXField',
-            yField: 'testYField',
-            aggregation: AggregationType.SUM,
-            axisLabelX: '',
-            axisLabelY: 'count',
-            countByAggregation: true,
-            dualView: 'on',
-            granularity: 'day',
-            hideGridLines: true,
-            hideGridTicks: true,
-            ignoreSelf: false,
-            lineCurveTension: 0,
-            lineFillArea: true,
-            logScaleX: true,
-            logScaleY: true,
-            notFilterable: true,
-            requireAll: true,
-            savePrevious: true,
-            scaleMaxX: '44',
-            scaleMaxY: '33',
-            scaleMinX: '22',
-            scaleMinY: '11',
-            showHeat: true,
-            showLegend: true,
-            sortByAggregation: true,
-            timeFill: true,
-            type: 'line-xy',
-            yPercentage: 0.5
-        });
-    });
-
     it('updateOnResize does work as expected', () => {
         component.minimumDimensionsMain = null;
         component.minimumDimensionsZoom = null;
@@ -4081,9 +3960,9 @@ describe('Component: Aggregation with config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4182,9 +4061,9 @@ describe('Component: Aggregation with XY config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4283,9 +4162,9 @@ describe('Component: Aggregation with date config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },

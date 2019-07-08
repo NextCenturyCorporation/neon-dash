@@ -47,7 +47,6 @@ export const initializeTestBed = (name, config: Parameters<TestBed['configureTes
     let resetTestingModule = TestBed.resetTestingModule;
 
     beforeAll(() => {
-        /* tslint:disable-next-line:no-console */
         console.log('STARTING ' + name.toUpperCase() + ' TESTS...');
     });
 

@@ -15,15 +15,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
+import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
+import { AbstractColorThemeService } from './services/abstract.color-theme.service';
 import { AbstractSearchService } from './services/abstract.search.service';
-import { AbstractWidgetService } from './services/abstract.widget.service';
+import { InjectableColorThemeService } from './services/injectable.color-theme.service';
 import { DashboardService } from './services/dashboard.service';
-import { FilterService } from './services/filter.service';
-import { PropertyService } from './services/property.service';
-import { SearchService } from './services/search.service';
-import { WidgetService } from './services/widget.service';
+import { InjectableFilterService } from './services/injectable.filter.service';
+import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
 
@@ -34,6 +33,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppLazyModule } from './app-lazy.module';
 import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
 import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
+
+export function getBaseHref(platformLocation: PlatformLocation): string {
+    return platformLocation.getBaseHrefFromDOM();
+}
 
 @NgModule({
     declarations: [AppComponent],
@@ -48,17 +51,17 @@ import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dial
         AppLazyModule
     ],
     providers: [
-        DashboardService,
-        FilterService,
-        PropertyService,
+        { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
         ConfigService,
+        DashboardService,
+        {
+            provide: AbstractColorThemeService,
+            useClass: InjectableColorThemeService
+        },
+        InjectableFilterService,
         {
             provide: AbstractSearchService,
-            useClass: SearchService
-        },
-        {
-            provide: AbstractWidgetService,
-            useClass: WidgetService
+            useClass: InjectableSearchService
         }
     ],
     entryComponents: [AppComponent, DynamicDialogComponent],

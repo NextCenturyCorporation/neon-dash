@@ -25,16 +25,16 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, FilterService } from '../../services/filter.service';
+import { FilterBehavior, FilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
-    WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -108,9 +108,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public offset = 0;
 
     constructor(
-        protected widgetService: AbstractWidgetService,
+        protected colorThemeService: InjectableColorThemeService,
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
@@ -142,12 +142,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates and returns an array of field options for the visualization.
+     * Creates and returns an array of options for the visualization.
      *
-     * @return {(WidgetFieldOption|WidgetFieldArrayOption)[]}
+     * @return {WidgetOption[]}
      * @override
      */
-    createFieldOptions(): (WidgetFieldOption | WidgetFieldArrayOption)[] {
+    protected createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('documentTextField', 'Document Text Field', true),
             new WidgetFieldOption('endCharacterField', 'End Character Field', false),
@@ -155,18 +155,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('startCharacterField', 'Start Character Field', false),
             new WidgetFieldOption('textField', 'Text Field', false),
-            new WidgetFieldOption('typeField', 'Type Field', false)
-        ];
-    }
-
-    /**
-     * Creates and returns an array of non-field options for the visualization.
-     *
-     * @return {WidgetOption[]}
-     * @override
-     */
-    createNonFieldOptions(): WidgetOption[] {
-        return [
+            new WidgetFieldOption('typeField', 'Type Field', false),
             // True if text should be highlighted on hover while responseMode is true, false otherwise.
             new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('id', 'ID', ''),
@@ -441,7 +430,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let currentPart = new Part();
                     let currentText = document.annotationTextList[index];
                     let currentType = document.annotationTypeList[index];
-                    let highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, currentType,
+                    let highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, currentType,
                         currentType).getComputedCssTransparencyHigh(this.visualization);
 
                     currentPart.highlightColor = highlightColor;
@@ -456,7 +445,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
-                this.colorKeys = this.seenTypes.map((type) => this.widgetService.getColorKey(this.options.database.name,
+                this.colorKeys = this.seenTypes.map((type) => this.colorThemeService.getColorKey(this.options.database.name,
                     this.options.table.name, type));
             }
 
@@ -658,7 +647,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 if (disabledValues.includes(part.type)) {
                     part.highlightColor = 'rgb(255,255,255)';
                 } else if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
-                    part.highlightColor = this.widgetService.getColor(this.options.database.name, this.options.table.name, part.type,
+                    part.highlightColor = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, part.type,
                         part.type).getComputedCssTransparencyHigh(this.visualization);
                 }
             }

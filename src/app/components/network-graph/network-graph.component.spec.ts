@@ -16,18 +16,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { NetworkGraphComponent } from './network-graph.component';
 import { DashboardService } from '../../services/dashboard.service';
-import { NeonFieldMetaData } from '../../models/types';
-import { FilterService } from '../../services/filter.service';
+import { NeonFieldMetaData } from '../../models/dataset';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
-import { WidgetService } from '../../services/widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { NetworkGraphModule } from './network-graph.module';
-import { WidgetOptionCollection } from '../../models/widget-option';
+import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 describe('Component: NetworkGraph', () => {
     let component: NetworkGraphComponent;
@@ -36,10 +35,10 @@ describe('Component: NetworkGraph', () => {
     initializeTestBed('Network Graph', {
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             Injector,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: 'limit', useValue: 'testLimit' }
         ],
         imports: [
@@ -907,7 +906,7 @@ describe('Component: NetworkGraph', () => {
     });
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
-        component.options.layers = [new WidgetOptionCollection(() => [])];
+        component.options.layers = [new WidgetOptionCollection(component['dataset'])];
         component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.layers[0].layerType = 'nodes';
         component.options.layers[0].filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];

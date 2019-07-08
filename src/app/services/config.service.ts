@@ -22,7 +22,7 @@ import { Subject, Observable, combineLatest, of, from, throwError } from 'rxjs';
 import { map, catchError, switchMap, take, shareReplay, tap } from 'rxjs/operators';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { Injectable } from '@angular/core';
-import { ConnectionService } from './connection.service';
+import { InjectableConnectionService } from './injectable.connection.service';
 import { ConfigUtil } from '../util/config.util';
 
 @Injectable({
@@ -44,7 +44,7 @@ export class ConfigService {
 
     constructor(
         private http: HttpClient,
-        private connectionService: ConnectionService
+        private connectionService: InjectableConnectionService
     ) {
         neon.setNeonServerUrl('../neon');
     }
@@ -71,8 +71,13 @@ export class ConfigService {
                 rnd: `${Math.random() * 1000000}.${Date.now()}`
             }
         })
-            .pipe(map((response: any) => yaml.load(response) as NeonConfig))
-            .pipe(catchError((error) => this.handleConfigFileError(error)));
+            .pipe(
+                map((response: any) => yaml.load(response) as NeonConfig),
+                tap((config) => {
+                    config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
+                }),
+                catchError((error) => this.handleConfigFileError(error))
+            );
     }
 
     private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
@@ -142,21 +147,18 @@ export class ConfigService {
     /**
      * Loads config state by URL, given a base path
      */
-    setActiveByURL(url: string, base: string | RegExp) {
-        const urlObj = new URL(url);
-        const [, path] = urlObj.pathname.split(base);
-        const params = decodeURIComponent(urlObj.hash.replace(/^#/g, ''));
-        const dashboardPath = urlObj.searchParams.get('path');
-        const cleanPath = path.replace(/^[/]+/g, '');
+    setActiveByURL(url: string | Location, base: string) {
+        const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
 
         setTimeout(() => {
-            from(cleanPath ? this.load(cleanPath) : throwError(null)).pipe(
+            // TODO THOR-1300 Handle when we get rid of default
+            from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe(
                 catchError((err) => this.getDefault(environment.config).pipe(
                     tap((conf) => {
                         conf.errors = [err ? err.message as string : err];
                     })
                 )),
-                map((config) => this.finalizeConfig(config, params, dashboardPath)),
+                map((config) => this.finalizeConfig(config, filters, dashboardPath)),
                 tap((config) => this.setActive(config))
             ).subscribe();
         }, 1);
