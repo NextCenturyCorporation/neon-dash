@@ -1,5 +1,5 @@
 #!/bin/bash
-WATCH="${1:-0}"
+MODE="${1}"
 
 function log() {
   echo "$(date --iso-8601=seconds)" $1 > /dev/stderr
@@ -35,8 +35,8 @@ function teardown() {
 
 function build() {
   log "Building UI: $@"
-  # rm -rf dist/*
-  ng build --delete-output-path=false --build-optimizer=false --source-map=false $@ &
+  rm dist/*.{html,css,js}
+  ng build --delete-output-path=false --build-optimizer=false  $@ 
 }
 
 function find-newest() {
@@ -45,7 +45,11 @@ function find-newest() {
 
 function protract() {
   log "Starting protractor"
-  npx protractor e2e/docker/protractor.conf.js
+  if [[ "$1" == "debug" ]]; then
+    node --inspect-brk node_modules/.bin/protractor e2e/docker/protractor.conf.js
+  else
+    npx protractor e2e/docker/protractor.conf.js
+  fi
 }
 
 function wait-for-data() {
@@ -87,16 +91,16 @@ trap teardown EXIT
 
 setup
 
-if [[ "$WATCH" == "0" ]]; then
+if [[ -z "$MODE" ]]; then
   NEWEST_DIR=`find-newest src dist 2`
   if [[ "$NEWEST_DIR" == "src" ]]; then
     log "Re-Builiding UI"
-    build --prod  2> /dev/null > /dev/null
+    build --source-maps=false --prod 2> /dev/null > /dev/null
   fi
   wait-for-data
   wait-for-dist
   protract
-else
+elif [[ "$MODE" == "watch" ]]; then 
   NEWEST_STAMP=`find-newest e2e dist 1`
   build --prod --watch=true
   wait-for-data
@@ -111,4 +115,9 @@ else
       sleep 1
     fi 
   done
-fi 
+elif [[ "$MODE" == "debug" ]]; then 
+  build 2> /dev/null > /dev/null
+  wait-for-data
+  wait-for-dist
+  protract $MODE
+fi
