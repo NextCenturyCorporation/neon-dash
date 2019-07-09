@@ -172,7 +172,7 @@ export class FilterBuilderComponent {
             }
             return {
                 root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-                datastore: '',
+                datastore: filterClause.datastore.name,
                 database: filterClause.database,
                 table: filterClause.table,
                 field: filterClause.field,
