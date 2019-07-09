@@ -36,7 +36,7 @@ function teardown() {
 function build() {
   log "Building UI: $@"
   rm dist/*.{html,css,js}
-  ng build --delete-output-path=false --build-optimizer=false  $@ 
+  ng build --delete-output-path=false --build-optimizer=false  $@ &
 }
 
 function find-newest() {
@@ -95,10 +95,11 @@ if [[ -z "$MODE" ]]; then
   NEWEST_DIR=`find-newest src dist 2`
   if [[ "$NEWEST_DIR" == "src" ]]; then
     log "Re-Builiding UI"
-    build --source-maps=false --prod 2> /dev/null > /dev/null
+    build --source-map=false --prod 2> /dev/null > /dev/null
   fi
   wait-for-data
   wait-for-dist
+
   protract
 elif [[ "$MODE" == "watch" ]]; then 
   NEWEST_STAMP=`find-newest e2e dist 1`
@@ -116,8 +117,9 @@ elif [[ "$MODE" == "watch" ]]; then
     fi 
   done
 elif [[ "$MODE" == "debug" ]]; then 
-  build 2> /dev/null > /dev/null
+  build
   wait-for-data
   wait-for-dist
+
   protract $MODE
 fi
