@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 
 /**
  * Component for managing the unshared filter of a visualization.

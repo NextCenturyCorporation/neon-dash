@@ -1,18 +1,20 @@
 <div class="query-bar-background">
     <div class="query-bar">
-        <button mat-button mat-icon-button>
-            <mat-icon mat-button>{{ 'search' }}</mat-icon>
+        <button mat-icon-button>
+            <mat-icon>search</mat-icon>
         </button>
         <mat-form-field class="full-width" *ngIf="autoComplete">
             <input #queryBar matInput [placeholder]="options.placeHolder" class="query-bar-input" [matAutocomplete]="auto"
                 [formControl]="filterFormControl" (keyup)="createFilter(queryBar.value)" (keyup.enter)="createFilter(queryBar.value)"
                 autofocus>
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="createFilter(queryBar.value)" [class]="widgetService.getTheme()">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="createFilter(queryBar.value)"
+                [class]="colorThemeService.getTheme()">
                 <mat-option *ngFor="let option of queryOptions | async" [value]="option">
                     <span [matTooltip]="option">{{ option }}</span>
                 </mat-option>
             </mat-autocomplete>
-            <button mat-button *ngIf="queryBar.value" mat-icon-button aria-label="Clear" (click)="queryBar.value = ''; removeFilters()">
+            <button *ngIf="queryBar.value" mat-icon-button aria-label="Clear" class="neon-icon-button-small"
+                (click)="queryBar.value = ''; removeFilters()">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>

@@ -12,18 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 import { AbstractSearchService, CompoundFilterType, FilterClause } from './abstract.search.service';
-import {
-    NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData,
-    FilterConfig, SimpleFilterConfig, CompoundFilterConfig
-} from '../models/types';
-import { neonEvents } from '../models/neon-namespaces';
+import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 
 import * as uuidv4 from 'uuid/v4';
-import { eventing } from 'neon-framework';
 import { DashboardState } from '../models/dashboard-state';
 import { ConfigUtil } from '../util/config.util';
+import { DatasetUtil } from '../util/dataset.util';
 
 export interface FilterBehavior {
     filterDesign: FilterDesign;
@@ -295,10 +291,14 @@ export class FilterUtil {
             if (this.isCompoundFilterDesign(filter)) {
                 out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
             } else if (this.isSimpleFilterDesign(filter)) {
+                let val = filter.value;
+                if (typeof val === 'number' && (/[<>]=?/).test(filter.operator) && (/[.]\d{4,100}/).test(`${val}`)) {
+                    val = parseFloat(val.toFixed(3));
+                }
                 out.push([
                     `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
                     filter.operator,
-                    filter.value,
+                    val,
                     filter.root
                 ]);
             }
@@ -318,7 +318,7 @@ export class FilterUtil {
         } // Simple filter
         const [field, operator, value, root] = simple as string[];
         return {
-            ...ConfigUtil.deconstructDottedReference(field),
+            ...DatasetUtil.deconstructDottedReference(field),
             operator,
             value,
             root: root || 'or'
@@ -436,10 +436,18 @@ export class FilterCollection {
     }
 }
 
-@Injectable()
+export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => void;
+
 export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
-    protected messenger: eventing.Messenger = new eventing.Messenger();
+
+    private _listeners: Map<string, FilterChangeListener> = new Map<string, FilterChangeListener>();
+
+    private _notifier: FilterChangeListener;
+
+    constructor() {
+        this._notifier = this.notifyFilterChangeListeners.bind(this);
+    }
 
     /**
      * Creates and returns the relation filter list for the given filter (but not including the given filter).  Also sets the relations
@@ -451,7 +459,7 @@ export class FilterService {
      * @return {AbstractFilter[]}
      * @private
      */
-    private createRelationFilterList(
+    private _createRelationFilterList(
         filter: AbstractFilter,
         relationDataList: SingleField[][][],
         searchService: AbstractSearchService
@@ -467,10 +475,10 @@ export class FilterService {
                 let equivalentRelationList: SingleField[][] = relationData.filter((relationFilterFields) =>
                     // Each item within the relationFilterFields must be equivalent to a FilterDataSource.
                     relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
-                        this.isRelationEquivalent(relatedField, filterDataSource))) &&
+                        this._isRelationEquivalent(relatedField, filterDataSource))) &&
                     // Each FilterDataSource must be equivalent to an item within the relationFilterFields.
                     filterDataSourceList.every((filterDataSource) => relationFilterFields.some((relatedField) =>
-                        this.isRelationEquivalent(relatedField, filterDataSource))));
+                        this._isRelationEquivalent(relatedField, filterDataSource))));
 
                 // The length of equivalentRelationList should be either 0 or 1.
                 if (equivalentRelationList.length) {
@@ -529,10 +537,7 @@ export class FilterService {
                 returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
             });
 
-            this.messenger.publish(neonEvents.FILTERS_CHANGED, {
-                change: returnCollection,
-                caller: callerId
-            });
+            this._notifier(callerId, returnCollection);
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSource) => {
                 returnCollection.set(filterDataSource, this.filterCollection.getFilters(filterDataSource).map((filter) =>
@@ -578,10 +583,7 @@ export class FilterService {
                 returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
             });
 
-            this.messenger.publish(neonEvents.FILTERS_CHANGED, {
-                change: returnCollection,
-                caller: callerId
-            });
+            this._notifier(callerId, returnCollection);
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
                 returnCollection.set(filterDataSourceList, this.filterCollection.getFilters(filterDataSourceList)
@@ -594,7 +596,7 @@ export class FilterService {
 
     /**
      * Exchanges all the filters in the given data sources with the given filters.  If filterDesignListToDelete is given, also deletes the
-     * filters of each data source with the given designs (useful if you want to both delete and exchange with one FILTERS_CHANGED event).
+     * filters of each data source with the given designs (useful if you want to both delete and exchange with one filter-change event).
      *
      * @arg {string} callerId
      * @arg {FilterDesign[]} filterDesignList
@@ -617,7 +619,7 @@ export class FilterService {
         filterDesignList.forEach((filterDesign) => {
             // Create the new filters and new relation filters to add in the exchange.
             let exchangeFilter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign, searchService);
-            let relationFilterList: AbstractFilter[] = this.createRelationFilterList(exchangeFilter, relationDataList, searchService);
+            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(exchangeFilter, relationDataList, searchService);
 
             // Save the new filters and new relation filters in an intermediary collection to separate filters by unique data source.
             [exchangeFilter].concat(relationFilterList).forEach((relationFilter) => {
@@ -660,10 +662,7 @@ export class FilterService {
         });
 
         if (filterDesignList.length || filterDesignListToDelete.length) {
-            this.messenger.publish(neonEvents.FILTERS_CHANGED, {
-                change: returnCollection,
-                caller: callerId
-            });
+            this._notifier(callerId, returnCollection);
         }
 
         return returnCollection;
@@ -751,7 +750,7 @@ export class FilterService {
      * @return {[AbstractFilter[], AbstractFilter[]]}
      * @private
      */
-    private getFiltersWithDesign(filterDesign: FilterDesign): AbstractFilter[] {
+    private _getFiltersWithDesign(filterDesign: FilterDesign): AbstractFilter[] {
         let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
         return this.filterCollection.getFilters(filterDataSourceList);
     }
@@ -783,9 +782,34 @@ export class FilterService {
      * @return {boolean}
      * @private
      */
-    private isRelationEquivalent(inputField: SingleField, filterDataSource: FilterDataSource): boolean {
+    private _isRelationEquivalent(inputField: SingleField, filterDataSource: FilterDataSource): boolean {
         return !!(inputField.datastore === filterDataSource.datastoreName && inputField.database.name === filterDataSource.databaseName &&
             inputField.table.name === filterDataSource.tableName && inputField.field.columnName === filterDataSource.fieldName);
+    }
+
+    /**
+     * Notifies all the filter-change listeners using the given caller ID and change collection.
+     */
+    public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
+        for (const listener of Array.from(this._listeners.values())) {
+            listener(callerId, changeCollection);
+        }
+    }
+
+    /**
+     * Overrides the notifier of filter-change listeners with the given callback function.
+     */
+    public overrideFilterChangeNotifier(notifier: FilterChangeListener): void {
+        if (notifier) {
+            this._notifier = notifier;
+        }
+    }
+
+    /**
+     * Registers the given ID with the given filter-change listener callback function.
+     */
+    public registerFilterChangeListener(id: string, listener: FilterChangeListener): void {
+        this._listeners.set(id, listener);
     }
 
     /**
@@ -826,7 +850,7 @@ export class FilterService {
         filterDesignList.forEach((toggleFilterDesign) => {
             // Create the new filters and new relation filters to add (toggle ON).
             let toggleFilter: AbstractFilter = FilterUtil.createFilterFromDesign(toggleFilterDesign, searchService);
-            let relationFilterList: AbstractFilter[] = this.createRelationFilterList(toggleFilter, relationDataList, searchService);
+            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(toggleFilter, relationDataList, searchService);
 
             // Save the new filters and new relation filters in an intermediary collection to separate filters by unique data source.
             [toggleFilter].concat(relationFilterList).forEach((relationFilter) => {
@@ -869,10 +893,7 @@ export class FilterService {
         });
 
         if (filterDesignList.length) {
-            this.messenger.publish(neonEvents.FILTERS_CHANGED, {
-                change: returnCollection,
-                caller: callerId
-            });
+            this._notifier(callerId, returnCollection);
         }
 
         return returnCollection;
@@ -895,7 +916,7 @@ export class FilterService {
             let filterDataSourceList: FilterDataSource[] = filterCollection.findFilterDataSources(filter.filterDesign);
 
             // Find the global filter list that is compatible with the filter design.
-            let filterList: AbstractFilter[] = this.getFiltersWithDesign(filter.filterDesign);
+            let filterList: AbstractFilter[] = this._getFiltersWithDesign(filter.filterDesign);
 
             // Save the filter list and continue the loop.  We need an intermediary collection here because multiple filter designs from
             // compatibleFilterBehaviorList could have the same filterDataSourceList so saving filters directly into filterCollection would
@@ -928,6 +949,13 @@ export class FilterService {
                 }
             }
         }
+    }
+
+    /**
+     * Unregisters the given ID of a registered filter-change listener.
+     */
+    public unregisterFilterChangeListener(id: string): void {
+        this._listeners.delete(id);
     }
 }
 

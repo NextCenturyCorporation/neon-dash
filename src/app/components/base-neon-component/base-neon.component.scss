@@ -20,6 +20,7 @@ $footer-height: 35px;
 $contribution-height: 20px;
 
 :host {
+    background-color: var(--color-background, white);
     height: 100%;
     width: 100%;
     cursor: default;
@@ -33,29 +34,26 @@ $contribution-height: 20px;
     'footer'
     'contribution';
 
-    .header {
-        grid-area: header;
+    .text {
+        color: var(--color-text, dimgrey);
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        margin: 0 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
-        &.text {
-            font-size: 14px;
-            font-weight: 500;
-            margin: 0 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--color-text-header, grey);
+        &.header {
+            grid-area: header;
         }
-    }
 
-    .info {
-        &.text {
-            font-size: 14px;
-            font-weight: 500;
-            margin: 0 5px;
-            overflow: hidden;
+        &.info {
             text-align: right;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        }
+
+        &.multiple-line {
+            white-space: unset;
         }
     }
 
@@ -84,7 +82,7 @@ $contribution-height: 20px;
             }
 
             .chart-selection {
-                background-color: var(--color-primary-transparent, rgba(128, 128, 128, 0.33));
+                background-color: var(--color-data-item-selected-area, rgba(128, 128, 128, 0.33));
                 height: 10px;
                 width: 10px;
                 position: absolute;
@@ -110,7 +108,7 @@ $contribution-height: 20px;
 
     .footer {
         grid-area: footer;
-        border-top: 2px solid var(--color-accent, lightgrey);
+        border-top: 2px solid var(--color-border, lightgrey);
         height: #{$footer-height};
     }
 
@@ -128,12 +126,6 @@ $contribution-height: 20px;
             height: 25px !important;
             line-height: 15px !important;
             margin: 0 5px;
-
-            &[disabled] {
-                @extend .pagination-button;
-                background-color: #DCDCDC !important;
-                color: #ADADAD !important;
-            }
         }
     }
 
@@ -151,46 +143,26 @@ $contribution-height: 20px;
         margin: 3px 2px 2px 10px;
         font-size: 10px;
         font-weight: 500;
-        color: var(--color-primary, lightgrey) !important;
+        text-decoration: underline;
 
         &:hover {
-            text-decoration: underline;
+            color: var(--color-data-item-selectable-text, dimgrey) !important;
         }
     }
 
-    %filter-reset-shared {
-        font-size: 14px;
-        line-height: 20px;
-        height: 20px;
-        border-radius: 5px;
-        margin: 5px;
-        padding: 5px 0 5px 10px;
-        background-color: var(--color-background-contrast, grey);
-    }
+    .visualization-sidenav-options {
+        max-width: calc(100% - 20px);
 
-    %filter-label-shared {
-        overflow: hidden;
-        position: relative;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    %filter-icon-shared {
-        padding: 2px 0;
-    }
-
-    .filter-reset {
-        @extend %filter-reset-shared;
-        float: right;
-
-        .filter-label {
-            @extend %filter-label-shared;
-            float: left;
-            max-width: 100px;
+        mat-card {
+            min-width: 240px;
+            max-width: 240px;
         }
 
-        mat-icon {
-            @extend %filter-icon-shared;
+        mat-form-field,
+        mat-input,
+        mat-select,
+        table {
+            width: 100%;
         }
     }
 
@@ -204,20 +176,6 @@ $contribution-height: 20px;
         > div {
             display: inline-block;
         }
-    }
-
-    .tappable {
-        cursor: pointer;
-
-        &:hover {
-            color: var(--color-accent, lightgrey);
-        }
-    }
-
-    .text {
-        font-size: 14px;
-        line-height: 20px;
-        color: var(--color-text-header, grey);
     }
 
     .toggle-text {

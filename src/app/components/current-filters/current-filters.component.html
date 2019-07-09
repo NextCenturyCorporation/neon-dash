@@ -7,7 +7,7 @@
     <span *ngFor="let group of groups" class="group">
         <span class="group-name">{{group.name}}</span>
         <mat-chip-list>
-            <mat-chip *ngFor="let filter of group.filters" selected color="primary">
+            <mat-chip *ngFor="let filter of group.filters; let i = index" selected [style.display]="i < 5 ? 'inherit' : 'none'">
                 <span [title]="filter.full.name">
                     <span *ngIf="filter.field">{{filter.op === 'is' ? '' : filter.op}} {{filter.value}}</span>
                     <span *ngIf="!filter.field">{{filter.text.length > 40 ? filter.text.substring(0, 40) + '...' : filter.text}}</span>
@@ -15,5 +15,6 @@
                 <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>
+        <span class="group-name" *ngIf="group.filters.length > 5">...and {{group.filters.length - 5}} more</span>
     </span>
 </div>

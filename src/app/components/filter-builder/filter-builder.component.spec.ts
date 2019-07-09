@@ -15,9 +15,10 @@
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
-import { FilterService, FilterDesign, SimpleFilterDesign, CompoundFilterDesign } from '../../services/filter.service';
+import { FilterDesign, SimpleFilterDesign, CompoundFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -27,10 +28,10 @@ import { CompoundFilterType } from '../../services/abstract.search.service';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
-    let filterService: FilterService;
+    let filterService: InjectableFilterService;
 
     beforeEach(() => {
-        filterService = jasmine.createSpyObj('FilterService', ['toggleFilters']);
+        filterService = jasmine.createSpyObj('InjectableFilterService', ['toggleFilters']);
         component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), filterService, new SearchServiceMock());
     });
 
@@ -187,7 +188,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component.dashboardState.findRelationDataList(), component.searchService);
+            component['_dataset'].relations, component.searchService);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -230,7 +231,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component.dashboardState.findRelationDataList(), component.searchService);
+            component['_dataset'].relations, component.searchService);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -272,7 +273,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component.dashboardState.findRelationDataList(), component.searchService);
+            component['_dataset'].relations, component.searchService);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -299,7 +300,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component.dashboardState.findRelationDataList(), component.searchService);
+            component['_dataset'].relations, component.searchService);
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
@@ -322,7 +323,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component.dashboardState.findRelationDataList(), component.searchService);
+            component['_dataset'].relations, component.searchService);
     });
 
     it('validateFilters does return expected boolean', () => {

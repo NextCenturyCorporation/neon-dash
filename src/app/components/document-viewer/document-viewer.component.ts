@@ -26,9 +26,9 @@ import {
 } from '@angular/core';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterService } from '../../services/filter.service';
+import { FilterBehavior } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
@@ -63,10 +63,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
-        protected widgetService: AbstractWidgetService,
         public viewContainerRef: ViewContainerRef,
         ref: ChangeDetectorRef,
         public dialog: MatDialog,

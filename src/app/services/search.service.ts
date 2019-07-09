@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injectable } from '@angular/core';
 
 import {
     AbstractSearchService,
@@ -24,7 +23,7 @@ import {
     QueryPayload
 } from './abstract.search.service';
 import { AggregationType } from '../models/widget-option';
-import { NeonConnection, RequestWrapper, ConnectionService } from './connection.service';
+import { ConnectionService, NeonConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';
 
@@ -46,12 +45,6 @@ interface ExportField {
     pretty: string;
 }
 
-/**
- * A service to run searches.
- *
- * @class SearchService
- */
-@Injectable()
 export class SearchService extends AbstractSearchService {
     constructor(private connectionService: ConnectionService) {
         super();
@@ -321,6 +314,37 @@ export class SearchService extends AbstractSearchService {
                 selectionOnly: undefined,
                 type: 'query'
             }
+        };
+    }
+
+    /**
+     * Transforms the values in the given search query results using the given map of keys-to-values-to-labels.
+     *
+     * @arg {{ data: any[] }} queryResults
+     * @arg {{ [key: string]: { [value: string]: string } }} keysToValuesToLabels
+     * @return {{ data: any[] }}
+     * @override
+     */
+    public transformQueryResultsValues(queryResults: { data: any[] },
+        keysToValuesToLabels: { [key: string]: { [value: string]: string } }): { data: any[] } {
+        let transformedResults = [];
+        for (let result of queryResults.data) {
+            let transformedResult = {};
+            for (let key of Object.keys(result)) {
+                transformedResult[key] = result[key];
+                if (keysToValuesToLabels[key]) {
+                    let value = transformedResult[key];
+                    if (value instanceof Array) {
+                        transformedResult[key] = value.map((element) => keysToValuesToLabels[key][element] || element);
+                    } else {
+                        transformedResult[key] = keysToValuesToLabels[key][value] || value;
+                    }
+                }
+            }
+            transformedResults.push(transformedResult);
+        }
+        return {
+            data: transformedResults
         };
     }
 
