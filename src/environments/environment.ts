@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 export const environment = {
     config: ['./app/config/config.json', './app/config/config.yaml'],
+    // Default Dev config
     production: false,
     version: '{BUILD_VERSION}',
-    buildDate:'Jul-05,2019--12:01pm',
-    recentGit:'bae7f10618187dfa69f985a0d59cdcf63a2e6e6c'
+    buildDate:'Jul-09,2019--14:49pm',
+    recentGit:'3492a95cb0b83cb82fae83c43ad239756fb58c39'
 };
