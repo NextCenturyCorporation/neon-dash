@@ -22,7 +22,7 @@ import {
 } from '../util/filter.util';
 import { FilterChangeListener, FilterService } from './filter.service';
 
-import { DATABASES, DATASET, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
+import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
 
 describe('FilterService with no filters', () => {
     let filterService: FilterService;
@@ -68,20 +68,20 @@ describe('FilterService with filters', () => {
         filterService = new FilterService();
 
         source1 = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
         source2 = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.SIZE.columnName,
             operator: '>'
         } as FilterDataSource, {
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.SIZE.columnName,
@@ -90,7 +90,7 @@ describe('FilterService with filters', () => {
 
         design1A = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -99,7 +99,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         design1B = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -108,7 +108,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         design1C = {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -117,7 +117,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         design1D = {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -129,7 +129,7 @@ describe('FilterService with filters', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
                 field: FIELD_MAP.SIZE,
@@ -137,7 +137,7 @@ describe('FilterService with filters', () => {
                 value: 10
             } as SimpleFilterDesign, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
                 field: FIELD_MAP.SIZE,
@@ -183,14 +183,14 @@ describe('FilterService with filters', () => {
      */
     let generateRelationFilters = () => {
         relationSource1 = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.RELATION_A.columnName,
             operator: '='
         } as FilterDataSource];
         relationSource2 = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.RELATION_B.columnName,
@@ -199,7 +199,7 @@ describe('FilterService with filters', () => {
 
         relationDesign1 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_A,
@@ -208,7 +208,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         relationDesign2 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_B,
@@ -226,12 +226,12 @@ describe('FilterService with filters', () => {
     };
 
     let findRelationDataList = () => [[[{
-        datastore: '',
+        datastore: DATASTORE.name,
         database: DATABASES.testDatabase1,
         table: TABLES.testTable1,
         field: FIELD_MAP.RELATION_A
     }], [{
-        datastore: '',
+        datastore: DATASTORE.name,
         database: DATABASES.testDatabase1,
         table: TABLES.testTable1,
         field: FIELD_MAP.RELATION_B
@@ -347,7 +347,7 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let actual = filterService.deleteFilters('testCaller', [{
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -357,7 +357,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -375,7 +375,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -384,7 +384,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -422,7 +422,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -459,7 +459,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -468,7 +468,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -550,7 +550,7 @@ describe('FilterService with filters', () => {
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_B,
@@ -574,7 +574,7 @@ describe('FilterService with filters', () => {
         let testDesign1 = {
             id: listComplete[0].id,
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_A,
@@ -666,7 +666,7 @@ describe('FilterService with filters', () => {
         expect(filterService.getFilters(source1)).toEqual([design1A, design1B, design1C, design1D]);
         expect(filterService.getFilters(source2)).toEqual([design2A]);
         expect(filterService.getFilters([{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.ID.columnName,
@@ -677,7 +677,7 @@ describe('FilterService with filters', () => {
     it('getFiltersToSaveInConfig should return expected array', () => {
         expect(filterService.getFiltersToSaveInConfig()).toEqual([{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -685,7 +685,7 @@ describe('FilterService with filters', () => {
             value: 'testId1'
         }, {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -693,7 +693,7 @@ describe('FilterService with filters', () => {
             value: 'testId2'
         }, {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -701,7 +701,7 @@ describe('FilterService with filters', () => {
             value: 'testId3'
         }, {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -712,7 +712,7 @@ describe('FilterService with filters', () => {
             type: 'and',
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -720,7 +720,7 @@ describe('FilterService with filters', () => {
                 value: 10
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -732,10 +732,10 @@ describe('FilterService with filters', () => {
 
     it('getFiltersToSearch should return expected array', () => {
         expect(filterService.getFiltersToSearch('fakeDatastore1', 'testDatabase1', 'testTable1')).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'fakeDatabase1', 'testTable1')).toEqual([]);
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'fakeTable1')).toEqual([]);
+        expect(filterService.getFiltersToSearch('datastore1', 'fakeDatabase1', 'testTable1')).toEqual([]);
+        expect(filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'fakeTable1')).toEqual([]);
 
-        let filters = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1');
+        let filters = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1');
         expect(filters.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
@@ -754,7 +754,7 @@ describe('FilterService with filters', () => {
     });
 
     it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
-        let filters1 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A]);
+        let filters1 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1A]);
         expect(filters1.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
@@ -765,7 +765,7 @@ describe('FilterService with filters', () => {
             filters: [filter2A.toDesign()]
         }]);
 
-        let filters2 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1D]);
+        let filters2 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1D]);
         expect(filters2.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
@@ -776,7 +776,7 @@ describe('FilterService with filters', () => {
             filters: [filter2A.toDesign()]
         }]);
 
-        let filters3 = filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design2A]);
+        let filters3 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design2A]);
         expect(filters3.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
@@ -790,7 +790,7 @@ describe('FilterService with filters', () => {
             filters: [filter1C.toDesign(), filter1D.toDesign()]
         }]);
 
-        expect(filterService.getFiltersToSearch('', 'testDatabase1', 'testTable1', [design1A, design2A])).toEqual([]);
+        expect(filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1A, design2A])).toEqual([]);
     });
 
     it('notifyFilterChangeListeners does call each listener callback function', () => {
@@ -876,7 +876,7 @@ describe('FilterService with filters', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
                 field: FIELD_MAP.ID,
@@ -893,7 +893,7 @@ describe('FilterService with filters', () => {
     it('retrieveCompatibleFilterCollection should do nothing with no compatible filters', () => {
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -901,7 +901,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -922,7 +922,7 @@ describe('FilterService with filters', () => {
 
         filterService.setFiltersFromConfig([{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -941,7 +941,7 @@ describe('FilterService with filters', () => {
 
         filterService.setFiltersFromConfig([{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -949,7 +949,7 @@ describe('FilterService with filters', () => {
             value: 'testId1'
         }, {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -957,7 +957,7 @@ describe('FilterService with filters', () => {
             value: 'testId2'
         }, {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -965,7 +965,7 @@ describe('FilterService with filters', () => {
             value: 'testId3'
         }, {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -1005,7 +1005,7 @@ describe('FilterService with filters', () => {
             type: 'and',
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -1013,7 +1013,7 @@ describe('FilterService with filters', () => {
                 value: 10
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -1040,7 +1040,7 @@ describe('FilterService with filters', () => {
 
         filterService.setFiltersFromConfig([{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -1048,7 +1048,7 @@ describe('FilterService with filters', () => {
             value: 'testId1'
         }, {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
             field: FIELD_MAP.ID.columnName,
@@ -1059,7 +1059,7 @@ describe('FilterService with filters', () => {
             type: 'and',
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -1067,7 +1067,7 @@ describe('FilterService with filters', () => {
                 value: 10
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
                 field: FIELD_MAP.SIZE.columnName,
@@ -1112,7 +1112,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.ID,
@@ -1153,7 +1153,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -1162,7 +1162,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -1218,7 +1218,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -1227,7 +1227,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -1265,7 +1265,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.TEXT,
@@ -1274,7 +1274,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
 
         let testSource = [{
-            datastoreName: '',
+            datastoreName: DATASTORE.name,
             databaseName: DATABASES.testDatabase1.name,
             tableName: TABLES.testTable1.name,
             fieldName: FIELD_MAP.TEXT.columnName,
@@ -1356,7 +1356,7 @@ describe('FilterService with filters', () => {
 
         let testDesign2 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_B,
@@ -1381,7 +1381,7 @@ describe('FilterService with filters', () => {
         let testDesign1 = {
             id: listComplete[1].id,
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_A,
@@ -1441,7 +1441,7 @@ describe('FilterService with filters', () => {
 
         let testDesign1 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_A,
@@ -1450,7 +1450,7 @@ describe('FilterService with filters', () => {
         } as SimpleFilterDesign;
         let testDesign2 = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
             field: FIELD_MAP.RELATION_B,

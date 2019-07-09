@@ -132,7 +132,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     private createFilterDesignOnAnnotationText(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database.name,
             table: this.options.table.name,
             field: this.options.documentTextField.columnName,

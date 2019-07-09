@@ -105,7 +105,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     private createFilterDesign(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,

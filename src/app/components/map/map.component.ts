@@ -647,28 +647,28 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '>=',
                 value: south
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '<=',
                 value: north
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
                 operator: '>=',
                 value: west
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
@@ -682,14 +682,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '=',
                 value: latitude
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
@@ -702,7 +702,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: layer.datastore.name,
             database: layer.database,
             table: layer.table,
             field: field,

@@ -119,7 +119,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,

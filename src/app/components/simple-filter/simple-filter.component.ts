@@ -63,7 +63,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
             simpleFilter.fieldName);
 
         let filter: SimpleFilterDesign = {
-            datastore: '',
+            datastore: this.dashboardState.datastore.name,
             database: database,
             table: table,
             field: field,
@@ -89,7 +89,7 @@ export class SimpleFilterComponent implements OnInit, OnDestroy {
     public removeFilter(): void {
         if (this.cachedFilter) {
             this.filterService.deleteFilters('SimpleFilter', [{
-                datastore: '',
+                datastore: this.dashboardState.datastore.name,
                 database: this.cachedFilter.database,
                 table: this.cachedFilter.table,
                 field: this.cachedFilter.field,

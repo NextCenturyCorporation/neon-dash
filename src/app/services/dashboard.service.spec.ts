@@ -209,13 +209,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -223,13 +223,13 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -285,13 +285,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -299,23 +299,23 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -335,13 +335,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -349,13 +349,13 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -579,7 +579,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const { config, layouts, filters } = getConfig([
             {
                 root: 'or',
-                datastore: '',
+                datastore: 'datastore1',
                 database: 'databaseZ',
                 table: 'tableA',
                 field: 'field1',
@@ -592,7 +592,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 filters: [
                     {
                         root: 'or',
-                        datastore: '',
+                        datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -601,7 +601,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     },
                     {
                         root: 'or',
-                        datastore: '',
+                        datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -666,10 +666,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
+            ["datastore1.databaseZ.tableA.field1","=","value1","or"],
             ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
+                ["datastore1.databaseY.tableB.field2", "!=", "", "or"],
+                ["datastore1.databaseY.tableB.field2", "!=", null, "or"]
             ]
         ]`);
 
@@ -713,7 +713,7 @@ describe('Service: DashboardService with Mock Data', () => {
             expect(data.dashboards.filters).toEqual([
                 {
                     root: 'or',
-                    datastore: '',
+                    datastore: 'datastore1',
                     database: 'databaseZ',
                     table: 'tableA',
                     field: 'field1',
@@ -726,7 +726,7 @@ describe('Service: DashboardService with Mock Data', () => {
                     filters: [
                         {
                             root: 'or',
-                            datastore: '',
+                            datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
                             field: 'field2',
@@ -735,7 +735,7 @@ describe('Service: DashboardService with Mock Data', () => {
                         },
                         {
                             root: 'or',
-                            datastore: '',
+                            datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
                             field: 'field2',

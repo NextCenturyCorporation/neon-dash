@@ -90,7 +90,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         let table: NeonTableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
         let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
-            datastore: '',
+            datastore: this.dashboardState.datastore.name,
             database: database,
             table: table,
             field: field,
@@ -108,7 +108,7 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.filterField,

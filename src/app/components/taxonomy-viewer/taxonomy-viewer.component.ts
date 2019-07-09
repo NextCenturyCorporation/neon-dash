@@ -143,7 +143,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,
