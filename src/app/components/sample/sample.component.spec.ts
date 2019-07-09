@@ -24,10 +24,9 @@ import { SubcomponentImpl2 } from './subcomponent.impl2';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { SearchService } from '../../services/search.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
@@ -80,7 +79,7 @@ let validateToggle = (element: any, value: any, content: string, checked: boolea
 class TestSampleComponent extends SampleComponent {
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
@@ -130,7 +129,7 @@ describe('Component: Sample', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
 
@@ -194,7 +193,7 @@ describe('Component: Sample', () => {
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
                 field: 'testRequiredField1',
-                name: '_count',
+                name: '_aggregation',
                 type: 'count'
             }],
             filter: {
@@ -204,7 +203,7 @@ describe('Component: Sample', () => {
             },
             groups: ['testRequiredField1'],
             sort: {
-                field: '_count',
+                field: '_aggregation',
                 order: -1
             }
         });
@@ -225,7 +224,7 @@ describe('Component: Sample', () => {
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             aggregation: [{
                 field: 'testOptionalField1',
-                name: '_count',
+                name: '_aggregation',
                 type: 'count'
             }],
             filter: {
@@ -242,7 +241,7 @@ describe('Component: Sample', () => {
             },
             groups: ['testRequiredField1', 'testOptionalField1'],
             sort: {
-                field: '_count',
+                field: '_aggregation',
                 order: -1
             }
         });
@@ -374,10 +373,10 @@ describe('Component: Sample', () => {
         });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            _count: 2,
+            _aggregation: 2,
             testRequiredField1: 'a'
         }, {
-            _count: 1,
+            _aggregation: 1,
             testRequiredField1: 'z'
         }]);
         expect(component.visualizationData).toEqual([{
@@ -416,11 +415,11 @@ describe('Component: Sample', () => {
         });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
-            _count: 2,
+            _aggregation: 2,
             testOptionalField1: 'alpha',
             testRequiredField1: 'a'
         }, {
-            _count: 1,
+            _aggregation: 1,
             testOptionalField1: 'omega',
             testRequiredField1: 'z'
         }]);
@@ -554,8 +553,8 @@ describe('Component: Sample with config', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
-            { provide: AbstractSearchService, useClass: SearchService },
+            InjectableFilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'customEventsToPublish', useValue: [{ id: 'test_publish_event', fields: [{ columnName: 'testPublishField' }] }] },
             { provide: 'customEventsToReceive', useValue: [{ id: 'test_receive_event', fields: [{ columnName: 'testReceiveField' }] }] },

@@ -28,10 +28,12 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData, MediaTypes } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
+import { MediaTypes } from '../../models/types';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
@@ -73,7 +75,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     constructor(
         dashboardService: DashboardService,
-        filterService: FilterService,
+        filterService: InjectableFilterService,
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
@@ -670,7 +672,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             } else {
                 let img: HTMLImageElement = new Image();
-                img.src = './assets/icons/visualization/document-viewer.svg';
+                img.src = './assets/icons/dashboard/document.svg';
 
                 img.onload = () => {
                     if (this.options.viewType === ViewType.CARD) {

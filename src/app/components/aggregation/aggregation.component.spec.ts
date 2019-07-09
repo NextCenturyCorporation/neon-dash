@@ -24,16 +24,16 @@ import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterService, SimpleFilterDesign } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/types';
+import { NeonFieldMetaData } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {
@@ -45,9 +45,9 @@ describe('Component: Aggregation', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector
         ],
@@ -3960,9 +3960,9 @@ describe('Component: Aggregation with config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4061,9 +4061,9 @@ describe('Component: Aggregation with XY config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
@@ -4162,9 +4162,9 @@ describe('Component: Aggregation with date config', () => {
 
     initializeTestBed('Aggregation', {
         providers: [
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
             { provide: 'tableKey', useValue: 'table_key_2' },
