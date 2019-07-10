@@ -11,9 +11,9 @@ The Neon Dashboard is a big data exploration and visualization user interface.
 * Install the [Neon Server](https://github.com/NextCenturyCorporation/neon-server)
 * (Optional) Install the [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
 
-## Step-by-Step Installation
+## Step-by-Step Production Installation Documentation
 
-See the page [here](./STEP_BY_STEP_INSTALLATION.md).  Requires sample data bundle.
+See the page [here](./STEP_BY_STEP_INSTALLATION.md).  Requires a sample data bundle provided by the development team.
 
 ## Configure the Neon Dashboard
 
