@@ -152,13 +152,13 @@ export class FilterUtil {
             let datastore: NeonDatastoreConfig = dataset.datastores[0];
             let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
             let table: NeonTableMetaData = database.tables[filterObject.table];
-            let fields: NeonFieldMetaData[] = table.fields.filter((field) => field.columnName === filterObject.field);
+            let field: NeonFieldMetaData = table.fields.filter((field) => field.columnName === filterObject.field)[0];
             return {
                 root: filterObject.root || '',
                 datastore: filterObject.datastore || '',
                 database,
                 table,
-                field: fields[0],
+                field,
                 operator: filterObject.operator,
                 value: filterObject.value
             } as SimpleFilterDesign;
