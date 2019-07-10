@@ -3202,7 +3202,7 @@ describe('Filter Labels', () => {
         expect(stringNotEmptyFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringNotEmptyFilter.getLabelForField(true)).toEqual('Test Name Field');
         expect(stringNotEmptyFilter.getLabelForOperator()).toEqual('!=');
-        expect(stringNotEmptyFilter.getLabelForValue()).toEqual('');
+        expect(stringNotEmptyFilter.getLabelForValue()).toEqual('<empty>');
     });
 
     it('getLabel functions on date filters should return expected strings', () => {
@@ -3384,11 +3384,13 @@ describe('Filter Labels', () => {
         });
 
         // TODO THOR-1333 Improve label for custom compound filter
-        expect(compoundFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
-            'Test Table 1 / Test Text Field or Test Database 1 / Test Table 1 / Test Type Field');
-        expect(compoundFilter.getLabelForField(true)).toEqual('Test Name Field or Test Text Field or Test Type Field');
+        expect(compoundFilter.getLabelForField()).toEqual('');
+        expect(compoundFilter.getLabelForField(true)).toEqual('');
         expect(compoundFilter.getLabelForOperator()).toEqual('');
-        expect(compoundFilter.getLabelForValue()).toEqual('testName or testText or testType');
+        expect(compoundFilter.getLabelForValue()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field testName) or ' +
+            '(Test Database 1 / Test Table 1 / Test Text Field testText) or (Test Database 1 / Test Table 1 / Test Type Field testType)');
+        expect(compoundFilter.getLabelForValue(true)).toEqual('(Test Name Field testName) or (Test Text Field testText) or ' +
+            '(Test Type Field testType)');
     });
 
     it('getLabel functions on domain filter should return expected strings', () => {
