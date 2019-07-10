@@ -4,8 +4,8 @@
   "license": "Apache2",
   "scripts": {
     "ng": "ng",
-    "start": "npm run build && ng serve --proxy-config proxy.conf.json  --host 0.0.0.0 --port 4200",
-    "build": "./scripts/build_dashboard.sh",
+    "start": "./scripts/generate_environment.sh && ng serve --proxy-config proxy.conf.json  --host 0.0.0.0 --port 4200",
+    "build": "./scripts/generate_environment.sh && ./scripts/build_dashboard.sh",
     "build-prod": "ng build --prod --build-optimizer=false",
     "start-local": "npm start",
     "build-lorelei": "npm run build lorelei",
