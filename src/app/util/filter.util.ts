@@ -488,7 +488,7 @@ export abstract class AbstractFilter {
      *
      * @abstract
      */
-    public abstract getLabelForValue(): string;
+    public abstract getLabelForValue(abridged?: boolean): string;
 
     /**
      * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
@@ -607,7 +607,7 @@ export class SimpleFilter extends AbstractFilter {
      *
      * @abstract
      */
-    public getLabelForValue(): string {
+    public getLabelForValue(__abridged: boolean = false): string {
         if (this.field.type === 'date' || this.value instanceof Date) {
             // TODO THOR-1259 Let user switch from UTC to local time
             // TODO THOR-1329 If hour or minutes are not zero, add hour and minutes and seconds to output string format.
@@ -616,7 +616,7 @@ export class SimpleFilter extends AbstractFilter {
         if (typeof this.value === 'number') {
             return '' + (this.value % 1 === 0 ? this.value : parseFloat('' + this.value).toFixed(3));
         }
-        return this.value;
+        return this.value === '' ? '<empty>' : this.value;
     }
 
     /**
@@ -833,8 +833,7 @@ export class CompoundFilter extends AbstractFilter {
             return this._getLabelForDualFields(pairFilter[0].getLabelForField(abridged), pairFilter[1].getLabelForField(abridged));
         }
 
-        // TODO THOR-1333 Improve label for custom compound filter
-        return Object.keys(this._getFiltersByField(abridged)).join(' ' + this.type + ' ');
+        return '';
     }
 
     /**
@@ -851,22 +850,22 @@ export class CompoundFilter extends AbstractFilter {
      *
      * @abstract
      */
-    public getLabelForValue(): string {
+    public getLabelForValue(abridged: boolean = false): string {
         let boundsFilter = this.asBoundsFilter();
         if (boundsFilter) {
-            return 'from (' + boundsFilter.lowerA.getLabelForValue() + ', ' + boundsFilter.lowerB.getLabelForValue() + ') to (' +
-                boundsFilter.upperA.getLabelForValue() + ', ' + boundsFilter.upperB.getLabelForValue() + ')';
+            return 'from (' + boundsFilter.lowerA.getLabelForValue(abridged) + ', ' + boundsFilter.lowerB.getLabelForValue(abridged) +
+                ') to (' + boundsFilter.upperA.getLabelForValue(abridged) + ', ' + boundsFilter.upperB.getLabelForValue(abridged) + ')';
         }
 
         let domainFilter = this.asDomainFilter();
         if (domainFilter) {
-            return 'between ' + domainFilter.lower.getLabelForValue() + ' and ' + domainFilter.upper.getLabelForValue();
+            return 'between ' + domainFilter.lower.getLabelForValue(abridged) + ' and ' + domainFilter.upper.getLabelForValue(abridged);
         }
 
         let listFilter = this.asListFilter();
         if (listFilter) {
             // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
-            let values: any[] = listFilter.slice(0, 5).map((filter) => filter.getLabelForValue());
+            let values: any[] = listFilter.slice(0, 5).map((filter) => filter.getLabelForValue(abridged));
             let suffix = (listFilter.length > 5 ? (' ' + this.type + ' ' + (listFilter.length - 5) + ' more...') : '');
             let operator = listFilter[0].getLabelForOperator();
             // Do not show the operator if it is empty.
@@ -879,31 +878,25 @@ export class CompoundFilter extends AbstractFilter {
             let operatorTwo = pairFilter[1].getLabelForOperator();
             // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
             if (operatorOne === operatorTwo) {
-                return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' +
-                    pairFilter[1].getLabelForValue();
+                return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+                    pairFilter[1].getLabelForValue(abridged);
             }
             // Do not show the operator if it is empty.
-            return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' +
-                (operatorTwo ? (operatorTwo + ' ') : '') + pairFilter[1].getLabelForValue();
+            return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+                (operatorTwo ? (operatorTwo + ' ') : '') + pairFilter[1].getLabelForValue(abridged);
         }
 
         // TODO THOR-1333 Improve label for custom compound filter
 
-        // If the operator of each nested filter is the same, only show it once.
-        const sampleOperator = this.filters[0] instanceof SimpleFilter ? ((this.filters[0] as SimpleFilter).getLabelForOperator()) : null;
-        const eachOperatorIsSame = sampleOperator === null ? false : this.filters.every((filter) => filter instanceof SimpleFilter &&
-            (filter).getLabelForOperator() === sampleOperator);
-        const operatorString = eachOperatorIsSame ? (sampleOperator ? (sampleOperator + ' ') : '') : '';
-
         // Group the filters by unique field.
-        const filtersByField: Record<string, AbstractFilter[]> = this._getFiltersByField();
-        return operatorString + Object.keys(filtersByField).reduce((list, field) => {
+        const filtersByField: Record<string, AbstractFilter[]> = this._getFiltersByField(abridged);
+        return '(' + Object.keys(filtersByField).reduce((list, field) => {
             let valuesByOperator: Record<string, any[]> = {};
             // Group the values by unique operator.
             filtersByField[field].forEach((filter) => {
                 let operator = filter.getLabelForOperator();
                 valuesByOperator[operator] = valuesByOperator[operator] || [];
-                valuesByOperator[operator].push(filter.getLabelForValue());
+                valuesByOperator[operator].push(filter.getLabelForValue(abridged));
             });
             let labels: string[] = Object.keys(valuesByOperator).map((operator) => {
                 // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
@@ -911,12 +904,12 @@ export class CompoundFilter extends AbstractFilter {
                 let suffix = (valuesByOperator[operator].length > 5 ? (' ' + this.type + ' ' + (valuesByOperator[operator].length - 5) +
                     ' more...') : '');
                 // Do not show the operator if each operator is the same or if it is empty.  Do not show parentheses around only one value.
-                return ((!eachOperatorIsSame && operator) ? (operator + ' ') : '') + (values.length > 1 ?
+                return (operator ? (operator + ' ') : '') + (values.length > 1 ?
                     ('(' + values.join(', ') + suffix + ')') : (values[0] + suffix));
             });
             // Do not show parentheses around only one operator.
-            return list.concat(labels.length > 1 ? ('(' + labels.join(' ' + this.type + ' ') + ')') : labels[0]);
-        }, []).join(' ' + this.type + ' ');
+            return list.concat(field + ' ' + (labels.length > 1 ? ('(' + labels.join(' ' + this.type + ' ') + ')') : labels[0]));
+        }, []).join(') ' + this.type + ' (') + ')';
     }
 
     /**
