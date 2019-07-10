@@ -599,7 +599,7 @@ export class SimpleFilter extends AbstractFilter {
                 return 'after';
             }
         }
-        return this.operator;
+        return this.operator === '=' ? '' : this.operator;
     }
 
     /**
@@ -785,6 +785,27 @@ export class CompoundFilter extends AbstractFilter {
         return this.filters.some((nested) => nested.doesAffectSearch(datastore, database, table));
     }
 
+    private _getFiltersByField(abridged: boolean = false): Record<string, AbstractFilter[]> {
+        return this.filters.reduce((collection, filter) => {
+            let field = filter.getLabelForField(abridged);
+            collection[field] = collection[field] || [];
+            collection[field].push(filter);
+            return collection;
+        }, {}) as Record<string, AbstractFilter[]>;
+    }
+
+    private _getLabelForDualFields(one: string, two: string): string {
+        let oneNestedFields: string[] = one.split('.');
+        let twoNestedFields: string[] = two.split('.');
+        if (oneNestedFields.length === twoNestedFields.length && oneNestedFields.length > 1) {
+            let oneFieldsPrefix = one.substring(0, one.lastIndexOf('.'));
+            if (oneFieldsPrefix === two.substring(0, two.lastIndexOf('.'))) {
+                return oneFieldsPrefix;
+            }
+        }
+        return one + ' ' + this.type + ' ' + two;
+    }
+
     /**
      * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
      *
@@ -793,8 +814,8 @@ export class CompoundFilter extends AbstractFilter {
     public getLabelForField(abridged: boolean = false): string {
         let boundsFilter = this.asBoundsFilter();
         if (boundsFilter) {
-            return '(' + boundsFilter.lowerA.getLabelForField(abridged) + ' ' + this.type + ' ' +
-                boundsFilter.lowerB.getLabelForField(abridged) + ')';
+            return this._getLabelForDualFields(boundsFilter.lowerA.getLabelForField(abridged),
+                boundsFilter.lowerB.getLabelForField(abridged));
         }
 
         let domainFilter = this.asDomainFilter();
@@ -809,10 +830,11 @@ export class CompoundFilter extends AbstractFilter {
 
         let pairFilter = this.asPairFilter();
         if (pairFilter) {
-            return '(' + pairFilter[0].getLabelForField(abridged) + ' ' + this.type + ' ' + pairFilter[1].getLabelForField(abridged) + ')';
+            return this._getLabelForDualFields(pairFilter[0].getLabelForField(abridged), pairFilter[1].getLabelForField(abridged));
         }
 
-        return '(' + this.filters.map((filter) => filter.getLabelForField(abridged)).join(' ' + this.type + ' ') + ')';
+        // TODO THOR-1333 Improve label for custom compound filter
+        return Object.keys(this._getFiltersByField(abridged)).join(' ' + this.type + ' ');
     }
 
     /**
@@ -843,31 +865,58 @@ export class CompoundFilter extends AbstractFilter {
 
         let listFilter = this.asListFilter();
         if (listFilter) {
-            if (listFilter.length > 5) {
-                return listFilter[0].operator + ' (' + listFilter.slice(0, 5).map((filter) =>
-                    filter.getLabelForValue()).join(' ' + this.type + ' ') + ' ' + this.type + ' ' + (listFilter.length - 5) + ' more...)';
-            }
-            return listFilter[0].operator + ' (' + listFilter.map((filter) => filter.getLabelForValue()).join(' ' + this.type + ' ') + ')';
+            // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
+            let values: any[] = listFilter.slice(0, 5).map((filter) => filter.getLabelForValue());
+            let suffix = (listFilter.length > 5 ? (' ' + this.type + ' ' + (listFilter.length - 5) + ' more...') : '');
+            let operator = listFilter[0].getLabelForOperator();
+            // Do not show the operator if it is empty.
+            return (operator ? (operator + ' ') : '') + values.join(' ' + this.type + ' ') + suffix;
         }
 
         let pairFilter = this.asPairFilter();
         if (pairFilter) {
-            return '(' + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' + pairFilter[1].getLabelForValue() + ')';
+            let operatorOne = pairFilter[0].getLabelForOperator();
+            let operatorTwo = pairFilter[1].getLabelForOperator();
+            // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
+            if (operatorOne === operatorTwo) {
+                return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' +
+                    pairFilter[1].getLabelForValue();
+            }
+            // Do not show the operator if it is empty.
+            return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue() + ' ' + this.type + ' ' +
+                (operatorTwo ? (operatorTwo + ' ') : '') + pairFilter[1].getLabelForValue();
         }
 
         // TODO THOR-1333 Improve label for custom compound filter
-        if (this.filters.length > 5) {
-            return '(' + this.filters.slice(0, 5).map((filter) => {
+
+        // If the operator of each nested filter is the same, only show it once.
+        const sampleOperator = this.filters[0] instanceof SimpleFilter ? ((this.filters[0] as SimpleFilter).getLabelForOperator()) : null;
+        const eachOperatorIsSame = sampleOperator === null ? false : this.filters.every((filter) => filter instanceof SimpleFilter &&
+            (filter).getLabelForOperator() === sampleOperator);
+        const operatorString = eachOperatorIsSame ? (sampleOperator ? (sampleOperator + ' ') : '') : '';
+
+        // Group the filters by unique field.
+        const filtersByField: Record<string, AbstractFilter[]> = this._getFiltersByField();
+        return operatorString + Object.keys(filtersByField).reduce((list, field) => {
+            let valuesByOperator: Record<string, any[]> = {};
+            // Group the values by unique operator.
+            filtersByField[field].forEach((filter) => {
                 let operator = filter.getLabelForOperator();
-                return (operator ? (operator + ' ') : '') + filter.getLabelForValue();
-            }).join(' ' + this.type + ' ') + ' ' + this.type + ' ' + (this.filters.length - 5) + ' more...)';
-        }
-
-        // TODO THOR-1333 Improve label for custom compound filter
-        return '(' + this.filters.map((filter) => {
-            let operator = filter.getLabelForOperator();
-            return (operator ? (operator + ' ') : '') + filter.getLabelForValue();
-        }).join(' ' + this.type + ' ') + ')';
+                valuesByOperator[operator] = valuesByOperator[operator] || [];
+                valuesByOperator[operator].push(filter.getLabelForValue());
+            });
+            let labels: string[] = Object.keys(valuesByOperator).map((operator) => {
+                // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
+                let values: any[] = valuesByOperator[operator].slice(0, 5);
+                let suffix = (valuesByOperator[operator].length > 5 ? (' ' + this.type + ' ' + (valuesByOperator[operator].length - 5) +
+                    ' more...') : '');
+                // Do not show the operator if each operator is the same or if it is empty.  Do not show parentheses around only one value.
+                return ((!eachOperatorIsSame && operator) ? (operator + ' ') : '') + (values.length > 1 ?
+                    ('(' + values.join(', ') + suffix + ')') : (values[0] + suffix));
+            });
+            // Do not show parentheses around only one operator.
+            return list.concat(labels.length > 1 ? ('(' + labels.join(' ' + this.type + ' ') + ')') : labels[0]);
+        }, []).join(' ' + this.type + ' ');
     }
 
     /**
