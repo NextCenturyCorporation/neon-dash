@@ -3167,7 +3167,6 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         stringContainsFilter.datastore = 'testDatastore1';
 
-        expect(stringContainsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Name Field contains testName1');
         expect(stringContainsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringContainsFilter.getLabelForField(true)).toEqual('Test Name Field');
         expect(stringContainsFilter.getLabelForOperator()).toEqual('contains');
@@ -3184,11 +3183,26 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         stringEqualsFilter.datastore = 'testDatastore1';
 
-        expect(stringEqualsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Name Field = testName1');
         expect(stringEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringEqualsFilter.getLabelForField(true)).toEqual('Test Name Field');
-        expect(stringEqualsFilter.getLabelForOperator()).toEqual('=');
+        expect(stringEqualsFilter.getLabelForOperator()).toEqual('');
         expect(stringEqualsFilter.getLabelForValue()).toEqual('testName1');
+
+        let stringNotEmptyFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
+            datastore: 'testDatastore1',
+            database: DashboardServiceMock.DATABASES.testDatabase1,
+            table: DashboardServiceMock.TABLES.testTable1,
+            field: DashboardServiceMock.FIELD_MAP.NAME,
+            operator: '!=',
+            value: ''
+        } as SimpleFilterDesign) as SimpleFilter;
+        // TODO THOR-1078 Remove this line
+        stringNotEmptyFilter.datastore = 'testDatastore1';
+
+        expect(stringNotEmptyFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
+        expect(stringNotEmptyFilter.getLabelForField(true)).toEqual('Test Name Field');
+        expect(stringNotEmptyFilter.getLabelForOperator()).toEqual('!=');
+        expect(stringNotEmptyFilter.getLabelForValue()).toEqual('');
     });
 
     it('getLabel functions on date filters should return expected strings', () => {
@@ -3203,10 +3217,9 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         dateEqualsFilter.datastore = 'testDatastore1';
 
-        expect(dateEqualsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Date Field = 2000-01-02');
         expect(dateEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateEqualsFilter.getLabelForField(true)).toEqual('Test Date Field');
-        expect(dateEqualsFilter.getLabelForOperator()).toEqual('=');
+        expect(dateEqualsFilter.getLabelForOperator()).toEqual('');
         expect(dateEqualsFilter.getLabelForValue()).toEqual('2000-01-02');
 
         let dateGreaterThanFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
@@ -3220,7 +3233,6 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         dateGreaterThanFilter.datastore = 'testDatastore1';
 
-        expect(dateGreaterThanFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Date Field after 2000-01-02');
         expect(dateGreaterThanFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateGreaterThanFilter.getLabelForField(true)).toEqual('Test Date Field');
         expect(dateGreaterThanFilter.getLabelForOperator()).toEqual('after');
@@ -3237,7 +3249,6 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         dateLessThanFilter.datastore = 'testDatastore1';
 
-        expect(dateLessThanFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Date Field before 2000-01-02');
         expect(dateLessThanFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateLessThanFilter.getLabelForField(true)).toEqual('Test Date Field');
         expect(dateLessThanFilter.getLabelForOperator()).toEqual('before');
@@ -3258,10 +3269,9 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         floatEqualsFilter.datastore = 'testDatastore1';
 
-        expect(floatEqualsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Size Field = 1234.568');
         expect(floatEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(floatEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
-        expect(floatEqualsFilter.getLabelForOperator()).toEqual('=');
+        expect(floatEqualsFilter.getLabelForOperator()).toEqual('');
         expect(floatEqualsFilter.getLabelForValue()).toEqual('1234.568');
 
         let intEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
@@ -3275,10 +3285,9 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         intEqualsFilter.datastore = 'testDatastore1';
 
-        expect(intEqualsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Size Field = 1234');
         expect(intEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(intEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
-        expect(intEqualsFilter.getLabelForOperator()).toEqual('=');
+        expect(intEqualsFilter.getLabelForOperator()).toEqual('');
         expect(intEqualsFilter.getLabelForValue()).toEqual('1234');
 
         let zeroEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
@@ -3292,10 +3301,9 @@ describe('Filter Labels', () => {
         // TODO THOR-1078 Remove this line
         zeroEqualsFilter.datastore = 'testDatastore1';
 
-        expect(zeroEqualsFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Size Field = 0');
         expect(zeroEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(zeroEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
-        expect(zeroEqualsFilter.getLabelForOperator()).toEqual('=');
+        expect(zeroEqualsFilter.getLabelForOperator()).toEqual('');
         expect(zeroEqualsFilter.getLabelForValue()).toEqual('0');
     });
 
@@ -3337,11 +3345,9 @@ describe('Filter Labels', () => {
             (filter as SimpleFilter).datastore = 'testDatastore1';
         });
 
-        expect(boundsFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / Test Table 1 / ' +
-            'Test Y Field) from (-50, -100) to (50, 100)');
-        expect(boundsFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
-            'Test Table 1 / Test Y Field)');
-        expect(boundsFilter.getLabelForField(true)).toEqual('(Test X Field and Test Y Field)');
+        expect(boundsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
+            'Test Table 1 / Test Y Field');
+        expect(boundsFilter.getLabelForField(true)).toEqual('Test X Field and Test Y Field');
         expect(boundsFilter.getLabelForOperator()).toEqual('');
         expect(boundsFilter.getLabelForValue()).toEqual('from (-50, -100) to (50, 100)');
     });
@@ -3378,13 +3384,11 @@ describe('Filter Labels', () => {
         });
 
         // TODO THOR-1333 Improve label for custom compound filter
-        expect(compoundFilter.getLabel()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / Test Table 1 / ' +
-            'Test Text Field or Test Database 1 / Test Table 1 / Test Type Field) (= testName or = testText or = testType)');
-        expect(compoundFilter.getLabelForField()).toEqual('(Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
-            'Test Table 1 / Test Text Field or Test Database 1 / Test Table 1 / Test Type Field)');
-        expect(compoundFilter.getLabelForField(true)).toEqual('(Test Name Field or Test Text Field or Test Type Field)');
+        expect(compoundFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
+            'Test Table 1 / Test Text Field or Test Database 1 / Test Table 1 / Test Type Field');
+        expect(compoundFilter.getLabelForField(true)).toEqual('Test Name Field or Test Text Field or Test Type Field');
         expect(compoundFilter.getLabelForOperator()).toEqual('');
-        expect(compoundFilter.getLabelForValue()).toEqual('(= testName or = testText or = testType)');
+        expect(compoundFilter.getLabelForValue()).toEqual('testName or testText or testType');
     });
 
     it('getLabel functions on domain filter should return expected strings', () => {
@@ -3411,7 +3415,6 @@ describe('Filter Labels', () => {
             (filter as SimpleFilter).datastore = 'testDatastore1';
         });
 
-        expect(domainFilter.getLabel()).toEqual('Test Database 1 / Test Table 1 / Test Size Field between -100 and 100');
         expect(domainFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(domainFilter.getLabelForField(true)).toEqual('Test Size Field');
         expect(domainFilter.getLabelForOperator()).toEqual('');
