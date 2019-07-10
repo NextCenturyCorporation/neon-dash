@@ -20,14 +20,11 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
 
-import { ConfigUtil } from '../util/config.util';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
 import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
-import { AbstractSearchService, CompoundFilterType } from '../services/abstract.search.service';
+import { AbstractSearchService } from '../services/abstract.search.service';
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
@@ -827,48 +824,6 @@ describe('Dashboard', () => {
         let spy = spyOn(component.grid, 'triggerResize');
         component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('getFiltersToSaveInURL should return expected output', () => {
-        expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
-
-        spyOn(component['filterService'], 'getFilters').and.returnValue([{
-            root: CompoundFilterType.OR,
-            datastore: '',
-            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
-            table: NeonTableMetaData.get({ name: 'tableA' }),
-            field: NeonFieldMetaData.get({ columnName: 'field1' }),
-            operator: '=',
-            value: 'value1'
-        } as SimpleFilterDesign, {
-            root: 'and',
-            type: 'and',
-            filters: [{
-                root: CompoundFilterType.OR,
-                datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
-                operator: '!=',
-                value: ''
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.OR,
-                datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
-                operator: '!=',
-                value: null
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign]);
-
-        expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
-            ]
-        ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
 
