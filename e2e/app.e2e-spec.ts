@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
 import { by, ElementFinder, $, Key, browser, $$ } from 'protractor';
 
