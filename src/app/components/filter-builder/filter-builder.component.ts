@@ -73,7 +73,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this._dataset);
+        filterClause.updateDatastores(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';

@@ -17,16 +17,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { SimpleFilterDesign } from '../../util/filter.util';
-import { SimpleFilterComponent } from './simple-filter.component';
+import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { By } from '@angular/platform-browser';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
-import { SimpleFilterModule } from './simple-filter.module';
+import { SimpleSearchFilterModule } from './simple-search-filter.module';
 
 describe('Component: SimpleFilter', () => {
-    let component: SimpleFilterComponent;
-    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let component: SimpleSearchFilterComponent;
+    let fixture: ComponentFixture<SimpleSearchFilterComponent>;
     let filterService: InjectableFilterService;
     let setInput = (input: string) => {
         component.showSimpleSearch = true;
@@ -45,12 +45,12 @@ describe('Component: SimpleFilter', () => {
             InjectableFilterService
         ],
         imports: [
-            SimpleFilterModule
+            SimpleSearchFilterModule
         ]
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(SimpleFilterComponent);
+        fixture = TestBed.createComponent(SimpleSearchFilterComponent);
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(InjectableFilterService);
         fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
@@ -175,8 +175,8 @@ describe('Component: SimpleFilter', () => {
 });
 
 describe('Component: SimpleFilter unconfigured', () => {
-    let component: SimpleFilterComponent;
-    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let component: SimpleSearchFilterComponent;
+    let fixture: ComponentFixture<SimpleSearchFilterComponent>;
 
     initializeTestBed('Simple Filter', {
         providers: [
@@ -184,12 +184,12 @@ describe('Component: SimpleFilter unconfigured', () => {
             InjectableFilterService
         ],
         imports: [
-            SimpleFilterModule
+            SimpleSearchFilterModule
         ]
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(SimpleFilterComponent);
+        fixture = TestBed.createComponent(SimpleSearchFilterComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

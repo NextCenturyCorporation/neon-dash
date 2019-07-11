@@ -4,22 +4,16 @@ The Neon Dashboard is a big data exploration and visualization user interface.
 
 ## Prerequisites
 
-* Install [Node](https://nodejs.org/en/) and [NPM](https://www.npmjs.com/)
-* Instal the [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
+* Install [Node and NPM](https://nodejs.org/en/)
 * Install [Elasticsearch 6.4+](https://www.elastic.co/products/elasticsearch)
 * Install [elasticdump](https://www.npmjs.com/package/elasticdump) with `npm install -g elasticdump`
 * Install [Apache Tomcat](http://tomcat.apache.org/) if not deploying with Docker
 * Install the [Neon Server](https://github.com/NextCenturyCorporation/neon-server)
+* (Optional) Install the [Angular CLI](https://github.com/angular/angular-cli) with `npm install -g @angular/cli`
 
-## Branches
+## Step-by-Step Production Installation Documentation
 
-* [**AIDA**](https://github.com/NextCenturyCorporation/neon-dash-internal/tree/verdi-master/)
-* [**LORELEI**](https://github.com/NextCenturyCorporation/neon-dash-internal/tree/lorelei-master/)
-* [**VMAP**](https://github.com/NextCenturyCorporation/neon-dash-internal/tree/vmap-master/)
-
-## Next Century Internal Setup Guide
-
-https://nextcentury.atlassian.net/wiki/spaces/THOR/pages/372244521/Neon+Local+Setup+Instructions
+See the page [here](./STEP_BY_STEP_INSTALLATION.md).  Requires a sample data bundle provided by the development team.
 
 ## Configure the Neon Dashboard
 
