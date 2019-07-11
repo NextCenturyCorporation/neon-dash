@@ -28,7 +28,7 @@ import { DashboardState } from '../../models/dashboard-state';
     styleUrls: ['./simple-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleFilterComponent implements OnInit, OnDestroy {
+export class SimpleSearchFilter implements OnInit, OnDestroy {
     public cachedFilter: SimpleFilterDesign;
     public inputPlaceholder: string = '';
     public showSimpleSearch: boolean = false;
