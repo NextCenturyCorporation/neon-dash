@@ -43,7 +43,6 @@ export interface NeonContributor {
 }
 
 export interface SimpleFilterConfig {
-    root: string;
     datastore: string;
     database: string;
     table: string;
@@ -53,7 +52,6 @@ export interface SimpleFilterConfig {
 }
 
 export interface CompoundFilterConfig {
-    root: string;
     type: 'and' | 'or';
     filters: (SimpleFilterConfig | CompoundFilterConfig)[];
 }

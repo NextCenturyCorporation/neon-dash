@@ -49,13 +49,9 @@ describe('FilterService with filters', () => {
     let source2: FilterDataSource[];
     let design1A: SimpleFilterDesign;
     let design1B: SimpleFilterDesign;
-    let design1C: SimpleFilterDesign;
-    let design1D: SimpleFilterDesign;
     let design2A: CompoundFilterDesign;
     let filter1A: any;
     let filter1B: any;
-    let filter1C: any;
-    let filter1D: any;
     let filter2A: any;
     let relationSource1: FilterDataSource[];
     let relationSource2: FilterDataSource[];
@@ -89,7 +85,6 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         design1A = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -98,7 +93,6 @@ describe('FilterService with filters', () => {
             value: 'testId1'
         } as SimpleFilterDesign;
         design1B = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -106,29 +100,9 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         } as SimpleFilterDesign;
-        design1C = {
-            root: CompoundFilterType.OR,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1,
-            table: TABLES.testTable1,
-            field: FIELD_MAP.ID,
-            operator: '=',
-            value: 'testId3'
-        } as SimpleFilterDesign;
-        design1D = {
-            root: CompoundFilterType.OR,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1,
-            table: TABLES.testTable1,
-            field: FIELD_MAP.ID,
-            operator: '=',
-            value: 'testId4'
-        } as SimpleFilterDesign;
         design2A = {
             type: 'and',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
@@ -136,7 +110,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
@@ -148,19 +121,15 @@ describe('FilterService with filters', () => {
 
         filter1A = FilterUtil.createFilterFromDesign(design1A);
         filter1B = FilterUtil.createFilterFromDesign(design1B);
-        filter1C = FilterUtil.createFilterFromDesign(design1C);
-        filter1D = FilterUtil.createFilterFromDesign(design1D);
         filter2A = FilterUtil.createFilterFromDesign(design2A);
 
         design1A.id = filter1A.id;
         design1B.id = filter1B.id;
-        design1C.id = filter1C.id;
-        design1D.id = filter1D.id;
         design2A.id = filter2A.id;
         design2A.filters[0].id = filter2A.filters[0].id;
         design2A.filters[1].id = filter2A.filters[1].id;
 
-        filterService['filterCollection'].setFilters(source1, [filter1A, filter1B, filter1C, filter1D]);
+        filterService['filterCollection'].setFilters(source1, [filter1A, filter1B]);
         filterService['filterCollection'].setFilters(source2, [filter2A]);
     });
 
@@ -198,7 +167,6 @@ describe('FilterService with filters', () => {
         } as FilterDataSource];
 
         relationDesign1 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -207,7 +175,6 @@ describe('FilterService with filters', () => {
             value: 'testRelation'
         } as SimpleFilterDesign;
         relationDesign2 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -239,7 +206,7 @@ describe('FilterService with filters', () => {
 
     it('should have expected properties', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
         expect(filterService['_listeners']).toEqual(new Map<string, FilterChangeListener>());
         expect(filterService['_notifier'].toString()).toEqual(filterService.notifyFilterChangeListeners.bind(filterService).toString());
@@ -250,13 +217,13 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.deleteFilter('testCaller', design1A);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
@@ -276,7 +243,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
         expect(actual.get(keys[3])).toEqual([]);
@@ -334,7 +301,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
         expect(actual.get(keys[3])).toEqual([]);
@@ -363,7 +330,7 @@ describe('FilterService with filters', () => {
             fieldName: FIELD_MAP.TEXT.columnName,
             operator: '='
         } as FilterDataSource]]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
 
@@ -374,7 +341,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -393,7 +359,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
@@ -409,7 +375,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
@@ -421,7 +387,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -454,53 +419,6 @@ describe('FilterService with filters', () => {
         expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
     });
 
-    it('exchangeFilters should work with custom root filters', () => {
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let testDesign = {
-            root: CompoundFilterType.OR,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1,
-            table: TABLES.testTable1,
-            field: FIELD_MAP.TEXT,
-            operator: '=',
-            value: 'testText'
-        } as SimpleFilterDesign;
-
-        let testSource = [{
-            datastoreName: DATASTORE.name,
-            databaseName: DATABASES.testDatabase1.name,
-            tableName: TABLES.testTable1.name,
-            fieldName: FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let actual = filterService.exchangeFilters('testCaller', [testDesign], []);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-
-        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings
-        expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DATABASES.testDatabase1);
-        expect(listComplete[0].table).toEqual(TABLES.testTable1);
-        expect(listComplete[0].field).toEqual(FIELD_MAP.TEXT);
-        expect(listComplete[0].operator).toEqual('=');
-        expect(listComplete[0].value).toEqual('testText');
-
-        testDesign.id = listComplete[0].id;
-
-        expect(actual.size).toEqual(3);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
-        expect(actual.get(keys[1])).toEqual([design2A]);
-        expect(actual.get(keys[2])).toEqual([testDesign]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
     it('exchangeFilters should also add new relation filters', () => {
         generateRelationFilters();
 
@@ -508,7 +426,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [relationDesign1], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;
@@ -534,7 +452,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([relationDesign1]);
         expect(actual.get(keys[3])).toEqual([relationDesign2]);
@@ -549,7 +467,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign2 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -560,7 +477,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [testDesign2], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;
@@ -573,7 +490,6 @@ describe('FilterService with filters', () => {
 
         let testDesign1 = {
             id: listComplete[0].id,
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -595,7 +511,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([testDesign1]);
         expect(actual.get(keys[3])).toEqual([testDesign2]);
@@ -635,7 +551,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
         expect(actual.get(keys[3])).toEqual([]);
@@ -649,21 +565,21 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.exchangeFilters('testCaller', [], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(0);
     });
 
     it('getFilters should return expected array', () => {
-        expect(filterService.getFilters()).toEqual([design1A, design1B, design1C, design1D, design2A]);
-        expect(filterService.getFilters(source1)).toEqual([design1A, design1B, design1C, design1D]);
+        expect(filterService.getFilters()).toEqual([design1A, design1B, design2A]);
+        expect(filterService.getFilters(source1)).toEqual([design1A, design1B]);
         expect(filterService.getFilters(source2)).toEqual([design2A]);
         expect(filterService.getFilters([{
             datastoreName: DATASTORE.name,
@@ -676,7 +592,6 @@ describe('FilterService with filters', () => {
 
     it('getFiltersToSaveInConfig should return expected array', () => {
         expect(filterService.getFiltersToSaveInConfig()).toEqual([{
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -684,7 +599,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -692,7 +606,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            root: CompoundFilterType.OR,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -700,7 +613,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId3'
         }, {
-            root: CompoundFilterType.OR,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -708,10 +620,8 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId4'
         }, {
-            root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -719,7 +629,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -739,16 +648,12 @@ describe('FilterService with filters', () => {
         expect(filters.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
-            delete design.root;
             return design;
         })).toEqual([{
-            type: CompoundFilterType.AND,
+            type: CompoundFilterType.OR,
             filters: [filter1A.toDesign(), filter1B.toDesign()]
         }, {
             type: CompoundFilterType.OR,
-            filters: [filter1C.toDesign(), filter1D.toDesign()]
-        }, {
-            type: CompoundFilterType.AND,
             filters: [filter2A.toDesign()]
         }]);
     });
@@ -758,21 +663,19 @@ describe('FilterService with filters', () => {
         expect(filters1.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
-            delete design.root;
             return design;
         })).toEqual([{
-            type: CompoundFilterType.AND,
+            type: CompoundFilterType.OR,
             filters: [filter2A.toDesign()]
         }]);
 
-        let filters2 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1D]);
+        let filters2 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1B]);
         expect(filters2.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
-            delete design.root;
             return design;
         })).toEqual([{
-            type: CompoundFilterType.AND,
+            type: CompoundFilterType.OR,
             filters: [filter2A.toDesign()]
         }]);
 
@@ -780,14 +683,10 @@ describe('FilterService with filters', () => {
         expect(filters3.map((filter) => {
             let design = filter.toDesign();
             delete design.id;
-            delete design.root;
             return design;
         })).toEqual([{
-            type: 'and',
+            type: CompoundFilterType.OR,
             filters: [filter1A.toDesign(), filter1B.toDesign()]
-        }, {
-            type: 'or',
-            filters: [filter1C.toDesign(), filter1D.toDesign()]
         }]);
 
         expect(filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [design1A, design2A])).toEqual([]);
@@ -853,7 +752,7 @@ describe('FilterService with filters', () => {
         let testCollection = filterService.retrieveCompatibleFilterCollection([design1A]);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
     });
 
     it('retrieveCompatibleFilterCollection should copy multiple filters if multiple designs have compatible filters', () => {
@@ -863,7 +762,7 @@ describe('FilterService with filters', () => {
         let testCollection = filterService.retrieveCompatibleFilterCollection([design1A, design2A]);
 
         expect(testCollection.getDataSources()).toEqual([source1, source2]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(testCollection.getFilters(source2)).toEqual([filter2A]);
     });
 
@@ -873,9 +772,7 @@ describe('FilterService with filters', () => {
 
         let testDesign = {
             type: 'and',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1,
                 table: TABLES.testTable1,
@@ -887,12 +784,11 @@ describe('FilterService with filters', () => {
         let testCollection = filterService.retrieveCompatibleFilterCollection([design1A, testDesign]);
 
         expect(testCollection.getDataSources()).toEqual([source1]);
-        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(testCollection.getFilters(source1)).toEqual([filter1A, filter1B]);
     });
 
     it('retrieveCompatibleFilterCollection should do nothing with no compatible filters', () => {
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -921,7 +817,6 @@ describe('FilterService with filters', () => {
         expect(filterService['filterCollection'].getDataSources()).toEqual([]);
 
         filterService.setFiltersFromConfig([{
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -937,10 +832,8 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(FIELD_MAP.ID);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].root).toEqual(CompoundFilterType.AND);
 
         filterService.setFiltersFromConfig([{
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -948,7 +841,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -956,7 +848,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            root: CompoundFilterType.OR,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -964,7 +855,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId3'
         }, {
-            root: CompoundFilterType.OR,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -980,31 +870,25 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(FIELD_MAP.ID);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[1].database).toEqual(DATABASES.testDatabase1);
         expect(actual[1].table).toEqual(TABLES.testTable1);
         expect(actual[1].field).toEqual(FIELD_MAP.ID);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
-        expect(actual[1].root).toEqual(CompoundFilterType.AND);
         expect(actual[2].database).toEqual(DATABASES.testDatabase1);
         expect(actual[2].table).toEqual(TABLES.testTable1);
         expect(actual[2].field).toEqual(FIELD_MAP.ID);
         expect(actual[2].operator).toEqual('=');
         expect(actual[2].value).toEqual('testId3');
-        expect(actual[2].root).toEqual(CompoundFilterType.OR);
         expect(actual[3].database).toEqual(DATABASES.testDatabase1);
         expect(actual[3].table).toEqual(TABLES.testTable1);
         expect(actual[3].field).toEqual(FIELD_MAP.ID);
         expect(actual[3].operator).toEqual('=');
         expect(actual[3].value).toEqual('testId4');
-        expect(actual[3].root).toEqual(CompoundFilterType.OR);
 
         filterService.setFiltersFromConfig([{
-            root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -1012,7 +896,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -1025,7 +908,6 @@ describe('FilterService with filters', () => {
         actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
-        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
         expect(actual[0].filters[0].database).toEqual(DATABASES.testDatabase1);
         expect(actual[0].filters[0].table).toEqual(TABLES.testTable1);
@@ -1039,7 +921,6 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].value).toEqual(20);
 
         filterService.setFiltersFromConfig([{
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -1047,7 +928,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId1'
         }, {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1.name,
             table: TABLES.testTable1.name,
@@ -1055,10 +935,8 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            root: CompoundFilterType.AND,
             type: 'and',
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -1066,7 +944,6 @@ describe('FilterService with filters', () => {
                 operator: '>',
                 value: 10
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DATASTORE.name,
                 database: DATABASES.testDatabase1.name,
                 table: TABLES.testTable1.name,
@@ -1083,17 +960,14 @@ describe('FilterService with filters', () => {
         expect(actual[0].field).toEqual(FIELD_MAP.ID);
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
-        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[1].database).toEqual(DATABASES.testDatabase1);
         expect(actual[1].table).toEqual(TABLES.testTable1);
         expect(actual[1].field).toEqual(FIELD_MAP.ID);
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toEqual('testId2');
-        expect(actual[1].root).toEqual(CompoundFilterType.AND);
         actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
         expect(actual[0].type).toEqual(CompoundFilterType.AND);
-        expect(actual[0].root).toEqual(CompoundFilterType.AND);
         expect(actual[0].filters.length).toEqual(2);
         expect(actual[0].filters[0].database).toEqual(DATABASES.testDatabase1);
         expect(actual[0].filters[0].table).toEqual(TABLES.testTable1);
@@ -1111,7 +985,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1126,8 +999,6 @@ describe('FilterService with filters', () => {
         expect(listComplete.length).toEqual(5);
         expect(listComplete[0]).toEqual(filter1A);
         expect(listComplete[1]).toEqual(filter1B);
-        expect(listComplete[2]).toEqual(filter1C);
-        expect(listComplete[3]).toEqual(filter1D);
         expect(listComplete[4].database).toEqual(DATABASES.testDatabase1);
         expect(listComplete[4].table).toEqual(TABLES.testTable1);
         expect(listComplete[4].field).toEqual(FIELD_MAP.ID);
@@ -1141,7 +1012,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D, testDesign]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B, testDesign]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
@@ -1152,7 +1023,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1171,7 +1041,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
@@ -1187,7 +1057,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
@@ -1198,15 +1068,15 @@ describe('FilterService with filters', () => {
     it('toggleFilters should delete old argument filters and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let actual = filterService.toggleFilters('testCaller', [design1A, design1C], []);
+        let actual = filterService.toggleFilters('testCaller', [design1A], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1B, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(1);
@@ -1217,7 +1087,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1236,7 +1105,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign, design1A], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
@@ -1252,54 +1121,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([design1B, design1C, design1D]);
-        expect(actual.get(keys[1])).toEqual([design2A]);
-        expect(actual.get(keys[2])).toEqual([testDesign]);
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testCaller', actual]);
-    });
-
-    it('toggleFilters should work with custom root filters', () => {
-        let spy = spyOn(filterService as any, '_notifier');
-
-        let testDesign = {
-            root: CompoundFilterType.OR,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1,
-            table: TABLES.testTable1,
-            field: FIELD_MAP.TEXT,
-            operator: '=',
-            value: 'testText'
-        } as SimpleFilterDesign;
-
-        let testSource = [{
-            datastoreName: DATASTORE.name,
-            databaseName: DATABASES.testDatabase1.name,
-            tableName: TABLES.testTable1.name,
-            fieldName: FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as FilterDataSource];
-
-        let actual = filterService.toggleFilters('testCaller', [testDesign], []);
-
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
-        expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
-
-        let listComplete = filterService['filterCollection'].getFilters(testSource) as any[]; // TODO: Typings;;
-        expect(listComplete.length).toEqual(1);
-        expect(listComplete[0].database).toEqual(DATABASES.testDatabase1);
-        expect(listComplete[0].table).toEqual(TABLES.testTable1);
-        expect(listComplete[0].field).toEqual(FIELD_MAP.TEXT);
-        expect(listComplete[0].operator).toEqual('=');
-        expect(listComplete[0].value).toEqual('testText');
-
-        testDesign.id = listComplete[0].id;
-
-        expect(actual.size).toEqual(3);
-        let keys = Array.from(actual.keys());
-        expect(keys).toEqual([source1, source2, testSource]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([testDesign]);
 
@@ -1314,7 +1136,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;;
@@ -1340,7 +1162,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([relationDesign1]);
         expect(actual.get(keys[3])).toEqual([relationDesign2]);
@@ -1355,7 +1177,6 @@ describe('FilterService with filters', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
         let testDesign2 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1366,7 +1187,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [testDesign2], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         let listComplete = filterService['filterCollection'].getFilters(relationSource1) as any[]; // TODO: Typings;;
@@ -1380,7 +1201,6 @@ describe('FilterService with filters', () => {
 
         let testDesign1 = {
             id: listComplete[1].id,
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1403,7 +1223,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([relationDesign1, testDesign1]);
         expect(actual.get(keys[3])).toEqual([relationDesign2, testDesign2]);
@@ -1419,7 +1239,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
         expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([]);
         expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([]);
@@ -1427,7 +1247,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([]);
         expect(actual.get(keys[3])).toEqual([]);
@@ -1440,7 +1260,6 @@ describe('FilterService with filters', () => {
         activateRelationFilters();
 
         let testDesign1 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1449,7 +1268,6 @@ describe('FilterService with filters', () => {
             value: 'testToggleRelation'
         } as SimpleFilterDesign;
         let testDesign2 = {
-            root: CompoundFilterType.AND,
             datastore: DATASTORE.name,
             database: DATABASES.testDatabase1,
             table: TABLES.testTable1,
@@ -1473,7 +1291,7 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [relationDesign1], findRelationDataList());
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
         expect(filterService['filterCollection'].getFilters(relationSource1)).toEqual([testFilter1]);
         expect(filterService['filterCollection'].getFilters(relationSource2)).toEqual([testFilter2]);
@@ -1481,7 +1299,7 @@ describe('FilterService with filters', () => {
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2, relationSource1, relationSource2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
         expect(actual.get(keys[2])).toEqual([testDesign1]);
         expect(actual.get(keys[3])).toEqual([testDesign2]);
@@ -1495,13 +1313,13 @@ describe('FilterService with filters', () => {
 
         let actual = filterService.toggleFilters('testCaller', [], []);
 
-        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B, filter1C, filter1D]);
+        expect(filterService['filterCollection'].getFilters(source1)).toEqual([filter1A, filter1B]);
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
         expect(actual.size).toEqual(2);
         let keys = Array.from(actual.keys());
         expect(keys).toEqual([source1, source2]);
-        expect(actual.get(keys[0])).toEqual([design1A, design1B, design1C, design1D]);
+        expect(actual.get(keys[0])).toEqual([design1A, design1B]);
         expect(actual.get(keys[1])).toEqual([design2A]);
 
         expect(spy.calls.count()).toEqual(0);

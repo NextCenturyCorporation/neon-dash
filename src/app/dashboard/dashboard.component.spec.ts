@@ -834,7 +834,6 @@ describe('Dashboard', () => {
         expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
         spyOn(component['filterService'], 'getFilters').and.returnValue([{
-            root: CompoundFilterType.OR,
             datastore: '',
             database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
             table: NeonTableMetaData.get({ name: 'tableA' }),
@@ -842,10 +841,8 @@ describe('Dashboard', () => {
             operator: '=',
             value: 'value1'
         } as SimpleFilterDesign, {
-            root: 'and',
-            type: 'and',
+            type: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.OR,
                 datastore: '',
                 database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
                 table: NeonTableMetaData.get({ name: 'tableB' }),
@@ -853,7 +850,6 @@ describe('Dashboard', () => {
                 operator: '!=',
                 value: ''
             } as SimpleFilterDesign, {
-                root: CompoundFilterType.OR,
                 datastore: '',
                 database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
                 table: NeonTableMetaData.get({ name: 'tableB' }),
@@ -864,10 +860,10 @@ describe('Dashboard', () => {
         } as CompoundFilterDesign]);
 
         expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
+            [".databaseZ.tableA.field1","=","value1"],
+            ["and",
+                [".databaseY.tableB.field2", "!=", ""],
+                [".databaseY.tableB.field2", "!=", null]
             ]
         ]`)), ConfigUtil.encodeFiltersMap));
     });

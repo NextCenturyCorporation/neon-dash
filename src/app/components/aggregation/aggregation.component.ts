@@ -182,6 +182,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private viewInitialized = false;
 
+    // Cached filtered items used to create new intersection (AND) filters.
+    private _filteredSingleItems: any[] = [];
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -247,7 +250,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (this.options.xField.columnName) {
-            designs.push(this.createFilterDesignOnItem());
+            designs.push(this.createFilterDesignOnSingleItem());
+            designs.push(this.createFilterDesignOnMultipleItems());
             designs.push(this.createFilterDesignOnDomain());
 
             if (this.options.yField.columnName) {
@@ -378,18 +382,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         } as CompoundFilterDesign;
     }
 
-    private createFilterDesignOnItem(value?: any): FilterDesign {
-        return {
-            root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
-            datastore: this.options.datastore.name,
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.xField,
-            operator: '=',
-            value: value
-        } as SimpleFilterDesign;
-    }
-
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
             datastore: this.options.datastore.name,
@@ -397,6 +389,24 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             table: this.options.table,
             field: this.options.groupField,
             operator: '!=',
+            value: value
+        } as SimpleFilterDesign;
+    }
+
+    private createFilterDesignOnMultipleItems(values: any[] = [undefined]): FilterDesign {
+        return {
+            type: CompoundFilterType.AND,
+            filters: values.map((value) => this.createFilterDesignOnSingleItem(value))
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnSingleItem(value?: any): FilterDesign {
+        return {
+            datastore: this.options.datastore.name,
+            database: this.options.database,
+            table: this.options.table,
+            field: this.options.xField,
+            operator: '=',
             value: value
         } as SimpleFilterDesign;
     }
@@ -1114,8 +1124,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // Select individual filtered items.
         // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
-        let itemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnItem());
-        this.subcomponentMain.select(itemFilters.map((filter) => (filter as SimpleFilter).value));
+        let singleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnSingleItem());
+        let multipleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnMultipleItems());
+        singleItemFilters = singleItemFilters.concat(multipleItemFilters.reduce((list, compoundFilter) =>
+            list.concat((compoundFilter as CompoundFilter).filters), []));
+        this._filteredSingleItems = singleItemFilters.map((simpleFilter) => (simpleFilter as SimpleFilter).value);
+        this.subcomponentMain.select(this._filteredSingleItems);
     }
 
     /**
@@ -1243,9 +1257,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (doNotReplace) {
-            this.toggleFilters([this.createFilterDesignOnItem(value)]);
+            this._filteredSingleItems.push(value);
+            if (this.options.requireAll) {
+                this.exchangeFilters([this.createFilterDesignOnMultipleItems(this._filteredSingleItems)]);
+            } else {
+                this.toggleFilters([this.createFilterDesignOnSingleItem(value)]);
+            }
         } else {
-            this.exchangeFilters([this.createFilterDesignOnItem(value)]);
+            this._filteredSingleItems = [value];
+            this.exchangeFilters([this.createFilterDesignOnSingleItem(value)]);
         }
     }
 
