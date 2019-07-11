@@ -1,0 +1,9 @@
+<div *ngIf="showSimpleSearch" class="simple-filter">
+    <button mat-icon-button (click)="addFilter(filter.value)">
+        <mat-icon>search</mat-icon>
+    </button>
+    <input class="simple-filter-input" #filter [placeholder]="inputPlaceholder" (keyup)="0" (keyup.enter)="addFilter(filter.value)">
+    <button *ngIf="filter.value != ''" mat-icon-button aria-label="Clear" (click)="filter.value = ''; removeFilter()">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>

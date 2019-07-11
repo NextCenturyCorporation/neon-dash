@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Injector } from '@angular/core';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './types';
+import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
+import { DatasetUtil } from '../util/dataset.util';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
-import { DashboardState } from './dashboard-state';
 import {
     isFieldOption,
     OptionChoices,
@@ -29,6 +28,15 @@ import {
     WidgetSelectOption,
     WidgetTableOption
 } from './widget-option';
+
+export class OptionConfig {
+    constructor(protected config: any) { }
+
+    public get(bindingKey: string, defaultValue: any): any {
+        // Assume config is just a Record<string, any>
+        return typeof this.config[bindingKey] === 'undefined' ? defaultValue : this.config[bindingKey];
+    }
+}
 
 /**
  * Manages configurable options with databases, tables, and fields.
@@ -46,12 +54,11 @@ export class OptionCollection {
 
     /**
      * @constructor
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
-    constructor(protected injector?: Injector, protected config?: any) {
+    constructor(protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
-        this._id = (this.injector ? this.injector.get('_id', uuidv4()) : ((this.config || {})._id || uuidv4()));
+        this._id = this.config.get('_id', uuidv4());
         this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
         this.append(new WidgetTableOption(), NeonTableMetaData.get());
     }
@@ -104,7 +111,7 @@ export class OptionCollection {
      * @return {OptionCollection}
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.injector, this.config);
+        let copy = new (this.getConstructor())(this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -131,23 +138,22 @@ export class OptionCollection {
     /**
      * Returns the field object for the given binding key or an empty field object.
      */
-    public findFieldObject(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData {
-        let fieldKey = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, '') : '');
-        return this.findField(dashboardState.translateFieldKeyToValue(fieldKey)) || NeonFieldMetaData.get();
+    public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
+        let fieldKey = this.config.get(bindingKey, '');
+        return this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      */
-    public findFieldObjects(dashboardState: DashboardState, bindingKey: string): NeonFieldMetaData[] {
-        let bindings = (this.config || {})[bindingKey] || (this.injector ? this.injector.get(bindingKey, []) : []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(dashboardState.translateFieldKeyToValue(
-            fieldKey
-        ))).filter((fieldsObject) => !!fieldsObject);
+    public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
+        let bindings = this.config.get(bindingKey, []);
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) =>
+            this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
     }
 
-    protected getConstructor<T>(this: T): new(...args: any[]) => T {
-        return this.constructor as new(...args: any[]) => T;
+    protected getConstructor<T>(this: T): new (...args: any[]) => T {
+        return this.constructor as new (...args: any[]) => T;
     }
 
     /**
@@ -157,8 +163,7 @@ export class OptionCollection {
      */
     public inject(options: WidgetOption | WidgetOption[]): void {
         (Array.isArray(options) ? options : [options]).forEach((option) => {
-            this.append(option, (this.injector ? this.injector.get(option.bindingKey, option.valueDefault) :
-                ((this.config || {})[option.bindingKey] || option.valueDefault)));
+            this.append(option, this.config.get(option.bindingKey, option.valueDefault));
         });
     }
 
@@ -181,40 +186,51 @@ export class OptionCollection {
     /**
      * Updates all the databases, tables, and fields in the options.
      */
-    public updateDatabases(dashboardState: DashboardState): void {
-        this.databases = dashboardState.getDatabases();
-        this.database = dashboardState.getDatabase() || this.databases[0] || this.database;
+    public updateDatabases(dataset: Dataset): void {
+        this.databases = dataset.datastores.reduce((list, datastore) =>
+            list.concat(Object.values(datastore.databases).sort((one, two) => one.name.localeCompare(two.name))), []);
+
+        this.database = this.databases[0] || this.database;
 
         if (this.databases.length) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.dashboard;
-            let configDatabase: any;
+            // By default, set the initial database to the first one in the dataset's configured table keys.
+            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
+                configuredTableKeys[0]).database;
 
-            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configDatabase = dashboardState.deconstructTableName(tableKey).database;
+            // Look for the table key configured for the specific visualization.
+            let configuredTableKey = this.config.get('tableKey', null);
+            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
+                configuredDatabase = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
+            }
 
-                if (configDatabase) {
-                    for (let database of this.databases) {
-                        if (configDatabase === database.name) {
-                            this.database = database;
-                            break;
-                        }
+            if (configuredDatabase) {
+                for (let database of this.databases) {
+                    if (configuredDatabase === database.name) {
+                        this.database = database;
+                        break;
                     }
                 }
             }
         }
 
-        return this.updateTables(dashboardState);
+        return this.updateTables(dataset);
     }
 
     /**
      * Updates all the fields in the options.
      */
-    public updateFields(dashboardState: DashboardState): void {
+    public updateFields(): void {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-            this.fields = dashboardState.getSortedFields(this.database.name, this.table.name, true)
-                .filter((field) => (field && field.columnName));
+            this.fields = this.table.fields.filter((field) => field.columnName && !field.hide).sort((one, two) => {
+                if (!one.prettyName || !two.prettyName) {
+                    return 0;
+                }
+                // Compare each field pretty name and ignore case.
+                return (one.prettyName.toUpperCase() < two.prettyName.toUpperCase()) ? -1 :
+                    ((one.prettyName.toUpperCase() > two.prettyName.toUpperCase()) ? 1 : 0);
+            });
 
             this.onUpdateFields();
         }
@@ -223,35 +239,35 @@ export class OptionCollection {
     /**
      * Updates all the tables and fields in the options.
      */
-    public updateTables(dashboardState: DashboardState): void {
-        this.tables = this.database ?
-            Object
-                .values(dashboardState.getTables(this.database.name))
-                .sort((tableA, tableB) => tableA.name.localeCompare(tableB.name)) :
-            [];
+    public updateTables(dataset: Dataset): void {
+        this.tables = !this.database ? [] : Object.values(this.database.tables).sort((tableA, tableB) =>
+            tableA.name.localeCompare(tableB.name));
 
         this.table = this.tables[0] || this.table;
 
         if (this.tables.length > 0) {
-            let tableKey = (this.config || {}).tableKey || (this.injector ? this.injector.get('tableKey', null) : null);
-            let currentDashboard = dashboardState.dashboard;
-            let configTable: any;
+            // By default, set the initial table to the first one in the dataset's configured table keys.
+            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
+                configuredTableKeys[0]).table;
 
-            if (tableKey && currentDashboard && currentDashboard.tables && currentDashboard.tables[tableKey]) {
-                configTable = dashboardState.deconstructTableName(tableKey).table;
+            // Look for the table key configured for the specific visualization.
+            let configuredTableKey = this.config.get('tableKey', null);
+            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
+                configuredTable = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
+            }
 
-                if (configTable) {
-                    for (let table of this.tables) {
-                        if (configTable === table.name) {
-                            this.table = table;
-                            break;
-                        }
+            if (configuredTable) {
+                for (let table of this.tables) {
+                    if (configuredTable === table.name) {
+                        this.table = table;
+                        break;
                     }
                 }
             }
         }
 
-        return this.updateFields(dashboardState);
+        return this.updateFields();
     }
 }
 
@@ -261,22 +277,20 @@ export class OptionCollection {
 export class WidgetOptionCollection extends OptionCollection {
     /**
      * @constructor
-     * @arg {function} createOptionsCallback A callback function to create the options.
-     * @arg {DashboardState} dashboardState The current dashboard state.
-     * @arg {string} defaultTitle The default value for the injected 'title' option.
-     * @arg {number} defaultLimit The default value for the injected 'limit' option.
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {Dataset} [dataset] The current dataset.
+     * @arg {function} [createOptionsCallback] A callback function to create the options.
+     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
+     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        protected createOptionsCallback: () => WidgetOption[],
-        protected dashboardState: DashboardState,
-        defaultTitle: string,
-        defaultLimit: number,
-        injector?: Injector,
-        config?: any
+        protected dataset: Dataset = Dataset.get(),
+        protected createOptionsCallback: () => WidgetOption[] = () => [],
+        defaultTitle: string = '',
+        defaultLimit: number = 0,
+        config: OptionConfig = new OptionConfig({})
     ) {
-        super(injector, config);
+        super(config);
 
         let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
@@ -286,7 +300,7 @@ export class WidgetOptionCollection extends OptionCollection {
             ...nonFieldOptions
         ]);
 
-        this.updateDatabases(dashboardState);
+        this.updateDatabases(dataset);
     }
 
     /**
@@ -296,8 +310,7 @@ export class WidgetOptionCollection extends OptionCollection {
      * @override
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.createOptionsCallback, this.dashboardState, this.title, this.limit, this.injector,
-            this.config);
+        let copy = new (this.getConstructor())(this.dataset, this.createOptionsCallback, this.title, this.limit, this.config);
         return this.copyCommonProperties(copy);
     }
 
@@ -317,10 +330,10 @@ export class WidgetOptionCollection extends OptionCollection {
         // Create the field options and assign the default value as NeonFieldMetaData objects.
         this.createOptions().forEach((option) => {
             if (option.optionType === OptionType.FIELD) {
-                this.append(option, this.findFieldObject(this.dashboardState, option.bindingKey));
+                this.append(option, this.findFieldObject(this.dataset, option.bindingKey));
             }
             if (option.optionType === OptionType.FIELD_ARRAY) {
-                this.append(option, this.findFieldObjects(this.dashboardState, option.bindingKey));
+                this.append(option, this.findFieldObjects(this.dataset, option.bindingKey));
             }
         });
     }
@@ -336,31 +349,29 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 
     /**
      * @constructor
-     * @arg {function} createOptionsCallback A callback function to create the options.
-     * @arg {function} createOptionsForLayerCallback A callback function to create the options for the layers (if any).
-     * @arg {DashboardState} dashboardState The current dashboard state.
-     * @arg {string} defaultTitle The default value for the injected 'title' option.
-     * @arg {number} defaultLimit The default value for the injected 'limit' option.
-     * @arg {boolean} defaultLayer Whether to add a default layer.
-     * @arg {Injector} [injector] An injector with bindings; if undefined, uses config.
-     * @arg {any} [config] An object with bindings; used if injector is undefined.
+     * @arg {Dataset} [dataset] The current dataset.
+     * @arg {function} [createOptionsCallback] A callback function to create the options.
+     * @arg {function} [createOptionsForLayerCallback] A callback function to create the options for the layers (if any).
+     * @arg {string} [defaultTitle] The default value for the injected 'title' option.
+     * @arg {number} [defaultLimit] The default value for the injected 'limit' option.
+     * @arg {boolean} [defaultLayer] Whether to add a default layer.
+     * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        createOptionsCallback: () => WidgetOption[],
-        protected createOptionsForLayerCallback: () => WidgetOption[],
-        dashboardState: DashboardState,
-        defaultTitle: string,
-        defaultLimit: number,
-        defaultLayer: boolean,
-        injector?: Injector,
-        config?: any
+        dataset: Dataset = Dataset.get(),
+        createOptionsCallback: () => WidgetOption[] = () => [],
+        protected createOptionsForLayerCallback: () => WidgetOption[] = () => [],
+        defaultTitle: string = '',
+        defaultLimit: number = 0,
+        defaultLayer: boolean = false,
+        config: OptionConfig = new OptionConfig({})
     ) {
-        super(createOptionsCallback, dashboardState, defaultTitle, defaultLimit, injector, config);
+        super(dataset, createOptionsCallback, defaultTitle, defaultLimit, config);
 
         // Backwards compatibility (configFilter deprecated and renamed to filter).
-        this.filter = this.filter || (injector ? injector.get('configFilter', null) : (config || {}).configFilter);
+        this.filter = this.filter || this.config.get('configFilter', null);
 
-        (injector ? injector.get('layers', []) : ((config || {}).layers || [])).forEach((layerBindings) => {
+        this.config.get('layers', []).forEach((layerBindings) => {
             this.addLayer(layerBindings);
         });
 
@@ -374,8 +385,8 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * Adds a new layer to this option collection and returns the layer.
      */
     public addLayer(layerBindings: any = {}): WidgetOptionCollection {
-        let layerOptions = new WidgetOptionCollection(this.createOptionsForLayerCallback, this.dashboardState,
-            'Layer ' + this._nextLayerIndex++, this.limit, undefined, layerBindings);
+        let layerOptions = new WidgetOptionCollection(this.dataset, this.createOptionsForLayerCallback,
+            'Layer ' + this._nextLayerIndex++, this.limit, new OptionConfig(layerBindings));
         this.layers.push(layerOptions);
         return layerOptions;
     }
@@ -387,8 +398,8 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * @override
      */
     public copy(): this {
-        let copy = new (this.getConstructor())(this.createOptionsCallback, this.createOptionsForLayerCallback, this.dashboardState,
-            this.title, this.limit, false, this.injector, this.config);
+        let copy = new (this.getConstructor())(this.dataset, this.createOptionsCallback, this.createOptionsForLayerCallback,
+            this.title, this.limit, false, this.config);
         copy.layers = this.layers.map((layer) => layer.copy());
         return this.copyCommonProperties(copy);
     }
@@ -426,7 +437,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
 }
 
 export interface ConfigurableWidget {
-    options: WidgetOptionCollection;
+    options: RootWidgetOptionCollection;
     changeData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     changeFilterData(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void;
     createLayer(options: WidgetOptionCollection, layerBindings?: Record<string, any>): void;

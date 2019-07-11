@@ -18,10 +18,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { NeonConfig } from '../../models/types';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -52,7 +51,7 @@ class MockDashboardService extends DashboardService {
 class queryBarTester {
     fixture: ComponentFixture<QueryBarComponent>;
     component: QueryBarComponent;
-    filterService: FilterService;
+    filterService: InjectableFilterService;
     datasetService: DashboardService;
     element: DebugElement;
 
@@ -62,8 +61,8 @@ class queryBarTester {
                 QueryBarComponent
             ],
             providers: [
-                { provide: FilterService, useClass: MockFilterService },
-                { provide: AbstractWidgetService, useClass: WidgetService },
+                { provide: InjectableFilterService, useClass: MockFilterService },
+                InjectableColorThemeService,
                 { provide: DashboardService, useClass: mockDataset ? MockDashboardService : DashboardService },
 
             ],
@@ -76,7 +75,7 @@ class queryBarTester {
         let fixture = TestBed.createComponent(QueryBarComponent);
         this.fixture = fixture;
         this.component = fixture.componentInstance;
-        this.filterService = this.getInjected(FilterService);
+        this.filterService = this.getInjected(InjectableFilterService);
         this.detectChanges();
 
         this.element = this.getElement('.simple-filter');

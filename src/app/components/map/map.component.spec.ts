@@ -23,15 +23,15 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService } from '../../services/abstract.search.service';
-import { AbstractWidgetService } from '../../services/abstract.widget.service';
+import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterService } from '../../services/filter.service';
-import { WidgetService } from '../../services/widget.service';
+import { CompoundFilterDesign } from '../../services/filter.service';
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/types';
+import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -83,6 +83,10 @@ class TestMap extends AbstractMap {
         /* NO-OP */
     }
 
+    drawBoundary() {
+        /* NO-OP */
+    }
+
     doCustomInitialization(__mapContainer: ElementRef) {
         /* NO-OP */
     }
@@ -120,7 +124,7 @@ function updateMapLayer1(component: TestMapComponent) {
     component.filterVisible.set('testLayer1', true);
     (component as any).layerIdToElementCount.set('testLayer1', 1);
 
-    component.options.layers[0] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
+    component.options.layers[0] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[0]._id = 'testLayer1';
     component.options.layers[0].databases = [];
     component.options.layers[0].database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -145,7 +149,7 @@ function updateMapLayer2(component: TestMapComponent) {
     component.filterVisible.set('testLayer2', true);
     (component as any).layerIdToElementCount.set('testLayer2', 10);
 
-    component.options.layers[1] = new WidgetOptionCollection(() => [], component['dashboardState'], 'Test Layer', 100, undefined, {});
+    component.options.layers[1] = new WidgetOptionCollection(component['dataset']);
     component.options.layers[1]._id = 'testLayer2';
     component.options.layers[1].databases = [];
     component.options.layers[1].database = DashboardServiceMock.DATABASES.testDatabase2;
@@ -178,10 +182,10 @@ describe('Component: Map', () => {
         ],
         providers: [
             DashboardService,
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService }
+            InjectableColorThemeService
 
         ],
         imports: [
@@ -252,12 +256,12 @@ describe('Component: Map', () => {
         let filter4 = new Map<string, any>().set('filterFields', [2, 4]);
         let filter5 = new Map<string, any>().set('filterFields', [5]);
 
-        let widgetService = getService(AbstractWidgetService);
+        let colorThemeService = getService(InjectableColorThemeService);
 
-        let aColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
-        let bColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
-        let cColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
-        let dColor = widgetService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
+        let aColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'a').getComputedCss(component.visualization);
+        let bColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'b').getComputedCss(component.visualization);
+        let cColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'c').getComputedCss(component.visualization);
+        let dColor = colorThemeService.getColor('myDatabase', 'myTable', 'category', 'd').getComputedCss(component.visualization);
 
         let dataset1 = {
             data: [
@@ -1072,15 +1076,56 @@ describe('Component: Map', () => {
         // TODO
     });
 
-    it('redrawFilterBox with no filter arguments does remove old filter box', () => {
+    it('redrawFilterBox with filter arguments does draw one new filter box', () => {
         component.assignTestMap();
-        let mapSpy = component.spyOnTestMap('removeFilterBox');
-        (component as any).redrawFilterBox([]);
+        let mapSpy = component.spyOnTestMap('drawBoundary');
+        const filters = [1, 2, 3, 4].map((val) => ({
+            root: CompoundFilterType.AND,
+            datastore: 'ds1',
+            database: NeonDatabaseMetaData.get({ name: 'db1' }),
+            table: NeonTableMetaData.get({ name: 'tb1' }),
+            value: val,
+            operator: val < 3 ? '<=' : '>=',
+            field: NeonFieldMetaData.get({ columnName: val % 2 ? 'latitudeField' : 'longitudeField' })
+        }));
+
+        const col = new WidgetOptionCollection(component['dashboardState'].asDataset());
+        const lat = NeonFieldMetaData.get({
+            columnName: 'latitudeField'
+        });
+        const lon = NeonFieldMetaData.get({
+            columnName: 'longitudeField'
+        });
+
+        col._id = 'testLayer1';
+        col.databases = [];
+        col.database = NeonDatabaseMetaData.get({ name: 'db1' });
+        col.fields = [lat, lon];
+        col[lat.columnName] = lat;
+        col[lon.columnName] = lon;
+        col.tables = [];
+        col.table = NeonTableMetaData.get({ name: 'tb1' });
+        col.title = 'Layer A';
+        col.unsharedFilterField = NeonFieldMetaData.get();
+        col.unsharedFilterValue = '';
+        component.options.layers[0] = col;
+
+        component['redrawFilterBox']([{
+            root: CompoundFilterType.AND,
+            type: CompoundFilterType.AND,
+            name: 'blah',
+            filters
+        } as CompoundFilterDesign]);
         expect(mapSpy.calls.count()).toEqual(1);
     });
 
-    it('redrawFilterBox with filter arguments does draw one new filter box', () => {
-        // TODO THOR-1103
+    it('redrawFilterBox with no filter arguments does remove old filter box', () => {
+        component.assignTestMap();
+        let mapSpy = component.spyOnTestMap('removeFilterBox');
+        component['redrawFilterBox']([
+
+        ]);
+        expect(mapSpy.calls.count()).toEqual(1);
     });
 
     it('redrawFilterBox with multiple filter arguments does draw multiple new filter boxes', () => {
@@ -1144,10 +1189,10 @@ describe('Component: Map with config', () => {
         ],
         providers: [
             { provide: DashboardService, useClass: DashboardServiceMock },
-            FilterService,
+            InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
             Injector,
-            { provide: AbstractWidgetService, useClass: WidgetService },
+            InjectableColorThemeService,
             { provide: 'tableKey', useValue: 'table_key_1' },
             {
                 provide: 'layers',
