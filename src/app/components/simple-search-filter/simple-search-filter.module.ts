@@ -14,16 +14,16 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SimpleSearchFilter } from './simple-filter.component';
+import { SimpleSearchFilterComponent } from './simple-search-filter.component';
 import { MatIconModule, MatButtonModule } from '@angular/material';
 
 @NgModule({
-    declarations: [SimpleSearchFilter],
-    exports: [SimpleSearchFilter],
+    declarations: [SimpleSearchFilterComponent],
+    exports: [SimpleSearchFilterComponent],
     imports: [
         MatButtonModule,
         MatIconModule,
         CommonModule
     ]
 })
-export class SimpleFilterModule { }
+export class SimpleSearchFilterModule { }

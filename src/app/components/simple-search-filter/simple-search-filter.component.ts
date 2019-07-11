@@ -23,12 +23,12 @@ import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 
 @Component({
-    selector: 'app-simple-filter',
-    templateUrl: './simple-filter.component.html',
-    styleUrls: ['./simple-filter.component.scss'],
+    selector: 'app-simple-search-filter',
+    templateUrl: './simple-search-filter.component.html',
+    styleUrls: ['./simple-search-filter.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimpleSearchFilter implements OnInit, OnDestroy {
+export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
     public cachedFilter: SimpleFilterDesign;
     public inputPlaceholder: string = '';
     public showSimpleSearch: boolean = false;
