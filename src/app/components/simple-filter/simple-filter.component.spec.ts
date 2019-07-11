@@ -18,7 +18,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { SimpleFilterDesign } from '../../services/filter.service';
-import { SimpleFilterComponent } from './simple-filter.component';
+import { SimpleSearchFilter } from './simple-filter.component';
 import { By } from '@angular/platform-browser';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -27,8 +27,8 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 import { SimpleFilterModule } from './simple-filter.module';
 
 describe('Component: SimpleFilter', () => {
-    let component: SimpleFilterComponent;
-    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let component: SimpleSearchFilter;
+    let fixture: ComponentFixture<SimpleSearchFilter>;
     let filterService: InjectableFilterService;
     let setInput = (input: string) => {
         component.showSimpleSearch = true;
@@ -53,7 +53,7 @@ describe('Component: SimpleFilter', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(SimpleFilterComponent);
+        fixture = TestBed.createComponent(SimpleSearchFilter);
         component = fixture.componentInstance;
         filterService = fixture.debugElement.injector.get(InjectableFilterService);
         fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
@@ -178,8 +178,8 @@ describe('Component: SimpleFilter', () => {
 });
 
 describe('Component: SimpleFilter unconfigured', () => {
-    let component: SimpleFilterComponent;
-    let fixture: ComponentFixture<SimpleFilterComponent>;
+    let component: SimpleSearchFilter;
+    let fixture: ComponentFixture<SimpleSearchFilter>;
 
     initializeTestBed('Simple Filter', {
         providers: [
@@ -193,7 +193,7 @@ describe('Component: SimpleFilter unconfigured', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(SimpleFilterComponent);
+        fixture = TestBed.createComponent(SimpleSearchFilter);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

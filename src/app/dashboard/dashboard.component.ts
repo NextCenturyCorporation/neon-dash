@@ -39,7 +39,7 @@ import { NeonGridItem } from '../models/neon-grid-item';
 import { NeonConfig } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
-import { SimpleFilterComponent } from '../components/simple-filter/simple-filter.component';
+import { SimpleSearchFilter } from '../components/simple-filter/simple-filter.component';
 import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { GridState } from '../models/grid-state';
@@ -73,7 +73,7 @@ export function DashboardModified() {
 export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
-    @ViewChild(SimpleFilterComponent) simpleFilter: SimpleFilterComponent;
+    @ViewChild(SimpleSearchFilter) simpleFilter: SimpleSearchFilter;
     @ViewChild(MatSidenav) sideNavRight: MatSidenav;
 
     updatedData = 0;
