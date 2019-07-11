@@ -1,5 +1,6 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
+        {{ options.title }}
     </div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
@@ -10,7 +11,8 @@
             {{ getButtonText() }}
         </span>
     </span>
-    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+        (click)="toggleGear();">
         <mat-icon>settings</mat-icon>
     </button>
 </mat-toolbar>
@@ -18,6 +20,8 @@
 <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
     <mat-spinner></mat-spinner>
 </div>
+
+<app-data-message *ngIf="showNoData"></app-data-message>
 
 <div class="body-container">
     <div #taxonomyViewer class="taxonomy-viewer-container">
@@ -27,11 +31,12 @@
                     <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                         <tree-node-expander [node]="node"></tree-node-expander>
                         <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
-                            (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
+                            (dblclick)="node.mouseAction('dblClick', $event)"
+                            [class.node-content-wrapper-active]="node.isActive"
                             [class.node-content-wrapper-focused]="node.isFocused">
                             <div *ngIf="node.data.description != options.valueField.columnName">
-                                <input (change)="checkRelatedNodes( node, $event)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                                    [checked]="node.data.checked">
+                                <input (change)="checkRelatedNodes( node, $event)" type="checkbox"
+                                    [indeterminate]="node.data.indeterminate" [checked]="node.data.checked">
                                 <span>{{ node.data.name }}
                                     <span *ngIf="node.data.nodeCount > 0"> ({{ node.data.nodeCount }})</span>
                                 </span>

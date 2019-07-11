@@ -1,5 +1,6 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
+        {{ options.title }}</div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
         <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -9,7 +10,8 @@
             {{ getButtonText() }}
         </span>
     </span>
-    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+        (click)="toggleGear();">
         <mat-icon>settings</mat-icon>
     </button>
 </mat-toolbar>
@@ -18,6 +20,8 @@
     <mat-spinner></mat-spinner>
 </div>
 
+<app-data-message *ngIf="showNoData"></app-data-message>
+
 <div #thumbnailGrid class="body-container thumbnail-grid">
     <div class="thumbnail-grid-container" *ngIf="gridArray.length">
         <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
@@ -25,10 +29,11 @@
             <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item"
                 [options]="options">
             </app-subcomponent-title-thumbnail>
-            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS" [item]="item"
-                [options]="options">
+            <app-subcomponent-details-thumbnail class="flex-grow" *ngIf="options.viewType === view.DETAILS"
+                [item]="item" [options]="options">
             </app-subcomponent-details-thumbnail>
-            <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item" [options]="options">
+            <app-subcomponent-card-thumbnail class="flex-grow" *ngIf="options.viewType === view.CARD" [item]="item"
+                [options]="options">
             </app-subcomponent-card-thumbnail>
         </div>
     </div>
@@ -37,11 +42,13 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
-        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button"
+            (click)="goToNextPage()">
             Next
         </button>
     </div>

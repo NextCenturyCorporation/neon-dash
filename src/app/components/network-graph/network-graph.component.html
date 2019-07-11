@@ -1,5 +1,6 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
+        {{ options.title }}</div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
         <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -7,7 +8,8 @@
         </span>
         <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
     </span>
-    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
+        (click)="toggleGear();">
         <mat-icon>settings</mat-icon>
     </button>
 </mat-toolbar>
@@ -16,18 +18,23 @@
     <mat-spinner></mat-spinner>
 </div>
 
+<app-data-message *ngIf="showNoData"></app-data-message>
+
+
 <div class="body-container" (click)="stopEventPropagation($event)">
     <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
         <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
         <div class="graph-selection" *ngIf="false"
-            [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+            [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}">
+        </div>
     </div>
 </div>
 
 <div class="legend-container" *ngIf="legendIsNeeded()">
-    <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
-        (itemSelected)="legendItemSelected($event)"></app-legend>
-    <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys" [filteringOn]="options.legendFiltering"></app-legend>
+    <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
+        [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+    <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys" [filteringOn]="options.legendFiltering">
+    </app-legend>
 </div>
 
 <div class="contribution-text" *ngIf="showContribution()">

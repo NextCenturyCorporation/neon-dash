@@ -1,5 +1,6 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
+        {{ options.title }}</div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
         <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -16,6 +17,8 @@
 <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
     <mat-spinner></mat-spinner>
 </div>
+
+<app-data-message *ngIf="showNoData"></app-data-message>
 
 <div class="body-container">
     <!-- Timeline chart div -->
