@@ -236,6 +236,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
             return activeItem;
         });
+        if (!this.documentViewerData.length) {
+            this.errorMessage = 'No Data: New';
+        }
 
         return this.documentViewerData.length;
     }
