@@ -68,6 +68,9 @@
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
+                <button mat-menu-item (click)="globalMoveWidgets = !globalMoveWidgets">
+                    <mat-icon>configure</mat-icon>{{globalMoveWidgets ? 'End ':''}}Configure Dashboard
+                </button>
                 <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
                     <mat-icon>info</mat-icon>About the Neon Dashboard
                 </button>

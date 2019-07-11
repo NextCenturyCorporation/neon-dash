@@ -103,6 +103,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     widgets: Map<string, BaseNeonComponent> = new Map();
 
     movingWidgets = false;
+    globalMoveWidgets = false;
 
     destroy = new Subject();
 
@@ -409,7 +410,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         fromEvent(document, 'mousemove')
             .pipe(takeUntil(this.destroy))
             .subscribe((ev: MouseEvent) => {
-                this.movingWidgets = (ev.metaKey || ev.altKey) && ev.shiftKey;
+                this.movingWidgets = this.globalMoveWidgets || (ev.metaKey || ev.altKey) && ev.shiftKey;
             });
 
         fromEvent(document, 'keydown')
@@ -417,7 +418,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             .subscribe((ev: KeyboardEvent) => {
                 if ((ev.key === 'Shift' && (ev.metaKey || ev.altKey) || (ev.key === 'Meta' || ev.key === 'Alt') && ev.shiftKey) &&
                     !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
-                    this.movingWidgets = true;
+                    this.movingWidgets = this.globalMoveWidgets || true;
                 }
             });
 
@@ -425,7 +426,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy))
             .subscribe((ev: KeyboardEvent) => {
                 if (ev.key === 'Shift' || ev.key === 'Alt' || ev.key === 'Meta') {
-                    this.movingWidgets = false;
+                    this.movingWidgets = this.globalMoveWidgets || false;
                 }
             });
 
