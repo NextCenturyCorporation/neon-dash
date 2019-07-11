@@ -16,7 +16,7 @@
     "lint-scss": "npm run-script lint-sass",
     "lint-ts": "eslint src/app --cache --ext .js,.ts --fix --max-warnings 0",
     "test": "npm run-script unit-test && npm run-script lint",
-    "unit-test": "ng test",
+    "unit-test": "./scripts/generate_environment.sh && ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "typedoc": "typedoc",
