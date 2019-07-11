@@ -115,6 +115,7 @@
     "npm-license-crawler": "^0.2.1",
     "pre-commit": "^1.2.2",
     "protractor": "~5.4.2",
+    "replace-in-file": "^4.1.1",
     "sass-lint": "^1.13.1",
     "sass-lint-auto-fix": "^0.17.0",
     "typedoc": "~0.14.2",
