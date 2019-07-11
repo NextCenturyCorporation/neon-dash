@@ -115,7 +115,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            root: CompoundFilterType.OR,
             datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,

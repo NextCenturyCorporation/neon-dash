@@ -50,7 +50,6 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[0].changeField).toEqual(NeonFieldMetaData.get());
 
         expect(component.compoundTypeIsOr).toEqual(false);
-        expect(component.parentFilterIsOr).toEqual(false);
     });
 
     it('addBlankFilterClause does add a new blank filter clause to the internal list', () => {
@@ -171,7 +170,6 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
         // Arrange
         let filterDesign: FilterDesign = {
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
@@ -197,7 +195,6 @@ describe('Component: Filter Builder', () => {
         component.addBlankFilterClause();
         component.compoundTypeIsOr = true;
         let filterDesigns: SimpleFilterDesign[] = [{
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
@@ -206,7 +203,6 @@ describe('Component: Filter Builder', () => {
             value: ''
         } as SimpleFilterDesign,
         {
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[1].database,
             table: component.filterClauses[1].table,
@@ -217,7 +213,6 @@ describe('Component: Filter Builder', () => {
 
         let filterDesign: FilterDesign = {
             type: CompoundFilterType.OR,
-            root: CompoundFilterType.AND,
             filters: filterDesigns
         } as CompoundFilterDesign;
         component.filterClauses[0].field.columnName = 'testColumn1';
@@ -239,7 +234,6 @@ describe('Component: Filter Builder', () => {
         // Arrange
         component.addBlankFilterClause();
         let filterDesigns: SimpleFilterDesign[] = [{
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
@@ -248,7 +242,6 @@ describe('Component: Filter Builder', () => {
             value: ''
         } as SimpleFilterDesign,
         {
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[1].database,
             table: component.filterClauses[1].table,
@@ -259,7 +252,6 @@ describe('Component: Filter Builder', () => {
 
         let filterDesign: FilterDesign = {
             type: CompoundFilterType.AND,
-            root: CompoundFilterType.AND,
             filters: filterDesigns
         } as CompoundFilterDesign;
         component.filterClauses[0].field.columnName = 'testColumn1';
@@ -280,7 +272,6 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does parse number strings of non-CONTAINS filters', () => {
         // Arrange
         let filterDesign: FilterDesign = {
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
@@ -305,7 +296,6 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
         // Arrange
         let filterDesign: FilterDesign = {
-            root: CompoundFilterType.AND,
             datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,

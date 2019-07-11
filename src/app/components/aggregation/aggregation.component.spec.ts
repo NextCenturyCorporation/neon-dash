@@ -184,32 +184,6 @@ describe('Component: Aggregation', () => {
 
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(3);
-        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect(actual[0].operator).toEqual('!=');
-        expect(actual[0].value).toBeUndefined();
-        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect(actual[1].operator).toEqual('=');
-        expect(actual[1].value).toBeUndefined();
-        expect((actual[2]).type).toEqual('and');
-        expect((actual[2]).filters.length).toEqual(2);
-        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2]).filters[0].operator).toEqual('>=');
-        expect((actual[2]).filters[0].value).toBeUndefined();
-        expect((actual[2]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2]).filters[1].operator).toEqual('<=');
-        expect((actual[2]).filters[1].value).toBeUndefined();
-
-        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
-        actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
         expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
@@ -222,19 +196,14 @@ describe('Component: Aggregation', () => {
         expect(actual[1].operator).toEqual('=');
         expect(actual[1].value).toBeUndefined();
         expect((actual[2]).type).toEqual('and');
-        expect((actual[2]).filters.length).toEqual(2);
+        expect((actual[2]).filters.length).toEqual(1);
         expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2]).filters[0].operator).toEqual('>=');
+        expect((actual[2]).filters[0].operator).toEqual('=');
         expect((actual[2]).filters[0].value).toBeUndefined();
-        expect((actual[2]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2]).filters[1].operator).toEqual('<=');
-        expect((actual[2]).filters[1].value).toBeUndefined();
         expect((actual[3]).type).toEqual('and');
-        expect((actual[3]).filters.length).toEqual(4);
+        expect((actual[3]).filters.length).toEqual(2);
         expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
@@ -245,16 +214,61 @@ describe('Component: Aggregation', () => {
         expect((actual[3]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
         expect((actual[3]).filters[1].operator).toEqual('<=');
         expect((actual[3]).filters[1].value).toBeUndefined();
-        expect((actual[3]).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3]).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3]).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect((actual[3]).filters[2].operator).toEqual('>=');
-        expect((actual[3]).filters[2].value).toBeUndefined();
-        expect((actual[3]).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3]).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3]).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect((actual[3]).filters[3].operator).toEqual('<=');
-        expect((actual[3]).filters[3].value).toBeUndefined();
+
+        component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
+        actual = (component as any).designEachFilterWithNoValues();
+        expect(actual.length).toEqual(5);
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(actual[0].operator).toEqual('!=');
+        expect(actual[0].value).toBeUndefined();
+        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(actual[1].operator).toEqual('=');
+        expect(actual[1].value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[2]).filters.length).toEqual(1);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[2]).filters[0].operator).toEqual('=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[3]).filters.length).toEqual(2);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[3]).filters[0].operator).toEqual('>=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
+        expect((actual[3]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[3]).filters[1].operator).toEqual('<=');
+        expect((actual[3]).filters[1].value).toBeUndefined();
+        expect((actual[4]).type).toEqual('and');
+        expect((actual[4]).filters.length).toEqual(4);
+        expect((actual[4]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[4]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[4]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[4]).filters[0].operator).toEqual('>=');
+        expect((actual[4]).filters[0].value).toBeUndefined();
+        expect((actual[4]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[4]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[4]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[4]).filters[1].operator).toEqual('<=');
+        expect((actual[4]).filters[1].value).toBeUndefined();
+        expect((actual[4]).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[4]).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[4]).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect((actual[4]).filters[2].operator).toEqual('>=');
+        expect((actual[4]).filters[2].value).toBeUndefined();
+        expect((actual[4]).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[4]).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[4]).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect((actual[4]).filters[3].operator).toEqual('<=');
+        expect((actual[4]).filters[3].value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected count aggregation query', () => {
@@ -3644,7 +3658,6 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -3666,7 +3679,6 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -3677,7 +3689,7 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('subcomponentRequestsFilter does call exchangeFilters with OR root filter type if requireAll=false', () => {
+    it('subcomponentRequestsFilter does call exchangeFilters with single item if doNotReplace=false and requireAll=false', () => {
         component.options.ignoreSelf = false;
         component.options.requireAll = false;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
@@ -3688,7 +3700,6 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.OR,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -3699,29 +3710,7 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('subcomponentRequestsFilter does call toggleFilters if doNotReplace=true', () => {
-        component.options.ignoreSelf = true;
-        component.options.requireAll = true;
-        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
-        let spy1 = spyOn(component, 'exchangeFilters');
-        let spy2 = spyOn(component, 'toggleFilters');
-
-        component.subcomponentRequestsFilter('testCategory', 1234, true);
-
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X,
-            operator: '=',
-            value: 1234
-        } as SimpleFilterDesign]]);
-    });
-
-    it('subcomponentRequestsFilter does call toggleFilters with OR root filter type if doNotReplace=true and requireAll=false', () => {
+    it('subcomponentRequestsFilter does call toggleFilters if doNotReplace=true and requireAll=false', () => {
         component.options.ignoreSelf = true;
         component.options.requireAll = false;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
@@ -3733,7 +3722,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.OR,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -3741,6 +3729,53 @@ describe('Component: Aggregation', () => {
             operator: '=',
             value: 1234
         } as SimpleFilterDesign]]);
+    });
+
+    it('subcomponentRequestsFilter does call exchangeFilters with multiple items if doNotReplace=true and requireAll=true', () => {
+        component.options.ignoreSelf = true;
+        component.options.requireAll = true;
+        component.options.xField = DashboardServiceMock.FIELD_MAP.X;
+        let spy1 = spyOn(component, 'exchangeFilters');
+        let spy2 = spyOn(component, 'toggleFilters');
+
+        component.subcomponentRequestsFilter('testCategory', 1234, true);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
+                operator: '=',
+                value: 1234
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
+
+        component.subcomponentRequestsFilter('testCategory', 5678, true);
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
+                operator: '=',
+                value: 1234
+            } as SimpleFilterDesign, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1,
+                table: DashboardServiceMock.TABLES.testTable1,
+                field: DashboardServiceMock.FIELD_MAP.X,
+                operator: '=',
+                value: 5678
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]]);
+        expect(spy2.calls.count()).toEqual(0);
     });
 
     it('subcomponentRequestsFilter does not call exchangeFilters or toggleFilters if notFilterable=true', () => {

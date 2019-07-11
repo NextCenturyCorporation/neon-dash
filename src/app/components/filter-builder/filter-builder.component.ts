@@ -48,7 +48,6 @@ export class FilterBuilderComponent {
     ];
 
     public compoundTypeIsOr: boolean = false;
-    public parentFilterIsOr: boolean = false;
 
     private _dataset: Dataset;
 
@@ -171,7 +170,6 @@ export class FilterBuilderComponent {
                 }
             }
             return {
-                root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
                 datastore: filterClause.datastore.name,
                 database: filterClause.database,
                 table: filterClause.table,
@@ -184,7 +182,6 @@ export class FilterBuilderComponent {
         // Create a compound filter from multiple filters if needed.
         let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
             type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-            root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
             filters: filterDesigns
         } as CompoundFilterDesign);
 

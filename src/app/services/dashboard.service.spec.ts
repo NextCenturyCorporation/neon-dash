@@ -85,17 +85,16 @@ describe('Service: DashboardService', () => {
 
         dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             filters: ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-                [".databaseZ.tableA.field1","=","value1","or"],
-                ["and", "and",
-                    [".databaseY.tableB.field2", "!=", "", "or"],
-                    [".databaseY.tableB.field2", "!=", null, "or"]
+                [".databaseZ.tableA.field1","=","value1"],
+                ["and",
+                    [".databaseY.tableB.field2", "!=", ""],
+                    [".databaseY.tableB.field2", "!=", null]
                 ]
             ]`)), ConfigUtil.encodeFiltersMap)
         }));
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual([{
-            root: 'or',
             datastore: '',
             database: 'databaseZ',
             table: 'tableA',
@@ -103,10 +102,8 @@ describe('Service: DashboardService', () => {
             operator: '=',
             value: 'value1'
         }, {
-            root: 'and',
             type: 'and',
             filters: [{
-                root: 'or',
                 datastore: '',
                 database: 'databaseY',
                 table: 'tableB',
@@ -114,7 +111,6 @@ describe('Service: DashboardService', () => {
                 operator: '!=',
                 value: ''
             }, {
-                root: 'or',
                 datastore: '',
                 database: 'databaseY',
                 table: 'tableB',
@@ -578,7 +574,6 @@ describe('Service: DashboardService with Mock Data', () => {
     it('exportConfig should produce valid results', (done) => {
         const { config, layouts, filters } = getConfig([
             {
-                root: 'or',
                 datastore: 'datastore1',
                 database: 'databaseZ',
                 table: 'tableA',
@@ -587,11 +582,9 @@ describe('Service: DashboardService with Mock Data', () => {
                 value: 'value1'
             },
             {
-                root: 'and',
                 type: 'and',
                 filters: [
                     {
-                        root: 'or',
                         datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
@@ -600,7 +593,6 @@ describe('Service: DashboardService with Mock Data', () => {
                         value: ''
                     },
                     {
-                        root: 'or',
                         datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
@@ -666,10 +658,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
-            ["datastore1.databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                ["datastore1.databaseY.tableB.field2", "!=", "", "or"],
-                ["datastore1.databaseY.tableB.field2", "!=", null, "or"]
+            ["datastore1.databaseZ.tableA.field1","=","value1"],
+            ["and",
+                ["datastore1.databaseY.tableB.field2", "!=", ""],
+                ["datastore1.databaseY.tableB.field2", "!=", null]
             ]
         ]`);
 
@@ -712,7 +704,6 @@ describe('Service: DashboardService with Mock Data', () => {
             });
             expect(data.dashboards.filters).toEqual([
                 {
-                    root: 'or',
                     datastore: 'datastore1',
                     database: 'databaseZ',
                     table: 'tableA',
@@ -721,11 +712,9 @@ describe('Service: DashboardService with Mock Data', () => {
                     value: 'value1'
                 },
                 {
-                    root: 'and',
                     type: 'and',
                     filters: [
                         {
-                            root: 'or',
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
@@ -734,7 +723,6 @@ describe('Service: DashboardService with Mock Data', () => {
                             value: ''
                         },
                         {
-                            root: 'or',
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
