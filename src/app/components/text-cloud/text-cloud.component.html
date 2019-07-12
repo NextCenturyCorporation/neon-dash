@@ -16,9 +16,9 @@
 <app-data-message *ngIf="showNoData"></app-data-message>
 
 <div class="text-cloud body-container" mat-fill layout="col">
-    <a (click)="onClick(item)" class="text" [class.filter]="item.selected" [class.paragraphs]="options.paragraphs" *ngFor="let item of textCloudData"
-        [matTooltip]="item.key + ': ' + item.value + (item.selected ? ' (Selected)' : '')" tooltip-position="below" [rel]="item.value"
-        [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
+    <a (click)="onClick(item)" class="text" [class.filter]="item.selected" [class.paragraphs]="options.paragraphs"
+        *ngFor="let item of textCloudData" [matTooltip]="item.key + ': ' + item.value + (item.selected ? ' (Selected)' : '')"
+        tooltip-position="below" [rel]="item.value" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
         <span>{{ item.key }}</span>
         <span *ngIf="options.showCounts">({{ item.value }})</span>
     </a>

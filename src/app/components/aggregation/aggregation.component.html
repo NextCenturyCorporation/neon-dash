@@ -32,8 +32,9 @@
     <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
         [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
 
-        <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height"
-            [style.left.px]="selectedAreaOffset.x + selectedArea.x" [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+        <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
+            [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
+            [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
 
         <div #subcomponentMain class="subcomponent-element"></div>
     </div>

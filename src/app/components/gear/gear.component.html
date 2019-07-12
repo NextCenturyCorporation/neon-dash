@@ -53,7 +53,8 @@
     </div>
     <!-- Non Multilayer option list-->
     <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
-        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)" [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
+        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
+        [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
     </app-options-section>
 
     <mat-form-field class="option-container">
@@ -70,8 +71,8 @@
         (click)="resetOptionsAndClose()">
         Cancel
     </button>
-    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes" [disabled]="!changeMade"
-        (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes"
+        [disabled]="!changeMade" (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>

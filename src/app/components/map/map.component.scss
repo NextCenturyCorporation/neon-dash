@@ -54,9 +54,12 @@
     z-index: 1;
 }
 
-/deep/ #mapElement .leaflet-control-container {
-    .leaflet-control-zoom, .leaflet-control-layers {
-        border-width: 1px;
+/deep/ #mapElement { // sass-lint:disable-line id-name-format
+    .leaflet-control-container {
+        .leaflet-control-zoom,
+        .leaflet-control-layers {
+            border-width: 1px;
+        }
     }
 }
 

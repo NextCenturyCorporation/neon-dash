@@ -50,25 +50,28 @@
         padding-left: 7px;
         padding-right: 22px;
 
-        .header.text {
-            font-weight: bold;
+        .header {
+            &.text {
+                font-weight: bold;
 
-            &.multiple-line {
-                white-space: unset;
+                &.multiple-line {
+                    white-space: unset;
+                }
             }
         }
     }
 
     .body-container,
     .footer,
-    /deep/ mat-toolbar.mat-toolbar {
+    /deep/ mat-toolbar {
         background: var(--color-background, white);
     }
 
-    /deep/ mat-toolbar.mat-toolbar  {
-
-        .header.text {
-            font-weight: normal;
+    /deep/ mat-toolbar {
+        .header {
+            &.text {
+                font-weight: normal;
+            }
         }
 
         [mat-icon-button] {

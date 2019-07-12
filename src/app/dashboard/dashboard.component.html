@@ -16,7 +16,8 @@
                 <wt-lazy *ngSwitchCase="'savedState'" [location]="{moduleId:'save-state', selector: 'app-save-state'}"
                     [inputs]="{sidenav: sideNavRight, gridState: gridState }">
                 </wt-lazy>
-                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}" [inputs]="{widgets:widgets}">
+                <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
+                    [inputs]="{widgets:widgets}">
                 </wt-lazy>
             </div>
         </div>
@@ -49,8 +50,8 @@
                 matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below" id="showFilterTrayButton"
-                matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
+                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large">filter_list</mat-icon>
             </button>
 
@@ -98,9 +99,10 @@
                 <div class="neon-grid">
                     <div [ngGrid]="gridConfig" #grid>
                         <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
-                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)" [contextMenu]="vizMenu"
-                            [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)" (onResizeStop)="onResizeStop(i, $event)"
-                            (onDragStop)="onDragStop(i, $event)" [class.moving]="movingWidgets || globalMoveWidgets">
+                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                            [contextMenu]="vizMenu" [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)"
+                            (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)"
+                            [class.moving]="movingWidgets || globalMoveWidgets">
                             <app-visualization-container [moving]="movingWidgets || globalMoveWidgets" [visualization]="widgetGridItem">
                             </app-visualization-container>
                             <ng-content></ng-content>

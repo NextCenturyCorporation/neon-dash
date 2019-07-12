@@ -16,7 +16,8 @@
 </div>
 
 <div #newsFeed class="body-container">
-    <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat" [multi]="options.multiOpen">
+    <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat"
+        [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
             <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
