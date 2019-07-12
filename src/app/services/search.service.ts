@@ -18,11 +18,10 @@ import {
     CompoundFilterType,
     FilterClause,
     QueryGroup,
-    SortOrder,
-    TimeInterval,
-    QueryPayload
+    QueryPayload,
+    SortOrder
 } from './abstract.search.service';
-import { AggregationType } from '../models/widget-option';
+import { AggregationType, TimeInterval } from '../models/widget-option';
 import { ConnectionService, NeonConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';

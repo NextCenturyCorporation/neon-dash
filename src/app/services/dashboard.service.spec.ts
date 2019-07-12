@@ -14,15 +14,14 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { AbstractSearchService } from './abstract.search.service';
 import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
-import { NeonDatastoreConfig } from '../models/dataset';
+import { NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
@@ -49,7 +48,6 @@ describe('Service: DashboardService', () => {
 
     initializeTestBed('Dashboard Service', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             InjectableFilterService
         ]
@@ -81,6 +79,94 @@ describe('Service: DashboardService', () => {
             type: '',
             databases: {}
         });
+    });
+
+    it('setActiveDashboard should translate string filter list', () => {
+        let spy = spyOn(dashboardService['filterService'], 'setFiltersFromConfig');
+
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
+            filters: ConfigUtil.translate(`[
+                [".databaseZ.tableA.field1","=","value1","or"],
+                ["and", "and",
+                    [".databaseY.tableB.field2", "!=", "", "or"],
+                    [".databaseY.tableB.field2", "!=", null, "or"]
+                ]
+            ]`, ConfigUtil.encodeFiltersMap)
+        }));
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual([{
+            root: 'or',
+            datastore: '',
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
+            operator: '=',
+            value: 'value1'
+        }, {
+            root: 'and',
+            type: 'and',
+            filters: [{
+                root: 'or',
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: ''
+            }, {
+                root: 'or',
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: null
+            }]
+        }]);
+    });
+
+    it('getFiltersToSaveInURL should return expected output', () => {
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
+
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
+            root: 'or',
+            datastore: '',
+            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
+            table: NeonTableMetaData.get({ name: 'tableA' }),
+            field: NeonFieldMetaData.get({ columnName: 'field1' }),
+            operator: '=',
+            value: 'value1'
+        } as SimpleFilterDesign, {
+            root: 'and',
+            type: 'and',
+            filters: [{
+                root: 'or',
+                datastore: '',
+                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                table: NeonTableMetaData.get({ name: 'tableB' }),
+                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                operator: '!=',
+                value: ''
+            } as SimpleFilterDesign, {
+                root: 'or',
+                datastore: '',
+                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                table: NeonTableMetaData.get({ name: 'tableB' }),
+                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                operator: '!=',
+                value: null
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        // Use the parse and stringify functions so we don't have to type unicode here.
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+            [".databaseZ.tableA.field1","=","value1","or"],
+            ["and", "and",
+                [".databaseY.tableB.field2", "!=", "", "or"],
+                [".databaseY.tableB.field2", "!=", null, "or"]
+            ]
+        ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
 
@@ -537,7 +623,6 @@ describe('Service: DashboardService with Mock Data', () => {
         const { config, layouts, filters } = getConfig([
             {
                 root: 'or',
-                name: 'field1',
                 datastore: '',
                 database: 'databaseZ',
                 table: 'tableA',
@@ -547,12 +632,10 @@ describe('Service: DashboardService with Mock Data', () => {
             },
             {
                 root: 'and',
-                name: 'combo',
                 type: 'and',
                 filters: [
                     {
                         root: 'or',
-                        name: 'field2',
                         datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
@@ -562,7 +645,6 @@ describe('Service: DashboardService with Mock Data', () => {
                     },
                     {
                         root: 'or',
-                        name: 'field2b',
                         datastore: '',
                         database: 'databaseY',
                         table: 'tableB',
@@ -579,8 +661,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -641,8 +722,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -677,7 +757,6 @@ describe('Service: DashboardService with Mock Data', () => {
             expect(data.dashboards.filters).toEqual([
                 {
                     root: 'or',
-                    name: 'databaseZ / tableA / Field1 = value1',
                     datastore: '',
                     database: 'databaseZ',
                     table: 'tableA',
@@ -687,12 +766,10 @@ describe('Service: DashboardService with Mock Data', () => {
                 },
                 {
                     root: 'and',
-                    name: 'and',
                     type: 'and',
                     filters: [
                         {
                             root: 'or',
-                            name: 'databaseY / tableB / Field2 != ',
                             datastore: '',
                             database: 'databaseY',
                             table: 'tableB',
@@ -702,7 +779,6 @@ describe('Service: DashboardService with Mock Data', () => {
                         },
                         {
                             root: 'or',
-                            name: 'databaseY / tableB / Field2 != null',
                             datastore: '',
                             database: 'databaseY',
                             table: 'tableB',

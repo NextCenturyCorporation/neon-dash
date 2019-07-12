@@ -20,7 +20,7 @@ import { map, startWith } from 'rxjs/operators';
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -135,42 +135,29 @@ export class QueryBarComponent extends BaseNeonComponent {
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        if (this.options.filterField.columnName) {
-            behaviors.push({
-                // Match a single EQUALS filter on the filter field.
-                filterDesign: this.createFilterDesignOnText(),
-                redrawCallback: this.updateQueryBarText.bind(this)
-            });
-        }
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        // Match a single EQUALS filter on the filter field.
+        let designs: FilterDesign[] = this.options.filterField.columnName ? [this.createFilterDesignOnText()] : [];
 
         if (this.options.extendedFilter) {
             this.options.extensionFields.forEach((extensionField) => {
-                behaviors.push({
-                    // Match a single EQUALS filter on the extension database/table/field.
-                    filterDesign: this.createFilterDesignOnExtensionField(extensionField.database, extensionField.table,
-                        extensionField.idField),
-                    redrawCallback: () => { /* Do nothing */ }
-                });
+                // Match a single EQUALS filter on the extension database/table/field.
+                designs.push(this.createFilterDesignOnExtensionField(extensionField.database, extensionField.table,
+                    extensionField.idField));
 
-                behaviors.push({
-                    // Match a compound OR filter with one or more EQUALS filters on the extension database/table/field.
-                    filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnExtensionField(extensionField.database,
-                        extensionField.table, extensionField.idField)]),
-                    redrawCallback: () => { /* Do nothing */ }
-                });
+                // Match a compound OR filter with one or more EQUALS filters on the extension database/table/field.
+                designs.push(this.createFilterDesignOnList([this.createFilterDesignOnExtensionField(extensionField.database,
+                    extensionField.table, extensionField.idField)]));
             });
         }
 
-        return behaviors;
+        return designs;
     }
 
     /**
@@ -226,10 +213,11 @@ export class QueryBarComponent extends BaseNeonComponent {
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.queryArray = [];
 
         let setValues = true;
@@ -258,6 +246,8 @@ export class QueryBarComponent extends BaseNeonComponent {
         }
 
         this.queryBarSetup();
+
+        this.redrawFilters(filters);
 
         return this.queryValues.length;
     }
@@ -428,7 +418,12 @@ export class QueryBarComponent extends BaseNeonComponent {
         return false;
     }
 
-    private updateQueryBarText(__filters: FilterDesign[]) {
-        // TODO AIDA-754
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(__filters: FilterCollection): void {
+        // TODO AIDA-754 Update the query bar active text using the given filters.
     }
 }

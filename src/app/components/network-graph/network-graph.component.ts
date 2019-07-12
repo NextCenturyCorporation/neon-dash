@@ -34,7 +34,7 @@ import {
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -364,22 +364,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        if (this.options.edgeColorField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnLegend(),
-                redrawCallback: this.redrawLegend.bind(this)
-            } as FilterBehavior);
-        }
-
+    protected designEachFilterWithNoValues(): FilterDesign[] {
         let filterFields: NeonFieldMetaData[] = [this.options.nodeField].concat(this.options.filterFields);
         if (this.options.layers.length) {
             this.options.layers.forEach((layer) => {
@@ -389,23 +380,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             });
         }
 
-        filterFields.forEach((filterField) => {
+        return filterFields.reduce((designs, filterField) => {
             if (filterField.columnName) {
-                behaviors.push({
-                    // Match a single EQUALS filter on the specified filter field.
-                    filterDesign: this.createFilterDesignOnNodeDataItem(filterField),
-                    redrawCallback: this.redrawFilteredNodes.bind(this)
-                } as FilterBehavior);
-
-                behaviors.push({
-                    // Match a compound filter with one or more EQUALS filters on the specified filter field.
-                    filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnNodeDataItem(filterField)]),
-                    redrawCallback: this.redrawFilteredNodes.bind(this)
-                } as FilterBehavior);
+                // Match a single EQUALS filter on the specified filter field.
+                designs.push(this.createFilterDesignOnNodeDataItem(filterField));
+                // Match a compound filter with one or more EQUALS filters on the specified filter field.
+                designs.push(this.createFilterDesignOnList([this.createFilterDesignOnNodeDataItem(filterField)]));
             }
-        });
-
-        return behaviors;
+            return designs;
+        }, this.options.edgeColorField.columnName ? [this.createFilterDesignOnLegend()] : [] as FilterDesign[]);
     }
 
     /**
@@ -559,6 +542,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(__filters: FilterCollection): void {
+        // TODO AIDA-751 Update the visualization's legend using the given filters.
+        // TODO AIDA-752 Update the visualization's selected (filtered) nodes using the given filters.
+    }
+
     refreshVisualization() {
         //
     }
@@ -669,24 +662,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return cleanLabel;
     }
 
-    private redrawFilteredNodes(__filters: FilterDesign[]): void {
-        // TODO AIDA-752
-    }
-
-    private redrawLegend(__filters: FilterDesign[]): void {
-        // TODO AIDA-751
-    }
-
     /**
      * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
      * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.disabledSet = [];
 
         if (this.options.layers.length) {
@@ -694,6 +680,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.responseData.push({ options: options, results: results });
         } else {
             this.responseData = results;
+
+            // TODO AIDA-752 Use the given filters to show the selected (filtered) nodes.
 
             this.responseData.forEach((result) => {
                 for (let field of options.fields) {
@@ -730,7 +718,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
 
         this.existingNodeNames = [];
+
+        this.displayGraph = (this.options.hideUnfiltered && !!filters.getFilters().length) || !this.options.hideUnfiltered;
+
         this.resetGraphData();
+
+        this.redrawFilters(filters);
+
         this.updateLegend();
 
         return this.graphData.nodes.getIds().length;
@@ -748,12 +742,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 array.findIndex((object) => object.id === value.id) === index).length;
 
             this.graphData.clear();
-            if (this.options.hideUnfiltered && this.isFiltered() || !this.options.hideUnfiltered) {
+            if (this.displayGraph) {
                 this.restartPhysics();
-                this.displayGraph = true;
                 this.graphData.update(graphProperties);
-            } else {
-                this.displayGraph = false;
             }
         }
 

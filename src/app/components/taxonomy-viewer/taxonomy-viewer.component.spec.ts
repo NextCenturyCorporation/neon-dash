@@ -18,7 +18,7 @@ import { Injector } from '@angular/core';
 import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -249,7 +249,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.ascending = true;
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         expect(component.taxonomyGroups.length).toEqual(4);
         expect(component.taxonomyGroups[0].name).toEqual('testCategoryI');
@@ -269,7 +269,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -292,7 +292,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -317,7 +317,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -341,7 +341,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -360,7 +360,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.filterFields = ['testFilter1', 'testFilter2'];
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -379,7 +379,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.valueField = NeonFieldMetaData.get({ columnName: 'testValueField' });
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -416,7 +416,7 @@ describe('Component: TaxonomyViewer', () => {
         component.options.subTypeField = NeonFieldMetaData.get({ columnName: 'testSubTypeField' });
         component.options.valueField = NeonFieldMetaData.get({ columnName: 'testValueField' });
 
-        component.transformVisualizationQueryResults(component.options, responseData);
+        component.transformVisualizationQueryResults(component.options, responseData, new FilterCollection());
 
         fixture.detectChanges();
 
@@ -488,98 +488,86 @@ describe('Component: TaxonomyViewer', () => {
         component.options.categoryField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('!=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
 
         component.options.typeField = DashboardServiceMock.FIELD_MAP.TYPE;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[2].filterDesign).operator).toEqual('!=');
-        expect((actual[2].filterDesign).value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[3].filterDesign).type).toEqual('and');
-        expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('!=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect((actual[2]).operator).toEqual('!=');
+        expect((actual[2]).value).toBeUndefined();
+        expect((actual[3]).type).toEqual('and');
+        expect((actual[3]).filters.length).toEqual(1);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect((actual[3]).filters[0].operator).toEqual('!=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
 
         component.options.subTypeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(6);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[2].filterDesign).operator).toEqual('!=');
-        expect((actual[2].filterDesign).value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[3].filterDesign).type).toEqual('and');
-        expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[3].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[4].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[4].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[4].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[4].filterDesign).operator).toEqual('!=');
-        expect((actual[4].filterDesign).value).toBeUndefined();
-        expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
-        expect((actual[5].filterDesign).type).toEqual('and');
-        expect((actual[5].filterDesign).filters.length).toEqual(1);
-        expect((actual[5].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[5].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[5].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[5].filterDesign).filters[0].operator).toEqual('!=');
-        expect((actual[5].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawTaxonomy.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('!=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect((actual[2]).operator).toEqual('!=');
+        expect((actual[2]).value).toBeUndefined();
+        expect((actual[3]).type).toEqual('and');
+        expect((actual[3]).filters.length).toEqual(1);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect((actual[3]).filters[0].operator).toEqual('!=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
+        expect((actual[4]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[4]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[4]).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((actual[4]).operator).toEqual('!=');
+        expect((actual[4]).value).toBeUndefined();
+        expect((actual[5]).type).toEqual('and');
+        expect((actual[5]).filters.length).toEqual(1);
+        expect((actual[5]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[5]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[5]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((actual[5]).filters[0].operator).toEqual('!=');
+        expect((actual[5]).filters[0].value).toBeUndefined();
     });
 
     it('checkRelatedNodes to deselect a category does call exchangeFilters with category / type / subtype filters', () => {

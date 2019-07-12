@@ -26,7 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -139,24 +139,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        if (this.options.filterField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnText(),
-                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            });
-        }
-
-        return behaviors;
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        return this.options.filterField.columnName ? [this.createFilterDesignOnText()] : [];
     }
 
     /**
@@ -249,12 +239,19 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.newsFeedData = results.map((result) => {
-            let item = {};
+            let item = {
+                _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterDesignOnText(
+                    result[this.options.filterField.columnName]
+                )))
+            };
+
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     let value = neonUtilities.deepFind(result, field.columnName);
@@ -291,12 +288,25 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this.newsFeedData.forEach((item) => {
+            item._filtered = this.options.filterField.columnName && filters.isFiltered(this.createFilterDesignOnText(
+                item[this.options.filterField.columnName]
+            ));
+        });
+    }
+
+    /**
      * Updates and redraws the elements and properties for the visualization.
      *
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        // Do nothing.
     }
 
     onResize() {
@@ -344,8 +354,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item[this.options.filterField.columnName]
-        )));
+        return item._filtered;
     }
 }

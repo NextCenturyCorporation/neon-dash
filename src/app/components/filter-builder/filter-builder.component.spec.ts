@@ -17,11 +17,10 @@ import { } from 'jasmine-core';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 
-import { FilterDesign, SimpleFilterDesign, CompoundFilterDesign } from '../../services/filter.service';
+import { FilterDesign, SimpleFilterDesign, CompoundFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
-import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
 import { CompoundFilterType } from '../../services/abstract.search.service';
@@ -32,7 +31,7 @@ describe('Component: Filter Builder', () => {
 
     beforeEach(() => {
         filterService = jasmine.createSpyObj('InjectableFilterService', ['toggleFilters']);
-        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), filterService, new SearchServiceMock());
+        component = new FilterBuilderComponent(new DashboardServiceMock(getConfigService()), filterService);
     });
 
     it('class properties are set to expected defaults', () => {
@@ -155,14 +154,6 @@ describe('Component: Filter Builder', () => {
     });
 
     it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
-        component.filterClauses[0].field.columnName = 'testColumn';
-        component.filterClauses[0].operator = component.operators[3];
-        component.filterClauses[0].operator.value = '!=';
-        component.filterClauses[0].value = '53';
-
-        // Blank filter clause is invalid
-        component.addBlankFilterClause();
-
         component.saveFilter();
 
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
@@ -188,7 +179,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations, component.searchService);
+            component['_dataset'].relations);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -231,7 +222,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations, component.searchService);
+            component['_dataset'].relations);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -273,7 +264,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations, component.searchService);
+            component['_dataset'].relations);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -300,7 +291,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations, component.searchService);
+            component['_dataset'].relations);
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
@@ -323,7 +314,7 @@ describe('Component: Filter Builder', () => {
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
         expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations, component.searchService);
+            component['_dataset'].relations);
     });
 
     it('validateFilters does return expected boolean', () => {

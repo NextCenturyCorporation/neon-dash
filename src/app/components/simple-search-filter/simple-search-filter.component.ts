@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { AbstractSearchService } from '../../services/abstract.search.service';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { SimpleFilterDesign } from '../../services/filter.service';
+import { SimpleFilterDesign } from '../../util/filter.util';
 import { neonEvents } from '../../models/neon-namespaces';
 import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
@@ -39,8 +38,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
     constructor(
         private changeDetection: ChangeDetectorRef,
         dashboardService: DashboardService,
-        protected filterService: InjectableFilterService,
-        protected searchService: AbstractSearchService
+        protected filterService: InjectableFilterService
     ) {
         this.dashboardState = dashboardService.state;
     }
@@ -73,7 +71,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
             value: term
         } as SimpleFilterDesign;
 
-        this.filterService.exchangeFilters('SimpleFilter', [filter], this.dashboardState.findRelationDataList(), this.searchService);
+        this.filterService.exchangeFilters('SimpleFilter', [filter], this.dashboardState.findRelationDataList());
 
         this.cachedFilter = filter;
     }
@@ -90,7 +88,7 @@ export class SimpleSearchFilterComponent implements OnInit, OnDestroy {
 
     public removeFilter(): void {
         if (this.cachedFilter) {
-            this.filterService.deleteFilters('SimpleFilter', this.searchService, [{
+            this.filterService.deleteFilters('SimpleFilter', [{
                 datastore: '',
                 database: this.cachedFilter.database,
                 table: this.cachedFilter.table,

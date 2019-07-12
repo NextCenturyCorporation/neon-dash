@@ -19,7 +19,8 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, FilterConfig } from '../models/types';
+
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models/types';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
@@ -857,7 +858,7 @@ describe('Dashboard Custom', () => {
         fixture.detectChanges();
     });
 
-    it('showDashboardState does work as expected', (done) => {
+    it('setting active dashboard does work as expected', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -886,13 +887,7 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
-        ];
-
         let testDashboard = NeonDashboardLeafConfig.get({
-            filters,
             layout: 'DISCOVERY',
             category: 'Select an option...',
             options: {
@@ -942,7 +937,7 @@ describe('Dashboard Custom', () => {
         fixture.detectChanges();
     });
 
-    it('showDashboardState does work with tabs', (done) => {
+    it('setting active dashboard does work with tabs', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -969,13 +964,7 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
-        ];
-
         let testDashboard = NeonDashboardLeafConfig.get({
-            filters,
             category: 'Select an option...',
             layout: 'DISCOVERY',
             options: { connectOnLoad: true }
