@@ -15,10 +15,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Input
 } from '@angular/core';
+import { MediaTypes } from '../../models/types';
 
-export interface MediaTab {
+export interface MediaMetaData {
     // TODO Add a way for the user to select other items from the list.
     loaded: boolean;
     name: string;
@@ -45,4 +47,8 @@ export interface MediaTab {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MediaPanelComponent { }
+export class MediaPanelComponent {
+    @Input() media: MediaMetaData;
+
+    public mediaTypes: any = MediaTypes;
+}

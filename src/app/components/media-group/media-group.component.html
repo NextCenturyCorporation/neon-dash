@@ -1,6 +1,6 @@
 <mat-tab-group *ngIf="tabsAndMedia.length > 1" [(selectedIndex)]="selectedTabIndex"
     (selectedTabChange)="updateOnResize($event)">
     <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index" [label]="tab.name">
-        <app-media-panel></app-media-panel>
+        <app-media-panel [media]='tab'></app-media-panel>
     </mat-tab>
 </mat-tab-group>
