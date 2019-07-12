@@ -27,7 +27,7 @@ import { AbstractSearchService, CompoundFilterType } from '../../services/abstra
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { AggregationType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterDesign, FilterCollection, SimpleFilter, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
@@ -176,93 +176,85 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect(actual[0].filterDesign.operator).toEqual('!=');
-        expect(actual[0].filterDesign.value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(actual[0].operator).toEqual('!=');
+        expect(actual[0].value).toBeUndefined();
 
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(3);
-        expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect(actual[0].filterDesign.operator).toEqual('!=');
-        expect(actual[0].filterDesign.value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect(actual[1].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[1].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect(actual[1].filterDesign.operator).toEqual('=');
-        expect(actual[1].filterDesign.value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
-        expect((actual[2].filterDesign).type).toEqual('and');
-        expect((actual[2].filterDesign).filters.length).toEqual(2);
-        expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
-        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
-        expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(actual[0].operator).toEqual('!=');
+        expect(actual[0].value).toBeUndefined();
+        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(actual[1].operator).toEqual('=');
+        expect(actual[1].value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[2]).filters.length).toEqual(2);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[2]).filters[0].operator).toEqual('>=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[2]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[2]).filters[1].operator).toEqual('<=');
+        expect((actual[2]).filters[1].value).toBeUndefined();
 
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect(actual[0].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[0].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[0].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect(actual[0].filterDesign.operator).toEqual('!=');
-        expect(actual[0].filterDesign.value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect(actual[1].filterDesign.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual[1].filterDesign.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual[1].filterDesign.field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect(actual[1].filterDesign.operator).toEqual('=');
-        expect(actual[1].filterDesign.value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredItems.bind(component).toString());
-        expect((actual[2].filterDesign).type).toEqual('and');
-        expect((actual[2].filterDesign).filters.length).toEqual(2);
-        expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2].filterDesign).filters[0].operator).toEqual('>=');
-        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[2].filterDesign).filters[1].operator).toEqual('<=');
-        expect((actual[2].filterDesign).filters[1].value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawDomain.bind(component).toString());
-        expect((actual[3].filterDesign).type).toEqual('and');
-        expect((actual[3].filterDesign).filters.length).toEqual(4);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[3].filterDesign).filters[0].operator).toEqual('>=');
-        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual[3].filterDesign).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
-        expect((actual[3].filterDesign).filters[1].operator).toEqual('<=');
-        expect((actual[3].filterDesign).filters[1].value).toBeUndefined();
-        expect((actual[3].filterDesign).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect((actual[3].filterDesign).filters[2].operator).toEqual('>=');
-        expect((actual[3].filterDesign).filters[2].value).toBeUndefined();
-        expect((actual[3].filterDesign).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect((actual[3].filterDesign).filters[3].operator).toEqual('<=');
-        expect((actual[3].filterDesign).filters[3].value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawBounds.bind(component).toString());
+        expect(actual[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect(actual[0].operator).toEqual('!=');
+        expect(actual[0].value).toBeUndefined();
+        expect(actual[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect(actual[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect(actual[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(actual[1].operator).toEqual('=');
+        expect(actual[1].value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[2]).filters.length).toEqual(2);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[2]).filters[0].operator).toEqual('>=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[2]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[2]).filters[1].operator).toEqual('<=');
+        expect((actual[2]).filters[1].value).toBeUndefined();
+        expect((actual[3]).type).toEqual('and');
+        expect((actual[3]).filters.length).toEqual(4);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[3]).filters[0].operator).toEqual('>=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
+        expect((actual[3]).filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect((actual[3]).filters[1].operator).toEqual('<=');
+        expect((actual[3]).filters[1].value).toBeUndefined();
+        expect((actual[3]).filters[2].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[2].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[2].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect((actual[3]).filters[2].operator).toEqual('>=');
+        expect((actual[3]).filters[2].value).toBeUndefined();
+        expect((actual[3]).filters[3].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[3].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[3].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect((actual[3]).filters[3].operator).toEqual('<=');
+        expect((actual[3]).filters[3].value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected count aggregation query', () => {
@@ -796,7 +788,8 @@ describe('Component: Aggregation', () => {
         expect(component.legendDisabledGroups).toEqual(['b']);
     });
 
-    it('redrawBounds does call subcomponentMain.select and refreshVisualization', () => {
+    /*
+    It('redrawBounds does call subcomponentMain.select and refreshVisualization', () => {
         let spySelect = spyOn(component.subcomponentMain, 'select');
         let spyRedraw = spyOn(component, 'refreshVisualization');
 
@@ -1795,6 +1788,7 @@ describe('Component: Aggregation', () => {
         expect(component.legendActiveGroups).toEqual(['testGroup1', 'testGroup2', 'testGroup3']);
         expect(component.legendDisabledGroups).toEqual([]);
     });
+    */
 
     it('shouldFilterSelf does return expected boolean', () => {
         component.options.ignoreSelf = false;
@@ -1863,7 +1857,7 @@ describe('Component: Aggregation', () => {
         }, {
             testXField: 3,
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -1893,7 +1887,7 @@ describe('Component: Aggregation', () => {
         }, {
             _aggregation: 4,
             testXField: 3
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -1936,7 +1930,7 @@ describe('Component: Aggregation', () => {
             testCategoryField: 'b',
             testXField: 7,
             testYField: 8
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
@@ -1987,7 +1981,7 @@ describe('Component: Aggregation', () => {
             _aggregation: 8,
             testCategoryField: 'b',
             testXField: 7
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
@@ -2022,7 +2016,31 @@ describe('Component: Aggregation', () => {
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
 
-        component.legendDisabledGroups = ['a'];
+        let testStatus;
+        let filterA = new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
+            DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'a');
+        let filterB = new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
+            DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'b');
+        let filterC = new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
+            DashboardServiceMock.FIELD_MAP.CATEGORY, '!=', 'c');
+
+        let testCollection = new FilterCollection();
+        spyOn(testCollection, 'getCompatibleFilters').and.callFake((design) => {
+            if (design.field && design.field.columnName === DashboardServiceMock.FIELD_MAP.CATEGORY.columnName) {
+                if (testStatus === 1) {
+                    return [filterA];
+                }
+                if (testStatus === 2) {
+                    return [filterA, filterB];
+                }
+                if (testStatus === 3) {
+                    return [filterA, filterB, filterC];
+                }
+            }
+            return [];
+        });
+
+        testStatus = 1;
         component.transformVisualizationQueryResults(component.options, [{
             testCategoryField: 'a',
             testXField: 1,
@@ -2039,12 +2057,12 @@ describe('Component: Aggregation', () => {
             testCategoryField: 'c',
             testXField: 7,
             testYField: 8
-        }]);
+        }], testCollection);
         expect(component.legendActiveGroups).toEqual(['b', 'c']);
         expect(component.legendDisabledGroups).toEqual(['a']);
         expect(component.legendGroups).toEqual(['a', 'b', 'c']);
 
-        component.legendDisabledGroups = ['a', 'b'];
+        testStatus = 2;
         component.transformVisualizationQueryResults(component.options, [{
             _aggregation: 2,
             testCategoryField: 'a',
@@ -2061,12 +2079,12 @@ describe('Component: Aggregation', () => {
             _aggregation: 8,
             testCategoryField: 'c',
             testXField: 7
-        }]);
+        }], testCollection);
         expect(component.legendActiveGroups).toEqual(['c']);
         expect(component.legendDisabledGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b', 'c']);
 
-        component.legendDisabledGroups = ['a', 'b', 'c'];
+        testStatus = 3;
         component.transformVisualizationQueryResults(component.options, [{
             testCategoryField: 'a',
             testXField: 1,
@@ -2083,7 +2101,7 @@ describe('Component: Aggregation', () => {
             testCategoryField: 'c',
             testXField: 7,
             testYField: 8
-        }]);
+        }], testCollection);
         expect(component.legendActiveGroups).toEqual([]);
         expect(component.legendDisabledGroups).toEqual(['a', 'b', 'c']);
         expect(component.legendGroups).toEqual(['a', 'b', 'c']);
@@ -2102,7 +2120,7 @@ describe('Component: Aggregation', () => {
         }, {
             _date: '2018-01-03T00:00:00.000Z',
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2133,7 +2151,7 @@ describe('Component: Aggregation', () => {
         }, {
             _aggregation: 4,
             _date: '2018-01-03T00:00:00.000Z'
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2165,7 +2183,7 @@ describe('Component: Aggregation', () => {
         }, {
             _aggregation: 4,
             testTextField: 'c'
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2197,7 +2215,7 @@ describe('Component: Aggregation', () => {
         }, {
             _aggregation: 4,
             testXField: 3
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2236,7 +2254,7 @@ describe('Component: Aggregation', () => {
         }, {
             _date: '2018-01-04T00:00:00.000Z',
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2274,7 +2292,7 @@ describe('Component: Aggregation', () => {
         }, {
             _date: '2018-01-03T00:00:00.000Z',
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2319,7 +2337,7 @@ describe('Component: Aggregation', () => {
         }, {
             _date: '2018-01-04T00:00:00.000Z',
             testYField: 5
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2377,7 +2395,7 @@ describe('Component: Aggregation', () => {
             _date: '2018-01-04T00:00:00.000Z',
             testCategoryField: 'b',
             testYField: 5
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['a', 'b']);
         expect(component.legendGroups).toEqual(['a', 'b']);
@@ -2450,7 +2468,7 @@ describe('Component: Aggregation', () => {
         }, {
             _date: '2018-01-04T00:00:00.000Z',
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2501,7 +2519,7 @@ describe('Component: Aggregation', () => {
         }, {
             testXField: 3,
             testYField: 4
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2531,7 +2549,7 @@ describe('Component: Aggregation', () => {
         }, {
             _aggregation: 4,
             testXField: 3
-        }]);
+        }], new FilterCollection());
 
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
@@ -2555,7 +2573,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DashboardServiceMock.FIELD_MAP.X;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
-        let actual = component.transformVisualizationQueryResults(component.options, []);
+        let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
         expect(component.legendActiveGroups).toEqual(['All']);
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(0);
@@ -2714,7 +2732,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true]);
         expect(spy3.calls.count()).toEqual(1);
         expect(spy4.calls.count()).toEqual(1);
     });
@@ -2733,7 +2750,6 @@ describe('Component: Aggregation', () => {
         expect(spy1.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
         expect(spy1.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([true]);
         expect(spy3.calls.count()).toEqual(1);
         expect(spy4.calls.count()).toEqual(1);
     });
@@ -3071,7 +3087,8 @@ describe('Component: Aggregation', () => {
         expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
 
-    it('refreshVisualization does not draw main data if isFiltered returns true unless dualView is falsey', () => {
+    /*
+    It('refreshVisualization does not draw main data if isFiltered returns true unless dualView is falsey', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
         let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = AggregationType.SUM;
@@ -3139,6 +3156,7 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(1);
         expect(component.colorKeys).toEqual(['testDatabase1_testTable1_testCategoryField']);
     });
+    */
 
     it('refreshVisualization does draw main data if given true argument', () => {
         let spy1 = spyOn(component.subcomponentMain, 'draw');
@@ -3161,7 +3179,7 @@ describe('Component: Aggregation', () => {
         component.xList = [1, 3];
         component.yList = [2, 4];
 
-        component.refreshVisualization(true);
+        component.refreshVisualization();
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
             x: 1,
@@ -3235,7 +3253,9 @@ describe('Component: Aggregation', () => {
         component.options.dualView = 'filter';
         expect(component.showBothViews()).toEqual(false);
 
-        (component as any).isFiltered = () => true;
+        let fakeCollection = new FilterCollection();
+        spyOn(fakeCollection, 'getFilters').and.returnValue([null]);
+        spyOn(component['filterService'], 'retrieveCompatibleFilterCollection').and.returnValue(fakeCollection);
         expect(component.showBothViews()).toEqual(true);
     });
 

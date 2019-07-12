@@ -29,7 +29,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior } from '../../util/filter.util';
+import { FilterCollection, FilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -87,13 +87,13 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
+    protected designEachFilterWithNoValues(): FilterDesign[] {
         // This visualization does not filter.
         return [];
     }
@@ -206,10 +206,11 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(__options: any, __results: any[]): number {
+    transformVisualizationQueryResults(__options: any, __results: any[], __filters: FilterCollection): number {
         // Unused because we override handleTransformVisualizationQueryResults.
         return 0;
     }
@@ -248,7 +249,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        // Do nothing.
     }
 
     /**
