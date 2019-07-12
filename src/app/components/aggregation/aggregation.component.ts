@@ -78,6 +78,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { MatDialog } from '@angular/material';
+import { neonUtilities } from '../../models/neon-namespaces';
 
 @Component({
     selector: 'app-aggregation',
@@ -790,12 +791,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         let createTransformationFromItem = (item: any) => {
-            let group = options.groupField.columnName ? item[options.groupField.columnName] : this.DEFAULT_GROUP;
+            let group = options.groupField.columnName ? neonUtilities.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
             return {
                 color: findGroupColor(group),
                 group: group,
-                x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
+                x: neonUtilities.deepFind(item, options.xField.columnName),
+                y: isXY ? neonUtilities.deepFind(item, options.yField.columnName) :
+                    (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
             };
         };
 
