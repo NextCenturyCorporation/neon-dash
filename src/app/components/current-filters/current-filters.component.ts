@@ -16,107 +16,16 @@ import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { neonEvents } from '../../models/neon-namespaces';
 
 import { CompoundFilterType } from '../../services/abstract.search.service';
-import { FilterDesign, AbstractFilter, SimpleFilter, CompoundFilter } from '../../util/filter.util';
+import { AbstractFilter } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-
-import * as moment from 'moment';
 
 import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
 
-interface FilterDisplay {
-    full: FilterDesign;
-    text?: string;
-    field?: string;
-    op?: string;
-    value?: any;
-}
-
 interface FilterGroup {
     name: string;
     multi?: boolean;
-    filters?: FilterDisplay[];
-}
-
-export class FilterDisplayUtil {
-    static cleanValue(type: string, val: any) {
-        switch (type) {
-            case 'date': return moment(val).format('YYYY-MM-DD');
-            case 'geo': return parseFloat(val).toFixed(3);
-            default: return val;
-        }
-    }
-
-    static translateOperator(type: string, op: string) {
-        switch (type) {
-            case 'date': return op.replace(/^<=?$/, 'before').replace(/^>=?$/, 'after');
-            default: return op.replace(/^=$/g, 'is');
-        }
-    }
-
-    static isGeo(type: string, name: string) {
-        return type === 'double' && (/[.](lat|lon)$/i).test(name);
-    }
-
-    static computeFilter(filter: AbstractFilter): FilterDisplay {
-        let ret: Partial<FilterDisplay>;
-        if (filter instanceof SimpleFilter) {
-            ret = {
-                field: filter.field.prettyName,
-                value: this.cleanValue(filter.field.type, filter.value),
-                op: this.translateOperator(filter.field.type, filter.operator)
-            };
-        } else if (filter instanceof CompoundFilter) {
-            const simples = filter.filters.filter((nestedFilter) => nestedFilter instanceof SimpleFilter) as SimpleFilter[];
-            const latLongs = simples.filter((nestedFilter) => this.isGeo(nestedFilter.field.type, nestedFilter.field.prettyName));
-            const dates = simples.filter((nestedFilter) => nestedFilter.field.type === 'date');
-
-            if (filter.filters.length === 2) {
-                if (dates.length === 2) {
-                    ret = {
-                        field: dates[0].field.prettyName,
-                        op: 'between',
-                        value: `${this.cleanValue('date', dates[0].value)} and ${this.cleanValue('date', dates[1].value)}`
-                    };
-                } else if (latLongs.length === 2) {
-                    ret = {
-                        field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/i, ''),
-                        op: 'at',
-                        value: `(${this.cleanValue('geo', latLongs[0].value)}, ${this.cleanValue('geo', latLongs[1].value)})`
-                    };
-                }
-            } else if (filter.filters.length === 4) {
-                if (latLongs.length === 4) {
-                    ret = {
-                        field: latLongs[0].field.prettyName.replace(/[.](lat|lon)$/i, ''),
-                        op: 'from',
-                        value: [
-                            `(${this.cleanValue('geo', latLongs[0].value)}, ${this.cleanValue('geo', latLongs[1].value)})`,
-                            `(${this.cleanValue('geo', latLongs[2].value)}, ${this.cleanValue('geo', latLongs[3].value)})`
-                        ].join(' to ')
-                    };
-                }
-            }
-            if (!ret) {
-                const values = filter.filters
-                    .map((nestedFilter) => this.computeFilter(nestedFilter).text)
-                    .join(` ${filter.type} `.toUpperCase());
-
-                ret = { text: `(${values})` };
-            }
-        }
-        if (!ret.full) {
-            ret.full = filter.toDesign();
-        }
-        if (!ret.text) {
-            if (ret.field) {
-                ret.text = `${ret.field} ${ret.op} ${ret.value}`.replace(/\s+/g, ' ');
-            } else {
-                ret.text = ret.full.name;
-            }
-        }
-        return ret as FilterDisplay;
-    }
+    filters?: AbstractFilter[];
 }
 
 @Component({
@@ -151,37 +60,31 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
         this.updateFilters();
     }
 
-    remove(filter: FilterDisplay) {
-        this.filterService.deleteFilter('FilterList', filter.full);
+    remove(filter: AbstractFilter) {
+        this.filterService.deleteFilter('FilterList', filter.toDesign());
     }
 
     removeAll() {
         this.filterService.deleteFilters('FilterList', this.groups
-            .reduce((acc, group) => acc.concat(group.filters), [] as FilterDisplay[])
-            .map((filter) => filter.full));
+            .reduce((acc, group) => acc.concat(group.filters), [] as AbstractFilter[])
+            .map((filter) => filter.toDesign()));
     }
 
     updateFilters() {
         this.groups = [];
-        for (const rawFilter of this.filterService.getRawFilters()) {
-            const filter = FilterDisplayUtil.computeFilter(rawFilter);
-            if (filter.field) {
-                const fieldGroup = this.groups.find((group) => group.name === filter.field);
-                if (!fieldGroup) {
-                    this.groups.push({
-                        name: filter.field,
-                        filters: [filter]
-                    });
-                } else {
-                    fieldGroup.multi = true;
-                    fieldGroup.filters.push(filter);
-                    fieldGroup.filters.sort((group1, group2) => `${group1.value}`.localeCompare(`${group2.value}`));
-                }
-            } else {
+        for (const filter of this.filterService.getRawFilters()) {
+            const filterFieldLabel = filter.getLabelForField(true);
+            const fieldGroup = this.groups.find((group) => group.name === filterFieldLabel);
+            if (!fieldGroup) {
                 this.groups.push({
-                    name: 'Custom',
+                    name: filterFieldLabel,
                     filters: [filter]
                 });
+            } else {
+                fieldGroup.multi = true;
+                fieldGroup.filters.push(filter);
+                fieldGroup.filters.sort((group1, group2) =>
+                    `${group1.getLabelForValue(true)}`.localeCompare(`${group2.getLabelForValue(true)}`));
             }
         }
         this.groups.sort((group1, group2) => group1.name.localeCompare(group2.name));

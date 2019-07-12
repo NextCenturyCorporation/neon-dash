@@ -34,10 +34,11 @@ import {
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
+    AbstractFilter,
+    CompoundFilter,
     CompoundFilterDesign,
-    FilterBehavior,
+    FilterCollection,
     FilterDesign,
-    FilterUtil,
     SimpleFilterDesign
 } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -162,32 +163,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        let designs: FilterDesign[] = [];
 
         if (this.options.dateField.columnName) {
-            behaviors.push({
-                // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
-                filterDesign: this.createFilterDesignOnTimeline(),
-                redrawCallback: this.redrawTimelineFilter.bind(this)
-            });
+            // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
+            designs.push(this.createFilterDesignOnTimeline());
         }
 
         if (this.options.filterField.columnName) {
-            behaviors.push({
-                // Match a single EQUALS filter on the specific filter field.
-                filterDesign: this.createFilterDesignOnItem(this.options.filterField),
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
+            // Match a single EQUALS filter on the specific filter field.
+            designs.push(this.createFilterDesignOnItem(this.options.filterField));
         }
 
-        return behaviors;
+        return designs;
     }
 
     /**
@@ -235,6 +230,27 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+    }
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        // Add or remove the timeline chart brush depending on if the timeline is filtered.
+        let timelineFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnTimeline());
+        if (timelineFilters.length) {
+            // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
+            for (const timelineFilter of timelineFilters) {
+                let domain = (timelineFilter as CompoundFilter).asDomainFilter();
+                this.selected = [domain.lower.value, domain.upper.value];
+                // TODO THOR-1106 Update the brush element in the timelineChart.
+            }
+        } else {
+            this.selected = null;
+            this.timelineChart.clearBrush();
+        }
     }
 
     refreshVisualization() {
@@ -308,10 +324,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         // Convert all the dates into new Date objects
         if (options.filterField.columnName) {
             this.timelineQueryResults = results.reduce((itemBucket, currentItem) => {
@@ -345,6 +362,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 date: new Date(item[this.searchService.getAggregationName('date')])
             }));
         }
+
+        this.redrawFilters(filters);
 
         this.filterAndRefreshData(this.timelineQueryResults);
 
@@ -532,47 +551,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 return new YearBucketizer();
             default:
                 return null;
-        }
-    }
-
-    private redrawTimelineFilter(filters: FilterDesign[]): void {
-        let removeFilter = true;
-
-        // Find the begin date and end date inside the compound filter with an expected structure like createFilterDesignOnTimeline.
-        // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
-        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
-            let timeFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
-
-            if (timeFilter && timeFilter.filters.length === 2 && FilterUtil.isSimpleFilterDesign(timeFilter.filters[0]) &&
-                FilterUtil.isSimpleFilterDesign(timeFilter.filters[1])) {
-                let beginFilter: SimpleFilterDesign = (timeFilter.filters[0] as SimpleFilterDesign);
-                let endFilter: SimpleFilterDesign = (timeFilter.filters[1] as SimpleFilterDesign);
-
-                let beginDate;
-                let endDate;
-
-                if (beginFilter.operator === '>=' && endFilter.operator === '<=') {
-                    beginDate = beginFilter.value;
-                    endDate = endFilter.value;
-                }
-
-                // Switch the filters if needed.
-                if (beginFilter.operator === '<=' && endFilter.operator === '>=') {
-                    beginDate = endFilter.value;
-                    endDate = beginFilter.value;
-                }
-
-                if (beginDate instanceof Date && endDate instanceof Date) {
-                    this.selected = [beginDate, endDate];
-                    removeFilter = false;
-                    // TODO THOR-1106 Update the brush element in the timelineChart.
-                }
-            }
-        }
-
-        if (removeFilter && this.timelineChart) {
-            this.selected = null;
-            this.timelineChart.clearBrush();
         }
     }
 

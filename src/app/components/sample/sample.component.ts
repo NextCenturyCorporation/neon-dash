@@ -31,7 +31,7 @@ import {
     SortOrder
 } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
@@ -140,25 +140,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
+    protected designEachFilterWithNoValues(): FilterDesign[] {
         // Add a filter design callback on each specific filter field.
-        if (this.options.sampleRequiredField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesign(this.options.sampleRequiredField),
-                // No redraw callback:  The filtered text does not have its own HTML styles.
-                redrawCallback: () => { /* Do nothing */ }
-            });
-        }
-
-        return behaviors;
+        return this.options.sampleRequiredField.columnName ? [this.createFilterDesign(this.options.sampleRequiredField)] : [];
     }
 
     /**
@@ -322,10 +312,11 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], __filters: FilterCollection): number {
         // TODO Change this behavior as needed to handle your query results:  update and/or redraw and properties and/or subcomponents.
 
         // The aggregation query response data will have an _aggregation field and all visualization fields.

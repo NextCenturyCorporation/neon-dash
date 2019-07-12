@@ -15,17 +15,12 @@
 
 import { CompoundFilterType } from '../services/abstract.search.service';
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
-
-import * as uuidv4 from 'uuid/v4';
-import { DashboardState } from '../models/dashboard-state';
-import { ConfigUtil } from './config.util';
+import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
 
-export interface FilterBehavior {
-    filterDesign: FilterDesign;
-    redrawCallback(filters: AbstractFilter[]): void;
-}
+import * as _ from 'lodash';
+import * as moment from 'moment';
+import * as uuidv4 from 'uuid/v4';
 
 export interface FilterDataSource {
     datastoreName: string;
@@ -37,7 +32,6 @@ export interface FilterDataSource {
 
 export interface FilterDesign {
     id?: string;
-    name?: string;
     // By default, each filter with the same FilterDataSource will be combined into a single compound AND filter (its "root" filter) so all
     // of the search results will match all of the filters.  Each filter with a different "root" (and with the same FilterDataSource) will
     // be combined into a single compound filter with that CompoundFilterType.  Thus if some filters have "root=CompoundFilterType.OR" then
@@ -92,18 +86,6 @@ export class FilterUtil {
             list1.every((item1) => list2.some((item2) => this.areFilterDataSourcesEquivalent(item1, item2))) &&
             // Each FilterDataSource in list2 must be equivalent to a FilterDataSource in list1.
             list2.every((item2) => list2.some((item1) => this.areFilterDataSourcesEquivalent(item1, item2)));
-    }
-
-    /**
-     * Creates and returns the pretty name for the given database, table, and field.
-     *
-     * @arg {NeonDatabaseMetaData} database
-     * @arg {NeonTableMetaData} table
-     * @arg {NeonFieldMetaData} field
-     * @return {string}
-     */
-    static createFilterName(database: NeonDatabaseMetaData, table: NeonTableMetaData, field: NeonFieldMetaData, operator: string): string {
-        return database.prettyName + ' / ' + table.prettyName + ' / ' + field.prettyName + ' ' + operator.toUpperCase();
     }
 
     /**
@@ -163,14 +145,15 @@ export class FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dashboardState: DashboardState): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dataset: Dataset): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if ('database' in filterObject && 'table' in filterObject && 'field' in filterObject && 'operator' in filterObject) {
-            let database: NeonDatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
-            let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
-            let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            // TODO THOR-1062 Allow multiple datastores
+            let datastore: NeonDatastoreConfig = dataset.datastores[0];
+            let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
+            let table: NeonTableMetaData = database.tables[filterObject.table];
+            let field: NeonFieldMetaData = table.fields.filter((field) => field.columnName === filterObject.field)[0];
             return {
-                name: filterObject.name || '',
                 root: filterObject.root || '',
                 datastore: filterObject.datastore || '',
                 database,
@@ -183,11 +166,10 @@ export class FilterUtil {
 
         if ('filters' in filterObject && 'type' in filterObject) {
             return {
-                name: filterObject.name || '',
                 root: filterObject.root || '',
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
+                    this.createFilterDesignFromJsonObject(nestedObject, dataset))
             } as CompoundFilterDesign;
         }
 
@@ -210,8 +192,8 @@ export class FilterUtil {
                 filterDesign.field && filterDesign.field.columnName &&
                 filterDesign.operator && typeof filterDesign.value !== 'undefined') {
                 // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
-                filter = new SimpleFilter('', filterDesign.database, filterDesign.table, filterDesign.field,
-                    filterDesign.operator, filterDesign.value);
+                filter = new SimpleFilter('', filterDesign.database, filterDesign.table, filterDesign.field, filterDesign.operator,
+                    filterDesign.value);
             }
         } else if (this.isCompoundFilterDesign(filterDesign)) {
             filter = new CompoundFilter(filterDesign.type, filterDesign.filters.map((nestedDesign) =>
@@ -220,7 +202,6 @@ export class FilterUtil {
 
         if (filter) {
             filter.id = filterDesign.id || filter.id;
-            filter.name = filterDesign.name || filter.name;
             filter.root = filterDesign.root || CompoundFilterType.AND;
         }
 
@@ -236,7 +217,6 @@ export class FilterUtil {
     static createFilterJsonObjectFromDesign(filter: FilterDesign): FilterConfig {
         if (this.isSimpleFilterDesign(filter)) {
             return {
-                name: filter.name,
                 root: filter.root,
                 datastore: filter.datastore,
                 database: filter.database.name,
@@ -249,7 +229,6 @@ export class FilterUtil {
 
         if (this.isCompoundFilterDesign(filter)) {
             return {
-                name: filter.name,
                 root: filter.root,
                 type: filter.type,
                 filters: filter.filters
@@ -258,6 +237,14 @@ export class FilterUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Finds and returns the filter in the given list with the given field key (database.table.field) and operator.
+     */
+    static findFilterWithFieldKey(filters: SimpleFilter[], fieldKey: string, operator: string): SimpleFilter {
+        return filters.find((filter) => (filter.database.name + '.' + filter.table.name + '.' + filter.field.columnName) === fieldKey &&
+            filter.operator === operator);
     }
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
@@ -310,7 +297,6 @@ export class FilterUtil {
         if (simple[0] === 'and' || simple[0] === 'or') { // Complex filter
             const [operator, root, ...filters] = simple;
             return {
-                name: operator,
                 type: operator,
                 root: root || 'or',
                 filters: filters.map((val) => this.fromPlainFilterJSON(val))
@@ -323,17 +309,6 @@ export class FilterUtil {
             value,
             root: root || 'or'
         } as SimpleFilterConfig;
-    }
-
-    static toSimpleFilterQueryString(filters: FilterDesign[]): string {
-        return ConfigUtil.translate(JSON.stringify(this.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
-    }
-
-    static fromSimpleFilterQueryString(query: string): FilterConfig[] {
-        const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
-        const arr = JSON.parse(text) as any[];
-        const res = arr.map((val) => this.fromPlainFilterJSON(val));
-        return res;
     }
 }
 
@@ -368,6 +343,15 @@ export class FilterCollection {
     }
 
     /**
+     * Returns the list of filters in this filter collection that are compatible with the given filter design.
+     */
+    public getCompatibleFilters(filterDesign: FilterDesign): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterDesign);
+        let filterList: AbstractFilter[] = this.getFilters(filterDataSourceList);
+        return filterList.filter((filter) => filter.isCompatibleWithDesign(filterDesign));
+    }
+
+    /**
      * Returns the data sources within this collection.
      *
      * @return {FilterDataSource[][]}
@@ -379,10 +363,15 @@ export class FilterCollection {
     /**
      * Returns the filters for the given data source (or an existing matching data source within this collection).
      *
-     * @arg {FilterDataSource[]} filterDataSourceList
+     * @arg {FilterDataSource[]} [filterDataSourceList]
      * @return {AbstractFilter[]}
      */
-    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
+        if (!filterDataSourceList) {
+            return this.getDataSources().reduce((filterList, dataSourceList) => filterList.concat(this.getFilters(dataSourceList)),
+                [] as AbstractFilter[]);
+        }
+
         if (this.data.has(filterDataSourceList)) {
             return this.data.get(filterDataSourceList) || [];
         }
@@ -402,6 +391,13 @@ export class FilterCollection {
         this.data.set(filterDataSourceList, []);
 
         return this.data.get(filterDataSourceList);
+    }
+
+    /**
+     * Returns if this filter collection contains any filters (optionally, matching the given filter design).
+     */
+    public isFiltered(filterDesign?: FilterDesign): boolean {
+        return filterDesign ? !!this.getCompatibleFilters(filterDesign).length : !!this.getFilters().length;
     }
 
     /**
@@ -438,7 +434,6 @@ export class FilterCollection {
 
 export abstract class AbstractFilter {
     public id: string;
-    public name: string;
     public root: CompoundFilterType = CompoundFilterType.AND;
     public relations: string[] = [];
 
@@ -471,6 +466,35 @@ export abstract class AbstractFilter {
     public abstract doesAffectSearch(datastore: string, database: string, table: string): boolean;
 
     /**
+     * Returns the label for the filter.
+     */
+    public getLabel(): string {
+        let operator = this.getLabelForOperator();
+        return this.getLabelForField() + ' ' + (operator ? (operator + ' ') : '') + this.getLabelForValue();
+    }
+
+    /**
+     * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @abstract
+     */
+    public abstract getLabelForField(abridged?: boolean): string;
+
+    /**
+     * Returns the label for the filter's operator.
+     *
+     * @abstract
+     */
+    public abstract getLabelForOperator(): string;
+
+    /**
+     * Returns the label for the filter's value(s).
+     *
+     * @abstract
+     */
+    public abstract getLabelForValue(abridged?: boolean): string;
+
+    /**
      * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
      *
      * @arg {FilterDesign} filterDesign
@@ -495,24 +519,6 @@ export abstract class AbstractFilter {
      * @abstract
      */
     public abstract toDesign(): FilterDesign;
-
-    /**
-     * Returns the string form of this filter.
-     *
-     * @return {string}
-     * @protected
-     * @abstract
-     */
-    protected abstract toStringHelper(): string;
-
-    /**
-     * Returns the string form of this filter.
-     *
-     * @return {string}
-     */
-    public toString(): string {
-        return this.name || this.toStringHelper();
-    }
 }
 
 export class SimpleFilter extends AbstractFilter {
@@ -525,7 +531,6 @@ export class SimpleFilter extends AbstractFilter {
         public value: any
     ) {
         super();
-        this.name = this.toString();
     }
 
     /**
@@ -552,8 +557,8 @@ export class SimpleFilter extends AbstractFilter {
 
                 if (substitute.database && substitute.database.name && substitute.table && substitute.table.name &&
                     substitute.field && substitute.field.columnName) {
-                    relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table,
-                        substitute.field, this.operator, this.value);
+                    relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table, substitute.field,
+                        this.operator, this.value);
                     relationFilter.root = this.root;
                 }
             }
@@ -572,6 +577,50 @@ export class SimpleFilter extends AbstractFilter {
      */
     public doesAffectSearch(datastore: string, database: string, table: string): boolean {
         return datastore === this.datastore && database === this.database.name && table === this.table.name;
+    }
+
+    /**
+     * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
+     */
+    public getLabelForField(abridged: boolean = false): string {
+        return abridged ? this.field.prettyName : (this.database.prettyName + ' / ' + this.table.prettyName + ' / ' +
+            this.field.prettyName);
+    }
+
+    /**
+     * Returns the label for the filter's operator.
+     *
+     * @abstract
+     */
+    public getLabelForOperator(): string {
+        if (this.field.type === 'date') {
+            if (this.operator === '<' || this.operator === '<=') {
+                return 'before';
+            }
+            if (this.operator === '>' || this.operator === '>=') {
+                return 'after';
+            }
+        }
+        return this.operator === '=' ? '' : this.operator;
+    }
+
+    /**
+     * Returns the label for the filter's value(s).
+     *
+     * @abstract
+     */
+    public getLabelForValue(__abridged: boolean = false): string {
+        if (this.field.type === 'date' || this.value instanceof Date) {
+            // TODO THOR-1259 Let user switch from UTC to local time
+            // TODO THOR-1329 If hour or minutes are not zero, add hour and minutes and seconds to output string format.
+            return moment.utc(this.value).format('YYYY-MM-DD');
+        }
+        if (typeof this.value === 'number') {
+            return '' + (this.value % 1 === 0 ? this.value : parseFloat('' + this.value).toFixed(3));
+        }
+        return this.value === '' ? '<empty>' : this.value;
     }
 
     /**
@@ -611,7 +660,6 @@ export class SimpleFilter extends AbstractFilter {
     public toDesign(): FilterDesign {
         return {
             id: this.id,
-            name: this.name,
             root: this.root,
             datastore: this.datastore,
             database: this.database,
@@ -621,25 +669,81 @@ export class SimpleFilter extends AbstractFilter {
             value: this.value
         } as SimpleFilterDesign;
     }
-
-    /**
-     * Returns the string form of this filter.
-     *
-     * @return {string}
-     * @protected
-     */
-    protected toStringHelper(): string {
-        let prettyValue = this.value instanceof Date ? ((this.value.getUTCMonth() + 1) + '-' + this.value.getUTCDate() + '-' +
-            this.value.getUTCFullYear()) : this.value;
-        // EX:  database.table.field = value
-        return FilterUtil.createFilterName(this.database, this.table, this.field, this.operator) + ' ' + prettyValue;
-    }
 }
 
 export class CompoundFilter extends AbstractFilter {
-    constructor(public type: CompoundFilterType, public filters: AbstractFilter[]) {
+    constructor(
+        public type: CompoundFilterType,
+        public filters: AbstractFilter[]
+    ) {
         super();
-        this.name = this.toString();
+    }
+
+    public asBoundsFilter(): { lowerA: SimpleFilter, lowerB: SimpleFilter, upperA: SimpleFilter, upperB: SimpleFilter } {
+        if (this.type === CompoundFilterType.AND && this.filters.length === 4 &&
+            this.filters.every((filter) => filter instanceof SimpleFilter)) {
+            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
+                let simple = filter as SimpleFilter;
+                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
+            }));
+
+            if (uniqueFieldKeys.length === 2) {
+                let boundsFilter = {
+                    lowerA: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '>='),
+                    lowerB: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[1], '>='),
+                    upperA: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '<='),
+                    upperB: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[1], '<=')
+                };
+                return (boundsFilter.lowerA && boundsFilter.lowerB && boundsFilter.upperA && boundsFilter.upperB) ? boundsFilter : null;
+            }
+        }
+        return null;
+    }
+
+    public asDomainFilter(): { lower: SimpleFilter, upper: SimpleFilter } {
+        if (this.type === CompoundFilterType.AND && this.filters.length === 2 &&
+            this.filters.every((filter) => filter instanceof SimpleFilter)) {
+            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
+                let simple = filter as SimpleFilter;
+                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
+            }));
+
+            if (uniqueFieldKeys.length === 1) {
+                let domainFilter = {
+                    lower: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '>='),
+                    upper: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '<=')
+                };
+                return (domainFilter.lower && domainFilter.upper) ? domainFilter : null;
+            }
+        }
+        return null;
+    }
+
+    public asListFilter(): SimpleFilter[] {
+        if (this.filters.length && this.filters.every((filter) => filter instanceof SimpleFilter)) {
+            let sample = this.filters[0] as SimpleFilter;
+            let fieldKey = sample.database.name + '.' + sample.table.name + '.' + sample.field.columnName;
+            let operator = sample.operator;
+
+            return this.filters.every((filter) => {
+                let simple = filter as SimpleFilter;
+                return (simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName) === fieldKey &&
+                    simple.operator === operator;
+            }) ? this.filters as SimpleFilter[] : null;
+        }
+        return null;
+    }
+
+    public asPairFilter(): SimpleFilter[] {
+        if (this.type === CompoundFilterType.AND && this.filters.length === 2 &&
+            this.filters.every((filter) => filter instanceof SimpleFilter)) {
+            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
+                let simple = filter as SimpleFilter;
+                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
+            }));
+            return uniqueFieldKeys.length === 2 ? this.filters as SimpleFilter[] : null;
+        }
+        return null;
     }
 
     /**
@@ -683,6 +787,133 @@ export class CompoundFilter extends AbstractFilter {
      */
     public doesAffectSearch(datastore: string, database: string, table: string): boolean {
         return this.filters.some((nested) => nested.doesAffectSearch(datastore, database, table));
+    }
+
+    private _getFiltersByField(abridged: boolean = false): Record<string, AbstractFilter[]> {
+        return this.filters.reduce((collection, filter) => {
+            let field = filter.getLabelForField(abridged);
+            collection[field] = collection[field] || [];
+            collection[field].push(filter);
+            return collection;
+        }, {}) as Record<string, AbstractFilter[]>;
+    }
+
+    private _getLabelForDualFields(one: string, two: string): string {
+        let oneNestedFields: string[] = one.split('.');
+        let twoNestedFields: string[] = two.split('.');
+        if (oneNestedFields.length === twoNestedFields.length && oneNestedFields.length > 1) {
+            let oneFieldsPrefix = one.substring(0, one.lastIndexOf('.'));
+            if (oneFieldsPrefix === two.substring(0, two.lastIndexOf('.'))) {
+                return oneFieldsPrefix;
+            }
+        }
+        return one + ' ' + this.type + ' ' + two;
+    }
+
+    /**
+     * Returns the label for the filter's field(s).  Also returns the database and table if abridged is false.
+     *
+     * @override
+     */
+    public getLabelForField(abridged: boolean = false): string {
+        let boundsFilter = this.asBoundsFilter();
+        if (boundsFilter) {
+            return this._getLabelForDualFields(boundsFilter.lowerA.getLabelForField(abridged),
+                boundsFilter.lowerB.getLabelForField(abridged));
+        }
+
+        let domainFilter = this.asDomainFilter();
+        if (domainFilter) {
+            return domainFilter.lower.getLabelForField(abridged);
+        }
+
+        let listFilter = this.asListFilter();
+        if (listFilter) {
+            return listFilter[0].getLabelForField(abridged);
+        }
+
+        let pairFilter = this.asPairFilter();
+        if (pairFilter) {
+            return this._getLabelForDualFields(pairFilter[0].getLabelForField(abridged), pairFilter[1].getLabelForField(abridged));
+        }
+
+        return '';
+    }
+
+    /**
+     * Returns the label for the filter's operator.
+     *
+     * @abstract
+     */
+    public getLabelForOperator(): string {
+        return '';
+    }
+
+    /**
+     * Returns the label for the filter's value(s).
+     *
+     * @abstract
+     */
+    public getLabelForValue(abridged: boolean = false): string {
+        let boundsFilter = this.asBoundsFilter();
+        if (boundsFilter) {
+            return 'from (' + boundsFilter.lowerA.getLabelForValue(abridged) + ', ' + boundsFilter.lowerB.getLabelForValue(abridged) +
+                ') to (' + boundsFilter.upperA.getLabelForValue(abridged) + ', ' + boundsFilter.upperB.getLabelForValue(abridged) + ')';
+        }
+
+        let domainFilter = this.asDomainFilter();
+        if (domainFilter) {
+            return 'between ' + domainFilter.lower.getLabelForValue(abridged) + ' and ' + domainFilter.upper.getLabelForValue(abridged);
+        }
+
+        let listFilter = this.asListFilter();
+        if (listFilter) {
+            // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
+            let values: any[] = listFilter.slice(0, 5).map((filter) => filter.getLabelForValue(abridged));
+            let suffix = (listFilter.length > 5 ? (' ' + this.type + ' ' + (listFilter.length - 5) + ' more...') : '');
+            let operator = listFilter[0].getLabelForOperator();
+            // Do not show the operator if it is empty.
+            return (operator ? (operator + ' ') : '') + values.join(' ' + this.type + ' ') + suffix;
+        }
+
+        let pairFilter = this.asPairFilter();
+        if (pairFilter) {
+            let operatorOne = pairFilter[0].getLabelForOperator();
+            let operatorTwo = pairFilter[1].getLabelForOperator();
+            // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
+            if (operatorOne === operatorTwo) {
+                return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+                    pairFilter[1].getLabelForValue(abridged);
+            }
+            // Do not show the operator if it is empty.
+            return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+                (operatorTwo ? (operatorTwo + ' ') : '') + pairFilter[1].getLabelForValue(abridged);
+        }
+
+        // TODO THOR-1333 Improve label for custom compound filter
+
+        // Group the filters by unique field.
+        const filtersByField: Record<string, AbstractFilter[]> = this._getFiltersByField(abridged);
+        return '(' + Object.keys(filtersByField).reduce((list, field) => {
+            let valuesByOperator: Record<string, any[]> = {};
+            // Group the values by unique operator.
+            filtersByField[field].forEach((filter) => {
+                let operator = filter.getLabelForOperator();
+                valuesByOperator[operator] = valuesByOperator[operator] || [];
+                valuesByOperator[operator].push(filter.getLabelForValue(abridged));
+            });
+            let labels: string[] = Object.keys(valuesByOperator).map((operator) => {
+                // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
+                let values: any[] = valuesByOperator[operator].slice(0, 5);
+                let suffix = (valuesByOperator[operator].length > 5 ? (' ' + this.type + ' ' + (valuesByOperator[operator].length - 5) +
+                    ' more...') : '');
+                // Do not show the operator if each operator is the same or if it is empty.  Do not show parentheses around only one value.
+                return (operator ? (operator + ' ') : '') + (values.length > 1 ?
+                    ('(' + values.join(', ') + suffix + ')') : (values[0] + suffix));
+            });
+            // Do not show parentheses around only one operator.
+            return list.concat(field + ' ' + (labels.length > 1 ? ('(' + labels.join(' ' + this.type + ' ') + ')') : labels[0]));
+        }, []).join(') ' + this.type + ' (') + ')';
     }
 
     /**
@@ -744,37 +975,10 @@ export class CompoundFilter extends AbstractFilter {
     public toDesign(): FilterDesign {
         return {
             id: this.id,
-            name: this.name,
             root: this.root,
             type: this.type,
             filters: this.filters.map((filter) => filter.toDesign())
         } as CompoundFilterDesign;
     }
-
-    /**
-     * Returns the string form of this filter.
-     *
-     * @return {string}
-     * @protected
-     */
-    protected toStringHelper(): string {
-        // With too many nested filters (arbitrarily more than 5), the name gets too long, so abbreviate it.
-        // EX:  (fieldA : 5 Filters) AND (fieldB : 1 Filter)
-        if (this.filters.length > 5) {
-            let filterNameCollection: Map<string, number> = new Map<string, number>();
-            this.filters.forEach((filter) => {
-                let filterName = filter instanceof SimpleFilter ? FilterUtil.createFilterName(filter.database, filter.table, filter.field,
-                    filter.operator) : filter.toString();
-                let priorCount = filterNameCollection.get(filterName) || 0;
-                filterNameCollection.set(filterName, priorCount + 1);
-            });
-            return '(' + Array.from(filterNameCollection.keys()).map((filterName) => {
-                let typeString = this.type === CompoundFilterType.AND ? 'ALL OF ' : 'ONE OF ';
-                let totalCount = filterNameCollection.get(filterName);
-                return filterName + ' ' + typeString + totalCount + ' FILTER' + (totalCount > 1 ? 'S' : '');
-            }).join(') ' + this.type + ' (') + ')';
-        }
-        // EX:  (fieldA != value1) AND ((fieldB = value2) OR (fieldB = value3))
-        return '(' + this.filters.map((filter) => filter.toString()).join(') ' + this.type + ' (') + ')';
-    }
 }
+
