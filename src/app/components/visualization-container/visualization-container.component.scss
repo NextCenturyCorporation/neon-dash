@@ -22,8 +22,13 @@
     box-sizing: border-box;
     position: relative;
     grid-template-rows: minmax(0, 1fr);
-    grid-template-areas:
-        'content';
+    grid-template-areas: 'content';
+
+    &.moving {
+        .visualization-toolbar {
+            display: grid;
+        }
+    }
 }
 
 .settings {
@@ -32,12 +37,6 @@
     right: 5px;
     transform: translate(30%, -10%) scale(0.7, 0.7);
     color: var(--color-text, black);
-}
-
-:host.moving {
-   .visualization-toolbar {
-        display: grid;
-    }
 }
 
 .visualization-toolbar {
@@ -68,9 +67,14 @@
         text-align: center;
     }
 
-    &:hover .drag-handle {
+    & .drag-handle {
         color: white;
+        transition: 0.25s all ease-in-out;
         background: rgba(0, 0, 0, 0.3);
+    }
+
+    &:hover .drag-handle {
+        background: rgba(0, 0, 0, 0.5);
     }
 }
 

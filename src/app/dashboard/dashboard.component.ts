@@ -464,6 +464,10 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
     }
 
+    toggleGlobalMoving() {
+        this.globalMoveWidgets = !this.globalMoveWidgets;
+    }
+
     @DashboardModified()
     onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) {
         this._filterChangeData = {

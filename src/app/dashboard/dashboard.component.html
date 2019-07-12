@@ -68,8 +68,8 @@
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
-                <button mat-menu-item (click)="globalMoveWidgets = !globalMoveWidgets">
-                    <mat-icon>configure</mat-icon>{{globalMoveWidgets ? 'End ':''}}Configure Dashboard
+                <button mat-menu-item (click)="toggleGlobalMoving()">
+                    <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
                 </button>
                 <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
                     <mat-icon>info</mat-icon>About the Neon Dashboard
@@ -90,7 +90,7 @@
         <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog()" [class.visible]="showDashboardSelector">
         </app-dashboard-selector>
 
-        <div class="neon-dash" mat-fill layout="col" #scrollable>
+        <div class="neon-dash" mat-fill layout="col" #scrollable [class.moving]="movingWidgets || globalMoveWidgets">
             <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
                 <mat-tab class="tab" *ngFor="let tab of gridState.tabs" [label]="tab.name"></mat-tab>
             </mat-tab-group>
@@ -100,8 +100,9 @@
                         <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
                             name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)" [contextMenu]="vizMenu"
                             [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)" (onResizeStop)="onResizeStop(i, $event)"
-                            (onDragStop)="onDragStop(i, $event)" [class.moving]="movingWidgets">
-                            <app-visualization-container [moving]="movingWidgets" [visualization]="widgetGridItem"></app-visualization-container>
+                            (onDragStop)="onDragStop(i, $event)" [class.moving]="movingWidgets || globalMoveWidgets">
+                            <app-visualization-container [moving]="movingWidgets || globalMoveWidgets" [visualization]="widgetGridItem">
+                            </app-visualization-container>
                             <ng-content></ng-content>
                         </div>
                     </div>
