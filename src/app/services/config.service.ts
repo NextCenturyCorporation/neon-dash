@@ -103,6 +103,10 @@ export class ConfigService {
             this.configErrors = [];
         }
 
+        if (config.neonServerUrl) {
+            neon.setNeonServerUrl(config.neonServerUrl);
+        }
+
         let dash: NeonDashboardLeafConfig;
 
         ConfigUtil.nameDashboards(config.dashboards, config.fileName || '');
