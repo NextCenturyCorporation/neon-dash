@@ -33,8 +33,7 @@ import {
     FilterClause,
     QueryGroup,
     QueryPayload,
-    SortOrder,
-    TimeInterval
+    SortOrder
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -64,6 +63,7 @@ import { ListSubcomponent } from './subcomponent.list';
 import {
     AggregationType,
     OptionChoices,
+    TimeInterval,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNumberOption,
@@ -274,19 +274,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         if (options.xField.type === 'date') {
             switch (options.granularity) {
-                case 'minute':
+                case TimeInterval.MINUTE:
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MINUTE));
                 // Falls through
-                case 'hour':
+                case TimeInterval.HOUR:
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.HOUR));
                 // Falls through
-                case 'day':
+                case TimeInterval.DAY_OF_MONTH:
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.DAY_OF_MONTH));
                 // Falls through
-                case 'month':
+                case TimeInterval.MONTH:
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.MONTH));
                 // Falls through
-                case 'year':
+                case TimeInterval.YEAR:
                     groups.push(this.searchService.buildDateQueryGroup(options.xField.columnName, TimeInterval.YEAR));
                 // Falls through
             }
@@ -417,7 +417,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 this.optionsTypeIsNotXY.bind(this)),
             new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity,
+            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity,
                 this.optionsXFieldIsDate.bind(this)),
             new WidgetSelectOption('dualView', 'Dual View', '', [{
                 prettyName: 'Always Off',
@@ -809,18 +809,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (options.xField.type === 'date' && queryResults.length) {
             // Transform date data.
             switch (options.granularity) {
-                case 'minute':
-                case 'hour':
+                case TimeInterval.MINUTE:
+                case TimeInterval.HOUR:
                     this.dateBucketizer = new DateBucketizer();
                     this.dateBucketizer.setGranularity(DateBucketizer.HOUR);
                     break;
-                case 'day':
+                case TimeInterval.DAY_OF_MONTH:
                     this.dateBucketizer = new DateBucketizer();
                     break;
-                case 'month':
+                case TimeInterval.MONTH:
                     this.dateBucketizer = new MonthBucketizer();
                     break;
-                case 'year':
+                case TimeInterval.YEAR:
                     this.dateBucketizer = new YearBucketizer();
                     break;
             }
@@ -835,8 +835,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             let groupToTransformations = new Map<string, any[]>();
 
             // Add 1 to the domain length for months or years because the month and year bucketizers are not inclusive.
-            let xDomainLength = this.dateBucketizer.getNumBuckets() + (options.granularity === 'month' ||
-                options.granularity === 'year' ? 1 : 0);
+            let xDomainLength = this.dateBucketizer.getNumBuckets() + (options.granularity === TimeInterval.MONTH ||
+                options.granularity === TimeInterval.YEAR ? 1 : 0);
 
             // Create the X list now so it is properly sorted.  Items will be removed as needed.
             xList = _.range(xDomainLength).map((index) => moment(this.dateBucketizer.getDateForBucket(index)).toISOString());

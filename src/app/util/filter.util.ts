@@ -152,7 +152,7 @@ export class FilterUtil {
             let datastore: NeonDatastoreConfig = dataset.datastores[0];
             let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
             let table: NeonTableMetaData = database.tables[filterObject.table];
-            let field: NeonFieldMetaData = table.fields.filter((field) => field.columnName === filterObject.field)[0];
+            let field: NeonFieldMetaData = table.fields.filter((element) => element.columnName === filterObject.field)[0];
             return {
                 root: filterObject.root || '',
                 datastore: filterObject.datastore || '',
