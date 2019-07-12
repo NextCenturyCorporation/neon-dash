@@ -25,7 +25,7 @@ import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType } from '../../models/widget-option';
+import { AggregationType, TimeInterval } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, SimpleFilterDesign } from '../../services/filter.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -590,7 +590,7 @@ describe('Component: Aggregation', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.aggregation = AggregationType.SUM;
         component.options.aggregationField = DashboardServiceMock.FIELD_MAP.SIZE;
-        component.options.granularity = 'minute';
+        component.options.granularity = TimeInterval.MINUTE;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
@@ -2092,7 +2092,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with XY date data does return expected data', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
 
@@ -2124,7 +2124,7 @@ describe('Component: Aggregation', () => {
 
     it('transformVisualizationQueryResults with aggregated date data does return expected data', () => {
         component.options.countByAggregation = true;
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -2220,7 +2220,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with savePrevious=true does keep previous xList date data', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.savePrevious = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
@@ -2263,7 +2263,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with timeFill=true does add empty dates if needed', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.timeFill = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
@@ -2302,7 +2302,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with timeFill=true does not add empty dates if not needed', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.timeFill = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.yField = DashboardServiceMock.FIELD_MAP.Y;
@@ -2355,7 +2355,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with timeFill=true and groups does add empty dates to separate groups if needed', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.timeFill = true;
         component.options.groupField = DashboardServiceMock.FIELD_MAP.CATEGORY;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
@@ -2433,7 +2433,7 @@ describe('Component: Aggregation', () => {
     it('transformVisualizationQueryResults with savePrevious=true and timeFill=true does work as expected', () => {
         component.options.countByAggregation = true;
         component.options.type = 'line-xy';
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
         component.options.savePrevious = true;
         component.options.timeFill = true;
         component.options.xField = DashboardServiceMock.FIELD_MAP.DATE;
@@ -3974,7 +3974,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
             { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: 'day' },
+            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
             { provide: 'ignoreSelf', useValue: true },
@@ -4024,7 +4024,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
-        expect(component.options.granularity).toEqual('day');
+        expect(component.options.granularity).toEqual(TimeInterval.DAY_OF_MONTH);
         expect(component.options.hideGridLines).toEqual(true);
         expect(component.options.hideGridTicks).toEqual(true);
         expect(component.options.ignoreSelf).toEqual(true);
@@ -4075,7 +4075,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'xField', useValue: 'testXField' },
             { provide: 'yField', useValue: 'testYField' },
             { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: 'day' },
+            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
             { provide: 'ignoreSelf', useValue: true },
@@ -4119,7 +4119,7 @@ describe('Component: Aggregation with XY config', () => {
         expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
-        expect(component.options.granularity).toEqual('day');
+        expect(component.options.granularity).toEqual(TimeInterval.DAY_OF_MONTH);
         expect(component.options.hideGridLines).toEqual(true);
         expect(component.options.hideGridTicks).toEqual(true);
         expect(component.options.ignoreSelf).toEqual(true);
@@ -4176,7 +4176,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'xField', useValue: 'testDateField' },
             { provide: 'yField', useValue: 'testYField' },
             { provide: 'aggregation', useValue: AggregationType.SUM },
-            { provide: 'granularity', useValue: 'day' },
+            { provide: 'granularity', useValue: TimeInterval.DAY_OF_MONTH },
             { provide: 'hideGridLines', useValue: true },
             { provide: 'hideGridTicks', useValue: true },
             { provide: 'ignoreSelf', useValue: true },
@@ -4226,7 +4226,7 @@ describe('Component: Aggregation with date config', () => {
         expect(component.options.yField).toEqual(DashboardServiceMock.FIELD_MAP.Y);
 
         expect(component.options.aggregation).toEqual(AggregationType.SUM);
-        expect(component.options.granularity).toEqual('day');
+        expect(component.options.granularity).toEqual(TimeInterval.DAY_OF_MONTH);
         expect(component.options.hideGridLines).toEqual(true);
         expect(component.options.hideGridTicks).toEqual(true);
         expect(component.options.ignoreSelf).toEqual(true);

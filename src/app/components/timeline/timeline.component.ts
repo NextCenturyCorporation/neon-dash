@@ -28,8 +28,7 @@ import {
     AbstractSearchService,
     CompoundFilterType,
     FilterClause,
-    QueryPayload,
-    TimeInterval
+    QueryPayload
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -49,6 +48,7 @@ import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionChoices,
+    TimeInterval,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -156,7 +156,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', true),
             new WidgetFieldOption('idField', 'Id Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
+            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity),
             new WidgetFreeTextOption('yLabel', 'Count', '')
         ];
     }
@@ -196,8 +196,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     constructVisualization() {
-        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
-        this.timelineData.granularity = this.options.granularity;
+        this.timelineData.focusGranularityDifferent = this.options.granularity === TimeInterval.MINUTE;
+        this.timelineData.granularity = this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
 
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
@@ -276,19 +276,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
-            case 'minute':
+            case TimeInterval.MINUTE:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
             // Falls through
-            case 'hour':
+            case TimeInterval.HOUR:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
             // Falls through
-            case 'day':
+            case TimeInterval.DAY_OF_MONTH:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
             // Falls through
-            case 'month':
+            case TimeInterval.MONTH:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
             // Falls through
-            case 'year':
+            case TimeInterval.YEAR:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
             // Falls through
         }
@@ -365,31 +365,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             let currentYear = currentDate.getUTCFullYear();
 
             switch (this.options.granularity) {
-                case 'minute':
+                case TimeInterval.MINUTE:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCSeconds(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCSeconds(59));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'hour':
+                case TimeInterval.HOUR:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCMinutes(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCMinutes(59));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'day':
+                case TimeInterval.DAY_OF_MONTH:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCHours(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCHours(23));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'month':
+                case TimeInterval.MONTH:
                     return previousItems.find((item) => {
                         let prevMonth = new Date(item.origDate).getUTCMonth();
                         let prevYear = new Date(item.origDate).getUTCFullYear();
                         return (prevMonth === currentMonth && prevYear === currentYear) ? item : undefined;
                     });
-                case 'year':
+                case TimeInterval.YEAR:
                     return previousItems.find((item) => {
                         let prevYear = new Date(item.origDate).getUTCFullYear();
                         return (prevYear === currentYear) ? item : undefined;
@@ -421,7 +421,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Start date will be the first entry, and the end date will be the last
             series.startDate = data[0].date;
             let lastDate = data[data.length - 1].date;
-            series.endDate = d3.time[this.options.granularity]
+            series.endDate = d3.time[this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity]
                 .utc.offset(lastDate, 1);
 
             // If we have a bucketizer, use it
@@ -512,23 +512,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     onChangeData() {
-        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
+        this.timelineData.focusGranularityDifferent = this.options.granularity === TimeInterval.MINUTE;
         this.timelineData.bucketizer = this.getBucketizer();
-        this.timelineData.granularity = this.options.granularity;
+        this.timelineData.granularity = this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity;
     }
 
     getBucketizer() {
         let dayBucketizer = new DateBucketizer();
-        switch (this.options.granularity.toLowerCase()) {
-            case 'minute':
-            case 'hour':
+        switch (this.options.granularity) {
+            case TimeInterval.MINUTE:
+            case TimeInterval.HOUR:
                 dayBucketizer.setGranularity(DateBucketizer.HOUR);
                 return dayBucketizer;
-            case 'day':
+            case TimeInterval.DAY_OF_MONTH:
                 return dayBucketizer;
-            case 'month':
+            case TimeInterval.MONTH:
                 return new MonthBucketizer();
-            case 'year':
+            case TimeInterval.YEAR:
                 return new YearBucketizer();
             default:
                 return null;
