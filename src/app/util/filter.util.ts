@@ -15,20 +15,12 @@
 
 import { CompoundFilterType } from '../services/abstract.search.service';
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
-
-import { DashboardState } from '../models/dashboard-state';
-import { ConfigUtil } from './config.util';
+import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as uuidv4 from 'uuid/v4';
-
-export interface FilterBehavior {
-    filterDesign: FilterDesign;
-    redrawCallback(filters: AbstractFilter[]): void;
-}
 
 export interface FilterDataSource {
     datastoreName: string;
@@ -153,12 +145,14 @@ export class FilterUtil {
      * @arg {any} filterObject
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dashboardState: DashboardState): FilterDesign {
+    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dataset: Dataset): FilterDesign {
         // TODO THOR-1078 Validate that datastore is non-empty.
         if ('database' in filterObject && 'table' in filterObject && 'field' in filterObject && 'operator' in filterObject) {
-            let database: NeonDatabaseMetaData = dashboardState.getDatabaseWithName(filterObject.database);
-            let table: NeonTableMetaData = dashboardState.getTableWithName(filterObject.database, filterObject.table);
-            let field: NeonFieldMetaData = dashboardState.getFieldWithName(filterObject.database, filterObject.table, filterObject.field);
+            // TODO THOR-1062 Allow multiple datastores
+            let datastore: NeonDatastoreConfig = dataset.datastores[0];
+            let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
+            let table: NeonTableMetaData = database.tables[filterObject.table];
+            let field: NeonFieldMetaData = table.fields.filter((field) => field.columnName === filterObject.field)[0];
             return {
                 root: filterObject.root || '',
                 datastore: filterObject.datastore || '',
@@ -175,7 +169,7 @@ export class FilterUtil {
                 root: filterObject.root || '',
                 type: filterObject.type,
                 filters: filterObject.filters.map((nestedObject) =>
-                    this.createFilterDesignFromJsonObject(nestedObject, dashboardState))
+                    this.createFilterDesignFromJsonObject(nestedObject, dataset))
             } as CompoundFilterDesign;
         }
 
@@ -316,17 +310,6 @@ export class FilterUtil {
             root: root || 'or'
         } as SimpleFilterConfig;
     }
-
-    static toSimpleFilterQueryString(filters: FilterDesign[]): string {
-        return ConfigUtil.translate(JSON.stringify(this.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
-    }
-
-    static fromSimpleFilterQueryString(query: string): FilterConfig[] {
-        const text = ConfigUtil.translate(query, ConfigUtil.decodeFiltersMap);
-        const arr = JSON.parse(text) as any[];
-        const res = arr.map((val) => this.fromPlainFilterJSON(val));
-        return res;
-    }
 }
 
 export class FilterCollection {
@@ -360,6 +343,15 @@ export class FilterCollection {
     }
 
     /**
+     * Returns the list of filters in this filter collection that are compatible with the given filter design.
+     */
+    public getCompatibleFilters(filterDesign: FilterDesign): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterDesign);
+        let filterList: AbstractFilter[] = this.getFilters(filterDataSourceList);
+        return filterList.filter((filter) => filter.isCompatibleWithDesign(filterDesign));
+    }
+
+    /**
      * Returns the data sources within this collection.
      *
      * @return {FilterDataSource[][]}
@@ -371,10 +363,15 @@ export class FilterCollection {
     /**
      * Returns the filters for the given data source (or an existing matching data source within this collection).
      *
-     * @arg {FilterDataSource[]} filterDataSourceList
+     * @arg {FilterDataSource[]} [filterDataSourceList]
      * @return {AbstractFilter[]}
      */
-    public getFilters(filterDataSourceList: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
+        if (!filterDataSourceList) {
+            return this.getDataSources().reduce((filterList, dataSourceList) => filterList.concat(this.getFilters(dataSourceList)),
+                [] as AbstractFilter[]);
+        }
+
         if (this.data.has(filterDataSourceList)) {
             return this.data.get(filterDataSourceList) || [];
         }
@@ -394,6 +391,13 @@ export class FilterCollection {
         this.data.set(filterDataSourceList, []);
 
         return this.data.get(filterDataSourceList);
+    }
+
+    /**
+     * Returns if this filter collection contains any filters (optionally, matching the given filter design).
+     */
+    public isFiltered(filterDesign?: FilterDesign): boolean {
+        return filterDesign ? !!this.getCompatibleFilters(filterDesign).length : !!this.getFilters().length;
     }
 
     /**

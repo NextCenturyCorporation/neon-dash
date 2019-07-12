@@ -16,7 +16,6 @@
 @import '../base-neon-component/base-neon.component';
 
 :host {
-
     .text-cloud {
         overflow-wrap: break-word;
         display: inline-block;
@@ -33,6 +32,8 @@
         }
 
         .filter {
+            font-weight: 900;
+
             &:not(:hover) {
                 color: var(--color-data-item-selectable-contrast, dimgrey) !important;
             }

@@ -26,6 +26,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
+import { FilterCollection } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -175,11 +176,11 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', () => {
@@ -378,7 +379,7 @@ describe('Component: Sample', () => {
         }, {
             _aggregation: 1,
             testRequiredField1: 'z'
-        }]);
+        }], new FilterCollection());
         expect(component.visualizationData).toEqual([{
             count: 2,
             field: component.options.sampleRequiredField,
@@ -399,7 +400,7 @@ describe('Component: Sample', () => {
             prettyName: 'Test Required Field 1'
         });
 
-        let actual = component.transformVisualizationQueryResults(component.options, []);
+        let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
         expect(component.visualizationData).toEqual([]);
         expect(actual).toEqual(0);
     });
@@ -422,7 +423,7 @@ describe('Component: Sample', () => {
             _aggregation: 1,
             testOptionalField1: 'omega',
             testRequiredField1: 'z'
-        }]);
+        }], new FilterCollection());
         expect(component.visualizationData).toEqual([{
             count: 2,
             field: component.options.sampleRequiredField,

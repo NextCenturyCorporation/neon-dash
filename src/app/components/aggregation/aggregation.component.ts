@@ -39,10 +39,12 @@ import {
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
+    AbstractFilter,
+    CompoundFilter,
     CompoundFilterDesign,
-    FilterBehavior,
+    FilterCollection,
     FilterDesign,
-    FilterUtil,
+    SimpleFilter,
     SimpleFilterDesign
 } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -179,7 +181,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public yList: any[] = [];
 
     private viewInitialized = false;
-    private pendingFilters: FilterDesign[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -229,49 +230,32 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     ngAfterViewInit() {
         super.ngAfterViewInit();
         this.viewInitialized = true;
-        if (this.pendingFilters && this.pendingFilters.length) {
-            this.redrawFilteredItems(this.pendingFilters);
-            delete this.pendingFilters;
-        }
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        let designs: FilterDesign[] = [];
 
         if (this.options.groupField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnLegend(),
-                redrawCallback: this.redrawLegend.bind(this)
-            } as FilterBehavior);
+            designs.push(this.createFilterDesignOnLegend());
         }
 
         if (this.options.xField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnItem(),
-                redrawCallback: this.redrawFilteredItems.bind(this)
-            } as FilterBehavior);
-
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnDomain(),
-                redrawCallback: this.redrawDomain.bind(this)
-            } as FilterBehavior);
+            designs.push(this.createFilterDesignOnItem());
+            designs.push(this.createFilterDesignOnDomain());
 
             if (this.options.yField.columnName) {
-                behaviors.push({
-                    filterDesign: this.createFilterDesignOnBounds(),
-                    redrawCallback: this.redrawBounds.bind(this)
-                } as FilterBehavior);
+                designs.push(this.createFilterDesignOnBounds());
             }
         }
 
-        return behaviors;
+        return designs;
     }
 
     /**
@@ -566,13 +550,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
     }
 
-    private findMatchingFilterDesign(configs: SimpleFilterDesign[], fieldBinding: string, operator: string) {
-        let matching: SimpleFilterDesign[] = configs.filter((config) => config.operator === operator &&
-            this.options.database.name === config.database.name && this.options.table.name === config.table.name &&
-            this.options[fieldBinding].columnName === config.field.columnName);
-        return matching.length ? matching[0].value : undefined;
-    }
-
     /**
      * Returns an object containing the ElementRef objects for the visualization needed for the resizing behavior.
      *
@@ -789,10 +766,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         let isXY = this.optionsTypeIsXY(options);
         let xList = [];
         let yList = [];
@@ -929,19 +907,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // TODO Add missing X to xList of numeric histograms.
         }
 
-        // Set the legend groups once with the original groups.  Then (always) update the active groups with the groups in the active data.
+        this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
+        this.yList = yList;
+
+        this.aggregationData = shownResults;
+
+        // Set the legend groups with the original groups.
         let groups = Array.from(groupsToColors.keys()).sort();
         if (!this.legendGroups.length) {
             this.legendGroups = groups;
         }
 
+        this.redrawFilters(filters);
+
+        // Set the active groups to all the groups in the active data.
         this.legendActiveGroups = this.legendGroups.filter((group) => groups.indexOf(group) >= 0 &&
             this.legendDisabledGroups.indexOf(group) < 0);
-
-        this.xList = options.savePrevious && this.xList.length ? this.xList : xList;
-        this.yList = yList;
-
-        this.aggregationData = shownResults;
 
         return this.options.countByAggregation ? this.aggregationData.length : this.aggregationData.reduce((count, element) =>
             count + element.y, 0);
@@ -1079,123 +1060,62 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return options.xField.type === 'date';
     }
 
-    private redrawBounds(filters: FilterDesign[]): void {
-        let removeFilter = true;
-
-        // Find the boundds inside the compound filter with an expected structure like createFilterDesignOnBounds.
-        // TODO THOR-1100 How should we handle multiple bounds filters?  Should we draw multiple areas?
-        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
-            let boundsFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
-
-            if (boundsFilter && boundsFilter.type === CompoundFilterType.AND && boundsFilter.filters.length === 4 &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[0]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
-                let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
-                let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
-                let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
-                let beginY = this.findMatchingFilterDesign(nestedFilters, 'yField', '>=');
-                let endY = this.findMatchingFilterDesign(nestedFilters, 'yField', '<=');
-
-                if (this.subcomponentMain && typeof beginX !== 'undefined' && typeof endX !== 'undefined' &&
-                    typeof beginY !== 'undefined' && typeof endY !== 'undefined') {
-                    this.subcomponentMain.select([{
-                        beginX: beginX,
-                        endX: endX,
-                        beginY: beginY,
-                        endY: endY
-                    }]);
-
-                    this.refreshVisualization(true);
-
-                    removeFilter = false;
-
-                    // TODO THOR-1057 Update the selectedArea
-                    // this.selectedArea = null;
-                }
-            }
-        }
-
-        if (removeFilter) {
-            if (this.subcomponentMain) {
-                this.subcomponentMain.select([]);
-                this.refreshVisualization(true);
-            }
-            this.selectedArea = null;
-        }
-    }
-
-    private redrawDomain(filters: FilterDesign[]): void {
-        let removeFilter = true;
-
-        // Find the domain inside the compound filter with an expected structure like createFilterDesignOnDomain.
-        // TODO THOR-1100 How should we handle multiple domain filters?  Should we draw multiple areas?
-        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
-            let domainFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
-
-            if (domainFilter && domainFilter.type === CompoundFilterType.AND && domainFilter.filters.length === 2 &&
-                FilterUtil.isSimpleFilterDesign(domainFilter.filters[0]) &&
-                FilterUtil.isSimpleFilterDesign(domainFilter.filters[1])) {
-                let nestedFilters: SimpleFilterDesign[] = domainFilter.filters as SimpleFilterDesign[];
-                let beginX = this.findMatchingFilterDesign(nestedFilters, 'xField', '>=');
-                let endX = this.findMatchingFilterDesign(nestedFilters, 'xField', '<=');
-
-                if (this.subcomponentMain && typeof beginX !== 'undefined' && typeof endX !== 'undefined') {
-                    this.subcomponentMain.select([{
-                        beginX: beginX,
-                        endX: endX
-                    }]);
-
-                    this.refreshVisualization(true);
-
-                    removeFilter = false;
-
-                    // TODO THOR-1057 Update the selectedArea
-                    // this.selectedArea = null;
-                }
-            }
-        }
-
-        if (removeFilter) {
-            if (this.subcomponentMain) {
-                this.subcomponentMain.select([]);
-                this.refreshVisualization(true);
-            }
-            this.selectedArea = null;
-        }
-    }
-
-    private redrawFilteredItems(filterDesigns: FilterDesign[]): void {
-        if (!this.subcomponentMain && !this.viewInitialized) {
-            this.pendingFilters = filterDesigns;
-        }
-        if (this.subcomponentMain) {
-            // Find the values inside the filters with an expected structure of createFilterDesignOnItem.
-            this.subcomponentMain.select(filterDesigns.reduce((values, filterDesign) => {
-                if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
-                    let value = this.findMatchingFilterDesign([filterDesign], 'xField', '=');
-                    return value ? values.concat(value) : values;
-                }
-                return values;
-            }, []));
-
-            this.refreshVisualization(true);
-        }
-    }
-
-    private redrawLegend(filterDesigns: FilterDesign[]): void {
-        // Find the values inside the filters with an expected structure of createFilterDesignOnLegend.
-        this.legendDisabledGroups = filterDesigns.reduce((groups, filterDesign) => {
-            if (FilterUtil.isSimpleFilterDesign(filterDesign)) {
-                let group = this.findMatchingFilterDesign([filterDesign], 'groupField', '!=');
-                return group ? groups.concat(group) : groups;
-            }
-            return groups;
-        }, []);
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        // Add or remove disabled legend groups depending on the filtered legend groups.
+        let legendFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegend());
+        this.legendDisabledGroups = legendFilters.map((filter) => (filter as SimpleFilter).value);
 
         // Set the active groups to all the groups that are NOT disabled/filtered since the group filters are all negative (!=).
         this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
+
+        // Add or remove the selected bounds/domain on the chart depending on if the bounds/domain is filtered.
+        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBounds());
+        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnDomain());
+        if (boundsFilters.length || domainFilters.length) {
+            // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
+            for (const boundsFilter of boundsFilters) {
+                let bounds = (boundsFilter as CompoundFilter).asBoundsFilter();
+                if (bounds.lowerA.field.columnName === this.options.xField.columnName) {
+                    this.subcomponentMain.select([{
+                        beginX: bounds.lowerA.value,
+                        endX: bounds.upperA.value,
+                        beginY: bounds.lowerB.value,
+                        endY: bounds.upperB.value
+                    }]);
+                } else {
+                    this.subcomponentMain.select([{
+                        beginX: bounds.lowerB.value,
+                        endX: bounds.upperB.value,
+                        beginY: bounds.lowerA.value,
+                        endY: bounds.upperA.value
+                    }]);
+                }
+            }
+
+            for (const domainFilter of domainFilters) {
+                let domain = (domainFilter as CompoundFilter).asDomainFilter();
+                this.subcomponentMain.select([{
+                    beginX: domain.lower.value,
+                    endX: domain.upper.value
+                }]);
+            }
+
+            // TODO THOR-1057 Update the selectedArea
+            // this.selectedArea = null;
+        } else {
+            this.subcomponentMain.select([]);
+            this.selectedArea = null;
+        }
+
+        // Select individual filtered items.
+        // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
+        let itemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnItem());
+        this.subcomponentMain.select(itemFilters.map((filter) => (filter as SimpleFilter).value));
     }
 
     /**
@@ -1214,16 +1134,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.options.dualView) {
             this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
         }
-        this.refreshVisualization(true);
+        this.refreshVisualization();
     }
 
     /**
      * Updates and redraws the elements and properties for the visualization.
      *
-     * @arg {boolean} [redrawMain=false]
      * @override
      */
-    refreshVisualization(redrawMain: boolean = false) {
+    refreshVisualization() {
         if (!this.aggregationData) {
             return;
         }
@@ -1250,8 +1169,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             yList: this.yList
         };
 
+        // TODO FIXME Only redraw if the unfiltered data is changed.
         // Update the overview if dualView is off or if it is not filtered.  It will only show the unfiltered data.
-        if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.isFiltered())) {
+        if (this.subcomponentMain) {
             this.subcomponentMain.draw(this.aggregationData, meta);
         }
 
@@ -1285,7 +1205,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     showBothViews(): boolean {
-        return this.options.dualView === 'on' || (this.options.dualView === 'filter' && this.isFiltered());
+        return this.options.dualView === 'on' || (this.options.dualView === 'filter' &&
+            !!this.filterService.retrieveCompatibleFilterCollection(this.designEachFilterWithNoValues()).getFilters().length);
     }
 
     /**

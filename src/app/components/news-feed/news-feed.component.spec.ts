@@ -20,6 +20,7 @@ import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
@@ -94,11 +95,11 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        // Expect((actual[0].FIELD_MAP.filterDesign).field).toEqual(DashboardServiceMock.FILTER); // TODO: Verify
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
     });
 
     it('finalizeVisualizationQuery does return expected query', (() => {
@@ -175,15 +176,17 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.newsFeedData).toEqual([{
+            _filtered: false,
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
         }, {
+            _filtered: false,
             _id: 'id2',
             testLinkField: 'link2',
             testNameField: 'name2',
@@ -196,7 +199,7 @@ describe('Component: NewsFeed', () => {
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
 
-        let actual = component.transformVisualizationQueryResults(component.options, []);
+        let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.newsFeedData).toEqual([]);
         expect(actual).toEqual(0);
@@ -218,15 +221,17 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.newsFeedData).toEqual([{
+            _filtered: false,
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
         }, {
+            _filtered: false,
             _id: 'id2',
             testLinkField: 'link2',
             testNameField: 'name2',
@@ -251,30 +256,24 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
-        }]);
+        }], new FilterCollection());
 
         expect(actual).toEqual(2);
         expect(component.newsFeedData).toEqual([{
+            _filtered: false,
             _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
         }, {
+            _filtered: false,
             _id: 'id2',
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
         }]);
-    });
-
-    // For refreshVisualization method
-    it('refreshVisualization does call changeDetection.detectChanges', () => {
-        let spy = spyOn(component.changeDetection, 'detectChanges');
-
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
     });
 
     // Private get array values method test?
