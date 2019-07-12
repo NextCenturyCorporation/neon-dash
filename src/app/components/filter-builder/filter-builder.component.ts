@@ -18,8 +18,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterType } from '../../services/abstract.search.service';
+import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -54,8 +54,7 @@ export class FilterBuilderComponent {
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: InjectableFilterService,
-        public searchService: AbstractSearchService
+        public filterService: InjectableFilterService
     ) {
         this._dataset = dashboardService.state.asDataset();
 
@@ -85,8 +84,11 @@ export class FilterBuilderComponent {
         filterClause.tables = existingFilterClause ? existingFilterClause.tables : filterClause.tables;
         filterClause.fields = existingFilterClause ? existingFilterClause.fields : filterClause.fields;
         filterClause.changeDatabase = existingFilterClause ? existingFilterClause.changeDatabase : filterClause.database;
+        this.handleChangeDatabaseOfClause(filterClause);
         filterClause.changeTable = existingFilterClause ? existingFilterClause.changeTable : filterClause.table;
+        this.handleChangeTableOfClause(filterClause);
         filterClause.changeField = existingFilterClause ? existingFilterClause.changeField : filterClause.field;
+        this.handleChangeFieldOfClause(filterClause);
 
         if (filterClause.database && filterClause.table) {
             this.filterClauses.push(filterClause);
@@ -190,7 +192,7 @@ export class FilterBuilderComponent {
         } as CompoundFilterDesign);
 
         if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations, this.searchService);
+            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations);
             this.clearEveryFilterClause();
         }
     }

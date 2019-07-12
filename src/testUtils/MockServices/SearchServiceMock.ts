@@ -19,10 +19,9 @@ import {
     FilterClause,
     QueryGroup,
     QueryPayload,
-    SortOrder,
-    TimeInterval
+    SortOrder
 } from '../../app/services/abstract.search.service';
-import { AggregationType } from '../../app/models/widget-option';
+import { AggregationType, TimeInterval } from '../../app/models/widget-option';
 import { RequestWrapper } from '../../app/services/connection.service';
 import { Injectable } from '@angular/core';
 

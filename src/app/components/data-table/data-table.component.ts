@@ -27,7 +27,7 @@ import {
 
 import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -206,32 +206,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        this.options.filterFields.forEach((filterField) => {
-            behaviors.push({
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        return this.options.filterFields.reduce((designs, filterField) => {
+            if (filterField.columnName) {
                 // Match a single EQUALS filter on the specific filter field.
-                filterDesign: this.createFilterDesignOnOneValue(filterField),
-                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
-
-            behaviors.push({
+                designs.push(this.createFilterDesignOnOneValue(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                filterDesign: this.createFilterDesignOnArrayValue([this.createFilterDesignOnOneValue(filterField)]),
-                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
-        });
-
-        return behaviors;
+                designs.push(this.createFilterDesignOnArrayValue([this.createFilterDesignOnOneValue(filterField)]));
+            }
+            return designs;
+        }, [] as FilterDesign[]);
     }
 
     /**
@@ -494,6 +484,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this.tableData.forEach((item) => {
+            item._filtered = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
+                if (filterField.columnName) {
+                    let filterDesign: FilterDesign = this.createFilterDesignOnOneValue(filterField, item[filterField.columnName]);
+                    return filters.isFiltered(filterDesign) || filters.isFiltered(this.createFilterDesignOnArrayValue([filterDesign]));
+                }
+                return false;
+            });
+        });
+    }
+
+    /**
      * Updates and redraws the elements and properties for the visualization.
      *
      * @override
@@ -588,12 +595,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.tableData = results.map((result) => {
-            let row = {};
+            let row = {
+                _filtered: !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
+                    if (filterField.columnName) {
+                        let filterDesign: FilterDesign = this.createFilterDesignOnOneValue(filterField, result[filterField.columnName]);
+                        return filters.isFiltered(filterDesign) || filters.isFiltered(this.createFilterDesignOnArrayValue([filterDesign]));
+                    }
+                    return false;
+                })
+            };
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
@@ -830,14 +847,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getRowClassFunction(): any {
         return (row): any => {
-            let rowClass: any = {};
-            rowClass.active = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
-                if (filterField.columnName) {
-                    let dataFilterDesign: FilterDesign = this.createFilterDesignOnOneValue(filterField, row[filterField.columnName]);
-                    return this.isFiltered(dataFilterDesign) || this.isFiltered(this.createFilterDesignOnArrayValue([dataFilterDesign]));
-                }
-                return false;
-            });
+            let rowClass: any = {
+                active: !!row._filtered
+            };
 
             if (this.options.heatmapField.columnName && this.options.heatmapDivisor) {
                 let heatmapClass = 'heat-0';

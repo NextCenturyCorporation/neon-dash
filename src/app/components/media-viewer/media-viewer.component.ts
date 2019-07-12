@@ -28,7 +28,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior } from '../../services/filter.service';
+import { FilterCollection, FilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -215,13 +215,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
+    protected designEachFilterWithNoValues(): FilterDesign[] {
         // This visualization does not filter.
         return [];
     }
@@ -475,16 +475,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.noDataId = options.id;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
-        if (options.clearMedia && !this.isFiltered()) {
+        if (options.clearMedia && !filters.getFilters().length) {
             this.errorMessage = 'No Data';
             options.id = '_id';
             return 0;

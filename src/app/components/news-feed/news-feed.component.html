@@ -49,7 +49,7 @@
 </div>
 
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-<div class="footer" *ngIf="showPagination() && !showContribution()">
+<div class="footer" *ngIf="showPagination()">
     <div class="footer-button-container">
         <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
             Previous

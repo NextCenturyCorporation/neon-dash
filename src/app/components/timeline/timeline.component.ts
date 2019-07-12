@@ -28,18 +28,18 @@ import {
     AbstractSearchService,
     CompoundFilterType,
     FilterClause,
-    QueryPayload,
-    TimeInterval
+    QueryPayload
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
+    AbstractFilter,
+    CompoundFilter,
     CompoundFilterDesign,
-    FilterBehavior,
+    FilterCollection,
     FilterDesign,
-    FilterUtil,
     SimpleFilterDesign
-} from '../../services/filter.service';
+} from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -49,6 +49,7 @@ import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
     OptionChoices,
+    TimeInterval,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -156,38 +157,32 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', true),
             new WidgetFieldOption('idField', 'Id Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', 'year', OptionChoices.DateGranularity),
+            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity),
             new WidgetFreeTextOption('yLabel', 'Count', '')
         ];
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        let designs: FilterDesign[] = [];
 
         if (this.options.dateField.columnName) {
-            behaviors.push({
-                // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
-                filterDesign: this.createFilterDesignOnTimeline(),
-                redrawCallback: this.redrawTimelineFilter.bind(this)
-            });
+            // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
+            designs.push(this.createFilterDesignOnTimeline());
         }
 
         if (this.options.filterField.columnName) {
-            behaviors.push({
-                // Match a single EQUALS filter on the specific filter field.
-                filterDesign: this.createFilterDesignOnItem(this.options.filterField),
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
+            // Match a single EQUALS filter on the specific filter field.
+            designs.push(this.createFilterDesignOnItem(this.options.filterField));
         }
 
-        return behaviors;
+        return designs;
     }
 
     /**
@@ -196,8 +191,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     constructVisualization() {
-        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
-        this.timelineData.granularity = this.options.granularity;
+        this.timelineData.focusGranularityDifferent = this.options.granularity === TimeInterval.MINUTE;
+        this.timelineData.granularity = this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
 
         this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
@@ -235,6 +230,27 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     initializeProperties() {
         // Backwards compatibility (showOnlyFiltered deprecated due to its redundancy with hideUnfiltered).
         this.options.hideUnfiltered = this.injector.get('showOnlyFiltered', this.options.hideUnfiltered);
+    }
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        // Add or remove the timeline chart brush depending on if the timeline is filtered.
+        let timelineFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnTimeline());
+        if (timelineFilters.length) {
+            // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
+            for (const timelineFilter of timelineFilters) {
+                let domain = (timelineFilter as CompoundFilter).asDomainFilter();
+                this.selected = [domain.lower.value, domain.upper.value];
+                // TODO THOR-1106 Update the brush element in the timelineChart.
+            }
+        } else {
+            this.selected = null;
+            this.timelineChart.clearBrush();
+        }
     }
 
     refreshVisualization() {
@@ -276,19 +292,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         switch (options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
-            case 'minute':
+            case TimeInterval.MINUTE:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MINUTE));
             // Falls through
-            case 'hour':
+            case TimeInterval.HOUR:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.HOUR));
             // Falls through
-            case 'day':
+            case TimeInterval.DAY_OF_MONTH:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.DAY_OF_MONTH));
             // Falls through
-            case 'month':
+            case TimeInterval.MONTH:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.MONTH));
             // Falls through
-            case 'year':
+            case TimeInterval.YEAR:
                 groups.push(this.searchService.buildDateQueryGroup(options.dateField.columnName, TimeInterval.YEAR));
             // Falls through
         }
@@ -308,10 +324,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         // Convert all the dates into new Date objects
         if (options.filterField.columnName) {
             this.timelineQueryResults = results.reduce((itemBucket, currentItem) => {
@@ -346,6 +363,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             }));
         }
 
+        this.redrawFilters(filters);
+
         this.filterAndRefreshData(this.timelineQueryResults);
 
         return this.timelineQueryResults.reduce((sum, element) => sum + element.value, 0);
@@ -365,31 +384,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             let currentYear = currentDate.getUTCFullYear();
 
             switch (this.options.granularity) {
-                case 'minute':
+                case TimeInterval.MINUTE:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCSeconds(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCSeconds(59));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'hour':
+                case TimeInterval.HOUR:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCMinutes(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCMinutes(59));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'day':
+                case TimeInterval.DAY_OF_MONTH:
                     return previousItems.find((item) => {
                         let minDate = new Date(new Date(item.origDate).setUTCHours(0));
                         let maxDate = new Date(new Date(item.origDate).setUTCHours(23));
                         return (minDate <= currentDate && currentDate <= maxDate) ? item : undefined;
                     });
-                case 'month':
+                case TimeInterval.MONTH:
                     return previousItems.find((item) => {
                         let prevMonth = new Date(item.origDate).getUTCMonth();
                         let prevYear = new Date(item.origDate).getUTCFullYear();
                         return (prevMonth === currentMonth && prevYear === currentYear) ? item : undefined;
                     });
-                case 'year':
+                case TimeInterval.YEAR:
                     return previousItems.find((item) => {
                         let prevYear = new Date(item.origDate).getUTCFullYear();
                         return (prevYear === currentYear) ? item : undefined;
@@ -421,7 +440,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Start date will be the first entry, and the end date will be the last
             series.startDate = data[0].date;
             let lastDate = data[data.length - 1].date;
-            series.endDate = d3.time[this.options.granularity]
+            series.endDate = d3.time[this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity]
                 .utc.offset(lastDate, 1);
 
             // If we have a bucketizer, use it
@@ -512,67 +531,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     onChangeData() {
-        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
+        this.timelineData.focusGranularityDifferent = this.options.granularity === TimeInterval.MINUTE;
         this.timelineData.bucketizer = this.getBucketizer();
-        this.timelineData.granularity = this.options.granularity;
+        this.timelineData.granularity = this.options.granularity === TimeInterval.DAY_OF_MONTH ? 'day' : this.options.granularity;
     }
 
     getBucketizer() {
         let dayBucketizer = new DateBucketizer();
-        switch (this.options.granularity.toLowerCase()) {
-            case 'minute':
-            case 'hour':
+        switch (this.options.granularity) {
+            case TimeInterval.MINUTE:
+            case TimeInterval.HOUR:
                 dayBucketizer.setGranularity(DateBucketizer.HOUR);
                 return dayBucketizer;
-            case 'day':
+            case TimeInterval.DAY_OF_MONTH:
                 return dayBucketizer;
-            case 'month':
+            case TimeInterval.MONTH:
                 return new MonthBucketizer();
-            case 'year':
+            case TimeInterval.YEAR:
                 return new YearBucketizer();
             default:
                 return null;
-        }
-    }
-
-    private redrawTimelineFilter(filters: FilterDesign[]): void {
-        let removeFilter = true;
-
-        // Find the begin date and end date inside the compound filter with an expected structure like createFilterDesignOnTimeline.
-        // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
-        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
-            let timeFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
-
-            if (timeFilter && timeFilter.filters.length === 2 && FilterUtil.isSimpleFilterDesign(timeFilter.filters[0]) &&
-                FilterUtil.isSimpleFilterDesign(timeFilter.filters[1])) {
-                let beginFilter: SimpleFilterDesign = (timeFilter.filters[0] as SimpleFilterDesign);
-                let endFilter: SimpleFilterDesign = (timeFilter.filters[1] as SimpleFilterDesign);
-
-                let beginDate;
-                let endDate;
-
-                if (beginFilter.operator === '>=' && endFilter.operator === '<=') {
-                    beginDate = beginFilter.value;
-                    endDate = endFilter.value;
-                }
-
-                // Switch the filters if needed.
-                if (beginFilter.operator === '<=' && endFilter.operator === '>=') {
-                    beginDate = endFilter.value;
-                    endDate = beginFilter.value;
-                }
-
-                if (beginDate instanceof Date && endDate instanceof Date) {
-                    this.selected = [beginDate, endDate];
-                    removeFilter = false;
-                    // TODO THOR-1106 Update the brush element in the timelineChart.
-                }
-            }
-        }
-
-        if (removeFilter && this.timelineChart) {
-            this.selected = null;
-            this.timelineChart.clearBrush();
         }
     }
 

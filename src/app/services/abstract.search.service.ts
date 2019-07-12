@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-import { AggregationType } from '../models/widget-option';
+import { AbstractFilter, CompoundFilter, SimpleFilter } from '../util/filter.util';
+import { AggregationType, TimeInterval } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
 
 export enum CompoundFilterType {
@@ -24,14 +25,6 @@ export enum CompoundFilterType {
 export enum SortOrder {
     ASCENDING = 'ascending',
     DESCENDING = 'descending'
-}
-
-export enum TimeInterval {
-    MINUTE = 'minute',
-    HOUR = 'hour',
-    DAY_OF_MONTH = 'dayOfMonth',
-    MONTH = 'month',
-    YEAR = 'year'
 }
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
@@ -104,6 +97,25 @@ export abstract class AbstractSearchService {
      * @abstract
      */
     public abstract canRunSearch(datastoreType: string, datastoreHost: string): boolean;
+
+    /**
+     * Returns a filter clause using the given filter.
+     *
+     * @arg {AbstractFilter}
+     * @return {FilterClause}
+     */
+    public generateFilterClauseFromFilter(filter: AbstractFilter): FilterClause {
+        if (filter instanceof SimpleFilter) {
+            let simpleFilter: SimpleFilter = filter;
+            return this.buildFilterClause(simpleFilter.field.columnName, simpleFilter.operator, simpleFilter.value);
+        }
+        if (filter instanceof CompoundFilter) {
+            let compoundFilter: CompoundFilter = filter;
+            return this.buildCompoundFilterClause(compoundFilter.filters.map((nested) => this.generateFilterClauseFromFilter(nested)),
+                compoundFilter.type);
+        }
+        return null;
+    }
 
     /**
      * Returns an aggregation name from the given descriptor.

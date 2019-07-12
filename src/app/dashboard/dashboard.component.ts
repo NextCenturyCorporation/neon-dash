@@ -32,7 +32,7 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterDesign } from '../services/filter.service';
+import { FilterDataSource, FilterDesign } from '../util/filter.util';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -223,7 +223,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const currentFilter = this.filterService.getFiltersToSaveInURL();
+        const currentFilter = this.dashboardService.getFiltersToSaveInURL();
         const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
         if ((!filters && currentFilter) || url.pathname === '/') {
             this.location.replaceState(`${fullPath}#${currentFilter}`);
@@ -476,7 +476,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         };
         const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
         this.router.navigate(pathParts, {
-            fragment: this.filterService.getFiltersToSaveInURL(),
+            fragment: this.dashboardService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root
         });
