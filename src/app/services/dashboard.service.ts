@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 
-import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { FilterConfig, NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
