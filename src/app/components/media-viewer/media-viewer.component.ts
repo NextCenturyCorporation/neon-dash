@@ -45,7 +45,6 @@ import {
     WidgetSelectOption
 } from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
-
 export interface MediaTab {
     // TODO Add a way for the user to select other items from the list.
     loaded: boolean;
@@ -84,6 +83,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('mediaGroup') mediaGroup: ElementRef;
 
     public mediaTypes: any = MediaTypes;
 
@@ -619,6 +619,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     updateOnResize(event?: any) {
+        // This.mediaGroup.nativeElement.updateOnResize(event);
         if (!this.visualization) {
             return;
         }

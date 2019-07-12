@@ -1,23 +1,23 @@
-<div [ngSwitch]="tab.selected.type">
-    <!-- TODO Move into a subcomponent shared with the single-tab behavior -->
+<div [ngSwitch]="media.selected.type">
+    <!-- TODO Move into a subcomponent shared with the single-media behavior -->
     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-        <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" [id]="'medium' + i"
-            [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
-            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
-            [hidden]="!tab.loaded"
-            [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+        <img *ngIf="media.selected.link" [src]="media.selected.link" [alt]="media.selected.name" [id]="'medium' + i"
+            [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setmediaLoaded(media, i)"
+            [class]="media.selected.border ? ('image with-border border-mat-' + media.selected.border + ' medium') : 'image medium'">
+        <img *ngIf="media.selected.mask" [src]="media.selected.mask" [alt]="media.selected.name" [id]="'mask' + i"
+            [hidden]="!media.loaded"
+            [class]="media.selected.border ? ('image with-border border-mat-' + media.selected.border + ' mask') : 'image mask'">
         <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
             (input)="onSliderChange($event.value)"></mat-slider>
     </div>
-    <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
-        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+    <img *ngSwitchCase="mediaTypes.image" [src]="media.selected.link" [alt]="media.selected.name"
+        [class]="media.selected.border ? ('image with-border border-mat-' + media.selected.border) : 'image'">
     <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
-        [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
-        <source [src]="tab.selected.link">
+        [class]="media.selected.border ? ('audio with-border border-mat-' + media.selected.border) : 'audio'">
+        <source [src]="media.selected.link">
     </audio>
     <!-- Use iframe for mediaTypes.video and other types -->
-    <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
-        [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
+    <iframe *ngSwitchDefault [src]="sanitize(media.selected.link)" frameborder="0"
+        [class]="media.selected.border ? ('frame with-border border-mat-' + media.selected.border) : 'frame'">
     </iframe>
 </div>

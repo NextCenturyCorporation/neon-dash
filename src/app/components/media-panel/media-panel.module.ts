@@ -14,6 +14,7 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MediaPanelComponent } from './media-panel.component';
 import { MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
@@ -24,6 +25,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
     exports: [MediaPanelComponent],
     entryComponents: [MediaPanelComponent],
     imports: [
+        FormsModule,
         CommonWidgetModule,
         MatSliderModule,
         DataMessageModule,
