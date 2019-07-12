@@ -21,6 +21,7 @@ import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -60,62 +61,62 @@ describe('Component: DataTable', () => {
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
 
         component.options.arrayFilterOperator = 'or';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect((actual[1].filterDesign).type).toEqual('or');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('or');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect((actual[1].filterDesign).type).toEqual('or');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[2].filterDesign).operator).toEqual('=');
-        expect((actual[2].filterDesign).value).toBeUndefined();
-        expect((actual[3].filterDesign).type).toEqual('or');
-        expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('or');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[2]).operator).toEqual('=');
+        expect((actual[2]).value).toBeUndefined();
+        expect((actual[3]).type).toEqual('or');
+        expect((actual[3]).filters.length).toEqual(1);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[3]).filters[0].operator).toEqual('=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
     });
 
     it('onResize does call refreshVisualization', () => {
@@ -671,10 +672,10 @@ describe('Component: DataTable', () => {
 
         let actual = component.transformVisualizationQueryResults(component.options, [
             { _id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1 }
-        ]);
+        ], new FilterCollection());
 
         expect(component.tableData).toEqual([
-            { _id: 1, category: 'books', testField: 'test' }
+            { _filtered: false, _id: 1, category: 'books', testField: 'test' }
         ]);
         expect(actual).toEqual(1);
     });
@@ -689,11 +690,11 @@ describe('Component: DataTable', () => {
         let actual = component.transformVisualizationQueryResults(component.options, [
             { _id: 1, category: 'books', testField: 'test', ignore: 'ignore', _docCount: 1 },
             { _id: 2, category: 'books', testField: 'some other value', ignore: 'ignoring' }
-        ]);
+        ], new FilterCollection());
 
         expect(component.tableData).toEqual([
-            { _id: 1, category: 'books', testField: 'test' },
-            { _id: 2, category: 'books', testField: 'some other value' }
+            { _filtered: false, _id: 1, category: 'books', testField: 'test' },
+            { _filtered: false, _id: 2, category: 'books', testField: 'some other value' }
         ]);
         expect(actual).toEqual(2);
     });
@@ -1575,13 +1576,18 @@ describe('Component: DataTable', () => {
     it('getRowClassFunction function does set active to false', () => {
         let rowClassFunction = component.getRowClassFunction();
 
-        expect((component as any).isFiltered()).toEqual(false);
-
         expect(rowClassFunction({})).toEqual({
             active: false
         });
 
         expect(rowClassFunction({
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            _filtered: false,
             testFilterField: 'testFilterValue'
         })).toEqual({
             active: false
@@ -1598,113 +1604,23 @@ describe('Component: DataTable', () => {
         });
 
         expect(rowClassFunction({
-            testFilterField: 'testFilterValue1'
+            testFilterField: 'testFilterValue'
         })).toEqual({
             active: false
         });
 
-        (component as any).isFiltered = (filterDesign) => filterDesign.database === component.options.database &&
-            filterDesign.table === component.options.table && filterDesign.field === DashboardServiceMock.FIELD_MAP.FILTER &&
-            filterDesign.operator === '=' && (filterDesign.value === 'testFilterValue1' || filterDesign.value === 'testFilterValue2');
+        expect(rowClassFunction({
+            _filtered: false,
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
 
         expect(rowClassFunction({
-            testFilterField: 'testFilterValue1'
+            _filtered: true,
+            testFilterField: 'testFilterValue'
         })).toEqual({
             active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue2'
-        })).toEqual({
-            active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue3'
-        })).toEqual({
-            active: false
-        });
-
-        expect(rowClassFunction({
-            testFilterField2: 'testFilterValue1'
-        })).toEqual({
-            active: false
-        });
-    });
-
-    it('getRowClassFunction function with compound AND filters and filterFields does set active to expected boolean', () => {
-        let rowClassFunction = component.getRowClassFunction();
-
-        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
-        component.options.singleFilter = false;
-        component.options.arrayFilterOperator = 'and';
-
-        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'and' && filterDesign.filters &&
-            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
-            filterDesign.filters[0].table === component.options.table &&
-            filterDesign.filters[0].field === DashboardServiceMock.FIELD_MAP.FILTER && filterDesign.filters[0].operator === '=' &&
-            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue1'
-        })).toEqual({
-            active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue2'
-        })).toEqual({
-            active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue3'
-        })).toEqual({
-            active: false
-        });
-
-        expect(rowClassFunction({
-            testFilterField2: 'testFilterValue1'
-        })).toEqual({
-            active: false
-        });
-    });
-
-    it('getRowClassFunction function with compound OR filters and filterFields does set active to expected boolean', () => {
-        let rowClassFunction = component.getRowClassFunction();
-
-        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
-        component.options.singleFilter = false;
-        component.options.arrayFilterOperator = 'or';
-
-        (component as any).isFiltered = (filterDesign) => filterDesign.type === 'or' && filterDesign.filters &&
-            filterDesign.filters.length === 1 && filterDesign.filters[0].database === component.options.database &&
-            filterDesign.filters[0].table === component.options.table &&
-            filterDesign.filters[0].field === DashboardServiceMock.FIELD_MAP.FILTER && filterDesign.filters[0].operator === '=' &&
-            (filterDesign.filters[0].value === 'testFilterValue1' || filterDesign.filters[0].value === 'testFilterValue2');
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue1'
-        })).toEqual({
-            active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue2'
-        })).toEqual({
-            active: true
-        });
-
-        expect(rowClassFunction({
-            testFilterField: 'testFilterValue3'
-        })).toEqual({
-            active: false
-        });
-
-        expect(rowClassFunction({
-            testFilterField2: 'testFilterValue1'
-        })).toEqual({
-            active: false
         });
     });
 

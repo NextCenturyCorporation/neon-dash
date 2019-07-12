@@ -117,12 +117,6 @@ describe('Component: WikiViewer', () => {
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
-    it('refreshVisualization does call changeDetection.detectChanges', (() => {
-        let spy = spyOn(component.changeDetection, 'detectChanges');
-        component.refreshVisualization();
-        expect(spy.calls.count()).toBe(1);
-    }));
-
     it('does show toolbar and sidenav', (() => {
         let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();

@@ -29,10 +29,11 @@ import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload }
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
+    AbstractFilter,
+    CompoundFilter,
     CompoundFilterDesign,
-    FilterBehavior,
+    FilterCollection,
     FilterDesign,
-    FilterUtil,
     SimpleFilterDesign
 } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -362,10 +363,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
 
@@ -381,6 +383,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             this.options.singleColor = false;
         }
 
+        // TODO THOR-1104 Update the selected (filtered) map point(s) using the given filters.
         let mapPoints: MapPoint[] = this.getMapPoints(
             options.database.name,
             options.table.name,
@@ -408,6 +411,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
         this.filterMapForLegend();
         this.updateLegend();
+
+        this.redrawFilters(filters);
 
         return mapPoints.length;
     }
@@ -477,6 +482,39 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 obj.hoverPopupMap.set(hoverPopupValue, 1);
             }
         }
+    }
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        let removeFilter = true;
+
+        // Add or remove a bounding box on the map depending on if the bounds is filtered.
+        // TODO THOR-1102 Does this work with multiple layers?  Should a bounds filter on one layer always affect all of the other layers?
+        this.options.layers.forEach((options) => {
+            let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBox(options));
+            if (boundsFilters.length) {
+                // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
+                for (const boundsFilter of boundsFilters) {
+                    let bounds = (boundsFilter as CompoundFilter).asBoundsFilter();
+                    if (bounds.upperA.field.columnName === options.latitudeField.columnName) {
+                        this.mapObject.drawBoundary([bounds.upperA.value, bounds.upperB.value], [bounds.lowerA.value, bounds.lowerB.value]);
+                    } else {
+                        this.mapObject.drawBoundary([bounds.upperB.value, bounds.upperA.value], [bounds.lowerB.value, bounds.lowerA.value]);
+                    }
+                }
+                removeFilter = false;
+            }
+        });
+
+        if (removeFilter) {
+            this.mapObject.removeFilterBox();
+        }
+
+        // TODO THOR-1104 Update the visualization's individual selected (filtered) map point(s) using the given filters.
     }
 
     /**
@@ -721,47 +759,29 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterDesign[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        this.options.layers.forEach((layer) => {
+    protected designEachFilterWithNoValues(): FilterDesign[] {
+        return this.options.layers.reduce((designs, layer) => {
             if (layer.latitudeField.columnName && layer.longitudeField.columnName) {
                 // Match a box filter on the layer's specific fields.
-                behaviors.push({
-                    filterDesign: this.createFilterDesignOnBox(layer),
-                    redrawCallback: this.redrawFilterBox.bind(this)
-                });
+                designs.push(this.createFilterDesignOnBox(layer));
                 // Match a point filter on the layer's specific fields.
-                behaviors.push({
-                    filterDesign: this.createFilterDesignOnPoint(layer),
-                    redrawCallback: this.redrawFilterPoint.bind(this)
-                });
+                designs.push(this.createFilterDesignOnPoint(layer));
             }
 
-            layer.filterFields.forEach((filterField) => {
-                behaviors.push({
+            return layer.filterFields.reduce((nestedDesigns, filterField) => {
+                if (filterField.columnName) {
                     // Match a single EQUALS filter on the specific filter field.
-                    filterDesign: this.createFilterDesignOnValue(layer, filterField),
-                    redrawCallback: () => { /* Do nothing */ }
-                } as FilterBehavior);
-            });
-        });
-
-        return behaviors;
-    }
-
-    private findMatchingFilterDesign(filterDesigns: SimpleFilterDesign[], fieldBinding: string, operator: string) {
-        const matching: SimpleFilterDesign = filterDesigns.find((filterDesign) => filterDesign.operator === operator &&
-                this.options.layers.some((layer) => layer.database.name === filterDesign.database.name &&
-                        layer.table.name === filterDesign.table.name &&
-                        layer[fieldBinding].columnName === filterDesign.field.columnName));
-        return matching ? matching.value : undefined;
+                    nestedDesigns.push(this.createFilterDesignOnValue(layer, filterField));
+                }
+                return nestedDesigns;
+            }, designs);
+        }, [] as FilterDesign[]);
     }
 
     /**
@@ -782,51 +802,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     getVisualizationDefaultTitle(): string {
         return 'Map';
-    }
-
-    private redrawFilterBox(filters: FilterDesign[]): void {
-        if (!this.mapObject) {
-            setTimeout(this.redrawFilterBox.bind(this, filters), 100);
-        }
-        let removeFilter = true;
-
-        // Find the bounds inside the compound filter with an expected structure of createFilterDesignOnBox.
-        // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
-        if (filters.length && FilterUtil.isCompoundFilterDesign(filters[0])) {
-            let boundsFilter: CompoundFilterDesign = (filters[0] as CompoundFilterDesign);
-
-            if (boundsFilter && boundsFilter.filters.length === 4 && FilterUtil.isSimpleFilterDesign(boundsFilter.filters[0]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[1]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[2]) &&
-                FilterUtil.isSimpleFilterDesign(boundsFilter.filters[3])) {
-                let nestedFilters: SimpleFilterDesign[] = boundsFilter.filters as SimpleFilterDesign[];
-                let north = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '<=');
-                let south = this.findMatchingFilterDesign(nestedFilters, 'latitudeField', '>=');
-                let east = this.findMatchingFilterDesign(nestedFilters, 'longitudeField', '<=');
-                let west = this.findMatchingFilterDesign(nestedFilters, 'longitudeField', '>=');
-
-                if (this.isNumber(north) && this.isNumber(south) && this.isNumber(east) && this.isNumber(west)) {
-                    removeFilter = false;
-                    if (this.mapObject) {
-                        this.mapObject.drawBoundary([north, west], [south, east]);
-                        // TODO THOR-1103 Update the bounding box element in the mapObject.
-                    }
-                }
-            }
-        }
-
-        if (removeFilter && this.mapObject) {
-            this.mapObject.removeFilterBox();
-        }
-    }
-
-    private redrawFilterPoint(filters: FilterDesign[]): void {
-        if (filters.length && this.mapObject) {
-            // TODO THOR-1104 Update the selected point(s) in the mapObject.
-        }
-        if (!filters.length && this.mapObject) {
-            // TODO THOR-1104 Remove the selected point(s) in the mapObject.
-        }
     }
 
     /**

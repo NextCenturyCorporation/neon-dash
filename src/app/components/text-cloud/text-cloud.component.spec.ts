@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 
 import { Injector } from '@angular/core';
@@ -127,12 +128,11 @@ describe('Component: TextCloud', () => {
         component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawText.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
     });
 
     it('onClick does call toggleFilters with expected object', () => {
@@ -174,7 +174,7 @@ describe('Component: TextCloud', () => {
         }]]);
     });
 
-    it('redrawText does update textCloudData if no text is selected', () => {
+    it('redrawFilters does update textCloudData if no text is selected', () => {
         component.textCloudData = [{
             color: 'color1',
             fontSize: 'fontSize1',
@@ -191,9 +191,7 @@ describe('Component: TextCloud', () => {
             value: 'value2'
         }];
 
-        spyOn((component as any), 'isFiltered').and.returnValue(false);
-
-        (component as any).redrawText();
+        (component as any).redrawFilters(new FilterCollection());
 
         expect(component.textCloudData).toEqual([{
             color: 'color1',
@@ -212,7 +210,7 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('redrawText does update textCloudData if some text is selected', () => {
+    it('redrawFilters does update textCloudData if some text is selected', () => {
         component.textCloudData = [{
             color: 'color1',
             fontSize: 'fontSize1',
@@ -229,9 +227,10 @@ describe('Component: TextCloud', () => {
             value: 'value2'
         }];
 
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.value === 'key2');
+        let testCollection = new FilterCollection();
+        spyOn(testCollection, 'isFiltered').and.callFake((design) => design.value === 'key2');
 
-        (component as any).redrawText();
+        (component as any).redrawFilters(testCollection);
 
         expect(component.textCloudData).toEqual([{
             color: 'color1',
@@ -253,14 +252,14 @@ describe('Component: TextCloud', () => {
     it('transformVisualizationQueryResults with no data does return expected data', () => {
         component.options.dataField = NeonFieldMetaData.get({ columnName: 'testTextField', prettyName: 'Test Text Field' });
 
-        let actual1 = component.transformVisualizationQueryResults(component.options, []);
+        let actual1 = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.textCloudData).toEqual([]);
         expect(actual1).toEqual(0);
 
         component.options.sizeField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
 
-        let actual2 = component.transformVisualizationQueryResults(component.options, []);
+        let actual2 = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.textCloudData).toEqual([]);
         expect(actual2).toEqual(0);
@@ -279,7 +278,7 @@ describe('Component: TextCloud', () => {
             testTextField: 'Third'
         }];
 
-        let actual1 = component.transformVisualizationQueryResults(component.options, data);
+        let actual1 = component.transformVisualizationQueryResults(component.options, data, new FilterCollection());
 
         expect(component.textCloudData).toEqual([{
             fontSize: '140%',

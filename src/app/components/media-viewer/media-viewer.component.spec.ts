@@ -14,6 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { MediaTypes } from '../../models/types';
 import { Injector } from '@angular/core';
@@ -205,7 +206,7 @@ describe('Component: MediaViewer', () => {
             }]
         }];
 
-        component.transformVisualizationQueryResults(component.options, []);
+        component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([]);
     }));
@@ -226,7 +227,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue',
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect((component as any).errorMessage).toBe('No Data');
         expect(component.options.id).toBe('_id');
@@ -257,7 +258,7 @@ describe('Component: MediaViewer', () => {
         component.options.clearMedia = false;
         (component as any).isFiltered = () => true;
 
-        component.transformVisualizationQueryResults(component.options, []);
+        component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([]);
     }));
@@ -277,7 +278,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue',
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -333,7 +334,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue2',
             testNameField: 'testNameValue2',
             testTypeField: 'testTypeValue2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -370,7 +371,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: ['testLinkValue1', 'testLinkValue2'],
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -424,7 +425,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: ['testLinkValue1', 'testLinkValue2'],
             testNameField: ['testNameValue1', 'testNameValue2'],
             testTypeField: ['testTypeValue1', 'testTypeValue2']
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -474,7 +475,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: ''
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([]);
     });
@@ -491,7 +492,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -525,7 +526,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -556,7 +557,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'linkPrefix/testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -586,7 +587,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'prefix/testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -625,7 +626,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
-        }]);
+        }], new FilterCollection());
 
         expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
