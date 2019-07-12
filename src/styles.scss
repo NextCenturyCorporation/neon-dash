@@ -129,6 +129,10 @@ body {
     &.moving {
         z-index: z-index + 1;
     }
+
+    .mat-toolbar {
+        border-bottom: 2px solid var(--color-accent, lightgrey) !important;
+    }
 }
 
 .placeholder {
@@ -443,15 +447,7 @@ body {
     color: var(--color-dash-item-selectable-text, dimgrey) !important;
 }
 
-.grid-item {
-    .mat-toolbar {
-        border-bottom: 2px solid var(--color-accent, lightgrey) !important;
-    }
-}
-
 .mat-toolbar {
-    
-
     &.neon-toolbar-large {
         border-bottom: 0;
         font-size: 20px;
@@ -521,8 +517,10 @@ context-menu-content {
             padding: 0 1em;
             line-height: 2.5em;
 
-            &:not(.header):hover {
-                background: var(--color-background-contrast, gray);
+            &:not(.header) {
+                &:hover {
+                    background: var(--color-background-contrast, gray);
+                }
             }
 
             &.divider {

@@ -69,12 +69,14 @@
 
     & .drag-handle {
         color: white;
-        transition: 0.25s all ease-in-out;
+        transition: 0.25s all ease-in-out; // sass-lint:disable-line no-transition-all
         background: rgba(0, 0, 0, 0.3);
     }
 
-    &:hover .drag-handle {
-        background: rgba(0, 0, 0, 0.5);
+    &:hover {
+        .drag-handle {
+            background: rgba(0, 0, 0, 0.5);
+        }
     }
 }
 

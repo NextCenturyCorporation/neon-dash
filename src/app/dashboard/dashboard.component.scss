@@ -119,7 +119,7 @@ mat-toolbar {
 app-filters,
 app-dashboard-selector {
     grid-area: panel;
-    transition: 0.5s all ease-in-out;
+    transition: 0.5s all ease-in-out; // sass-lint:disable-line no-transition-all
     display: none;
     width: 100%;
     background-color: var(--color-background, lightgrey);
@@ -129,7 +129,7 @@ app-dashboard-selector {
     /deep/ mat-toolbar {
         padding-right: 5px !important;
         border-bottom: 1px solid var(--color-border, lightgrey);
-        
+
         .text {
             font-size: 16px !important;
             font-weight: normal !important;

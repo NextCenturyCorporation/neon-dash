@@ -137,7 +137,6 @@ mat-accordion {
         }
 
         &.selected {
-            
             background-color: var(--color-data-item-selected, dimgrey);
             color: var(--color-data-item-selected-text, white);
 
@@ -147,15 +146,17 @@ mat-accordion {
             }
         }
 
-        &.selectable:hover {
-            mat-expansion-panel-header {
-                background-color: var(--color-data-item-selectable, lightgrey);
-                color: var(--color-data-item-selectable-text, dimgrey);
-                cursor: pointer;
+        &.selectable {
+            &:hover {
+                mat-expansion-panel-header {
+                    background-color: var(--color-data-item-selectable, lightgrey);
+                    color: var(--color-data-item-selectable-text, dimgrey);
+                    cursor: pointer;
 
-                .date,
-                .text {
-                    color: var(--color-data-item-selectable-text, white);
+                    .date,
+                    .text {
+                        color: var(--color-data-item-selectable-text, white);
+                    }
                 }
             }
         }

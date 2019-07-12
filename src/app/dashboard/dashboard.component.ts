@@ -49,10 +49,9 @@ import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
 import { ContextMenuComponent } from 'ngx-contextmenu';
-import { takeUntil } from 'rxjs/operators';
 import { Subject, fromEvent } from 'rxjs';
 import { Location, APP_BASE_HREF } from '@angular/common';
-import { distinctUntilKeyChanged } from 'rxjs/operators';
+import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
