@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AggregationType } from '../models/widget-option';
+import { AggregationType, TimeInterval } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
 
 export enum CompoundFilterType {
@@ -24,14 +24,6 @@ export enum CompoundFilterType {
 export enum SortOrder {
     ASCENDING = 'ascending',
     DESCENDING = 'descending'
-}
-
-export enum TimeInterval {
-    MINUTE = 'minute',
-    HOUR = 'hour',
-    DAY_OF_MONTH = 'dayOfMonth',
-    MONTH = 'month',
-    YEAR = 'year'
 }
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
