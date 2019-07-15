@@ -1,5 +1,8 @@
 pipeline {
   agent none
+   environment {
+    PATH = "$PATH:/usr/bin:/usr/sbin:/bin:/sbin"
+  }
   stages {
     stage('Fetch dependencies') {
       agent {
