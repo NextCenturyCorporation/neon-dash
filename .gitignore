@@ -1,8 +1,5 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# ignore build meta data (build date, most recent git commit, etc.)
-src/environments/environment.*
-
 # client folder is outdated: ignore it if it exists
 /client
 

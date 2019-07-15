@@ -14,8 +14,7 @@
  */
 export const environment = {
     config: ['./app/config/config.json', './app/config/config.yaml'],
-    // Default Dev config
     production: false,
-    buildDate: '{BUILD_DATE}',
-    recentGit: '{RECENT_COMMIT}'
+    buildDate: 'Today',
+    recentGit: 'N/A'
 };
