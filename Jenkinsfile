@@ -16,12 +16,12 @@ pipeline {
       }
       steps {
         unstash 'node_modules'
-        sh 'npm lint'
+        sh 'npm run lint'
       }
     }
     stage('Compile') {
       agent {
-        docker 'circleci/node:9.3-stretch-browsers'
+        docker 'node:12-alpine'
       }
       steps {
         unstash 'node_modules'
