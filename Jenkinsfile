@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Fetch dependencies') {
       agent {
-        docker 'node:12-alpine'
+        docker 'node:12-stretch'
       }
       steps {
         sh 'npm install'
@@ -12,7 +12,7 @@ pipeline {
     }  
     stage('Lint') {
       agent {
-        docker 'node:12-alpine'
+        docker 'node:12-stretch'
       }
       steps {
         unstash 'node_modules'
@@ -21,7 +21,7 @@ pipeline {
     }
     stage('Compile') {
       agent {
-        docker 'node:12-alpine'
+        docker 'node:12-stretch'
       }
       steps {
         unstash 'node_modules'
