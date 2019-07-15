@@ -25,7 +25,7 @@ pipeline {
       }
       steps {
         unstash 'node_modules'
-        sh 'npx ng build --prod'
+        sh 'npm run build-prod'
         stash includes: 'dist/', name: 'dist'
       }
     }
