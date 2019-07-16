@@ -109,12 +109,14 @@ pipeline {
     }
 
     stage('Deploy assets to S3 bucket') {
-      agent any
+      agent {
+        docker 'ughly/alpine-aws-cli'
+      }
       steps {
         sh 'mkdir -p dist'
         sh 'chmod -R u+w dist'
-        unstash 'dist'        
-        s3Upload(bucket:"neon-ui", path:"/${BRANCH_NAME}", ncludePathPattern:'**/*', workingDir:'dist')
+        unstash 'dist'
+        aws s3 sync dist "s3://neon-ui/${BRANCH_NAME}"
       }
     }
   }
