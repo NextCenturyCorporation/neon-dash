@@ -23,6 +23,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
+        sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run lint'
@@ -34,6 +35,7 @@ pipeline {
         docker 'circleci/node:12-stretch-browsers'
       }
       steps {
+        sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'mkdir -p reports/unit'
@@ -47,6 +49,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
+        sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run build-prod'
@@ -62,7 +65,8 @@ pipeline {
         E2E_JUNIT = "1"
       }
       steps {
-        sh 'chmod -R u+w node_module dist'
+        sh 'mkdir -p dist node_modules'
+        sh 'chmod -R u+w node_modules dist'
         unstash 'node_modules'
         unstash 'dist'
         sh 'mkdir -p reports/e2e'
