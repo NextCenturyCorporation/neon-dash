@@ -1,10 +1,12 @@
 pipeline {
   agent none
-   environment {
+  
+  environment {
     PATH = "$PATH:/usr/bin:/usr/sbin:/bin:/sbin"
     HOME = "."
     npm_config_cache = "npm-cache"
   }
+
   stages {
     stage('Fetch dependencies') {
       agent {
@@ -15,6 +17,7 @@ pipeline {
         stash includes: 'node_modules/', name: 'node_modules'
       }
     }  
+    
     stage('Lint') {
       agent {
         docker 'node:12-stretch'
@@ -24,26 +27,18 @@ pipeline {
         sh 'npm run lint'
       }
     }
-    stage('Compile') {
+   
+    stage('Unit Test') {
       agent {
-        docker 'node:12-stretch'
+        docker 'circleci/node:12-stretch-browsers'
       }
       steps {
         unstash 'node_modules'
-        sh 'npm run build-prod'
-        stash includes: 'dist/', name: 'dist'
+        sh 'npx ng test --reporters junit'
+        junit 'reports/**/*.xml'
       }
     }
-    // stage('Unit Test') {
-    //   agent {
-    //     docker 'circleci/node:12-stretch-browsers'
-    //   }
-    //   steps {
-    //     unstash 'node_modules'
-    //     sh 'npx ng test'
-    //     junit 'reports/**/*.xml'
-    //   }
-    // }
+
     // stage('E2E Test') {
     //   agent {
     //     docker 'circleci/node:12-stretch-browsers'
@@ -55,5 +50,17 @@ pipeline {
     //     junit 'reports/**/*.xml'
     //   }
     // }
+
+
+    stage('Compile') {
+      agent {
+        docker 'node:12-stretch'
+      }
+      steps {
+        unstash 'node_modules'
+        sh 'npm run build-prod'
+        stash includes: 'dist/', name: 'dist'
+      }
+    }
   }
 }
