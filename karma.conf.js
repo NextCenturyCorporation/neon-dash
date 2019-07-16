@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -55,6 +55,15 @@ module.exports = function(config) {
             FirefoxHeadless: {
                 base: 'Firefox',
                 flags: ['-headless']
+            },
+            ChromeJenkins: {
+                base: 'ChromeHeadless',
+                flags: [
+                    '--headless',
+                    '--no-sandbox',
+                    '--proxy-server=\'direct://\'',
+                    '--proxy-bypass-list=*'
+                ]
             }
         },
         singleRun: true,
