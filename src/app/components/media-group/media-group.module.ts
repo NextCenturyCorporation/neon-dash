@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MediaGroupComponent } from './media-group.component';
 import { MediaPanelModule } from '../media-panel/media-panel.module';
-import { MatTabsModule } from '@angular/material';
+import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
@@ -30,6 +30,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
         CommonWidgetModule,
         MatTabsModule,
         MediaPanelModule,
+        MatSliderModule,
         DataMessageModule,
         CommonModule
     ]

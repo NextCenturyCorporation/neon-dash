@@ -99,7 +99,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
+        public sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {

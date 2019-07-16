@@ -15,14 +15,36 @@
 import {
     Component,
     ViewEncapsulation,
-    ChangeDetectionStrategy,
     Input,
-    ElementRef
+    ElementRef,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { MediaMetaData } from '../media-panel/media-panel.component';
 import { MediaTypes } from '../../models/types';
 import { RootWidgetOptionCollection } from '../../models/widget-option-collection';
 import { DashboardState } from '../../models/dashboard-state';
+import { DomSanitizer } from '@angular/platform-browser';
+
+export interface MediaMetaData {
+    // TODO Add a way for the user to select other items from the list.
+    loaded: boolean;
+    name: string;
+    selected: {
+        border: string;
+        link: string;
+        mask: string;
+        name: string;
+        type: string;
+    };
+    list: {
+        border: string;
+        link: string;
+        mask: string;
+        name: string;
+        type: string;
+    }[];
+}
 
 @Component({
     selector: 'app-media-group',
@@ -36,6 +58,8 @@ export class MediaGroupComponent {
     @Input() dashboardState: DashboardState;
     @Input() visualization: ElementRef;
     @Input() options: RootWidgetOptionCollection;
+    @Input() sanitizer: DomSanitizer;
+    @Input() changeDetection: ChangeDetectorRef;
 
     public selectedTabIndex: number = 0;
 
@@ -47,12 +71,49 @@ export class MediaGroupComponent {
 
     public mediaTypes: any = MediaTypes;
 
+    /**
+     * Returns the opacity for the given percent.
+     *
+     * @arg {number} percent
+     * @return {number}
+     */
+    calculateOpacity(percent: number): number {
+        return (100 - percent) / 100;
+    }
+
+    sanitize(url) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
     public showContribution() {
         return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
             (this.options.contributionKeys === null &&
                 this.dashboardState.dashboard &&
                 this.dashboardState.dashboard.contributors &&
                 Object.keys(this.dashboardState.dashboard.contributors).length));
+    }
+
+    /**
+     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
+     *
+     * @arg {number} percentage
+     */
+    onSliderChange(percentage: number) {
+        this.options.sliderValue = percentage;
+        this.refreshVisualization();
+    }
+
+    /**
+     * Updates and redraws the elements and properties for the visualization.
+     *
+     * @override
+     */
+    refreshVisualization() {
+        /* eslint-disable-next-line dot-notation */
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        this.updateOnResize();
     }
 
     /**
