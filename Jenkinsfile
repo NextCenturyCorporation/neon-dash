@@ -116,13 +116,13 @@ pipeline {
         withCredentials([usernamePassword(
           credentialsId: 'aws_jenkins',
           usernameVariable: 'AWS_ACCESS_KEY_ID',
-          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                              
-        )])
-        sh 'mkdir -p dist'
-        sh 'chmod -R u+w dist'
-        unstash 'dist'
-        sh "aws s3 sync dist 's3://neon-ui/${BRANCH_NAME}'"
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
+        )]) {
+          sh 'mkdir -p dist'
+          sh 'chmod -R u+w dist'
+          unstash 'dist'
+          sh "aws s3 sync dist 's3://neon-ui/${BRANCH_NAME}'"
+        }
       }
     }
   }
