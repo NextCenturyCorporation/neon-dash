@@ -1,23 +1,20 @@
 <div class="visualization-border">
-    <div style="width:100%; position: absolute; z-index:999" (mouseleave)="showToolbar=false;">
-        <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}"
-            (mouseenter)="showToolbar=true;">
+    <div style="width:100%; position: absolute; z-index:999" (mouseleave)="showToolbar=false;" (mouseenter)="showToolbar=true;"
+        (mouseenter)="showToolbar=true;">
+        <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}">
         </div>
         <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
             <div class="icon-container" *ngIf="showToolbar">
                 <button mat-icon-button aria-label="Move to top" matTooltip="Move to Top" matTooltipPosition="below" (click)="moveToTop()">
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" matTooltipPosition="below"
-                    (click)="moveToBottom()">
+                <button mat-icon-button aria-label="Move to bottom" matTooltip="Move to Bottom" matTooltipPosition="below" (click)="moveToBottom()">
                     <mat-icon>arrow_downward</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Menu" matTooltip="Expand" matTooltipPosition="below" (click)="expand()"
-                    *ngIf="!expanded">
+                <button mat-icon-button aria-label="Menu" matTooltip="Expand" matTooltipPosition="below" (click)="expand()" *ngIf="!expanded">
                     <mat-icon>fullscreen</mat-icon>
                 </button>
-                <button mat-icon-button aria-label="Menu" matTooltip="Contract" matTooltipPosition="below" (click)="contract()"
-                    *ngIf="expanded">
+                <button mat-icon-button aria-label="Menu" matTooltip="Contract" matTooltipPosition="below" (click)="contract()" *ngIf="expanded">
                     <mat-icon>fullscreen_exit</mat-icon>
                 </button>
                 <button mat-icon-button aria-label="Close" matTooltip="Close visualization" matTooltipPosition="below" (click)="close()">

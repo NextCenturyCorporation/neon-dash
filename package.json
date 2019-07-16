@@ -107,6 +107,7 @@
     "replace-in-file": "^4.1.1",
     "sass-lint": "^1.13.1",
     "sass-lint-auto-fix": "^0.17.0",
+    "ts-node": "^8.3.0",
     "typedoc": "~0.14.2",
     "typescript": "~3.2.0",
     "webpack-bundle-analyzer": "^3.3.2"
