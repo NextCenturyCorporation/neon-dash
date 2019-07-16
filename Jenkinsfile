@@ -23,6 +23,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
+        sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run lint'
       }
@@ -33,6 +34,7 @@ pipeline {
         docker 'circleci/node:12-stretch-browsers'
       }
       steps {
+        sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npx ng test --reporters junit'
         junit 'reports/**/*.xml'
@@ -57,6 +59,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
+        sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run build-prod'
         stash includes: 'dist/', name: 'dist'
