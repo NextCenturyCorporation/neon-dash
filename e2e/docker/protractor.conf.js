@@ -14,6 +14,7 @@
  */
 
 const {SpecReporter} = require('jasmine-spec-reporter');
+const {JUnitXmlReporter} = require('jasmine-reporters');
 
 exports.config = {
     allScriptsTimeout: 11000,
@@ -41,6 +42,14 @@ exports.config = {
         });
     },
     onPrepare() {
-        jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
+        if (process.env.E2E_JUNIT) {
+            var junitReporter = new JUnitXmlReporter({
+                savePath: '../reports/e2e',
+                consolidateAll: false
+            });
+            jasmine.getEnv().addReporter(junitReporter);
+        } else {
+            jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
+        }
     }
 };
