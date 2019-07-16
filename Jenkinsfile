@@ -113,6 +113,12 @@ pipeline {
         docker 'ughly/alpine-aws-cli'
       }
       steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'aws_jenkins',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                              
+        )])
         sh 'mkdir -p dist'
         sh 'chmod -R u+w dist'
         unstash 'dist'
