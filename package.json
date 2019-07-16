@@ -87,6 +87,7 @@
     "glob": "^7.1.2",
     "grunt": "^1.0.1",
     "jasmine-core": "~2.5.2",
+    "jasmine-reporters": "^2.3.2",
     "jasmine-spec-reporter": "~3.2.0",
     "js-beautify": "^1.10.0",
     "karma": "~1.7.1",

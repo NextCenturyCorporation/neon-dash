@@ -36,7 +36,7 @@ module.exports = function (config) {
 
         },
         junitReporter: {
-            outputDir: 'reports'
+            outputDir: 'reports/unit'
         },
 
         mime: {
