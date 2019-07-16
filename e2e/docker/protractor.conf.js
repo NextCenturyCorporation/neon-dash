@@ -15,6 +15,7 @@
 
 const {SpecReporter} = require('jasmine-spec-reporter');
 const {JUnitXmlReporter} = require('jasmine-reporters');
+const path = require('path');
 
 exports.config = {
     allScriptsTimeout: 11000,
@@ -24,7 +25,19 @@ exports.config = {
     capabilities: {
         browserName: 'chrome',
         chromeOptions: {
-            args: ['--disable-dev-shm-usage', '--headless', '--disable-gpu', '--window-size=1920x1080']
+            args: [
+                '--disable-dev-shm-usage',
+                '--headless',
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-translate',
+                '--disable-extensions',
+                '--remote-debugging-port=9222',
+                '--proxy-server=\'direct://\'',
+                '--proxy-bypass-list=*',
+                '--window-size=1920x1080'
+            ]
         }
     },
     directConnect: true,
@@ -44,8 +57,8 @@ exports.config = {
     onPrepare() {
         if (process.env.E2E_JUNIT) {
             var junitReporter = new JUnitXmlReporter({
-                savePath: '../reports/e2e',
-                consolidateAll: false
+                savePath: path.resolve(__dirname, '../../reports/e2e'),
+                consolidateAll: true
             });
             jasmine.getEnv().addReporter(junitReporter);
         } else {

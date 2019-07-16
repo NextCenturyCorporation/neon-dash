@@ -36,23 +36,9 @@ pipeline {
       steps {
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
+        sh 'mkdir -p reports/unit'
         sh 'npx ng test --reporters junit --browsers ChromeJenkins || true'
         junit testResults: 'reports/unit/**/*.xml', allowEmptyResults: false, healthScaleFactor: 100.0
-      }
-    }
-
-    stage('E2E Test') {
-      agent {
-        docker 'circleci/node:12-stretch-browsers'
-      }
-      environment {
-        E2E_JUNIT = "1"
-      }
-      steps {
-        unstash 'node_modules'
-        sh 'mkdir -p reports'
-        sh './e2e.sh'
-        junit 'reports/e2e/**/*.xml'
       }
     }
 
@@ -65,6 +51,23 @@ pipeline {
         unstash 'node_modules'
         sh 'npm run build-prod'
         stash includes: 'dist/', name: 'dist'
+      }
+    }
+    
+    stage('E2E Test') {
+      agent {
+        docker 'circleci/node:12-stretch-browsers'
+      }
+      environment {
+        E2E_JUNIT = "1"
+      }
+      steps {
+        sh 'chmod -R u+w {node_modules,dist}'
+        unstash 'node_modules'
+        unstash 'dist'
+        sh 'mkdir -p reports/e2e'
+        sh './e2e.sh'
+        junit 'reports/e2e/**/*.xml'
       }
     }
   }
