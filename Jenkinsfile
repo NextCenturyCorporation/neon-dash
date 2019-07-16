@@ -14,7 +14,7 @@ pipeline {
       }
       steps {
         sh 'npm install'
-        stash includes: 'node_modules/', name: 'node_modules'
+        stash includes: 'node_modules/', name: 'deps'
       }
     }  
     
@@ -23,7 +23,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
-        unstash 'node_modules'
+        unstash 'deps'
         sh 'npm run lint'
       }
     }
@@ -33,7 +33,7 @@ pipeline {
         docker 'circleci/node:12-stretch-browsers'
       }
       steps {
-        unstash 'node_modules'
+        unstash 'deps'
         sh 'npx ng test --reporters junit'
         junit 'reports/**/*.xml'
       }
@@ -44,7 +44,7 @@ pipeline {
     //     docker 'circleci/node:12-stretch-browsers'
     //   }
     //   steps {
-    //     unstash 'node_modules'
+    //     unstash 'deps'
     //     sh 'mkdir -p reports'
     //     sh './e2e.sh'
     //     junit 'reports/**/*.xml'
@@ -57,7 +57,7 @@ pipeline {
         docker 'node:12-stretch'
       }
       steps {
-        unstash 'node_modules'
+        unstash 'deps'
         sh 'npm run build-prod'
         stash includes: 'dist/', name: 'dist'
       }
