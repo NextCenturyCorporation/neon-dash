@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -63,6 +63,8 @@ module.exports = function(config) {
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-gpu',
+                    '--disable-translate',
+                    '--disable-extensions',
                     '--remote-debugging-port=9222',
                     '--proxy-server=\'direct://\'',
                     '--proxy-bypass-list=*'
