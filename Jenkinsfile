@@ -1,5 +1,5 @@
 pipeline {
-  agent none
+  agent any
   
   environment {
     PATH = "/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin"
@@ -59,7 +59,6 @@ pipeline {
     
     stage('E2E Setup') {
       steps {
-        node('master') {
           sh 'mkdir -p dist node_modules'
           sh 'chmod -R u+w node_modules dist'
           unstash 'node_modules'
@@ -74,7 +73,6 @@ pipeline {
               }
             }
           }
-        }
       }
     }
 
@@ -100,9 +98,7 @@ pipeline {
 
   post {
     always {
-      node('master') {
-        sh 'cd e2e/docker && docker-compose  --no-ansi down'
-      }
+      sh 'cd e2e/docker && docker-compose  --no-ansi down'
     }
   }
 }
