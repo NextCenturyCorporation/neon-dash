@@ -59,7 +59,7 @@ pipeline {
     
     stage('E2E Setup') {
       steps {
-        node('docker') {
+        node('master') {
           sh 'mkdir -p dist node_modules'
           sh 'chmod -R u+w node_modules dist'
           unstash 'node_modules'
@@ -100,7 +100,7 @@ pipeline {
 
   post {
     always {
-      node('docker') {
+      node('master') {
         sh 'cd e2e/docker && docker-compose  --no-ansi down'
       }
     }
