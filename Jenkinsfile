@@ -94,28 +94,32 @@ pipeline {
   //       junit 'reports/e2e/**/*.xml'
   //     }
   //   }
+  // 
+
+    stage('Build nginx container') {
+      when {
+          expression {
+              BRANCH_NAME == 'master'
+          }
+      }
+      steps {
+        sh 'which docker-compose'
+      } 
+    }
+
+    stage('Deploy assets to S3 bucket') {
+      steps {
+        sh 'mkdir -p dist'
+        sh 'chmod -R u+w dist'
+        unstash 'dist'        
+        s3Upload(bucket:"neon-ui", path:"/${BRANCH_NAME}", ncludePathPattern:'**/*', workingDir:'dist')
+      }
+    }
+  }
+
+  // post {
+  //   always {
+  //     sh 'cd e2e/docker && docker-compose  --no-ansi down'
+  //   }
   // }
-
-  stage('Build nginx container') {
-    when {
-        expression {
-            BRANCH_NAME == 'master'
-        }
-    }
-    steps {
-
-    }
-  }
-
-  stage('Deploy assets to S3 bucket') {
-    steps {
-      s3Upload(bucket:"neon-ui", path:"/${BRANCH_NAME}", ncludePathPattern:'**/*', workingDir:'dist')
-    }
-  }
-
-  post {
-    always {
-      sh 'cd e2e/docker && docker-compose  --no-ansi down'
-    }
-  }
 }
