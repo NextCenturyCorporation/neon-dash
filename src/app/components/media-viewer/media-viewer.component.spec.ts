@@ -30,6 +30,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
+import { MediaGroupComponent } from '../media-group/media-group.component';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -741,7 +742,7 @@ describe('Component: MediaViewer', () => {
     it('does show header in toolbar with visualization name', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Media Viewer');
+        expect(header.nativeElement.textContent).toBe(' Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
@@ -785,16 +786,16 @@ describe('Component: MediaViewer', () => {
         expect(spinner).not.toBeNull();
     }));
 
-    it('does hide tabs if tabsAndMedia is empty', () => {
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(0);
-        let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
-        expect(slider.length).toBe(0);
-    });
+    // It('does hide tabs if tabsAndMedia is empty', () => {
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(0);
+    //     let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
+    //     expect(slider.length).toBe(0);
+    // });
 
-    it('does show tabs if tabsAndMedia is not empty', () => {
+    it('does bind the media component to the child Media-Group with multiple non-empty media', () => {
         component.tabsAndMedia = [{
-            loaded: false,
+            loaded: true,
             name: 'testTabName1',
             selected: {
                 border: '',
@@ -829,335 +830,412 @@ describe('Component: MediaViewer', () => {
             }]
         }];
         component.changeDetection.detectChanges();
-
         expect(component.tabsAndMedia.length).toBe(2);
-
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
-        expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
-        expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-        expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
-        expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-        let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
-        expect(slider.length).toBe(0);
+        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
+        expect(tabs.length).toBe(1);
     });
 
-    it('does show single image tag according to the image type', () => {
-        let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName',
-            selected: {
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            },
-            list: [{
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<img');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    });
-
-    it('does show multiple image tags in tabs according to the image type', () => {
-        let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName1',
-            selected: {
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            },
-            list: [{
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            }]
-        }, {
-            loaded: false,
-            name: 'testTabName2',
-            selected: {
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            },
-            list: [{
-                border: '',
-                link: imgSrc,
-                mask: '',
-                name: 'testName',
-                type: 'img'
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<img');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    });
-
-    it('does show single audio tag according to the audio type', () => {
-        let audSrc = './assets/audio/test-audio.wav';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName',
-            selected: {
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            },
-            list: [{
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<audio');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    });
-
-    it('does show multiple audio tags in tabs according to the audio type', () => {
-        let audSrc = './assets/audio/test-audio.wav';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName1',
-            selected: {
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            },
-            list: [{
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            }]
-        }, {
-            loaded: false,
-            name: 'testTabName2',
-            selected: {
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            },
-            list: [{
-                border: '',
-                link: audSrc,
-                mask: '',
-                name: 'testName',
-                type: 'aud'
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<audio');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    });
-
-    it('does show single iframe tag according to the empty type', () => {
-        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName',
-            selected: {
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let media = fixture.debugElement.queryAll(By.css('.single-medium'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    });
-
-    it('does show multiple iframe tags in tabs according to the empty type', () => {
-        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName1',
-            selected: {
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            }]
-        }, {
-            loaded: false,
-            name: 'testTabName2',
-            selected: {
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: docSrc,
-                mask: '',
-                name: 'testName',
-                type: ''
-            }]
-        }];
-        component.changeDetection.detectChanges();
-
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
-        let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
-        expect(media.length).toBe(1);
-        expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-        expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    });
-
-    it('does show two tabs and slider', () => {
+    it('does bind the media component to the child Media-Group non-empty', () => {
         component.tabsAndMedia = [{
             loaded: false,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: 'testMaskValue1',
+                mask: '',
                 name: 'testNameValue1',
-                type: 'mask'
+                type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: 'testMaskValue1',
+                mask: '',
                 name: 'testNameValue1',
-                type: 'mask'
-            }, {
-                border: '',
-                link: 'testLinkValue3',
-                mask: 'testMaskValue3',
-                name: 'testNameValue3',
-                type: 'mask'
-            }]
-        }, {
-            loaded: false,
-            name: 'testTabName2',
-            selected: {
-                border: '',
-                link: 'testLinkValue2',
-                mask: 'testMaskValue2',
-                name: 'testNameValue2',
-                type: 'mask'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue2',
-                mask: 'testMaskValue2',
-                name: 'testNameValue2',
-                type: 'mask'
+                type: ''
             }]
         }];
         component.changeDetection.detectChanges();
-
-        expect(component.tabsAndMedia.length).toBe(2);
-
-        let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
+        expect(component.tabsAndMedia.length).toBe(1);
+        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
+        expect(tabs.length).toBe(1);
         expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
-        expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-        expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
-        expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-        let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
-        expect(slider.length).toBe(1);
     });
 
-    it('does show two images and slider', () => {
-        let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-        let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testTabName1',
-            selected: {
-                border: '',
-                link: baseSource,
-                mask: maskSource,
-                name: 'testName',
-                type: 'mask'
-            },
-            list: [{
-                border: '',
-                link: baseSource,
-                mask: maskSource,
-                name: 'testName',
-                type: 'mask'
-            }]
-        }];
+    it('does bind the media component to the child Media-Group empty', () => {
+        component.tabsAndMedia = [];
         component.changeDetection.detectChanges();
-
-        let medium = fixture.debugElement.queryAll(By.css('.single-medium'));
-        expect(medium.length).toBe(1);
-        let images = fixture.debugElement.queryAll(By.css('.single-medium img'));
-        expect(images.length).toBe(2);
-        expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
-        expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
-
-        let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
-        expect(slider.length).toBe(1);
+        expect(component.tabsAndMedia.length).toBe(0);
+        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
+        expect(tabs.length).toBe(1);
+        expect(tabs[0].nativeElement.textContent).toBe('');
     });
+
+    // It('does show tabs if tabsAndMedia is not empty', () => {
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: 'testLinkValue1',
+    //             mask: '',
+    //             name: 'testNameValue1',
+    //             type: ''
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: 'testLinkValue1',
+    //             mask: '',
+    //             name: 'testNameValue1',
+    //             type: ''
+    //         }]
+    //     }, {
+    //         loaded: false,
+    //         name: 'testTabName2',
+    //         selected: {
+    //             border: '',
+    //             link: 'testLinkValue2',
+    //             mask: '',
+    //             name: 'testNameValue2',
+    //             type: ''
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: 'testLinkValue2',
+    //             mask: '',
+    //             name: 'testNameValue2',
+    //             type: ''
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     expect(component.tabsAndMedia.length).toBe(2);
+
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(2);
+    //     expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
+    //     expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
+    //     expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
+    //     expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
+
+    //     let slider = fixture.debugElement.queryAll(By.css('app-media-group mat-slider'));
+    //     expect(slider.length).toBe(0);
+    // });
+
+    // it('does show single image tag according to the image type', () => {
+    //     let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName',
+    //         selected: {
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let media = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<img');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
+    // });
+
+    // it('does show multiple image tags in tabs according to the image type', () => {
+    //     let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         }]
+    //     }, {
+    //         loaded: false,
+    //         name: 'testTabName2',
+    //         selected: {
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: imgSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'img'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(2);
+    //     let media = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<img');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
+    // });
+
+    // it('does show single audio tag according to the audio type', () => {
+    //     let audSrc = './assets/audio/test-audio.wav';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName',
+    //         selected: {
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let media = fixture.debugElement.queryAll(By.css('.single-medium'));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<audio');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
+    // });
+
+    // it('does show multiple audio tags in tabs according to the audio type', () => {
+    //     let audSrc = './assets/audio/test-audio.wav';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         }]
+    //     }, {
+    //         loaded: false,
+    //         name: 'testTabName2',
+    //         selected: {
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: audSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: 'aud'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(2);
+    //     let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<audio');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
+    // });
+
+    // it('does show single iframe tag according to the empty type', () => {
+    //     let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName',
+    //         selected: {
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let media = fixture.debugElement.queryAll(By.css('.single-medium'));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
+    // });
+
+    // it('does show multiple iframe tags in tabs according to the empty type', () => {
+    //     let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         }]
+    //     }, {
+    //         loaded: false,
+    //         name: 'testTabName2',
+    //         selected: {
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: docSrc,
+    //             mask: '',
+    //             name: 'testName',
+    //             type: ''
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(2);
+    //     let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
+    //     expect(media.length).toBe(1);
+    //     expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
+    // });
+
+    // it('does show two tabs and slider', () => {
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: 'testLinkValue1',
+    //             mask: 'testMaskValue1',
+    //             name: 'testNameValue1',
+    //             type: 'mask'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: 'testLinkValue1',
+    //             mask: 'testMaskValue1',
+    //             name: 'testNameValue1',
+    //             type: 'mask'
+    //         }, {
+    //             border: '',
+    //             link: 'testLinkValue3',
+    //             mask: 'testMaskValue3',
+    //             name: 'testNameValue3',
+    //             type: 'mask'
+    //         }]
+    //     }, {
+    //         loaded: false,
+    //         name: 'testTabName2',
+    //         selected: {
+    //             border: '',
+    //             link: 'testLinkValue2',
+    //             mask: 'testMaskValue2',
+    //             name: 'testNameValue2',
+    //             type: 'mask'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: 'testLinkValue2',
+    //             mask: 'testMaskValue2',
+    //             name: 'testNameValue2',
+    //             type: 'mask'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     expect(component.tabsAndMedia.length).toBe(2);
+
+    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
+    //     expect(tabs.length).toBe(2);
+    //     expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
+    //     expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
+    //     expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
+    //     expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
+
+    //     let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
+    //     expect(slider.length).toBe(1);
+    // });
+
+    // it('does show two images and slider', () => {
+    //     let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+    //     let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
+    //     component.tabsAndMedia = [{
+    //         loaded: false,
+    //         name: 'testTabName1',
+    //         selected: {
+    //             border: '',
+    //             link: baseSource,
+    //             mask: maskSource,
+    //             name: 'testName',
+    //             type: 'mask'
+    //         },
+    //         list: [{
+    //             border: '',
+    //             link: baseSource,
+    //             mask: maskSource,
+    //             name: 'testName',
+    //             type: 'mask'
+    //         }]
+    //     }];
+    //     component.changeDetection.detectChanges();
+
+    //     let medium = fixture.debugElement.queryAll(By.css('.single-medium'));
+    //     expect(medium.length).toBe(1);
+    //     let images = fixture.debugElement.queryAll(By.css('.single-medium img'));
+    //     expect(images.length).toBe(2);
+    //     expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
+    //     expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
+
+    //     let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
+    //     expect(slider.length).toBe(1);
+    // });
 });
 
 describe('Component: MediaViewer with config', () => {
@@ -1223,6 +1301,6 @@ describe('Component: MediaViewer with config', () => {
     it('does show header in toolbar with title from config', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Test Title');
+        expect(header.nativeElement.textContent).toBe(' Test Title');
     }));
 });

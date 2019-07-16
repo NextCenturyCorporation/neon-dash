@@ -21,17 +21,18 @@
 <app-data-message *ngIf="showNoData"></app-data-message>
 
 <div *ngIf="options.url == ''">
-    <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
+    <div *ngIf="tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-    <app-media-group #mediaGroup [tabsAndMedia]='tabsAndMedia' [visualization]='this.visualization'
-        [dashboardState]='this.dashboardState' [options]='this.options'></app-media-group>
+    <app-media-group #mediaGroup [tabsAndMedia]="tabsAndMedia" [visualization]="this.visualization"
+        [dashboardState]="this.dashboardState" [options]="this.options" [sanitizer]="this.sanitizer"
+        [changeDetection]='this.changeDetection'></app-media-group>
 
-    <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
-        <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
+    <!-- <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
+         Use an ngFor to force the widget to reload and redraw its media elements 
         <div *ngFor="let tab of tabsAndMedia">
             <div class="viewer-text">{{ tab.name }}</div>
             <div [ngSwitch]="tab.selected.type">
-                <!-- TODO Move into a subcomponent shared with the multiple-tab behavior -->
+                 TODO Move into a subcomponent shared with the multiple-tab behavior
                 <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                     <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
                         [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
@@ -48,13 +49,13 @@
                     [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                     <source [src]="tab.selected.link">
                 </audio>
-                <!-- Use iframe for mediaTypes.video and other types -->
+                 Use iframe for mediaTypes.video and other types
                 <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                     [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                 </iframe>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <div class="full-height" *ngIf="options.url != ''">
