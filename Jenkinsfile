@@ -14,7 +14,7 @@ pipeline {
       }
       steps {
         sh 'npm install'
-        stash includes: 'node_modules/', name: 'node_modules'
+        stash includes: 'node_modules/', name: 'node_modules', excludes: '**/*.md,**/LICENSES,**/package.json'
       }
     }  
     
