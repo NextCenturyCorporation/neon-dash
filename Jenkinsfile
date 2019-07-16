@@ -2,8 +2,8 @@ pipeline {
   agent none
    environment {
     PATH = "$PATH:/usr/bin:/usr/sbin:/bin:/sbin"
-    HOME = '.'
-    npm_config_cache = npm-cache
+    HOME = "."
+    npm_config_cache = "npm-cache"
   }
   stages {
     stage('Fetch dependencies') {
