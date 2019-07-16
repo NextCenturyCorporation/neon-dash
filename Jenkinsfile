@@ -100,7 +100,9 @@ pipeline {
 
   post {
     always {
-      sh 'cd e2e/docker && docker-compose  --no-ansi down'
+      node('docker') {
+        sh 'cd e2e/docker && docker-compose  --no-ansi down'
+      }
     }
   }
 }
