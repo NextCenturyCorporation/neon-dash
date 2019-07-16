@@ -18,24 +18,25 @@ const {SpecReporter} = require('jasmine-spec-reporter');
 exports.config = {
     allScriptsTimeout: 11000,
     specs: [
-        './e2e/**/*.e2e-spec.ts'
+        '../**/*.e2e-spec.ts'
     ],
     capabilities: {
         browserName: 'chrome',
         chromeOptions: {
-            args: []
+            args: ['--disable-dev-shm-usage', '--headless', '--disable-gpu', '--window-size=1920x1080']
         }
     },
     directConnect: true,
-    baseUrl: 'http://localhost:4200/',
+    baseUrl: 'http://localhost:4199/',
     framework: 'jasmine',
     jasmineNodeOpts: {
         showColors: true,
         defaultTimeoutInterval: 30000,
         print: function () {}
     },
+    skipSourceMapSupport: true,
     beforeLaunch: function () {
-        require('ts-node').register({
+        require('ts-node-2').register({
             project: 'e2e/tsconfig.e2e.json'
         });
     },

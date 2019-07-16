@@ -1,4 +1,4 @@
-<form class="gear-container" #optionsFOrm="ngForm">
+<form class="gear-container" #optionsForm="ngForm">
     <mat-form-field class="option-container">
         <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title" (ngModelChange)="updateOnChange('title')"
             [name]="modifiedOptions._id + '_title'" required="false">
@@ -53,8 +53,7 @@
     </div>
     <!-- Non Multilayer option list-->
     <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
-        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"
-        [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
+        [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)" [handleChangeTable]="handleChangeTable.bind(this,modifiedOptions)">
     </app-options-section>
 
     <mat-form-field class="option-container">
@@ -74,8 +73,8 @@
     <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Refresh" (click)="handleRefreshClick()">
         Refresh
     </button>
-    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes"
-        [disabled]="!changeMade" (click)="handleApplyClick()">
+    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes" [disabled]="!changeMade"
+        (click)="handleApplyClick()">
         Apply Changes
     </button>
 </div>
