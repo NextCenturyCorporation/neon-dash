@@ -116,7 +116,7 @@ pipeline {
         sh 'mkdir -p dist'
         sh 'chmod -R u+w dist'
         unstash 'dist'
-        aws s3 sync dist "s3://neon-ui/${BRANCH_NAME}"
+        sh "aws s3 sync dist 's3://neon-ui/${BRANCH_NAME}'"
       }
     }
   }
