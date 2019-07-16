@@ -36,7 +36,7 @@ pipeline {
       steps {
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
-        sh 'npx ng test --reporters junit'
+        sh 'npx ng test --reporters junit --browsers ChromeHeadless'
         junit 'reports/**/*.xml'
       }
     }
