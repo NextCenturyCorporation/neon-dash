@@ -97,6 +97,7 @@ pipeline {
   // 
 
     stage('Build nginx container') {
+      agent any
       when {
           expression {
               BRANCH_NAME == 'master'
@@ -108,6 +109,7 @@ pipeline {
     }
 
     stage('Deploy assets to S3 bucket') {
+      agent any
       steps {
         sh 'mkdir -p dist'
         sh 'chmod -R u+w dist'
