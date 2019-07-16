@@ -65,11 +65,12 @@ pipeline {
         unstash 'dist'
         
         sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
-
-        timeout(120) {
-          waitUntil {
-            def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
-            return (r == 0);
+        script {
+          timeout(120) {
+            waitUntil {
+              def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
+              r == 0;
+            }
           }
         }
       }
