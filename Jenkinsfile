@@ -62,7 +62,7 @@ pipeline {
         E2E_JUNIT = "1"
       }
       steps {
-        sh 'chmod -R u+w {node_modules,dist}'
+        sh 'chmod -R u+w node_module dist'
         unstash 'node_modules'
         unstash 'dist'
         sh 'mkdir -p reports/e2e'
