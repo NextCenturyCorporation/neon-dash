@@ -59,17 +59,19 @@ pipeline {
     
     stage('E2E Setup') {
       steps {
-        sh 'mkdir -p dist node_modules'
-        sh 'chmod -R u+w node_modules dist'
-        unstash 'node_modules'
-        unstash 'dist'
-        
-        sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
-        script {
-          timeout(120) {
-            waitUntil {
-              def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
-              r == 0;
+        node('docker') {
+          sh 'mkdir -p dist node_modules'
+          sh 'chmod -R u+w node_modules dist'
+          unstash 'node_modules'
+          unstash 'dist'
+
+          sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
+          script {
+            timeout(120) {
+              waitUntil {
+                def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
+                r == 0;
+              }
             }
           }
         }
