@@ -1,6 +1,6 @@
 #!/bin/sh
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+BASEDIR=$(dirname "$0")
 
-$DIR/lint_ts.sh
-$DIR/lint_sass.sh
-$DIR/lint_html.sh
+$BASEDIR/lint_ts.sh
+$BASEDIR/lint_sass.sh
+$BASEDIR/lint_html.sh
