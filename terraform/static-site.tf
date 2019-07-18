@@ -114,7 +114,12 @@ resource "aws_cloudfront_distribution" "site" {
   origin {
     domain_name = "${var.neon_server_host}"
     origin_id   = "${local.lowBranch}.${var.root_domain}-neon"
-    origin_protocol_policy = "http-only"    
+    custom_origin_config {
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols = ["TLSv1.1","SSLv3","TLSv1.2"]
+      http_port = 80
+      https_port = 443
+    }
     custom_header {
       name = "Authorization"
       value = "Basic bG9yZWxlaTp0aG9ydGhvcg=="
@@ -136,14 +141,28 @@ resource "aws_cloudfront_distribution" "site" {
     max_ttl                = 0
 
     path_pattern = "/neon/*"
+    
+    viewer_protocol_policy = "redirect-to-https"
+
     target_origin_id = "${local.lowBranch}.${var.root_domain}-neon"
     forwarded_values {
       query_string = true
       headers = ["Origin"]
+      cookies {
+        forward = "none"
+      }
     }
   }
 
-  ordered_cache_behavior {   
+  default_cache_behavior {
+    forwarded_values {
+      query_string = true
+      headers = ["Origin"]
+      cookies {
+        forward = "none"
+      }
+    }
+
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     compress            = true
@@ -152,13 +171,6 @@ resource "aws_cloudfront_distribution" "site" {
     max_ttl                = 86400
  
     target_origin_id = "${local.lowBranch}.${var.root_domain}"
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
     viewer_protocol_policy = "redirect-to-https"
 
     # Link the Lambda function to CloudFront request
