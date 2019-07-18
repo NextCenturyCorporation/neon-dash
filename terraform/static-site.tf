@@ -34,12 +34,17 @@ data "archive_file" "lambda_zip" {
     output_path = "lambda.zip"
 }
 
+locals {
+  lowBranch = "${lower(var.branch)}"
+  safeBranch = "${replace(local.lowBranch, "/[^a-z0-9]+/", "")}"
+}
+
 resource "aws_lambda_function" "auth" {
   description = "Basic HTTP authentication module/function"
   role = "${var.lambda_role}"
   runtime = "nodejs10.x"
 
-  function_name = "${replace(var.branch, "/[^A-Za-z0-9]+/", "")}Auth"
+  function_name = "${local.safeBranch}Auth"
   handler = "auth.handler"
 
   filename = "lambda.zip" 
@@ -49,7 +54,7 @@ resource "aws_lambda_function" "auth" {
 
 resource "aws_route53_record" "site" {
   zone_id = "${var.zone_id}"
-  name    = "${var.branch}.${var.root_domain}"
+  name    = "${local.lowBranch}.${var.root_domain}"
   type    = "A"
   alias {
     name                   = "${aws_cloudfront_distribution.site.domain_name}"
@@ -59,7 +64,7 @@ resource "aws_route53_record" "site" {
 }
 
 resource "aws_s3_bucket" "site" {
-  bucket = "${var.branch}.${var.root_domain}"
+  bucket = "${local.lowBranch}.${var.root_domain}"
   acl    = "private"
   region = "us-east-1"
   force_destroy = true
@@ -96,7 +101,7 @@ resource "aws_cloudfront_origin_access_identity" "site" {
 resource "aws_cloudfront_distribution" "site" {
   origin {
     domain_name = "${aws_s3_bucket.site.bucket_regional_domain_name}"
-    origin_id   = "${var.branch}.${var.root_domain}"
+    origin_id   = "${local.lowBranch}.${var.root_domain}"
     s3_origin_config {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.site.cloudfront_access_identity_path}"
     }
@@ -110,7 +115,7 @@ resource "aws_cloudfront_distribution" "site" {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
     compress            = true
-    target_origin_id = "${var.branch}.${var.root_domain}"
+    target_origin_id = "${local.lowBranch}.${var.root_domain}"
     forwarded_values {
       query_string = false
       cookies {
@@ -150,7 +155,7 @@ resource "aws_cloudfront_distribution" "site" {
       restriction_type = "none"
     }
   }
-  aliases = ["${var.branch}.${var.root_domain}"]
+  aliases = ["${local.lowBranch}.${var.root_domain}"]
   tags = {
     environment = "production"
   }
