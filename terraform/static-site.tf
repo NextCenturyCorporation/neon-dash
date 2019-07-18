@@ -12,7 +12,7 @@ terraform {
 
 variable branch {}
 
-variable zoneId {
+variable zone_id {
   default = "ZTH40J9BJ47PS"
 }
 
@@ -20,12 +20,35 @@ variable root_domain {
   default = "nc-demo.com"
 }
 
-variable sslArn {
+variable ssl_arn {
   default = "arn:aws:acm:us-east-1:670848316581:certificate/ff16dd89-bb54-47d7-b8e6-1e9cc607d8c5"
 }
 
+variable lambda_role {
+  default = "arn:aws:iam::670848316581:role/Lambda-Role"
+}
+
+data "archive_file" "lambda_zip" {
+    type        = "zip"
+    source_file  = "auth.handler.js"
+    output_path = "lambda.zip"
+}
+
+resource "aws_lambda_function" "auth" {
+  description = "Basic HTTP authentication module/function"
+  role = "${var.lambda_role}"
+  runtime = "nodejs10.x"
+
+  function_name = "${replace(var.branch, "/[^A-Za-z0-9]+/", "")}Auth"
+  handler = "main.handler"
+
+  filename = "lambda.zip" 
+
+  publish = true
+}
+
 resource "aws_route53_record" "site" {
-  zone_id = "${var.zoneId}"
+  zone_id = "${var.zone_id}"
   name    = "${var.branch}.${var.root_domain}"
   type    = "A"
   alias {
@@ -98,6 +121,20 @@ resource "aws_cloudfront_distribution" "site" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+
+    # Link the Lambda function to CloudFront request
+    # for authenticating
+    lambda_function_association {
+      event_type = "viewer-request"
+      lambda_arn = "${aws_lambda_function.auth.qualified_arn}"
+    }
+
+    # Link the Lambda function to CloudFront response
+    # for setting the authenticated cookie
+    lambda_function_association {
+      event_type = "viewer-response"
+      lambda_arn = "${aws_lambda_function.auth.qualified_arn}"
+    }
   }
   price_class = "PriceClass_100"
   restrictions {
@@ -110,8 +147,8 @@ resource "aws_cloudfront_distribution" "site" {
     environment = "production"
   }
   viewer_certificate {
-    acm_certificate_arn = "${var.sslArn}"
+    acm_certificate_arn = "${var.ssl_arn}"
     ssl_support_method = "sni-only"
-    minimum_protocol_version = "TLSv1.1"
+    minimum_protocol_version = "TLSv1.1_2016"
   }
 }
