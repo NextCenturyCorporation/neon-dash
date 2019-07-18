@@ -34,6 +34,11 @@ pipeline {
       agent {
         docker 'circleci/node:12-stretch-browsers'
       }
+      when {
+        expression {
+          false
+        }
+      }
       steps {
         sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
@@ -99,16 +104,15 @@ pipeline {
     stage('Build nginx container') {
       agent any
       when {
-          expression {
-              BRANCH_NAME == 'master'
-          }
+          branch 'master'
       }
       steps {
         sh 'which docker-compose'
       } 
     }
 
-    stage('Deploy assets to S3 bucket') {
+
+    stage('Setup AWS Branch Setup') {
       agent {
         docker 'hashicorp/terraform'
       }
@@ -118,14 +122,28 @@ pipeline {
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
         )]) {
-          sh "rm -rf ${env.WORKSPACE}/.terraform"
-          sh "cd ${env.WORKSPACE}/terraform && terraform init --backend-config='key=${BRANCH_NAME}'"
-          sh "cd ${env.WORKSPACE}/terraform && terraform apply -var 'branch=${BRANCH_NAME}' -auto-approve -input=false"
-          sh "cd ${env.WORKSPACE}"
+          ws("${env.WORKSPACE}/terraform") {
+            sh "rm -rf .terraform"
+            sh "terraform init --backend-config='key=${BRANCH_NAME}'"
+            sh "terraform apply -var 'branch=${BRANCH_NAME}' -auto-approve -input=false"
+          }
+        }
+      }
+    }
 
+    stage('Deploy assets to S3 bucket') {
+      agent {
+        docker 'ughly/alpine-aws-cli'
+      }
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'aws_jenkins',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
+        )]) {
           sh 'mkdir -p dist'
           sh 'chmod -R u+w dist'
-          unstash 'dist'          
+          unstash 'dist'
           sh "aws s3 sync dist 's3://${BRANCH_NAME}.nc-demo.com'"
         }
       }
