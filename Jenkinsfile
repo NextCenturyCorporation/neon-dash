@@ -22,6 +22,11 @@ pipeline {
       agent {
         docker 'node:12-stretch'
       }
+      when {
+        expression {
+          false
+        }
+      }
       steps {
         sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
@@ -62,45 +67,6 @@ pipeline {
       }
     }
     
-  //   stage('E2E Setup') {
-  //     steps {
-  //         sh 'mkdir -p dist node_modules'
-  //         sh 'chmod -R u+w node_modules dist'
-  //         unstash 'node_modules'
-  //         unstash 'dist'
-
-  //         sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
-  //         script {
-  //           timeout(120) {
-  //             waitUntil {
-  //               def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
-  //               r == 0;
-  //             }
-  //           }
-  //         }
-  //     }
-  //   }
-
-  //   stage('E2E Test') {
-  //     agent {
-  //       docker 'circleci/node:12-stretch-browsers'
-  //     }
-  //     environment {
-  //       E2E_JUNIT = "1"
-  //     }
-  //     steps {
-  //       sh 'mkdir -p dist node_modules'
-  //       sh 'chmod -R u+w node_modules dist'
-  //       unstash 'node_modules'
-  //       unstash 'dist'
-  //       sh 'mkdir -p reports/e2e'
-  //       sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
-  //       sh 'npx protractor e2e/docker/protractor.conf.js'
-  //       junit 'reports/e2e/**/*.xml'
-  //     }
-  //   }
-  // 
-
     stage('Build nginx container') {
       agent any
       when {
@@ -148,6 +114,56 @@ pipeline {
         }
       }
     }
+    stage('E2E Setup') {
+      when {
+        expression {
+          false
+        }
+      }
+      steps {
+          sh 'mkdir -p dist node_modules'
+          sh 'chmod -R u+w node_modules dist'
+          unstash 'node_modules'
+          unstash 'dist'
+
+          sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
+          script {
+            timeout(120) {
+              waitUntil {
+                def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
+                r == 0;
+              }
+            }
+          }
+      }
+    }
+
+    stage('E2E Test') {
+      when {
+        expression {
+          false
+        }
+      }
+      agent {
+        docker 'circleci/node:12-stretch-browsers'
+      }
+      environment {
+        E2E_JUNIT = "1"
+      }
+      steps {
+        sh 'mkdir -p dist node_modules'
+        sh 'chmod -R u+w node_modules dist'
+        unstash 'node_modules'
+        unstash 'dist'
+        sh 'mkdir -p reports/e2e'
+        sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
+        sh 'npx protractor e2e/docker/protractor.conf.js'
+        junit 'reports/e2e/**/*.xml'
+      }
+    }
+  
+
+
   }
 
   // post {
