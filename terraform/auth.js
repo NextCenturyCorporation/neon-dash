@@ -35,7 +35,7 @@ exports.handler = async (event, context, callback) => {
   const {headers} = cf.request;
   const authHeader = Array.isArray(headers.authorization) ? headers.authorization[0].value : undefined;
   const values = parse(authHeader);
-  if (!authHeader || !values || !(values.user === 'username' && values.password === 'password')) {
+  if (!authHeader || !values || !(values.user === 'lorelei' && values.password === 'thorthor')) {
     requestAuth(event, callback);
     return;
   }

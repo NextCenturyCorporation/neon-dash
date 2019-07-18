@@ -119,7 +119,7 @@ pipeline {
           unstash 'dist'
           sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
           sh "cp src/app/config/cicid/lorelei.config.yaml src/app/config.yaml"
-          sh "cp src/app/config/cicd/${BRANCH_NAME}.yaml src/app/config.yaml || echo 'none'"
+          sh "cp src/app/config/cicd/config.${BRANCH_NAME.toLowerCase()}.yaml src/app/config.yaml || echo 'none'"
           sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
         }
       }
