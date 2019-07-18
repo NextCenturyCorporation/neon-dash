@@ -141,7 +141,7 @@ resource "aws_cloudfront_distribution" "site" {
     max_ttl                = 0
 
     path_pattern = "/neon/*"
-    
+
     viewer_protocol_policy = "redirect-to-https"
 
     target_origin_id = "${local.lowBranch}.${var.root_domain}-neon"
@@ -189,11 +189,18 @@ resource "aws_cloudfront_distribution" "site" {
   }
 
   custom_error_response {
-    error_caching_min_ttl = 3000
+    error_caching_min_ttl = 300
     error_code = 404
     response_code = 200
     response_page_path = "/index.html"
-}
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 300
+    error_code = 403
+    response_code = 200
+    response_page_path = "/index.html"
+  }
 
   price_class = "PriceClass_100"
   restrictions {
