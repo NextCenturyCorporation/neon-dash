@@ -122,7 +122,7 @@ pipeline {
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
         )]) {
-          ws("${env.WORKSPACE}/terraform") {
+          dir("terraform") {
             sh "rm -rf .terraform"
             sh "terraform init --backend-config='key=${BRANCH_NAME}'"
             sh "terraform apply -var 'branch=${BRANCH_NAME}' -auto-approve -input=false"
