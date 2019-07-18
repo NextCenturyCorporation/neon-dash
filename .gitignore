@@ -3,6 +3,8 @@
 # client folder is outdated: ignore it if it exists
 /client
 
+**/.terraform
+
 # compiled output
 /dist
 /tmp
