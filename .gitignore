@@ -4,6 +4,7 @@
 /client
 
 **/.terraform
+terraform/lambda.zip
 
 # compiled output
 /dist
