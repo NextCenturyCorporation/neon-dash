@@ -30,7 +30,7 @@ variable lambda_role {
 
 data "archive_file" "lambda_zip" {
     type        = "zip"
-    source_file  = "auth.handler.js"
+    source_file  = "auth.js"
     output_path = "lambda.zip"
 }
 
@@ -40,7 +40,7 @@ resource "aws_lambda_function" "auth" {
   runtime = "nodejs10.x"
 
   function_name = "${replace(var.branch, "/[^A-Za-z0-9]+/", "")}Auth"
-  handler = "main.handler"
+  handler = "auth.handler"
 
   filename = "lambda.zip" 
 
