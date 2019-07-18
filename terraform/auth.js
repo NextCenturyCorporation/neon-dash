@@ -1,5 +1,5 @@
 function parse(header) {
-  const code = header.split(/:\s*basic\s+/i)[1];
+  const code = (header || '').split(/:\s*basic\s+/i)[1];
 
   if (!code) {
     return undefined
