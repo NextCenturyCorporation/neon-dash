@@ -117,7 +117,7 @@ pipeline {
           sh 'mkdir -p dist'
           sh 'chmod -R u+w dist'
           unstash 'dist'
-          sh "aws s3 sync dist 's3://${BRANCH_NAME}.nc-demo.com'"
+          sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
         }
       }
     }
