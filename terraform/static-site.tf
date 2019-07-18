@@ -77,7 +77,6 @@ resource "aws_cloudfront_distribution" "site" {
     s3_origin_config {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.site.cloudfront_access_identity_path}"
     }
-     origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
   }
   enabled             = true
   is_ipv6_enabled     = true
