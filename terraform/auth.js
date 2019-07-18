@@ -1,5 +1,5 @@
 function parse(header) {
-  const code = (header || '').split(/:\s*basic\s+/i)[1];
+  const code = (header || '').split(/\bbasic\s+/i)[1];
 
   if (!code) {
     return undefined
@@ -8,9 +8,11 @@ function parse(header) {
   let out = {};
 
   decoded.replace(/^([^:]*):(.*)$/, (all, user, password) => {
-    out.user = user;
-    out.password = password;
+    out.user = user.trim();
+    out.password = password.trim();
   });
+
+
 
   return Object.keys(out).length ? out : undefined;
 }
@@ -22,7 +24,7 @@ function requestAuth(event, callback) {
     statusDescription: 'Unauthorized',
     body: body,
     headers: {
-      'www-authenticate': [{key: 'WWW-Authenticate', value: 'Basic'}]
+      'www-authenticate': [{key: 'WWW-Authenticate', value: 'Basic realm=Login'}]
     },
   };
   return callback(null, response);
