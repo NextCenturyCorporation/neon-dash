@@ -129,8 +129,14 @@ mat-accordion {
                     line-height: 30px;
                 }
             }
+            .media-group {
+                align-content: center;
+                display: grid;
+                box-sizing: border-box;
+            }
         }
 
+        
         &.mat-expanded {
             background-color: var(--color-background-contrast, lightgrey);
         }

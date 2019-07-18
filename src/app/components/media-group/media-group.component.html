@@ -1,23 +1,27 @@
 <div *ngIf="tabsAndMedia.length > 0">
-    <mat-tab-group *ngIf="tabsAndMedia.length > 0" [(selectedIndex)]="selectedTabIndex"
-        (selectedTabChange)="updateOnResize($event)">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)"
+        headerPosition="below">
         <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index" [label]="tab.name">
-            <!-- <app-media-panel [media]='tab'></app-media-panel> -->
             <div [ngSwitch]="tab.selected.type">
                 <!-- TODO Move into a subcomponent shared with the single-media behavior -->
-                <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                    <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name"
-                        [id]="'medium' + i" [style.opacity]="calculateOpacity(options.sliderValue)"
-                        (load)="setmediaLoaded(tab, i)"
+                <div *ngSwitchCase="mediaTypes.maskImage">
+                    <div *ngIf="tab.selected.link" [style.backgroundImage]="tab.selected.link"
+                        [title]="tab.selected.name" [id]="'medium' + i"
+                        [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setmediaLoaded(tab, i)"
+                        [class.image]="true"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
+
+                    </div>
                     <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
                         [hidden]="!tab.loaded"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
                     <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
                         (input)="onSliderChange($event.value)"></mat-slider>
                 </div>
-                <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
+                <div *ngSwitchCase="mediaTypes.image" [style.backgroundImage]="'url('+tab.selected.link+')'"
+                    [title]="tab.selected.name"
                     [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+                </div>
                 <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                     [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                     <source [src]="tab.selected.link">

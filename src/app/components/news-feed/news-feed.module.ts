@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { NewsFeedComponent } from './news-feed.component';
 import { CommonWidgetModule } from '../../common-widget.module';
 import { MatExpansionModule } from '@angular/material';
+import { MediaGroupModule } from '../media-group/media-group.module';
 
 @NgModule({
     declarations: [NewsFeedComponent],
@@ -25,7 +26,8 @@ import { MatExpansionModule } from '@angular/material';
     imports: [
         MatExpansionModule,
         CommonWidgetModule,
-        CommonModule
+        CommonModule,
+        MediaGroupModule
     ]
 })
 export class NewsFeedModule { }
