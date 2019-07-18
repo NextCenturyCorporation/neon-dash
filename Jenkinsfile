@@ -5,8 +5,8 @@ pipeline {
     PATH = "/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin"
     HOME = "."
     npm_config_cache = "npm-cache"
-    DO_LINT=false
-    DO_UNIT_TEST=false
+    DO_LINT=true
+    DO_UNIT_TEST=true
     DO_E2E_TEST=false
     DO_S3_DEPLOY=true
   }
@@ -118,6 +118,7 @@ pipeline {
           sh 'chmod -R u+w dist'
           unstash 'dist'
           sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
+          sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
         }
       }
     }
