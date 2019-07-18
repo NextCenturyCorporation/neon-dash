@@ -36,11 +36,15 @@ import {
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetNonPrimitiveOption
 } from '../../models/widget-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import * as moment from 'moment';
+import { MediaMetaData } from '../media-group/media-group.component';
+import { MediaTypes } from '../../models/types';
+import { DomSanitizer } from '@angular/platform-browser';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -60,6 +64,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
+    public selectedItem: object = undefined;
+    public noDataId: string = undefined;
+    public queryItems: any[] = [];
+    public selectedTabIndex: number = 0;
+
+    public mediaTypes: any = MediaTypes;
 
     constructor(
         dashboardService: DashboardService,
@@ -67,6 +77,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
+        public sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -128,13 +139,18 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('nameField', 'Name Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', null),
-            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {})
         ];
     }
 
@@ -263,6 +279,27 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     }
                 }
             }
+            let tabsAndMedia: MediaMetaData[] = [];
+            if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 0) {
+                item['mediaEntities.mediaURLHttps'].forEach((url) => {
+                    let tab: MediaMetaData = {
+                        selected: undefined,
+                        name: url.substring(url.lastIndexOf('/') + 1),
+                        loaded: false,
+                        list: []
+                    };
+                    tab.list.push({
+                        // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                        border: this.options.border,
+                        link: this.appendPrefixIfNeeded(url, this.options.linkPrefix),
+                        name: '',
+                        type: (this.getMediaType(url) || '')
+                    });
+                    tab.selected = tab.list[0];
+                    tabsAndMedia.push(tab);
+                });
+            }
+            item['mediaMetaDataList'] = tabsAndMedia;
             return item;
         });
         return this.newsFeedData.length;
@@ -296,7 +333,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        this.updateOnResize();
     }
 
     onResize() {
@@ -313,6 +353,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @private
      */
     selectItem(item) {
+        this.selectedItem = item;
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
@@ -347,5 +388,123 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
             item[this.options.filterField.columnName]
         )));
+    }
+
+    /**
+     * Returns the media type for the thumbnail
+     * @arg {object} item
+     * @return string
+     */
+    getMediaType(item) {
+        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
+        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
+            this.options.typeMap[fileType] : '';
+    }
+
+    /**
+     * Transforms the given string or string array into a string array and returns the array.
+     *
+     * @arg {string|string[]} input
+     * @return {string[]}
+     */
+    transformToStringArray(input, delimiter: string) {
+        if (Array.isArray(input)) {
+            return input;
+        }
+        if (input !== '' && input !== null && typeof input !== 'undefined') {
+            let inputValue = input.toString();
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
+                typeof inputValue !== 'undefined') {
+                inputValue = inputValue.substring(1, inputValue.length - 1);
+            }
+            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
+        }
+        return [];
+    }
+
+    /**
+     * Adds the given links to the global list.
+     *
+     * @arg {any} tab
+     * @arg {any[]} links
+     * @arg {any[]} masks
+     * @arg {any[]} names
+     * @arg {any[]} types
+     * @arg {string} [oneTabName='']
+     * @return {MediaMetaData[]}
+     */
+    createTabs(links: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
+        let oneTab: MediaMetaData = {
+            selected: undefined,
+            name: oneTabName,
+            loaded: false,
+            list: []
+        };
+
+        let tabs = this.options.oneTabPerArray ? [oneTab] : [];
+
+        links.filter((link) => !!link).forEach((link, index) => {
+            // Let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
+            //     this.options.linkPrefix);
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
+
+            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
+            // if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
+            //     type = this.mediaTypes.image;
+            // }
+
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link) {
+                let tab = oneTab;
+                if (!this.options.oneTabPerArray) {
+                    tab = {
+                        selected: undefined,
+                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
+                        loaded: false,
+                        list: []
+                    };
+                }
+
+                tab.list.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
+                    name: name,
+                    type: type
+                });
+
+                tab.selected = tab.list[0];
+
+                // If (!this.options.oneTabPerArray) {
+                //     tabs.push(tab);
+                // }
+            }
+        });
+
+        return tabs;
+    }
+
+    /**
+     * Appends the given prefix to the given link if it is not already there.
+     *
+     * @arg {string} link
+     * @arg {string} prefix
+     * @return {string}
+     */
+    appendPrefixIfNeeded(link: string, prefix: string) {
+        return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
+    }
+
+    /**
+     * Returns the element in the given array at the given index if possible or the first element or the default value.
+     *
+     * @arg {any[]} array
+     * @arg {number} index
+     * @arg {any} defaultValue
+     * @return {any}
+     */
+    findElementAtIndex(array: any[], index: number, defaultValue: any = ''): any {
+        return (array.length > 1 ? (index < array.length ? array[index] : '') : array[0]) || defaultValue;
     }
 }

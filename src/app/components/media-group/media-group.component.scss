@@ -1,0 +1,36 @@
+:host {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+
+iframe {
+    height: 100%;
+    width: 100%;
+}
+div.image {
+    width: 100%;
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.mat-slider {
+    margin: 0 10px;
+    width: calc(100% - 20px);
+    z-index: 4;
+
+    ::ng-deep {
+        .mat-slider-thumb-label {
+            ::after {
+                content: '%';
+            }
+        }
+
+        .mat-slider-thumb-label-text {
+            font-size: 11px;
+        }
+    }
+}
+

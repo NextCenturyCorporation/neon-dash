@@ -45,28 +45,11 @@ import {
     WidgetSelectOption
 } from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
-export interface MediaTab {
-    // TODO Add a way for the user to select other items from the list.
-    loaded: boolean;
-    name: string;
-    selected: {
-        border: string;
-        link: string;
-        mask: string;
-        name: string;
-        type: string;
-    };
-    list: {
-        border: string;
-        link: string;
-        mask: string;
-        name: string;
-        type: string;
-    }[];
-}
+import { MediaMetaData, MediaGroupComponent } from '../media-group/media-group.component';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
+ * MASKS THROUGH THIS COMPONENT ARE DEPRECATED
  */
 @Component({
     selector: 'app-media-viewer',
@@ -83,11 +66,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('mediaGroup') mediaGroup: ElementRef;
+    @ViewChild('mediaGroup') mediaGroup: MediaGroupComponent;
 
     public mediaTypes: any = MediaTypes;
 
-    public tabsAndMedia: MediaTab[] = [];
+    public tabsAndMedia: MediaMetaData[] = [];
 
     public noDataId: string = undefined;
     public queryItems: any[] = [];
@@ -167,7 +150,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         }
 
-        let tabs: MediaTab[] = this.createTabs(links, masks, names, types);
+        let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types);
 
         tabs.forEach((tab) => {
             if (tab.list.length) {
@@ -297,10 +280,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any[]} names
      * @arg {any[]} types
      * @arg {string} [oneTabName='']
-     * @return {MediaTab[]}
+     * @return {MediaMetaData[]}
      */
-    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaTab[] {
-        let oneTab: MediaTab = {
+    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
+        let oneTab: MediaMetaData = {
             selected: undefined,
             name: oneTabName,
             loaded: false,
@@ -336,7 +319,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
                     link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
-                    mask: mask,
                     name: name,
                     type: type
                 });
@@ -514,7 +496,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             options.linkFields.forEach((linkField) => {
                 let links = neonUtilities.deepFind(result, linkField.columnName) || '';
                 links = this.transformToStringArray(links, options.delimiter);
-                let tabs: MediaTab[] = this.createTabs(links, masks, names, types, this.noDataId);
+                let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types, this.noDataId);
                 tabs.forEach((tab) => {
                     if (tab.list.length) {
                         this.tabsAndMedia.push(tab);
@@ -619,76 +601,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     updateOnResize(event?: any) {
-        // This.mediaGroup.nativeElement.updateOnResize(event);
-        if (!this.visualization) {
-            return;
-        }
-
-        let frames = this.visualization.nativeElement.querySelectorAll('.frame');
-        let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let audios = this.visualization.nativeElement.querySelectorAll('.audio');
-
-        if (!this.options.resize) {
-            frames.forEach((frame) => {
-                frame.style.maxHeight = '';
-                frame.style.maxWidth = '';
-            });
-            images.forEach((image) => {
-                image.style.maxHeight = '';
-                image.style.maxWidth = '';
-            });
-            audios.forEach((audio) => {
-                audio.style.maxHeight = '';
-                audio.style.maxWidth = '';
-            });
-            return;
-        }
-
-        let tabIndex = event ? event.index : this.selectedTabIndex;
-        let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
-            this.mediaTypes.maskImage) ? this.SLIDER_HEIGHT : 0);
-
-        frames.forEach((frame) => {
-            if (this.showContribution()) {
-                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-
-            frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
-        images.forEach((image) => {
-            if (this.showContribution()) {
-                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
-        audios.forEach((audio) => {
-            if (this.showContribution()) {
-                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-            audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
+        this.mediaGroup.updateOnResize(event);
     }
 
     /**

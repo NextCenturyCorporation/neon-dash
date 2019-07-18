@@ -32,6 +32,8 @@
                     <span
                         class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
                 </mat-panel-title>
+                <img *ngIf="this.transformToStringArray(item['mediaMetaDataList'], ',').length > 0"
+                    src="/assets/icons/dashboard/baseline-photo-24px.svg">
             </mat-expansion-panel-header>
             <mat-panel-description>
                 <div>
@@ -51,6 +53,12 @@
                             <mat-icon>filter_list</mat-icon>
                         </a>
                     </div>
+                    <app-media-group class=media-group
+                        *ngIf="this.transformToStringArray(item['mediaMetaDataList'], ',').length > 0"
+                        [tabsAndMedia]="item['mediaMetaDataList']" [visualization]="this.visualization"
+                        [dashboardState]="this.dashboardState" [options]="this.options" [sanitizer]="this.sanitizer"
+                        [changeDetection]="this.changeDetection">
+                    </app-media-group>
                 </div>
             </mat-panel-description>
         </mat-expansion-panel>
