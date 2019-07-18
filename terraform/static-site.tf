@@ -28,6 +28,10 @@ variable lambda_role {
   default = "arn:aws:iam::670848316581:role/Lambda-Role"
 }
 
+variable neon_server_host {
+  default = "ec2-52-201-222-156.compute-1.amazonaws.com"
+}
+
 data "archive_file" "lambda_zip" {
     type        = "zip"
     source_file  = "auth.js"
@@ -106,15 +110,47 @@ resource "aws_cloudfront_distribution" "site" {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.site.cloudfront_access_identity_path}"
     }
   }
+
+  origin {
+    domain_name = "${var.neon_server_host}"
+    origin_id   = "${local.lowBranch}.${var.root_domain}-neon"
+    origin_protocol_policy = "http-only"    
+    custom_header {
+      name = "Authorization"
+      value = "Basic bG9yZWxlaTp0aG9ydGhvcg=="
+    }
+  }
+
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Site"
   default_root_object = "index.html"
   wait_for_deployment = false
-  default_cache_behavior {
+
+  ordered_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
     compress            = true
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+
+    path_pattern = "/neon/*"
+    target_origin_id = "${local.lowBranch}.${var.root_domain}-neon"
+    forwarded_values {
+      query_string = true
+      headers = ["Origin"]
+    }
+  }
+
+  ordered_cache_behavior {   
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    compress            = true
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+ 
     target_origin_id = "${local.lowBranch}.${var.root_domain}"
     forwarded_values {
       query_string = false
@@ -122,10 +158,8 @@ resource "aws_cloudfront_distribution" "site" {
         forward = "none"
       }
     }
+
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
 
     # Link the Lambda function to CloudFront request
     # for authenticating
