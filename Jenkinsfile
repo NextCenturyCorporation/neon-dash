@@ -89,14 +89,15 @@ pipeline {
         unstash 'node_modules'
         unstash 'dist'
 
-        sh 'npm i -D express express-http-proxy'
         sh 'mkdir -p reports/e2e'
         sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
 
         // Prep CI Config 
         sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
         sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
-     
+
+        sh 'npm i --no-save express express-http-proxy ts-node'
+        sh 'mv node_modules/ts-node node_modules/ts-node-2'
         sh '(node e2e/ci.server.js &) && npx protractor e2e/docker/protractor.conf.js'
         junit 'reports/e2e/**/*.xml'
       }
