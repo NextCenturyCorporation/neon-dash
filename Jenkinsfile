@@ -6,7 +6,7 @@ pipeline {
     HOME = "."
     npm_config_cache = "npm-cache"
     DO_LINT=true
-    DO_UNIT_TEST=true
+    DO_UNIT_TEST=false
     DO_E2E_TEST=true
     DO_S3_DEPLOY=true
   }
@@ -106,6 +106,12 @@ pipeline {
     }
 
     stage('Publish Test Results') {
+      agent any
+      when {
+        expression {
+          "$DO_E2E_TEST" != "false" || "$DO_UNIT_TEST" != "false"
+        }
+      }
       steps {
         sh 'mkdir -p reports'
         sh 'chmod -R u+w reports'
