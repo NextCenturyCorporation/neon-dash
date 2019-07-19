@@ -7,7 +7,7 @@ pipeline {
     npm_config_cache = "npm-cache"
     DO_LINT=true
     DO_UNIT_TEST=true
-    DO_E2E_TEST=false
+    DO_E2E_TEST=true
     DO_S3_DEPLOY=true
   }
 
@@ -70,6 +70,33 @@ pipeline {
         stash includes: 'dist/', name: 'dist'
       }
     }
+
+    stage('E2E Test') {
+      when {
+        expression {
+          "$DO_E2E_TEST" != "false"
+        }
+      }
+      agent {
+        docker 'circleci/node:12-stretch-browsers'
+      }
+      environment {
+        E2E_JUNIT = "1"
+      }
+      steps {
+        sh 'mkdir -p dist node_modules'
+        sh 'chmod -R u+w node_modules dist'
+        unstash 'node_modules'
+        unstash 'dist'
+
+        sh 'npm i -D express express-http-proxy'
+        sh 'mkdir -p reports/e2e'
+        sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
+        
+        sh '(node e2e/ci.server.js &) && npx protractor e2e/docker/protractor.ci.conf.js'
+        junit 'reports/e2e/**/*.xml'
+      }
+    }
     
     stage('Build nginx container') {
       agent any
@@ -118,57 +145,9 @@ pipeline {
           unstash 'dist'
           sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
           sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
-          sh "cp src/app/config/cicd/config.${BRANCH_NAME.toLowerCase()}.yaml src/app/config.yaml || echo 'none'"
+          sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
           sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
         }
-      }
-    }
-
-    stage('E2E Setup') {
-      when {
-        expression {
-          "$DO_E2E_TEST" != "false"
-        }
-      }
-      steps {
-          sh 'mkdir -p dist node_modules'
-          sh 'chmod -R u+w node_modules dist'
-          unstash 'node_modules'
-          unstash 'dist'
-
-          sh 'cd e2e/docker && docker-compose  --no-ansi up -d'
-          script {
-            timeout(120) {
-              waitUntil {
-                def r = sh script: 'curl -s "localhost:9199/_search?size=0&q=*" | grep \'"total":[^0]\' ',  returnStatus: true;
-                r == 0;
-              }
-            }
-          }
-      }
-    }
-
-    stage('E2E Test') {
-      when {
-        expression {
-          "$DO_E2E_TEST" != "false"
-        }
-      }
-      agent {
-        docker 'circleci/node:12-stretch-browsers'
-      }
-      environment {
-        E2E_JUNIT = "1"
-      }
-      steps {
-        sh 'mkdir -p dist node_modules'
-        sh 'chmod -R u+w node_modules dist'
-        unstash 'node_modules'
-        unstash 'dist'
-        sh 'mkdir -p reports/e2e'
-        sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
-        sh 'npx protractor e2e/docker/protractor.conf.js'
-        junit 'reports/e2e/**/*.xml'
       }
     }
   }
