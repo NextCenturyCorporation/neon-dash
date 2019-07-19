@@ -91,10 +91,9 @@ pipeline {
         unstash 'dist'
 
         sh 'mkdir -p reports/e2e'
-        sh 'ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update'
 
         // Prep CI Config 
-        ./e2e-ci.sh
+        sh './e2e-ci.sh'
 
         stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
       }
