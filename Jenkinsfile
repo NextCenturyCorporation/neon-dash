@@ -38,7 +38,20 @@ pipeline {
         sh 'npm run lint'
       }
     }
-   
+
+    stage('Compile') {
+      agent {
+        docker 'node:12-stretch'
+      }
+      steps {
+        sh 'mkdir -p node_modules'
+        sh 'chmod -R u+w node_modules'
+        unstash 'node_modules'
+        sh 'npm run build-prod'
+        stash includes: 'dist/', name: 'dist'
+      }
+    }
+
     stage('Unit Test') {
       agent {
         docker 'circleci/node:12-stretch-browsers'
@@ -54,20 +67,8 @@ pipeline {
         unstash 'node_modules'
         sh 'mkdir -p reports/unit'
         sh 'npx ng test --reporters junit --browsers ChromeJenkins || true'
-        junit testResults: 'reports/unit/**/*.xml', allowEmptyResults: false, healthScaleFactor: 100.0
-      }
-    }
 
-    stage('Compile') {
-      agent {
-        docker 'node:12-stretch'
-      }
-      steps {
-        sh 'mkdir -p node_modules'
-        sh 'chmod -R u+w node_modules'
-        unstash 'node_modules'
-        sh 'npm run build-prod'
-        stash includes: 'dist/', name: 'dist'
+        stash name:'unit-results', includes:'reports/unit/**/*.xml'       
       }
     }
 
@@ -98,8 +99,20 @@ pipeline {
 
         sh 'npm i --no-save express express-http-proxy ts-node'
         sh 'mv node_modules/ts-node node_modules/ts-node-2'
-        sh '(node e2e/ci.server.js &) && npx protractor e2e/docker/protractor.conf.js'
-        junit 'reports/e2e/**/*.xml'
+        sh '(node e2e/ci.server.js &) && (npx protractor e2e/docker/protractor.conf.js || true)'
+
+        stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
+      }
+    }
+
+    stage('Publish Test Results') {
+      steps {
+        sh 'mkdir -p reports'
+        sh 'chmod -R u+w reports'
+        unstash 'e2e-results'
+        unstash 'unit-results'
+
+        junit testResults: 'reports/**/*.xml', allowEmptyResults: false, healthScaleFactor: 100.0
       }
     }
     
