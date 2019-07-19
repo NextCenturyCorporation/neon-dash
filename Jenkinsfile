@@ -5,7 +5,7 @@ pipeline {
     PATH = "/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin"
     HOME = "."
     npm_config_cache = "npm-cache"
-    DO_LINT=true
+    DO_LINT=false
     DO_UNIT_TEST=false
     DO_E2E_TEST=true
     DO_S3_DEPLOY=true
@@ -115,9 +115,14 @@ pipeline {
       steps {
         sh 'mkdir -p reports'
         sh 'chmod -R u+w reports'
-        unstash 'e2e-results'
-        unstash 'unit-results'
-
+        script {
+          if ("$DO_E2E_TEST" != "false") {
+            unstash 'e2e-results'
+          }
+          if ("$DO_UNIT_TEST" != "false") {
+            unstash 'unit-results'
+          }
+        }
         junit testResults: 'reports/**/*.xml',  keepLongStdio: true, allowEmptyResults: false, healthScaleFactor: 100.0
       }
     }
