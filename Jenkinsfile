@@ -112,7 +112,7 @@ pipeline {
         unstash 'e2e-results'
         unstash 'unit-results'
 
-        junit testResults: 'reports/**/*.xml', allowEmptyResults: false, healthScaleFactor: 100.0
+        junit testResults: 'reports/**/*.xml',  keepLongStdio: true, allowEmptyResults: false, healthScaleFactor: 100.0
       }
     }
     
