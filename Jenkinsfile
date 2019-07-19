@@ -93,7 +93,7 @@ pipeline {
         sh 'mkdir -p reports/e2e'
 
         // Prep CI Config 
-        sh './e2e-ci.sh || true'
+        sh './e2e-ci.sh'
 
         stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
       }
