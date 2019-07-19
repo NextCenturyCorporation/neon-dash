@@ -81,7 +81,6 @@ pipeline {
       } 
     }
 
-
     stage('Setup AWS Branch Setup') {
       when {
         expression {
@@ -124,6 +123,7 @@ pipeline {
         }
       }
     }
+
     stage('E2E Setup') {
       when {
         expression {
@@ -171,9 +171,6 @@ pipeline {
         junit 'reports/e2e/**/*.xml'
       }
     }
-  
-
-
   }
 
   // post {
