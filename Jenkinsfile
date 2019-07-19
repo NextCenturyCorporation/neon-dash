@@ -66,7 +66,7 @@ pipeline {
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'mkdir -p reports/unit'
-        sh 'npx ng test --reporters junit --browsers ChromeJenkins || true'
+        sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
         stash name:'unit-results', includes:'reports/unit/**/*.xml'       
       }
