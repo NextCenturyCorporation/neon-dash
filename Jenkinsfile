@@ -66,7 +66,9 @@ pipeline {
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'mkdir -p reports/unit'
-        sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          sh script: 'npx ng test --reporters junit --browsers ChromeJenkins'
+        }
 
         stash name:'unit-results', includes:'reports/unit/**/*.xml'       
       }
@@ -93,7 +95,9 @@ pipeline {
         sh 'mkdir -p reports/e2e'
 
         // Prep CI Config 
-        sh script: './e2e-ci.sh', returnStatus: true
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          sh script: './e2e-ci.sh'
+        }
 
         stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
       }
@@ -117,7 +121,8 @@ pipeline {
             unstash 'unit-results'
           }
         }
-        junit testResults: 'reports/**/*.xml',  keepLongStdio: true, allowEmptyResults: false, healthScaleFactor: 100.0
+        junit testResults: 'reports/**/*.xml',  keepLongStdio: true, allowEmptyResults: false, testDataPublishers: ['TestReporter',]
+        junit testResults: 'reports/**/*.xml',  $class: 'TestReporter', allowEmptyResults: false
       }
     }
     
