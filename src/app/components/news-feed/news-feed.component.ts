@@ -446,17 +446,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            // Let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
-            //     this.options.linkPrefix);
             let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
             let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
-            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
-            // if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
-            //     type = this.mediaTypes.image;
-            // }
-
-            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
             if (link) {
                 let tab = oneTab;
                 if (!this.options.oneTabPerArray) {
@@ -467,7 +459,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                         list: []
                     };
                 }
-
                 tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
@@ -475,12 +466,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     name: name,
                     type: type
                 });
-
                 tab.selected = tab.list[0];
-
-                // If (!this.options.oneTabPerArray) {
-                //     tabs.push(tab);
-                // }
             }
         });
 
