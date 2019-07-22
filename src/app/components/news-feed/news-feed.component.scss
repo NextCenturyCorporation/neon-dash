@@ -128,7 +128,6 @@ mat-accordion {
                     line-height: 30px;
                 }
             }
-
             .media-group {
                 align-content: center;
                 display: grid;
@@ -136,6 +135,7 @@ mat-accordion {
             }
         }
 
+        
         &.mat-expanded {
             background-color: var(--color-background-contrast, lightgrey);
         }

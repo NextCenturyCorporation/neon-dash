@@ -285,8 +285,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 item['mediaEntities.mediaURLHttps'].forEach((url) => {
                     let tab: MediaMetaData = {
                         selected: undefined,
-                        name: (item['mediaEntities.mediaURLHttps'].length > 1 ? ((index + 1) + ': ') : '') +
-                            url.substring(url.lastIndexOf('/') + 1),
+                        name: (item['mediaEntities.mediaURLHttps'].length > 1 ? ((index + 1) + ': ') : '') + url.substring(url.lastIndexOf('/') + 1),
                         loaded: false,
                         list: []
                     };
