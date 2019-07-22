@@ -8,8 +8,7 @@
         </span>
         <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
     </span>
-    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-        (click)="toggleGear();">
+    <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="toggleGear();">
         <mat-icon>settings</mat-icon>
     </button>
 </mat-toolbar>
@@ -19,7 +18,6 @@
 </div>
 
 <app-data-message *ngIf="showNoData"></app-data-message>
-
 
 <div class="body-container" (click)="stopEventPropagation($event)">
     <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
@@ -31,8 +29,8 @@
 </div>
 
 <div class="legend-container" *ngIf="legendIsNeeded()">
-    <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet"
-        [filteringOn]="options.legendFiltering" (itemSelected)="legendItemSelected($event)"></app-legend>
+    <app-legend *ngIf="options.legendFiltering" [colorKeys]="colorKeys" [disabledSets]="disabledSet" [filteringOn]="options.legendFiltering"
+        (itemSelected)="legendItemSelected($event)"></app-legend>
     <app-legend *ngIf="!options.legendFiltering" [colorKeys]="colorKeys" [filteringOn]="options.legendFiltering">
     </app-legend>
 </div>
