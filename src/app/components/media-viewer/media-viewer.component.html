@@ -26,36 +26,6 @@
     <app-media-group class="media-group" [tabsAndMedia]="tabsAndMedia" [visualization]="this.visualization"
         [dashboardState]="this.dashboardState" [options]="this.options" [sanitizer]="this.sanitizer"
         [changeDetection]='this.changeDetection'></app-media-group>
-
-    <!-- <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
-         Use an ngFor to force the widget to reload and redraw its media elements 
-        <div *ngFor="let tab of tabsAndMedia">
-            <div class="viewer-text">{{ tab.name }}</div>
-            <div [ngSwitch]="tab.selected.type">
-                 TODO Move into a subcomponent shared with the multiple-tab behavior
-                <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                    <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
-                        [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                    <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" id="mask0"
-                        [hidden]="!tab.loaded"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                    <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                        (input)="onSliderChange($event.value)"></mat-slider>
-                </div>
-                <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
-                    [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
-                    [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
-                    <source [src]="tab.selected.link">
-                </audio>
-                 Use iframe for mediaTypes.video and other types
-                <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
-                    [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
-                </iframe>
-            </div>
-        </div>
-    </div> -->
 </div>
 
 <div class="full-height" *ngIf="options.url != ''">
