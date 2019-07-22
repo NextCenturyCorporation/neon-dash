@@ -596,15 +596,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates the visualization as needed whenever it is resized.
-     *
-     * @override
-     */
-    // updateOnResize(event?: any) {
-    //     this.mediaGroup.updateOnResize(event);
-    // }
-
-    /**
      * Waits for the current query to end, if it is running, then calls addEventLinks with the given data.
      *
      * @arg {any[]} fields
