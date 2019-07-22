@@ -27,12 +27,10 @@
         [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
-            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'"
-                (mousedown)="selectItem(item)">
+            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
                 <mat-panel-title>
                     <span class="date">{{ relativeTime(item[options.dateField.columnName]) }}</span>
-                    <span
-                        class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
+                    <span class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
                 </mat-panel-title>
             </mat-expansion-panel-header>
             <mat-panel-description>
@@ -47,8 +45,7 @@
                     </div>
                     <div class="appendix">
                         <span class="date">{{ item[options.dateField.columnName] }}</span>
-                        <a mat-icon-button
-                            *ngIf="options.filterField.columnName && item[options.filterField.columnName]"
+                        <a mat-icon-button *ngIf="options.filterField.columnName && item[options.filterField.columnName]"
                             class="neon-icon-button-contrast" (click)="filterItem(item)">
                             <mat-icon>filter_list</mat-icon>
                         </a>
@@ -62,13 +59,11 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination() && !showContribution()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button"
-            (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
-        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button"
-            (click)="goToNextPage()">
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
             Next
         </button>
     </div>
