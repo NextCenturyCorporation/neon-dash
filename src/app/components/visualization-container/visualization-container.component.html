@@ -1,7 +1,7 @@
 <div class="visualization-border">
-    <div style="width:100%; position: absolute; z-index:999" (mouseleave)="showToolbar=false;">
-        <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}"
-            (mouseenter)="showToolbar=true;">
+    <div style="width:100%; position: absolute; z-index:999" (mouseleave)="showToolbar=false;" (mouseenter)="showToolbar=true;"
+        (mouseenter)="showToolbar=true;">
+        <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}">
         </div>
         <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
             <div class="icon-container" *ngIf="showToolbar">
