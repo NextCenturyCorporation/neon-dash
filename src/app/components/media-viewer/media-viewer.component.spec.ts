@@ -193,14 +193,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLink',
-                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLink',
-                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -240,14 +238,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLink',
-                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLink',
-                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -286,14 +282,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -316,14 +310,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             }]
@@ -342,14 +334,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             }]
@@ -379,14 +369,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -396,14 +384,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -433,14 +419,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             }]
@@ -450,14 +434,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             }]
@@ -500,14 +482,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: 'grey',
                 link: 'testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: 'grey',
                 link: 'testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -534,14 +514,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'linkPrefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'linkPrefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -565,14 +543,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'linkPrefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'linkPrefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -595,14 +571,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'prefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'prefix/testLinkValue',
-                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -635,14 +609,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'video.avi',
-                mask: '',
                 name: 'video.avi',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: 'video.avi',
-                mask: '',
                 name: 'video.avi',
                 type: 'vid'
             }]
@@ -652,14 +624,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'image.jpg',
-                mask: '',
                 name: 'image.jpg',
                 type: 'img'
             },
             list: [{
                 border: '',
                 link: 'image.jpg',
-                mask: '',
                 name: 'image.jpg',
                 type: 'img'
             }]
@@ -669,14 +639,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'alpha.txt',
-                mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
             },
             list: [{
                 border: '',
                 link: 'alpha.txt',
-                mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
             }]
@@ -686,14 +654,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'audio.wav',
-                mask: '',
                 name: 'audio.wav',
                 type: 'aud'
             },
             list: [{
                 border: '',
                 link: 'audio.wav',
-                mask: '',
                 name: 'audio.wav',
                 type: 'aud'
             }]
@@ -703,14 +669,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'other.xyz',
-                mask: '',
                 name: 'other.xyz',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'other.xyz',
-                mask: '',
                 name: 'other.xyz',
                 type: ''
             }]
@@ -800,14 +764,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: ''
             }]
@@ -817,14 +779,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
-                mask: '',
                 name: 'testNameValue2',
                 type: ''
             }]
@@ -842,14 +802,12 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                mask: '',
                 name: 'testNameValue1',
                 type: ''
             }]
@@ -869,373 +827,6 @@ describe('Component: MediaViewer', () => {
         expect(tabs.length).toBe(1);
         expect(tabs[0].nativeElement.textContent).toBe('');
     });
-
-    // It('does show tabs if tabsAndMedia is not empty', () => {
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: 'testLinkValue1',
-    //             mask: '',
-    //             name: 'testNameValue1',
-    //             type: ''
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: 'testLinkValue1',
-    //             mask: '',
-    //             name: 'testNameValue1',
-    //             type: ''
-    //         }]
-    //     }, {
-    //         loaded: false,
-    //         name: 'testTabName2',
-    //         selected: {
-    //             border: '',
-    //             link: 'testLinkValue2',
-    //             mask: '',
-    //             name: 'testNameValue2',
-    //             type: ''
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: 'testLinkValue2',
-    //             mask: '',
-    //             name: 'testNameValue2',
-    //             type: ''
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     expect(component.tabsAndMedia.length).toBe(2);
-
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(2);
-    //     expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
-    //     expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-    //     expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
-    //     expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-    //     let slider = fixture.debugElement.queryAll(By.css('app-media-group mat-slider'));
-    //     expect(slider.length).toBe(0);
-    // });
-
-    // it('does show single image tag according to the image type', () => {
-    //     let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName',
-    //         selected: {
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let media = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<img');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    // });
-
-    // it('does show multiple image tags in tabs according to the image type', () => {
-    //     let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         }]
-    //     }, {
-    //         loaded: false,
-    //         name: 'testTabName2',
-    //         selected: {
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: imgSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'img'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(2);
-    //     let media = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<img');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
-    // });
-
-    // it('does show single audio tag according to the audio type', () => {
-    //     let audSrc = './assets/audio/test-audio.wav';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName',
-    //         selected: {
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let media = fixture.debugElement.queryAll(By.css('.single-medium'));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<audio');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    // });
-
-    // it('does show multiple audio tags in tabs according to the audio type', () => {
-    //     let audSrc = './assets/audio/test-audio.wav';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         }]
-    //     }, {
-    //         loaded: false,
-    //         name: 'testTabName2',
-    //         selected: {
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: audSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: 'aud'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(2);
-    //     let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<audio');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + audSrc + '"');
-    // });
-
-    // it('does show single iframe tag according to the empty type', () => {
-    //     let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName',
-    //         selected: {
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let media = fixture.debugElement.queryAll(By.css('.single-medium'));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    // });
-
-    // it('does show multiple iframe tags in tabs according to the empty type', () => {
-    //     let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         }]
-    //     }, {
-    //         loaded: false,
-    //         name: 'testTabName2',
-    //         selected: {
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: docSrc,
-    //             mask: '',
-    //             name: 'testName',
-    //             type: ''
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(2);
-    //     let media = fixture.debugElement.queryAll(By.css('mat-tab-group mat-tab-body > div > div'));
-    //     expect(media.length).toBe(1);
-    //     expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-    //     expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
-    // });
-
-    // it('does show two tabs and slider', () => {
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: 'testLinkValue1',
-    //             mask: 'testMaskValue1',
-    //             name: 'testNameValue1',
-    //             type: 'mask'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: 'testLinkValue1',
-    //             mask: 'testMaskValue1',
-    //             name: 'testNameValue1',
-    //             type: 'mask'
-    //         }, {
-    //             border: '',
-    //             link: 'testLinkValue3',
-    //             mask: 'testMaskValue3',
-    //             name: 'testNameValue3',
-    //             type: 'mask'
-    //         }]
-    //     }, {
-    //         loaded: false,
-    //         name: 'testTabName2',
-    //         selected: {
-    //             border: '',
-    //             link: 'testLinkValue2',
-    //             mask: 'testMaskValue2',
-    //             name: 'testNameValue2',
-    //             type: 'mask'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: 'testLinkValue2',
-    //             mask: 'testMaskValue2',
-    //             name: 'testNameValue2',
-    //             type: 'mask'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     expect(component.tabsAndMedia.length).toBe(2);
-
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(2);
-    //     expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
-    //     expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-    //     expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
-    //     expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
-
-    //     let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
-    //     expect(slider.length).toBe(1);
-    // });
-
-    // it('does show two images and slider', () => {
-    //     let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
-    //     let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
-    //     component.tabsAndMedia = [{
-    //         loaded: false,
-    //         name: 'testTabName1',
-    //         selected: {
-    //             border: '',
-    //             link: baseSource,
-    //             mask: maskSource,
-    //             name: 'testName',
-    //             type: 'mask'
-    //         },
-    //         list: [{
-    //             border: '',
-    //             link: baseSource,
-    //             mask: maskSource,
-    //             name: 'testName',
-    //             type: 'mask'
-    //         }]
-    //     }];
-    //     component.changeDetection.detectChanges();
-
-    //     let medium = fixture.debugElement.queryAll(By.css('.single-medium'));
-    //     expect(medium.length).toBe(1);
-    //     let images = fixture.debugElement.queryAll(By.css('.single-medium img'));
-    //     expect(images.length).toBe(2);
-    //     expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
-    //     expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
-
-    //     let slider = fixture.debugElement.queryAll(By.css('mat-slider'));
-    //     expect(slider.length).toBe(1);
-    // });
 });
 
 describe('Component: MediaViewer with config', () => {

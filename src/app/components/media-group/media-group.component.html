@@ -1,7 +1,7 @@
 <div *ngIf="tabsAndMedia.length > 0">
-    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)"
-        headerPosition="below">
-        <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index" [label]="tab.name">
+    <mat-tab-group class="tab-medium" [(selectedIndex)]="selectedTabIndex" headerPosition="below">
+        <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index"
+            style="background:url('+tab.selected.link+')" [label]="tab.name">
             <div [ngSwitch]="tab.selected.type">
                 <!-- TODO Move into a subcomponent shared with the single-media behavior -->
                 <div *ngSwitchCase="mediaTypes.maskImage">
@@ -15,8 +15,8 @@
                     <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
                         [hidden]="!tab.loaded"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                    <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                        (input)="onSliderChange($event.value)"></mat-slider>
+                    <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue">
+                    </mat-slider>
                 </div>
                 <div *ngSwitchCase="mediaTypes.image" [style.backgroundImage]="'url('+tab.selected.link+')'"
                     [title]="tab.selected.name"

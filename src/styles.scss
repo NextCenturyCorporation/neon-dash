@@ -445,6 +445,7 @@ body {
 .mat-tab-label-active {
     background-color: var(--color-dash-item-selectable, lightgrey) !important;
     color: var(--color-dash-item-selectable-text, dimgrey) !important;
+    border: 1px solid #000;
 }
 
 .mat-toolbar {

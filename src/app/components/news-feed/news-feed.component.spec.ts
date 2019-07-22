@@ -178,17 +178,20 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(component.newsFeedData).toEqual([{
-            _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
-            testTypeField: 'type1'
+            testTypeField: 'type1',
+            _id: 'id1',
+            mediaMetaDataList: []
         }, {
-            _id: 'id2',
+
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
-            testTypeField: 'type2'
+            testTypeField: 'type2',
+            _id: 'id2',
+            mediaMetaDataList: []
         }]);
         expect(actual).toEqual(2);
     });
@@ -221,17 +224,20 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(component.newsFeedData).toEqual([{
-            _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
-            testTypeField: 'type1'
+            testTypeField: 'type1',
+            _id: 'id1',
+            mediaMetaDataList: []
         }, {
-            _id: 'id2',
+
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
-            testTypeField: 'type2'
+            testTypeField: 'type2',
+            _id: 'id2',
+            mediaMetaDataList: []
         }]);
         expect(actual).toEqual(2);
     });
@@ -255,17 +261,20 @@ describe('Component: NewsFeed', () => {
 
         expect(actual).toEqual(2);
         expect(component.newsFeedData).toEqual([{
-            _id: 'id1',
             testLinkField: 'link1',
             testNameField: 'name1',
             testSizeField: 0.1,
-            testTypeField: 'type1'
+            testTypeField: 'type1',
+            _id: 'id1',
+            mediaMetaDataList: []
         }, {
-            _id: 'id2',
+
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
-            testTypeField: 'type2'
+            testTypeField: 'type2',
+            _id: 'id2',
+            mediaMetaDataList: []
         }]);
     });
 

@@ -11,9 +11,16 @@ iframe {
 div.image {
     width: 100%;
     height: 300px;
+    margin-bottom: 5px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
+}
+
+.mat-tab-label:hover, // sass-lint:disable-line force-pseudo-nesting
+.mat-tab-label-active {
+    background-color: #000!important;
+    color: var(--color-dash-item-selectable-text, dimgrey) !important;
 }
 
 .mat-slider {

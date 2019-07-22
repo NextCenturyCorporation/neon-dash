@@ -89,24 +89,6 @@ export class MediaGroupComponent implements AfterViewInit {
         this.refreshVisualization();
     }
 
-    public showContribution() {
-        return ((this.options.contributionKeys && this.options.contributionKeys.length !== 0) ||
-            (this.options.contributionKeys === null &&
-                this.dashboardState.dashboard &&
-                this.dashboardState.dashboard.contributors &&
-                Object.keys(this.dashboardState.dashboard.contributors).length));
-    }
-
-    /**
-     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
-     *
-     * @arg {number} percentage
-     */
-    onSliderChange(percentage: number) {
-        this.options.sliderValue = percentage;
-        this.refreshVisualization();
-    }
-
     /**
      * Updates and redraws the elements and properties for the visualization.
      *
@@ -117,81 +99,5 @@ export class MediaGroupComponent implements AfterViewInit {
         if (!this.changeDetection['destroyed']) {
             this.changeDetection.detectChanges();
         }
-        this.updateOnResize();
-    }
-
-    /**
-     * @override
-     */
-    public updateOnResize(event?: any) {
-        // If (!this.visualization) {
-        //     return;
-        // }
-
-        // let frames = this.visualization.nativeElement.querySelectorAll('.frame');
-        // let images = this.visualization.nativeElement.querySelectorAll('.image');
-        // let audios = this.visualization.nativeElement.querySelectorAll('.audio');
-
-        // if (!this.options.resize) {
-        //     frames.forEach((frame) => {
-        //         frame.style.maxHeight = '';
-        //         frame.style.maxWidth = '';
-        //     });
-        //     images.forEach((image) => {
-        //         image.style.maxHeight = '';
-        //         image.style.maxWidth = '';
-        //     });
-        //     audios.forEach((audio) => {
-        //         audio.style.maxHeight = '';
-        //         audio.style.maxWidth = '';
-        //     });
-        //     return;
-        // }
-
-        // let tabIndex = event ? event.index : this.selectedTabIndex;
-        // let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
-        //     this.mediaTypes.maskImage) ? this.SLIDER_HEIGHT : 0);
-
-        // frames.forEach((frame) => {
-        //     if (this.showContribution()) {
-        //         frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-        //             this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //         frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-        //             this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     } else {
-        //         frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //         frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     }
-
-        //     frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        //     frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        // });
-
-        // images.forEach((image) => {
-        //     if (this.showContribution()) {
-        //         image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-        //             this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     } else {
-        //         image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     }
-        //     image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        // });
-
-        // audios.forEach((audio) => {
-        //     if (this.showContribution()) {
-        //         audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-        //             this.CONTRIBUTION_FOOTER_HEIGHT - this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     } else {
-        //         audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-        //             this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-        //     }
-        //     audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        // });
     }
 }

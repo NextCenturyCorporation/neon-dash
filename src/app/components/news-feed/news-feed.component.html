@@ -32,8 +32,11 @@
                     <span
                         class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
                 </mat-panel-title>
-                <img *ngIf="this.transformToStringArray(item['mediaMetaDataList'], ',').length > 0"
-                    src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                <div *ngIf="this.transformToStringArray(item['mediaMetaDataList'], ',').length > 0"
+                    [ngSwitch]="this.transformToStringArray(item['mediaMetaDataList'], ',')[0].selected.type">
+                    <img *ngSwitchCase="mediaTypes.audio" src="/assets/icons/dashboard/baseline-play-24px.svg">
+                    <img *ngSwitchCase="mediaTypes.image" src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                </div>
             </mat-expansion-panel-header>
             <mat-panel-description>
                 <div>
