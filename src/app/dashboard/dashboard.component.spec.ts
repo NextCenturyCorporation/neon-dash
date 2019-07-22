@@ -129,12 +129,29 @@ describe('Dashboard', () => {
     });
 
     it('toggle filters component', () => {
-        component.showFilterTray = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filters').length).toEqual(0);
-        component.showFilterTray = true;
-        component.createFiltersComponent = true;
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = false;
         component.toggleFiltersDialog();
-        expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = false;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
     });
 
     it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', () => {

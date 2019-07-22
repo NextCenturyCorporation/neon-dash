@@ -16,6 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule, LocationStrategy, PathLocationStrategy, Location } from '@angular/common';
 
 import { NgGridModule } from 'angular2-grid';
+import { ContextMenuModule } from 'ngx-contextmenu';
 
 import { VisualizationContainerModule } from '../components/visualization-container/visualization-container.module';
 
@@ -41,6 +42,7 @@ import { RouterModule } from '@angular/router';
     imports: [
         RouterModule.forRoot([{ path: '**', component: DashboardComponent }]),
         CommonWidgetModule,
+        ContextMenuModule.forRoot(),
         MatBadgeModule,
         MatSnackBarModule,
         MatMenuModule,
