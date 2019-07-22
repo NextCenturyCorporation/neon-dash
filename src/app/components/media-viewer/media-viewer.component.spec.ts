@@ -750,13 +750,6 @@ describe('Component: MediaViewer', () => {
         expect(spinner).not.toBeNull();
     }));
 
-    // It('does hide tabs if tabsAndMedia is empty', () => {
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(0);
-    //     let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
-    //     expect(slider.length).toBe(0);
-    // });
-
     it('does bind the media component to the child Media-Group with multiple non-empty media', () => {
         component.tabsAndMedia = [{
             loaded: true,
