@@ -61,6 +61,11 @@ video {
     width: auto;
 }
 
+.media-group {
+    max-width: 100%;
+    height: auto;
+}
+
 /*TODO: ng-deep will be deprecated in the future. Need to find another workaround to shadow piercing due to angular shadow DOM boundaries*/
 .mat-tab-group ::ng-deep {
     .mat-tab-body-wrapper {

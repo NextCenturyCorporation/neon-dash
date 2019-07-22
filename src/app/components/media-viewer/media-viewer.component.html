@@ -23,7 +23,7 @@
 <div *ngIf="options.url == ''">
     <div *ngIf="tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-    <app-media-group #mediaGroup [tabsAndMedia]="tabsAndMedia" [visualization]="this.visualization"
+    <app-media-group class="media-group" [tabsAndMedia]="tabsAndMedia" [visualization]="this.visualization"
         [dashboardState]="this.dashboardState" [options]="this.options" [sanitizer]="this.sanitizer"
         [changeDetection]='this.changeDetection'></app-media-group>
 

@@ -19,7 +19,7 @@ div.image {
 
 .mat-tab-label:hover, // sass-lint:disable-line force-pseudo-nesting
 .mat-tab-label-active {
-    background-color: #000!important;
+    background-color: #000 !important;
     color: var(--color-dash-item-selectable-text, dimgrey) !important;
 }
 
