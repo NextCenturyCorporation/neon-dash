@@ -99,7 +99,7 @@ describe('neon-gtd App', () => {
         expect(await applyBtn).toBeDefined();
         expect(await applyBtn.isEnabled()).toBeFalsy();
 
-        await settings.$('input[placeholder=Title]').sendKeys('s');  // make plural
+        await settings.$('input[placeholder=Title]').sendKeys('s'); // Make plural
         expect(await applyBtn.isEnabled()).toBeTruthy();
         await applyBtn.click();
 
@@ -107,18 +107,17 @@ describe('neon-gtd App', () => {
         expect(titleAfter).toEqual(title + 's');
     });
 
-    it('global search should filter values', async () => {
+    xit('global search should filter values', async () => {
         let vizA: ElementFinder = await page.getFirstCountableViz();
         expect(vizA).toBeDefined();
 
         const { count } = await page.getVizPageInfo(vizA);
-        const titleA = await page.getVizTitle(vizA)
+        const titleA = await page.getVizTitle(vizA);
 
         const input = $('app-simple-filter input');
 
         await input.sendKeys(...'---+++---'.split(''), Key.RETURN);
         await browser.waitForAngular();
-
 
         let vizB: ElementFinder = await page.getVizByTitle(titleA);
         expect(vizB).toBeDefined();
@@ -147,5 +146,5 @@ describe('neon-gtd App', () => {
         let vizB: ElementFinder = await page.getVizByTitle(titleA);
 
         expect(vizB).toBeUndefined();
-    })
+    });
 });
