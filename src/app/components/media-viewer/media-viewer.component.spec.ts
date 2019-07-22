@@ -742,7 +742,7 @@ describe('Component: MediaViewer', () => {
     it('does show header in toolbar with visualization name', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Media Viewer');
+        expect(header.nativeElement.textContent).toContain('Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
@@ -1216,6 +1216,6 @@ describe('Component: MediaViewer with config', () => {
     it('does show header in toolbar with title from config', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Test Title');
+        expect(header.nativeElement.textContent).toContain('Test Title');
     }));
 });
