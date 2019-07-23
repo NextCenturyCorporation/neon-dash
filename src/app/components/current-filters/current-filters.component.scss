@@ -17,8 +17,9 @@
     background-color: var(--color-background, white);
     display: grid;
     grid-template-columns: auto 1fr;
-    padding-top: 5px;
-    padding-left: 5px;
+    border-top: 2px solid var(--color-border, lightgrey);
+    border-bottom: 2px solid var(--color-border, lightgrey);
+    padding: 5px 0;
 
     .remove-all {
         align-self: flex-start;

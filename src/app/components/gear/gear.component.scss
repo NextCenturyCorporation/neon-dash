@@ -24,7 +24,9 @@
 
 mat-toolbar {
     background-color: var(--color-background-contrast, lightgrey) !important;
+    height: 40px;
     margin: 10px 0 0;
+    padding: 10px;
 
     .spacer {
         padding: 5px;
