@@ -31,6 +31,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
 import { MediaGroupComponent } from '../media-group/media-group.component';
+import { median } from 'd3';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -795,7 +796,7 @@ describe('Component: MediaViewer', () => {
         expect(tabs.length).toBe(1);
     });
 
-    it('does bind the media component to the child Media-Group non-empty', () => {
+    fit('does bind the media to the child Media-Group non-empty', () => {
         component.tabsAndMedia = [{
             loaded: false,
             name: 'testTabName1',
@@ -814,9 +815,9 @@ describe('Component: MediaViewer', () => {
         }];
         component.changeDetection.detectChanges();
         expect(component.tabsAndMedia.length).toBe(1);
-        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
-        expect(tabs.length).toBe(1);
-        expect(tabs[0].nativeElement.textContent).toBe('testTabName1');
+        let tabs = fixture.debugElement.query(By.css('app-media-group'));
+        console.log(tabs);
+        expect(tabs).toBe(1);
     });
 
     it('does bind the media component to the child Media-Group empty', () => {

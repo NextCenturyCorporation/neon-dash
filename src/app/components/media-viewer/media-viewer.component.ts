@@ -118,6 +118,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
                 links = links.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             if (fieldsConfig.type === 'mask') {
                 masks = masks.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
@@ -129,6 +130,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         });
 
+        // Masks currently not being used. (must add mask property to MediaMetaData)
         // If the event has link or mask data, but is missing other data, use the query data as the defaults.
         if (this.queryItems.length && (links.length || masks.length)) {
             if (!links.length) {
@@ -162,13 +164,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                         tabIndex = index;
                     }
                 });
-
                 if (!tabExists) {
                     this.tabsAndMedia.push(tab);
                 }
             }
         });
-
         if (this.tabsAndMedia.length >= tabIndex) {
             this.selectedTabIndex = tabIndex;
         }
@@ -219,6 +219,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
@@ -230,6 +231,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFreeTextOption('id', 'ID', ''),
             new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
             new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', ''),
             new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('oneTabPerArray', 'Tab Behavior with Link Arrays', false, [{
@@ -276,7 +278,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      *
      * @arg {any} tab
      * @arg {any[]} links
-     * @arg {any[]} masks
+     * @arg {any[]} masks // Masks currently not being used. (must add mask property to MediaMetaData)
      * @arg {any[]} names
      * @arg {any[]} types
      * @arg {string} [oneTabName='']
@@ -293,16 +295,20 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
                 this.options.linkPrefix);
+
             let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
             let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
             if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
                 type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
             }
 
+            // Masks currently not being used. (must add mask property to MediaMetaData)
             // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
             if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
                 let tab = oneTab;

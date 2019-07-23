@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MediaGroupComponent, MediaMetaData } from './media-group.component';
+import { MediaGroupComponent } from './media-group.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -22,7 +22,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { Injector } from '@angular/core';
 import { MediaGroupModule } from './media-group.module';
 import { DomSanitizer } from '@angular/platform-browser';
-import { By } from '@angular/platform-browser';
 
 describe('Component: MediaGroup', () => {
     let component: MediaGroupComponent;

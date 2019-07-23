@@ -28,7 +28,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 export interface MediaMetaData {
     // TODO Add a way for the user to select other items from the list.
-    // Masks removed as VMAP was the only one using masks
+    // Masks removed as VMAP was the only one using masks,
+    // mask implementations is still in other functions if wanted to be added back.
     loaded: boolean;
     name: string;
     selected: {

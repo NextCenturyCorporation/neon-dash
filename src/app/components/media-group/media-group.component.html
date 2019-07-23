@@ -1,10 +1,29 @@
 <div *ngIf="tabsAndMedia.length > 0">
-    <mat-tab-group class="tab-medium" [(selectedIndex)]="selectedTabIndex" headerPosition="below">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="presentation" class="carousel slide" data-ride="carousel">
+                    <!-- thumbnails -->
+
+                    <!-- wrapper for slides -->
+                    <div class="carousel-inner" role="listbox">
+                        <ng-container *ngFor="let tab of tabsAndMedia">
+                            <div *ngFor="let media of tab.list; index as i" [ngClass]="i == 0 ? 'item active' : 'item'">
+                                <img [src]=media.link>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- controls for next and previous-->
+    <!-- <mat-tab-group class="tab-medium" [(selectedIndex)]="selectedTabIndex" headerPosition="below">
         <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index"
-            style="background:url('+tab.selected.link+')" [label]="tab.name">
-            <div [ngSwitch]="tab.selected.type">
-                <!-- TODO Move into a subcomponent shared with the single-media behavior -->
-                <div *ngSwitchCase="mediaTypes.maskImage">
+            style="background:url('+tab.selected.link+')">
+            <div [ngSwitch]="tab.selected.type"> -->
+    <!-- TODO Move into a subcomponent shared with the single-media behavior -->
+    <!-- <div *ngSwitchCase="mediaTypes.maskImage">
                     <div *ngIf="tab.selected.link" [style.backgroundImage]="tab.selected.link"
                         [title]="tab.selected.name" [id]="'medium' + i"
                         [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setmediaLoaded(tab, i)"
@@ -18,19 +37,23 @@
                     <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue">
                     </mat-slider>
                 </div>
-                <div *ngSwitchCase="mediaTypes.image" [style.backgroundImage]="'url('+tab.selected.link+')'"
-                    [title]="tab.selected.name"
-                    [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+                <div *ngSwitchCase="mediaTypes.image">
+                    <ng-template mat-tab-label>
+                        <img class="thumbnail" src='{{ tab.selected.link }}'>
+                    </ng-template>
+                    <div [style.backgroundImage]="'url('+tab.selected.link+')'" [title]="tab.selected.name"
+                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+                    </div>
                 </div>
                 <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
                     [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
                     <source [src]="tab.selected.link">
-                </audio>
-                <!-- Use iframe for mediaTypes.video and other types -->
-                <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
+                </audio> -->
+    <!-- Use iframe for mediaTypes.video and other types -->
+    <!-- <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                     [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                 </iframe>
             </div>
         </mat-tab>
-    </mat-tab-group>
+    </mat-tab-group> -->
 </div>
