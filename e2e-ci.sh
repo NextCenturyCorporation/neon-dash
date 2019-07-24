@@ -1,6 +1,7 @@
 #!/bin/sh
 
-set +e
+trap "exit" INT TERM
+trap "kill 0" EXIT
 
 ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update
 
@@ -12,4 +13,4 @@ node e2e/ci.server.js &
 
 E2E_JUNIT=1 npx protractor e2e/protractor.conf.js
 
-kill $(jobs -p) 0 2> /dev/null
+exit 0
