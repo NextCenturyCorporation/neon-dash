@@ -14,4 +14,6 @@ node e2e/ci.server.js &
 
 E2E_JUNIT=1 npx protractor e2e/protractor.conf.js
 
-true
+kill $(jobs -p) 0 || true
+
+exit 0
