@@ -12,18 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SimpleFilterComponent } from './simple-filter.component';
-import { MatIconModule, MatButtonModule } from '@angular/material';
-
-@NgModule({
-    declarations: [SimpleFilterComponent],
-    exports: [SimpleFilterComponent],
-    imports: [
-        MatButtonModule,
-        MatIconModule,
-        CommonModule
-    ]
-})
-export class SimpleFilterModule { }
+export const environment = {
+    config: ['./app/config/config.json', './app/config/config.yaml'],
+    // Default Dev config
+    production: false,
+    buildDate: '{BUILD_DATE}',
+    recentGit: '{RECENT_COMMIT}'
+};

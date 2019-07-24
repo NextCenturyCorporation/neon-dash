@@ -15,51 +15,68 @@
 */
 @import '../../neon-properties';
 
-$filter-container-height: 40px;
-$footer-height: 35px;
-$contribution-height: 20px;
-
 :host {
     background-color: var(--color-background, white);
     height: 100%;
     width: 100%;
     cursor: default;
-    border-radius: 5px;
     display: grid;
     box-sizing: border-box;
     grid-template-rows: auto 1fr auto auto;
+    align-content: center;
     grid-template-areas:
     'header'
     'body'
     'footer'
     'contribution';
 
-    .text {
-        color: var(--color-text, dimgrey);
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 20px;
-        margin: 0 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        &.header {
-            grid-area: header;
-        }
-
-        &.info {
+    .header,
+    .info {
+        &.text {
+            color: var(--color-text, dimgrey);
+            font-size: 12px;
+            overflow: hidden;
             text-align: right;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
+    }
 
-        &.multiple-line {
-            white-space: unset;
+    mat-toolbar {
+        grid-area: header;
+        height: $vis-title-expected-height;
+        line-height: $vis-title-expected-height;
+        min-height: $vis-title-expected-height;
+        padding-left: 7px;
+        padding-right: 22px;
+
+        .header {
+            &.text {
+                font-weight: bold;
+
+                &.multiple-line {
+                    white-space: unset;
+                }
+            }
         }
     }
 
     .body-container,
-    .footer {
-        background-color: var(--color-background, white);
+    .footer,
+    /deep/ mat-toolbar {
+        background: var(--color-background, white);
+    }
+
+    /deep/ mat-toolbar {
+        .header {
+            &.text {
+                font-weight: normal;
+            }
+        }
+
+        [mat-icon-button] {
+            color: var(--color-text, gray);
+        }
     }
 
     .body-container {
@@ -90,26 +107,18 @@ $contribution-height: 20px;
         }
     }
 
-    %filter-container-shared {
-        app-legend {
-            float: left;
-        }
-    }
-
     .legend-container {
         position: absolute;
         z-index: 1000;
-        top: $vis-title-expected-height;
+        top: $vis-title-expected-height + 2;
     }
 
-    .filter-container {
-        @extend %filter-container-shared;
+    .legend {
+        margin: 5px;
     }
 
     .footer {
         grid-area: footer;
-        border-top: 2px solid var(--color-border, lightgrey);
-        height: #{$footer-height};
     }
 
     .footer-button-container {
@@ -131,9 +140,7 @@ $contribution-height: 20px;
 
     .contribution-text {
         grid-area: contribution;
-        height: #{$contribution-height};
         background-color: var(--color-background, white);
-        border-top: 2px solid var(--color-accent, lightgrey);
     }
 
     .contribution-text-container {

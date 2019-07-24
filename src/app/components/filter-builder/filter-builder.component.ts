@@ -84,8 +84,11 @@ export class FilterBuilderComponent {
         filterClause.tables = existingFilterClause ? existingFilterClause.tables : filterClause.tables;
         filterClause.fields = existingFilterClause ? existingFilterClause.fields : filterClause.fields;
         filterClause.changeDatabase = existingFilterClause ? existingFilterClause.changeDatabase : filterClause.database;
+        this.handleChangeDatabaseOfClause(filterClause);
         filterClause.changeTable = existingFilterClause ? existingFilterClause.changeTable : filterClause.table;
+        this.handleChangeTableOfClause(filterClause);
         filterClause.changeField = existingFilterClause ? existingFilterClause.changeField : filterClause.field;
+        this.handleChangeFieldOfClause(filterClause);
 
         if (filterClause.database && filterClause.table) {
             this.filterClauses.push(filterClause);

@@ -28,6 +28,7 @@ mat-sidenav-container {
 mat-sidenav-content {
     display: grid;
     grid-template-rows: auto auto auto 1fr;
+    overflow-x: hidden;
     grid-template-areas:
     'header'
     'panel'
@@ -67,32 +68,77 @@ mat-toolbar {
 
 .neon-dash {
     grid-area: grid;
-    background-color: var(--color-body, white);
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100vw;
+    background-color: var(--color-background, lightgrey);
+
+    &.moving {
+        background-color: var(--color-background-contrast, lightgrey);
+    }
+
+    &.scrolling {
+        .neon-wrapper {
+            width: calc(100vw - 17px);
+        }
+
+        .neon-grid {
+            width: calc(100vw - 16px);
+        }
+    }
+
+    .neon-wrapper {
+        width: 100vw;
+        min-height: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+        overflow-x: hidden;
+    }
 
     .neon-grid {
-        width: calc(100vw - 15px);
+        width: calc(100vw - 1px);
+
+        .grid {
+            background: unset;
+        }
+
+        .grid-item {
+            background-color: var(--color-background, white);
+
+            box-shadow: 0 0 10px var(--color-grid-shadow, transparent);
+            border: 1px solid var(--color-grid-border, transparent);
+
+            &.moving {
+                box-shadow: 0 0 10px var(--color-grid-shadow, transparent);
+            }
+        }
     }
 }
 
-.header-toggle-container {
-    grid-area: panel;
-    padding: 0.5em;
 
-    .filters-container {
-        height: 200px;
+app-filters,
+app-dashboard-selector {
+    grid-area: panel;
+    transition: 0.5s all ease-in-out; // sass-lint:disable-line no-transition-all
+    display: none;
+    width: 100%;
+    background-color: var(--color-background, lightgrey);
+    border-bottom: 1px solid var(--color-border, lightgrey);
+    margin-bottom: 0.5em;
+
+    /deep/ mat-toolbar {
+        padding-right: 5px !important;
+        border-bottom: 1px solid var(--color-border, lightgrey);
+
+        .text {
+            font-size: 16px !important;
+            font-weight: normal !important;
+        }
     }
 
-    .filters-container,
-    .dashboard-selector-container {
-        padding-left: 10px;
-        padding-right: 10px;
-        width: 100%;
-
-        .header-toggle-footer {
-            height: 1px;
-            background-color: grey;
-        }
+    &.visible {
+        display: block;
+        min-height: 150px;
     }
 }
 

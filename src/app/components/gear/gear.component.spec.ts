@@ -596,22 +596,6 @@ describe('Component: Gear Component', () => {
         // TODO
     });
 
-    it('handleRefreshClick does reset options and close menu', () => {
-        const mock = new MockConfigurable(component['dashboardState']);
-        component.comp = mock;
-
-        let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
-            calledCloseSidenav++;
-        };
-
-        component.handleRefreshClick();
-
-        expect(mock.calledChangeData).toEqual(1);
-        expect(component.changeMade).toEqual(false);
-        expect(calledCloseSidenav).toEqual(1);
-    });
-
     it('resetOptionsAndClose does reset HTML elements and close gear menu', () => {
         // TODO
         // component.resetOptionsAndClose();

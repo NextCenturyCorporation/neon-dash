@@ -72,13 +72,14 @@
 }
 
 /deep/ .datatable-header-inner {
-    border-right: 1px solid var(--color-text, dimgrey);
+    border-right: 1px solid var(--color-text, lightgrey);
 }
 
 /deep/ .datatable-header-cell {
-    background: linear-gradient(var(--color-background, lightgrey), var(--color-background-contrast, dimgrey));
-    border-bottom: 1px solid var(--color-text, dimgrey);
-    border-right: 1px solid var(--color-text, dimgrey);
+    opacity: 1;
+    background: var(--color-background, white);
+    border-bottom: 1px solid var(--color-text, lightgrey);
+    border-right: 1px solid var(--color-text, lightgrey);
     line-height: 20px !important;
     height: 30px;
     text-align: center;
@@ -89,7 +90,7 @@
     /* This is only needed if the table is reorderable. */
     &.longpress {
         background: linear-gradient(#DDDDDD, #B3B3B3);
-        border: 1px dashed var(--color-text, dimgrey);
+        border: 1px dashed var(--color-background, dimgrey);
         z-index: 100;
     }
 }
@@ -156,7 +157,7 @@
 }
 
 /deep/ .datatable-body-cell {
-    border-right: 1px dashed var(--color-text, dimgrey);
+    border-right: 1px solid var(--color-background, dimgrey);
     line-height: 20px !important;
     padding: 2px 5px;
 }
