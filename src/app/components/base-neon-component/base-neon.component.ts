@@ -900,11 +900,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
     }
 
-    /**
-     * Publishes the component's option object to the gear component
-     */
-    publishOptions() {
-        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, {
+    getOptions(): ConfigurableWidget {
+        return {
             changeData: this.handleChangeData.bind(this),
             changeFilterData: this.handleChangeFilterField.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -914,7 +911,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             finalizeDeleteLayer: this.finalizeDeleteLayer.bind(this),
             handleChangeSubcomponentType: this.handleChangeSubcomponentType.bind(this),
             options: this.options
-        } as ConfigurableWidget);
+        } as ConfigurableWidget;
     }
 
     /**
@@ -942,13 +939,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     protected onSelectId(__options: any, __id: any) {
         // Override if needed.
-    }
-
-    /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    toggleGear() {
-        this.publishOptions();
     }
 
     /**

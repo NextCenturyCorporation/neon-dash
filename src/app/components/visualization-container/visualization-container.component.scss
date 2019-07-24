@@ -15,62 +15,73 @@
  */
 @import '../../neon-properties';
 
-.visualization-toolbar {
-    position: absolute;
-    z-index: 999;
-    height: 0;
+:host {
+    display: grid;
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    border-radius: 40px;
-}
-
-.icon-container {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    background-color: var(--color-background-contrast, lightgrey);
-    flex-grow: 0;
-    border-radius: 0 0 10px 10px;
-}
-
-.border {
-    margin: 3px;
-    border-radius: 40px;
-}
-
-.above-icons {
-    height: 10px;
-    background-color: var(--color-background-contrast, lightgrey);
-    z-index: 1001;
-    cursor: move;
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: 5px;
-}
-
-.activation-toolbar {
-    opacity: 0;
-    z-index: 1002;
-    width: 100%;
-    height: 10px;
-}
-
-.visualization-border {
-    padding: 5px;
     height: 100%;
     box-sizing: border-box;
-    background-color: var(--color-background-contrast, lightgrey);
+    position: relative;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'content';
+
+    &.moving {
+        .visualization-toolbar {
+            display: grid;
+        }
+    }
 }
 
-.visualization-container1 {
+.settings {
     position: absolute;
     top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 0;
+    right: 5px;
+    transform: translate(30%, -10%) scale(0.7, 0.7);
+    color: var(--color-text, black);
+}
+
+.visualization-toolbar {
+    grid-area: content;
+    display: none;
+    grid-template-rows: 1fr;
+    z-index: 9999;
+
+    .icon-container {
+        position: absolute;
+        height: $vis-title-expected-height;
+        padding-left: 80px;
+        padding-right: 5px;
+        top: 0;
+        margin-top: -4px;
+        right: 0;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, var(--color-background, white) 20%, var(--color-background, white) 100%);
+    }
+
+    .drag-handle {
+        grid-row:  0;
+        margin-top: $vis-title-expected-height;
+        color: transparent;
+        font-weight: bold;
+        font-size: 3em;
+        display: grid;
+        align-content: center;
+        text-align: center;
+    }
+
+    & .drag-handle {
+        color: white;
+        transition: 0.25s all ease-in-out; // sass-lint:disable-line no-transition-all
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    &:hover {
+        .drag-handle {
+            background: rgba(0, 0, 0, 0.5);
+        }
+    }
+}
+
+.visualization-container {
+    grid-area: content;
+    width: 100%;
+    height: 100%;
 }

@@ -16,6 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentViewerComponent } from './document-viewer.component';
 import { MatListModule } from '@angular/material';
+import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -25,6 +26,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
     imports: [
         CommonWidgetModule,
         MatListModule,
+        DataMessageModule,
         CommonModule
     ]
 })
