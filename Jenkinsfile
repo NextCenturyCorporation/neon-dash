@@ -85,7 +85,6 @@ pipeline {
         sh 'mkdir -p reports/unit'
         sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
-
         stash name:'unit-results', includes:'reports/unit/**/*.xml'       
       }
     }
@@ -160,7 +159,7 @@ pipeline {
       agent {
         docker {
           image 'hashicorp/terraform'
-          args '--network=host'
+          args '--network=host --entrypoint=""'
         }
       }
       steps {
