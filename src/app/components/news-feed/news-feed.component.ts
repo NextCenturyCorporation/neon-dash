@@ -279,25 +279,28 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     }
                 }
             }
-            let tabsAndMedia: MediaMetaData[] = [];
+            let tabsAndMedia: MediaMetaData;
             let index = 0;
             if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 0) {
                 item['mediaEntities.mediaURLHttps'].forEach((url) => {
                     let tab: MediaMetaData = {
                         selected: undefined,
-                        name: (item['mediaEntities.mediaURLHttps'].length > 1 ? ((index + 1) + ': ') : '') + url.substring(url.lastIndexOf('/') + 1),
+                        name: (item['mediaEntities.mediaURLHttps'].length > 1 ?
+                            ((index + 1) + ': ') : '') + url.substring(url.lastIndexOf('/') + 1),
                         loaded: false,
                         list: []
                     };
-                    tab.list.push({
-                        // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                        border: this.options.border,
-                        link: this.appendPrefixIfNeeded(url, this.options.linkPrefix),
-                        name: '',
-                        type: (this.getMediaType(url) || '')
+                    item['mediaEntities.mediaURLHttps'].forEach((linkUrl) => {
+                        tab.list.push({
+                            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                            border: this.options.border,
+                            link: this.appendPrefixIfNeeded(linkUrl, this.options.linkPrefix),
+                            name: '',
+                            type: (this.getMediaType(linkUrl) || '')
+                        });
                     });
                     tab.selected = tab.list[0];
-                    tabsAndMedia.push(tab);
+                    tabsAndMedia = tab;
                     index++;
                 });
             }
