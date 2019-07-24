@@ -49,43 +49,45 @@ pipeline {
       }
     }
 
-    stage('Compile') {
-      agent {
-        docker {
-          image 'node:12-stretch'
-          args '--network=host'
+    parallel {
+      stage('Compile') {
+        agent {
+          docker {
+            image 'node:12-stretch'
+            args '--network=host'
+          }
+        }
+        steps {
+          sh 'mkdir -p node_modules'
+          sh 'chmod -R u+w node_modules'
+          unstash 'node_modules'
+          sh 'npm run build-prod'
+
+          stash includes: 'dist/', name: 'dist'
         }
       }
-      steps {
-        sh 'mkdir -p node_modules'
-        sh 'chmod -R u+w node_modules'
-        unstash 'node_modules'
-        sh 'npm run build-prod'
 
-        stash includes: 'dist/', name: 'dist'
-      }
-    }
-
-    stage('Unit Test') {
-      agent {
-        docker {
-          image 'circleci/node:12-stretch-browsers'
-          args '--network=host'
+      stage('Unit Test') {
+        agent {
+          docker {
+            image 'circleci/node:12-stretch-browsers'
+            args '--network=host'
+          }
         }
-      }
-      when {
-        expression {
-          "$DO_UNIT_TEST" != "false"
+        when {
+          expression {
+            "$DO_UNIT_TEST" != "false"
+          }
         }
-      }
-      steps {
-        sh 'mkdir -p node_modules'
-        sh 'chmod -R u+w node_modules'
-        unstash 'node_modules'
-        sh 'mkdir -p reports/unit'
-        sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
+        steps {
+          sh 'mkdir -p node_modules'
+          sh 'chmod -R u+w node_modules'
+          unstash 'node_modules'
+          sh 'mkdir -p reports/unit'
+          sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
-        stash name:'unit-results', includes:'reports/unit/**/*.xml'       
+          stash name:'unit-results', includes:'reports/unit/**/*.xml'       
+        }
       }
     }
 
