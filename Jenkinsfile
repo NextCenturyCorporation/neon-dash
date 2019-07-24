@@ -13,58 +13,74 @@ pipeline {
 
   stages {
     stage('Fetch dependencies') {
-      steps {
-        docker.image('node:12-stretch').withRun('--network=host') {
-          stash includes: 'node_modules/', name: 'node_modules'
-          sh 'npm install'
+      agent {
+        docker {
+          image 'node:12-stretch'
+          args '--network=host'
         }
+      }
+      steps {
+        sh 'npm install'
+        stash includes: 'node_modules/', name: 'node_modules'
       }
     }  
     
     stage('Lint') {
+      agent {
+        docker {
+          image 'node:12-stretch'
+          args '--network=host'
+        }
+      }
       when {
         expression {
           "$DO_LINT" != "false"
         }
       }
       steps {
-        docker.image('node:12-stretch').withRun('--network=host') {
-          sh 'mkdir -p node_modules'
-          sh 'chmod -R u+w node_modules'
-          unstash 'node_modules'
-          sh 'npm run lint'
-        }
+        sh 'mkdir -p node_modules'
+        sh 'chmod -R u+w node_modules'
+        unstash 'node_modules'
+        sh 'npm run lint'
       }
     }
 
     stage('Compile') {
-      steps {
-        docker.image('node:12-stretch').withRun('--network=host') {
-          sh 'mkdir -p node_modules'
-          sh 'chmod -R u+w node_modules'
-          unstash 'node_modules'
-          sh 'npm run build-prod'
-          stash includes: 'dist/', name: 'dist'
+      agent {
+        docker {
+          image 'node:12-stretch'
+          args '--network=host'
         }
+      }
+      steps {
+        sh 'mkdir -p node_modules'
+        sh 'chmod -R u+w node_modules'
+        unstash 'node_modules'
+        sh 'npm run build-prod'
+        stash includes: 'dist/', name: 'dist'
       }
     }
 
     stage('Unit Test') {
+      agent {
+        docker {
+          image 'circleci/node:12-stretch-browsers'
+          args '--network=host'
+        }
+      }
       when {
         expression {
           "$DO_UNIT_TEST" != "false"
         }
       }
       steps {
-        docker.image('circleci/node:12-stretch-browsers').withRun('--network=host') {
-          sh 'mkdir -p node_modules'
-          sh 'chmod -R u+w node_modules'
-          unstash 'node_modules'
-          sh 'mkdir -p reports/unit'
-          sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
+        sh 'mkdir -p node_modules'
+        sh 'chmod -R u+w node_modules'
+        unstash 'node_modules'
+        sh 'mkdir -p reports/unit'
+        sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
-          stash name:'unit-results', includes:'reports/unit/**/*.xml'       
-        }
+        stash name:'unit-results', includes:'reports/unit/**/*.xml'       
       }
     }
 
@@ -74,23 +90,27 @@ pipeline {
           "$DO_E2E_TEST" != "false"
         }
       }
+      agent {
+        docker {
+          image 'circleci/node:12-stretch-browsers'
+          args '--network=host'
+        }
+      }
       environment {
         E2E_JUNIT = "1"
       }
       steps {
-        docker.image('circleci/node:12-stretch-browsers').withRun('--network=host') {
-          sh 'mkdir -p dist node_modules'
-          sh 'chmod -R u+w node_modules dist'
-          unstash 'node_modules'
-          unstash 'dist'
+        sh 'mkdir -p dist node_modules'
+        sh 'chmod -R u+w node_modules dist'
+        unstash 'node_modules'
+        unstash 'dist'
 
-          sh 'mkdir -p reports/e2e'
+        sh 'mkdir -p reports/e2e'
 
-          // Prep CI Config 
-          sh script: './e2e-ci.sh', returnStatus: true
+        // Prep CI Config 
+        sh script: './e2e-ci.sh', returnStatus: true
 
-          stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
-        }
+        stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
       }
     }
 
@@ -133,10 +153,12 @@ pipeline {
         }
       }
       agent {
-        docker 'hashicorp/terraform'
+        docker {
+          image 'hashicorp/terraform'
+          args '--network=host'
+        }
       }
       steps {
-        
         withCredentials([usernamePassword(
           credentialsId: 'aws_jenkins',
           usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -150,21 +172,22 @@ pipeline {
     }
 
     stage('Deploy assets to S3 bucket') {
+      agent {
+        docker 'ughly/alpine-aws-cli'
+      }
       steps {
-        docker.image('ughly/alpine-aws-cli').withRun('--network=host') {
-          withCredentials([usernamePassword(
-            credentialsId: 'aws_jenkins',
-            usernameVariable: 'AWS_ACCESS_KEY_ID',
-            passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
-          )]) {
-            sh 'mkdir -p dist'
-            sh 'chmod -R u+w dist'
-            unstash 'dist'
-            sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
-            sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
-            sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
-            sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
-          }
+        withCredentials([usernamePassword(
+          credentialsId: 'aws_jenkins',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
+        )]) {
+          sh 'mkdir -p dist'
+          sh 'chmod -R u+w dist'
+          unstash 'dist'
+          sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
+          sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
+          sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
+          sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
         }
       }
     }
