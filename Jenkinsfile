@@ -135,7 +135,7 @@ pipeline {
         )]) {
           sh 'rm  ~/.dockercfg || true'
           sh 'rm ~/.docker/config.json || true'
-          sh 'pip install awscli --user'
+          sh 'pip3 install awscli --user'
 
           script {
             //configure registry
