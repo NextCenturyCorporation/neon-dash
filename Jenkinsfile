@@ -123,12 +123,7 @@ pipeline {
     }
     
     stage('Build nginx container') {
-       agent {
-        docker {
-          image 'ughly/alpine-aws-cli'
-          args '--network=host'
-        }
-      }
+      agent any
       when {
           anyOf { branch 'master'; branch 'THOR-jenkins-pipeline'; }
       }
@@ -140,6 +135,7 @@ pipeline {
         )]) {
           sh 'rm  ~/.dockercfg || true'
           sh 'rm ~/.docker/config.json || true'
+          sh 'pip install awscli --user'
 
           script {
             //configure registry
