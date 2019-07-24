@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { Component, Input, OnInit } from '@angular/core';
-
+import { environment } from '../../../environments/environment';
 import { util } from 'neon-framework';
 
 @Component({
@@ -25,6 +25,8 @@ export class AboutNeonComponent implements OnInit {
     @Input() public dashboardVersion: string = 'Unavailable...';
 
     public backendVersion: string = 'Unavailable...';
+    public buildDate: string = environment.buildDate;
+    public commitId: string = environment.recentGit;
 
     ngOnInit() {
         if (!this.backendVersion) {

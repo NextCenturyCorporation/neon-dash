@@ -1,4 +1,4 @@
-<form class="gear-container" #optionsFOrm="ngForm">
+<form class="gear-container" #optionsForm="ngForm">
     <mat-form-field class="option-container">
         <input matInput placeholder="Title" [(ngModel)]="modifiedOptions.title" (ngModelChange)="updateOnChange('title')"
             [name]="modifiedOptions._id + '_title'" required="false">
@@ -70,9 +70,6 @@
     <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Cancel all field changes"
         (click)="resetOptionsAndClose()">
         Cancel
-    </button>
-    <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Refresh" (click)="handleRefreshClick()">
-        Refresh
     </button>
     <button mat-raised-button class="neon-button-large" matTooltipPosition="below" matTooltip="Apply all field changes"
         [disabled]="!changeMade" (click)="handleApplyClick()">
