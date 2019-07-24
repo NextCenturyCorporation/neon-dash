@@ -11,6 +11,10 @@ pipeline {
     DO_S3_DEPLOY=true
   }
 
+  options {
+    timestamps()
+  }
+
   stages {
     stage('Fetch dependencies') {
       agent {
