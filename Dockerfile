@@ -4,7 +4,7 @@ FROM nginx:alpine
 COPY /dist /var/www
 RUN echo $'server {\n\
   listen 80;\n\
-  server_name e2e-ui;\n\
+  server_name neon-ui;\n\
   root /var/www;\n\
   index index.html;\n\
   location / {\n\
