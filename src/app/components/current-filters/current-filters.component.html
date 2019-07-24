@@ -5,11 +5,11 @@
 </div>
 <div class="groupings">
     <span *ngFor="let group of groups" class="group">
-        <span class="group-name">{{group.name}}</span>
+        <span *ngIf="group.name != ''" class="group-name">{{group.name}}</span>
         <mat-chip-list>
             <mat-chip *ngFor="let filter of group.filters; let i = index" selected [style.display]="i < 5 ? 'inherit' : 'none'">
                 <span [title]="filter.getLabel()">
-                    <span>{{filter.getLabelForOperator()}} {{filter.getLabelForValue()}}</span>
+                    <span>{{filter.getLabelForOperator()}} {{filter.getLabelForValue(true)}}</span>
                 </span>
                 <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
             </mat-chip>

@@ -22,7 +22,8 @@ import {
     ViewChild,
     ViewChildren,
     ViewContainerRef,
-    Inject
+    Inject,
+    ElementRef
 } from '@angular/core';
 
 import { eventing } from 'neon-framework';
@@ -31,7 +32,7 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterDesign, FilterUtil } from '../util/filter.util';
+import { FilterDataSource, FilterDesign } from '../util/filter.util';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -47,16 +48,16 @@ import { ConfigurableWidget } from '../models/widget-option-collection';
 import { DashboardState } from '../models/dashboard-state';
 import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
+import { ContextMenuComponent } from 'ngx-contextmenu';
+import { Subject, fromEvent } from 'rxjs';
 import { Location, APP_BASE_HREF } from '@angular/common';
-import { distinctUntilKeyChanged } from 'rxjs/operators';
+import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
 
 export function DashboardModified() {
     return (__inst: any, __prop: string | symbol, descriptor) => {
         const fn = descriptor.value;
         descriptor.value = function(this: DashboardComponent, ...args: any[]) {
-            if (!this.pendingInitialRegistrations) {
-                this.dashboardService.state.modified = true;
-            }
+            this.trackDashboardModify();
             return fn.call(this, ...args);
         };
     };
@@ -75,6 +76,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
     @ViewChild(SimpleSearchFilterComponent) simpleFilter: SimpleSearchFilterComponent;
     @ViewChild(MatSidenav) sideNavRight: MatSidenav;
+    @ViewChild('scrollable') scrollArea: ElementRef;
+
+    @ViewChild(ContextMenuComponent) contextMenu: ContextMenuComponent;
 
     updatedData = 0;
 
@@ -96,6 +100,11 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     pendingInitialRegistrations = 0;
 
     widgets: Map<string, BaseNeonComponent> = new Map();
+
+    movingWidgets = false;
+    globalMoveWidgets = false;
+
+    destroy = new Subject();
 
     gridConfig: NgGridConfig = {
         resizable: true,
@@ -204,7 +213,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         if (dashboard) {
             this.dashboardService.setActiveDashboard(dashboard);
         } else {
-            this.toggleDashboardSelectorDialog(true);
+            this.showDashboardSelector = true;
         }
     }
 
@@ -213,7 +222,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
-        const currentFilter = this.getFiltersToSaveInURL();
+        const currentFilter = this.dashboardService.getFiltersToSaveInURL();
         const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
         if ((!filters && currentFilter) || url.pathname === '/') {
             this.location.replaceState(`${fullPath}#${currentFilter}`);
@@ -241,7 +250,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             }
 
             this.simpleFilter.updateSimpleFilterConfig();
-            this.toggleDashboardSelectorDialog(false);
+            this.showDashboardSelector = false;
             this.refreshDashboard();
         } else if (this._filterChangeData) {
             this.filterService.notifyFilterChangeListeners(this._filterChangeData.callerId, this._filterChangeData.changeCollection);
@@ -266,6 +275,27 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             favicon.setAttribute('type', 'image/x-icon');
             favicon.setAttribute('href', icon);
             head.appendChild(favicon);
+        }
+    }
+
+    trackDashboardModify() {
+        if (!this.pendingInitialRegistrations) {
+            this.dashboardService.state.modified = true;
+        }
+        setTimeout(() => this.enforceScrollingState(), 100);
+    }
+
+    enforceScrollingState() {
+        // Track scrolling state for dashboard
+        const scrollNode = this.scrollArea.nativeElement as HTMLDivElement;
+        const isScrolling = (scrollNode.scrollHeight > scrollNode.clientHeight);
+
+        if (
+            (isScrolling && !scrollNode.classList.contains('scrolling')) ||
+            (!isScrolling && scrollNode.classList.contains('scrolling'))
+        ) {
+            scrollNode.classList.toggle('scrolling');
+            this.grid.triggerResize();
         }
     }
 
@@ -294,7 +324,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Deletes the widget with the given ID from the grid.
      */
     @DashboardModified()
-    private deleteWidget(eventMessage: { id: string }) {
+    public deleteWidget(eventMessage: { id: string }) {
         this.gridState.delete(eventMessage.id);
     }
 
@@ -365,18 +395,60 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.resizeGrid();
     }
 
+    get menuRoot(): HTMLElement {
+        const root: HTMLElement = document.querySelector('context-menu-content');
+        return root && !root.hidden ? root : undefined;
+    }
+
     ngOnDestroy(): void {
         this.messageReceiver.unsubscribeAll();
+        this.destroy.next();
     }
 
     ngOnInit(): void {
+        fromEvent(document, 'mousemove')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: MouseEvent) => {
+                this.movingWidgets = this.globalMoveWidgets || (ev.metaKey || ev.altKey) && ev.shiftKey;
+            });
+
+        fromEvent(document, 'keydown')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: KeyboardEvent) => {
+                if ((ev.key === 'Shift' && (ev.metaKey || ev.altKey) || (ev.key === 'Meta' || ev.key === 'Alt') && ev.shiftKey) &&
+                    !(ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)) {
+                    this.movingWidgets = this.globalMoveWidgets || true;
+                }
+            });
+
+        fromEvent(document, 'keyup')
+            .pipe(takeUntil(this.destroy))
+            .subscribe((ev: KeyboardEvent) => {
+                if (ev.key === 'Shift' || ev.key === 'Alt' || ev.key === 'Meta') {
+                    this.movingWidgets = this.globalMoveWidgets || false;
+                }
+            });
+
+        this.contextMenu.open
+            .pipe(takeUntil(this.destroy))
+            .subscribe(() => {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                fromEvent(document, 'mousedown')
+                    .pipe(
+                        takeUntil(this.destroy),
+                        takeUntil(this.contextMenu.close)
+                    )
+                    .subscribe((ev: MouseEvent) => {
+                        const root = this.menuRoot;
+                        if (root && !root.contains(ev.target as HTMLElement)) {
+                            document.dispatchEvent(new MouseEvent('click'));
+                        }
+                    });
+            });
+
         this.filterService.overrideFilterChangeNotifier(this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
         this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
-        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, (comp: ConfigurableWidget) => {
-            this.setPanel('gear', 'Component Settings');
-            this.configurableComponent = comp;
-        });
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -387,7 +459,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_MOVE_TO_TOP, this.moveWidgetToTop.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_REGISTER, this.registerWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
+        this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+    }
+
+    toggleGlobalMoving() {
+        this.globalMoveWidgets = !this.globalMoveWidgets;
     }
 
     @DashboardModified()
@@ -398,7 +475,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         };
         const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
         this.router.navigate(pathParts, {
-            fragment: this.getFiltersToSaveInURL(),
+            fragment: this.dashboardService.getFiltersToSaveInURL(),
             queryParamsHandling: 'merge',
             relativeTo: this.router.routerState.root
         });
@@ -423,27 +500,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleFiltersDialog() {
-        // Added this to create the filters component at first click so it's after dataset initialization
-        if (!this.createFiltersComponent) {
-            this.createFiltersComponent = true;
-        }
         this.showFiltersComponent = !this.showFiltersComponent;
-        let filtersContainer: HTMLElement = document.getElementById('filters');
-        if (this.showFiltersComponent && filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: block');
-        } else if (filtersContainer) {
-            filtersContainer.setAttribute('style', 'display: none');
-        }
+        this.showDashboardSelector = false;
     }
 
-    toggleDashboardSelectorDialog(showSelector: boolean) {
-        this.showDashboardSelector = showSelector;
-        let dashboardSelectorContainer: HTMLElement = document.getElementById('dashboard.selector');
-        if (this.showDashboardSelector && dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: block');
-        } else if (dashboardSelectorContainer) {
-            dashboardSelectorContainer.setAttribute('style', 'display: none');
-        }
+    toggleDashboardSelectorDialog() {
+        this.showDashboardSelector = !this.showDashboardSelector;
+        this.showFiltersComponent = false;
     }
 
     /**
@@ -487,6 +550,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.sideNavRight.open();
     }
 
+    showVizSettings(cmp: NeonGridItem) {
+        this.configurableComponent = this.widgets.get(cmp.id).getOptions();
+        this.setPanel('gear', 'Component Settings');
+    }
+
+    refreshViz(item: NeonGridItem) {
+        const cmp = this.widgets.get(item.id).getOptions();
+        cmp.changeData(undefined, false);
+    }
+
     /**
      * Unregisters the widget with the given ID.
      */
@@ -507,13 +580,5 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private updateShowFilterTray(eventMessage: { show: boolean }) {
         this.showFilterTray = eventMessage.show;
-    }
-
-    /**
-     * Returns the filters as string for use in URL
-     */
-    private getFiltersToSaveInURL(): string {
-        let filters: FilterDesign[] = this.filterService.getFilters();
-        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
     }
 }

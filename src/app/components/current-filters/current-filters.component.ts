@@ -83,7 +83,8 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
             } else {
                 fieldGroup.multi = true;
                 fieldGroup.filters.push(filter);
-                fieldGroup.filters.sort((group1, group2) => `${group1.getLabelForValue()}`.localeCompare(`${group2.getLabelForValue()}`));
+                fieldGroup.filters.sort((group1, group2) =>
+                    `${group1.getLabelForValue(true)}`.localeCompare(`${group2.getLabelForValue(true)}`));
             }
         }
         this.groups.sort((group1, group2) => group1.name.localeCompare(group2.name));

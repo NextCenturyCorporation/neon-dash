@@ -3877,11 +3877,6 @@ describe('Component: Aggregation', () => {
         expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
 
-    it('does show settings icon button in toolbar', () => {
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toEqual('settings');
-    });
-
     it('does hide loading overlay by default', () => {
         let hiddenLoadingOverlay = fixture.debugElement.query(By.css('.not-loading-overlay'));
         expect(hiddenLoadingOverlay).not.toBeNull();

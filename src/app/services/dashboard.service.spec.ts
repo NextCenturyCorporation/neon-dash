@@ -15,7 +15,8 @@
 import { inject } from '@angular/core/testing';
 
 import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
-import { NeonDatastoreConfig } from '../models/dataset';
+import { NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -84,13 +85,13 @@ describe('Service: DashboardService', () => {
         let spy = spyOn(dashboardService['filterService'], 'setFiltersFromConfig');
 
         dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
-            filters: ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+            filters: ConfigUtil.translate(`[
                 [".databaseZ.tableA.field1","=","value1"],
                 ["and",
                     [".databaseY.tableB.field2", "!=", ""],
                     [".databaseY.tableB.field2", "!=", null]
                 ]
-            ]`)), ConfigUtil.encodeFiltersMap)
+            ]`, ConfigUtil.encodeFiltersMap)
         }));
 
         expect(spy.calls.count()).toEqual(1);
@@ -119,6 +120,45 @@ describe('Service: DashboardService', () => {
                 value: null
             }]
         }]);
+    });
+
+    it('getFiltersToSaveInURL should return expected output', () => {
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
+
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
+            datastore: '',
+            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
+            table: NeonTableMetaData.get({ name: 'tableA' }),
+            field: NeonFieldMetaData.get({ columnName: 'field1' }),
+            operator: '=',
+            value: 'value1'
+        } as SimpleFilterDesign, {
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                table: NeonTableMetaData.get({ name: 'tableB' }),
+                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                operator: '!=',
+                value: ''
+            } as SimpleFilterDesign, {
+                datastore: '',
+                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
+                table: NeonTableMetaData.get({ name: 'tableB' }),
+                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                operator: '!=',
+                value: null
+            } as SimpleFilterDesign]
+        } as CompoundFilterDesign]);
+
+        // Use the parse and stringify functions so we don't have to type unicode here.
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+            [".databaseZ.tableA.field1","=","value1"],
+            ["and",
+                [".databaseY.tableB.field2", "!=", ""],
+                [".databaseY.tableB.field2", "!=", null]
+            ]
+        ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
 
