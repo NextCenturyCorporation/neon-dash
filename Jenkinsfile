@@ -123,7 +123,12 @@ pipeline {
     }
     
     stage('Build nginx container') {
-      agent any
+       agent {
+        docker {
+          image 'ughly/alpine-aws-cli'
+          args '--network=host'
+        }
+      }
       when {
           anyOf { branch 'master'; branch 'THOR-jenkins-pipeline'; }
       }
