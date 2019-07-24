@@ -416,7 +416,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             // If a value is not found for the leafValue, id will be used
             const name = find(data, 'valueField') || find(data, 'idField');
             const child = {
-                description: options.valueField,
+                description: options.valueField.columnName,
                 name,
                 sourceIds: find(data, 'sourceIdField'),
                 externalId: find(data, 'idField'),
