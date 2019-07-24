@@ -19,8 +19,6 @@ import { MediaGroupComponent } from './media-group.component';
 import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
-import { CarouselModule } from 'angular-bootstrap-md';
-
 @NgModule({
     declarations: [MediaGroupComponent],
     exports: [MediaGroupComponent],
@@ -31,8 +29,6 @@ import { CarouselModule } from 'angular-bootstrap-md';
         MatTabsModule,
         MatSliderModule,
         DataMessageModule,
-        // This next line causes two separate different errors
-        CarouselModule.forRoot(),
         CommonModule
     ]
 })

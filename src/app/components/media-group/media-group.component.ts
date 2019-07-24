@@ -54,20 +54,14 @@ export interface MediaMetaData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaGroupComponent implements AfterViewInit {
-    @Input() tabsAndMedia: MediaMetaData[];
+    @Input() tabsAndMedia: MediaMetaData;
     @Input() dashboardState: DashboardState;
     @Input() visualization: ElementRef;
     @Input() options: RootWidgetOptionCollection;
     @Input() sanitizer: DomSanitizer;
     @Input() changeDetection: ChangeDetectorRef;
 
-    public selectedTabIndex: number = 0;
-
-    protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 30;
-    protected TAB_HEIGHT: number = 30;
-    protected CONTRIBUTION_FOOTER_HEIGHT: number = 20;
-    protected TOOLBAR_HEIGHT: number = 40;
+    public selectedLinkIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
 
