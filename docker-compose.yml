@@ -1,0 +1,30 @@
+version: '3'
+
+networks:
+  neon-system:
+
+services:
+  neon-dashboard:
+    container_name: neon-dashboard
+    image: nginx:alpine
+    networks:
+      neon-system:
+    ports: 
+      - 4100:80
+    volumes:
+      - ./dist:/var/www:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./src/app/config/config.yaml:/var/www/app/config/config.yaml
+  neon-server:
+    container_name: neon-server
+    image: com.ncc.neon/server:latest
+    expose:
+      - 80
+    environment:
+      STATE_DIRECTORY: /states
+      SERVER_PORT: 80
+    networks:
+      neon-system:
+    volumes:
+      - ./states:/states
+
