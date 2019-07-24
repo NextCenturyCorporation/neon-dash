@@ -159,7 +159,10 @@ pipeline {
 
     stage('Deploy assets to S3 bucket') {
       agent {
-        docker 'ughly/alpine-aws-cli'
+        docker {
+          image 'ughly/alpine-aws-cli'
+          args '--network=host'
+        }
       }
       steps {
         withCredentials([usernamePassword(
