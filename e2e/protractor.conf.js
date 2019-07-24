@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-const { SpecReporter } = require('jasmine-spec-reporter');
-const { JUnitXmlReporter } = require('jasmine-reporters');
+const {SpecReporter} = require('jasmine-spec-reporter');
+const {JUnitXmlReporter} = require('jasmine-reporters');
 const path = require('path');
 
 exports.config = {
@@ -33,6 +33,8 @@ exports.config = {
                 '--disable-gpu',
                 '--disable-translate',
                 '--disable-extensions',
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
                 '--remote-debugging-port=9222',
                 '--proxy-server=\'direct://\'',
                 '--proxy-bypass-list=*',
@@ -54,7 +56,7 @@ exports.config = {
             project: path.resolve(__dirname, 'tsconfig.e2e.json')
         });
     },
-    onPrepare () {
+    onPrepare() {
         if (process.env.E2E_JUNIT) {
             let junitReporter = new JUnitXmlReporter({
                 savePath: path.resolve(__dirname, '../reports/e2e'),
@@ -62,7 +64,7 @@ exports.config = {
             });
             jasmine.getEnv().addReporter(junitReporter);
         } else {
-            jasmine.getEnv().addReporter(new SpecReporter({ spec: { displayStacktrace: true } }));
+            jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
         }
     }
 };

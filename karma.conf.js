@@ -61,6 +61,8 @@ module.exports = function (config) {
                 flags: [
                     '--headless',
                     '--no-sandbox',
+                    '--disable-background-timer-throttling',
+                    '--disable-renderer-backgrounding',
                     '--disable-setuid-sandbox',
                     '--disable-gpu',
                     '--disable-translate',
