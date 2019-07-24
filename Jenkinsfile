@@ -125,12 +125,32 @@ pipeline {
     stage('Build nginx container') {
       agent any
       when {
-          branch 'master'
+          anyOf { branch 'master'; branch 'THOR-jenkins-pipeline'; }
       }
       steps {
-        sh 'which docker-compose'
-      } 
-    }
+         withCredentials([usernamePassword(
+          credentialsId: 'aws_jenkins',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'                              
+        )]) {
+          sh 'rm  ~/.dockercfg || true'
+          sh 'rm ~/.docker/config.json || true'
+
+          script {
+            //configure registry
+            sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
+            docker.withRegistry('https://670848316581.dkr.ecr.us-east-1.amazonaws.com') {
+               
+                //build image
+                def customImage = docker.build("neon/ui:${env.BUILD_ID}")
+                 
+                //push image
+                customImage.push()
+            }        
+          } 
+        }
+      }
+    } 
 
     stage('Setup AWS Branch Setup') {
       when {
