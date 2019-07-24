@@ -121,6 +121,8 @@ $teal-theme: (
     --color-body: #F2F2F2; // $teal-theme-white
     --color-border: #54C8CD; // $teal-theme-accent
     --color-text: #333333; // $teal-theme-black-darker
+    --color-grid-shadow: rgba(128, 128, 128, 0.4);
+    --color-grid-border: none;
 
     --color-dash-item-selectable: #54C8CD; // $teal-theme-accent
     --color-dash-item-selectable-text: #F2F2F2; // $teal-theme-white

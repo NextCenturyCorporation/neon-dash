@@ -588,40 +588,6 @@ describe('ChartJsSubcomponent', () => {
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
 
-    it('selectBounds with cancel button down does deselect', () => {
-        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
-        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
-        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnBounds');
-        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
-
-        let chart = {
-            chartArea: {
-                top: 5,
-                bottom: 300,
-                left: 5,
-                right: 300
-            }
-        };
-
-        (subcomponent).selectBounds({
-            buttons: 1,
-            offsetX: 10,
-            offsetY: 20
-        }, [], chart);
-
-        (subcomponent).selectBounds({
-            buttons: 2,
-            offsetX: 100,
-            offsetY: 200
-        }, [], chart);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy3.calls.count()).toEqual(0);
-        expect(spy4.calls.count()).toEqual(2);
-        expect(subcomponent.getSelectedLabels()).toEqual([]);
-    });
-
     it('selectBounds with items does update selectedLabels', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');

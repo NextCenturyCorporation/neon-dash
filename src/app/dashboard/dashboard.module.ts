@@ -16,12 +16,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule, LocationStrategy, PathLocationStrategy, Location } from '@angular/common';
 
 import { NgGridModule } from 'angular2-grid';
+import { ContextMenuModule } from 'ngx-contextmenu';
 
 import { VisualizationContainerModule } from '../components/visualization-container/visualization-container.module';
 
 import { DashboardSelectorModule } from '../components/dashboard-selector/dashboard-selector.module';
 import { FiltersModule } from '../components/filters/filters.module';
-import { SimpleFilterModule } from '../components/simple-filter/simple-filter.module';
+import { SimpleSearchFilterModule } from '../components/simple-search-filter/simple-search-filter.module';
 import { DashboardComponent } from './dashboard.component';
 import { CommonWidgetModule } from '../common-widget.module';
 import { MatBadgeModule, MatMenuModule, MatSnackBarModule, MatTabsModule } from '@angular/material';
@@ -41,6 +42,7 @@ import { RouterModule } from '@angular/router';
     imports: [
         RouterModule.forRoot([{ path: '**', component: DashboardComponent }]),
         CommonWidgetModule,
+        ContextMenuModule.forRoot(),
         MatBadgeModule,
         MatSnackBarModule,
         MatMenuModule,
@@ -53,7 +55,7 @@ import { RouterModule } from '@angular/router';
         FiltersModule,
         CurrentFiltersModule,
         CustomConnectionModule,
-        SimpleFilterModule
+        SimpleSearchFilterModule
     ]
 })
 export class DashboardModule { }

@@ -20,15 +20,11 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
 
-import { ConfigUtil } from '../util/config.util';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
 import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
 import { AbstractSearchService } from '../services/abstract.search.service';
-import { CompoundFilterType } from '../models/widget-option';
 import { InjectableColorThemeService } from '../services/injectable.color-theme.service';
 import { DashboardService } from '../services/dashboard.service';
 import { InjectableFilterService } from '../services/injectable.filter.service';
@@ -133,12 +129,29 @@ describe('Dashboard', () => {
     });
 
     it('toggle filters component', () => {
-        component.showFilterTray = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filters').length).toEqual(0);
-        component.showFilterTray = true;
-        component.createFiltersComponent = true;
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = false;
         component.toggleFiltersDialog();
-        expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = false;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
     });
 
     it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', () => {
@@ -828,48 +841,6 @@ describe('Dashboard', () => {
         let spy = spyOn(component.grid, 'triggerResize');
         component['resizeGrid']();
         expect(spy.calls.count()).toEqual(1);
-    });
-
-    it('getFiltersToSaveInURL should return expected output', () => {
-        expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
-
-        spyOn(component['filterService'], 'getFilters').and.returnValue([{
-            root: CompoundFilterType.OR,
-            datastore: '',
-            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
-            table: NeonTableMetaData.get({ name: 'tableA' }),
-            field: NeonFieldMetaData.get({ columnName: 'field1' }),
-            operator: '=',
-            value: 'value1'
-        } as SimpleFilterDesign, {
-            root: 'and',
-            type: 'and',
-            filters: [{
-                root: CompoundFilterType.OR,
-                datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
-                operator: '!=',
-                value: ''
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.OR,
-                datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
-                operator: '!=',
-                value: null
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign]);
-
-        expect(component['getFiltersToSaveInURL']()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
-            ]
-        ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
 

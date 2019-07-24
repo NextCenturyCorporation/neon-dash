@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 
-import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { FilterConfig, NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
@@ -28,7 +28,7 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { FilterUtil } from '../util/filter.util';
+import { FilterDesign, FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({
@@ -110,11 +110,7 @@ export class DashboardService {
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
-        let filters = dashboard.filters;
-        if (typeof filters === 'string') {
-            const stringFilters = ConfigUtil.translate(dashboard.filters as string, ConfigUtil.decodeFiltersMap);
-            filters = (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter));
-        }
+        let filters = this._translateFilters(dashboard.filters);
 
         this.filterService.setFiltersFromConfig(filters || [], this.state.asDataset());
         this.stateSubject.next(this.state);
@@ -243,5 +239,21 @@ export class DashboardService {
             out.dashboards.options.connectOnLoad = true;
         }
         return out;
+    }
+
+    /**
+     * Returns the filters as string for use in URL
+     */
+    public getFiltersToSaveInURL(): string {
+        let filters: FilterDesign[] = this.filterService.getFilters();
+        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+    }
+
+    private _translateFilters(filters: FilterConfig[] | string): FilterConfig[] {
+        if (typeof filters === 'string') {
+            const stringFilters = ConfigUtil.translate(filters, ConfigUtil.decodeFiltersMap);
+            return (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter));
+        }
+        return filters;
     }
 }
