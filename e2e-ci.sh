@@ -1,8 +1,4 @@
 #!/bin/sh
-
-trap "exit" INT TERM
-trap "kill 0" EXIT
-
 ls node_modules/protractor/node_modules/webdriver-manager/selenium || npx webdriver-manager update
 
 cp src/app/config/cicd/lorelei.config.yaml src/app/config/config.yaml
