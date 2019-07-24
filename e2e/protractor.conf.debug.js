@@ -24,7 +24,13 @@ exports.config = {
     capabilities: {
         browserName: 'chrome',
         chromeOptions: {
-            args: ['--disable-dev-shm-usage', '--disable-gpu', '--window-size=1920x1080']
+            args: [
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--window-size=1920x1080'
+            ]
         }
     },
     directConnect: true,

@@ -24,11 +24,8 @@ pipeline {
         }
       }
       steps {
-        echo "Install Start"
         sh 'npm install'
-        echo "Install End"
         stash includes: 'node_modules/', name: 'node_modules'
-        echo "Install Stash"
       }
     }  
     
@@ -45,14 +42,10 @@ pipeline {
         }
       }
       steps {
-        echo "Lint Start"
-
         sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run lint'
-
-        echo "Lint End"
       }
     }
 
@@ -64,17 +57,12 @@ pipeline {
         }
       }
       steps {
-        echo "Compile Start"
-
         sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'npm run build-prod'
-        echo "Compile End"
 
         stash includes: 'dist/', name: 'dist'
-        echo "Compile Stash"
-
       }
     }
 
@@ -91,19 +79,14 @@ pipeline {
         }
       }
       steps {
-        echo "Unit Start"
-
         sh 'mkdir -p node_modules'
         sh 'chmod -R u+w node_modules'
         unstash 'node_modules'
         sh 'mkdir -p reports/unit'
         sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
-        echo "Unit End"
 
         stash name:'unit-results', includes:'reports/unit/**/*.xml'       
-        echo "Unit Stashed"
-
       }
     }
 
@@ -123,7 +106,6 @@ pipeline {
         E2E_JUNIT = "1"
       }
       steps {
-        echo "E2E Start"
         sh 'mkdir -p dist node_modules'
         sh 'chmod -R u+w node_modules dist'
         unstash 'node_modules'
@@ -133,9 +115,7 @@ pipeline {
 
         // Prep CI Config 
         sh script: './e2e-ci.sh', returnStatus: true
-        echo "E2E End"
         stash name:'e2e-results', includes:'reports/e2e/**/*.xml'
-        echo "E2E Stashed"
       }
     }
 
