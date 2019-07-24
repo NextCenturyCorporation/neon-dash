@@ -176,11 +176,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             designs.push(this.createFilterDesignOnTimeline());
         }
 
-        if (this.options.filterField.columnName) {
-            // Match a single EQUALS filter on the specific filter field.
-            designs.push(this.createFilterDesignOnItem(this.options.filterField));
-        }
-
         return designs;
     }
 

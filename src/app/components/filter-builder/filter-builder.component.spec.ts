@@ -153,14 +153,6 @@ describe('Component: Filter Builder', () => {
     });
 
     it('saveFilter does not call filterService.toggleFilters if any of the filter clauses are not valid', () => {
-        component.filterClauses[0].field.columnName = 'testColumn';
-        component.filterClauses[0].operator = component.operators[3];
-        component.filterClauses[0].operator.value = '!=';
-        component.filterClauses[0].value = '53';
-
-        // Blank filter clause is invalid
-        component.addBlankFilterClause();
-
         component.saveFilter();
 
         /* eslint-disable-next-line @typescript-eslint/unbound-method */

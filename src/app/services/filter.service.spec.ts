@@ -606,20 +606,6 @@ describe('FilterService with filters', () => {
             operator: '=',
             value: 'testId2'
         }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId3'
-        }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId4'
-        }, {
             type: 'and',
             filters: [{
                 datastore: DATASTORE.name,
@@ -996,16 +982,16 @@ describe('FilterService with filters', () => {
         let actual = filterService.toggleFilters('testCaller', [testDesign], []);
 
         let listComplete = filterService['filterCollection'].getFilters(source1) as any[]; // TODO: Typings;;
-        expect(listComplete.length).toEqual(5);
+        expect(listComplete.length).toEqual(3);
         expect(listComplete[0]).toEqual(filter1A);
         expect(listComplete[1]).toEqual(filter1B);
-        expect(listComplete[4].database).toEqual(DATABASES.testDatabase1);
-        expect(listComplete[4].table).toEqual(TABLES.testTable1);
-        expect(listComplete[4].field).toEqual(FIELD_MAP.ID);
-        expect(listComplete[4].operator).toEqual('=');
-        expect(listComplete[4].value).toEqual('testId5');
+        expect(listComplete[2].database).toEqual(DATABASES.testDatabase1);
+        expect(listComplete[2].table).toEqual(TABLES.testTable1);
+        expect(listComplete[2].field).toEqual(FIELD_MAP.ID);
+        expect(listComplete[2].operator).toEqual('=');
+        expect(listComplete[2].value).toEqual('testId5');
 
-        testDesign.id = listComplete[4].id;
+        testDesign.id = listComplete[2].id;
 
         expect(filterService['filterCollection'].getFilters(source2)).toEqual([filter2A]);
 
