@@ -16,19 +16,6 @@ pipeline {
   }
 
   stages {
-    stage('Fetch dependencies') {
-      agent {
-        docker {
-          image 'node:12-stretch'
-          args '--network=host'
-        }
-      }
-      steps {
-        sh 'npm install'
-        stash includes: 'node_modules/', name: 'node_modules'
-      }
-    }  
-    
     stage('Lint') {
       agent {
         docker {
@@ -42,9 +29,7 @@ pipeline {
         }
       }
       steps {
-        sh 'mkdir -p node_modules'
-        sh 'chmod -R u+w node_modules'
-        unstash 'node_modules'
+        sh 'npm install'
         sh 'npm run lint'
       }
     }
@@ -58,9 +43,7 @@ pipeline {
             }
           }
           steps {
-            sh 'mkdir -p node_modules'
-            sh 'chmod -R u+w node_modules'
-            unstash 'node_modules'
+            sh 'npm install'
             sh 'npm run build-prod'
 
             stash includes: 'dist/', name: 'dist'
@@ -80,9 +63,7 @@ pipeline {
             }
           }
           steps {
-            sh 'mkdir -p node_modules'
-            sh 'chmod -R u+w node_modules'
-            unstash 'node_modules'
+            sh 'npm install'
             sh 'mkdir -p reports/unit'
             sh script: 'npx ng test --reporters junit --browsers ChromeJenkins', returnStatus: true
 
@@ -108,9 +89,7 @@ pipeline {
         E2E_JUNIT = "1"
       }
       steps {
-        sh 'mkdir -p dist node_modules'
-        sh 'chmod -R u+w node_modules dist'
-        unstash 'node_modules'
+        sh 'npm install'
         unstash 'dist'
 
         sh 'mkdir -p reports/e2e'
