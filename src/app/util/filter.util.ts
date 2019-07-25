@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CompoundFilterType } from '../services/abstract.search.service';
+import { CompoundFilterType } from '../models/widget-option';
 import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
 import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';

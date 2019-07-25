@@ -15,7 +15,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { CompoundFilterType } from '../services/abstract.search.service';
+import { CompoundFilterType } from '../models/widget-option';
 import { DashboardService } from '../services/dashboard.service';
 import {
     CompoundFilter,
