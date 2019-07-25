@@ -63,16 +63,16 @@ You do not have to have your own configuration file.  Without a configuration fi
 
 ### Option A: Deploy the Neon Dashboard as a WAR in Apache Tomcat
 
-**Prerequisite**: Install [Apache Tomcat](http://tomcat.apache.org/)
+#### 1. Install [Apache Tomcat](http://tomcat.apache.org/)
 
-#### 1. Run the Neon Server as a Docker Container
+#### 2. Run the Neon Server as a Docker Container
 
 ```
 cd <neon-server>
 docker run -it --network=host --rm -d com.ncc.neon/server:latest
 ```
 
-#### 2. Build the Neon Dashboard for Apache Tomcat Deployment
+#### 3. Build the Neon Dashboard for Apache Tomcat Deployment
 
 ```
 cd <neon-dash-internal>
@@ -83,26 +83,34 @@ This will generate `<neon-dash-internal>/target/neon_dashboard.war`.
 
 **Note**: If you want, you can replace neon_dashboard with any other name.  Use the same name in the following steps.
 
-#### 3. Deploy the Neon Dashboard to Your Apache Tomcat
+#### 4. Deploy the Neon Dashboard to Your Apache Tomcat
 
 Copy `<neon-dash-internal>/target/neon_dashboard.war` into your `<apache-tomcat>/webapps` directory.
 
-#### 4. Verify Deployment
+#### 5. Verify Deployment
 
 Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser. For example, if your Apache Tomcat is installed on `localhost:8080`, go to http://localhost:8080/neon_dashboard
 
 ### Option B: Deploy the Neon Dashboard as a Docker Container
 
-**Prerequisite**: Install [Docker Compose](https://docs.docker.com/compose/install/)
+#### 1. Install [Docker Compose](https://docs.docker.com/compose/install/)
 
-#### 1. Run the Neon Server and the Neon Dashboard Simultaneously with Docker Compose
+#### 2. Build the Neon Dashboard
+
+```
+cd <neon-dash-internal>
+npm run-script build
+```
+
+This will generate the `<neon-dash-internal>/dist` directory.
+
+#### 3. Run the Neon Server and the Neon Dashboard Simultaneously with Docker Compose
 
 This option uses Docker Compose to deploy the Neon Dashboard within an Nginx docker image alongside your existing Neon Server docker image.
 
 Run the following commands:
 
 ```
-cd <neon-dash-internal>
 docker-compose up -d
 ```
 
@@ -110,7 +118,7 @@ docker-compose up -d
 
 - In `<neon-dash-internal>/docker-compose.yml`, change the `4100` in the line `- 4100:80` to your port.
 
-#### 2. Verify Deployment
+#### 4. Verify Deployment
 
 Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser by going to http://localhost:4100/
 
