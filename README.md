@@ -67,7 +67,12 @@ Note:  This command will build the dashboard for a production environment (`--pr
 
 ## Deploy as Docker Image
 
-To build the Neon Dashboard as a Docker Image, see the [README in the docker folder](./docker/)
+To build the Neon Dashboard and run it as a Docker Image:
+
+        npm run-script build
+        docker-compose up
+
+Now you can view the Neon Dashboard at http://localhost:4100
 
 ## Apache 2 Open Source License
 
