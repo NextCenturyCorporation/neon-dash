@@ -14,7 +14,7 @@
 
 If you were given a sample data bundle, please download it and follow its README instructions.
 
-If you want to use your own data, please see the (Neon Data Support Guide)[./DATA_SUPPORT_GUIDE] for more information.
+If you want to use your own data, please see the (Neon Data Support Guide)[https://github.com/NextCenturyCorporation/neon-server/blob/master/DATA_SUPPORT_GUIDE.md] for more information.
 
 ## III. Neon Server
 
