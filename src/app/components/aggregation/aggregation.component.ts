@@ -29,11 +29,9 @@ import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
-    CompoundFilterType,
     FilterClause,
     QueryGroup,
-    QueryPayload,
-    SortOrder
+    QueryPayload
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -62,7 +60,9 @@ import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     TimeInterval,
     WidgetFieldOption,
     WidgetFreeTextOption,
