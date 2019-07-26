@@ -878,8 +878,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let axisTypeY = this.findAxisTypeY();
 
             if (axisTypeX === 'string') {
-                beginValueX = chart.data.datasets[0].data[beginValueX].x;
-                endValueX = chart.data.datasets[0].data[endValueX].x;
+                beginLabelX = chart.data.datasets[0].data[beginValueX].x;
+                endLabelX = chart.data.datasets[0].data[endValueX].x;
             } else if (axisTypeX === 'date') {
                 beginLabelX = new Date(Math.min(beginValueX, endValueX));
                 endLabelX = new Date(Math.max(beginValueX, endValueX));
@@ -889,8 +889,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (axisTypeY === 'string') {
-                beginValueY = chart.data.datasets[0].data[beginValueY].y;
-                endValueY = chart.data.datasets[0].data[endValueY].y;
+                beginLabelY = chart.data.datasets[0].data[beginValueY].y;
+                endLabelY = chart.data.datasets[0].data[endValueY].y;
             } else if (axisTypeY === 'number') {
                 beginLabelY = Math.min(beginValueY, endValueY);
                 endLabelY = Math.max(beginValueY, endValueY);
