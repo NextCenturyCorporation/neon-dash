@@ -5,21 +5,21 @@ datastores:
         type: elasticsearchrest
         databases:
             rpi-m9-ta1-graph:
-                prettyName: TA1
+                prettyName: TA1 Graph
                 tables:
                     graph:
                         prettyName: Documents
                         fields:
                         labelOptions:
             rpi-m9-ta1-docs:
-                prettyName: TA1
+                prettyName: TA1 Parents
                 tables:
                     docs:
                          prettyName: Root Documents
                          fields:
                          labelOptions:
             rpi-m9-ta1-children:
-                prettyName: TA1
+                prettyName: TA1 Children
                 tables:
                     children:
                          prettyName: Child Documents
@@ -47,10 +47,17 @@ datastores:
                          fields:
                          labelOptions:
             aida-docs-parents:
-                prettyName: Documents
+                prettyName: TA1 Parents
                 tables:
                     parents:
                         prettyName: Root Documents
+                        fields:
+                        labelOptions:
+            aida-docs-parent-children:
+                prettyName: TA1 Children
+                tables:
+                    parent-children:
+                        prettyName: Child Documents
                         fields:
                         labelOptions:
             gaia-graph:
@@ -58,6 +65,27 @@ datastores:
                 tables:
                     graph:
                         prettyName: Documents
+                        fields:
+                        labelOptions:
+            arl-docs-parents:
+                prettyName: ARL TA1 Parents
+                tables:
+                    parents:
+                        prettyName: Root Documents
+                        fields:
+                        labelOptions:
+            arl-docs-parent_children:
+                prettyName: ARL TA1 Children
+                tables:
+                    parent-children:
+                         prettyName: Child Documents
+                         fields:
+                         labelOptions:
+            arl_ta1:
+                prettyName: ARL TA1
+                tables:
+                    graph:
+                        prettyName: Graph
                         fields:
                         labelOptions:
 dashboards:
@@ -80,7 +108,6 @@ dashboards:
                             fields:
                                 document_field_id: es1.rpi-m9-ta1-docs.docs.id
                                 document_field_link: es1.rpi-m9-ta1-docs.docs.reconstructed
-                                document_field_documenttype: es1.rpi-m9-ta1-docs.docs.dtype
 
                                 graph_field_type: es1.rpi-m9-ta1-graph.graph.types
                                 graph_field_category: es1.rpi-m9-ta1-graph.graph.categories
@@ -88,9 +115,33 @@ dashboards:
                                 - - es1.rpi-m9-ta1-docs.docs.id
                                   - es1.rpi-m9-ta1-graph.graph.parentIds
                             options:
-                                connectOnLoad: true
+                                connectOnLoad: false
                                 colorMaps:
                                     rpi-m9-ta1-graph:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
+                        demo:
+                            name: DEMO
+                            layout: arl-ta1-m9-demo
+                            tables:
+                                document_table: es1.arl-docs-parents.parents
+                                graph_table: es1.arl_ta1.graph
+                            fields:
+                                document_field_id: es1.arl-docs-parents.parents.id
+                                document_field_link: es1.rarl-docs-parents.parents.reconstructed
+
+                                graph_field_type: es1.arl_ta1.graph.types
+                                graph_field_category: es1.arl_ta1.graph.categories
+                            relations:
+                                - - es1.arl-docs-parents.parents.id
+                                  - es1.arl_ta1.graph.parentIds
+                            options:
+                                connectOnLoad: false
+                                colorMaps:
+                                    arl_ta1:
                                         graph:
                                             categories:
                                                 ENTITY: '#ADD8E6'
@@ -130,7 +181,7 @@ dashboards:
                                 - - es1.rpi-m9-ta1-children.children.id
                                   - es1.rpi-m9-ta1-union.graph-children.docIds
                             options:
-                                connectOnLoad: false
+                                connectOnLoad: true
                                 colorMaps:
                                     rpi-m9-ta1-union:
                                         graph-children:
@@ -213,12 +264,17 @@ dashboards:
                                 graph_field_type: es1.gaia-graph.graph.types
                                 graph_field_category: es1.gaia-graph.graph.categories
                             relations:
-                                - - es1.aida-docs-parents.parents.children
-                                  - es1.gaia-graph.graph.docIds
                                 - - es1.aida-docs-parents.parents.id
                                   - es1.gaia-graph.graph.parentIds
                             options:
                                 connectOnLoad: false
+                                colorMaps:
+                                    gaia-graph:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
 
 layouts:
     gaia-ta1-pilot:
@@ -389,6 +445,90 @@ layouts:
               linkPrefix: '../Reconstructed/html/rpi-m9-ta1-v2/'
               typeField: document_field_documenttype
               clearMedia: false
+    arl-ta1-m9-demo:
+        - type: dataTable
+          row: 1
+          col: 1
+          sizex: 2
+          sizey: 17.5
+          bindings:
+              title: Documents
+              tableKey: document_table
+              idField: document_field_id
+              sortField: document_field_id
+              filterable: true
+              ignoreSelf: true
+              singleFilter: true
+              filterFields:
+                - document_field_id
+              exceptionsToStatus:
+                - document_field_id
+              allColumnStatus: hide
+
+        - type: aggregation
+          row: 1
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Entities
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: ENTITY
+
+        - type: aggregation
+          row: 6
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Relations
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: RELATION
+
+        - type: aggregation
+          row: 11
+          col: 3
+          sizex: 4
+          sizey: 5.5
+          bindings:
+              title: Events
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: false
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: EVENT
+
+        - type: mediaViewer
+          row: 1
+          col: 7
+          sizex: 6
+          sizey: 17.5
+          bindings:
+              title: 'Media Viewer'
+              tableKey: document_table
+              idField: document_field_id
+              linkField: document_field_link
+              linkPrefix: '../Reconstructed/html/rpi-m9-ta1-v2/'
+              typeField: document_field_documenttype
+              clearMedia: false
     arl-ta2-network:
         - type: taxonomyViewer
           row: 0
@@ -429,15 +569,17 @@ layouts:
               linkNameField: graph_field_linkname
               targetNameField: graph_field_targetname
               nodeColor:
-              linkColor: '#D1C2F0'
               edgeColor: '#63B4CF'
+              linkColor: '#f5b12a' #deep yellow
+              showRelationLinks: true
+              relationId: 'RELATION'
               xPositionField: graph_field_x
               yPositionField: graph_field_y
               xTargetPositionField: graph_field_targetx
               yTargetPositionField: graph_field_targety
               typeField: graph_field_type
-              isReified: false
-              isDirected: true
+              graphType: relational
+              isDirected: false
               hideUnfiltered: false
               physics: false
               filterFields:
@@ -449,7 +591,6 @@ layouts:
               displayLegend: true
               nodeColorField: graph_field_category
               targetColorField: graph_field_targetcategory
-              edgeColorField:
               cleanLegendLabels: true
               legendFiltering: false
 

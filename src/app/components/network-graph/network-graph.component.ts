@@ -220,6 +220,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private defaultActiveColor;
     private graph: vis.Network;
+    private relationNodes: any[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -341,7 +342,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetColorOption('fontColor', 'Font Color', '#343434', this.optionsNotReified.bind(this)),
             new WidgetColorOption('linkColor', 'Link Color', '#96c1fc', this.optionsNotReified.bind(this)),
             new WidgetColorOption('nodeColor', 'Node Color', '#96c1fc', this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box')
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
+            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue, this.optionsNotReified.bind(this)),
+            new WidgetFreeTextOption('relationId', 'Relation ID', '')
         ];
     }
 
@@ -734,8 +737,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.loadingCount++;
 
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() :
-            this.options.layers.length ? this.createMultiTableGraphProperties() :
-                this.createTabularGraphProperties();
+            this.options.layers.length ? this.createMultiTableGraphProperties() : this.options.showRelationLinks ?
+                this.createRelationsAsLinksGraphProperties() : this.createTabularGraphProperties();
 
         if (graphProperties) {
             this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
@@ -835,7 +838,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
-        nodeTextObject?: any, nodeShape?: string) {
+                      nodeTextObject?: any, nodeShape?: string) {
         let edgeTextObject = {
             size: NetworkGraphComponent.EDGE_FONT_SIZE,
             face: NetworkGraphComponent.FONT
@@ -847,7 +850,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
-        colorValue?: string, edgeColorField?: string) {
+                              colorValue?: string, edgeColorField?: string) {
         let edgeColor = { color: colorValue, highlight: colorValue };
         let edgeTextObject = {
             size: NetworkGraphComponent.EDGE_FONT_SIZE,
@@ -866,9 +869,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[]) {
+                        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationId?: string) {
         let ret: Node[] = [];
+        let relationNodes: any[] = [];
         let color = originalColor;
+
         for (let entry of data) {
             let colorMapVal = entry[colorField];
             let id = entry[idField];
@@ -877,48 +882,68 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             let yPosition = entry[yPositionField];
             let filterFieldData: any[] = [];
 
-            filterFields.forEach((filterField) => {
-                filterFieldData.push({
-                    field: filterField,
-                    data: entry[filterField.columnName]
+            if(colorMapVal.indexOf(relationId) < 0) {
+                filterFields.forEach((filterField) => {
+                    filterFieldData.push({
+                        field: filterField,
+                        data: entry[filterField.columnName]
+                    });
                 });
-            });
 
-            // If there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
-            if (colorField && this.prettifiedNodeLabels.length === 0) {
-                color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                    colorMapVal).getComputedCss(this.visualization);
-            }
+                // If there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
+                if (colorField && this.prettifiedNodeLabels.length === 0) {
+                    color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
+                        colorMapVal).getComputedCss(this.visualization);
+                }
 
-            // Create a new node for each unique nodeId
-            let nodes = this.getArray(id);
-            let nodeNames = !name ? nodes : this.getArray(name);
-            for (let index = 0; index < nodes.length && ret.length < this.options.limit; index++) {
-                let nodeEntry = nodes[index];
-                if (this.isUniqueNode(nodeEntry)) {
-                    // If legend labels have been modified, override the node color
-                    if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && colorMapVal && colorMapVal !== '') {
-                        let shortName = this.labelCleanUp(colorMapVal);
-                        for (const nodeLabel of this.prettifiedNodeLabels) {
-                            if (nodeLabel === shortName) {
-                                color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
-                                    nodeLabel).getComputedCss(this.visualization);
-                                break;
+                // Create a new node for each unique nodeId
+                let nodes = this.getArray(id);
+                let nodeNames = !name ? nodes : this.getArray(name);
+                for (let index = 0; index < nodes.length && ret.length < this.options.limit; index++) {
+                    let nodeEntry = nodes[index];
+                    if (this.isUniqueNode(nodeEntry)) {
+                        // If legend labels have been modified, override the node color
+                        if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && colorMapVal && colorMapVal !== '') {
+                            let shortName = this.labelCleanUp(colorMapVal);
+                            for (const nodeLabel of this.prettifiedNodeLabels) {
+                                if (nodeLabel === shortName) {
+                                    color = this.colorThemeService.getColor(this.options.database.name, this.options.table.name, colorField,
+                                        nodeLabel).getComputedCss(this.visualization);
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, { color: this.options.fontColor },
-                        this.options.nodeShape, xPosition, yPosition, filterFieldData));
+                        ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, {color: this.options.fontColor},
+                            this.options.nodeShape, xPosition, yPosition, filterFieldData));
+                    }
+                }
+            }
+            else {
+                let relationIndex = relationNodes.findIndex((object) => object[idField] === id);
+
+                if(relationIndex > -1){
+                    relationNodes[relationIndex].nodes.push({id: entry[this.options.linkField.columnName],
+                        name: entry[this.options.linkNameField.columnName]});
+                }
+                else{
+                    entry.nodes = [{id: entry[this.options.linkField.columnName],
+                        name: entry[this.options.linkNameField.columnName]}];
+                    relationNodes.push(entry);
                 }
             }
         }
+
+        if(relationId && relationNodes.length > 0){
+            this.relationNodes = relationNodes;
+        }
+
         return ret;
     }
 
     // Create edges between source and destinations specified by destinationField
     private getEdgesFromOneEntry(names: string[], colorField: string, originalColorMapVal: string, originalColor: string, source: string,
-        destinations: string[]) {
+                                 destinations: string[]) {
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
@@ -952,8 +977,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            ret.push(new Edge(source, destinations[index], names[index], { to: this.options.isDirected }, 1, colorObject, colorMapVal,
-                edgeTextObject));
+            if(source && destinations[index]) {
+                ret.push(new Edge(source, destinations[index], names[index], {to: this.options.isDirected}, 1, colorObject, colorMapVal,
+                    edgeTextObject));
+            }
         }
         return ret;
     }
@@ -1040,6 +1067,57 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         links));
                 }
             }
+        }
+        return graph;
+    }
+
+
+    private createRelationsAsLinksGraphProperties() {
+        let graph = new GraphProperties();
+        let linkName = this.options.linkField.columnName;
+        let linkNameColumn = this.options.linkNameField.columnName;
+        let nodeName = this.options.nodeField.columnName;
+        let nodeNameColumn = this.options.nodeNameField.columnName;
+        let nodeColorField = this.options.nodeColorField.columnName;
+        let edgeColorField = this.options.edgeColorField.columnName;
+        let nodeColor = this.options.nodeColor;
+        let edgeColor = this.options.edgeColor;
+        let linkColor = this.options.linkColor;
+        let xPositionField = this.options.xPositionField.columnName;
+        let yPositionField = this.options.yPositionField.columnName;
+
+        // Assume nodes will take precedence over edges so create nodes first
+        graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
+            yPositionField, this.options.filterFields, this.options.relationId);
+
+        // Create edges and destination nodes only if required
+        for (let entry of this.responseData) {
+            let linkField = entry[linkName];
+            let edgeType = entry[edgeColorField];
+            let linkNameField = entry[linkNameColumn];
+            let nodeField = entry[nodeName];
+            let relationField = entry[nodeColorField];
+
+            if(relationField != this.options.relationId) {
+                // Create a node if linkfield doesn't point to a node that already exists
+                let links = this.getArray(linkField);
+
+                // Create edges between nodes and destinations specified by linkfield
+                let linkNames = !linkNameField ? [].fill('', 0, links.length) : this.getArray(linkNameField);
+                let nodes = this.getArray(nodeField);
+
+                if (nodes) {
+                    for (const nodeEntry of nodes) {
+                        graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(linkNames, edgeColorField, edgeType, edgeColor, nodeEntry,
+                            links));
+                    }
+                }
+            }
+        }
+        for (let relationNode of this.relationNodes) {
+                let linkNames = relationNode[nodeNameColumn].concat(': ', relationNode.nodes.map(node => node.name.split('_').slice(-1)[0]).join(','))
+                graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
+                    relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
         }
         return graph;
     }
