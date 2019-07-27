@@ -1,0 +1,526 @@
+datastores:
+    es1:
+        host: localhost
+        type: elasticsearchrest
+        databases:
+            lorelei:
+                prettyName: Lorelei
+                tables:
+                    lorelei:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: id
+                              prettyName: ID
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: type
+                              prettyName: Type
+                        mappings:
+                          date: createdAt
+            apansf:
+                prettyName: Apan SF
+                tables:
+                    apansf:
+                        prettyName: UI Output
+                        mappings:
+                          date: createdAt
+dashboards:
+    category: 'Select a task...'
+    choices:
+        lorelei:
+            name: 'Situation Discovery'
+            category: 'Select a datastore...'
+            choices:
+                lorelei:
+                    name: Lorelei
+                    layout: indonesia_layout
+                    tables:
+                        table_key_1: es1.lorelei.lorelei
+                    options:
+                        connectOnLoad: false
+                    fields:
+                        original_text_key: es1.lorelei.lorelei.originalText
+                        translated_text_key: es1.lorelei.lorelei.translatedText
+                        date_field_key: es1.lorelei.lorelei.createdAt
+                        id_field_key: es1.lorelei.lorelei.id
+                        latitude_key: es1.lorelei.lorelei.geoLocations.lat
+                        longitude_key: es1.lorelei.lorelei.geoLocations.lon
+                        group_field_key_topics: es1.lorelei.lorelei.topics
+                        text_cloud_data_key_LOC: es1.lorelei.lorelei.entities.loc
+                        text_cloud_data_key_PER: es1.lorelei.lorelei.entities.per
+                        text_cloud_data_key_GPE: es1.lorelei.lorelei.entities.gpe
+                        text_cloud_data_key_ORG: es1.lorelei.lorelei.entities.org
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
+                apansf:
+                    name: apansf
+                    layout: indonesia_layout
+                    tables:
+                        table_key_1: es1.apansf.apansf
+                    options:
+                        connectOnLoad: true
+                    fields:
+                        original_text_key: es1.apansf.apansf.originaltext
+                        translated_text_key: es1.apansf.apansf.translatedtext
+                        date_field_key: es1.apansf.apansf.createdAt
+                        id_field_key: es1.apansf.apansf.id
+                        latitude_key: es1.apansf.apansf.geoLocations.latitude
+                        longitude_key: es1.apansf.apansf.geoLocations.longitude
+                        group_field_key_topics: es1.apansf.apansf.topics
+                        text_cloud_data_key_LOC: es1.apansf.apansf.entities.loc
+                        text_cloud_data_key_PER: es1.apansf.apansf.entities.per
+                        text_cloud_data_key_GPE: es1.apansf.apansf.entities.gpe
+                        text_cloud_data_key_ORG: es1.apansf.apansf.entities.org
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
+layouts:
+    ariel_simpost:
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 14
+          bindings:
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 10
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key
+              mapType: leaflet
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key
+              preFilter: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 9
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_1
+              xField: group_field_key
+              limit: 10
+              groupField: group_field_key
+              sortByAggregation: false
+              ignoreSelf: true
+    elisa_apan:
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 14
+          bindings:
+            title: Posts
+            tableKey: table_key_1
+            idField: thread_name_field_key
+            sortField: date_field_key
+            limit: 100
+            showFields:
+                - date_field_key
+                - original_text_key
+                - thread_name_field_key
+            customColumnWidths:
+                - - date_field_key
+                  - 60
+                - - original_text_key
+                  - 200
+                - - thread_name_field_key
+                  - 40
+            filterable: false
+            singleFilter: true
+            ignoreSelf: false
+            contributionKeys:
+                - apan
+                - isi
+        - name: Annotation Viewer
+          type: annotationViewer
+          icon: documentViewer64
+          col: 5
+          row: 8
+          sizex: 5
+          sizey: 7
+          bindings:
+              title: Thread Posts
+              tableKey: table_key_1
+              linkField: original_text_key
+              idField: thread_name_field_key
+              respondMode: true
+              contributionKeys:
+                - apan
+                - isi
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 7
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key
+              mapType: leaflet
+              contributionKeys:
+                - apan
+                - rpi
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Situation Topics
+              type: bar-h
+              tableKey: table_key_1
+              xField: topics_field_key
+              limit: 10
+              groupField: topics_field_key
+              sortByAggregation: false
+              ignoreSelf: true
+              contributionKeys:
+                - apan
+                - isi
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 10
+          row: 7
+          sizex: 3
+          sizey: 4
+          selected: true
+          bindings:
+              title: Organizations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_ORG
+              preFilter: false
+              contributionKeys:
+                - apan
+                - rpi
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 10
+          row: 7
+          sizex: 3
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_LOC
+              preFilter: false
+              contributionKeys:
+                - apan
+                - rpi
+    elisa_macedonia:
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 9
+          bindings:
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 8
+          bindings:
+            title: Situation Frame
+            tableKey: table_key_1
+            idField: id_field_key
+            sortField: date_field_key
+            limit: 100
+            allColumnStatus: hide
+            showFields:
+                - group_field_key
+                - text_cloud_data_key
+            filterable: true
+            singleFilter: true
+            ignoreSelf: false
+            filterFields:
+                - id_field_key
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 10
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key
+              mapType: leaflet
+              west: 21.3
+              north: 42.2
+              east: 21.6
+              south: 41.8
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key
+              preFilter: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_1
+              xField: group_field_key
+              limit: 10
+              groupField: group_field_key
+              sortByAggregation: false
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 1
+          row: 10
+          sizex: 4
+          sizey: 5
+          bindings:
+              title: Situation Clusters
+              type: bar-h
+              tableKey: table_key_1
+              xField: cluster_name_field_key
+              limit: 100
+              groupField: group_field_key
+              sortByAggregation: true
+    indonesia_layout:
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 7
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key_topics
+              mapType: leaflet
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_LOC
+              preFilter: false
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 6
+          bindings:
+            title: Situation Frames
+            tableKey: table_key_1
+            sortField: id_field_key
+            limit: 100
+            showFields:
+                - id_field_key
+                - text_cloud_data_key_ORG
+                - group_field_key_topics
+            customColumnWidths:
+                - - id_field_key
+                  - 60
+                - - text_cloud_data_key_ORG
+                  - 200
+                - - group_field_key_topics
+                  - 40
+            filterable: true
+            singleFilter: true
+            ignoreSelf: false
+            filterFields:
+                - id_field_key
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 8
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_2
+              xField: group_field_key_topics
+              limit: 10
+              groupField: group_field_key_topics
+              sortByAggregation: false
+              ignoreSelf: true
+        - name: Histogram
+          type: aggregation
+          icon: histogram
+          col: 1
+          row: 15
+          sizex: 12
+          sizey: 4
+          bindings:
+              title: Histogram
+              type: histogram
+              tableKey: table_key_1
+              xField: date_field_key
+              limit: 1000
+              granularity: hour
