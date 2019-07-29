@@ -142,7 +142,7 @@ datastores:
                               prettyName: Date Created
                             - columnName: location
                               prettyName: Location
-                            - columnName: status
+                            - columnName: Status
                               prettyName: Status
                             - columnName: JustificationEN
                               prettyName: Original Text
@@ -189,6 +189,8 @@ datastores:
                               prettyName: Cluster Name
                             - columnName: cluster
                               prettyName: Cluster ID
+                            - columnName: type
+                              prettyName: Type
                             - columnName: location
                               prettyName: Location
                             - columnName: geoLocation.lat
@@ -362,6 +364,8 @@ datastores:
                     ui_output:
                         prettyName: UI out
                         fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
                             - columnName: type
                               prettyName: Type
                             - columnName: location
@@ -413,9 +417,9 @@ datastores:
                               prettyName: Location Entities
                             - columnName: ORG
                               prettyName: Organization Entities
-                            - columnName: geoLocation.lat
+                            - columnName: geoLocations.lat
                               prettyName: Latitude
-                            - columnName: geoLocation.lon
+                            - columnName: geoLocations.lon
                               prettyName: Longitude
                             - columnName: _id
                               prettyName: ES ID
