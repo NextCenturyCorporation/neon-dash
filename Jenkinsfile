@@ -46,8 +46,8 @@ pipeline {
             sh 'npm install'
             sh 'npm run build-prod'
 
-            sh "cp src/app/config/cicd/lorelei.config.yaml dist/app/config.yaml || echo 'none'"
-            sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml dist/app/config.yaml || echo 'none'"
+            sh "cp src/app/config/cicd/lorelei.config.yaml dist/app/config/config.yaml || echo 'none'"
+            sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml dist/app/config/config.yaml || echo 'none'"
 
             stash includes: 'dist/', name: 'dist'
           }
