@@ -77,7 +77,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        public sanitizer: DomSanitizer,
+        private sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -427,55 +427,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
         }
         return [];
-    }
-
-    /**
-     * Adds the given links to the global list.
-     *
-     * @arg {any} tab
-     * @arg {any[]} links
-     * @arg {any[]} masks
-     * @arg {any[]} names
-     * @arg {any[]} types
-     * @arg {string} [oneTabName='']
-     * @return {MediaMetaData[]}
-     */
-    createTabs(links: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
-        let oneTab: MediaMetaData = {
-            selected: undefined,
-            name: oneTabName,
-            loaded: false,
-            list: []
-        };
-
-        let tabs = this.options.oneTabPerArray ? [oneTab] : [];
-
-        links.filter((link) => !!link).forEach((link, index) => {
-            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
-            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
-
-            if (link) {
-                let tab = oneTab;
-                if (!this.options.oneTabPerArray) {
-                    tab = {
-                        selected: undefined,
-                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
-                        loaded: false,
-                        list: []
-                    };
-                }
-                tab.list.push({
-                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                    border: this.options.border,
-                    link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
-                    name: name,
-                    type: type
-                });
-                tab.selected = tab.list[0];
-            }
-        });
-
-        return tabs;
     }
 
     /**

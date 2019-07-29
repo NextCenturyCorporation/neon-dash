@@ -117,16 +117,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     addEventLinks(fields: any[], metadata: any, __name: string) {
         let links = [];
-        let masks = [];
         let names = [];
         let types = [];
 
         fields.forEach((fieldsConfig) => {
             if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
                 links = links.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
-            }
-            if (fieldsConfig.type === 'mask') {
-                masks = masks.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'name') {
                 names = names.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
@@ -136,18 +132,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         });
 
-        // If the event has link or mask data, but is missing other data, use the query data as the defaults.
-        if (this.queryItems.length && (links.length || masks.length)) {
+        // If the event has link, but is missing other data, use the query data as the defaults.
+        if (this.queryItems.length && links.length) {
             if (!links.length) {
                 links = this.queryItems.map((item) => item.link);
-            }
-            if (links.length === 1 && masks.length > 1) {
-                while (links.length < masks.length) {
-                    links.push(links[0]);
-                }
-            }
-            if (!masks.length) {
-                masks = this.queryItems.map((item) => item.mask);
             }
             if (!names.length) {
                 names = this.queryItems.map((item) => item.name);
@@ -157,7 +145,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         }
 
-        let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types);
+        let tabs: MediaMetaData[] = this.createTabs(links, names, types);
 
         tabs.forEach((tab) => {
             if (tab.list.length) {
@@ -225,7 +213,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
-            new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
@@ -288,7 +275,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {string} [oneTabName='']
      * @return {MediaMetaData[]}
      */
-    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
+    createTabs(links: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
         let oneTab: MediaMetaData = {
             selected: undefined,
             name: oneTabName,
@@ -299,18 +286,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
-                this.options.linkPrefix);
             let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
             let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
-            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
-            if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
-                type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
+            if (type === this.mediaTypes.image) {
+                type = this.mediaTypes.image;
+            } else if (type === this.mediaTypes.video) {
+                type = this.mediaTypes.video;
             }
 
-            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
-            if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
+            // Only add a tab if the link is non-empty
+            if (link) {
                 let tab = oneTab;
                 if (!this.options.oneTabPerArray) {
                     tab = {
@@ -480,14 +466,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         results.forEach((result) => {
-            let masks = [];
             let names = [];
             let types = [];
-
-            if (options.maskField.columnName) {
-                masks = neonUtilities.deepFind(result, options.maskField.columnName) || '';
-                masks = this.transformToStringArray(masks, options.delimiter);
-            }
 
             if (options.nameField.columnName) {
                 names = neonUtilities.deepFind(result, options.nameField.columnName);
@@ -503,7 +483,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             options.linkFields.forEach((linkField) => {
                 let links = neonUtilities.deepFind(result, linkField.columnName) || '';
                 links = this.transformToStringArray(links, options.delimiter);
-                let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types, this.noDataId);
+                let tabs: MediaMetaData[] = this.createTabs(links, names, types, this.noDataId);
                 tabs.forEach((tab) => {
                     if (tab.list.length) {
                         this.tabsAndMedia.push(tab);
@@ -556,22 +536,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Ensures that the source image loads before the mask.
-     *
-     * @arg {any} tab
-     * @arg {number} index
-     */
-    setTabLoaded(tab: any, index: number) {
-        let base = this.visualization.nativeElement.querySelector('#medium' + index);
-        let mask = this.visualization.nativeElement.querySelector('#mask' + index);
-        if (base && mask) {
-            mask.height = base.clientHeight;
-            mask.width = base.clientWidth;
-        }
-        tab.loaded = true;
-    }
-
-    /**
      * Transforms the given string or string array into a string array and returns the array.
      *
      * @arg {string|string[]} input
@@ -590,83 +554,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
         }
         return [];
-    }
-
-    /**
-     * Updates the visualization as needed whenever it is resized.
-     *
-     * @override
-     */
-    updateOnResize(event?: any) {
-        if (!this.visualization) {
-            return;
-        }
-
-        let frames = this.visualization.nativeElement.querySelectorAll('.frame');
-        let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let audios = this.visualization.nativeElement.querySelectorAll('.audio');
-
-        if (!this.options.resize) {
-            frames.forEach((frame) => {
-                frame.style.maxHeight = '';
-                frame.style.maxWidth = '';
-            });
-            images.forEach((image) => {
-                image.style.maxHeight = '';
-                image.style.maxWidth = '';
-            });
-            audios.forEach((audio) => {
-                audio.style.maxHeight = '';
-                audio.style.maxWidth = '';
-            });
-            return;
-        }
-
-        let tabIndex = event ? event.index : this.selectedTabIndex;
-        let sliderHeight = ((this.tabsAndMedia.length > tabIndex && this.tabsAndMedia[tabIndex].selected.type ===
-            this.mediaTypes.maskImage) ? this.SLIDER_HEIGHT : 0);
-
-        frames.forEach((frame) => {
-            if (this.showContribution()) {
-                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-                frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-
-            frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
-        images.forEach((image) => {
-            if (this.showContribution()) {
-                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
-
-        audios.forEach((audio) => {
-            if (this.showContribution()) {
-                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.CONTRIBUTION_FOOTER_HEIGHT - this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            } else {
-                audio.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                    this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            }
-            audio.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
     }
 
     /**
