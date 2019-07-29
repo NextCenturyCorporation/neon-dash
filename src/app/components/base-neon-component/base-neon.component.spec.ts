@@ -28,7 +28,8 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterDesign, SimpleFilter } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { SimpleFilter } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -86,7 +87,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         );
     }
 
-    designEachFilterWithNoValues(): FilterDesign[] {
+    designEachFilterWithNoValues(): FilterConfig[] {
         return [];
     }
 
@@ -1568,12 +1569,11 @@ describe('BaseNeonComponent', () => {
         component['id'] = 'testId';
         component['page'] = 10;
 
-        let filters = [{}];
+        let filters = [null];
         component.exchangeFilters(filters);
 
-        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1588,12 +1588,11 @@ describe('BaseNeonComponent', () => {
         component['id'] = 'testId';
         component['page'] = 10;
 
-        let filters = [{}];
+        let filters = [null];
         component.exchangeFilters(filters);
 
-        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(1);
     });
@@ -1608,12 +1607,11 @@ describe('BaseNeonComponent', () => {
         component['id'] = 'testId';
         component['page'] = 10;
 
-        let filters = [{}];
+        let filters = [null];
         component.toggleFilters(filters);
 
-        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1628,12 +1626,11 @@ describe('BaseNeonComponent', () => {
         component['id'] = 'testId';
         component['page'] = 10;
 
-        let filters = [{}];
+        let filters = [null];
         component.toggleFilters(filters);
 
-        let relations = component.dashboardState.findRelationDataList();
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, relations]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
         expect(component['savedPages'].get('filterId1')).toEqual(10);
         expect(component['page']).toEqual(1);
     });

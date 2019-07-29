@@ -18,7 +18,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -162,8 +162,8 @@ export class FilterBuilderComponent {
             return;
         }
 
-        // Turn the filter clauses into filter designs.
-        let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
+        // Turn the filter clauses into filter configs.
+        let filterConfigs: SimpleFilterConfig[] = this.filterClauses.map((filterClause) => {
             let value: any = filterClause.value;
             if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
                 value = parseFloat(filterClause.value);
@@ -174,22 +174,22 @@ export class FilterBuilderComponent {
             }
             return {
                 datastore: filterClause.datastore.name,
-                database: filterClause.database,
-                table: filterClause.table,
-                field: filterClause.field,
+                database: filterClause.database.name,
+                table: filterClause.table.name,
+                field: filterClause.field.columnName,
                 operator: filterClause.operator.value,
                 value: value
-            } as SimpleFilterDesign;
+            } as SimpleFilterConfig;
         });
 
         // Create a compound filter from multiple filters if needed.
-        let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
+        let filterConfig: FilterConfig = !filterConfigs.length ? null : (filterConfigs.length === 1 ? filterConfigs[0] : {
             type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-            filters: filterDesigns
-        } as CompoundFilterDesign);
+            filters: filterConfigs
+        } as CompoundFilterConfig);
 
-        if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations);
+        if (filterConfig) {
+            this.filterService.toggleFilters('CustomFilter', [filterConfig], this._dataset);
             this.clearEveryFilterClause();
         }
     }

@@ -17,7 +17,7 @@ import { } from 'jasmine-core';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 
-import { FilterDesign, SimpleFilterDesign, CompoundFilterDesign } from '../../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -161,23 +161,22 @@ describe('Component: Filter Builder', () => {
 
     it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
         // Arrange
-        let filterDesign: FilterDesign = {
+        component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
+        let filterConfig: FilterConfig = {
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database,
-            table: component.filterClauses[0].table,
-            field: component.filterClauses[0].field,
+            database: component.filterClauses[0].database.name,
+            table: component.filterClauses[0].table.name,
+            field: component.filterClauses[0].field.columnName,
             operator: 'contains',
             value: ''
-        } as SimpleFilterDesign;
-        component.filterClauses[0].field.columnName = 'testColumn';
+        } as SimpleFilterConfig;
 
         // Act
         component.saveFilter();
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations);
+        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -186,38 +185,36 @@ describe('Component: Filter Builder', () => {
         // Arrange
         component.addBlankFilterClause();
         component.compoundTypeIsOr = true;
-        let filterDesigns: SimpleFilterDesign[] = [{
+        component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
+        component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
+        let filterConfigs: SimpleFilterConfig[] = [{
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database,
-            table: component.filterClauses[0].table,
-            field: component.filterClauses[0].field,
+            database: component.filterClauses[0].database.name,
+            table: component.filterClauses[0].table.name,
+            field: component.filterClauses[0].field.columnName,
             operator: 'contains',
             value: ''
-        } as SimpleFilterDesign,
+        } as SimpleFilterConfig,
         {
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[1].database,
-            table: component.filterClauses[1].table,
-            field: component.filterClauses[1].field,
+            database: component.filterClauses[1].database.name,
+            table: component.filterClauses[1].table.name,
+            field: component.filterClauses[1].field.columnName,
             operator: 'contains',
             value: ''
-        } as SimpleFilterDesign];
+        } as SimpleFilterConfig];
 
-        let filterDesign: FilterDesign = {
+        let filterConfig: FilterConfig = {
             type: CompoundFilterType.OR,
-            filters: filterDesigns
-        } as CompoundFilterDesign;
-        component.filterClauses[0].field.columnName = 'testColumn1';
-
-        component.filterClauses[1].field.columnName = 'testColumn2';
+            filters: filterConfigs
+        } as CompoundFilterConfig;
 
         // Act
         component.saveFilter();
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations);
+        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
@@ -225,92 +222,87 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does call filterService.toggleFilters with a compound AND filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.addBlankFilterClause();
-        let filterDesigns: SimpleFilterDesign[] = [{
+        component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
+        component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
+        let filterConfigs: SimpleFilterConfig[] = [{
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database,
-            table: component.filterClauses[0].table,
-            field: component.filterClauses[0].field,
+            database: component.filterClauses[0].database.name,
+            table: component.filterClauses[0].table.name,
+            field: component.filterClauses[0].field.columnName,
             operator: 'contains',
             value: ''
-        } as SimpleFilterDesign,
+        } as SimpleFilterConfig,
         {
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[1].database,
-            table: component.filterClauses[1].table,
-            field: component.filterClauses[1].field,
+            datastore: component.filterClauses[1].datastore.name,
+            database: component.filterClauses[1].database.name,
+            table: component.filterClauses[1].table.name,
+            field: component.filterClauses[1].field.columnName,
             operator: 'contains',
             value: ''
-        } as SimpleFilterDesign];
+        } as SimpleFilterConfig];
 
-        let filterDesign: FilterDesign = {
+        let filterConfig: FilterConfig = {
             type: CompoundFilterType.AND,
-            filters: filterDesigns
-        } as CompoundFilterDesign;
-        component.filterClauses[0].field.columnName = 'testColumn1';
-
-        component.filterClauses[1].field.columnName = 'testColumn2';
+            filters: filterConfigs
+        } as CompoundFilterConfig;
 
         // Act
         component.saveFilter();
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations);
+        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
         // Clearing filter list invalidates filters
         expect(component.validateFilters(component.filterClauses)).toEqual(false);
     });
 
     it('saveFilter does parse number strings of non-CONTAINS filters', () => {
         // Arrange
-        let filterDesign: FilterDesign = {
+        component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
+        component.filterClauses[0].operator = component.operators[3];
+        component.filterClauses[0].value = '53';
+        let filterConfig: FilterConfig = {
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database,
-            table: component.filterClauses[0].table,
-            field: component.filterClauses[0].field,
+            database: component.filterClauses[0].database.name,
+            table: component.filterClauses[0].table.name,
+            field: component.filterClauses[0].field.columnName,
             operator: '!=',
             value: 53
-        } as SimpleFilterDesign;
-        component.filterClauses[0].field.columnName = 'testColumn';
-        component.filterClauses[0].operator = component.operators[3];
-        component.filterClauses[0].operator.value = '!=';
-        component.filterClauses[0].value = '53';
+        } as SimpleFilterConfig;
 
         // Act
         component.saveFilter();
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations);
+        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
     });
 
     it('saveFilter does not parse number strings of CONTAINS and NOT CONTAINS filters', () => {
         // Arrange
-        let filterDesign: FilterDesign = {
+        component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
+        component.filterClauses[0].value = '53';
+        let filterConfig: FilterConfig = {
             datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database,
-            table: component.filterClauses[0].table,
-            field: component.filterClauses[0].field,
+            database: component.filterClauses[0].database.name,
+            table: component.filterClauses[0].table.name,
+            field: component.filterClauses[0].field.columnName,
             operator: 'contains',
             value: '53'
-        } as SimpleFilterDesign;
-        component.filterClauses[0].field.columnName = 'testColumn';
-        component.filterClauses[0].value = '53';
+        } as SimpleFilterConfig;
 
         // Act
         component.saveFilter();
 
         // Assert
         /* eslint-disable-next-line @typescript-eslint/unbound-method */
-        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterDesign],
-            component['_dataset'].relations);
+        expect(filterService.toggleFilters).toHaveBeenCalledWith('CustomFilter', [filterConfig], component['_dataset']);
     });
 
     it('validateFilters does return expected boolean', () => {
         // Arrange
         // Must have column name to be a valid filter
-        component.filterClauses[0].field.columnName = 'testColumn';
+        component.filterClauses[0].field = NeonFieldMetaData.get({ columnName: 'testColumn' });
 
         // Act and Assert
         expect(component.validateFilters(component.filterClauses)).toEqual(true);
