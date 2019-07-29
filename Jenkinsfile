@@ -144,7 +144,7 @@ pipeline {
           sh 'chmod -R u+w dist'
           unstash 'dist'
 
-          sh """sed -i \\'\\' \\'s/host: localhost/host: elasticsearch/g\\' dist/app/config/config.yaml"""
+          sh """sed -i \\'.bak\\' \\'s/host: localhost/host: elasticsearch/g\\' dist/app/config/config.yaml"""
 
           script {
             //configure registry
