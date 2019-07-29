@@ -38,12 +38,10 @@ import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     CompoundFilter,
-    CompoundFilterDesign,
     FilterCollection,
-    FilterDesign,
-    SimpleFilter,
-    SimpleFilterDesign
+    SimpleFilter
 } from '../../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -239,23 +237,23 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterDesign[] {
-        let designs: FilterDesign[] = [];
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        let designs: FilterConfig[] = [];
 
         if (this.options.groupField.columnName) {
-            designs.push(this.createFilterDesignOnLegend());
+            designs.push(this.createFilterConfigOnLegend());
         }
 
         if (this.options.xField.columnName) {
-            designs.push(this.createFilterDesignOnSingleItem());
-            designs.push(this.createFilterDesignOnMultipleItems());
-            designs.push(this.createFilterDesignOnDomain());
+            designs.push(this.createFilterConfigOnSingleItem());
+            designs.push(this.createFilterConfigOnMultipleItems());
+            designs.push(this.createFilterConfigOnDomain());
 
             if (this.options.yField.columnName) {
-                designs.push(this.createFilterDesignOnBounds());
+                designs.push(this.createFilterConfigOnBounds());
             }
         }
 
@@ -326,89 +324,89 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    private createFilterDesignOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterDesign {
+    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterConfig {
         return {
             type: CompoundFilterType.AND,
             filters: [{
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.xField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.xField.columnName,
                 operator: '>=',
                 value: beginX
             }, {
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.xField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.xField.columnName,
                 operator: '<=',
                 value: endX
             }, {
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.yField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.yField.columnName,
                 operator: '>=',
                 value: beginY
             }, {
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.yField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.yField.columnName,
                 operator: '<=',
                 value: endY
-            }] as SimpleFilterDesign[]
-        } as CompoundFilterDesign;
+            }] as SimpleFilterConfig[]
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnDomain(beginX?: any, endX?: any): FilterDesign {
+    private createFilterConfigOnDomain(beginX?: any, endX?: any): FilterConfig {
         return {
             type: CompoundFilterType.AND,
             filters: [{
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.xField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.xField.columnName,
                 operator: '>=',
                 value: beginX
             }, {
                 datastore: this.options.datastore.name,
-                database: this.options.database,
-                table: this.options.table,
-                field: this.options.xField,
+                database: this.options.database.name,
+                table: this.options.table.name,
+                field: this.options.xField.columnName,
                 operator: '<=',
                 value: endX
-            }] as SimpleFilterDesign[]
-        } as CompoundFilterDesign;
+            }] as SimpleFilterConfig[]
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnLegend(value?: any): FilterDesign {
+    private createFilterConfigOnLegend(value?: any): FilterConfig {
         return {
             datastore: this.options.datastore.name,
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.groupField,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.groupField.columnName,
             operator: '!=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
-    private createFilterDesignOnMultipleItems(values: any[] = [undefined]): FilterDesign {
+    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): FilterConfig {
         return {
             type: CompoundFilterType.AND,
-            filters: values.map((value) => this.createFilterDesignOnSingleItem(value))
-        } as CompoundFilterDesign;
+            filters: values.map((value) => this.createFilterConfigOnSingleItem(value))
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnSingleItem(value?: any): FilterDesign {
+    private createFilterConfigOnSingleItem(value?: any): FilterConfig {
         return {
             datastore: this.options.datastore.name,
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.xField,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.xField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -687,7 +685,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     handleLegendItemSelected(event) {
         if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
-            this.toggleFilters([this.createFilterDesignOnLegend(event.value)]);
+            this.toggleFilters([this.createFilterConfigOnLegend(event.value)]);
         }
     }
 
@@ -1077,15 +1075,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     protected redrawFilters(filters: FilterCollection): void {
         // Add or remove disabled legend groups depending on the filtered legend groups.
-        let legendFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnLegend());
+        let legendFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnLegend());
         this.legendDisabledGroups = legendFilters.map((filter) => (filter as SimpleFilter).value);
 
         // Set the active groups to all the groups that are NOT disabled/filtered since the group filters are all negative (!=).
         this.legendActiveGroups = this.legendGroups.filter((group) => this.legendDisabledGroups.indexOf(group) < 0);
 
         // Add or remove the selected bounds/domain on the chart depending on if the bounds/domain is filtered.
-        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBounds());
-        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnDomain());
+        let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBounds());
+        let domainFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnDomain());
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
@@ -1124,8 +1122,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         // Select individual filtered items.
         // TODO THOR-1057 Maybe this should be a "filtered" property on the individual data items.
-        let singleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnSingleItem());
-        let multipleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnMultipleItems());
+        let singleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnSingleItem());
+        let multipleItemFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnMultipleItems());
         singleItemFilters = singleItemFilters.concat(multipleItemFilters.reduce((list, compoundFilter) =>
             list.concat((compoundFilter as CompoundFilter).filters), []));
         this._filteredSingleItems = singleItemFilters.map((simpleFilter) => (simpleFilter as SimpleFilter).value);
@@ -1259,13 +1257,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (doNotReplace) {
             this._filteredSingleItems.push(value);
             if (this.options.requireAll) {
-                this.exchangeFilters([this.createFilterDesignOnMultipleItems(this._filteredSingleItems)]);
+                this.exchangeFilters([this.createFilterConfigOnMultipleItems(this._filteredSingleItems)]);
             } else {
-                this.toggleFilters([this.createFilterDesignOnSingleItem(value)]);
+                this.toggleFilters([this.createFilterConfigOnSingleItem(value)]);
             }
         } else {
             this._filteredSingleItems = [value];
-            this.exchangeFilters([this.createFilterDesignOnSingleItem(value)]);
+            this.exchangeFilters([this.createFilterConfigOnSingleItem(value)]);
         }
     }
 
@@ -1289,9 +1287,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (doNotReplace) {
-            this.toggleFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)]);
+            this.toggleFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         } else {
-            this.exchangeFilters([this.createFilterDesignOnBounds(beginX, endX, beginY, endY)]);
+            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         }
     }
 
@@ -1313,9 +1311,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (doNotReplace) {
-            this.toggleFilters([this.createFilterDesignOnDomain(beginX, endX)]);
+            this.toggleFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         } else {
-            this.exchangeFilters([this.createFilterDesignOnDomain(beginX, endX)]);
+            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         }
     }
 
