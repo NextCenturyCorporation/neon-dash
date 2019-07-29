@@ -304,7 +304,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     index++;
                 });
             }
-            item['mediaMetaDataList'] = tabsAndMedia;
+            if (tabsAndMedia) {
+                item['mediaMetaDataList'] = tabsAndMedia;
+            }
             return item;
         });
         return this.newsFeedData.length;

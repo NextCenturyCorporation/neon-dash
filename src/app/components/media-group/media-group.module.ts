@@ -19,6 +19,8 @@ import { MediaGroupComponent } from './media-group.component';
 import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { MediaPanelModule } from './media-panel.module';
+
 @NgModule({
     declarations: [MediaGroupComponent],
     exports: [MediaGroupComponent],
@@ -29,6 +31,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
         MatTabsModule,
         MatSliderModule,
         DataMessageModule,
+        MediaPanelModule,
         CommonModule
     ]
 })
