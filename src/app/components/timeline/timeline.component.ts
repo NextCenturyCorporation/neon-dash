@@ -116,7 +116,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,
@@ -129,14 +129,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.dateField,
                 operator: '>=',
                 value: begin
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.dateField,

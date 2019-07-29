@@ -327,28 +327,28 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '>=',
                 value: beginX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '<=',
                 value: endX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.yField,
                 operator: '>=',
                 value: beginY
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.yField,
@@ -362,14 +362,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '>=',
                 value: beginX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
@@ -382,7 +382,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnItem(value?: any): FilterDesign {
         return {
             root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.xField,
@@ -393,7 +393,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.groupField,

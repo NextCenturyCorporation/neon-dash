@@ -140,35 +140,35 @@ export class FilterUtil {
     }
 
     /**
-     * Creates and returns a filter design from the given JSON object.
+     * Creates and returns a filter config from the given JSON object.
      *
-     * @arg {any} filterObject
+     * @arg {any} filterConfig
      * @return {FilterDesign}
      */
-    static createFilterDesignFromJsonObject(filterObject: FilterConfig, dataset: Dataset): FilterDesign {
-        // TODO THOR-1078 Validate that datastore is non-empty.
-        if ('database' in filterObject && 'table' in filterObject && 'field' in filterObject && 'operator' in filterObject) {
-            // TODO THOR-1062 Allow multiple datastores
-            let datastore: NeonDatastoreConfig = dataset.datastores[0];
-            let database: NeonDatabaseMetaData = datastore.databases[filterObject.database];
-            let table: NeonTableMetaData = database.tables[filterObject.table];
-            let field: NeonFieldMetaData = table.fields.filter((element) => element.columnName === filterObject.field)[0];
+    static createFilterDesignFromJsonObject(filterConfig: FilterConfig, dataset: Dataset): FilterDesign {
+        if ('datastore' in filterConfig && 'database' in filterConfig && 'table' in filterConfig && 'field' in filterConfig &&
+            'operator' in filterConfig) {
+            let datastore: NeonDatastoreConfig = dataset.datastores[filterConfig.datastore];
+            let database: NeonDatabaseMetaData = datastore.databases[filterConfig.database];
+            let table: NeonTableMetaData = database.tables[filterConfig.table];
+            let field: NeonFieldMetaData = table.fields.filter((element) => element.columnName === filterConfig.field)[0];
+
             return {
-                root: filterObject.root || '',
-                datastore: filterObject.datastore || '',
+                root: filterConfig.root || '',
+                datastore: datastore.name,
                 database,
                 table,
                 field,
-                operator: filterObject.operator,
-                value: filterObject.value
+                operator: filterConfig.operator,
+                value: filterConfig.value
             } as SimpleFilterDesign;
         }
 
-        if ('filters' in filterObject && 'type' in filterObject) {
+        if ('filters' in filterConfig && 'type' in filterConfig) {
             return {
-                root: filterObject.root || '',
-                type: filterObject.type,
-                filters: filterObject.filters.map((nestedObject) =>
+                root: filterConfig.root || '',
+                type: filterConfig.type,
+                filters: filterConfig.filters.map((nestedObject) =>
                     this.createFilterDesignFromJsonObject(nestedObject, dataset))
             } as CompoundFilterDesign;
         }
@@ -184,16 +184,12 @@ export class FilterUtil {
      */
     static createFilterFromDesign(filterDesign: FilterDesign): AbstractFilter {
         let filter: AbstractFilter = null;
-        // TODO THOR-1078 Validate that datastore is non-empty.
 
         if (this.isSimpleFilterDesign(filterDesign)) {
-            if (filterDesign.database.name &&
-                filterDesign.table.name &&
-                filterDesign.field && filterDesign.field.columnName &&
-                filterDesign.operator && typeof filterDesign.value !== 'undefined') {
-                // TODO THOR-1078 Add the datastore to the filter (ignore now because it causes errors).
-                filter = new SimpleFilter('', filterDesign.database, filterDesign.table, filterDesign.field, filterDesign.operator,
-                    filterDesign.value);
+            if (filterDesign.datastore && filterDesign.database.name && filterDesign.table.name && filterDesign.field &&
+                filterDesign.field.columnName && filterDesign.operator && typeof filterDesign.value !== 'undefined') {
+                filter = new SimpleFilter(filterDesign.datastore, filterDesign.database, filterDesign.table, filterDesign.field,
+                    filterDesign.operator, filterDesign.value);
             }
         } else if (this.isCompoundFilterDesign(filterDesign)) {
             filter = new CompoundFilter(filterDesign.type, filterDesign.filters.map((nestedDesign) =>

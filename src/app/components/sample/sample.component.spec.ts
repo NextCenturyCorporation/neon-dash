@@ -281,7 +281,7 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -303,7 +303,7 @@ describe('Component: Sample', () => {
         expect(spyExchange.calls.count()).toEqual(0);
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,

@@ -397,7 +397,7 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue']]);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -410,7 +410,7 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue'], ['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -423,7 +423,7 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(3);
         expect(spy.calls.argsFor(2)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -436,7 +436,7 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([]);
         expect(spy.calls.count()).toEqual(4);
         expect(spy.calls.argsFor(3)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -488,7 +488,7 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -500,7 +500,7 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -552,7 +552,7 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -566,21 +566,21 @@ describe('Component: NetworkGraph', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -633,7 +633,7 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -647,21 +647,21 @@ describe('Component: NetworkGraph', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'or',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -716,14 +716,14 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.ID,
             operator: '=',
             value: 1
         }, {
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
@@ -735,14 +735,14 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.ID,
             operator: '=',
             value: 2
         }, {
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TYPE,
