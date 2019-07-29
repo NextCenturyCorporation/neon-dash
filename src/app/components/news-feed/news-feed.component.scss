@@ -152,7 +152,7 @@ mat-accordion {
 
         &.selectable {
             &:hover {
-                background-color: var(--color-data-item-selectable, lightgrey);
+                background-color: lightgrey;
                 color: var(--color-data-item-selectable-text, dimgrey);
                 cursor: pointer;
 

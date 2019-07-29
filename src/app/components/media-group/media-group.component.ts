@@ -16,16 +16,9 @@ import {
     Component,
     ViewEncapsulation,
     Input,
-    ElementRef,
-    ChangeDetectorRef,
-    ChangeDetectionStrategy,
-    AfterViewInit
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { MediaTypes } from '../../models/types';
-import { RootWidgetOptionCollection } from '../../models/widget-option-collection';
-import { DashboardState } from '../../models/dashboard-state';
-import { DomSanitizer } from '@angular/platform-browser';
-
 export interface MediaMetaData {
     // TODO Add a way for the user to select other items from the list.
     // Masks removed as VMAP was the only one using masks,
@@ -53,45 +46,36 @@ export interface MediaMetaData {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MediaGroupComponent implements AfterViewInit {
+export class MediaGroupComponent {
     @Input() tabsAndMedia: MediaMetaData;
-    @Input() dashboardState: DashboardState;
-    @Input() visualization: ElementRef;
-    @Input() options: RootWidgetOptionCollection;
-    @Input() sanitizer: DomSanitizer;
-    @Input() changeDetection: ChangeDetectorRef;
 
     public selectedLinkIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
 
     /**
-     * Returns the opacity for the given percent.
-     *
-     * @arg {number} percent
-     * @return {number}
+     * Checks if an image is the one selected
+     * @arg {object} imageObj an object from the list of images within the mediaMetaData
      */
-    calculateOpacity(percent: number): number {
-        return (100 - percent) / 100;
-    }
-
-    sanitize(url) {
-        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    ngAfterViewInit() {
-        this.refreshVisualization();
-    }
-
-    /**
-     * Updates and redraws the elements and properties for the visualization.
-     *
-     * @override
-     */
-    refreshVisualization() {
-        /* eslint-disable-next-line dot-notation */
-        if (!this.changeDetection['destroyed']) {
-            this.changeDetection.detectChanges();
+    isSelected(imageObj): boolean {
+        if (this.tabsAndMedia.selected) {
+            return this.tabsAndMedia.selected.link === imageObj.link;
         }
+        return false;
+    }
+
+    onSelectChange(index: number) {
+        this.selectedLinkIndex = index;
+    }
+
+    selectLeft() {
+        let length = this.tabsAndMedia.list.length;
+        this.selectedLinkIndex = (((this.selectedLinkIndex - 1) % length) + length) % length;
+        this.tabsAndMedia.selected = this.tabsAndMedia.list[this.selectedLinkIndex];
+    }
+
+    selectRight() {
+        this.selectedLinkIndex = (this.selectedLinkIndex + 1) % this.tabsAndMedia.list.length;
+        this.tabsAndMedia.selected = this.tabsAndMedia.list[this.selectedLinkIndex];
     }
 }

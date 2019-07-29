@@ -14,22 +14,23 @@
     </button>
 </mat-toolbar>
 
-<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-    <mat-spinner></mat-spinner>
-</div>
+<div class="widget-container">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+        <mat-spinner></mat-spinner>
+    </div>
 
-<app-data-message *ngIf="showNoData"></app-data-message>
+    <app-data-message *ngIf="showNoData"></app-data-message>
 
-<div *ngIf="options.url == ''">
-    <div *ngIf="tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
+    <div *ngIf="options.url == ''">
+        <div *ngIf="media.list.length === 0" class="viewer-text">No Data: {{ noDataId }}</div>
+        <ng-container *ngIf="media.list.length > 0">
+            <app-media-group id="viewer-presentation" class="media-group" [tabsAndMedia]="media"></app-media-group>
+        </ng-container>
+    </div>
 
-    <app-media-group class="media-group" [tabsAndMedia]="tabsAndMedia" [visualization]="this.visualization"
-        [dashboardState]="this.dashboardState" [options]="this.options" [sanitizer]="this.sanitizer"
-        [changeDetection]='this.changeDetection'></app-media-group>
-</div>
-
-<div class="full-height" *ngIf="options.url != ''">
-    <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
+    <div class="full-height" *ngIf="options.url != ''">
+        <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
+    </div>
 </div>
 
 <div class="contribution-text" *ngIf="showContribution()">
