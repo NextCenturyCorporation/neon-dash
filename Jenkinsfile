@@ -136,7 +136,8 @@ pipeline {
           sh 'rm  ~/.dockercfg || true'
           sh 'rm ~/.docker/config.json || true'
           sh 'pip3 install awscli --user'
-
+          sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
+          sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
           script {
             //configure registry
             sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
