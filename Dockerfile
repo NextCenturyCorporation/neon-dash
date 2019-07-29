@@ -14,3 +14,6 @@ RUN echo $'server {\n\
   proxy_pass http://neon-server-service;\n\
   }\n\
   }' > /etc/nginx/conf.d/default.conf;
+
+RUN /bin/sh -c 'cat /var/www/app/config/config.yaml | sed -e "s/host: localhost/host: elasticsearch/g" > /var/www/app/config/config.clean.yaml'
+RUN cp /var/www/app/config/config.clean.yaml /var/www/app/config/config.yaml

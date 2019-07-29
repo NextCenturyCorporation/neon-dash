@@ -144,8 +144,6 @@ pipeline {
           sh 'chmod -R u+w dist'
           unstash 'dist'
 
-          sh """sed -i \\'.bak\\' \\'s/host: localhost/host: elasticsearch/g\\' dist/app/config/config.yaml"""
-
           script {
             //configure registry
             sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
