@@ -107,9 +107,9 @@ datastores:
                               prettyName: Geo-Political Entities
                             - columnName: ORG
                               prettyName: Organization Entities
-                            - columnName: geoLocation.lat
+                            - columnName: geoLocations.lat
                               prettyName: Latitude
-                            - columnName: geoLocation.lon
+                            - columnName: geoLocations.lon
                               prettyName: Longitude
                             - columnName: _id
                               prettyName: ES ID
@@ -152,9 +152,9 @@ datastores:
                               prettyName: Geo-Political Entities
                             - columnName: ORG
                               prettyName: Organization Entities
-                            - columnName: geoLocation.lat
+                            - columnName: geoLocations.lat
                               prettyName: Latitude
-                            - columnName: geoLocation.lon
+                            - columnName: geoLocations.lon
                               prettyName: Longitude
                             - columnName: _id
                               prettyName: ES ID
