@@ -8,6 +8,9 @@ RUN echo $'server {\n\
   root /var/www;\n\
   index index.html;\n\
   location / {\n\
-  try_files $uri /index.html;\n\
+    try_files $uri /index.html;\n\
+  }\n\
+  location /neon {\n\
+    proxy_pass http://neonserver;\n\
   }\n\
   }' > /etc/nginx/conf.d/default.conf;
