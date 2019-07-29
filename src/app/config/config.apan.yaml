@@ -13,16 +13,24 @@ datastores:
                               prettyName: Date Created
                             - columnName: LOC
                               prettyName: Location
-                            - columnName: need
-                              prettyName: Need
                             - columnName: originalText
                               prettyName: Original Text
                             - columnName: translatedText
                               prettyName: Translated Text
                             - columnName: cluster
                               prettyName: Cluster ID
+                            - columnName: clusterName
+                              prettyName: Cluster Name
                             - columnName: type
                               prettyName: Type
+                            - columnName: geoLocation.lat
+                              prettyName: Latitude
+                            - columnName: geoLocation.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
                         labelOptions:
                             type:
                                 food: Food
@@ -36,8 +44,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-                        mappings:
-                          date: createdAt
             ariel_simpost:
                 prettyName: ARIEL VODNO 2018
                 tables:
@@ -54,8 +60,16 @@ datastores:
                               prettyName: Original Text
                             - columnName: translatedText
                               prettyName: Translated Text
-                            - columnName: type
-                              prettyName: Type
+                            - columnName: geoLocation.geohash
+                              prettyName: Geohash
+                            - columnName: geoLocation.lat
+                              prettyName: Latitude
+                            - columnName: geoLocation.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
                         labelOptions:
                             type:
                                 food: Food
@@ -69,8 +83,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-                        mappings:
-                          date: createdAt
             apan062019:
                 prettyName: ELISA APAN
                 tables:
@@ -87,6 +99,22 @@ datastores:
                               prettyName: Author
                             - columnName: topics
                               prettyName: Topics
+                            - columnName: LOC
+                              prettyName: Location Entities
+                            - columnName: PER
+                              prettyName: Person Entities
+                            - columnName: GPE
+                              prettyName: Geo-Political Entities
+                            - columnName: ORG
+                              prettyName: Organization Entities
+                            - columnName: geoLocations.lat
+                              prettyName: Latitude
+                            - columnName: geoLocations.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
                         labelOptions:
                             topics:
                                 food: Food
@@ -100,8 +128,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-                        mappings:
-                          date: createdAt
             indonesia062019:
                 prettyName: Indonesia
                 tables:
@@ -116,6 +142,24 @@ datastores:
                               prettyName: Original Text
                             - columnName: topics
                               prettyName: Topics
+                            - columnName: tweetId
+                              prettyName: Tweet ID
+                            - columnName: LOC
+                              prettyName: Location Entities
+                            - columnName: PER
+                              prettyName: Person Entities
+                            - columnName: GPE
+                              prettyName: Geo-Political Entities
+                            - columnName: ORG
+                              prettyName: Organization Entities
+                            - columnName: geoLocations.lat
+                              prettyName: Latitude
+                            - columnName: geoLocations.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
                         labelOptions:
                             topics:
                                 food: Food
@@ -129,8 +173,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-                        mappings:
-                          date: createdAt
             indonesia062019_sf:
                 prettyName: Indonesia Situation Frame
                 tables:
@@ -145,6 +187,14 @@ datastores:
                               prettyName: Location
                             - columnName: type
                               prettyName: Type
+                            - columnName: geoLocation.lat
+                              prettyName: Latitude
+                            - columnName: geoLocation.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
                         labelOptions:
                             topics:
                                 food: Food
@@ -158,8 +208,6 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-                        mappings:
-                          date: createdAt
 dashboards:
     category: 'Select a task...'
     choices:
