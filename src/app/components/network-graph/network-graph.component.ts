@@ -262,7 +262,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.edgeColorField,
@@ -280,7 +280,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private createFilterDesignOnNodeDataItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,

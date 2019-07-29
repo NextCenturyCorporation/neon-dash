@@ -141,7 +141,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
             root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.dataField as NeonFieldMetaData,

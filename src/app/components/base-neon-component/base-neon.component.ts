@@ -519,8 +519,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     private retrieveApplicableFilters(options: WidgetOptionCollection): AbstractFilter[] {
         let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
 
-        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.shouldFilterSelf() ? [] :
-            compatibleFilters.map((filter) => filter.toDesign()));
+        return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
+            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toDesign()));
     }
 
     private retrieveCompatibleFilters(): FilterCollection {
@@ -692,10 +692,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        // TODO THOR-1062 Allow multiple datastores
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
-        ));
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(options.datastore.type,
+            options.datastore.host, query));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -725,8 +723,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        // TODO THOR-1062 Allow multiple datastores
-        return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
+        return (!this.searchService.canRunSearch(options.datastore.type, options.datastore.host) ||
             (this.options.hideUnfiltered && !this.retrieveApplicableFilters(options).length));
     }
 
@@ -970,9 +967,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        // TODO THOR-1062 Allow multiple datastores
-        let datastore = this.dataset.datastores[0];
-        let matchingDatabase = datastore.databases[options.database.name];
+        let matchingDatabase = options.datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }

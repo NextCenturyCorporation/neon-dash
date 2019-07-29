@@ -73,7 +73,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this._dataset);
+        filterClause.updateDatastores(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -175,7 +175,7 @@ export class FilterBuilderComponent {
             }
             return {
                 root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-                datastore: '',
+                datastore: filterClause.datastore.name,
                 database: filterClause.database,
                 table: filterClause.table,
                 field: filterClause.field,
