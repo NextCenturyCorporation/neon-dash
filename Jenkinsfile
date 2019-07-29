@@ -46,6 +46,9 @@ pipeline {
             sh 'npm install'
             sh 'npm run build-prod'
 
+            sh "cp src/app/config/cicd/lorelei.config.yaml dist/app/config.yaml || echo 'none'"
+            sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml dist/app/config.yaml || echo 'none'"
+
             stash includes: 'dist/', name: 'dist'
           }
         }
@@ -136,8 +139,7 @@ pipeline {
           sh 'rm  ~/.dockercfg || true'
           sh 'rm ~/.docker/config.json || true'
           sh 'pip3 install awscli --user'
-          sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
-          sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
+          
           script {
             //configure registry
             sh("eval \$(aws ecr get-login --no-include-email --region us-east-1 | sed 's|https://||')")
@@ -197,9 +199,6 @@ pipeline {
           sh 'chmod -R u+w dist'
           unstash 'dist'
           sh "aws s3 sync dist 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com'"
-          sh "cp src/app/config/cicd/lorelei.config.yaml src/app/config.yaml || echo 'none'"
-          sh "cp src/app/config/cicd/${BRANCH_NAME.toLowerCase()}.config.yaml src/app/config.yaml || echo 'none'"
-          sh "aws s3 sync src/app/config 's3://${BRANCH_NAME.toLowerCase()}.nc-demo.com/app/config'" 
         }
       }
     }
