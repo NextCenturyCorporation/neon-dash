@@ -11,6 +11,6 @@ RUN echo $'server {\n\
   try_files $uri /index.html;\n\
   }\n\
   location /neon {\n\
-  proxy_pass http://neonserver-service;\n\
+  proxy_pass http://neon-server-service;\n\
   }\n\
   }' > /etc/nginx/conf.d/default.conf;
