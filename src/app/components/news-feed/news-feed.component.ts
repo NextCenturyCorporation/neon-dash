@@ -106,7 +106,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.filterField,
