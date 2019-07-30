@@ -200,16 +200,9 @@ describe('Component: TaxonomyViewer', () => {
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
-                filters: [{
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+                field: 'testIdField',
+                operator: '!=',
+                value: null
             },
             sort: {
                 field: 'testCategoryField',
