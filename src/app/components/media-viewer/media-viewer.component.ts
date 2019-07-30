@@ -68,7 +68,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public mediaTypes: any = MediaTypes;
 
-    private tabsAndMedia: MediaMetaData[] = [];
+    public tabsAndMedia: MediaMetaData[] = [];
     public media: MediaMetaData = {
         loaded: false,
         name: '',

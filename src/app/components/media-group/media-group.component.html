@@ -15,8 +15,8 @@
                 <!-- Thumbnails -->
                 <ol>
                     <li *ngFor="let imageObj of tabsAndMedia.list; index as j">
-                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="tabsAndMedia" [imageObj]="imageObj"
-                            [shownIndex]="j" [isThumbnail]="true" (selectionChange)="onSelectChange(j)">
+                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="tabsAndMedia" [imageObj]="imageObj" [shownIndex]="j"
+                            [isThumbnail]="true">
                         </app-media-panel>
                     </li>
                 </ol>

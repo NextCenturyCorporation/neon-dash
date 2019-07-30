@@ -30,8 +30,6 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 import { MediaViewerModule } from './media-viewer.module';
-import { MediaGroupComponent } from '../media-group/media-group.component';
-import { median } from 'd3';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
@@ -75,7 +73,6 @@ describe('Component: MediaViewer', () => {
     });
 
     it('does have expected default class properties', () => {
-        expect(component.tabsAndMedia).toEqual([]);
         expect(component.mediaTypes).toEqual(MediaTypes);
     });
 
@@ -188,26 +185,31 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('transformVisualizationQueryResults does set expected properties with no data', (() => {
-        component.tabsAndMedia = [{
+        component.media = {
             loaded: false,
-            name: 'testTabName',
+            name: 'testTabName1',
             selected: {
                 border: '',
-                link: 'testLink',
-                name: 'testName',
+                link: 'testLink1',
+                name: 'testName1',
                 type: ''
             },
             list: [{
                 border: '',
-                link: 'testLink',
-                name: 'testName',
+                link: 'testLink1',
+                name: 'testName1',
                 type: ''
             }]
-        }];
+        };
 
         component.transformVisualizationQueryResults(component.options, []);
 
-        expect(component.tabsAndMedia).toEqual([]);
+        expect(component.media).toEqual({
+            loaded: false,
+            name: '',
+            selected: null,
+            list: []
+        });
     }));
 
     it('transformVisualizationQueryResults does reset options.id and return correct error if filter is selected', (() => {
@@ -233,7 +235,7 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('transformVisualizationQueryResults does set expected properties with selected filter and no data', (() => {
-        component.tabsAndMedia = [{
+        component.media = {
             loaded: false,
             name: 'testTabName',
             selected: {
@@ -248,7 +250,7 @@ describe('Component: MediaViewer', () => {
                 name: 'testName',
                 type: ''
             }]
-        }];
+        };
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.id = 'testId';
@@ -751,82 +753,60 @@ describe('Component: MediaViewer', () => {
         expect(spinner).not.toBeNull();
     }));
 
-    // It('does hide tabs if tabsAndMedia is empty', () => {
-    //     let tabs = fixture.debugElement.queryAll(By.css('mat-tab-group .mat-tab-label'));
-    //     expect(tabs.length).toBe(0);
-    //     let slider = fixture.debugElement.queryAll(By.css('mat-tab-group mat-slider'));
-    //     expect(slider.length).toBe(0);
-    // });
-
-    it('does bind the media component to the child Media-Group with multiple non-empty media', () => {
+    it('consolidateTabs properly updates the media variable', () => {
         component.tabsAndMedia = [{
-            loaded: true,
-            name: 'testTabName1',
+            loaded: false,
+            name: 'testLinkName',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                name: 'testNameValue1',
+                name: 'testLinkValue1',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                name: 'testNameValue1',
+                name: 'testLinkValue1',
                 type: ''
             }]
         }, {
             loaded: false,
-            name: 'testTabName2',
+            name: 'testLinkName2',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
-                name: 'testNameValue2',
+                name: 'testLinkValue2',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
-                name: 'testNameValue2',
+                name: 'testLinkValue2',
                 type: ''
             }]
         }];
-        component.changeDetection.detectChanges();
-        expect(component.tabsAndMedia.length).toBe(2);
-        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
-        expect(tabs.length).toBe(1);
-    });
-
-    fit('does bind the media to the child Media-Group non-empty', () => {
-        component.tabsAndMedia = [{
+        component.consolidateTabs();
+        expect(component.media).toEqual({
             loaded: false,
-            name: 'testTabName1',
+            name: '',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
-                name: 'testNameValue1',
+                name: 'testLinkValue1',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
-                name: 'testNameValue1',
+                name: 'testLinkValue1',
+                type: ''
+            }, {
+                border: '',
+                link: 'testLinkValue2',
+                name: 'testLinkValue2',
                 type: ''
             }]
-        }];
-        component.changeDetection.detectChanges();
-        expect(component.tabsAndMedia.length).toBe(1);
-        let tabs = fixture.debugElement.query(By.css('app-media-group'));
-        console.log(tabs);
-        expect(tabs).toBe(1);
-    });
-
-    it('does bind the media component to the child Media-Group empty', () => {
-        component.tabsAndMedia = [];
-        component.changeDetection.detectChanges();
-        expect(component.tabsAndMedia.length).toBe(0);
-        let tabs = fixture.debugElement.queryAll(By.directive(MediaGroupComponent));
-        expect(tabs.length).toBe(1);
-        expect(tabs[0].nativeElement.textContent).toBe('');
+        });
     });
 });
 

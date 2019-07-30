@@ -182,16 +182,14 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1',
-            _id: 'id1',
-            mediaMetaDataList: []
+            _id: 'id1'
         }, {
 
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2',
-            _id: 'id2',
-            mediaMetaDataList: []
+            _id: 'id2'
         }]);
         expect(actual).toEqual(2);
     });
@@ -228,16 +226,14 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1',
-            _id: 'id1',
-            mediaMetaDataList: []
+            _id: 'id1'
         }, {
 
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2',
-            _id: 'id2',
-            mediaMetaDataList: []
+            _id: 'id2'
         }]);
         expect(actual).toEqual(2);
     });
@@ -265,16 +261,35 @@ describe('Component: NewsFeed', () => {
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1',
-            _id: 'id1',
-            mediaMetaDataList: []
+            _id: 'id1'
         }, {
 
             testLinkField: 'link2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2',
-            _id: 'id2',
-            mediaMetaDataList: []
+            _id: 'id2'
+        }]);
+    });
+
+    it('transformationQuery returns expected data with media', () => {
+        component.options.fields = DashboardServiceMock.FIELDS;
+        let results = [{
+            _id: 'id1',
+            testLinkField: 'link1',
+            testNameField: 'name1',
+            testSizeField: 0.1,
+            testTypeField: 'type1'
+        }];
+        results['mediaEntities.mediaURLHttps'] = 'imageURL';
+        let actual = component.transformVisualizationQueryResults(component.options, results);
+        expect(actual).toEqual(1);
+        expect(component.newsFeedData).toEqual([{
+            testLinkField: 'link1',
+            testNameField: 'name1',
+            testSizeField: 0.1,
+            testTypeField: 'type1',
+            _id: 'id1'
         }]);
     });
 
