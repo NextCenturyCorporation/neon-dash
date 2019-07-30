@@ -22,7 +22,6 @@ import {
 } from '@angular/core';
 import { MediaTypes } from '../../models/types';
 import { MediaMetaData } from './media-group.component';
-import { $ } from 'protractor';
 
 @Component({
     selector: 'app-media-panel',
