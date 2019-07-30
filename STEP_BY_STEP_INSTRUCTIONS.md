@@ -61,6 +61,8 @@ If you were not given a sample data bundle and/or do not have a configuration fi
 
 ## V. Neon Deployment
 
+In the following instructions, you will deploy the Neon Server as a docker container.  You may deploy the Neon Dashboard either as a [WAR in Apache Tomcat](#option-a-deploy-the-neon-dashboard-as-a-war-in-apache-tomcat) or as a [docker container](#option-b-deploy-the-neon-dashboard-as-a-docker-container).
+
 ### Option A: Deploy the Neon Dashboard as a WAR in Apache Tomcat
 
 #### 1. Install [Apache Tomcat](http://tomcat.apache.org/)
