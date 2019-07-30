@@ -18,7 +18,7 @@ If you want to use your own data, please see the [Neon Data Support Guide](https
 
 ## III. Neon Server
 
-The Neon Server is a REST server that provides datastore adapters, runs datastore queries, transforms query results, and performs data processing for applications like the Neon Dashboard (UI).  For more information, please see the [Neon Server GitHub Repository](https://github.com/NextCenturyCorporation/neon-server)
+The Neon Server is a REST server that provides datastore adapters, runs datastore queries, transforms query results, and performs data processing for applications like the Neon Dashboard (UI).
 
 #### 1. Download and Build the Neon Server as a Docker Image
 
@@ -38,7 +38,7 @@ Run `docker images` to verify that you have created a docker image with the repo
 
 ## IV. Neon Dashboard
 
-The Neon Dashboard is a big data exploration and visualization user interface.  For more information, please see the [Neon Dashboard GitHub Repository](https://github.com/NextCenturyCorporation/neon-dash-internal)
+The Neon Dashboard is a big data exploration and visualization user interface that runs on top of the Neon Server.
 
 #### 1. Download the Neon Dashboard and Install its Dependencies
 
@@ -60,6 +60,8 @@ If you were given a sample data bundle, copy the `config.yaml` file from the sam
 If you were not given a sample data bundle and/or do not have a configuration file, please see the section on [Custom Neon Dashboard Configuration](#custom-neon-dashboard-configuration) below.
 
 ## V. Neon Deployment
+
+In the following instructions, you will deploy the Neon Server as a docker container.  You may deploy the Neon Dashboard either as a [WAR in Apache Tomcat](#option-a-deploy-the-neon-dashboard-as-a-war-in-apache-tomcat) or as a [docker container](#option-b-deploy-the-neon-dashboard-as-a-docker-container).
 
 ### Option A: Deploy the Neon Dashboard as a WAR in Apache Tomcat
 
@@ -169,6 +171,12 @@ Additionally, if your data contains many (hundreds of) fields, we recommend that
 If you define `datastores` in your configuration file but you do not define any `dashboards` or `layouts`, the default dashboard will be blank when you first load it.  However, you can easily add new widgets to your dashboard, configure the widgets to show your data sources, save your custom dashboards, and reload them in the future, all within the UI.  More documentation and a detailed user tutorial are coming soon.
 
 For the full, detailed instructions, please see the [Neon Dashboard Configuration Guide](./DASHBOARD_CONFIGURATION_GUIDE.md)
+
+## Links
+
+[Neon Dashboard GitHub Repository](https://github.com/NextCenturyCorporation/neon-dash-internal)
+
+[Neon Server GitHub Repository](https://github.com/NextCenturyCorporation/neon-server)
 
 ## Troubleshooting
 
