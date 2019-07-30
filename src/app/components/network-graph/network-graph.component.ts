@@ -742,7 +742,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
 
         this.existingNodeNames = [];
-
+        this.relationNodes = [];
         this.displayGraph = (this.options.hideUnfiltered && !!filters.getFilters().length) || !this.options.hideUnfiltered;
 
         this.resetGraphData();
