@@ -448,15 +448,6 @@ body {
 }
 
 .mat-toolbar {
-    &.neon-toolbar-large {
-        border-bottom: 0;
-        font-size: 20px;
-        height: 50px !important;
-        line-height: 40px !important;
-        min-height: 50px !important;
-        padding: 5px 20px !important;
-    }
-
     &.titlebar-header-text {
         font-size: 20px;
         font-weight: 400;

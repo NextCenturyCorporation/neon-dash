@@ -13,7 +13,7 @@ The Neon Dashboard is a big data exploration and visualization user interface.
 
 ## Step-by-Step Production Installation Documentation
 
-See the page [here](./STEP_BY_STEP_INSTALLATION.md).  Requires a sample data bundle provided by the development team.
+See the page [here](./STEP_BY_STEP_INSTALLATION.md).
 
 ## Configure the Neon Dashboard
 
@@ -67,7 +67,14 @@ Note:  This command will build the dashboard for a production environment (`--pr
 
 ## Deploy as Docker Image
 
-To build the Neon Dashboard as a Docker Image, see the [README in the docker folder](./docker/)
+First, build the Neon Server as a docker image:  https://github.com/NextCenturyCorporation/neon-server
+
+Then you can build the Neon Dashboard and run it as a docker image:
+
+        npm run-script build
+        docker-compose up
+
+View the Neon Dashboard at http://localhost:4100
 
 ## Apache 2 Open Source License
 

@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -33,7 +33,9 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFieldArrayOption,
     WidgetFreeTextOption,
@@ -141,7 +143,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,
@@ -216,8 +218,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
         ];
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
@@ -416,7 +417,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             // If a value is not found for the leafValue, id will be used
             const name = find(data, 'valueField') || find(data, 'idField');
             const child = {
-                description: options.valueField,
+                description: options.valueField.columnName,
                 name,
                 sourceIds: find(data, 'sourceIdField'),
                 externalId: find(data, 'idField'),

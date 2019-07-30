@@ -26,7 +26,6 @@ import {
 
 import {
     AbstractSearchService,
-    CompoundFilterType,
     FilterClause,
     QueryPayload
 } from '../../services/abstract.search.service';
@@ -48,6 +47,7 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
     TimeInterval,
     WidgetFieldOption,
@@ -116,7 +116,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     private createFilterDesignOnItem(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,
@@ -129,14 +129,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.dateField,
                 operator: '>=',
                 value: begin
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.dateField,
@@ -175,11 +175,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.dateField.columnName) {
             // Match a compound AND filter with one ">=" date filter and one "<=" date filter.
             designs.push(this.createFilterDesignOnTimeline());
-        }
-
-        if (this.options.filterField.columnName) {
-            // Match a single EQUALS filter on the specific filter field.
-            designs.push(this.createFilterDesignOnItem(this.options.filterField));
         }
 
         return designs;

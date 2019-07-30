@@ -160,11 +160,16 @@ export class DashboardService {
                     let table = database.tables[tableName];
 
                     if (table) {
-                        let hasField = new Set(table.fields.map((field) => field.columnName));
+                        let existingFields = new Set(table.fields.map((field) => field.columnName));
 
                         tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                            if (!hasField.has(fieldName)) {
-                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName });
+                            if (!existingFields.has(fieldName)) {
+                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
+                                    columnName: fieldName,
+                                    prettyName: fieldName,
+                                    // If existing fields were defined, but this field wasn't, then hide this new field.
+                                    hide: !!existingFields.size
+                                });
                                 table.fields.push(newField);
                             }
                         });
