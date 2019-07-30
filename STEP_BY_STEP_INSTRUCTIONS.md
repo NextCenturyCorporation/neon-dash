@@ -38,7 +38,7 @@ Run `docker images` to verify that you have created a docker image with the repo
 
 ## IV. Neon Dashboard
 
-The Neon Dashboard is a big data exploration and visualization user interface.  For more information, please see the [Neon Dashboard GitHub Repository](https://github.com/NextCenturyCorporation/neon-dash-internal)
+The Neon Dashboard is a big data exploration and visualization user interface that runs on top of the Neon Server.  For more information, please see the [Neon Dashboard GitHub Repository](https://github.com/NextCenturyCorporation/neon-dash-internal)
 
 #### 1. Download the Neon Dashboard and Install its Dependencies
 
