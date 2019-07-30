@@ -45,6 +45,7 @@ export class DashboardServiceMock extends DashboardService {
     public static TABLES_LIST = TABLES_LIST;
     public static DATABASES = DATABASES;
     public static DATABASES_LIST = DATABASES_LIST;
+    public static DATASTORE = DATASTORE;
 
     static init(svc: DashboardServiceMock) {
         const datastore = DATASTORE;

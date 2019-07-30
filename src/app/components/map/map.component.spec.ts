@@ -23,7 +23,8 @@ import {
 
 import { MapComponent } from './map.component';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';

@@ -25,7 +25,7 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -34,7 +34,9 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetNumberOption,
@@ -137,7 +139,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
             root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
                 CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,

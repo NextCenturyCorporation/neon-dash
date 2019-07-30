@@ -22,7 +22,8 @@ import { } from 'jasmine-core';
 
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
