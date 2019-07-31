@@ -742,7 +742,7 @@ describe('Component: MediaViewer', () => {
     it('does show header in toolbar with visualization name', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Media Viewer');
+        expect(header.nativeElement.textContent).toContain('Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
@@ -757,14 +757,6 @@ describe('Component: MediaViewer', () => {
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).not.toEqual(-1);
-    }));
-
-    it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
-        expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
-
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {
@@ -1224,6 +1216,6 @@ describe('Component: MediaViewer with config', () => {
     it('does show header in toolbar with title from config', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe('Test Title');
+        expect(header.nativeElement.textContent).toContain('Test Title');
     }));
 });

@@ -29,11 +29,9 @@ import { Color } from '../../models/color';
 
 import {
     AbstractSearchService,
-    CompoundFilterType,
     FilterClause,
     QueryGroup,
-    QueryPayload,
-    SortOrder
+    QueryPayload
 } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -62,7 +60,9 @@ import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ListSubcomponent } from './subcomponent.list';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     TimeInterval,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -78,6 +78,7 @@ import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { MatDialog } from '@angular/material';
+import { neonUtilities } from '../../models/neon-namespaces';
 
 @Component({
     selector: 'app-aggregation',
@@ -326,28 +327,28 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '>=',
                 value: beginX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '<=',
                 value: endX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.yField,
                 operator: '>=',
                 value: beginY
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.yField,
@@ -361,14 +362,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
                 operator: '>=',
                 value: beginX
             }, {
-                datastore: '',
+                datastore: this.options.datastore.name,
                 database: this.options.database,
                 table: this.options.table,
                 field: this.options.xField,
@@ -381,7 +382,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     private createFilterDesignOnItem(value?: any): FilterDesign {
         return {
             root: this.options.requireAll ? CompoundFilterType.AND : CompoundFilterType.OR,
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.xField,
@@ -392,7 +393,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private createFilterDesignOnLegend(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.groupField,
@@ -790,12 +791,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         let createTransformationFromItem = (item: any) => {
-            let group = options.groupField.columnName ? item[options.groupField.columnName] : this.DEFAULT_GROUP;
+            let group = options.groupField.columnName ? neonUtilities.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
             return {
                 color: findGroupColor(group),
                 group: group,
-                x: item[options.xField.columnName],
-                y: isXY ? item[options.yField.columnName] : (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
+                x: neonUtilities.deepFind(item, options.xField.columnName),
+                y: isXY ? neonUtilities.deepFind(item, options.yField.columnName) :
+                    (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
             };
         };
 

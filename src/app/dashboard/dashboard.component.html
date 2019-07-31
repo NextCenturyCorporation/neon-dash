@@ -47,7 +47,7 @@
                 <app-simple-search-filter></app-simple-search-filter>
             </div>
             <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
-                matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog(!showDashboardSelector)">
+                matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog()">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
             <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
@@ -69,6 +69,9 @@
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
                 </button>
+                <button mat-menu-item (click)="toggleGlobalMoving()">
+                    <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
+                </button>
                 <button mat-menu-item (click)="setPanel('aboutNeon', 'About the Neon Dashboard');">
                     <mat-icon>info</mat-icon>About the Neon Dashboard
                 </button>
@@ -83,37 +86,43 @@
 
         <app-current-filters></app-current-filters>
 
-        <div class="header-toggle-container" id="filters" *ngIf="createFiltersComponent">
-            <div class="filters-container">
-                <app-filters (closeDialog)="toggleFiltersDialog()"></app-filters>
-                <div class="header-toggle-footer">
-                </div>
-            </div>
-        </div>
+        <app-filters (closeDialog)="toggleFiltersDialog()" [class.visible]="showFiltersComponent"></app-filters>
 
-        <div class="header-toggle-container" id="dashboard.selector">
-            <div class="dashboard-selector-container">
-                <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog(!showDashboardSelector)">
-                </app-dashboard-selector>
-                <div class="header-toggle-footer"></div>
-            </div>
-        </div>
+        <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog()" [class.visible]="showDashboardSelector">
+        </app-dashboard-selector>
 
-        <div class="neon-dash" mat-fill layout="col">
+        <div class="neon-dash" mat-fill layout="col" #scrollable [class.moving]="movingWidgets || globalMoveWidgets">
             <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
                 <mat-tab class="tab" *ngFor="let tab of gridState.tabs" [label]="tab.name"></mat-tab>
             </mat-tab-group>
-
-            <div class="neon-grid">
-                <div [ngGrid]="gridConfig" #grid>
-                    <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
-                        name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
-                        (onResize)="onResize(i, $event)" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)">
-                        <app-visualization-container [visualization]="widgetGridItem"></app-visualization-container>
-                        <ng-content></ng-content>
+            <div class="neon-wrapper">
+                <div class="neon-grid">
+                    <div [ngGrid]="gridConfig" #grid>
+                        <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
+                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                            [contextMenu]="vizMenu" [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)"
+                            (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)"
+                            [class.moving]="movingWidgets || globalMoveWidgets">
+                            <app-visualization-container [moving]="movingWidgets || globalMoveWidgets" [visualization]="widgetGridItem">
+                            </app-visualization-container>
+                            <ng-content></ng-content>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
+
+<context-menu #vizMenu (mouseout)="vizMenu.close()">
+    <ng-template contextMenuItem (execute)="showVizSettings($event.item)">
+        <mat-icon>more_vert</mat-icon> Settings
+    </ng-template>
+    <ng-template contextMenuItem (execute)="refreshViz($event.item)">
+        <mat-icon>refresh</mat-icon> Refresh
+    </ng-template>
+    <ng-template contextMenuItem divider="true"></ng-template>
+    <ng-template contextMenuItem (execute)="deleteWidget($event.item)">
+        <mat-icon color="warn">close</mat-icon> Delete
+    </ng-template>
+</context-menu>

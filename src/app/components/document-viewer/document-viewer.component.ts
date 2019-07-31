@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection, FilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -35,6 +35,7 @@ import { DocumentViewerSingleItemComponent } from '../document-viewer-single-ite
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
@@ -237,6 +238,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
             return activeItem;
         });
+        if (!this.documentViewerData.length) {
+            this.errorMessage = 'No Data: New';
+        }
 
         return this.documentViewerData.length;
     }
