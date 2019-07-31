@@ -1,5 +1,6 @@
 <mat-toolbar class="neon-toolbar-thin" layout-align="space-between center" flex>
-    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+    <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">
+        {{ options.title }}</div>
     <span class="fill-remaining"></span>
     <span #infoText class="info text">
         <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
@@ -7,10 +8,6 @@
         </span>
         <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
     </span>
-    <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu"
-        tooltip-position="below" (click)="toggleGear();">
-        <mat-icon>settings</mat-icon>
-    </button>
 </mat-toolbar>
 
 <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
@@ -19,7 +16,7 @@
 
 <app-data-message *ngIf="showNoData"></app-data-message>
 
-<div *ngIf="options.url == ''">
+<div *ngIf="options.url == '' && !showNoData">
     <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
     <mat-tab-group *ngIf="tabsAndMedia.length > 1" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">

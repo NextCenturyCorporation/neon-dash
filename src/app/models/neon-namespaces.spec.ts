@@ -167,6 +167,43 @@ describe('NeonUtilities', () => {
         }, 'key2.keyD.innerKey')).toEqual('innerValue');
     });
 
+    it('returns the expected object from deepFind if given a nested object path that exists at the object root', () => {
+        expect(neonUtilities.deepFind({
+            'key1.keyA': 'value',
+            'key1.keyB': 12345,
+            'key2.keyC': ['arrayValue'],
+            'key2.keyD': {
+                innerKey: 'innerValue'
+            }
+        }, 'key1.keyA')).toEqual('value');
+        expect(neonUtilities.deepFind({
+            'key1.keyA': 'value',
+            'key1.keyB': 12345,
+            'key2.keyC': ['arrayValue'],
+            'key2.keyD': {
+                innerKey: 'innerValue'
+            }
+        }, 'key1.keyB')).toEqual(12345);
+        expect(neonUtilities.deepFind({
+            'key1.keyA': 'value',
+            'key1.keyB': 12345,
+            'key2.keyC': ['arrayValue'],
+            'key2.keyD': {
+                innerKey: 'innerValue'
+            }
+        }, 'key2.keyC')).toEqual(['arrayValue']);
+        expect(neonUtilities.deepFind({
+            'key1.keyA': 'value',
+            'key1.keyB': 12345,
+            'key2.keyC': ['arrayValue'],
+            'key2.keyD': {
+                innerKey: 'innerValue'
+            }
+        }, 'key2.keyD')).toEqual({
+            innerKey: 'innerValue'
+        });
+    });
+
     it('returns the expected array from deepFind if given a nested array path', () => {
         expect(neonUtilities.deepFind({
             key1: [{

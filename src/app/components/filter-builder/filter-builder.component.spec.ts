@@ -23,7 +23,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
-import { CompoundFilterType } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 
 describe('Component: Filter Builder', () => {
     let component: FilterBuilderComponent;
@@ -164,7 +164,7 @@ describe('Component: Filter Builder', () => {
         // Arrange
         let filterDesign: FilterDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
             field: component.filterClauses[0].field,
@@ -190,7 +190,7 @@ describe('Component: Filter Builder', () => {
         component.compoundTypeIsOr = true;
         let filterDesigns: SimpleFilterDesign[] = [{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
             field: component.filterClauses[0].field,
@@ -199,7 +199,7 @@ describe('Component: Filter Builder', () => {
         } as SimpleFilterDesign,
         {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[1].datastore.name,
             database: component.filterClauses[1].database,
             table: component.filterClauses[1].table,
             field: component.filterClauses[1].field,
@@ -232,7 +232,7 @@ describe('Component: Filter Builder', () => {
         component.addBlankFilterClause();
         let filterDesigns: SimpleFilterDesign[] = [{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
             field: component.filterClauses[0].field,
@@ -241,7 +241,7 @@ describe('Component: Filter Builder', () => {
         } as SimpleFilterDesign,
         {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[1].datastore.name,
             database: component.filterClauses[1].database,
             table: component.filterClauses[1].table,
             field: component.filterClauses[1].field,
@@ -273,7 +273,7 @@ describe('Component: Filter Builder', () => {
         // Arrange
         let filterDesign: FilterDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
             field: component.filterClauses[0].field,
@@ -298,7 +298,7 @@ describe('Component: Filter Builder', () => {
         // Arrange
         let filterDesign: FilterDesign = {
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: component.filterClauses[0].datastore.name,
             database: component.filterClauses[0].database,
             table: component.filterClauses[0].table,
             field: component.filterClauses[0].field,

@@ -84,7 +84,9 @@ export const FIELD_KEYS: Record<string, string> = {
 };
 
 export const DATASET: Dataset = {
-    datastores: [DATASTORE],
+    datastores: {
+        datastore1: DATASTORE
+    },
     tableKeys: TABLE_KEYS,
     fieldKeys: FIELD_KEYS,
     relations: [

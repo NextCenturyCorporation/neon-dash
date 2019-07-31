@@ -387,19 +387,28 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 'A',
+                        y: 'E'
+                    }, {
+                        x: 'B',
+                        y: 'F'
+                    }, {
+                        x: 'C',
+                        y: 'G'
+                    }, {
+                        x: 'D',
+                        y: 'H'
+                    }]
+                }]
+            },
             scales: {
                 'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
                 },
                 'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
                 }
             }
@@ -442,19 +451,28 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 'A',
+                        y: 'E'
+                    }, {
+                        x: 'B',
+                        y: 'F'
+                    }, {
+                        x: 'C',
+                        y: 'G'
+                    }, {
+                        x: 'D',
+                        y: 'H'
+                    }]
+                }]
+            },
             scales: {
                 'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
                 },
                 'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
                 }
             }
@@ -479,7 +497,7 @@ describe('ChartJsSubcomponent', () => {
         expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
-        expect(spy3.calls.argsFor(0)).toEqual(['B', 'F', 'C', 'G']);
+        expect(spy3.calls.argsFor(0).sort()).toEqual(['B', 'C', 'F', 'G']);
         expect(spy4.calls.count()).toEqual(2);
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
@@ -499,16 +517,25 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
+            data: {
+                datasets: [{
+                    data: [{
+                        y: 'E'
+                    }, {
+                        y: 'F'
+                    }, {
+                        y: 'G'
+                    }, {
+                        y: 'H'
+                    }]
+                }]
+            },
             scales: {
                 'x-axis-0': {
                     getValueForPixel: (pixel) => pixel === 10 ? new Date('2018-01-02T00:00:00.000Z').getTime() :
                         new Date('2018-01-03T00:00:00.000Z').getTime()
                 },
                 'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
                 }
             }
@@ -588,40 +615,6 @@ describe('ChartJsSubcomponent', () => {
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
 
-    it('selectBounds with cancel button down does deselect', () => {
-        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
-        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
-        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnBounds');
-        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
-
-        let chart = {
-            chartArea: {
-                top: 5,
-                bottom: 300,
-                left: 5,
-                right: 300
-            }
-        };
-
-        (subcomponent).selectBounds({
-            buttons: 1,
-            offsetX: 10,
-            offsetY: 20
-        }, [], chart);
-
-        (subcomponent).selectBounds({
-            buttons: 2,
-            offsetX: 100,
-            offsetY: 200
-        }, [], chart);
-
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy3.calls.count()).toEqual(0);
-        expect(spy4.calls.count()).toEqual(2);
-        expect(subcomponent.getSelectedLabels()).toEqual([]);
-    });
-
     it('selectBounds with items does update selectedLabels', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
@@ -678,19 +671,28 @@ describe('ChartJsSubcomponent', () => {
                 left: 5,
                 right: 300
             },
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 'A',
+                        y: 'E'
+                    }, {
+                        x: 'B',
+                        y: 'F'
+                    }, {
+                        x: 'C',
+                        y: 'G'
+                    }, {
+                        x: 'D',
+                        y: 'H'
+                    }]
+                }]
+            },
             scales: {
                 'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 10 ? 1 : 2
                 },
                 'y-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['E', 'F', 'G', 'H'];
-                        return labels[index];
-                    },
                     getValueForPixel: (pixel) => pixel === 20 ? 1 : 2
                 }
             }
@@ -843,13 +845,18 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    }
-                }
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 'A'
+                    }, {
+                        x: 'B'
+                    }, {
+                        x: 'C'
+                    }, {
+                        x: 'D'
+                    }]
+                }]
             }
         };
 
@@ -896,13 +903,18 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['A', 'B', 'C', 'D'];
-                        return labels[index];
-                    }
-                }
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 'A'
+                    }, {
+                        x: 'B'
+                    }, {
+                        x: 'C'
+                    }, {
+                        x: 'D'
+                    }]
+                }]
             }
         };
 
@@ -952,18 +964,18 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = [
-                            '2018-01-01T00:00:00.000Z',
-                            '2018-01-02T00:00:00.000Z',
-                            '2018-01-03T00:00:00.000Z',
-                            '2018-01-04T00:00:00.000Z'
-                        ];
-                        return labels[index];
-                    }
-                }
+            data: {
+                datasets: [{
+                    data: [{
+                        x: '2018-01-01T00:00:00.000Z'
+                    }, {
+                        x: '2018-01-02T00:00:00.000Z'
+                    }, {
+                        x: '2018-01-03T00:00:00.000Z'
+                    }, {
+                        x: '2018-01-04T00:00:00.000Z'
+                    }]
+                }]
             }
         };
 
@@ -1012,13 +1024,19 @@ describe('ChartJsSubcomponent', () => {
                 top: 5,
                 bottom: 50
             },
-            scales: {
-                'x-axis-0': {
-                    getLabelForIndex: (index) => {
-                        let labels = ['0', '1,234', '5,678,901', '100,000,000'];
-                        return labels[index];
-                    }
-                }
+            // GetLabelForIndex: (index) => {
+            data: {
+                datasets: [{
+                    data: [{
+                        x: '0'
+                    }, {
+                        x: '1,234'
+                    }, {
+                        x: '5,678,901'
+                    }, {
+                        x: '100,000,000'
+                    }]
+                }]
             }
         };
 

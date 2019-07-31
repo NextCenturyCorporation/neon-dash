@@ -24,12 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {
-    AbstractSearchService,
-    FilterClause,
-    QueryPayload,
-    SortOrder
-} from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -40,6 +35,7 @@ import { NeonFieldMetaData } from '../../models/dataset';
 import {
     AggregationType,
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
@@ -109,7 +105,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     private createFilterDesign(field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: field,

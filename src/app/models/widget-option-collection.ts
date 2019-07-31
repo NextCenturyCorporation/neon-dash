@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
+import { Dataset, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from './dataset';
 import { DatasetUtil } from '../util/dataset.util';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
@@ -48,6 +48,8 @@ export class OptionCollection {
     public _id: string;
     public database: NeonDatabaseMetaData = null;
     public databases: NeonDatabaseMetaData[] = [];
+    public datastore: NeonDatastoreConfig = null;
+    public datastores: NeonDatastoreConfig[] = [];
     public fields: NeonFieldMetaData[] = [];
     public table: NeonTableMetaData = null;
     public tables: NeonTableMetaData[] = [];
@@ -96,6 +98,8 @@ export class OptionCollection {
         copy._id = this._id;
         copy.database = this.database;
         copy.databases = this.databases;
+        copy.datastore = this.datastore;
+        copy.datastores = this.datastores;
         copy.fields = this.fields;
         copy.table = this.table;
         copy.tables = this.tables;
@@ -187,7 +191,7 @@ export class OptionCollection {
      * Updates all the databases, tables, and fields in the options.
      */
     public updateDatabases(dataset: Dataset): void {
-        this.databases = dataset.datastores.reduce((list, datastore) =>
+        this.databases = Object.values(dataset.datastores).reduce((list, datastore) =>
             list.concat(Object.values(datastore.databases).sort((one, two) => one.name.localeCompare(two.name))), []);
 
         this.database = this.databases[0] || this.database;
@@ -215,6 +219,16 @@ export class OptionCollection {
         }
 
         return this.updateTables(dataset);
+    }
+
+    /**
+     * Updates all the datastores, databases, tables, and fields in the options.
+     */
+    public updateDatastores(dataset: Dataset): void {
+        this.datastores = Object.values(dataset.datastores);
+        this.datastore = this.datastores[0] || this.datastore;
+
+        return this.updateDatabases(dataset);
     }
 
     /**
@@ -300,7 +314,7 @@ export class WidgetOptionCollection extends OptionCollection {
             ...nonFieldOptions
         ]);
 
-        this.updateDatabases(dataset);
+        this.updateDatastores(dataset);
     }
 
     /**

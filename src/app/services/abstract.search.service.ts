@@ -14,18 +14,8 @@
  */
 
 import { AbstractFilter, CompoundFilter, SimpleFilter } from '../util/filter.util';
-import { AggregationType, TimeInterval } from '../models/widget-option';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
 import { RequestWrapper } from './connection.service';
-
-export enum CompoundFilterType {
-    AND = 'and',
-    OR = 'or'
-}
-
-export enum SortOrder {
-    ASCENDING = 'ascending',
-    DESCENDING = 'descending'
-}
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 export interface FilterClause { }
