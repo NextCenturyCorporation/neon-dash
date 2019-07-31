@@ -79,14 +79,14 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
@@ -125,14 +125,14 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
@@ -160,14 +160,14 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
@@ -177,7 +177,7 @@ describe('Component: Timeline', () => {
         }, {
             // TODO NEON-36
             root: 'or',
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -216,14 +216,14 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.DATE,
@@ -232,7 +232,7 @@ describe('Component: Timeline', () => {
             }]
         }, {
             root: 'or',
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -240,7 +240,7 @@ describe('Component: Timeline', () => {
             value: 'filterValue1'
         }, {
             root: 'or',
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -248,7 +248,7 @@ describe('Component: Timeline', () => {
             value: 'filterValue2'
         }, {
             root: 'or',
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,

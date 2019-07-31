@@ -20,9 +20,9 @@ import { Injector } from '@angular/core';
 
 import { TextCloudComponent } from './text-cloud.component';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { AggregationType } from '../../models/widget-option';
+import { AggregationType, CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -148,7 +148,7 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TEXT,
@@ -165,7 +165,7 @@ describe('Component: TextCloud', () => {
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.TEXT,

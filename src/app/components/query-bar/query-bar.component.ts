@@ -17,7 +17,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
@@ -27,6 +27,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -89,7 +90,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         let table: NeonTableMetaData = this.dashboardState.getTableWithName(databaseName, tableName);
         let field: NeonFieldMetaData = this.dashboardState.getFieldWithName(databaseName, tableName, fieldName);
         return (database && database.name && table && table.name && field && field.columnName) ? {
-            datastore: '',
+            datastore: this.dashboardState.datastore.name,
             database: database,
             table: table,
             field: field,
@@ -107,7 +108,7 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.filterField,

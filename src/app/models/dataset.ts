@@ -136,7 +136,7 @@ export interface SingleField {
 }
 
 export interface Dataset {
-    datastores: NeonDatastoreConfig[];
+    datastores: Record<string, NeonDatastoreConfig>;
     tableKeys: Record<string, string>;
     fieldKeys: Record<string, string>;
     relations: SingleField[][][];
@@ -145,11 +145,11 @@ export interface Dataset {
 export class Dataset {
     static get(dataset: DeepPartial<Dataset> = {}) {
         return {
-            datastores: [],
             tableKeys: {},
             fieldKeys: {},
             relations: [],
-            ...dataset
+            ...dataset,
+            datastores: translateValues(dataset.datastores || {}, Dataset.get.bind(null), true)
         } as Dataset;
     }
 }

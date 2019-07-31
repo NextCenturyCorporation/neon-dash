@@ -463,6 +463,10 @@ export class TimelineSelectorChart {
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
+                    if ((d3.event as MouseEvent).buttons === 2) {
+                        (d3.event as MouseEvent).stopImmediatePropagation();
+                        return;
+                    }
                     let hoverIndex = this.findHoverIndexInData(series.focusData, this.xFocus);
                     if (hoverIndex >= 0 && hoverIndex < series.focusData.length) {
                         this.onFocusHover(series.focusData[hoverIndex]);
@@ -614,6 +618,11 @@ export class TimelineSelectorChart {
 
         let gBrush = context.append('g')
             .attr('class', 'brush')
+            .on('mousedown', () => {
+                if ((d3.event as MouseEvent).buttons === 2) {
+                    (d3.event as MouseEvent).stopImmediatePropagation();
+                }
+            })
             .on('mousemove', () => {
                 let hoverIndex = this.findHoverIndexInData(this.data.primarySeries.data, this.xContext);
                 if (hoverIndex >= 0 && hoverIndex < this.data.primarySeries.data.length) {

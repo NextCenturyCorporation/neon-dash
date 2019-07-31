@@ -18,6 +18,7 @@ import { ThumbnailGridComponent } from './thumbnail-grid.component';
 import { CardThumbnailSubComponent } from './subcomponent.card-view';
 import { TitleThumbnailSubComponent } from './subcomponent.title-view';
 import { DetailsThumbnailSubComponent } from './subcomponent.details-view';
+import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -31,6 +32,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
     entryComponents: [ThumbnailGridComponent],
     imports: [
         CommonWidgetModule,
+        DataMessageModule,
         CommonModule
     ]
 })

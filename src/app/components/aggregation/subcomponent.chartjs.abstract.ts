@@ -810,7 +810,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     // TODO Move this code into separate functions
     /* eslint-disable-next-line complexity */
     private selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
-        if (event.type === 'mouseover' && event.buttons > 0) {
+        if (event.type === 'mouseover' && event.buttons === 1) {
             this.ignoreSelect = true;
         }
 
@@ -821,15 +821,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
             return;
-        }
-
-        // Selection yes, mouse press cancel...
-        if (this.selectedBounds && event.buttons > 1) {
-            this.selectedLabels = [];
-            this.listener.subcomponentRequestsDeselect();
-            this.listener.subcomponentRequestsRedraw(event);
-            this.selectedBounds = null;
-            this.cancelSelect = true;
         }
 
         // Selection no, mouse press yes...
@@ -871,6 +862,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedBounds && event.buttons === 0) {
+            // The getValueForPixel function is defined at https://www.chartjs.org/docs/latest/developers/axes.html
+            // Must transform X/Y pixel coordinates into real values from the chart dataset.
             let beginValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
             let beginValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
             let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
@@ -880,25 +873,25 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let beginLabelY;
             let endLabelX;
             let endLabelY;
-            if (this.findAxisTypeX() === 'string') {
-                beginValueX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
-                endValueX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
-                beginLabelX = beginValueX < endValueX ? beginValueX : endValueX;
-                endLabelX = beginValueX > endValueX ? beginValueX : endValueX;
-            } else if (this.findAxisTypeX() === 'date') {
+
+            let axisTypeX = this.findAxisTypeX();
+            let axisTypeY = this.findAxisTypeY();
+
+            if (axisTypeX === 'string') {
+                beginLabelX = chart.data.datasets[0].data[beginValueX].x;
+                endLabelX = chart.data.datasets[0].data[endValueX].x;
+            } else if (axisTypeX === 'date') {
                 beginLabelX = new Date(Math.min(beginValueX, endValueX));
                 endLabelX = new Date(Math.max(beginValueX, endValueX));
-            } else {
+            } else if (axisTypeX === 'number') {
                 beginLabelX = Math.min(beginValueX, endValueX);
                 endLabelX = Math.max(beginValueX, endValueX);
             }
 
-            if (this.findAxisTypeY() === 'string') {
-                beginValueY = chart.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
-                endValueY = chart.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
-                beginLabelY = beginValueY < endValueY ? beginValueY : endValueY;
-                endLabelY = beginValueY > endValueY ? beginValueY : endValueY;
-            } else {
+            if (axisTypeY === 'string') {
+                beginLabelY = chart.data.datasets[0].data[beginValueY].y;
+                endLabelY = chart.data.datasets[0].data[endValueY].y;
+            } else if (axisTypeY === 'number') {
                 beginLabelY = Math.min(beginValueY, endValueY);
                 endLabelY = Math.max(beginValueY, endValueY);
             }
@@ -981,10 +974,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press no...
         if (this.selectedDomain && event.buttons === 0) {
-            let beginLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.min(this.selectedDomain.beginIndex,
-                this.selectedDomain.endIndex), 0);
-            let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
-                this.selectedDomain.endIndex), 0);
+            let beginIndexX = Math.min(this.selectedDomain.beginIndex, this.selectedDomain.endIndex);
+            let endIndexX = Math.max(this.selectedDomain.beginIndex, this.selectedDomain.endIndex);
+            let beginLabelX = chart.data.datasets[0].data[beginIndexX].x;
+            let endLabelX = chart.data.datasets[0].data[endIndexX].x;
             if (this.findAxisTypeX() === 'date') {
                 beginLabelX = moment.utc(beginLabelX).toDate();
                 endLabelX = this.padEndDate(endLabelX);

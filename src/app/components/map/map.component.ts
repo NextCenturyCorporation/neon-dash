@@ -25,7 +25,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
@@ -52,6 +52,7 @@ import { NeonFieldMetaData } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
     WidgetFieldArrayOption,
     WidgetFieldOption,
@@ -646,28 +647,28 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '>=',
                 value: south
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '<=',
                 value: north
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
                 operator: '>=',
                 value: west
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
@@ -681,14 +682,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         return {
             type: CompoundFilterType.AND,
             filters: [{
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.latitudeField,
                 operator: '=',
                 value: latitude
             }, {
-                datastore: '',
+                datastore: layer.datastore.name,
                 database: layer.database,
                 table: layer.table,
                 field: layer.longitudeField,
@@ -701,7 +702,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
             root: CompoundFilterType.OR,
-            datastore: '',
+            datastore: layer.datastore.name,
             database: layer.database,
             table: layer.table,
             field: field,

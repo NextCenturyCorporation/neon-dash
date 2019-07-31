@@ -249,8 +249,7 @@ export class DashboardState {
                 const { database, table, field } = this.deconstructTableName(item);
 
                 const res = {
-                    // TODO THOR-1062 THOR-1078 Set the datastore name too!
-                    datastore: '',
+                    datastore: this.datastore.name,
                     database: this.getDatabaseWithName(database),
                     table: this.getTableWithName(database, table),
                     field: this.getFieldWithName(database, table, field)
@@ -293,8 +292,10 @@ export class DashboardState {
      * Returns the current dashboard state as a dataset.
      */
     public asDataset(): Dataset {
+        let datastores = {};
+        datastores[this.datastore.name] = this.datastore;
         return {
-            datastores: [this.datastore],
+            datastores: datastores,
             tableKeys: this.dashboard.tables,
             fieldKeys: this.dashboard.fields,
             relations: this.findRelationDataList()

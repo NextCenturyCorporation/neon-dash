@@ -23,6 +23,16 @@ export enum AggregationType {
     SUM = 'sum'
 }
 
+export enum CompoundFilterType {
+    AND = 'and',
+    OR = 'or'
+}
+
+export enum SortOrder {
+    ASCENDING = 'ascending',
+    DESCENDING = 'descending'
+}
+
 export enum TimeInterval {
     MINUTE = 'minute',
     HOUR = 'hour',

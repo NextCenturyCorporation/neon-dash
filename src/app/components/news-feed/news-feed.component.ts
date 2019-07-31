@@ -24,7 +24,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -33,6 +33,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -105,7 +106,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private createFilterDesignOnText(value?: any): FilterDesign {
         return {
-            datastore: '',
+            datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
             field: this.options.filterField,
@@ -164,8 +165,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
             ];
         }
 
