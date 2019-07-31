@@ -19,7 +19,8 @@ import { } from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -1084,7 +1085,7 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1123,7 +1124,7 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             root: CompoundFilterType.AND,
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1168,7 +1169,7 @@ describe('Component: DataTable', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1176,7 +1177,7 @@ describe('Component: DataTable', () => {
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1184,7 +1185,7 @@ describe('Component: DataTable', () => {
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1229,7 +1230,7 @@ describe('Component: DataTable', () => {
             root: CompoundFilterType.OR,
             filters: [{
                 root: CompoundFilterType.OR,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1237,7 +1238,7 @@ describe('Component: DataTable', () => {
                 value: 'books'
             }, {
                 root: CompoundFilterType.OR,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1245,7 +1246,7 @@ describe('Component: DataTable', () => {
                 value: 'games'
             }, {
                 root: CompoundFilterType.OR,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1289,7 +1290,7 @@ describe('Component: DataTable', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1297,7 +1298,7 @@ describe('Component: DataTable', () => {
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1305,7 +1306,7 @@ describe('Component: DataTable', () => {
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1350,7 +1351,7 @@ describe('Component: DataTable', () => {
             root: CompoundFilterType.AND,
             filters: [{
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1358,7 +1359,7 @@ describe('Component: DataTable', () => {
                 value: 'books'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,
@@ -1366,7 +1367,7 @@ describe('Component: DataTable', () => {
                 value: 'games'
             }, {
                 root: CompoundFilterType.AND,
-                datastore: '',
+                datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
                 field: DashboardServiceMock.FIELD_MAP.CATEGORY,

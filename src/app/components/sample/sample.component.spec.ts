@@ -281,7 +281,7 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -303,7 +303,7 @@ describe('Component: Sample', () => {
         expect(spyExchange.calls.count()).toEqual(0);
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
-            datastore: '',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
             field: DashboardServiceMock.FIELD_MAP.FILTER,
@@ -475,11 +475,6 @@ describe('Component: Sample', () => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Sample');
-    });
-
-    it('does show settings icon button in toolbar', () => {
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toEqual('settings');
     });
 
     it('does hide loading overlay by default', () => {

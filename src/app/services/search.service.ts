@@ -13,15 +13,8 @@
  * limitations under the License.
  */
 
-import {
-    AbstractSearchService,
-    CompoundFilterType,
-    FilterClause,
-    QueryGroup,
-    QueryPayload,
-    SortOrder
-} from './abstract.search.service';
-import { AggregationType, TimeInterval } from '../models/widget-option';
+import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from './abstract.search.service';
+import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
 import { ConnectionService, NeonConnection, RequestWrapper } from './connection.service';
 
 import { query } from 'neon-framework';
