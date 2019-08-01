@@ -268,10 +268,4 @@ export const neonVisualizations: any[] = [{
     icon: 'wiki',
     bindings: {},
     config: {}
-}, {
-    name: 'Custom Request',
-    type: 'customRequest',
-    icon: '',
-    bindings: {},
-    config: {}
 }];

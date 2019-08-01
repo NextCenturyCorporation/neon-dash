@@ -28,6 +28,7 @@ export interface NeonSimpleSearchFilter {
 }
 
 export class NeonCustomRequests {
+    pretty: string;
     endpoint: string;
     properties: PropertyMetaData[];
 }

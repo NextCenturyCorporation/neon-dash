@@ -21,15 +21,16 @@ import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [CustomRequestsComponent],
+    entryComponents: [CustomRequestsComponent],
     exports: [CustomRequestsComponent],
     imports: [
         CommonWidgetModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatInputModule,
         FormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatSelectModule,
         CommonModule
     ]
 })

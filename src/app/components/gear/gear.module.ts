@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GearComponent } from './gear.component';
-import { MatToolbarModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule } from '@angular/material';
+import { MatToolbarModule, MatFormFieldModule, MatIconModule, MatSelectModule, MatInputModule, MatButtonModule } from '@angular/material';
 import { ExportControlModule } from '../export-control/export-control.module';
 import { OptionsListModule } from '../options-list/options-list.module';
 import { OptionsSectionModule } from '../options-section/options-section.module';
@@ -33,6 +33,7 @@ import { FormsModule } from '@angular/forms';
         MatToolbarModule,
         MatFormFieldModule,
         MatIconModule,
+        MatSelectModule,
         MatInputModule,
         FormsModule,
         CommonModule
