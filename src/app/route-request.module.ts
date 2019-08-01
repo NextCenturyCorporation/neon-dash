@@ -13,22 +13,12 @@
  * limitations under the License.
  */
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { RouteDashboardComponent } from './route-dashboard.component';
-import { RouteRequestComponent } from './route-request.component';
 
-const routes: Routes = [{
-    path: 'submit',
-    component: RouteRequestComponent
-}, {
-    path: '**',
-    component: RouteDashboardComponent
-}];
+import { RouteRequestComponent } from './route-request.component';
+// Import { CustomRequestsComponent } from './components/custom-requests/custom-requests.module';
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule],
-    providers: []
+    declarations: [RouteRequestComponent],
+    imports: [/* CustomRequestsComponent*/]
 })
-
-export class AppRoutingModule {}
+export class RouteRequestModule { }

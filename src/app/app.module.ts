@@ -25,12 +25,16 @@ import { InjectableFilterService } from './services/injectable.filter.service';
 import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
+import { RouteDashboardComponent } from './route-dashboard.component';
+import { RouteRequestComponent } from './route-request.component';
+// Import { CustomRequestsComponent } from './components/custom-requests/custom-requests.module';
 
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AppLazyModule } from './app-lazy.module';
+import { AppRoutingModule } from './app-routing.module';
 import { DynamicDialogModule } from './components/dynamic-dialog/dynamic-dialog.module';
 import { DynamicDialogComponent } from './components/dynamic-dialog/dynamic-dialog.component';
 
@@ -39,16 +43,18 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 }
 
 @NgModule({
-    declarations: [AppComponent],
+    declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
         HttpClientModule,
         CommonModule,
+        // CustomRequestsComponent,
         DashboardModule,
         DynamicDialogModule,
         SnackBarModule,
-        AppLazyModule
+        AppLazyModule,
+        AppRoutingModule
     ],
     providers: [
         { provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
