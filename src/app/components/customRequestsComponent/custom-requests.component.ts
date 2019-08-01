@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, EventEmitter, Output, AfterViewInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
-import { neonEvents } from '../../models/neon-namespaces';
-import { eventing } from 'neon-framework';
 import { DashboardState } from '../../models/dashboard-state';
 import { PropertyMetaData, NeonCustomRequests } from '../../models/types';
 import * as _ from 'lodash';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'app-custom-requests',
@@ -27,29 +25,23 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
     styleUrls: ['./custom-requests.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomRequestsComponent implements OnDestroy, OnInit {
+export class CustomRequestsComponent implements OnInit {
     @Output() closeComponent: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     public requests: NeonCustomRequests[];
     public frameProperties: PropertyMetaData[] = [];
     public formRequest: PropertyMetaData[] = [];
     public endpoint: string;
-    private messenger: eventing.Messenger;
     public readonly dashboardState: DashboardState;
     constructor(
         dashboardService: DashboardService,
         private http: HttpClient
     ) {
-        this.messenger = new eventing.Messenger();
         this.dashboardState = dashboardService.state;
     }
 
     onSubmit() {
         this.postData();
-    }
-
-    ngOnDestroy() {
-        this.messenger.unsubscribeAll();
     }
 
     postData() {
