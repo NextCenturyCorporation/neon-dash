@@ -13,38 +13,21 @@
  * limitations under the License.
  *
  */
-@import '../base-neon-component/base-neon.component';
 
-.custom-requests-container {
-    display: flex;
-    align-items: baseline;
+.request-section {
+    border: 5px solid var(--color-background-contrast, lightgrey);
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
 }
 
-mat-toolbar {
-    margin-bottom: 1em;
-}
-
-.neon-form-field {
-    display: flex;
-    align-items: center;
+.request-title {
+    font-size: 14px;
+    margin-bottom: 10px;
 }
 
 mat-form-field {
-    margin: 5px;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
-.title {
-    margin: 7px;
-}
-
-#custom-request-submit {
-    color: #FFFFFF;
-    background-color: var(--color-dash-item-unselected, lightgrey) !important;
-    border-radius: 5px;
-    height: 25px;
-    width: 80%;
-    align-self: flex-end;
-    &:hover {
-        background-color: var(--color-dash-item-selectable, lightgrey) !important;
-    }
-}

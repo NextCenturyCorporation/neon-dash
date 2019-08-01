@@ -8,10 +8,8 @@
             <div class="right-panel-container" [ngSwitch]="currentPanel">
                 <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}">
                 </wt-lazy>
-                <wt-lazy *ngSwitchCase="'addVis'"
-                    [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
-                <wt-lazy *ngSwitchCase="'customConnection'"
-                    [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
+                <wt-lazy *ngSwitchCase="'addVis'" [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
                 </wt-lazy>
                 <wt-lazy *ngSwitchCase="'gear'" [location]="{moduleId:'gear', selector: 'app-gear'}"
                     [inputs]="{sideNavRight: sideNavRight, comp: configurableComponent }">
@@ -22,47 +20,41 @@
                 <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
                     [inputs]="{widgets:widgets}">
                 </wt-lazy>
+                <wt-lazy *ngSwitchCase="'customRequests'" [location]="{moduleId:'custom-requests', selector: 'app-custom-requests'}">
+                </wt-lazy>
             </div>
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
         <mat-toolbar class="neon-toolbar-navbar" color="primary" layout-align="space-between center" flex>
             <div *ngIf="currentDashboard">
-                <div class="dashboard-name" matBadge="x" matBadgePosition="above after"
-                    [matBadgeHidden]="!dashboardService.state.modified" matBadgeColor="accent" matBadgeOverlap="false"
-                    matBadgeSize="small">
+                <div class="dashboard-name" matBadge="x" matBadgePosition="above after" [matBadgeHidden]="!dashboardService.state.modified"
+                    matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">
                     {{ currentDashboard.name }}
                     <small *ngIf="currentDashboard.fullTitle">- {{ currentDashboard.fullTitle }}</small>
                 </div>
             </div>
             <div *ngIf="!currentDashboard">Choose Dashboard...</div>
             <span class="fill-remaining"></span>
-            <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications"
-                matBadgePosition="above before" [matBadgeHidden]="updatedData === 0" matBadgeColor="warn"
-                [matBadge]="updatedData | abbreviate: 1" matBadgeSize="large" (click)="refreshDashboard()"
-                matTooltip="Refresh Data" tooltip-position="below">
+            <button mat-icon-button class="neon-icon-button-large notify" aria-label="Notifications" matBadgePosition="above before"
+                [matBadgeHidden]="updatedData === 0" matBadgeColor="warn" [matBadge]="updatedData | abbreviate: 1" matBadgeSize="large"
+                (click)="refreshDashboard()" matTooltip="Refresh Data" tooltip-position="below">
                 <mat-icon class="neon-icon-large">notifications</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization"
-                tooltip-position="below" id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization"
-                (click)="setPanel('addVis', 'Visualization');" *ngIf="showVisualizationsShortcut">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+                id="showVisualizationsShortcutButton" matTooltip="Add a New Visualization" (click)="setPanel('addVis', 'Visualization');"
+                *ngIf="showVisualizationsShortcut">
                 <mat-icon class="neon-icon-large">add_circle</mat-icon>
             </button>
             <div class="simple-search-container">
                 <app-simple-search-filter></app-simple-search-filter>
             </div>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Custom Request" tooltip-position="below"
-                id="showCustomRequestShortcutButton" matTooltip="Add a Custom Request" (click)="toggleCustomRequests()">
-                <mat-icon class="neon-icon-large">add_circle</mat-icon>
-            </button>
-            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector"
-                matTooltipPosition="below" matTooltip="Show Dashboard Selector"
-                (click)="toggleDashboardSelectorDialog()">
+            <button mat-icon-button class="neon-icon-button-large" aria-label="Show Dashboard Selector" matTooltipPosition="below"
+                matTooltip="Show Dashboard Selector" (click)="toggleDashboardSelectorDialog()">
                 <mat-icon class="neon-icon-large">dashboard</mat-icon>
             </button>
             <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" matTooltipPosition="below"
-                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()"
-                *ngIf="showFilterTray">
+                id="showFilterTrayButton" matTooltip="Show Filters" (click)="toggleFiltersDialog()" *ngIf="showFilterTray">
                 <mat-icon class="neon-icon-large">filter_list</mat-icon>
             </button>
 
@@ -70,8 +62,7 @@
                 <mat-icon class="neon-icon-large">menu</mat-icon>
             </button>
 
-            <mat-menu #appMenu="matMenu" [backdropClass]="colorThemeService.getTheme()" yPosition="below"
-                [overlapTrigger]="false">
+            <mat-menu #appMenu="matMenu" [backdropClass]="colorThemeService.getTheme()" yPosition="below" [overlapTrigger]="false">
                 <button mat-menu-item (click)="setPanel('addVis', 'Add Visualizations');">
                     <mat-icon>add_circle</mat-icon>Add Visualizations
                 </button>
@@ -80,6 +71,9 @@
                 </button>
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
+                </button>
+                <button mat-menu-item (click)="setPanel('customRequests', 'Submit Data');">
+                    <mat-icon>save_alt</mat-icon>Submit Data
                 </button>
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard
@@ -100,13 +94,8 @@
 
         <app-filters (closeDialog)="toggleFiltersDialog()" [class.visible]="showFiltersComponent"></app-filters>
 
-        <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog()"
-            [class.visible]="showDashboardSelector">
+        <app-dashboard-selector (closeComponent)="toggleDashboardSelectorDialog()" [class.visible]="showDashboardSelector">
         </app-dashboard-selector>
-
-        <app-custom-requests (closeComponent)="toggleCustomRequests()" [class.visible]="showCustomRequests"
-            *ngIf="showCustomRequests">
-        </app-custom-requests>
 
         <div class="neon-dash" mat-fill layout="col" #scrollable [class.moving]="movingWidgets || globalMoveWidgets">
             <mat-tab-group *ngIf="gridState.tabs.length > 1" [(selectedIndex)]="gridState.tabIndex">
@@ -115,14 +104,12 @@
             <div class="neon-wrapper">
                 <div class="neon-grid">
                     <div [ngGrid]="gridConfig" #grid>
-                        <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;"
-                            [(ngGridItem)]="widgetGridItem" name="widgetGridItem.id" id="widgetGridItem.id"
-                            (onResizeStart)="onResizeStart(i, $event)" [contextMenu]="vizMenu"
-                            [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)"
+                        <div *ngFor="let widgetGridItem of gridState.activeWidgetList; let i = index;" [(ngGridItem)]="widgetGridItem"
+                            name="widgetGridItem.id" id="widgetGridItem.id" (onResizeStart)="onResizeStart(i, $event)"
+                            [contextMenu]="vizMenu" [contextMenuSubject]="widgetGridItem" (onResize)="onResize(i, $event)"
                             (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)"
                             [class.moving]="movingWidgets || globalMoveWidgets">
-                            <app-visualization-container [moving]="movingWidgets || globalMoveWidgets"
-                                [visualization]="widgetGridItem">
+                            <app-visualization-container [moving]="movingWidgets || globalMoveWidgets" [visualization]="widgetGridItem">
                             </app-visualization-container>
                             <ng-content></ng-content>
                         </div>
