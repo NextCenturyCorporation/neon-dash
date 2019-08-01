@@ -92,6 +92,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     // Toolbar
     showVisualizationsShortcut: boolean = true;
     showDashboardSelector: boolean = false;
+    showCustomRequests: boolean = false;
 
     rightPanelTitle: string;
 
@@ -502,11 +503,19 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     toggleFiltersDialog() {
         this.showFiltersComponent = !this.showFiltersComponent;
         this.showDashboardSelector = false;
+        this.showCustomRequests = false;
+    }
+
+    toggleCustomRequests() {
+        this.showCustomRequests = !this.showCustomRequests;
+        this.showFiltersComponent = false;
+        this.showDashboardSelector = false;
     }
 
     toggleDashboardSelectorDialog() {
         this.showDashboardSelector = !this.showDashboardSelector;
         this.showFiltersComponent = false;
+        this.showCustomRequests = false;
     }
 
     /**
