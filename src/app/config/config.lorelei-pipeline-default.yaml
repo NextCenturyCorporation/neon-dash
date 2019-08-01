@@ -79,7 +79,7 @@ dashboards:
             choices:
                 lorelei:
                     name: Lorelei
-                    layout: lorelei_default_layout
+                    layout: lorelei_event_layout
                     tables:
                         table_key_1: es1.lorelei_event.lorelei_event
                         table_key_2: es1.lorelei_event-sf.lorelei_event-sf
@@ -127,7 +127,7 @@ dashboards:
                             logo: 'ISI-logo.png'
 
 layouts:
-    lorelei_default_layout:
+    lorelei_event_layout:
         - name: News Feed
           type: newsFeed
           icon: newsFeed64
