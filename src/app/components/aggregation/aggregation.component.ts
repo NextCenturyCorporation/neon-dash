@@ -777,8 +777,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getColor(options.database.name, options.table.name, '',
-                this.DEFAULT_GROUP));
+            groupsToColors.set(this.DEFAULT_GROUP, this.colorThemeService.getThemeAccentColor());
         }
 
         let findGroupColor = (group: string): Color => {
