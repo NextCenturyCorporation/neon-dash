@@ -30,6 +30,7 @@ export namespace neonEvents {
     export const WIDGET_MOVE_TO_TOP = 'WIDGET_MOVE_TO_TOP';
     export const WIDGET_REGISTER = 'WIDGET_REGISTER';
     export const WIDGET_UNREGISTER = 'WIDGET_UNREGISTER';
+    export const POST_ENDPOINT = 'POST_ENDPOINT';
 }
 
 export namespace neonUtilities {
@@ -265,6 +266,12 @@ export const neonVisualizations: any[] = [{
     name: 'Wiki Viewer',
     type: 'wikiViewer',
     icon: 'wiki',
+    bindings: {},
+    config: {}
+}, {
+    name: 'Custom Request',
+    type: 'customRequest',
+    icon: '',
     bindings: {},
     config: {}
 }];

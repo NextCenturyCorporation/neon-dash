@@ -1,0 +1,35 @@
+<mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+    <div class="header text pull-left" [matTooltip]="'Custom Request'" tooltip-position="below">
+        Custom Request
+    </div>
+
+    <span class="fill-remaining"></span>
+
+    <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below"
+        (click)="emitCloseComponent()">
+        <mat-icon class="column-selector-close-icon">close</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div class="custom-requests-container">
+    <div class="title"><strong>Request:</strong></div>
+    <div class="neon-form-field">
+        <form>
+            <ng-container *ngFor="let property of formRequest">
+                <ng-container [ngSwitch]="property.name">
+                    <mat-form-field *ngSwitchCase="'originalText'">
+                        <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value"
+                            [name]="property.name"></textarea>
+                    </mat-form-field>
+                    <mat-form-field *ngSwitchDefault>
+                        <input matInput placeholder={{property.pretty}} [(ngModel)]="property.value"
+                            [name]="property.name">
+                    </mat-form-field>
+                </ng-container>
+            </ng-container>
+            <button id="custom-request-submit" class="footer-button-container mat-raised-button" (click)="onSubmit()">
+                Request
+            </button>
+        </form>
+    </div>
+</div>

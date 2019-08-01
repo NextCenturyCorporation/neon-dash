@@ -113,6 +113,7 @@ mat-toolbar {
 
 
 app-filters,
+app-custom-requests,
 app-dashboard-selector {
     grid-area: panel;
     transition: 0.5s all ease-in-out; // sass-lint:disable-line no-transition-all

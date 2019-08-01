@@ -20,6 +20,7 @@ import { ContextMenuModule } from 'ngx-contextmenu';
 
 import { VisualizationContainerModule } from '../components/visualization-container/visualization-container.module';
 
+import { CustomRequestsModule } from '../components/customRequestsComponent/custom-requests.module';
 import { DashboardSelectorModule } from '../components/dashboard-selector/dashboard-selector.module';
 import { FiltersModule } from '../components/filters/filters.module';
 import { SimpleSearchFilterModule } from '../components/simple-search-filter/simple-search-filter.module';
@@ -53,6 +54,7 @@ import { RouterModule } from '@angular/router';
         VisualizationContainerModule,
         DashboardSelectorModule,
         FiltersModule,
+        CustomRequestsModule,
         CurrentFiltersModule,
         CustomConnectionModule,
         SimpleSearchFilterModule

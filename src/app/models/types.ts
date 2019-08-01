@@ -27,9 +27,23 @@ export interface NeonSimpleSearchFilter {
     fieldName?: string;
 }
 
+export class NeonCustomRequests {
+    endpoint: string;
+    properties: PropertyMetaData[];
+}
+
+export class PropertyMetaData {
+    name: string;
+    pretty: string;
+
+    // Used at runtime
+    value?: string;
+}
+
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
+    customRequests?: NeonCustomRequests[];
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
