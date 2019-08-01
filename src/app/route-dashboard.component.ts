@@ -12,23 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { RouteDashboardComponent } from './route-dashboard.component';
-import { RouteRequestComponent } from './route-request.component';
+import { Component } from '@angular/core';
+import { RouteWithStateComponent } from './route-with-state.component';
 
-const routes: Routes = [{
-    path: 'submit',
-    component: RouteRequestComponent
-}, {
-    path: '**',
-    component: RouteDashboardComponent
-}];
-
-@NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule],
-    providers: []
+@Component({
+    selector: 'app-route-dashboard',
+    templateUrl: './route-dashboard.component.html',
+    styleUrls: ['./route-dashboard.component.scss']
 })
-
-export class AppRoutingModule {}
+export class RouteDashboardComponent extends RouteWithStateComponent { }
