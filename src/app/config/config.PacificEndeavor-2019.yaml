@@ -1,0 +1,478 @@
+datastores:
+    es1:
+        host: localhost
+        type: elasticsearchrest
+        databases:
+            lorelei_event:
+                prettyName: Lorelei Event
+                tables:
+                    lorelei_event:
+                        prettyName: LORELEI Event
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: id
+                              prettyName: ID
+                            - columnName: geoLocations.latitude
+                              prettyName: Latitude
+                            - columnName: geoLocations.longitude
+                              prettyName: Longitude
+                            - columnName: originaltext
+                              prettyName: Original Text
+                            - columnName: entities.gpe
+                              prettyName: Location
+                            - columnName: topics
+                              prettyName: Topics
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                          date: createdAt
+            lorelei_event-sf:
+                prettyName: 'LORELEI Situation Frames'
+                tables:
+                    lorelei_event-sf:
+                        prettyName: LORELEI Situation Frames
+                        fields:
+                            - columnName: id
+                              prettyName: ID
+                            - columnName: topic
+                              prettyName: Topic
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: geoLocation.latitude
+                              prettyName: Latitude
+                            - columnName: geoLocation.longitude
+                              prettyName: Longitude
+                            - columnName: frameid
+                              prettyName: Frame ID
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+            indonesia062019:
+                prettyName: Indonesia
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: translatedText
+                              prettyName: Translated Text
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: topics
+                              prettyName: Topics
+                            - columnName: tweetId
+                              prettyName: Tweet ID
+                            - columnName: LOC
+                              prettyName: Location Entities
+                            - columnName: PER
+                              prettyName: Person Entities
+                            - columnName: GPE
+                              prettyName: Geo-Political Entities
+                            - columnName: ORG
+                              prettyName: Organization Entities
+                            - columnName: geoLocations.lat
+                              prettyName: Latitude
+                            - columnName: geoLocations.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+            indonesia062019_sf:
+                prettyName: Indonesia Situation Frame
+                tables:
+                    ui_output:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: frameId
+                              prettyName: Frame ID
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: type
+                              prettyName: Type
+                            - columnName: geoLocation.lat
+                              prettyName: Latitude
+                            - columnName: geoLocation.lon
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+
+dashboards:
+    category: 'Select a task...'
+    choices:
+        lorelei:
+            name: 'Situation Discovery'
+            category: 'Select a datastore...'
+            choices:
+                lorelei:
+                    name: THOR (Streaming)
+                    layout: lorelei_event_layout
+                    tables:
+                        table_key_1: es1.lorelei_event.lorelei_event
+                        table_key_2: es1.lorelei_event-sf.lorelei_event-sf
+                    options:
+                        connectOnLoad: true
+                    fields:
+                        original_text_key: es1.lorelei_event.lorelei_event.originaltext
+                        translated_text_key: es1.lorelei_event.lorelei_event.originaltext
+                        date_field_key: es1.lorelei_event.lorelei_event.createdAt
+                        id_field_key_1: es1.lorelei_event.lorelei_event.id
+                        id_field_key_2: es1.lorelei_event-sf.lorelei_event-sf.id
+                        latitude_key: es1.lorelei_event-sf.lorelei_event-sf.geoLocation.latitude
+                        longitude_key: es1.lorelei_event-sf.lorelei_event-sf.geoLocation.longitude
+                        group_field_key_topics: es1.lorelei_event-sf.lorelei_event-sf.topic
+                        sf_location: es1.lorelei_event-sf.lorelei_event-sf.location
+                        text_cloud_data_key_LOC: es1.lorelei_event.lorelei_event.entities.loc
+                        text_cloud_data_key_PER: es1.lorelei_event.lorelei_event.entities.per
+                        text_cloud_data_key_GPE: es1.lorelei_event.lorelei_event.entities.gpe
+                        text_cloud_data_key_ORG: es1.lorelei_event.lorelei_event.entities.org
+                    relations:
+                        - - es1.lorelei_event.lorelei_event.id
+                          - es1.lorelei_event-sf.lorelei_event-sf.id
+                        - - es1.lorelei_event.lorelei_event.topics
+                          - es1.lorelei_event-sf.lorelei_event-sf.topic
+                        - - es1.lorelei_event.lorelei_event.entities.gpe
+                          - es1.lorelei_event-sf.lorelei_event-sf.location
+                        - - - es1.lorelei_event.lorelei_event.geoLocations.latitude
+                            - es1.lorelei_event.lorelei_event.geoLocations.longitude
+                          - - es1.lorelei_event-sf.lorelei_event-sf.geoLocation.latitude
+                            - es1.lorelei_event-sf.lorelei_event-sf.geoLocation.longitude
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
+                indonesia062019:
+                    name: Indonesia Flooding 2019
+                    layout: indonesia_layout
+                    tables:
+                        table_key_1: es1.indonesia062019.ui_output
+                        table_key_2: es1.indonesia062019_sf.ui_output
+                    fields:
+                        original_text_key: es1.indonesia062019.ui_output.originalText
+                        translated_text_key: es1.indonesia062019.ui_output.translatedText
+                        date_field_key: es1.indonesia062019.ui_output.createdAt
+                        id_field_key: es1.indonesia062019.ui_output.tweetId
+                        id_field_key_2: es1.indonesia062019_sf.ui_output.id
+                        latitude_key: es1.indonesia062019.ui_output.geoLocations.lat
+                        longitude_key: es1.indonesia062019.ui_output.geoLocations.lon
+                        group_field_key_topics: es1.indonesia062019.ui_output.topics
+                        group_field_key: es1.indonesia062019_sf.ui_output.type
+                        text_cloud_data_key_LOC: es1.indonesia062019.ui_output.LOC
+                        text_cloud_data_key_PER: es1.indonesia062019.ui_output.PER
+                        text_cloud_data_key_GPE: es1.indonesia062019.ui_output.GPE
+                        text_cloud_data_key_ORG: es1.indonesia062019.ui_output.ORG
+                        location_field_key_2: es1.indonesia062019_sf.ui_output.location
+                    relations:
+                        - - es1.indonesia062019_sf.ui_output.type
+                          - es1.indonesia062019.ui_output.topics
+                        - - es1.indonesia062019_sf.ui_output.id
+                          - es1.indonesia062019.ui_output.tweetId
+                        - - - es1.indonesia062019.ui_output.geoLocations.lat
+                            - es1.indonesia062019.ui_output.geoLocations.lon
+                          - - es1.indonesia062019_sf.ui_output.geoLocation.lat
+                            - es1.indonesia062019_sf.ui_output.geoLocation.lon
+                    options:
+                        connectOnLoad: false
+                        simpleFilter:
+                            tableKey: table_key_1
+                            fieldKey: original_text_key
+                            placeHolder: Search
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
+
+layouts:
+    lorelei_event_layout:
+        - name: News Feed
+          type: newsFeed
+          icon: newsFeed64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Document Feed
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key_1
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 7
+          bindings:
+              title: Locations
+              tableKey: table_key_2
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_2
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key_topics
+              mapType: leaflet
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_GPE
+              preFilter: false
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 6
+          bindings:
+            title: Situation Frames
+            tableKey: table_key_2
+            idField: id_field_key_2
+            sortField: id_field_key_2
+            limit: 100
+            showFields:
+                - sf_location
+                - group_field_key_topics
+            customColumnWidths:
+                - - sf_location
+                  - 160
+                - - group_field_key_topics
+                  - 80
+            filterable: true
+            singleFilter: true
+            ignoreSelf: false
+            filterFields:
+                - id_field_key_2
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 10
+          sizex: 3
+          sizey: 6
+          bindings:
+              title: Situation Types
+              type: bar-h
+              tableKey: table_key_2
+              xField: group_field_key_topics
+              limit: 11
+              groupField: group_field_key_topics
+              sortByAggregation: true
+              ignoreSelf: true
+              contributionKeys:
+                - isi
+    indonesia_layout:
+        - name: News Feed
+          type: newsFeed
+          icon: newFeed64
+          col: 1
+          row: 1
+          sizex: 4
+          sizey: 11
+          bindings:
+              title: Tweets
+              tableKey: table_key_1
+              contentField: translated_text_key
+              dateField: date_field_key
+              idField: id_field_key
+              secondaryContentField: original_text_key
+              secondaryContentLabel: Original Text
+              sortField: date_field_key
+              titleContentField: translated_text_key
+              ignoreSelf: false
+              limit: 100
+        - name: Map
+          type: map
+          icon: Map64
+          col: 5
+          row: 1
+          sizex: 5
+          sizey: 7
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              filterable: true
+              name: EVENTS
+              show: true
+              type: cluster
+              limit: 5000
+              layers:
+                  - title: Map
+                    tableKey: table_key_1
+                    latitudeField: latitude_key
+                    longitudeField: longitude_key
+                    dateField: date_field_key
+                    colorField: group_field_key_topics
+              mapType: leaflet
+              west: 90
+              north: 6
+              east: 147
+              south: 0
+        - name: Text Cloud
+          type: textCloud
+          icon: TagCloud64
+          col: 5
+          row: 11
+          sizex: 5
+          sizey: 4
+          selected: true
+          bindings:
+              title: Locations
+              tableKey: table_key_1
+              dataField: text_cloud_data_key_LOC
+              preFilter: false
+        - name: Data Table
+          type: dataTable
+          icon: ViewData64
+          col: 10
+          row: 1
+          sizex: 3
+          sizey: 6
+          bindings:
+            title: Situation Frames
+            tableKey: table_key_2
+            sortField: id_field_key_2
+            limit: 100
+            showFields:
+                - id_field_key_2
+                - location_field_key_2
+                - group_field_key
+            customColumnWidths:
+                - - id_field_key_2
+                  - 60
+                - - location_field_key_2
+                  - 200
+                - - group_field_key
+                  - 40
+            filterable: true
+            singleFilter: true
+            ignoreSelf: false
+            filterFields:
+                - id_field_key_2
+        - name: Bar Chart
+          type: aggregation
+          icon: bar_chart
+          col: 10
+          row: 8
+          sizex: 3
+          sizey: 5
+          bindings:
+              title: Needs
+              type: bar-h
+              tableKey: table_key_2
+              xField: group_field_key
+              limit: 10
+              groupField: group_field_key
+              sortByAggregation: false
+              ignoreSelf: true
+        - name: Histogram
+          type: aggregation
+          icon: histogram
+          col: 1
+          row: 15
+          sizex: 12
+          sizey: 4
+          bindings:
+              title: Histogram
+              type: histogram
+              tableKey: table_key_1
+              xField: date_field_key
+              limit: 1000
+              granularity: hour
