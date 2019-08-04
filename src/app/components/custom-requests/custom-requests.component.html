@@ -1,0 +1,9 @@
+<div class="request-section" *ngFor="let request of requests; let i = index;">
+    <div class="request-title">{{ request.pretty }}</div>
+    <mat-form-field *ngFor="let property of request.properties">
+        <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value" [name]="property.name"></textarea>
+    </mat-form-field>
+    <button mat-raised-button class="neon-button-large" [disabled]="!validate(request)" (click)="submit(request)">
+        Submit
+    </button>
+</div>
