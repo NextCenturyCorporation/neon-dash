@@ -12,8 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
 
+import { ConfigService } from './services/config.service';
+import { DashboardService } from './services/dashboard.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
 @Component({
@@ -21,4 +25,13 @@ import { RouteWithStateComponent } from './route-with-state.component';
     templateUrl: './route-dashboard.component.html',
     styleUrls: ['./route-dashboard.component.scss']
 })
-export class RouteDashboardComponent extends RouteWithStateComponent { }
+export class RouteDashboardComponent extends RouteWithStateComponent {
+    constructor(
+        @Inject(APP_BASE_HREF) private href: string,
+        configService: ConfigService,
+        dashboardService: DashboardService,
+        router: Router
+    ) {
+        super(href, configService, dashboardService, router, '');
+    }
+}
