@@ -78,13 +78,23 @@ dashboards:
             category: 'Select a datastore...'
             choices:
                 lorelei:
-                    name: Lorelei
+                    name: THOR (Streaming)
                     layout: lorelei_event_layout
                     tables:
                         table_key_1: es1.lorelei_event.lorelei_event
                         table_key_2: es1.lorelei_event-sf.lorelei_event-sf
                     options:
                         connectOnLoad: true
+                        customRequests:
+                            - endpoint: http://localhost:4200/lorelei-service/
+                              pretty: THOR Data Input
+                              properties:
+                                - name: originalText
+                                  pretty: Original Text
+                                - name: createdAt
+                                  pretty: Date Created
+                                - name: id
+                                  pretty: ID
                     fields:
                         original_text_key: es1.lorelei_event.lorelei_event.originaltext
                         translated_text_key: es1.lorelei_event.lorelei_event.originaltext
