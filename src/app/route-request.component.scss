@@ -16,8 +16,8 @@
 
 :host {
     display: block;
-    height: 100vh;
-    width: 100vw;
-    padding: 0;
+    height: calc(100vh - 20px);
+    width: calc(100vw - 20px);
+    padding: 10px;
     margin: 0;
 }

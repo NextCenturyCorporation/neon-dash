@@ -15,10 +15,10 @@
 import { NgModule } from '@angular/core';
 
 import { RouteRequestComponent } from './route-request.component';
-// Import { CustomRequestsComponent } from './components/custom-requests/custom-requests.module';
+import { CustomRequestsComponent } from './components/custom-requests/custom-requests.component';
 
 @NgModule({
     declarations: [RouteRequestComponent],
-    imports: [/* CustomRequestsComponent*/]
+    imports: [CustomRequestsComponent]
 })
 export class RouteRequestModule { }

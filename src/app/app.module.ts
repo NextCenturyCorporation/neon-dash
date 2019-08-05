@@ -27,7 +27,7 @@ import { InjectableSearchService } from './services/injectable.search.service';
 import { AppComponent } from './app.component';
 import { RouteDashboardComponent } from './route-dashboard.component';
 import { RouteRequestComponent } from './route-request.component';
-// Import { CustomRequestsComponent } from './components/custom-requests/custom-requests.module';
+import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
 import { SnackBarModule } from './components/snack-bar/snack-bar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -49,7 +49,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         BrowserAnimationsModule,
         HttpClientModule,
         CommonModule,
-        // CustomRequestsComponent,
+        CustomRequestsModule,
         DashboardModule,
         DynamicDialogModule,
         SnackBarModule,

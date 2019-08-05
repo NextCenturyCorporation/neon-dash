@@ -12,7 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
+
+import { AbstractColorThemeService } from './services/abstract.color-theme.service';
+import { ConfigService } from './services/config.service';
+import { DashboardService } from './services/dashboard.service';
 import { RouteWithStateComponent } from './route-with-state.component';
 
 @Component({
@@ -20,4 +26,15 @@ import { RouteWithStateComponent } from './route-with-state.component';
     templateUrl: './route-request.component.html',
     styleUrls: ['./route-request.component.scss']
 })
-export class RouteRequestComponent extends RouteWithStateComponent { }
+export class RouteRequestComponent extends RouteWithStateComponent {
+    constructor(
+        @Inject(APP_BASE_HREF) private href: string,
+        private colorThemeService: AbstractColorThemeService,
+        configService: ConfigService,
+        dashboardService: DashboardService,
+        router: Router
+    ) {
+        super(href, configService, dashboardService, router, 'submit/');
+        document.title = 'Submit Data';
+    }
+}

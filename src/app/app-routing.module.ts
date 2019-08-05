@@ -19,7 +19,11 @@ import { RouteRequestComponent } from './route-request.component';
 
 const routes: Routes = [{
     path: 'submit',
-    component: RouteRequestComponent
+    component: RouteRequestComponent,
+    children: [{
+        path: '**',
+        component: RouteRequestComponent
+    }]
 }, {
     path: '**',
     component: RouteDashboardComponent

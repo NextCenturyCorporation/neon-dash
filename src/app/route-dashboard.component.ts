@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+
 import { RouteWithStateComponent } from './route-with-state.component';
 
 @Component({
