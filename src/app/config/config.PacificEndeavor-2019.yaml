@@ -149,6 +149,73 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
+            papua-new-guinea:
+                prettyName: Papua New Guinea LDC V1 ELISA
+                tables:
+                    papua-new-guinea:
+                        prettyName: Papua New Guinea Data
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: id
+                              prettyName: ID
+                            - columnName: geoLocations.latitude
+                              prettyName: Latitude
+                            - columnName: geoLocations.longitude
+                              prettyName: Longitude
+                            - columnName: originaltext
+                              prettyName: Original Text
+                            - columnName: entities.gpe
+                              prettyName: Location
+                            - columnName: topics
+                              prettyName: Topics
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+                        mappings:
+                          date: createdAt
+            papua-new-guinea-sf:
+                prettyName: Papua New Guinea LDC V1 ELISA Situation Frames
+                tables:
+                    papua-new-guinea-sf:
+                        prettyName: Papua New Guinea Situation Frames
+                        fields:
+                            - columnName: id
+                              prettyName: ID
+                            - columnName: topic
+                              prettyName: Topic
+                            - columnName: location
+                              prettyName: Location
+                            - columnName: geoLocation.latitude
+                              prettyName: Latitude
+                            - columnName: geoLocation.longitude
+                              prettyName: Longitude
+                            - columnName: frameid
+                              prettyName: Frame ID
+                        labelOptions:
+                            topic:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
+
 
 dashboards:
     category: 'Select a task...'
@@ -266,6 +333,65 @@ dashboards:
                             contactEmail: 'jonmay@isi.edu'
                             website: 'https://www.isi.edu/'
                             logo: 'ISI-logo.png'
+                png-elisa:
+                    name: Papua New Guinea LDC V1 ELISA
+                    layout: lorelei_event_layout
+                    tables:
+                        table_key_1: es1.papua-new-guinea.papua-new-guinea
+                        table_key_2: es1.papua-new-guinea-sf.papua-new-guinea-sf
+                    options:
+                        connectOnLoad: true
+                        customRequests:
+                            - endpoint: http://localhost:4200/lorelei-service/
+                              pretty: THOR Data Input
+                              properties:
+                                - name: originalText
+                                  pretty: Original Text
+                                - name: createdAt
+                                  pretty: Date Created
+                                - name: id
+                                  pretty: ID
+                    fields:
+                        original_text_key: es1.papua-new-guinea.papua-new-guinea.originaltext
+                        translated_text_key: es1.papua-new-guinea.papua-new-guinea.originaltext
+                        date_field_key: es1.papua-new-guinea.papua-new-guinea.createdAt
+                        id_field_key_1: es1.papua-new-guinea.papua-new-guinea.id
+                        id_field_key_2: es1.papua-new-guinea-sf.papua-new-guinea-sf.id
+                        latitude_key: es1.papua-new-guinea-sf.papua-new-guinea-sf.geoLocation.latitude
+                        longitude_key: es1.papua-new-guinea-sf.papua-new-guinea-sf.geoLocation.longitude
+                        group_field_key_topics: es1.papua-new-guinea-sf.papua-new-guinea-sf.topic
+                        sf_location: es1.papua-new-guinea-sf.papua-new-guinea-sf.location
+                        text_cloud_data_key_LOC: es1.papua-new-guinea.papua-new-guinea.entities.loc
+                        text_cloud_data_key_PER: es1.papua-new-guinea.papua-new-guinea.entities.per
+                        text_cloud_data_key_GPE: es1.papua-new-guinea.papua-new-guinea.entities.gpe
+                        text_cloud_data_key_ORG: es1.papua-new-guinea.papua-new-guinea.entities.org
+                    relations:
+                        - - es1.papua-new-guinea.papua-new-guinea.id
+                          - es1.papua-new-guinea-sf.papua-new-guinea-sf.id
+                        - - es1.papua-new-guinea.papua-new-guinea.topics
+                          - es1.papua-new-guinea-sf.papua-new-guinea-sf.topic
+                        - - es1.papua-new-guinea.papua-new-guinea.entities.gpe
+                          - es1.papua-new-guinea-sf.papua-new-guinea-sf.location
+                        - - - es1.papua-new-guinea.papua-new-guinea.geoLocations.latitude
+                            - es1.papua-new-guinea.papua-new-guinea.geoLocations.longitude
+                          - - es1.papua-new-guinea-sf.papua-new-guinea-sf.geoLocation.latitude
+                            - es1.papua-new-guinea-sf.papua-new-guinea-sf.geoLocation.longitude
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
+
 
 layouts:
     lorelei_event_layout:
