@@ -167,8 +167,8 @@ export class DashboardService {
                                 let newField: NeonFieldMetaData = NeonFieldMetaData.get({
                                     columnName: fieldName,
                                     prettyName: fieldName,
-                                    // If existing fields were defined, but this field wasn't, then hide this new field.
-                                    hide: !!existingFields.size
+                                    // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
+                                    hide: existingFields.size > 25 ? true : false
                                 });
                                 table.fields.push(newField);
                             }
