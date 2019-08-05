@@ -13,11 +13,15 @@
  * limitations under the License.
  */
 import { OnInit, HostBinding, Inject } from '@angular/core';
-import { ConfigService } from './services/config.service';
-import { NeonConfig } from './models/types';
 import { Router, NavigationEnd } from '@angular/router';
-import { distinctUntilKeyChanged, filter, mergeMap } from 'rxjs/operators';
 import { APP_BASE_HREF } from '@angular/common';
+
+import { distinctUntilKeyChanged, filter, mergeMap } from 'rxjs/operators';
+
+import { ConfigService } from './services/config.service';
+import { ConfigUtil } from './util/config.util';
+import { DashboardService } from './services/dashboard.service';
+import { NeonConfig } from './models/types';
 
 export class RouteWithStateComponent implements OnInit {
     public config: NeonConfig;
@@ -26,16 +30,18 @@ export class RouteWithStateComponent implements OnInit {
     loading = true;
 
     constructor(
+        @Inject(APP_BASE_HREF) private baseHref: string,
         private configService: ConfigService,
+        private dashboardService: DashboardService,
         private router: Router,
-        @Inject(APP_BASE_HREF) private baseHref: string
+        private hrefSuffix: string = ''
     ) { }
 
     ngOnInit() {
         this.router.events
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.configService.setActiveByURL(window.location, this.baseHref)),
+                mergeMap(() => this.configService.setActiveByURL(window.location, this.baseHref + this.hrefSuffix)),
                 distinctUntilKeyChanged('fileName')
             )
             .subscribe((config) => {
@@ -43,7 +49,15 @@ export class RouteWithStateComponent implements OnInit {
                 this.loading = false;
             });
 
-        this.configService.setActiveByURL(window.location, this.baseHref).subscribe((config) => {
+        this.dashboardService.configSource.subscribe((config) => {
+            const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
+
+            if (dashboard) {
+                this.dashboardService.setActiveDashboard(dashboard);
+            }
+        });
+
+        this.configService.setActiveByURL(window.location, this.baseHref + this.hrefSuffix).subscribe((config) => {
             this.config = config;
             this.loading = false;
         });
