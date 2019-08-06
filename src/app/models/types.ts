@@ -33,9 +33,9 @@ export interface NeonCustomRequests {
     // Pretty name
     pretty: string;
     // Body properties
-    properties: PropertyMetaData[];
+    properties?: PropertyMetaData[];
     // Type like GET, POST, PUT, or DELETE
-    type: string;
+    type?: string;
     // Response status (not in config file)
     status?: any;
     // Response data (not in config file)

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,28 +11,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+import { NgModule } from '@angular/core';
 
-:host {
-    font-size: 14px;
-}
+import { RouteRequestComponent } from './route-request.component';
+import { CustomRequestsComponent } from './components/custom-requests/custom-requests.component';
 
-.request-section {
-    margin-bottom: 10px;
-}
-
-.request-title {
-    margin-bottom: 10px;
-}
-
-mat-form-field {
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-button {
-    margin-bottom: 10px;
-    margin-right: 10px;
-}
-
+@NgModule({
+    declarations: [RouteRequestComponent],
+    imports: [CustomRequestsComponent]
+})
+export class RouteRequestModule { }
