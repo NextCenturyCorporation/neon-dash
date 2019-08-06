@@ -28,8 +28,8 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { FilterCollection, SimpleFilter } from '../../util/filter.util';
 import { FilterConfig } from '../../models/filter';
-import { SimpleFilter } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -1521,7 +1521,7 @@ describe('BaseNeonComponent', () => {
         expect(spyExecuteQuery.calls.count()).toEqual(0);
     });
 
-    it('deleteFilters does call filterService.deleteFilters and update savedPages', () => {
+    it('deleteFilters does call filterService.deleteFilters', () => {
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
         let map = new Map<any, any[]>();
         map.set('key1', [{
@@ -1530,36 +1530,15 @@ describe('BaseNeonComponent', () => {
         let spy = spyOn(component['filterService'], 'deleteFilters').and.returnValue(map);
         component['id'] = 'testId';
         component['page'] = 10;
-        component['savedPages'].set('filterId1', 5);
 
         component.deleteFilters();
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', undefined]);
-        expect(component['savedPages'].has('filterId1')).toEqual(false);
         expect(component['page']).toEqual(10);
     });
 
-    it('deleteFilters does update page if shouldFilterSelf()=>true', () => {
-        spyOn((component as any), 'shouldFilterSelf').and.returnValue(true);
-        let map = new Map<any, any[]>();
-        map.set('key1', [{
-            id: 'filterId1'
-        }]);
-        let spy = spyOn(component['filterService'], 'deleteFilters').and.returnValue(map);
-        component['id'] = 'testId';
-        component['page'] = 10;
-        component['savedPages'].set('filterId1', 5);
-
-        component.deleteFilters();
-
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', undefined]);
-        expect(component['savedPages'].has('filterId1')).toEqual(false);
-        expect(component['page']).toEqual(5);
-    });
-
-    it('exchangeFilters does call filterService.exchangeFilters and update savedPages', () => {
+    it('exchangeFilters does call filterService.exchangeFilters and update cachedPage', () => {
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
         let map = new Map<any, any[]>();
         map.set('key1', [{
@@ -1574,7 +1553,7 @@ describe('BaseNeonComponent', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
-        expect(component['savedPages'].get('filterId1')).toEqual(10);
+        expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(10);
     });
 
@@ -1593,11 +1572,11 @@ describe('BaseNeonComponent', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
-        expect(component['savedPages'].get('filterId1')).toEqual(10);
+        expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(1);
     });
 
-    it('toggleFilters does call filterService.toggleFilters and update savedPages', () => {
+    it('toggleFilters does call filterService.toggleFilters and update cachedPage', () => {
         spyOn((component as any), 'shouldFilterSelf').and.returnValue(false);
         let map = new Map<any, any[]>();
         map.set('key1', [{
@@ -1612,7 +1591,7 @@ describe('BaseNeonComponent', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['savedPages'].get('filterId1')).toEqual(10);
+        expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(10);
     });
 
@@ -1631,7 +1610,7 @@ describe('BaseNeonComponent', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset']]);
-        expect(component['savedPages'].get('filterId1')).toEqual(10);
+        expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(1);
     });
 
@@ -1645,6 +1624,50 @@ describe('BaseNeonComponent', () => {
 
     it('getContributorAbbreviations() returns empty string', () => {
         expect(component['getContributorAbbreviations']()).toEqual('');
+    });
+
+    it('handleFiltersChanged does not update page if filtered', () => {
+        spyOn(component, 'executeAllQueryChain');
+
+        let testFilterCollection = new FilterCollection();
+        spyOn(testFilterCollection, 'getFilters').and.returnValue([null, null]);
+        spyOn(component, 'retrieveCompatibleFilters').and.returnValue(testFilterCollection);
+
+        component['cachedPage'] = 5;
+        component['page'] = 1;
+
+        component['handleFiltersChanged']('TestCallerID', null);
+
+        expect(component['page']).toEqual(1);
+        expect(component['cachedPage']).toEqual(5);
+    });
+
+    it('handleFiltersChanged does not update page if cachedPage is not set', () => {
+        spyOn(component, 'executeAllQueryChain');
+
+        let testFilterCollection = new FilterCollection();
+        spyOn(component, 'retrieveCompatibleFilters').and.returnValue(testFilterCollection);
+
+        component['cachedPage'] = -1;
+        component['page'] = 1;
+
+        component['handleFiltersChanged']('TestCallerID', null);
+
+        expect(component['page']).toEqual(1);
+        expect(component['cachedPage']).toEqual(-1);
+    });
+
+    it('handleFiltersChanged does update page if not filtered and cachedPage is set', () => {
+        let testFilterCollection = new FilterCollection();
+        spyOn(component, 'retrieveCompatibleFilters').and.returnValue(testFilterCollection);
+
+        component['cachedPage'] = 5;
+        component['page'] = 1;
+
+        component['handleFiltersChanged']('TestCallerID', null);
+
+        expect(component['page']).toEqual(5);
+        expect(component['cachedPage']).toEqual(-1);
     });
 });
 
