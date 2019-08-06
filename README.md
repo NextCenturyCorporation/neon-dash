@@ -13,17 +13,17 @@ The Neon Dashboard is a big data exploration and visualization user interface.
 
 ## Step-by-Step Production Installation Documentation
 
-See the page [here](./STEP_BY_STEP_INSTALLATION.md).  Requires a sample data bundle provided by the development team.
+See the page [here](./STEP_BY_STEP_INSTALLATION.md).
 
 ## Configure the Neon Dashboard
 
-Create a Neon Dashboard config file at `src/app/config/config.json` or `src/app/config/config.yaml`.  See the [Neon Dashboard Configuration Guide](./DASHBOARD_CONFIGURATION_GUIDE.md) for more information.
+Create a Neon Dashboard config file at `src/app/config/config.json` or `src/app/config/config.yaml`.  See the [Neon Dashboard Configuration Guide](./docs/DASHBOARD_CONFIGURATION_GUIDE.md) for more information.
 
 ## Build and Run the Neon Dashboard Locally
 
 To build the Neon Dashboard: `npm install`
 
-Copy the [sample proxy config file](./sample.proxy.conf.json) to `./proxy.conf.json` and change the port if your Neon Server will not run on port 8080 (the default).
+Copy the [sample proxy config file](./sample.proxy.conf.json) to `./proxy.conf.json` and change the hostname and/or port (under `target`) if your Neon Server will not run on `http://localhost:8090` (the default).
 
 To start the Neon Dashboard, first start the Neon Server, then run: `npm start`
 
@@ -67,7 +67,14 @@ Note:  This command will build the dashboard for a production environment (`--pr
 
 ## Deploy as Docker Image
 
-To build the Neon Dashboard as a Docker Image, see the [README in the docker folder](./docker/)
+First, build the Neon Server as a docker image:  https://github.com/NextCenturyCorporation/neon-server
+
+Then you can build the Neon Dashboard and run it as a docker image:
+
+        npm run-script build
+        docker-compose up
+
+View the Neon Dashboard at http://localhost:4100
 
 ## Apache 2 Open Source License
 

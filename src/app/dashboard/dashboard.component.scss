@@ -71,11 +71,7 @@ mat-toolbar {
     overflow-y: auto;
     overflow-x: hidden;
     width: 100vw;
-    background-color: var(--color-background, lightgrey);
-
-    &.moving {
-        background-color: var(--color-background-contrast, lightgrey);
-    }
+    background-color: var(--color-body, white);
 
     &.scrolling {
         .neon-wrapper {
@@ -154,6 +150,7 @@ app-dashboard-selector {
 
 .right-panel-container {
     height: 100%;
+    padding: 0 15px;
 }
 
 .title {

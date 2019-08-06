@@ -28,9 +28,34 @@ export interface NeonSimpleSearchFilter {
     fieldName?: string;
 }
 
+export interface NeonCustomRequests {
+    // Endpoint link
+    endpoint: string;
+    // Pretty name
+    pretty: string;
+    // Body properties
+    properties?: PropertyMetaData[];
+    // Type like GET, POST, PUT, or DELETE
+    type?: string;
+    // Response status (not in config file)
+    status?: any;
+    // Response data (not in config file)
+    response?: any;
+}
+
+export interface PropertyMetaData {
+    // Property name
+    name: string;
+    // Pretty name
+    pretty: string;
+    // Input value
+    value?: string;
+}
+
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
+    customRequests?: NeonCustomRequests[];
     simpleFilter?: NeonSimpleSearchFilter;
 }
 

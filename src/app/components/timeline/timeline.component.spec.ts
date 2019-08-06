@@ -444,13 +444,13 @@ describe('Component: Timeline', () => {
             ids: ['id1', 'id2', 'id3'],
             filters: ['filter1', 'filter2', 'filter3'],
             origDate: 1509035593000,
-            date: new Date(2017, 9, 26, 12, 33, 13)
+            date: new Date(1509035593000)
         }, {
             value: 1,
             ids: ['id4'],
             filters: ['filter4'],
             origDate: 1515110400000,
-            date: new Date(2017, 12, 4, 19, 0, 0)
+            date: new Date(1515110400000)
         }]);
     });
 
@@ -477,10 +477,10 @@ describe('Component: Timeline', () => {
         // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 10,
-            date: new Date(2017, 9, 26, 12, 33, 13)
+            date: new Date(1509035593000)
         }, {
             value: 1,
-            date: new Date(2017, 12, 4, 19, 0, 0)
+            date: new Date(1515110400000)
         }]);
     });
 

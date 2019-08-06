@@ -219,8 +219,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
         ];
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
