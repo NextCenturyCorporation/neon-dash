@@ -94,17 +94,17 @@ export const DATASET: Dataset = {
             [
                 {
                     datastore: 'datastore1',
-                    database: DATABASES.testDatabase1,
-                    table: TABLES.testTable1,
-                    field: FIELD_MAP.RELATION_A
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.RELATION_A.columnName
                 } as SingleField
             ],
             [
                 {
                     datastore: 'datastore1',
-                    database: DATABASES.testDatabase2,
-                    table: TABLES.testTable2,
-                    field: FIELD_MAP.RELATION_A
+                    database: DATABASES.testDatabase2.name,
+                    table: TABLES.testTable2.name,
+                    field: FIELD_MAP.RELATION_A.columnName
                 } as SingleField
             ]
         ],
@@ -112,17 +112,17 @@ export const DATASET: Dataset = {
             [
                 {
                     datastore: 'datastore1',
-                    database: DATABASES.testDatabase1,
-                    table: TABLES.testTable1,
-                    field: FIELD_MAP.RELATION_B
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.RELATION_B.columnName
                 } as SingleField
             ],
             [
                 {
                     datastore: 'datastore1',
-                    database: DATABASES.testDatabase2,
-                    table: TABLES.testTable2,
-                    field: FIELD_MAP.RELATION_B
+                    database: DATABASES.testDatabase2.name,
+                    table: TABLES.testTable2.name,
+                    field: FIELD_MAP.RELATION_B.columnName
                 } as SingleField
             ]
         ]

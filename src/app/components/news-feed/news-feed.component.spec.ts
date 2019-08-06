@@ -81,9 +81,9 @@ describe('Component: NewsFeed', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'testText'
         }]]);
@@ -95,9 +95,9 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
         expect((actual[0]).operator).toEqual('=');
         expect((actual[0]).value).toBeUndefined();
     });
