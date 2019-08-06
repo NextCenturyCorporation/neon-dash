@@ -15,6 +15,7 @@
 
 import { ColorMap } from './color';
 import { DeepPartial, NeonDatastoreConfig, translateValues } from './dataset';
+import { FilterConfig } from './filter';
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
@@ -30,12 +31,14 @@ export interface NeonSimpleSearchFilter {
 export interface NeonCustomRequests {
     // Endpoint link
     endpoint: string;
-    // Pretty name
+    // Optional note to user
+    note?: string;
+    // Pretty name to show to user
     pretty: string;
     // Body properties
-    properties: PropertyMetaData[];
-    // Type like GET, POST, PUT, or DELETE
-    type: string;
+    properties?: PropertyMetaData[];
+    // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
+    type?: string;
     // Response status (not in config file)
     status?: any;
     // Response data (not in config file)
@@ -43,11 +46,11 @@ export interface NeonCustomRequests {
 }
 
 export interface PropertyMetaData {
-    // Property name
+    // Property name to save in body
     name: string;
-    // Pretty name
+    // Pretty name to show to user
     pretty: string;
-    // Input value
+    // Input value from user (not in config file)
     value?: string;
 }
 
@@ -66,24 +69,6 @@ export interface NeonContributor {
     website: string;
     logo: string;
 }
-
-export interface SimpleFilterConfig {
-    root: string;
-    datastore: string;
-    database: string;
-    table: string;
-    field: string;
-    operator: string;
-    value?: any;
-}
-
-export interface CompoundFilterConfig {
-    root: string;
-    type: 'and' | 'or';
-    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
-}
-
-export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()

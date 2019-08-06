@@ -32,7 +32,7 @@ import { InjectableColorThemeService } from '../services/injectable.color-theme.
 import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
 import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FilterDataSource, FilterDesign } from '../util/filter.util';
+import { FilterDataSource, FilterConfig } from '../models/filter';
 import { InjectableFilterService } from '../services/injectable.filter.service';
 import { MatSnackBar, MatSidenav } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -135,7 +135,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
     private _filterChangeData: {
         callerId: string;
-        changeCollection: Map<FilterDataSource[], FilterDesign[]>;
+        changeCollection: Map<FilterDataSource[], FilterConfig[]>;
     };
 
     constructor(
@@ -206,14 +206,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             });
             snackBarRef.instance.snackBarRef = snackBarRef;
             snackBarRef.instance.addErrors('Configuration Errors', config.errors);
-        }
-
-        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
-
-        if (dashboard) {
-            this.dashboardService.setActiveDashboard(dashboard);
-        } else {
-            this.showDashboardSelector = true;
         }
     }
 
@@ -468,7 +460,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     @DashboardModified()
-    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) {
+    onFiltersChanged(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) {
         this._filterChangeData = {
             callerId: callerId,
             changeCollection: changeCollection
