@@ -15,6 +15,7 @@
 import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
+import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 import { AbstractColorThemeService } from './services/abstract.color-theme.service';
 import { ConfigService } from './services/config.service';
@@ -27,6 +28,8 @@ import { RouteWithStateComponent } from './route-with-state.component';
     styleUrls: ['./route-request.component.scss']
 })
 export class RouteRequestComponent extends RouteWithStateComponent {
+    public webpageTitle: string = 'Loading...';
+
     constructor(
         @Inject(APP_BASE_HREF) private href: string,
         private colorThemeService: AbstractColorThemeService,
@@ -35,6 +38,9 @@ export class RouteRequestComponent extends RouteWithStateComponent {
         router: Router
     ) {
         super(href, configService, dashboardService, router, 'submit/');
-        document.title = 'Submit Data';
+        dashboardService.configSource.pipe(distinctUntilKeyChanged('fileName')).subscribe((config) => {
+            this.webpageTitle = 'Submit Data to ' + (config.projectTitle || 'Neon');
+            document.title = this.webpageTitle;
+        });
     }
 }

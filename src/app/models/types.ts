@@ -31,11 +31,13 @@ export interface NeonSimpleSearchFilter {
 export interface NeonCustomRequests {
     // Endpoint link
     endpoint: string;
-    // Pretty name
+    // Optional note to user
+    note?: string;
+    // Pretty name to show to user
     pretty: string;
     // Body properties
     properties?: PropertyMetaData[];
-    // Type like GET, POST, PUT, or DELETE
+    // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
     type?: string;
     // Response status (not in config file)
     status?: any;
@@ -44,11 +46,11 @@ export interface NeonCustomRequests {
 }
 
 export interface PropertyMetaData {
-    // Property name
+    // Property name to save in body
     name: string;
-    // Pretty name
+    // Pretty name to show to user
     pretty: string;
-    // Input value
+    // Input value from user (not in config file)
     value?: string;
 }
 
