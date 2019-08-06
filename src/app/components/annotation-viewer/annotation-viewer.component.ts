@@ -27,7 +27,8 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterDesign } from '../../util/filter.util';
+import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -130,7 +131,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.visualizationQueryPaginates = true;
     }
 
-    private createFilterDesignOnAnnotationText(value?: any): FilterDesign {
+    private createFilterConfigOnAnnotationText(value?: any): FilterConfig {
         return {
             datastore: this.options.datastore.name,
             database: this.options.database.name,
@@ -138,7 +139,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             field: this.options.documentTextField.columnName,
             operator: '=',
             value: value
-        } as FilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -168,16 +169,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterDesign[] {
+    protected designEachFilterWithNoValues(): FilterConfig[] {
         // TODO THOR-1099 Should filtered text have specific HTML styles?
-        return this.options.documentTextField.columnName ? [this.createFilterDesignOnAnnotationText()] : [];
+        return this.options.documentTextField.columnName ? [this.createFilterConfigOnAnnotationText()] : [];
 
         // TODO THOR-1098
-        // return this.options.documentTextField.columnName ? [this.createFilterDesignOnAnnotationText(),
-        //     this.createFilterDesignOnAnnotationPart()] : [];
+        // return this.options.documentTextField.columnName ? [this.createFilterConfigOnAnnotationText(),
+        //     this.createFilterConfigOnAnnotationPart()] : [];
     }
 
     /**
@@ -202,14 +203,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     onClick(item) {
         if (!this.options.respondMode) {
-            this.toggleFilters([this.createFilterDesignOnAnnotationText(item.documents)]);
+            this.toggleFilters([this.createFilterConfigOnAnnotationText(item.documents)]);
         }
     }
 
     onClickPart(part, item) {
         if (part.annotation) {
             // TODO THOR-1098
-            // this.toggleFilters([this.createFilterDesignOnAnnotationPart(part.type, part.text)]);
+            // this.toggleFilters([this.createFilterConfigOnAnnotationPart(part.type, part.text)]);
         } else {
             this.onClick(item);
         }

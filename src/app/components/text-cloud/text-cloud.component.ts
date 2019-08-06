@@ -27,11 +27,11 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
 import {
     AggregationType,
     CompoundFilterType,
@@ -121,8 +121,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 value: item.value
             };
 
-            if (filters.isFiltered(this.createFilterDesignOnSingleTerm(item.key)) ||
-                filters.isFiltered(this.createFilterDesignOnMultipleTerms([item.key]))) {
+            if (filters.isFiltered(this.createFilterConfigOnSingleTerm(item.key)) ||
+                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]))) {
                 this._filteredTerms.push(item.key);
                 itemCopy.selected = true;
             }
@@ -147,22 +147,22 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterDesignOnMultipleTerms(values: any[] = [undefined]): FilterDesign {
+    private createFilterConfigOnMultipleTerms(values: any[] = [undefined]): FilterConfig {
         return {
             type: CompoundFilterType.AND,
-            filters: values.map((term) => this.createFilterDesignOnSingleTerm(term))
-        } as CompoundFilterDesign;
+            filters: values.map((term) => this.createFilterConfigOnSingleTerm(term))
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnSingleTerm(value?: any): FilterDesign {
+    private createFilterConfigOnSingleTerm(value?: any): FilterConfig {
         return {
             datastore: this.options.datastore.name,
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.dataField as NeonFieldMetaData,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.dataField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -187,11 +187,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterDesign[] {
-        return this.options.dataField.columnName ? [this.createFilterDesignOnSingleTerm(), this.createFilterDesignOnMultipleTerms()] : [];
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        return this.options.dataField.columnName ? [this.createFilterConfigOnSingleTerm(), this.createFilterConfigOnMultipleTerms()] : [];
     }
 
     /**
@@ -277,8 +277,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         let data: any[] = results.map((item) => {
             let key = item[options.dataField.columnName];
-            let filtered = filters.isFiltered(this.createFilterDesignOnSingleTerm(key)) ||
-                filters.isFiltered(this.createFilterDesignOnMultipleTerms([item.key]));
+            let filtered = filters.isFiltered(this.createFilterConfigOnSingleTerm(key)) ||
+                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]));
 
             if (filtered) {
                 this._filteredTerms.push(key);
@@ -311,9 +311,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this._filteredTerms.push(item.key);
 
         if (this.options.andFilters) {
-            this.exchangeFilters([this.createFilterDesignOnMultipleTerms(this._filteredTerms)]);
+            this.exchangeFilters([this.createFilterConfigOnMultipleTerms(this._filteredTerms)]);
         } else {
-            this.toggleFilters([this.createFilterDesignOnSingleTerm(item.key)]);
+            this.toggleFilters([this.createFilterConfigOnSingleTerm(item.key)]);
         }
     }
 
