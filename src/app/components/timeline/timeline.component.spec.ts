@@ -403,7 +403,7 @@ describe('Component: Timeline', () => {
         });
     });
 
-    xit('transformVisualizationQueryResults does return expected data with id and filter fields', () => {
+    it('transformVisualizationQueryResults does return expected data with id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
@@ -458,7 +458,7 @@ describe('Component: Timeline', () => {
         }]);
     });
 
-    xit('transformVisualizationQueryResults does return expected data without id and filter fields', () => {
+    it('transformVisualizationQueryResults does return expected data without id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
