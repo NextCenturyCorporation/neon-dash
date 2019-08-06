@@ -1,0 +1,22 @@
+<div *ngIf="requests.length == 0" class="no-requests">No Configured Requests</div>
+
+<div class="request-section" *ngFor="let request of requests; let i = index;">
+    <div class="request-title">{{ request.pretty }}</div>
+    <mat-form-field *ngFor="let property of request.properties">
+        <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value" [name]="property.name"></textarea>
+    </mat-form-field>
+    <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
+        Submit
+    </button>
+    <div *ngIf="request.status != undefined" class="request-title">Submission {{ request.status }}</div>
+    <ngx-monaco-editor #editor *ngIf="request.response != undefined" [options]="{
+        readOnly: true,
+        theme: 'vs',
+        language: 'yaml',
+        lineNumbers: true,
+        minimap: {
+            enabled: false
+        }
+    }" [ngModel]="retrieveResponse(request)">
+    </ngx-monaco-editor>
+</div>
