@@ -16,14 +16,16 @@ import { AbstractColorThemeService, Theme } from './abstract.color-theme.service
 import { Color, ColorMap, ColorSet } from '../models/color';
 
 export class NeonTheme implements Theme {
+    public accentColorObject: Color;
+    public textColorObject: Color;
+
     /**
      * @constructor
-     * @arg {string} accent The accent color.
-     * @arg {string} id The theme ID.
-     * @arg {string} text The text color.
-     * @arg {string} name The theme name.
      */
-    constructor(public accent: string, public id: string, public text: string, public name: string) {}
+    constructor(public accentColorString: string, public id: string, public textColorString: string, public name: string) {
+        this.accentColorObject = Color.fromString(accentColorString);
+        this.textColorObject = Color.fromString(textColorString);
+    }
 }
 
 export class ColorThemeService extends AbstractColorThemeService {
@@ -112,13 +114,33 @@ export class ColorThemeService extends AbstractColorThemeService {
     }
 
     /**
+     * Returns the accent color for the current application theme.
+     *
+     * @return {Color}
+     * @override
+     */
+    public getThemeAccentColor(): Color {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).accentColorObject;
+    }
+
+    /**
      * Returns the hex for the accent color for the current application theme.
      *
      * @return {string}
      * @override
      */
     public getThemeAccentColorHex(): string {
-        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).accent;
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).accentColorString;
+    }
+
+    /**
+     * Returns the text color for the current application theme.
+     *
+     * @return {Color}
+     * @override
+     */
+    public getThemeTextColor(): Color {
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).textColorObject;
     }
 
     /**
@@ -128,7 +150,7 @@ export class ColorThemeService extends AbstractColorThemeService {
      * @override
      */
     public getThemeTextColorHex(): string {
-        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).text;
+        return (this.getThemes().filter((theme) => theme.id === this.currentThemeId)[0] as NeonTheme).textColorString;
     }
 
     /**
@@ -145,8 +167,7 @@ export class ColorThemeService extends AbstractColorThemeService {
                     let valueToColor = new Map<string, Color>();
                     Object.keys(colors[databaseName][tableName][fieldName]).forEach((valueName) => {
                         let color = colors[databaseName][tableName][fieldName][valueName];
-                        let isRGB = (color.indexOf('#') < 0);
-                        valueToColor.set(valueName, isRGB ? Color.fromRgbString(color) : Color.fromHexString(color));
+                        valueToColor.set(valueName, Color.fromString(color));
                     });
                     let colorKey = this.getColorKey(databaseName, tableName, fieldName);
                     let colorSet = new ColorSet(colorKey, databaseName, tableName, fieldName, valueToColor);

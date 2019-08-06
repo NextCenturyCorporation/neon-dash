@@ -83,6 +83,13 @@ export class Color {
     }
 
     /**
+     * Creates and returns a Color object using the given hex or RGB string.
+     */
+    static fromString(input: string): Color {
+        return (input.indexOf('#') < 0) ? Color.fromRgbString(input) : Color.fromHexString(input);
+    }
+
+    /**
      * @constructor
      * @arg {string} css
      * @arg {string} hoverColor
