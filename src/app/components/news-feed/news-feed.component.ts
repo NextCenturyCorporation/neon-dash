@@ -166,8 +166,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
             ];
         }
 

@@ -4,5 +4,5 @@
 # Done for all builds
 BUILD=${1:-dash}
 rm -f target/*.war && mkdir -p target
-ng build --deployUrl=/${BUILD}/ --base-href /${BUILD}/ --aot
+ng build --deployUrl=/${BUILD}/ --base-href /${BUILD}/ --aot --prod
 cd dist && zip -r ${BUILD}.war * && cd .. && mv dist/${BUILD}.war target/${BUILD}.war

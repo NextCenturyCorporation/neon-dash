@@ -80,7 +80,7 @@ describe('Component: NewsFeed', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: 'datastore1',
+            datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1.name,
             table: DashboardServiceMock.TABLES.testTable1.name,
             field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
@@ -117,16 +117,9 @@ describe('Component: NewsFeed', () => {
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
             filter: {
-                filters: [{
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: null
-                }, {
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: ''
-                }],
-                type: 'and'
+                field: 'testIdField',
+                operator: '!=',
+                value: null
             },
             sort: {
                 field: 'testSortField',
