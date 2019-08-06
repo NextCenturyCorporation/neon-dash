@@ -170,7 +170,7 @@ Additionally, if your data contains many (hundreds of) fields, we recommend that
 
 If you define `datastores` in your configuration file but you do not define any `dashboards` or `layouts`, the default dashboard will be blank when you first load it.  However, you can easily add new widgets to your dashboard, configure the widgets to show your data sources, save your custom dashboards, and reload them in the future, all within the UI.  More documentation and a detailed user tutorial are coming soon.
 
-For the full, detailed instructions, please see the [Neon Dashboard Configuration Guide](./DASHBOARD_CONFIGURATION_GUIDE.md)
+For the full, detailed instructions, please see the [Neon Dashboard Configuration Guide](./docs/DASHBOARD_CONFIGURATION_GUIDE.md)
 
 ## Links
 
