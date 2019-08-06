@@ -143,7 +143,6 @@ const LayerType = {
     ClusterMemberships: 'clustermemberships'
 };
 
-
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -346,8 +345,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetColorOption('linkColor', 'Link Color', NetworkGraphComponent.DEFAULT_NODE_COLOR, this.optionsNotReified.bind(this)),
             new WidgetColorOption('nodeColor', 'Node Color', NetworkGraphComponent.DEFAULT_NODE_COLOR, this.optionsNotReified.bind(this)),
             new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
-            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue, this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationId', 'Relation ID', '')
+            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue,
+                this.optionsNotReified.bind(this)),
+            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', '')
         ];
     }
 
@@ -678,7 +678,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let cleanLabel = label instanceof Array ? label[0] : label;
         cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.').join('\n') : cleanLabel;
         cleanLabel = cleanLabel.indexOf(',') > -1 ? cleanLabel.split(',').join('\n') : cleanLabel;
-        cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join(' ') : cleanLabel;
+        cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join('\n') : cleanLabel;
         return cleanLabel;
     }
 
@@ -855,7 +855,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
-                      nodeTextObject?: any, nodeShape?: string) {
+        nodeTextObject?: any, nodeShape?: string) {
         let edgeTextObject = {
             size: NetworkGraphComponent.EDGE_FONT_SIZE,
             face: NetworkGraphComponent.FONT
@@ -867,7 +867,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
-                              colorValue?: string, edgeColorField?: string) {
+        colorValue?: string, edgeColorField?: string) {
         let edgeColor = { color: colorValue, highlight: colorValue };
         let edgeTextObject = {
             size: NetworkGraphComponent.EDGE_FONT_SIZE,
@@ -886,7 +886,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-                        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationId?: string) {
+        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationNodeIdentifier?: string) {
         let ret: Node[] = [];
         let relationNodes: any[] = [];
         let color = originalColor;
@@ -896,7 +896,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             node: this.showChosenItem
         };
 
-
         for (let entry of data) {
             let colorMapVal = entry[colorField];
             let id = entry[idField];
@@ -905,8 +904,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             let yPosition = entry[yPositionField];
             let filterFieldData: any[] = [];
 
-            //create a tabular network graph
-            if(colorMapVal.indexOf(relationId) < 0) {
+            // Create a tabular network graph
+            if (!relationNodeIdentifier || colorMapVal.indexOf(relationNodeIdentifier) < 0) {
                 filterFields.forEach((filterField) => {
                     filterFieldData.push({
                         field: filterField,
@@ -920,19 +919,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         colorMapVal).getComputedCss(this.visualization);
                 }
 
-                //set node name with or without type description
+                // Set node name with or without type description
                 let nodes = this.getArray(id);
                 let nodeNames: any[] = [];
-                let typeExtension: string = this.options.typeField.columnName && relationId ? '\n' + this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() : '';
+                let typeExtension: string = this.options.typeField.columnName && relationNodeIdentifier ?
+                    '\n' + this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() : '';
 
                 if (name) {
                     for (const title of this.getArray(name)) {
-                        nodeNames.push(title + typeExtension)
+                        nodeNames.push(title + typeExtension);
                     }
-                }
-                else {
+                } else {
                     for (const node of nodes) {
-                        nodeNames.push(node + typeExtension)
+                        nodeNames.push(node + typeExtension);
                     }
                 }
 
@@ -952,52 +951,49 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             }
                         }
 
-                        ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, {color: this.options.fontColor},
+                        ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, { color: this.options.fontColor },
                             this.options.nodeShape, xPosition, yPosition, filterFieldData, nodeChosenObject));
                     }
                 }
-            }
-            else {
-                //collect the relation nodes that need to be added as links
+            } else {
+                // Collect the relation nodes that need to be added as links
                 let relationIndex = relationNodes.findIndex((object) => object[idField] === id);
 
-                if(relationIndex > -1){
-                    relationNodes[relationIndex].nodes.push({id: entry[this.options.linkField.columnName],
-                        name: entry[this.options.linkNameField.columnName]});
-                }
-                else{
-                    entry.nodes = [{id: entry[this.options.linkField.columnName],
-                        name: entry[this.options.linkNameField.columnName]}];
+                if (relationIndex > -1) {
+                    relationNodes[relationIndex].nodes.push({ id: entry[this.options.linkField.columnName],
+                        name: entry[this.options.linkNameField.columnName] });
+                } else {
+                    entry.nodes = [{ id: entry[this.options.linkField.columnName],
+                        name: entry[this.options.linkNameField.columnName] }];
                     relationNodes.push(entry);
                 }
             }
         }
 
-        if(relationId && relationNodes.length > 0){
+        if (relationNodeIdentifier && relationNodes.length > 0) {
             this.relationNodes = relationNodes;
         }
 
         return ret;
     }
 
-    private showChosenLabel(values){
+    private showChosenLabel = (values) => {
         values.color = NetworkGraphComponent.DEFAULT_FONT_COLOR;
         values.mod = 'bold';
         values.strokeWidth = 0;
-        values.size = 18;
-    }
+    };
 
-    private showChosenItem(values){
+    private showChosenItem = (values) => {
         values.shadowSize = 6;
         values.shadowColor = '#ADADAD';
         values.inheritsColor = true;
         values.length = 5;
         values.width = 5;
-    }
+    };
 
     // Create edges between source and destinations specified by destinationField
     private getEdgesFromOneEntry(names: string[], colorField: string, originalColorMapVal: string, originalColor: string, source: string,
-                                 destinations: string[]) {
+        destinations: string[]) {
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
@@ -1023,7 +1019,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         for (let index = 0; index < destinations.length; index++) {
             // If legend labels have been modified, override the edgeColor and edgeColorObject
-            if (this.prettifiedEdgeLegendLabels.length > 0 && this.options.displayLegend && names[index] && names[index] != '') {
+            if (this.prettifiedEdgeLegendLabels.length > 0 && this.options.displayLegend && names[index] && names[index] !== '') {
                 let shortName = this.labelAbbreviation(names[index]);
                 for (const edgeLabel of this.prettifiedEdgeLegendLabels) {
                     if (edgeLabel === shortName) {
@@ -1035,7 +1031,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                 }
             }
-            if(source && destinations[index]) {
+            if (source && destinations[index]) {
                 ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), {to: this.options.isDirected}, 1, colorObject, colorMapVal,
                     edgeTextObject, edgeChosenObject));
             }
@@ -1129,7 +1125,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
-
     private createRelationsAsLinksGraphProperties() {
         let graph = new GraphProperties();
         let linkName = this.options.linkField.columnName;
@@ -1144,38 +1139,44 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let xPositionField = this.options.xPositionField.columnName;
         let yPositionField = this.options.yPositionField.columnName;
 
-        // Assume nodes will take precedence over edges so create nodes first
-        graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
-            yPositionField, this.options.filterFields, this.options.relationId);
+        if (this.options.relationNodeIdentifier && this.options.relationNodeIdentifier !== '') {
+            // Assume nodes will take precedence over edges so create nodes first
+            graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
+                yPositionField, this.options.filterFields, this.options.relationNodeIdentifier);
 
-        // Create edges and destination nodes only if required
-        for (let entry of this.responseData) {
-            let linkField = entry[linkName];
-            let edgeType = entry[edgeColorField];
-            let linkNameField = entry[linkNameColumn];
-            let nodeField = entry[nodeName];
-            let relationField = entry[nodeColorField];
+            // Create edges and destination nodes only if required
+            for (let entry of this.responseData) {
+                let entryLink = entry[linkName];
+                let entryEdgeColor = entry[edgeColorField];
+                let entryLinkName = entry[linkNameColumn];
+                let entryNodeName = entry[nodeName];
+                let entryNodeColor = entry[nodeColorField];
 
-            if(relationField != this.options.relationId) {
-                // Create a node if linkfield doesn't point to a node that already exists
-                let links = this.getArray(linkField);
+                if (entryNodeColor !== this.options.relationNodeIdentifier) {
+                    // Create a node if linkfield doesn't point to a node that already exists
+                    let links = this.getArray(entryLink);
 
-                // Create edges between nodes and destinations specified by linkfield
-                let linkNames = !linkNameField ? [].fill('', 0, links.length) : this.getArray(linkNameField);
-                let nodes = this.getArray(nodeField);
+                    // Create edges between nodes and destinations specified by linkfield
+                    let linkNames = !entryLinkName ? [].fill('', 0, links.length) : this.getArray(entryLinkName);
+                    let nodes = this.getArray(entryNodeName);
 
-                if (nodes) {
-                    for (const nodeEntry of nodes) {
-                        graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(linkNames, edgeColorField, edgeType, edgeColor, nodeEntry,
-                            links));
+                    if (nodes) {
+                        for (const nodeEntry of nodes) {
+                            graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(linkNames, edgeColorField, entryEdgeColor,
+                                edgeColor, nodeEntry, links));
+                        }
                     }
                 }
             }
-        }
-        for (let relationNode of this.relationNodes) {
+
+            // Convert relation nodes to edges. Ensure that the relation link object has two nodes before adding it to the network graph
+            for (let relationNode of this.relationNodes) {
                 let linkNames = this.edgeLabelFormat(relationNode[nodeNameColumn]);
-                graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
-                    relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
+                if (relationNode.nodes.length === 2) {
+                    graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
+                        relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
+                }
+            }
         }
         return graph;
     }
