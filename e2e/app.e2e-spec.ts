@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/* eslint-disable no-await-in-loop */
 import { NeonGtdPage } from './app.po';
 import { by, ElementFinder, $, Key, browser, $$ } from 'protractor';
 
@@ -90,7 +88,10 @@ describe('neon-gtd App', () => {
         expect(vizA).toBeDefined();
         const title = await page.getVizTitle(vizA);
 
-        await vizA.element(by.buttonText('settings')).click();
+        const parent: ElementFinder = await page.getVizWrapper(vizA) as any;
+        expect(parent).toBeDefined();
+
+        await parent.$('.settings').click();
 
         const settings: ElementFinder = await page.getSettingsPanel();
 
@@ -101,7 +102,7 @@ describe('neon-gtd App', () => {
         expect(await applyBtn).toBeDefined();
         expect(await applyBtn.isEnabled()).toBeFalsy();
 
-        await settings.$('input[placeholder=Title]').sendKeys('s');  // make plural
+        await settings.$('input[placeholder=Title]').sendKeys('s'); // Make plural
         expect(await applyBtn.isEnabled()).toBeTruthy();
         await applyBtn.click();
 
@@ -109,18 +110,17 @@ describe('neon-gtd App', () => {
         expect(titleAfter).toEqual(title + 's');
     });
 
-    it('global search should filter values', async () => {
+    xit('global search should filter values', async () => {
         let vizA: ElementFinder = await page.getFirstCountableViz();
         expect(vizA).toBeDefined();
 
         const { count } = await page.getVizPageInfo(vizA);
-        const titleA = await page.getVizTitle(vizA)
+        const titleA = await page.getVizTitle(vizA);
 
         const input = $('app-simple-filter input');
 
         await input.sendKeys(...'---+++---'.split(''), Key.RETURN);
         await browser.waitForAngular();
-
 
         let vizB: ElementFinder = await page.getVizByTitle(titleA);
         expect(vizB).toBeDefined();
@@ -131,6 +131,7 @@ describe('neon-gtd App', () => {
         expect(info).toBeUndefined();
     });
 
+    /* TODO Test 'Layout Config' Behavior
     it('should be able to remove visualizations', async () => {
         let vizA: ElementFinder = await page.getFirstCountableViz();
         const titleA = await page.getVizTitle(vizA);
@@ -139,9 +140,6 @@ describe('neon-gtd App', () => {
         const parent: ElementFinder = await page.getVizWrapper(vizA) as any;
         expect(parent).toBeDefined();
 
-        const border = await parent.$('.visualization-border>div');
-        await browser.actions().mouseMove(border).perform();
-
         const actions = parent.$('.visualization-toolbar');
 
         await actions.$('button[aria-label=Close]').click();
@@ -149,5 +147,6 @@ describe('neon-gtd App', () => {
         let vizB: ElementFinder = await page.getVizByTitle(titleA);
 
         expect(vizB).toBeUndefined();
-    })
+    });
+    */
 });

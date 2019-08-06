@@ -176,9 +176,9 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = DashboardServiceMock.FIELD_MAP.FILTER;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
         expect((actual[0]).operator).toEqual('=');
         expect((actual[0]).value).toBeUndefined();
     });
@@ -282,9 +282,9 @@ describe('Component: Sample', () => {
         expect(spyExchange.calls.count()).toEqual(1);
         expect(spyExchange.calls.argsFor(0)).toEqual([[{
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'testFilterValue'
         }]]);
@@ -304,9 +304,9 @@ describe('Component: Sample', () => {
         expect(spyToggle.calls.count()).toEqual(1);
         expect(spyToggle.calls.argsFor(0)).toEqual([[{
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'testFilterValue'
         }]]);

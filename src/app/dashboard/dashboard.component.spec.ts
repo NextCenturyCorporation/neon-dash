@@ -946,6 +946,10 @@ describe('Dashboard Custom', () => {
             done();
         });
 
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
+        });
+
         configService.setActive({
             ...config,
             dashboards: testDashboard
@@ -1020,6 +1024,10 @@ describe('Dashboard Custom', () => {
             expect(component.showDashboardSelector).toEqual(false);
 
             done();
+        });
+
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
         });
 
         configService.setActive({
