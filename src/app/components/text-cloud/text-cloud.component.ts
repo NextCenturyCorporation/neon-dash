@@ -27,7 +27,7 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { CompoundFilterDesign, FilterCollection, FilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -58,6 +58,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textCloud: TextCloud;
 
     public textCloudData: any[] = [];
+
+    // Cached filtered terms used to create new intersection (AND) filters.
+    private _filteredTerms: string[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -106,6 +109,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected redrawFilters(filters: FilterCollection): void {
+        this._filteredTerms = [];
+
         this.textCloudData = this.textCloudData.map((item) => {
             let itemCopy = {
                 color: item.color,
@@ -115,9 +120,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 selected: false,
                 value: item.value
             };
-            if (filters.isFiltered(this.createFilterDesignOnText(item.key))) {
+
+            if (filters.isFiltered(this.createFilterDesignOnSingleTerm(item.key)) ||
+                filters.isFiltered(this.createFilterDesignOnMultipleTerms([item.key]))) {
+                this._filteredTerms.push(item.key);
                 itemCopy.selected = true;
             }
+
             return itemCopy;
         });
     }
@@ -138,9 +147,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterDesignOnText(value?: any): FilterDesign {
+    private createFilterDesignOnMultipleTerms(values: any[] = [undefined]): FilterDesign {
         return {
-            root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
+            type: CompoundFilterType.AND,
+            filters: values.map((term) => this.createFilterDesignOnSingleTerm(term))
+        } as CompoundFilterDesign;
+    }
+
+    private createFilterDesignOnSingleTerm(value?: any): FilterDesign {
+        return {
             datastore: this.options.datastore.name,
             database: this.options.database,
             table: this.options.table,
@@ -176,7 +191,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     protected designEachFilterWithNoValues(): FilterDesign[] {
-        return this.options.dataField.columnName ? [this.createFilterDesignOnText()] : [];
+        return this.options.dataField.columnName ? [this.createFilterDesignOnSingleTerm(), this.createFilterDesignOnMultipleTerms()] : [];
     }
 
     /**
@@ -258,12 +273,21 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
+        this._filteredTerms = [];
+
         let data: any[] = results.map((item) => {
             let key = item[options.dataField.columnName];
+            let filtered = filters.isFiltered(this.createFilterDesignOnSingleTerm(key)) ||
+                filters.isFiltered(this.createFilterDesignOnMultipleTerms([item.key]));
+
+            if (filtered) {
+                this._filteredTerms.push(key);
+            }
+
             return {
                 key: key,
                 keyTranslated: key,
-                selected: filters.isFiltered(this.createFilterDesignOnText(key)),
+                selected: filtered,
                 value: item[this.searchService.getAggregationName()]
             };
         });
@@ -284,8 +308,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onClick(item) {
-        let filter: FilterDesign = this.createFilterDesignOnText(item.key);
-        this.toggleFilters([filter]);
+        this._filteredTerms.push(item.key);
+
+        if (this.options.andFilters) {
+            this.exchangeFilters([this.createFilterDesignOnMultipleTerms(this._filteredTerms)]);
+        } else {
+            this.toggleFilters([this.createFilterDesignOnSingleTerm(item.key)]);
+        }
     }
 
     // These methods must be present for AoT compile
