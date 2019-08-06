@@ -128,7 +128,7 @@ pipeline {
     stage('Build nginx container') {
       agent any
       when {
-          anyOf { branch 'master'; branch 'THOR-jenkins-pipeline'; }
+          anyOf { branch 'master'; }
       }
       steps {
          withCredentials([usernamePassword(
