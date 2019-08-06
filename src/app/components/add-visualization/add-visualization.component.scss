@@ -17,12 +17,8 @@
 
 .add-visualization-grid-container {
     height: 100%;
-    margin: 10px;
     overflow-y: auto;
-    /* Add padding between tile and scrollbar. */
-    padding-right: 10px;
-    /* Add width space for the margin. */
-    width: calc(100% - 20px);
+    width: 100%;
 }
 
 .add-visualization-message {

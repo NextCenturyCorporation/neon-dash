@@ -14,16 +14,32 @@
  */
 
 const {SpecReporter} = require('jasmine-spec-reporter');
+const {JUnitXmlReporter} = require('jasmine-reporters');
+const path = require('path');
 
 exports.config = {
     allScriptsTimeout: 11000,
     specs: [
-        '../**/*.e2e-spec.ts'
+        '**/*.e2e-spec.ts'
     ],
     capabilities: {
         browserName: 'chrome',
         chromeOptions: {
-            args: ['--disable-dev-shm-usage', '--headless', '--disable-gpu', '--window-size=1920x1080']
+            args: [
+                '--disable-dev-shm-usage',
+                '--headless',
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-translate',
+                '--disable-extensions',
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
+                '--remote-debugging-port=9222',
+                '--proxy-server=\'direct://\'',
+                '--proxy-bypass-list=*',
+                '--window-size=1920x1080'
+            ]
         }
     },
     directConnect: true,
@@ -37,10 +53,18 @@ exports.config = {
     skipSourceMapSupport: true,
     beforeLaunch: function () {
         require('ts-node-2').register({
-            project: 'e2e/tsconfig.e2e.json'
+            project: path.resolve(__dirname, 'tsconfig.e2e.json')
         });
     },
     onPrepare() {
-        jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
+        if (process.env.E2E_JUNIT) {
+            let junitReporter = new JUnitXmlReporter({
+                savePath: path.resolve(__dirname, '../reports/e2e'),
+                consolidateAll: true
+            });
+            jasmine.getEnv().addReporter(junitReporter);
+        } else {
+            jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
+        }
     }
 };

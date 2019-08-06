@@ -1,10 +1,10 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# ignore build meta data (build date, most recent git commit, etc.)
-src/environments/environment.*
-
 # client folder is outdated: ignore it if it exists
 /client
+
+**/.terraform
+terraform/lambda.zip
 
 # compiled output
 /dist
@@ -45,6 +45,8 @@ testem.log
 
 # e2e
 /e2e/*.js
+!/e2e/ci.server.js
+!/e2e/protractor*.js
 /e2e/*.map
 
 #System Files

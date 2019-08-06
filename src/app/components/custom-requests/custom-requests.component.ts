@@ -29,7 +29,8 @@ import * as yaml from 'js-yaml';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomRequestsComponent {
-    public requests: NeonCustomRequests[];
+    public loading: boolean = true;
+    public requests: NeonCustomRequests[] = [];
     public readonly dashboardState: DashboardState;
 
     constructor(
@@ -47,11 +48,13 @@ export class CustomRequestsComponent {
             return this.http.delete(endpoint);
         }
 
-        if (type.toUpperCase() === 'GET') {
+        // Assume GET if type is undefined and data does not contain properties.
+        if (type.toUpperCase() === 'GET' || (!type && !Object.keys(data).length)) {
             return this.http.get(endpoint);
         }
 
-        if (type.toUpperCase() === 'POST') {
+        // Assume POST if type is undefined and data contains properties.
+        if (type.toUpperCase() === 'POST' || (!type && Object.keys(data).length)) {
             return this.http.post<Record<string, string>>(endpoint, data);
         }
 
@@ -62,8 +65,24 @@ export class CustomRequestsComponent {
         return null;
     }
 
+    deleteData(request: NeonCustomRequests): void {
+        request.status = undefined;
+        request.response = undefined;
+        (request.properties || []).forEach((property) => {
+            property.value = undefined;
+        });
+    }
+
+    doesHaveProperties(request: NeonCustomRequests): boolean {
+        return !!(request.properties || []).length;
+    }
+
     isValidRequestBody(request: NeonCustomRequests): boolean {
         return (request.properties || []).every((property) => !!property.value);
+    }
+
+    isValidUserInput(request: NeonCustomRequests): boolean {
+        return this.doesHaveProperties(request) && request.properties.some((property) => !!property.value);
     }
 
     protected retrieveDashboardState(dashboardService: DashboardService): DashboardState {
@@ -91,6 +110,7 @@ export class CustomRequestsComponent {
         let httpObservable: Observable<Record<string, any>> = this.buildRequest(request.type || '', request.endpoint, bodyData);
 
         if (httpObservable) {
+            request.status = 'Loading...';
             this.runRequest(httpObservable, (response: any) => {
                 request.status = 'Successful';
                 request.response = response;
@@ -100,6 +120,8 @@ export class CustomRequestsComponent {
                 request.response = error.message;
                 this.changeDetection.detectChanges();
             });
+        } else {
+            request.status = 'Dashboard Error';
         }
     }
 
@@ -107,9 +129,13 @@ export class CustomRequestsComponent {
         this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) =>
             ((request.type.toUpperCase() === 'PUT' || request.type.toUpperCase() === 'POST' || request.type.toUpperCase() === 'GET' ||
                 request.type.toUpperCase() === 'DELETE') && request.endpoint && request.pretty));
+        this.loading = false;
     }
 
     protected watchDashboardStateChanges(): void {
-        this.dashboardService.stateSource.subscribe(this.updateRequests.bind(this));
+        this.dashboardService.stateSource.subscribe((dashboardState) => {
+            this.updateRequests(dashboardState);
+            this.changeDetection.detectChanges();
+        });
     }
 }

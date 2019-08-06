@@ -14,45 +14,13 @@
  */
 
 import { CompoundFilterType } from '../models/widget-option';
-import { FilterConfig, SimpleFilterConfig, CompoundFilterConfig } from '../models/types';
+import { CompoundFilterConfig, FilterConfig, FilterDataSource, SimpleFilterConfig } from '../models/filter';
 import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as uuidv4 from 'uuid/v4';
-
-export interface FilterDataSource {
-    datastoreName: string;
-    databaseName: string;
-    tableName: string;
-    fieldName: string;
-    operator?: string;
-}
-
-export interface FilterDesign {
-    id?: string;
-    // By default, each filter with the same FilterDataSource will be combined into a single compound AND filter (its "root" filter) so all
-    // of the search results will match all of the filters.  Each filter with a different "root" (and with the same FilterDataSource) will
-    // be combined into a single compound filter with that CompoundFilterType.  Thus if some filters have "root=CompoundFilterType.OR" then
-    // they will be combined into a single compound OR filter (but not the filters with other "root" types) so all of the search results
-    // will match at least one of the filters.  A single FilterDataSource may generate multiple compound filters (like one AND and one OR).
-    root?: CompoundFilterType;
-}
-
-export interface SimpleFilterDesign extends FilterDesign {
-    datastore: string;
-    database: NeonDatabaseMetaData;
-    table: NeonTableMetaData;
-    field: NeonFieldMetaData;
-    operator: string;
-    value?: any;
-}
-
-export interface CompoundFilterDesign extends FilterDesign {
-    type: CompoundFilterType;
-    filters: FilterDesign[];
-}
 
 export class FilterUtil {
     /**
@@ -68,9 +36,8 @@ export class FilterUtil {
         item2: FilterDataSource,
         ignoreOperator: boolean = false
     ): boolean {
-        return !!(item1.datastoreName === item2.datastoreName && item1.databaseName === item2.databaseName &&
-            item1.tableName === item2.tableName && item1.fieldName === item2.fieldName &&
-            (ignoreOperator ? true : item1.operator === item2.operator));
+        return !!(item1.datastore === item2.datastore && item1.database === item2.database && item1.table === item2.table &&
+            item1.field === item2.field && (ignoreOperator ? true : item1.operator === item2.operator));
     }
 
     /**
@@ -89,38 +56,31 @@ export class FilterUtil {
     }
 
     /**
-     * Creates and returns the FilterDataSource list for the given filter design.
+     * Creates and returns the FilterDataSource list for the given filter config.
      *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @arg {boolean} [ignoreOperator=false]
      * @return {FilterDataSource[]}
      */
-    static createFilterDataSourceListFromDesign(
-        filterDesign: FilterDesign,
+    static createFilterDataSourceListFromConfig(
+        filterConfig: FilterConfig,
         ignoreOperator: boolean = false
     ): FilterDataSource[] {
-        if (this.isSimpleFilterDesign(filterDesign)) {
-            let simpleFilterDesign = filterDesign;
-
-            if (simpleFilterDesign.database && simpleFilterDesign.database.name && simpleFilterDesign.table &&
-                simpleFilterDesign.table.name && simpleFilterDesign.field && simpleFilterDesign.field.columnName) {
-                return [{
-                    datastoreName: simpleFilterDesign.datastore,
-                    databaseName: simpleFilterDesign.database.name,
-                    tableName: simpleFilterDesign.table.name,
-                    fieldName: simpleFilterDesign.field.columnName,
-                    operator: ignoreOperator ? undefined : simpleFilterDesign.operator
-                }] as FilterDataSource[];
-            }
+        if (this.isSimpleFilterConfig(filterConfig)) {
+            return [{
+                datastore: filterConfig.datastore,
+                database: filterConfig.database,
+                table: filterConfig.table,
+                field: filterConfig.field,
+                operator: ignoreOperator ? undefined : filterConfig.operator
+            }] as FilterDataSource[];
         }
 
-        if (this.isCompoundFilterDesign(filterDesign)) {
-            let compoundFilterDesign = filterDesign;
-
+        if (this.isCompoundFilterConfig(filterConfig)) {
             let returnList: FilterDataSource[] = [];
 
-            compoundFilterDesign.filters.forEach((nestedFilterDesign) => {
-                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromDesign(nestedFilterDesign,
+            filterConfig.filters.forEach((nestedFilterConfig) => {
+                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromConfig(nestedFilterConfig,
                     ignoreOperator);
 
                 nestedDataSourceList.forEach((nestedDataSource) => {
@@ -140,99 +100,34 @@ export class FilterUtil {
     }
 
     /**
-     * Creates and returns a filter config from the given JSON object.
+     * Creates and returns a filter object from the given filter config.
      *
-     * @arg {any} filterConfig
-     * @return {FilterDesign}
-     */
-    static createFilterDesignFromJsonObject(filterConfig: FilterConfig, dataset: Dataset): FilterDesign {
-        if ('datastore' in filterConfig && 'database' in filterConfig && 'table' in filterConfig && 'field' in filterConfig &&
-            'operator' in filterConfig) {
-            let datastore: NeonDatastoreConfig = dataset.datastores[filterConfig.datastore];
-            let database: NeonDatabaseMetaData = datastore.databases[filterConfig.database];
-            let table: NeonTableMetaData = database.tables[filterConfig.table];
-            let field: NeonFieldMetaData = table.fields.filter((element) => element.columnName === filterConfig.field)[0];
-
-            return {
-                root: filterConfig.root || '',
-                datastore: datastore.name,
-                database,
-                table,
-                field,
-                operator: filterConfig.operator,
-                value: filterConfig.value
-            } as SimpleFilterDesign;
-        }
-
-        if ('filters' in filterConfig && 'type' in filterConfig) {
-            return {
-                root: filterConfig.root || '',
-                type: filterConfig.type,
-                filters: filterConfig.filters.map((nestedObject) =>
-                    this.createFilterDesignFromJsonObject(nestedObject, dataset))
-            } as CompoundFilterDesign;
-        }
-
-        return null;
-    }
-
-    /**
-     * Creates and returns a filter object from the given filter design.
-     *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @return {AbstractFilter}
      */
-    static createFilterFromDesign(filterDesign: FilterDesign): AbstractFilter {
+    static createFilterFromConfig(filterConfig: FilterConfig, dataset: Dataset): AbstractFilter {
         let filter: AbstractFilter = null;
 
-        if (this.isSimpleFilterDesign(filterDesign)) {
-            if (filterDesign.datastore && filterDesign.database.name && filterDesign.table.name && filterDesign.field &&
-                filterDesign.field.columnName && filterDesign.operator && typeof filterDesign.value !== 'undefined') {
-                filter = new SimpleFilter(filterDesign.datastore, filterDesign.database, filterDesign.table, filterDesign.field,
-                    filterDesign.operator, filterDesign.value);
+        if (this.isSimpleFilterConfig(filterConfig)) {
+            let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[filterConfig.datastore] : null;
+            let database: NeonDatabaseMetaData = datastore ? datastore.databases[filterConfig.database] : null;
+            let table: NeonTableMetaData = database ? database.tables[filterConfig.table] : null;
+            let field: NeonFieldMetaData = table ? table.fields.filter((element) => element.columnName === filterConfig.field)[0] : null;
+
+            if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName &&
+                typeof filterConfig.value !== 'undefined') {
+                filter = new SimpleFilter(datastore.name, database, table, field, filterConfig.operator, filterConfig.value);
             }
-        } else if (this.isCompoundFilterDesign(filterDesign)) {
-            filter = new CompoundFilter(filterDesign.type, filterDesign.filters.map((nestedDesign) =>
-                this.createFilterFromDesign(nestedDesign)));
+        } else if (this.isCompoundFilterConfig(filterConfig)) {
+            filter = new CompoundFilter(filterConfig.type as CompoundFilterType, filterConfig.filters.map((nestedConfig) =>
+                this.createFilterFromConfig(nestedConfig, dataset)));
         }
 
         if (filter) {
-            filter.id = filterDesign.id || filter.id;
-            filter.root = filterDesign.root || CompoundFilterType.AND;
+            filter.id = filterConfig.id || filter.id;
         }
 
         return filter;
-    }
-
-    /**
-     * Creates and returns a JSON object from the given filter design.
-     *
-     * @arg {FilterDesign} filterDesign
-     * @return {any}
-     */
-    static createFilterJsonObjectFromDesign(filter: FilterDesign): FilterConfig {
-        if (this.isSimpleFilterDesign(filter)) {
-            return {
-                root: filter.root,
-                datastore: filter.datastore,
-                database: filter.database.name,
-                table: filter.table.name,
-                field: filter.field.columnName,
-                operator: filter.operator,
-                value: filter.value
-            };
-        }
-
-        if (this.isCompoundFilterDesign(filter)) {
-            return {
-                root: filter.root,
-                type: filter.type,
-                filters: filter.filters
-                    .map((nestedFilter) => this.createFilterJsonObjectFromDesign(nestedFilter))
-            };
-        }
-
-        return null;
     }
 
     /**
@@ -245,44 +140,41 @@ export class FilterUtil {
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
     /**
-     * Returns if the given filter design is a CompoundFilterDesign.
+     * Returns if the given filter config is a CompoundFilterConfig.
      *
-     * @arg {FilterDesign} filterDesign
-     * @return {filterDesign is CompoundFilterDesign}
+     * @arg {FilterConfig} filterConfig
+     * @return {filterConfig is CompoundFilterConfig}
      */
-    static isCompoundFilterDesign(filterDesign: FilterDesign): filterDesign is CompoundFilterDesign {
-        return (filterDesign as CompoundFilterDesign).type !== undefined &&
-            (filterDesign as CompoundFilterDesign).filters !== undefined;
+    static isCompoundFilterConfig(filterConfig: FilterConfig): filterConfig is CompoundFilterConfig {
+        return 'filters' in filterConfig && 'type' in filterConfig;
     }
 
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
     /**
-     * Returns if the given filter design is a SimpleFilterDesign.
+     * Returns if the given filter config is a SimpleFilterConfig.
      *
-     * @arg {FilterDesign} filterDesign
-     * @return {filterDesign is SimpleFilterDesign}
+     * @arg {FilterConfig} filterConfig
+     * @return {filterConfig is SimpleFilterConfig}
      */
-    static isSimpleFilterDesign(filterDesign: FilterDesign): filterDesign is SimpleFilterDesign {
-        return (filterDesign as SimpleFilterDesign).datastore !== undefined &&
-            (filterDesign as SimpleFilterDesign).database !== undefined &&
-            (filterDesign as SimpleFilterDesign).table !== undefined;
+    static isSimpleFilterConfig(filterConfig: FilterConfig): filterConfig is SimpleFilterConfig {
+        return 'datastore' in filterConfig && 'database' in filterConfig && 'table' in filterConfig && 'field' in filterConfig &&
+            'operator' in filterConfig;
     }
 
-    static toPlainFilterJSON(filters: FilterDesign[]): any[] {
+    static toPlainFilterJSON(filterConfigList: FilterConfig[]): any[] {
         let out: any[] = [];
-        for (const filter of filters) {
-            if (this.isCompoundFilterDesign(filter)) {
-                out.push([filter.type, filter.root, ...this.toPlainFilterJSON(filter.filters)]);
-            } else if (this.isSimpleFilterDesign(filter)) {
-                let val = filter.value;
-                if (typeof val === 'number' && (/[<>]=?/).test(filter.operator) && (/[.]\d{4,100}/).test(`${val}`)) {
+        for (const filterConfig of filterConfigList) {
+            if (this.isCompoundFilterConfig(filterConfig)) {
+                out.push([filterConfig.type, ...this.toPlainFilterJSON(filterConfig.filters)]);
+            } else if (this.isSimpleFilterConfig(filterConfig)) {
+                let val = filterConfig.value;
+                if (typeof val === 'number' && (/[<>]=?/).test(filterConfig.operator) && (/[.]\d{4,100}/).test(`${val}`)) {
                     val = parseFloat(val.toFixed(3));
                 }
                 out.push([
-                    `${filter.datastore}.${filter.database.name}.${filter.table.name}.${filter.field.columnName}`,
-                    filter.operator,
-                    val,
-                    filter.root
+                    `${filterConfig.datastore}.${filterConfig.database}.${filterConfig.table}.${filterConfig.field}`,
+                    filterConfig.operator,
+                    val
                 ]);
             }
         }
@@ -291,19 +183,17 @@ export class FilterUtil {
 
     static fromPlainFilterJSON(simple: any[]): FilterConfig {
         if (simple[0] === 'and' || simple[0] === 'or') { // Complex filter
-            const [operator, root, ...filters] = simple;
+            const [operator, ...filters] = simple;
             return {
                 type: operator,
-                root: root || 'or',
                 filters: filters.map((val) => this.fromPlainFilterJSON(val))
             } as CompoundFilterConfig;
         } // Simple filter
-        const [field, operator, value, root] = simple as string[];
+        const [field, operator, value] = simple as string[];
         return {
             ...DatasetUtil.deconstructDottedReference(field),
             operator,
-            value,
-            root: root || 'or'
+            value
         } as SimpleFilterConfig;
     }
 }
@@ -312,14 +202,14 @@ export class FilterCollection {
     protected data: Map<FilterDataSource[], AbstractFilter[]> = new Map<FilterDataSource[], AbstractFilter[]>();
 
     /**
-     * Returns the data source for the given filter design as either an existing matching data source within this collection or a new data
+     * Returns the data source for the given filter config as either an existing matching data source within this collection or a new data
      * source (the new data source is also saved in this collection with an empty array).
      *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @return {FilterDataSource[]}
      */
-    public findFilterDataSources(filterDesign: FilterDesign): FilterDataSource[] {
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(filterDesign);
+    public findFilterDataSources(filterConfig: FilterConfig): FilterDataSource[] {
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(filterConfig);
 
         // Return a matching existing FilterDataSource list if possible (should either be length 0 or 1 matches).
         let matchingDataSourceList: FilterDataSource[][] = this.getDataSources().filter((existingDataSourceList) =>
@@ -339,12 +229,12 @@ export class FilterCollection {
     }
 
     /**
-     * Returns the list of filters in this filter collection that are compatible with the given filter design.
+     * Returns the list of filters in this filter collection that are compatible with the given filter config.
      */
-    public getCompatibleFilters(filterDesign: FilterDesign): AbstractFilter[] {
-        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterDesign);
+    public getCompatibleFilters(filterConfig: FilterConfig): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = this.findFilterDataSources(filterConfig);
         let filterList: AbstractFilter[] = this.getFilters(filterDataSourceList);
-        return filterList.filter((filter) => filter.isCompatibleWithDesign(filterDesign));
+        return filterList.filter((filter) => filter.isCompatibleWithConfig(filterConfig));
     }
 
     /**
@@ -390,10 +280,10 @@ export class FilterCollection {
     }
 
     /**
-     * Returns if this filter collection contains any filters (optionally, matching the given filter design).
+     * Returns if this filter collection contains any filters (optionally, matching the given filter config).
      */
-    public isFiltered(filterDesign?: FilterDesign): boolean {
-        return filterDesign ? !!this.getCompatibleFilters(filterDesign).length : !!this.getFilters().length;
+    public isFiltered(filterConfig?: FilterConfig): boolean {
+        return filterConfig ? !!this.getCompatibleFilters(filterConfig).length : !!this.getFilters().length;
     }
 
     /**
@@ -430,7 +320,6 @@ export class FilterCollection {
 
 export abstract class AbstractFilter {
     public id: string;
-    public root: CompoundFilterType = CompoundFilterType.AND;
     public relations: string[] = [];
 
     constructor() {
@@ -442,12 +331,14 @@ export abstract class AbstractFilter {
      *
      * @arg {SingleField[]} equivalentRelationFilterFields
      * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @abstract
      */
     public abstract createRelationFilter(
         equivalentRelationFilterFields: SingleField[],
-        substituteRelationFilterFields: SingleField[]
+        substituteRelationFilterFields: SingleField[],
+        dataset: Dataset
     ): AbstractFilter;
 
     /**
@@ -491,13 +382,13 @@ export abstract class AbstractFilter {
     public abstract getLabelForValue(abridged?: boolean): string;
 
     /**
-     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
      *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @return {boolean}
      * @abstract
      */
-    public abstract isCompatibleWithDesign(filterDesign: FilterDesign): boolean;
+    public abstract isCompatibleWithConfig(filterConfig: FilterConfig): boolean;
 
     /**
      * Returns if this filter is equivalent to the given filter.
@@ -509,12 +400,12 @@ export abstract class AbstractFilter {
     public abstract isEquivalentToFilter(filter: AbstractFilter): boolean;
 
     /**
-     * Returns the filter design of this filter.
+     * Returns the filter config of this filter.
      *
-     * @return {FilterDesign}
+     * @return {FilterConfig}
      * @abstract
      */
-    public abstract toDesign(): FilterDesign;
+    public abstract toConfig(): FilterConfig;
 }
 
 export class SimpleFilter extends AbstractFilter {
@@ -534,11 +425,14 @@ export class SimpleFilter extends AbstractFilter {
      *
      * @arg {SingleField[]} equivalentRelationFilterFields
      * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {Dataset} dataset
      * @return {AbstractFilter}
+     * @override
      */
     public createRelationFilter(
         equivalentRelationFilterFields: SingleField[],
         substituteRelationFilterFields: SingleField[],
+        dataset: Dataset
     ): AbstractFilter {
         if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
             return null;
@@ -547,15 +441,20 @@ export class SimpleFilter extends AbstractFilter {
         let relationFilter: SimpleFilter = null;
 
         equivalentRelationFilterFields.forEach((equivalent, index) => {
-            if (equivalent.datastore === this.datastore && equivalent.database.name === this.database.name &&
-                equivalent.table.name === this.table.name && equivalent.field.columnName === this.field.columnName) {
+            if (equivalent.datastore === this.datastore && equivalent.database === this.database.name &&
+                equivalent.table === this.table.name && equivalent.field === this.field.columnName) {
                 let substitute: SingleField = substituteRelationFilterFields[index];
 
-                if (substitute.database && substitute.database.name && substitute.table && substitute.table.name &&
-                    substitute.field && substitute.field.columnName) {
-                    relationFilter = new SimpleFilter(substitute.datastore, substitute.database, substitute.table, substitute.field,
-                        this.operator, this.value);
-                    relationFilter.root = this.root;
+                if (substitute.database && substitute.table && substitute.field) {
+                    let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[substitute.datastore] : null;
+                    let database: NeonDatabaseMetaData = datastore ? datastore.databases[substitute.database] : null;
+                    let table: NeonTableMetaData = database ? database.tables[substitute.table] : null;
+                    let field: NeonFieldMetaData = table ? table.fields.filter((element) => element.columnName === substitute.field)[0] :
+                        null;
+
+                    if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName) {
+                        relationFilter = new SimpleFilter(datastore.name, database, table, field, this.operator, this.value);
+                    }
                 }
             }
         });
@@ -620,20 +519,19 @@ export class SimpleFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
      *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @return {boolean}
      */
-    public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
-        let simpleFilterDesign = (filterDesign as SimpleFilterDesign);
-        return (simpleFilterDesign.root || CompoundFilterType.AND) === this.root &&
-            simpleFilterDesign.datastore === this.datastore &&
-            simpleFilterDesign.database.name === this.database.name &&
-            simpleFilterDesign.table.name === this.table.name &&
-            simpleFilterDesign.field.columnName === this.field.columnName &&
-            simpleFilterDesign.operator === this.operator &&
-            (typeof simpleFilterDesign.value !== 'undefined' ? simpleFilterDesign.value === this.value : true);
+    public isCompatibleWithConfig(filterConfig: FilterConfig): boolean {
+        let simpleFilterConfig = (filterConfig as SimpleFilterConfig);
+        return simpleFilterConfig.datastore === this.datastore &&
+            simpleFilterConfig.database === this.database.name &&
+            simpleFilterConfig.table === this.table.name &&
+            simpleFilterConfig.field === this.field.columnName &&
+            simpleFilterConfig.operator === this.operator &&
+            (typeof simpleFilterConfig.value !== 'undefined' ? simpleFilterConfig.value === this.value : true);
     }
 
     /**
@@ -643,27 +541,26 @@ export class SimpleFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof SimpleFilter && filter.root === this.root && filter.datastore === this.datastore &&
+        return filter instanceof SimpleFilter && filter.datastore === this.datastore &&
             filter.database.name === this.database.name && filter.table.name === this.table.name &&
             filter.field.columnName === this.field.columnName && filter.operator === this.operator && filter.value === this.value;
     }
 
     /**
-     * Returns the filter design of this filter.
+     * Returns the filter config of this filter.
      *
-     * @return {FilterDesign}
+     * @return {FilterConfig}
      */
-    public toDesign(): FilterDesign {
+    public toConfig(): FilterConfig {
         return {
             id: this.id,
-            root: this.root,
             datastore: this.datastore,
-            database: this.database,
-            table: this.table,
-            field: this.field,
+            database: this.database.name,
+            table: this.table.name,
+            field: this.field.columnName,
             operator: this.operator,
             value: this.value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 }
 
@@ -747,11 +644,14 @@ export class CompoundFilter extends AbstractFilter {
      *
      * @arg {SingleField[]} equivalentRelationFilterFields
      * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {Dataset} dataset
      * @return {AbstractFilter}
+     * @override
      */
     public createRelationFilter(
         equivalentRelationFilterFields: SingleField[],
-        substituteRelationFilterFields: SingleField[]
+        substituteRelationFilterFields: SingleField[],
+        dataset: Dataset
     ): AbstractFilter {
         if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
             return null;
@@ -761,13 +661,11 @@ export class CompoundFilter extends AbstractFilter {
 
         let relationFilter: CompoundFilter = new CompoundFilter(this.type, this.filters.map((filter) => {
             let nestedRelationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationFilterFields,
-                substituteRelationFilterFields);
+                substituteRelationFilterFields, dataset);
             nestedRelationExists = nestedRelationExists || !!nestedRelationFilter;
             // A compound filter can exchange one of its nested filters with a relation and keep the rest of the original nested filters.
             return nestedRelationFilter || filter;
         }));
-
-        relationFilter.root = this.root;
 
         // Return null unless at least one nested relation filter exists.
         return nestedRelationExists ? relationFilter : null;
@@ -913,42 +811,40 @@ export class CompoundFilter extends AbstractFilter {
     }
 
     /**
-     * Returns if this filter is compatible with the given filter design.  Compatible filters must have the same FilterDataSource list.
+     * Returns if this filter is compatible with the given filter config.  Compatible filters must have the same FilterDataSource list.
      *
-     * @arg {FilterDesign} filterDesign
+     * @arg {FilterConfig} filterConfig
      * @return {boolean}
      */
-    public isCompatibleWithDesign(filterDesign: FilterDesign): boolean {
-        let compoundFilterDesign = (filterDesign as CompoundFilterDesign);
+    public isCompatibleWithConfig(filterConfig: FilterConfig): boolean {
+        let compoundFilterConfig = (filterConfig as CompoundFilterConfig);
 
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(compoundFilterDesign);
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(compoundFilterConfig);
 
         if (filterDataSourceList.length > 1) {
-            // If the filter design contains more than one FilterDataSource, ensure that 1) each nested design is compatible with at least
-            // one nested filter object, 2) each nested filter object is compatible with at least one nested filter design, and 3) both
-            // lists are the same length.  This forces designs to have specific nested filters but allows them to have nested filters in an
+            // If the filter config contains more than one FilterDataSource, ensure that 1) each nested config is compatible with at least
+            // one nested filter object, 2) each nested filter object is compatible with at least one nested filter config, and 3) both
+            // lists are the same length.  This forces configs to have specific nested filters but allows them to have nested filters in an
             // unexpected order.  This is useful with visualizations that filter on a specific range, point, or box.
-            return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
-                compoundFilterDesign.type === this.type &&
-                compoundFilterDesign.filters &&
-                compoundFilterDesign.filters.length === this.filters.length &&
-                compoundFilterDesign.filters.every((nestedDesign) =>
+            return compoundFilterConfig.type === this.type &&
+                compoundFilterConfig.filters &&
+                compoundFilterConfig.filters.length === this.filters.length &&
+                compoundFilterConfig.filters.every((nestedConfig) =>
                     this.filters.some((nestedFilter) =>
-                        nestedFilter.isCompatibleWithDesign(nestedDesign))) &&
+                        nestedFilter.isCompatibleWithConfig(nestedConfig))) &&
                 this.filters.every((nestedFilter) =>
-                    compoundFilterDesign.filters.some((nestedDesign) =>
-                        nestedFilter.isCompatibleWithDesign(nestedDesign)));
+                    compoundFilterConfig.filters.some((nestedConfig) =>
+                        nestedFilter.isCompatibleWithConfig(nestedConfig)));
         }
 
-        // If the filter design contains only one FilterDataSource, ensure that each nested filter design is compatible with at least one
-        // nested filter object.  This allows filters that expect one or more nested filters with the same design.  This is useful with
+        // If the filter config contains only one FilterDataSource, ensure that each nested filter config is compatible with at least one
+        // nested filter object.  This allows filters that expect one or more nested filters with the same config.  This is useful with
         // visualizations that can set a variable number of EQUALS or NOT EQUALS filters on one field.
-        return (compoundFilterDesign.root || CompoundFilterType.AND) === this.root &&
-            compoundFilterDesign.type === this.type &&
-            compoundFilterDesign.filters &&
-            compoundFilterDesign.filters.every((nestedDesign) =>
+        return compoundFilterConfig.type === this.type &&
+            compoundFilterConfig.filters &&
+            compoundFilterConfig.filters.every((nestedConfig) =>
                 this.filters.some((nestedFilter) =>
-                    nestedFilter.isCompatibleWithDesign(nestedDesign)));
+                    nestedFilter.isCompatibleWithConfig(nestedConfig)));
     }
 
     /**
@@ -958,23 +854,22 @@ export class CompoundFilter extends AbstractFilter {
      * @return {boolean}
      */
     public isEquivalentToFilter(filter: AbstractFilter): boolean {
-        return filter instanceof CompoundFilter && filter.root === this.root && filter.type === this.type &&
+        return filter instanceof CompoundFilter && filter.type === this.type &&
             filter.filters.length === this.filters.length &&
-            filter.filters.every((nestedFilter, index) => nestedFilter.isEquivalentToFilter(this.filters[index]));
+            filter.filters.every((nestedFilter, index) => nestedFilter && nestedFilter.isEquivalentToFilter(this.filters[index]));
     }
 
     /**
-     * Returns the filter design of this filter.
+     * Returns the filter config of this filter.
      *
-     * @return {FilterDesign}
+     * @return {FilterConfig}
      */
-    public toDesign(): FilterDesign {
+    public toConfig(): FilterConfig {
         return {
             id: this.id,
-            root: this.root,
             type: this.type,
-            filters: this.filters.map((filter) => filter.toDesign())
-        } as CompoundFilterDesign;
+            filters: this.filters.map((filter) => filter.toConfig())
+        } as CompoundFilterConfig;
     }
 }
 

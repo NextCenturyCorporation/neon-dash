@@ -61,13 +61,13 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
     }
 
     remove(filter: AbstractFilter) {
-        this.filterService.deleteFilter('FilterList', filter.toDesign());
+        this.filterService.deleteFilter('FilterList', filter.toConfig());
     }
 
     removeAll() {
         this.filterService.deleteFilters('FilterList', this.groups
             .reduce((acc, group) => acc.concat(group.filters), [] as AbstractFilter[])
-            .map((filter) => filter.toDesign()));
+            .map((filter) => filter.toConfig()));
     }
 
     updateFilters() {

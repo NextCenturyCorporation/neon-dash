@@ -1,14 +1,21 @@
-<div *ngIf="requests.length == 0" class="no-requests">No Configured Requests</div>
+<div *ngIf="!loading && requests.length == 0" class="no-requests">No Configuration Available</div>
 
-<div class="request-section" *ngFor="let request of requests; let i = index;">
+<div *ngFor="let request of requests; let i = index;" class="request-section">
     <div class="request-title">{{ request.pretty }}</div>
-    <mat-form-field *ngFor="let property of request.properties">
+    <div *ngIf="request.note != undefined && request.note != ''" class="request-description">{{ request.note }}</div>
+    <mat-form-field *ngFor="let property of request.properties" appearance="outline">
         <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value" [name]="property.name"></textarea>
     </mat-form-field>
-    <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
-        Submit
-    </button>
-    <div *ngIf="request.status != undefined" class="request-title">Submission {{ request.status }}</div>
+    <div>
+        <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
+            Submit
+        </button>
+        <button mat-raised-button class="neon-button-large" [disabled]="!isValidUserInput(request)" (click)="deleteData(request)"
+            *ngIf="doesHaveProperties(request)">
+            Reset
+        </button>
+        <span *ngIf="request.status != undefined">{{ request.status }}</span>
+    </div>
     <ngx-monaco-editor #editor *ngIf="request.response != undefined" [options]="{
         readOnly: true,
         theme: 'vs',
