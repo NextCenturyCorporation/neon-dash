@@ -123,15 +123,15 @@ dashboards:
                                                 ENTITY: '#ADD8E6'
                                                 EVENT: '#D98C8C'
                                                 RELATION: '#FFE4B5'
-                        demo:
-                            name: DEMO
+                        demoM9:
+                            name: Demo M9
                             layout: arl-ta1-m9-demo
                             tables:
                                 document_table: es1.arl-docs-parents.parents
                                 graph_table: es1.arl_ta1.graph
                             fields:
                                 document_field_id: es1.arl-docs-parents.parents.id
-                                document_field_link: es1.rarl-docs-parents.parents.reconstructed
+                                document_field_link: es1.arl-docs-parents.parents.reconstructed
 
                                 graph_field_type: es1.arl_ta1.graph.types
                                 graph_field_category: es1.arl_ta1.graph.categories
@@ -147,7 +147,7 @@ dashboards:
                                                 ENTITY: '#ADD8E6'
                                                 EVENT: '#D98C8C'
                                                 RELATION: '#FFE4B5'
-                arl-ta2:
+                arl-ta2-M9:
                     name: TA2
                     category: 'Select...'
                     choices:
@@ -572,7 +572,7 @@ layouts:
               edgeColor: '#63B4CF'
               linkColor: '#f5b12a' #deep yellow
               showRelationLinks: true
-              relationId: 'RELATION'
+              relationNodeIdentifier: 'RELATION'
               xPositionField: graph_field_x
               yPositionField: graph_field_y
               xTargetPositionField: graph_field_targetx
