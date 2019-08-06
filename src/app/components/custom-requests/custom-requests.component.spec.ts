@@ -121,7 +121,59 @@ describe('Component: Custom Requests', () => {
         }]);
     });
 
-    it('isValidRequestBody does return false if not all properties have values', () => {
+    it('deleteData does delete request status, response, and property array values', () => {
+        let request = {
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: 'a'
+            }, {
+                name: 'two',
+                pretty: 'Two',
+                value: 'b'
+            }]
+        };
+
+        component.deleteData(request);
+        expect(request).toEqual({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: undefined
+            }, {
+                name: 'two',
+                pretty: 'Two',
+                value: undefined
+            }],
+            status: undefined,
+            response: undefined
+        });
+    });
+
+    it('deleteData does not error if request does not have properties', () => {
+        let request = {
+            type: 'get',
+            endpoint: 'http://test/get',
+            pretty: 'Test Get'
+        };
+
+        component.deleteData(request);
+        expect(request).toEqual({
+            type: 'get',
+            endpoint: 'http://test/get',
+            pretty: 'Test Get',
+            status: undefined,
+            response: undefined
+        });
+    });
+
+    it('isValidRequestBody does return false if not all request properties have values', () => {
         expect(component.isValidRequestBody({
             type: 'post',
             endpoint: 'http://test/post',
@@ -150,7 +202,7 @@ describe('Component: Custom Requests', () => {
         })).toEqual(false);
     });
 
-    it('isValidRequestBody does return true if all properties have values', () => {
+    it('isValidRequestBody does return true if all request properties have values', () => {
         expect(component.isValidRequestBody({
             type: 'post',
             endpoint: 'http://test/post',
@@ -171,9 +223,62 @@ describe('Component: Custom Requests', () => {
         expect(component.isValidRequestBody({
             type: 'get',
             endpoint: 'http://test/get',
-            pretty: 'Test Get',
-            properties: []
+            pretty: 'Test Get'
         })).toEqual(true);
+    });
+
+    it('isValidUserInput does return false if no request properties have values', () => {
+        expect(component.isValidUserInput({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One'
+            }, {
+                name: 'two',
+                pretty: 'Two'
+            }]
+        })).toEqual(false);
+    });
+
+    it('isValidUserInput does return true if some request properties have values', () => {
+        expect(component.isValidUserInput({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: 'a'
+            }, {
+                name: 'two',
+                pretty: 'Two'
+            }]
+        })).toEqual(true);
+
+        expect(component.isValidUserInput({
+            type: 'post',
+            endpoint: 'http://test/post',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: 'a'
+            }, {
+                name: 'two',
+                pretty: 'Two',
+                value: 'b'
+            }]
+        })).toEqual(true);
+    });
+
+    it('isValidUserInput does return false if request does not have properties', () => {
+        expect(component.isValidUserInput({
+            type: 'get',
+            endpoint: 'http://test/get',
+            pretty: 'Test Get'
+        })).toEqual(false);
     });
 
     it('retrieveResponse does return response as string', () => {
@@ -181,7 +286,6 @@ describe('Component: Custom Requests', () => {
             type: 'get',
             endpoint: 'http://test/get',
             pretty: 'Test Get',
-            properties: [],
             response: 'Test Response'
         })).toEqual('Test Response\n');
 
@@ -189,7 +293,6 @@ describe('Component: Custom Requests', () => {
             type: 'get',
             endpoint: 'http://test/get',
             pretty: 'Test Get',
-            properties: [],
             response: {
                 key1: 'value1',
                 key2: 'value2'
@@ -201,8 +304,7 @@ describe('Component: Custom Requests', () => {
         expect(component.retrieveResponse({
             type: 'get',
             endpoint: 'http://test/get',
-            pretty: 'Test Get',
-            properties: []
+            pretty: 'Test Get'
         })).toEqual('');
     });
 
@@ -214,8 +316,7 @@ describe('Component: Custom Requests', () => {
         component.submitData({
             type: 'get',
             endpoint: 'http://test/get',
-            pretty: 'Test Get',
-            properties: []
+            pretty: 'Test Get'
         });
 
         expect(spyBuild.calls.count()).toEqual(1);

@@ -207,14 +207,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.snackBarRef = snackBarRef;
             snackBarRef.instance.addErrors('Configuration Errors', config.errors);
         }
-
-        const dashboard = ConfigUtil.findAutoShowDashboard(config.dashboards);
-
-        if (dashboard) {
-            this.dashboardService.setActiveDashboard(dashboard);
-        } else {
-            this.showDashboardSelector = true;
-        }
     }
 
     /**
