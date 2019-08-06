@@ -73,12 +73,16 @@ export class CustomRequestsComponent {
         });
     }
 
+    doesHaveProperties(request: NeonCustomRequests): boolean {
+        return !!(request.properties || []).length;
+    }
+
     isValidRequestBody(request: NeonCustomRequests): boolean {
         return (request.properties || []).every((property) => !!property.value);
     }
 
     isValidUserInput(request: NeonCustomRequests): boolean {
-        return !!(request.properties || []).length && request.properties.some((property) => !!property.value);
+        return this.doesHaveProperties(request) && request.properties.some((property) => !!property.value);
     }
 
     protected retrieveDashboardState(dashboardService: DashboardService): DashboardState {

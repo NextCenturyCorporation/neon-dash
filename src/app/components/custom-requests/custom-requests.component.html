@@ -2,6 +2,7 @@
 
 <div *ngFor="let request of requests; let i = index;" class="request-section">
     <div class="request-title">{{ request.pretty }}</div>
+    <div *ngIf="request.note != undefined && request.note != ''" class="request-description">{{ request.note }}</div>
     <mat-form-field *ngFor="let property of request.properties" appearance="outline">
         <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value" [name]="property.name"></textarea>
     </mat-form-field>
@@ -9,10 +10,11 @@
         <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
             Submit
         </button>
-        <button mat-raised-button class="neon-button-large" [disabled]="!isValidUserInput(request)" (click)="deleteData(request)">
+        <button mat-raised-button class="neon-button-large" [disabled]="!isValidUserInput(request)" (click)="deleteData(request)"
+            *ngIf="doesHaveProperties(request)">
             Reset
         </button>
-        <span *ngIf="request.status != undefined" class="request-title">{{ request.status }}</span>
+        <span *ngIf="request.status != undefined">{{ request.status }}</span>
     </div>
     <ngx-monaco-editor #editor *ngIf="request.response != undefined" [options]="{
         readOnly: true,
