@@ -139,11 +139,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
@@ -282,6 +280,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             let tabsAndMedia: MediaMetaData;
             let index = 0;
             if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 0) {
+                if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 3) {
+                    console.log("Item ID with more than 3 images: " + item['_id']);
+                    console.log("Has " + this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length + " images.")
+                }
                 item['mediaEntities.mediaURLHttps'].forEach((url) => {
                     let tab: MediaMetaData = {
                         selected: undefined,
@@ -438,17 +440,5 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     appendPrefixIfNeeded(link: string, prefix: string) {
         return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
-    }
-
-    /**
-     * Returns the element in the given array at the given index if possible or the first element or the default value.
-     *
-     * @arg {any[]} array
-     * @arg {number} index
-     * @arg {any} defaultValue
-     * @return {any}
-     */
-    findElementAtIndex(array: any[], index: number, defaultValue: any = ''): any {
-        return (array.length > 1 ? (index < array.length ? array[index] : '') : array[0]) || defaultValue;
     }
 }

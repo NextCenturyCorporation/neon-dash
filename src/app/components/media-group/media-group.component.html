@@ -1,22 +1,15 @@
-<ng-container *ngIf="tabsAndMedia.list">
-    <ng-container *ngIf="tabsAndMedia.list.length != 1">
+<ng-container *ngIf="media.list">
+    <ng-container *ngIf="media.list.length != 1">
         <div id="viewer-container">
             <div id="pres-container">
-                <img class="presentation" [src]='tabsAndMedia.selected.link'>
+                <img class="presentation" [src]='media.selected.link'>
             </div>
             <div id="container-thumb">
-                <!-- Nav Buttons for Slideshow main photo -->
-                <!-- <a class="media-prev" (click)="selectLeft()">
-                        <img src="assets/icons/dashboard/chevron-left.png">
-                    </a>
-                    <a class="media-next" (click)="selectRight()">
-                        <img src="assets/icons/dashboard/chevron-right.png">
-                    </a> -->
                 <!-- Thumbnails -->
                 <ol>
-                    <li *ngFor="let imageObj of tabsAndMedia.list; index as j">
-                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="tabsAndMedia" [imageObj]="imageObj" [shownIndex]="j"
-                            [isThumbnail]="true">
+                    <li *ngFor="let imageObj of media.list; index as j">
+                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="media" [imageObj]="imageObj"
+                            [shownIndex]="j" [isThumbnail]="true">
                         </app-media-panel>
                     </li>
                 </ol>
@@ -24,7 +17,7 @@
         </div>
     </ng-container>
 
-    <ng-container *ngIf="tabsAndMedia.list.length == 1">
-        <img class="presentation" [src]="tabsAndMedia.list[0].link">
+    <ng-container *ngIf="media.list.length == 1">
+        <img class="presentation" [src]="media.list[0].link">
     </ng-container>
 </ng-container>
