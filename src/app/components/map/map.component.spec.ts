@@ -732,7 +732,6 @@ describe('Component: Map', () => {
                 value: 2
             }]
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -774,7 +773,6 @@ describe('Component: Map', () => {
                 value: 4
             }]
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -799,7 +797,6 @@ describe('Component: Map', () => {
                 value: 4
             }]
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -807,7 +804,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: 'testFilterB'
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -815,7 +811,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: 'testNameB'
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -823,7 +818,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: 'testNameC'
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -831,7 +825,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: 'testTypeB'
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -868,7 +861,6 @@ describe('Component: Map', () => {
                 value: 2
             }]
         }], [{
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -920,7 +912,6 @@ describe('Component: Map', () => {
                 value: 4
             }]
         }], [{
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -928,7 +919,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: undefined
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -936,7 +926,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: undefined
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -944,7 +933,6 @@ describe('Component: Map', () => {
             operator: '=',
             value: undefined
         }, {
-            root: 'or',
             datastore: '',
             database: DashboardServiceMock.DATABASES.testDatabase2,
             table: DashboardServiceMock.TABLES.testTable2,
@@ -1077,7 +1065,6 @@ describe('Component: Map', () => {
         component.assignTestMap();
         let mapSpy = component.spyOnTestMap('drawBoundary');
         const filters = [1, 2, 3, 4].map((val) => ({
-            root: CompoundFilterType.AND,
             datastore: 'ds1',
             database: NeonDatabaseMetaData.get({ name: 'db1' }),
             table: NeonTableMetaData.get({ name: 'tb1' }),
@@ -1110,7 +1097,6 @@ describe('Component: Map', () => {
         let testCollection = new FilterCollection();
         spyOn(testCollection, 'getCompatibleFilters').and.callFake((design) => design.filters.length === 4 ? [
             FilterUtil.createFilterFromDesign({
-                root: CompoundFilterType.AND,
                 type: CompoundFilterType.AND,
                 filters
             } as CompoundFilterDesign)

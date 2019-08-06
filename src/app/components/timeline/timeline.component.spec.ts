@@ -176,7 +176,6 @@ describe('Component: Timeline', () => {
             }]
         }, {
             // TODO NEON-36
-            root: 'or',
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -231,7 +230,6 @@ describe('Component: Timeline', () => {
                 value: endDate
             }]
         }, {
-            root: 'or',
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -239,7 +237,6 @@ describe('Component: Timeline', () => {
             operator: '=',
             value: 'filterValue1'
         }, {
-            root: 'or',
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -247,7 +244,6 @@ describe('Component: Timeline', () => {
             operator: '=',
             value: 'filterValue2'
         }, {
-            root: 'or',
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
