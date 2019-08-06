@@ -24,7 +24,7 @@
     <div *ngIf="options.url == ''">
         <div *ngIf="media.list.length === 0" class="viewer-text">No Data: {{ noDataId }}</div>
         <ng-container *ngIf="media.list.length > 0">
-            <app-media-group id="viewer-presentation" class="media-group" [tabsAndMedia]="media"></app-media-group>
+            <app-media-group id="viewer-presentation" class="media-group" [media]="media"></app-media-group>
         </ng-container>
     </div>
 

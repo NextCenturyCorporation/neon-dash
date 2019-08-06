@@ -47,7 +47,7 @@ export interface MediaMetaData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaGroupComponent {
-    @Input() tabsAndMedia: MediaMetaData = {
+    @Input() media: MediaMetaData = {
         loaded: false,
         name: '',
         selected: {
@@ -62,32 +62,4 @@ export class MediaGroupComponent {
     public selectedLinkIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
-
-    /**
-     * Checks if an image is the one selected
-     * @arg {object} imageObj an object from the list of images within the mediaMetaData
-     */
-    // isSelected(imageObj): boolean {
-    //     if (this.tabsAndMedia.selected) {
-    //         return this.tabsAndMedia.selected.link === imageObj.link;
-    //     }
-    //     return false;
-    // }
-
-    /**
-     * Move left on selecting the thumbnails (used for the button/anchor for previous picture)
-     */
-    // selectLeft() {
-    //     let length = this.tabsAndMedia.list.length;
-    //     this.selectedLinkIndex = (((this.selectedLinkIndex - 1) % length) + length) % length;
-    //     this.tabsAndMedia.selected = this.tabsAndMedia.list[this.selectedLinkIndex];
-    // }
-
-    /**
-     * Move right on selecting the thumbnails (used for the button/anchor for next picture)
-     */
-    // selectRight() {
-    //     this.selectedLinkIndex = (this.selectedLinkIndex + 1) % this.tabsAndMedia.list.length;
-    //     this.tabsAndMedia.selected = this.tabsAndMedia.list[this.selectedLinkIndex];
-    // }
 }
