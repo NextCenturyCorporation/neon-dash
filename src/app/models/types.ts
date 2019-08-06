@@ -15,6 +15,7 @@
 
 import { ColorMap } from './color';
 import { DeepPartial, NeonDatastoreConfig, translateValues } from './dataset';
+import { FilterConfig } from './filter';
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
@@ -66,22 +67,6 @@ export interface NeonContributor {
     website: string;
     logo: string;
 }
-
-export interface SimpleFilterConfig {
-    datastore: string;
-    database: string;
-    table: string;
-    field: string;
-    operator: string;
-    value?: any;
-}
-
-export interface CompoundFilterConfig {
-    type: 'and' | 'or';
-    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
-}
-
-export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()

@@ -14,9 +14,9 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../models/filter';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonDatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -127,29 +127,29 @@ describe('Service: DashboardService', () => {
 
         spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
             datastore: '',
-            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
-            table: NeonTableMetaData.get({ name: 'tableA' }),
-            field: NeonFieldMetaData.get({ columnName: 'field1' }),
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
             operator: '=',
             value: 'value1'
-        } as SimpleFilterDesign, {
+        } as SimpleFilterConfig, {
             type: 'and',
             filters: [{
                 datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
                 operator: '!=',
                 value: ''
-            } as SimpleFilterDesign, {
+            } as SimpleFilterConfig, {
                 datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
                 operator: '!=',
                 value: null
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign]);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
@@ -681,6 +681,10 @@ describe('Service: DashboardService with Mock Data', () => {
                     fieldName: 'field1'
                 }
             });
+            (filters[0] as any).id = (data.dashboards as any).filters[0].id;
+            (filters[1] as any).id = (data.dashboards as any).filters[1].id;
+            (filters[1] as any).filters[0].id = (data.dashboards as any).filters[1].filters[0].id;
+            (filters[1] as any).filters[1].id = (data.dashboards as any).filters[1].filters[1].id;
             expect(data.dashboards.filters).toEqual(filters);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
@@ -744,6 +748,7 @@ describe('Service: DashboardService with Mock Data', () => {
             });
             expect(data.dashboards.filters).toEqual([
                 {
+                    id: (data.dashboards as any).filters[0].id,
                     datastore: 'datastore1',
                     database: 'databaseZ',
                     table: 'tableA',
@@ -752,9 +757,11 @@ describe('Service: DashboardService with Mock Data', () => {
                     value: 'value1'
                 },
                 {
+                    id: (data.dashboards as any).filters[1].id,
                     type: 'and',
                     filters: [
                         {
+                            id: (data.dashboards as any).filters[1].filters[0].id,
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
@@ -763,6 +770,7 @@ describe('Service: DashboardService with Mock Data', () => {
                             value: ''
                         },
                         {
+                            id: (data.dashboards as any).filters[1].filters[1].id,
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',

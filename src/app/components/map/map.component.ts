@@ -31,11 +31,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     CompoundFilter,
-    CompoundFilterDesign,
-    FilterCollection,
-    FilterDesign,
-    SimpleFilterDesign
+    FilterCollection
 } from '../../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -196,7 +194,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     public filterByLocation(box: BoundingBoxByDegrees): void {
-        let filters: FilterDesign[] = this.options.layers.map((layer) => this.createFilterDesignOnBox(layer, box.north, box.south,
+        let filters: FilterConfig[] = this.options.layers.map((layer) => this.createFilterConfigOnBox(layer, box.north, box.south,
             box.east, box.west));
         this.exchangeFilters(filters);
     }
@@ -212,20 +210,20 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @override
      */
     public filterByMapPoint(filterFieldToValueList: Map<string, any>[], lat: number, lon: number): void {
-        let filters: FilterDesign[] = [];
-        let filtersToDelete: FilterDesign[] = [];
+        let filters: FilterConfig[] = [];
+        let filtersToDelete: FilterConfig[] = [];
 
         this.options.layers.forEach((layer) => {
-            filters.push(this.createFilterDesignOnPoint(layer, lat, lon));
+            filters.push(this.createFilterConfigOnPoint(layer, lat, lon));
             layer.filterFields.forEach((filterField) => {
                 let filterValues: any[] = neonUtilities.flatten(filterFieldToValueList.map((filterFieldToValue) =>
                     filterFieldToValue.get(filterField.columnName))).filter((value) => !!value);
                 if (!filterValues.length) {
                     // Delete any previous filters on the filter field.
-                    filtersToDelete.push(this.createFilterDesignOnValue(layer, filterField));
+                    filtersToDelete.push(this.createFilterConfigOnValue(layer, filterField));
                 } else {
                     // Create a separate filter on each value because each value is a distinct item in the data (overlapping points).
-                    filters = filters.concat(filterValues.map((value) => this.createFilterDesignOnValue(layer, filterField, value)));
+                    filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnValue(layer, filterField, value)));
                 }
             });
         });
@@ -496,7 +494,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         // Add or remove a bounding box on the map depending on if the bounds is filtered.
         // TODO THOR-1102 Does this work with multiple layers?  Should a bounds filter on one layer always affect all of the other layers?
         this.options.layers.forEach((options) => {
-            let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterDesignOnBox(options));
+            let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBox(options));
             if (boundsFilters.length) {
                 // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
                 for (const boundsFilter of boundsFilters) {
@@ -643,71 +641,71 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    private createFilterDesignOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterDesign {
+    private createFilterConfigOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterConfig {
         return {
             type: CompoundFilterType.AND,
             filters: [{
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.latitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.latitudeField.columnName,
                 operator: '>=',
                 value: south
             }, {
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.latitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.latitudeField.columnName,
                 operator: '<=',
                 value: north
             }, {
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.longitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.longitudeField.columnName,
                 operator: '>=',
                 value: west
             }, {
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.longitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.longitudeField.columnName,
                 operator: '<=',
                 value: east
-            }] as SimpleFilterDesign[]
-        } as CompoundFilterDesign;
+            }] as SimpleFilterConfig[]
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnPoint(layer: any, latitude?: number, longitude?: number): FilterDesign {
+    private createFilterConfigOnPoint(layer: any, latitude?: number, longitude?: number): FilterConfig {
         return {
             type: CompoundFilterType.AND,
             filters: [{
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.latitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.latitudeField.columnName,
                 operator: '=',
                 value: latitude
             }, {
                 datastore: layer.datastore.name,
-                database: layer.database,
-                table: layer.table,
-                field: layer.longitudeField,
+                database: layer.database.name,
+                table: layer.table.name,
+                field: layer.longitudeField.columnName,
                 operator: '=',
                 value: longitude
-            }] as SimpleFilterDesign[]
-        } as CompoundFilterDesign;
+            }] as SimpleFilterConfig[]
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
+    private createFilterConfigOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterConfig {
         return {
             datastore: layer.datastore.name,
-            database: layer.database,
-            table: layer.table,
-            field: field,
+            database: layer.database.name,
+            table: layer.table.name,
+            field: field.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -762,26 +760,26 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterDesign[] {
+    protected designEachFilterWithNoValues(): FilterConfig[] {
         return this.options.layers.reduce((designs, layer) => {
             if (layer.latitudeField.columnName && layer.longitudeField.columnName) {
                 // Match a box filter on the layer's specific fields.
-                designs.push(this.createFilterDesignOnBox(layer));
+                designs.push(this.createFilterConfigOnBox(layer));
                 // Match a point filter on the layer's specific fields.
-                designs.push(this.createFilterDesignOnPoint(layer));
+                designs.push(this.createFilterConfigOnPoint(layer));
             }
 
-            return layer.filterFields.reduce((nestedDesigns, filterField) => {
+            return layer.filterFields.reduce((nestedConfigs, filterField) => {
                 if (filterField.columnName) {
                     // Match a single EQUALS filter on the specific filter field.
-                    nestedDesigns.push(this.createFilterDesignOnValue(layer, filterField));
+                    nestedConfigs.push(this.createFilterConfigOnValue(layer, filterField));
                 }
-                return nestedDesigns;
+                return nestedConfigs;
             }, designs);
-        }, [] as FilterDesign[]);
+        }, [] as FilterConfig[]);
     }
 
     /**

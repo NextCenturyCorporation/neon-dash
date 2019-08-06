@@ -80,16 +80,16 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
@@ -126,16 +126,16 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
@@ -161,25 +161,25 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
         }, {
             // TODO NEON-36
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: ''
         }]]);
@@ -216,38 +216,38 @@ describe('Component: Timeline', () => {
             type: 'and',
             filters: [{
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
                 datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
         }, {
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue1'
         }, {
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue2'
         }, {
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue3'
         }]]);
