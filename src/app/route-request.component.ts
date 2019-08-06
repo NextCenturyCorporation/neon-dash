@@ -18,6 +18,7 @@ import { APP_BASE_HREF } from '@angular/common';
 import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 import { AbstractColorThemeService } from './services/abstract.color-theme.service';
+import { CustomRequestsComponent } from './components/custom-requests/custom-requests.component';
 import { ConfigService } from './services/config.service';
 import { DashboardService } from './services/dashboard.service';
 import { RouteWithStateComponent } from './route-with-state.component';
