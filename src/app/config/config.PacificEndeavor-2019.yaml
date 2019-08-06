@@ -215,7 +215,51 @@ datastores:
                                 crimeviolence: Crime / Violence
                                 terrorism: Terrorism
                                 regimechange: Regime Change
-
+            png-ldc:
+                prettyName: Papua New Guinea LDC 
+                tables:
+                     png-ldc:
+                        prettyName: UI Output
+                        fields:
+                            - columnName: createdAt
+                              prettyName: Date Created
+                            - columnName: lang
+                              prettyName: Language
+                            - columnName: originalText
+                              prettyName: Original Text
+                            - columnName: type
+                              prettyName: Type
+                            - columnName: frameId
+                              prettyName: Frame ID
+                            - columnName: locationName
+                              prettyName: Location Name
+                            - columnName: frameType
+                              prettyName: FrameType
+                            - columnName: status
+                              prettyName: Status
+                            - columnName: frameDesc
+                              prettyName: Frame Description
+                            - columnName: geoLocation.latitude
+                              prettyName: Latitude
+                            - columnName: geoLocation.longitude
+                              prettyName: Longitude
+                            - columnName: _id
+                              prettyName: ES ID
+                            - columnName: id
+                              prettyName: THOR ID
+                        labelOptions:
+                            topics:
+                                food: Food
+                                water: Water
+                                shelter: Shelter
+                                med: Medicine
+                                search: Search and Rescue
+                                evac: Evacuation
+                                infra: Infrastructure
+                                utils: Utilities
+                                crimeviolence: Crime / Violence
+                                terrorism: Terrorism
+                                regimechange: Regime Change
 
 dashboards:
     category: 'Select a task...'
@@ -391,7 +435,48 @@ dashboards:
                             contactEmail: 'jonmay@isi.edu'
                             website: 'https://www.isi.edu/'
                             logo: 'ISI-logo.png'
-
+                png-ldc:
+                    name: Papua New Guinea LDC V2
+                    layout: png-ldc-layout
+                    tables:
+                        table_key_1: es1.png-ldc.png-ldc
+                    options:
+                        connectOnLoad: true
+                        customRequests:
+                            - endpoint: http://localhost:4200/lorelei-service/
+                              pretty: THOR Data Input
+                              properties:
+                                - name: originalText
+                                  pretty: Original Text
+                                - name: createdAt
+                                  pretty: Date Created
+                                - name: id
+                                  pretty: ID
+                    fields:
+                        original_text_key: es1.png-ldc.png-ldc.originalText
+                        translated_text_key: es1.png-ldc.png-ldc.originalText
+                        date_field_key: es1.png-ldc.png-ldc.createdAt
+                        id_field_key_1: es1.png-ldc.png-ldc.id
+                        latitude_key: es1.png-ldc.png-ldc.geoLocation.latitude
+                        longitude_key: es1.png-ldc.png-ldc.geoLocation.longitude
+                        group_field_key_topics: es1.png-ldc.png-ldc.type
+                        sf_location: es1.png-ldc.png-ldc.locationName
+                        text_cloud_data_key_LOC: es1.png-ldc.png-ldc.locationName
+                    contributors:
+                        rpi:
+                            orgName: 'Rensselaer Polytechnic Institute'
+                            abbreviation: 'RPI'
+                            contactName: 'Heng Ji'
+                            contactEmail: 'jih@rpi.edu'
+                            website: 'http://nlp.cs.rpi.edu/'
+                            logo: 'RPI-logo.png'
+                        isi:
+                            orgName: 'University of Southern California, Information Sciences Institute'
+                            abbreviation: 'USC/ISI'
+                            contactName: 'Jonathan May'
+                            contactEmail: 'jonmay@isi.edu'
+                            website: 'https://www.isi.edu/'
+                            logo: 'ISI-logo.png'
 
 layouts:
     lorelei_event_layout:
@@ -612,3 +697,105 @@ layouts:
               xField: date_field_key
               limit: 1000
               granularity: hour
+    png-ldc-layout:
+          - name: News Feed
+            type: newsFeed
+            icon: newsFeed64
+            col: 1
+            row: 1
+            sizex: 4
+            sizey: 11
+            bindings:
+                title: Document Feed
+                tableKey: table_key_1
+                contentField: original_text_key
+                dateField: date_field_key
+                idField: id_field_key_1
+                sortField: date_field_key
+                titleContentField: original_text_key
+                ignoreSelf: false
+                limit: 100
+          - name: Map
+            type: map
+            icon: Map64
+            col: 5
+            row: 1
+            sizex: 5
+            sizey: 7
+            bindings:
+                title: Locations
+                tableKey: table_key_1
+                filterable: true
+                name: EVENTS
+                show: true
+                type: cluster
+                limit: 5000
+                layers:
+                    - title: Map
+                      tableKey: table_key_1
+                      latitudeField: latitude_key
+                      longitudeField: longitude_key
+                      dateField: date_field_key
+                      colorField: group_field_key_topics
+                mapType: leaflet
+                west: 135
+                north: -5
+                east: 150
+                south: -6
+          - name: Text Cloud
+            type: textCloud
+            icon: TagCloud64
+            col: 5
+            row: 11
+            sizex: 5
+            sizey: 4
+            selected: true
+            bindings:
+                title: Locations
+                tableKey: table_key_1
+                dataField: text_cloud_data_key_LOC
+                preFilter: false
+          - name: Data Table
+            type: dataTable
+            icon: ViewData64
+            col: 10
+            row: 1
+            sizex: 3
+            sizey: 6
+            bindings:
+              title: Situation Frames
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: id_field_key_1
+              limit: 100
+              showFields:
+                  - sf_location
+                  - group_field_key_topics
+              customColumnWidths:
+                  - - sf_location
+                    - 160
+                  - - group_field_key_topics
+                    - 80
+              filterable: true
+              singleFilter: true
+              ignoreSelf: false
+              filterFields:
+                  - id_field_key_1
+          - name: Bar Chart
+            type: aggregation
+            icon: bar_chart
+            col: 10
+            row: 10
+            sizex: 3
+            sizey: 6
+            bindings:
+                title: Situation Types
+                type: bar-h
+                tableKey: table_key_1
+                xField: group_field_key_topics
+                limit: 11
+                groupField: group_field_key_topics
+                sortByAggregation: true
+                ignoreSelf: true
+                contributionKeys:
+                  - isi
