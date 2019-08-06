@@ -14,8 +14,20 @@
  */
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { RouteDashboardComponent } from './route-dashboard.component';
+import { RouteRequestComponent } from './route-request.component';
 
-const routes: Routes = [];
+const routes: Routes = [{
+    path: 'submit',
+    component: RouteRequestComponent,
+    children: [{
+        path: '**',
+        component: RouteRequestComponent
+    }]
+}, {
+    path: '**',
+    component: RouteDashboardComponent
+}];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],
@@ -23,4 +35,4 @@ const routes: Routes = [];
     providers: []
 })
 
-export class NeonGtdRoutingModule {}
+export class AppRoutingModule {}

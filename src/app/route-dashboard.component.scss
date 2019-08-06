@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Next Century Corporation
+ * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,24 +15,9 @@
  */
 
 :host {
-    font-size: 14px;
+    display: block;
+    height: 100vh;
+    width: 100vw;
+    padding: 0;
+    margin: 0;
 }
-
-.request-section {
-    margin-bottom: 10px;
-}
-
-.request-title {
-    margin-bottom: 10px;
-}
-
-mat-form-field {
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-button {
-    margin-bottom: 10px;
-    margin-right: 10px;
-}
-
