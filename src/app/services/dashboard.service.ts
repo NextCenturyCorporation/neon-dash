@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 
-import { FilterConfig, NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
@@ -28,7 +28,8 @@ import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
-import { FilterDesign, FilterUtil } from '../util/filter.util';
+import { FilterConfig } from '../models/filter';
+import { FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({
@@ -168,7 +169,7 @@ export class DashboardService {
                                     columnName: fieldName,
                                     prettyName: fieldName,
                                     // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
-                                    hide: existingFields.size > 25 ? true : false
+                                    hide: existingFields.size > 25
                                 });
                                 table.fields.push(newField);
                             }
@@ -233,7 +234,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: this.filterService.getFiltersToSaveInConfig(),
+                filters: this.filterService.getFilters(),
                 layout: name
             }),
             projectTitle: name
@@ -250,7 +251,7 @@ export class DashboardService {
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
-        let filters: FilterDesign[] = this.filterService.getFilters();
+        let filters: FilterConfig[] = this.filterService.getFilters();
         return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
     }
 

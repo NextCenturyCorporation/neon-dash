@@ -19,18 +19,22 @@
 }
 
 .no-requests {
-    margin: 15px;
+    margin: 10px 0;
+}
+
+.request-description {
+    font-style: italic;
+    margin: 10px 0;
 }
 
 .request-section {
-    border: 5px solid var(--color-background-contrast, lightgrey);
-    border-radius: 10px;
-    margin: 10px;
-    padding: 10px;
+    margin: 10px 0;
 }
 
 .request-title {
-    margin-bottom: 10px;
+    border-top: 2px solid var(--color-border, dimgrey);
+    margin: 10px 0;
+    padding: 10px 0 0;
 }
 
 mat-form-field {
@@ -39,6 +43,10 @@ mat-form-field {
 }
 
 button {
-    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+ngx-monaco-editor {
+    margin-top: 10px;
 }
 

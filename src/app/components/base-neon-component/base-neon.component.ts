@@ -22,10 +22,9 @@ import {
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    FilterCollection,
-    FilterDataSource,
-    FilterDesign
+    FilterCollection
 } from '../../util/filter.util';
+import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -318,20 +317,20 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Deletes the given filters from the widget and the dash (or all the filters if no args are given) and runs a visualization query.
      *
-     * @arg {FilterDesign[]} [filterDesignListToDelete]
+     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public deleteFilters(filterDesignListToDelete?: FilterDesign[]) {
-        this.filterService.deleteFilters(this.id, filterDesignListToDelete);
+    public deleteFilters(filterConfigListToDelete?: FilterConfig[]) {
+        this.filterService.deleteFilters(this.id, filterConfigListToDelete);
     }
 
     /**
-     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
+     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterConfigListToDelete is
      * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
      *
-     * @arg {FilterDesign[]} filterDesignList
-     * @arg {FilterDesign[]} [filterDesignListToDelete]
+     * @arg {FilterConfig[]} filterConfigList
+     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
+    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[]): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -341,16 +340,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterDesignList, this.dataset.relations, filterDesignListToDelete);
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete);
     }
 
     /**
      * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
      * in the widget and the dash and runs a visualization query.
      *
-     * @arg {FilterDesign[]} filterDesignList
+     * @arg {FilterConfig[]} filterConfigList
      */
-    public toggleFilters(filterDesignList: FilterDesign[]): void {
+    public toggleFilters(filterConfigList: FilterConfig[]): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -360,7 +359,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.toggleFilters(this.id, filterDesignList, this.dataset.relations);
+        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
     }
 
     /**
@@ -498,7 +497,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
 
         return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
-            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toDesign()));
+            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toConfig()));
     }
 
     private retrieveCompatibleFilters(): FilterCollection {
@@ -708,7 +707,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
+    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
         let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
 
         // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
@@ -732,9 +731,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      */
-    protected abstract designEachFilterWithNoValues(): FilterDesign[];
+    protected abstract designEachFilterWithNoValues(): FilterConfig[];
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.

@@ -12,25 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { CompoundFilterType } from '../models/widget-option';
-import { DashboardService } from '../services/dashboard.service';
 import {
     CompoundFilter,
-    CompoundFilterDesign,
     FilterCollection,
-    FilterDataSource,
     FilterUtil,
-    SimpleFilter,
-    SimpleFilterDesign
+    SimpleFilter
 } from './filter.util';
 
-import { NeonFieldMetaData, NeonDatabaseMetaData, NeonTableMetaData } from '../models/dataset';
+import { CompoundFilterConfig, FilterDataSource, SimpleFilterConfig } from '../models/filter';
+import { CompoundFilterType } from '../models/widget-option';
 
-import { DashboardServiceMock } from '../../testUtils/MockServices/DashboardServiceMock';
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
 
 describe('FilterUtil', () => {
     beforeAll(() => {
@@ -41,575 +34,574 @@ describe('FilterUtil', () => {
 
     it('areFilterDataSourcesEquivalent should return expected boolean', () => {
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore2',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore2',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource)).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database2',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database2',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource)).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table2',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table2',
+            field: 'field1',
             operator: '='
         } as FilterDataSource)).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field2',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field2',
             operator: '='
         } as FilterDataSource)).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource)).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource)).toEqual(true);
     });
 
     it('areFilterDataSourcesEquivalent with ignoreOperator=true should return expected boolean', () => {
         expect(FilterUtil.areFilterDataSourcesEquivalent({
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource, true)).toEqual(true);
     });
 
     it('areFilterDataSourceListsEquivalent should return expected boolean', () => {
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource])).toEqual(true);
 
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource])).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource])).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource])).toEqual(false);
 
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource])).toEqual(true);
 
         expect(FilterUtil.areFilterDataSourceListsEquivalent([{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource], [{
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: 'contains'
         } as FilterDataSource, {
-            datastoreName: 'datastore1',
-            databaseName: 'database1',
-            tableName: 'table1',
-            fieldName: 'field1',
+            datastore: 'datastore1',
+            database: 'database1',
+            table: 'table1',
+            field: 'field1',
             operator: '='
         } as FilterDataSource])).toEqual(true);
     });
 
-    it('createFilterDataSourceListFromDesign should return expected array', () => {
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+    it('createFilterDataSourceListFromConfig should return expected array', () => {
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId'
-        } as SimpleFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testIdField',
+        } as SimpleFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testIdField',
             operator: '='
         } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: '>'
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: '<'
         } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.Y,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.Y.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testYField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testYField',
             operator: '='
         } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId'
-            } as SimpleFilterDesign, {
+            } as SimpleFilterConfig, {
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 10
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.Y,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.Y.columnName,
                     operator: '=',
                     value: 20
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testIdField',
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testIdField',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testYField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testYField',
             operator: '='
         } as FilterDataSource]);
     });
 
-    it('createFilterDataSourceListFromDesign should ignore clauses in compound filters with equivalent non-value properties', () => {
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+    it('createFilterDataSourceListFromConfig should ignore clauses in compound filters with equivalent non-value properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId2'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testIdField',
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testIdField',
             operator: '='
         } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 10
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.Y,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.Y.columnName,
                     operator: '=',
                     value: 20
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign, {
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig, {
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 30
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.Y,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.Y.columnName,
                     operator: '=',
                     value: 40
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testYField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testYField',
             operator: '='
         } as FilterDataSource]);
     });
 
-    it('createFilterDataSourceListFromDesign with ignoreOperator=true should ignore operator properties', () => {
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+    it('createFilterDataSourceListFromConfig with ignoreOperator=true should ignore operator properties', () => {
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign, true)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, true)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: undefined
         } as FilterDataSource]);
 
-        expect(FilterUtil.createFilterDataSourceListFromDesign({
+        expect(FilterUtil.createFilterDataSourceListFromConfig({
             type: 'or',
             filters: [{
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 10
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.Y,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.Y.columnName,
                     operator: '=',
                     value: 20
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign, {
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig, {
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '!=',
                     value: 30
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.Y,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.Y.columnName,
                     operator: '!=',
                     value: 40
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign, true)).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testXField',
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig, true)).toEqual([{
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testXField',
             operator: undefined
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: 'testDatabase1',
-            tableName: 'testTable1',
-            fieldName: 'testYField',
+            datastore: DATASTORE.name,
+            database: 'testDatabase1',
+            table: 'testTable1',
+            field: 'testYField',
             operator: undefined
         } as FilterDataSource]);
     });
 
-    it('isCompoundFilterDesign should return expected boolean', () => {
-        expect(FilterUtil.isCompoundFilterDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+    it('isCompoundFilterConfig should return expected boolean', () => {
+        expect(FilterUtil.isCompoundFilterConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId'
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(FilterUtil.isCompoundFilterDesign({
+        expect(FilterUtil.isCompoundFilterConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId2'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
     });
 
-    it('isSimpleFilterDesign should return expected boolean', () => {
-        expect(FilterUtil.isSimpleFilterDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+    it('isSimpleFilterConfig should return expected boolean', () => {
+        expect(FilterUtil.isSimpleFilterConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId'
-        } as SimpleFilterDesign)).toEqual(true);
+        } as SimpleFilterConfig)).toEqual(true);
 
-        expect(FilterUtil.isSimpleFilterDesign({
+        expect(FilterUtil.isSimpleFilterConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.ID,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.ID.columnName,
                 operator: '=',
                 value: 'testId2'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
     });
 });
 
 describe('simpleFiltering', () => {
     const filtersSimple = [
         {
-            root: 'or',
             datastore: 'datastore1',
             database: 'databaseZ',
             table: 'tableA',
@@ -618,11 +610,9 @@ describe('simpleFiltering', () => {
             value: 'value1'
         },
         {
-            root: 'and',
             type: 'and',
             filters: [
                 {
-                    root: 'or',
                     datastore: 'datastore1',
                     database: 'databaseY',
                     table: 'tableB',
@@ -631,7 +621,6 @@ describe('simpleFiltering', () => {
                     value: ''
                 },
                 {
-                    root: 'or',
                     datastore: 'datastore1',
                     database: 'databaseY',
                     table: 'tableB',
@@ -643,53 +632,46 @@ describe('simpleFiltering', () => {
         }
     ];
 
-    const filterDesigns = [
+    const filterConfigs = [
         {
-            root: CompoundFilterType.OR,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
-            table: NeonTableMetaData.get({ name: 'tableA' }),
-            field: NeonFieldMetaData.get({ columnName: 'field1' }),
+            datastore: DATASTORE.name,
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
             operator: '=',
             value: 'value1'
-        } as SimpleFilterDesign,
+        } as SimpleFilterConfig,
         {
-            root: 'and',
             type: 'and',
             filters: [
                 {
-                    root: CompoundFilterType.OR,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                    table: NeonTableMetaData.get({ name: 'tableB' }),
-                    field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                    datastore: DATASTORE.name,
+                    database: 'databaseY',
+                    table: 'tableB',
+                    field: 'field2',
                     operator: '!=',
                     value: ''
-                } as SimpleFilterDesign,
+                } as SimpleFilterConfig,
                 {
-                    root: CompoundFilterType.OR,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                    table: NeonTableMetaData.get({ name: 'tableB' }),
-                    field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                    datastore: DATASTORE.name,
+                    database: 'databaseY',
+                    table: 'tableB',
+                    field: 'field2',
                     operator: '!=',
                     value: null
-                } as SimpleFilterDesign
+                } as SimpleFilterConfig
             ]
-        } as CompoundFilterDesign
+        } as CompoundFilterConfig
 
     ];
 
     const expected = [
-        ['datastore1.databaseZ.tableA.field1', '=', 'value1', 'or'],
-        ['and',
-            'and',
-            ['datastore1.databaseY.tableB.field2', '!=', '', 'or'],
-            ['datastore1.databaseY.tableB.field2', '!=', null, 'or']]
+        ['datastore1.databaseZ.tableA.field1', '=', 'value1'],
+        ['and', ['datastore1.databaseY.tableB.field2', '!=', ''], ['datastore1.databaseY.tableB.field2', '!=', null]]
     ];
 
     it('toPlainFilterJSON should return expected output', () => {
-        expect(FilterUtil.toPlainFilterJSON(filterDesigns)).toEqual(expected);
+        expect(FilterUtil.toPlainFilterJSON(filterConfigs)).toEqual(expected);
         expect(FilterUtil.toPlainFilterJSON([])).toEqual([]);
     });
 
@@ -701,12 +683,10 @@ describe('simpleFiltering', () => {
             table: '3',
             field: '4',
             operator: '=',
-            value: 'b',
-            root: 'or'
+            value: 'b'
         });
 
-        expect(FilterUtil.fromPlainFilterJSON(['and', 'or'])).toEqual({
-            root: 'or',
+        expect(FilterUtil.fromPlainFilterJSON(['and'])).toEqual({
             type: 'and',
             filters: []
         });
@@ -721,76 +701,61 @@ describe('FilterCollection', () => {
     let filter1B: any;
     let filter2A: any;
 
-    initializeTestBed('Filter Collection', {
-        providers: [
-            { provide: DashboardService, useClass: DashboardServiceMock }
-        ],
-        imports: [
-            HttpClientModule,
-            HttpClientTestingModule
-        ]
-    });
-
     beforeEach(() => {
         source1 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
         source2 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '>'
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '<'
         } as FilterDataSource];
-        filter1A = FilterUtil.createFilterFromDesign({
-            root: CompoundFilterType.AND,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+        filter1A = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId1'
-        } as SimpleFilterDesign);
-        filter1B = FilterUtil.createFilterFromDesign({
-            root: CompoundFilterType.OR,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+        } as SimpleFilterConfig, DATASET);
+        filter1B = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId2'
-        } as SimpleFilterDesign);
-        filter2A = FilterUtil.createFilterFromDesign({
-            root: CompoundFilterType.AND,
+        } as SimpleFilterConfig, DATASET);
+        filter2A = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '>',
                 value: 10
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '<',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         filterCollection = new FilterCollection();
         (filterCollection as any).data.set(source1, [filter1A, filter1B]);
@@ -804,49 +769,49 @@ describe('FilterCollection', () => {
 
     it('findFilterDataSources should return data source from collection', () => {
         expect(filterCollection.findFilterDataSources({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId1'
-        } as SimpleFilterDesign)).toEqual(source1);
+        } as SimpleFilterConfig)).toEqual(source1);
 
         expect(filterCollection.findFilterDataSources({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '>',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '<',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(source2);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(source2);
     });
 
     it('findFilterDataSources should return new data source and add to collection', () => {
         let actual = filterCollection.findFilterDataSources({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!=',
             value: 'testId1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig);
 
         expect(actual).toEqual([{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!='
         } as FilterDataSource]);
 
@@ -857,10 +822,10 @@ describe('FilterCollection', () => {
         expect(filterCollection.getDataSources()).toEqual([source1, source2]);
 
         let testDataSource = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!='
         } as FilterDataSource];
 
@@ -872,61 +837,61 @@ describe('FilterCollection', () => {
     it('getFilters should create and return empty array if data source is not in collection', () => {
         // Different datastore
         let testDataSource1 = [{
-            datastoreName: 'testDatastore2',
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: 'testDatastore2',
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different database
         let testDataSource2 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase2.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different table
         let testDataSource3 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable2.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different field
         let testDataSource4 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TEXT.columnName,
             operator: '='
         } as FilterDataSource];
 
         // Different operator
         let testDataSource5 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!='
         } as FilterDataSource];
 
         // Different operators (compound)
         let testDataSource6 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '!='
         } as FilterDataSource];
 
@@ -952,24 +917,24 @@ describe('FilterCollection', () => {
 
     it('getFilters should return array from similar data source object in collection', () => {
         let testDataSource1 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
 
         let testDataSource2 = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '>'
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '<'
         } as FilterDataSource];
 
@@ -987,508 +952,500 @@ describe('FilterCollection', () => {
         testCollection.setFilters(source1, []);
         expect(testCollection.isFiltered()).toEqual(false);
 
-        let design1A = filter1A.toDesign();
-        design1A.value = undefined;
+        let config1A = filter1A.toConfig();
+        config1A.value = undefined;
 
-        let design2A = filter2A.toDesign();
-        design2A.filters[0].value = undefined;
-        design2A.filters[1].value = undefined;
+        let config2A = filter2A.toConfig();
+        config2A.filters[0].value = undefined;
+        config2A.filters[1].value = undefined;
 
         testCollection.setFilters(source1, [filter1A]);
         expect(testCollection.isFiltered()).toEqual(true);
-        expect(testCollection.isFiltered(design1A)).toEqual(true);
-        expect(testCollection.isFiltered(design2A)).toEqual(false);
+        expect(testCollection.isFiltered(config1A)).toEqual(true);
+        expect(testCollection.isFiltered(config2A)).toEqual(false);
 
         testCollection.setFilters(source2, [filter2A]);
         expect(testCollection.isFiltered()).toEqual(true);
-        expect(testCollection.isFiltered(design1A)).toEqual(true);
-        expect(testCollection.isFiltered(design2A)).toEqual(true);
+        expect(testCollection.isFiltered(config1A)).toEqual(true);
+        expect(testCollection.isFiltered(config2A)).toEqual(true);
         expect(testCollection.isFiltered({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!='
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
-    it('isFiltered with compound filter designs that have a single data source should return expected boolean', () => {
-        let testDesign = {
+    it('isFiltered with compound filter configs that have a single data source should return expected boolean', () => {
+        let testConfig = {
             type: 'or',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign;
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig;
 
-        let testFilter = FilterUtil.createFilterFromDesign(testDesign);
+        let testFilter = FilterUtil.createFilterFromConfig(testConfig, DATASET);
 
         let testSource = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '='
         } as FilterDataSource];
 
         let testCollection = new FilterCollection();
         testCollection.setFilters(testSource, [testFilter]);
 
-        // Same design (should return true)
+        // Same config (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Same data source but too few nested filters (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Same data source but too many nested filters (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // With correct values (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // With correct values in different order (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // With incorrect values (should return false)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 1
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
     });
 
-    it('isFiltered with compound filter designs that have multiple data sources should return expected boolean', () => {
-        let testDesign = {
+    it('isFiltered with compound filter configs that have multiple data sources should return expected boolean', () => {
+        let testConfig = {
             type: 'or',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 30
-            } as SimpleFilterDesign, {
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign;
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig;
 
-        let testFilter = FilterUtil.createFilterFromDesign(testDesign);
+        let testFilter = FilterUtil.createFilterFromConfig(testConfig, DATASET);
 
         let testSource = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '='
         } as FilterDataSource, {
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.SIZE.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '!='
         } as FilterDataSource];
 
         let testCollection = new FilterCollection();
         testCollection.setFilters(testSource, [testFilter]);
 
-        // Same design (should return true)
+        // Same config (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
-        // Same design in different order (should return true)
+        // Same config in different order (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Same data source but too few nested filters (should return false)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Same data source but too many nested filters (should return false)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // With correct values (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 30
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // With correct values in different order (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 40
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 30
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
-        // Same design in different order With correct values (should return true)
+        // Same config in different order With correct values (should return true)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 30
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 40
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // With incorrect values (should return false)
         expect(testCollection.isFiltered({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '=',
                 value: 20
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 30
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '!=',
                 value: 50
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
     });
 
     it('setFilters should save filters with input data source if it is not in collection', () => {
         let testDataSource = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!='
         } as FilterDataSource];
 
-        let testFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+        let testFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '!=',
             value: 'testId'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(testDataSource);
         expect((filterCollection as any).data.get(testDataSource)).toEqual([testFilter]);
@@ -1504,14 +1461,14 @@ describe('FilterCollection', () => {
         expect(filterCollection.setFilters(source1, [])).toEqual(source1);
         expect((filterCollection as any).data.get(source1)).toEqual([]);
 
-        let testFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+        let testFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         expect(filterCollection.setFilters(source1, [testFilter])).toEqual(source1);
         expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
@@ -1522,10 +1479,10 @@ describe('FilterCollection', () => {
 
     it('setFilters should save filters with similar data source object in collection', () => {
         let testDataSource = [{
-            datastoreName: DashboardServiceMock.DATASTORE.name,
-            databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
-            tableName: DashboardServiceMock.TABLES.testTable1.name,
-            fieldName: DashboardServiceMock.FIELD_MAP.ID.columnName,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '='
         } as FilterDataSource];
 
@@ -1537,14 +1494,14 @@ describe('FilterCollection', () => {
         expect((filterCollection as any).data.get(source1)).toEqual([]);
         expect((filterCollection as any).data.has(testDataSource)).toEqual(false);
 
-        let testFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+        let testFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.ID.columnName,
             operator: '=',
             value: 'testId'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         expect(filterCollection.setFilters(testDataSource, [testFilter])).toEqual(source1);
         expect((filterCollection as any).data.get(source1)).toEqual([testFilter]);
@@ -1560,41 +1517,40 @@ describe('SimpleFilter', () => {
     let simpleFilter: any;
 
     beforeEach(() => {
-        simpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        simpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
     });
 
     it('does have expected simple filter properties', () => {
-        expect(simpleFilter.datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(simpleFilter.database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(simpleFilter.table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(simpleFilter.field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(simpleFilter.datastore).toEqual(DATASTORE.name);
+        expect(simpleFilter.database).toEqual(DATABASES.testDatabase1);
+        expect(simpleFilter.table).toEqual(TABLES.testTable1);
+        expect(simpleFilter.field).toEqual(FIELD_MAP.NAME);
         expect(simpleFilter.operator).toEqual('=');
         expect(simpleFilter.value).toEqual('testName1');
 
         expect(simpleFilter.id).toBeDefined();
-        expect(simpleFilter.root).toEqual(CompoundFilterType.AND);
         expect(simpleFilter.relations).toEqual([]);
     });
 
     it('createRelationFilter on simple filter should return null if substitue has bad data', () => {
         let actual = simpleFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
         }], [{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: NeonFieldMetaData.get()
-        }]);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: ''
+        }], DATASET);
         expect(actual).toEqual(null);
     });
 
@@ -1602,162 +1558,116 @@ describe('SimpleFilter', () => {
         let actual;
 
         let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.TEXT
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.TEXT.columnName
         }];
 
         actual = simpleFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
-        }], testSubstituteList);
-        expect(actual.datastore).toEqual('testDatastore2');
-        expect(actual.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
+        }], testSubstituteList, DATASET);
+        expect(actual.datastore).toEqual('datastore1');
+        expect(actual.database).toEqual(DATABASES.testDatabase2);
+        expect(actual.table).toEqual(TABLES.testTable2);
+        expect(actual.field).toEqual(FIELD_MAP.TEXT);
         expect(actual.operator).toEqual('=');
         expect(actual.value).toEqual('testName1');
-        expect(actual.root).toEqual(CompoundFilterType.AND);
-    });
-
-    it('createRelationFilter on simple filter should work with custom root filter', () => {
-        simpleFilter.root = CompoundFilterType.OR;
-
-        let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.TEXT
-        }];
-
-        let actual = simpleFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
-        }], testSubstituteList);
-        expect(actual.datastore).toEqual('testDatastore2');
-        expect(actual.database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect(actual.operator).toEqual('=');
-        expect(actual.value).toEqual('testName1');
-        expect(actual.root).toEqual(CompoundFilterType.OR);
     });
 
     it('doesAffectSearch on simple filter should return expected boolean', () => {
-        expect(simpleFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(simpleFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
         expect(simpleFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
-        expect(simpleFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
-        expect(simpleFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
+        expect(simpleFilter.doesAffectSearch(DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(simpleFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign on simple filter should return expected boolean', () => {
+    it('isCompatibleWithConfig on simple filter should return expected boolean', () => {
         // Correct, with value
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
         })).toEqual(true);
 
         // Correct
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '='
         })).toEqual(true);
 
-        // Correct, with custom root filter type
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
-            operator: '=',
-            root: CompoundFilterType.AND
-        })).toEqual(true);
-
         // Different datastore
-        expect(simpleFilter.isCompatibleWithDesign({
+        expect(simpleFilter.isCompatibleWithConfig({
             datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '='
         })).toEqual(false);
 
         // Different database
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '='
         })).toEqual(false);
 
         // Different table
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '='
         })).toEqual(false);
 
         // Different field
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TEXT,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TEXT.columnName,
             operator: '='
         })).toEqual(false);
 
         // Different operator
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '!='
         })).toEqual(false);
 
-        // Different custom root filter type
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
-            operator: '=',
-            root: CompoundFilterType.OR
-        })).toEqual(false);
-
         // Different value
-        expect(simpleFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(simpleFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName2'
         })).toEqual(false);
 
         // Different structure
-        expect(simpleFilter.isCompatibleWithDesign({
+        expect(simpleFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
             }]
         })).toEqual(false);
@@ -1765,98 +1675,87 @@ describe('SimpleFilter', () => {
 
     it('isEquivalentToFilter on simple filter should return expected boolean', () => {
         // Different datastore
-        let testFilter1 = FilterUtil.createFilterFromDesign({
+        let testFilter1 = FilterUtil.createFilterFromConfig({
             datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different database
-        let testFilter2 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let testFilter2 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different table
-        let testFilter3 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let testFilter3 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different field
-        let testFilter4 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TEXT,
+        let testFilter4 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TEXT.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different operator
-        let testFilter5 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let testFilter5 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '!=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different value
-        let testFilter6 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let testFilter6 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName2'
-        } as SimpleFilterDesign);
-
-        // Different custom root filter type
-        let testFilter7 = FilterUtil.createFilterFromDesign({
-            root: CompoundFilterType.OR,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
-            operator: '=',
-            value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         // Different structure
-        let testFilter8 = FilterUtil.createFilterFromDesign({
+        let testFilter7 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Correct
-        let testFilter9 = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let testFilter8 = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
         expect(simpleFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
         expect(simpleFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
@@ -1865,235 +1764,233 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
         expect(simpleFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
         expect(simpleFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
-        expect(simpleFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
-        expect(simpleFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+        expect(simpleFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
-    it('toDesign on simple filter should return expected object', () => {
-        expect(simpleFilter.toDesign()).toEqual({
+    it('toConfig on simple filter should return expected object', () => {
+        expect(simpleFilter.toConfig()).toEqual({
             id: simpleFilter.id,
-            root: CompoundFilterType.AND,
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig);
     });
 });
 
 describe('SimpleFilter (Falsey Values)', () => {
     it('filter on zero', () => {
-        let filter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let filter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
-        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filter as any).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((filter as any).database).toEqual(DATABASES.testDatabase1);
+        expect((filter as any).table).toEqual(TABLES.testTable1);
+        expect((filter as any).field).toEqual(FIELD_MAP.NAME);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(0);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign)).toEqual(true);
+        } as SimpleFilterConfig)).toEqual(true);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: ''
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: false
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: null
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
     it('filter on empty string', () => {
-        let filter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let filter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: ''
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
-        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filter as any).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((filter as any).database).toEqual(DATABASES.testDatabase1);
+        expect((filter as any).table).toEqual(TABLES.testTable1);
+        expect((filter as any).field).toEqual(FIELD_MAP.NAME);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual('');
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: ''
-        } as SimpleFilterDesign)).toEqual(true);
+        } as SimpleFilterConfig)).toEqual(true);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: false
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: null
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
     it('filter on false', () => {
-        let filter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let filter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: false
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
-        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filter as any).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((filter as any).database).toEqual(DATABASES.testDatabase1);
+        expect((filter as any).table).toEqual(TABLES.testTable1);
+        expect((filter as any).field).toEqual(FIELD_MAP.NAME);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: ''
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: false
-        } as SimpleFilterDesign)).toEqual(true);
+        } as SimpleFilterConfig)).toEqual(true);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: null
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
     it('filter on null', () => {
-        let filter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let filter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: null
-        } as SimpleFilterDesign);
+        } as SimpleFilterConfig, DATASET);
 
-        expect((filter as any).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((filter as any).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((filter as any).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect((filter as any).database).toEqual(DATABASES.testDatabase1);
+        expect((filter as any).table).toEqual(TABLES.testTable1);
+        expect((filter as any).field).toEqual(FIELD_MAP.NAME);
         expect((filter as any).operator).toEqual('=');
         expect((filter as any).value).toEqual(null);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: ''
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: false
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
 
-        expect(filter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(filter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: null
-        } as SimpleFilterDesign)).toEqual(true);
+        } as SimpleFilterConfig)).toEqual(true);
     });
 });
 
@@ -2101,59 +1998,58 @@ describe('CompoundFilter (One Field)', () => {
     let compoundFilter: any;
 
     beforeEach(() => {
-        compoundFilter = FilterUtil.createFilterFromDesign({
+        compoundFilter = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
     });
 
     it('does have expected compound filter properties', () => {
         expect(compoundFilter.id).toBeDefined();
-        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
 
         expect(compoundFilter.filters.length).toEqual(2);
-        expect(compoundFilter.filters[0].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(compoundFilter.filters[0].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[0].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[0].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[0].field).toEqual(FIELD_MAP.X);
         expect(compoundFilter.filters[0].operator).toEqual('>');
         expect(compoundFilter.filters[0].value).toEqual(-100);
-        expect(compoundFilter.filters[1].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(compoundFilter.filters[1].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[1].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[1].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[1].field).toEqual(FIELD_MAP.X);
         expect(compoundFilter.filters[1].operator).toEqual('<');
         expect(compoundFilter.filters[1].value).toEqual(100);
     });
 
     it('createRelationFilter on compound filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName
         }], [{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: NeonFieldMetaData.get()
-        }]);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: ''
+        }], DATASET);
         expect(actual).toEqual(null);
     });
 
@@ -2161,533 +2057,440 @@ describe('CompoundFilter (One Field)', () => {
         let actual;
 
         let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.Y
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.Y.columnName
         }];
 
         actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
-        }], testSubstituteList);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName
+        }], testSubstituteList, DATASET);
         expect(actual.type).toEqual(CompoundFilterType.AND);
-        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
-        expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect(actual.filters[0].datastore).toEqual('datastore1');
+        expect(actual.filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect(actual.filters[0].table).toEqual(TABLES.testTable2);
+        expect(actual.filters[0].field).toEqual(FIELD_MAP.Y);
         expect(actual.filters[0].operator).toEqual('>');
         expect(actual.filters[0].value).toEqual(-100);
-        expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect(actual.filters[1].operator).toEqual('<');
-        expect(actual.filters[1].value).toEqual(100);
-    });
-
-    it('createRelationFilter on compound filter should work with custom root filter', () => {
-        compoundFilter.root = CompoundFilterType.OR;
-
-        let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.Y
-        }];
-
-        let actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
-        }], testSubstituteList);
-        expect(actual.type).toEqual(CompoundFilterType.AND);
-        expect(actual.root).toEqual(CompoundFilterType.OR);
-        expect(actual.filters.length).toEqual(2);
-        expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect(actual.filters[0].operator).toEqual('>');
-        expect(actual.filters[0].value).toEqual(-100);
-        expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect(actual.filters[1].datastore).toEqual('datastore1');
+        expect(actual.filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect(actual.filters[1].table).toEqual(TABLES.testTable2);
+        expect(actual.filters[1].field).toEqual(FIELD_MAP.Y);
         expect(actual.filters[1].operator).toEqual('<');
         expect(actual.filters[1].value).toEqual(100);
     });
 
     it('doesAffectSearch on compound filter should return expected boolean', () => {
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
         expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign on compound filter should return expected boolean', () => {
+    it('isCompatibleWithConfig on compound filter should return expected boolean', () => {
         // Correct, with value
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Correct
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Correct, with custom root filter type
-        expect(compoundFilter.isCompatibleWithDesign({
-            type: 'and',
-            root: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Correct, with rearranged structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Different datastore
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different database
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase2,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase2.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different table
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable2,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable2.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different field
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.Y,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.Y.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different operator
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-
-        // Different custom root filter type
-        expect(compoundFilter.isCompatibleWithDesign({
-            type: 'and',
-            root: CompoundFilterType.OR,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different value
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: 1
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different type
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
                 type: 'and',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '>'
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '<'
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X,
+        expect(compoundFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName,
             operator: '>'
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
     it('isEquivalentToFilter on compound filter should return expected boolean', () => {
         // Different datastore
-        let testFilter1 = FilterUtil.createFilterFromDesign({
+        let testFilter1 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different database
-        let testFilter2 = FilterUtil.createFilterFromDesign({
+        let testFilter2 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase2,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase2.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different table
-        let testFilter3 = FilterUtil.createFilterFromDesign({
+        let testFilter3 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable2,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable2.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different field
-        let testFilter4 = FilterUtil.createFilterFromDesign({
+        let testFilter4 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.Y,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.Y.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different operator
-        let testFilter5 = FilterUtil.createFilterFromDesign({
+        let testFilter5 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different value
-        let testFilter6 = FilterUtil.createFilterFromDesign({
+        let testFilter6 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: 1
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
-
-        // Different custom root filter type
-        let testFilter7 = FilterUtil.createFilterFromDesign({
-            type: 'and',
-            root: CompoundFilterType.OR,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '>',
-                value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '<',
-                value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different type
-        let testFilter8 = FilterUtil.createFilterFromDesign({
+        let testFilter7 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Correct
-        let testFilter9 = FilterUtil.createFilterFromDesign({
+        let testFilter8 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
@@ -2696,35 +2499,31 @@ describe('CompoundFilter (One Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
-        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
-        expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
-    it('toDesign on compound filter should return expected object', () => {
-        expect(compoundFilter.toDesign()).toEqual({
+    it('toConfig on compound filter should return expected object', () => {
+        expect(compoundFilter.toConfig()).toEqual({
             type: 'and',
             id: compoundFilter.id,
-            root: CompoundFilterType.AND,
             filters: [{
                 id: compoundFilter.filters[0].id,
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>',
                 value: -100
-            } as SimpleFilterDesign, {
+            } as SimpleFilterConfig, {
                 id: compoundFilter.filters[1].id,
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig);
     });
 });
 
@@ -2732,59 +2531,58 @@ describe('CompoundFilter (Multi-Field)', () => {
     let compoundFilter: any;
 
     beforeEach(() => {
-        compoundFilter = FilterUtil.createFilterFromDesign({
+        compoundFilter = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
     });
 
     it('does have expected compound multi-field filter properties', () => {
         expect(compoundFilter.id).toBeDefined();
-        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.OR);
 
         expect(compoundFilter.filters.length).toEqual(2);
-        expect(compoundFilter.filters[0].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(compoundFilter.filters[0].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[0].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[0].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[0].field).toEqual(FIELD_MAP.NAME);
         expect(compoundFilter.filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[0].value).toEqual('testName1');
-        expect(compoundFilter.filters[1].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(compoundFilter.filters[1].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[1].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[1].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[1].field).toEqual(FIELD_MAP.X);
         expect(compoundFilter.filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[1].value).toEqual(10);
     });
 
     it('createRelationFilter on compound multi-field filter should return null if substitue has bad data', () => {
         let actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
         }], [{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: NeonFieldMetaData.get()
-        }]);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: ''
+        }], DATASET);
         expect(actual).toEqual(null);
     });
 
@@ -2792,39 +2590,39 @@ describe('CompoundFilter (Multi-Field)', () => {
         let actual;
 
         actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
         }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName
         }], [{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE
-        }]);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TYPE.columnName
+        }], DATASET);
         expect(actual).toEqual(null);
 
         actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
         }], [{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TYPE.columnName
         }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.Y
-        }]);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.Y.columnName
+        }], DATASET);
         expect(actual).toEqual(null);
     });
 
@@ -2832,31 +2630,30 @@ describe('CompoundFilter (Multi-Field)', () => {
         let actual;
 
         let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.TYPE
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.TYPE.columnName
         }];
 
         actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
-        }], testSubstituteList);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
+        }], testSubstituteList, DATASET);
         expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
-        expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect(actual.filters[0].datastore).toEqual('datastore1');
+        expect(actual.filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect(actual.filters[0].table).toEqual(TABLES.testTable2);
+        expect(actual.filters[0].field).toEqual(FIELD_MAP.TYPE);
         expect(actual.filters[0].operator).toEqual('=');
         expect(actual.filters[0].value).toEqual('testName1');
-        expect(actual.filters[1].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(actual.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(actual.filters[1].datastore).toEqual(DATASTORE.name);
+        expect(actual.filters[1].database).toEqual(DATABASES.testDatabase1);
+        expect(actual.filters[1].table).toEqual(TABLES.testTable1);
+        expect(actual.filters[1].field).toEqual(FIELD_MAP.X);
         expect(actual.filters[1].operator).toEqual('=');
         expect(actual.filters[1].value).toEqual(10);
     });
@@ -2865,553 +2662,450 @@ describe('CompoundFilter (Multi-Field)', () => {
         let actual;
 
         let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.TYPE
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.TYPE.columnName
         }, {
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.Y
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.Y.columnName
         }];
 
         actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName
         }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
-        }], testSubstituteList);
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName
+        }], testSubstituteList, DATASET);
         expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.root).toEqual(CompoundFilterType.AND);
         expect(actual.filters.length).toEqual(2);
-        expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
+        expect(actual.filters[0].datastore).toEqual('datastore1');
+        expect(actual.filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect(actual.filters[0].table).toEqual(TABLES.testTable2);
+        expect(actual.filters[0].field).toEqual(FIELD_MAP.TYPE);
         expect(actual.filters[0].operator).toEqual('=');
         expect(actual.filters[0].value).toEqual('testName1');
-        expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
-        expect(actual.filters[1].operator).toEqual('=');
-        expect(actual.filters[1].value).toEqual(10);
-    });
-
-    it('createRelationFilter on compound multi-field filter should work with custom root filter', () => {
-        compoundFilter.root = CompoundFilterType.OR;
-
-        let testSubstituteList = [{
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.TYPE
-        }, {
-            datastore: 'testDatastore2',
-            database: DashboardServiceMock.DATABASES.testDatabase2,
-            table: DashboardServiceMock.TABLES.testTable2,
-            field: DashboardServiceMock.FIELD_MAP.Y
-        }];
-
-        let actual = compoundFilter.createRelationFilter([{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.X
-        }], testSubstituteList);
-        expect(actual.type).toEqual(CompoundFilterType.OR);
-        expect(actual.root).toEqual(CompoundFilterType.OR);
-        expect(actual.filters.length).toEqual(2);
-        expect(actual.filters[0].datastore).toEqual('testDatastore2');
-        expect(actual.filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect(actual.filters[0].operator).toEqual('=');
-        expect(actual.filters[0].value).toEqual('testName1');
-        expect(actual.filters[1].datastore).toEqual('testDatastore2');
-        expect(actual.filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
-        expect(actual.filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(actual.filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.Y);
+        expect(actual.filters[1].datastore).toEqual('datastore1');
+        expect(actual.filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect(actual.filters[1].table).toEqual(TABLES.testTable2);
+        expect(actual.filters[1].field).toEqual(FIELD_MAP.Y);
         expect(actual.filters[1].operator).toEqual('=');
         expect(actual.filters[1].value).toEqual(10);
     });
 
     it('doesAffectSearch on compound multi-field filter should return expected boolean', () => {
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable1')).toEqual(true);
         expect(compoundFilter.doesAffectSearch('testDatastore2', 'testDatabase1', 'testTable1')).toEqual(false);
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
-        expect(compoundFilter.doesAffectSearch(DashboardServiceMock.DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase2', 'testTable1')).toEqual(false);
+        expect(compoundFilter.doesAffectSearch(DATASTORE.name, 'testDatabase1', 'testTable2')).toEqual(false);
     });
 
-    it('isCompatibleWithDesign on compound multi-field filter should return expected boolean', () => {
+    it('isCompatibleWithConfig on compound multi-field filter should return expected boolean', () => {
         // Correct, with value
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Correct
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
-
-        // Correct, with custom root filter type
-        expect(compoundFilter.isCompatibleWithDesign({
-            type: 'or',
-            root: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Correct, with rearranged structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(true);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(true);
 
         // Different datastore
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different database
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase2,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase2.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different table
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable2,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable2.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different field
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.TYPE.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different operator
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '!='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
-
-        // Different custom root filter type
-        expect(compoundFilter.isCompatibleWithDesign({
-            type: 'or',
-            root: CompoundFilterType.OR,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
-                operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different value
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 1
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different type
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '='
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '!='
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
+        expect(compoundFilter.isCompatibleWithConfig({
             type: 'or',
             filters: [{
                 type: 'and',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.NAME,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.NAME.columnName,
                     operator: '='
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '='
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign)).toEqual(false);
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig)).toEqual(false);
 
         // Different structure
-        expect(compoundFilter.isCompatibleWithDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        expect(compoundFilter.isCompatibleWithConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '='
-        } as SimpleFilterDesign)).toEqual(false);
+        } as SimpleFilterConfig)).toEqual(false);
     });
 
     it('isEquivalentToFilter on compound multi-field filter should return expected boolean', () => {
         // Different datastore
-        let testFilter1 = FilterUtil.createFilterFromDesign({
+        let testFilter1 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
                 datastore: 'testDatastore2',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different database
-        let testFilter2 = FilterUtil.createFilterFromDesign({
+        let testFilter2 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase2,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase2.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different table
-        let testFilter3 = FilterUtil.createFilterFromDesign({
+        let testFilter3 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable2,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable2.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different field
-        let testFilter4 = FilterUtil.createFilterFromDesign({
+        let testFilter4 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different operator
-        let testFilter5 = FilterUtil.createFilterFromDesign({
+        let testFilter5 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '!=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different value
-        let testFilter6 = FilterUtil.createFilterFromDesign({
+        let testFilter6 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 1
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
-
-        // Different custom root filter type
-        let testFilter7 = FilterUtil.createFilterFromDesign({
-            type: 'or',
-            root: CompoundFilterType.OR,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
-                operator: '=',
-                value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
-                operator: '=',
-                value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Different type
-        let testFilter8 = FilterUtil.createFilterFromDesign({
+        let testFilter7 = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         // Correct
-        let testFilter9 = FilterUtil.createFilterFromDesign({
+        let testFilter8 = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET);
 
         expect(compoundFilter.isEquivalentToFilter(testFilter1)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter2)).toEqual(false);
@@ -3420,35 +3114,31 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter5)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter6)).toEqual(false);
         expect(compoundFilter.isEquivalentToFilter(testFilter7)).toEqual(false);
-        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(false);
-        expect(compoundFilter.isEquivalentToFilter(testFilter9)).toEqual(true);
+        expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
-    it('toDesign on compound multi-field filter should return expected object', () => {
-        expect(compoundFilter.toDesign()).toEqual({
+    it('toConfig on compound multi-field filter should return expected object', () => {
+        expect(compoundFilter.toConfig()).toEqual({
             type: 'or',
             id: compoundFilter.id,
-            root: CompoundFilterType.AND,
             filters: [{
                 id: compoundFilter.filters[0].id,
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName1'
-            } as SimpleFilterDesign, {
+            } as SimpleFilterConfig, {
                 id: compoundFilter.filters[1].id,
-                root: CompoundFilterType.AND,
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '=',
                 value: 10
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig);
     });
 });
 
@@ -3456,179 +3146,169 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
     let compoundFilter: any;
 
     beforeEach(() => {
-        compoundFilter = FilterUtil.createFilterFromDesign({
+        compoundFilter = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 10
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 20
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign, {
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig, {
                 type: 'or',
                 filters: [{
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.NAME,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.NAME.columnName,
                     operator: '=',
                     value: 'testName1'
-                } as SimpleFilterDesign, {
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.NAME,
+                } as SimpleFilterConfig, {
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.NAME.columnName,
                     operator: '=',
                     value: 'testName2'
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign);
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig, DATASET);
     });
 
     it('does have expected compound nested filter properties', () => {
         expect(compoundFilter.id).toBeDefined();
-        expect(compoundFilter.root).toEqual(CompoundFilterType.AND);
         expect(compoundFilter.relations).toEqual([]);
         expect(compoundFilter.type).toEqual(CompoundFilterType.AND);
 
         expect(compoundFilter.filters.length).toEqual(2);
         expect(compoundFilter.filters[0].type).toEqual(CompoundFilterType.OR);
         expect(compoundFilter.filters[0].filters.length).toEqual(2);
-        expect(compoundFilter.filters[0].filters[0].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[0].filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[0].filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[0].filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(compoundFilter.filters[0].filters[0].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[0].filters[0].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[0].filters[0].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[0].filters[0].field).toEqual(FIELD_MAP.X);
         expect(compoundFilter.filters[0].filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[0].filters[0].value).toEqual(10);
-        expect(compoundFilter.filters[0].filters[1].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[0].filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[0].filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[0].filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.X);
+        expect(compoundFilter.filters[0].filters[1].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[0].filters[1].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[0].filters[1].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[0].filters[1].field).toEqual(FIELD_MAP.X);
         expect(compoundFilter.filters[0].filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[0].filters[1].value).toEqual(20);
         expect(compoundFilter.filters[1].type).toEqual(CompoundFilterType.OR);
         expect(compoundFilter.filters[1].filters.length).toEqual(2);
-        expect(compoundFilter.filters[1].filters[0].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[1].filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[1].filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[1].filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(compoundFilter.filters[1].filters[0].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[1].filters[0].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[1].filters[0].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[1].filters[0].field).toEqual(FIELD_MAP.NAME);
         expect(compoundFilter.filters[1].filters[0].operator).toEqual('=');
         expect(compoundFilter.filters[1].filters[0].value).toEqual('testName1');
-        expect(compoundFilter.filters[1].filters[1].datastore).toEqual(DashboardServiceMock.DATASTORE.name);
-        expect(compoundFilter.filters[1].filters[1].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect(compoundFilter.filters[1].filters[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(compoundFilter.filters[1].filters[1].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
+        expect(compoundFilter.filters[1].filters[1].datastore).toEqual(DATASTORE.name);
+        expect(compoundFilter.filters[1].filters[1].database).toEqual(DATABASES.testDatabase1);
+        expect(compoundFilter.filters[1].filters[1].table).toEqual(TABLES.testTable1);
+        expect(compoundFilter.filters[1].filters[1].field).toEqual(FIELD_MAP.NAME);
         expect(compoundFilter.filters[1].filters[1].operator).toEqual('=');
         expect(compoundFilter.filters[1].filters[1].value).toEqual('testName2');
     });
 
-    it('toDesign on compound nested filters should return expected object', () => {
-        expect(compoundFilter.toDesign()).toEqual({
+    it('toConfig on compound nested filters should return expected object', () => {
+        expect(compoundFilter.toConfig()).toEqual({
             type: 'and',
             id: compoundFilter.id,
-            root: CompoundFilterType.AND,
             filters: [{
                 type: 'or',
                 id: compoundFilter.filters[0].id,
-                root: CompoundFilterType.AND,
                 filters: [{
                     id: compoundFilter.filters[0].filters[0].id,
-                    root: CompoundFilterType.AND,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 10
-                } as SimpleFilterDesign, {
+                } as SimpleFilterConfig, {
                     id: compoundFilter.filters[0].filters[1].id,
-                    root: CompoundFilterType.AND,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.X,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.X.columnName,
                     operator: '=',
                     value: 20
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign, {
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig, {
                 type: 'or',
                 id: compoundFilter.filters[1].id,
-                root: CompoundFilterType.AND,
                 filters: [{
                     id: compoundFilter.filters[1].filters[0].id,
-                    root: CompoundFilterType.AND,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.NAME,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.NAME.columnName,
                     operator: '=',
                     value: 'testName1'
-                } as SimpleFilterDesign, {
+                } as SimpleFilterConfig, {
                     id: compoundFilter.filters[1].filters[1].id,
-                    root: CompoundFilterType.AND,
-                    datastore: DashboardServiceMock.DATASTORE.name,
-                    database: DashboardServiceMock.DATABASES.testDatabase1,
-                    table: DashboardServiceMock.TABLES.testTable1,
-                    field: DashboardServiceMock.FIELD_MAP.NAME,
+                    datastore: DATASTORE.name,
+                    database: DATABASES.testDatabase1.name,
+                    table: TABLES.testTable1.name,
+                    field: FIELD_MAP.NAME.columnName,
                     operator: '=',
                     value: 'testName2'
-                } as SimpleFilterDesign]
-            } as CompoundFilterDesign]
-        } as CompoundFilterDesign);
+                } as SimpleFilterConfig]
+            } as CompoundFilterConfig]
+        } as CompoundFilterConfig);
     });
 });
 
 describe('Filter Labels', () => {
     it('getLabel functions on string filters should return expected strings', () => {
-        let stringContainsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let stringContainsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: 'contains',
             value: 'testName1'
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(stringContainsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringContainsFilter.getLabelForField(true)).toEqual('Test Name Field');
         expect(stringContainsFilter.getLabelForOperator()).toEqual('contains');
         expect(stringContainsFilter.getLabelForValue()).toEqual('testName1');
 
-        let stringEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let stringEqualsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '=',
             value: 'testName1'
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(stringEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringEqualsFilter.getLabelForField(true)).toEqual('Test Name Field');
         expect(stringEqualsFilter.getLabelForOperator()).toEqual('');
         expect(stringEqualsFilter.getLabelForValue()).toEqual('testName1');
 
-        let stringNotEmptyFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: 'testDatastore1',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.NAME,
+        let stringNotEmptyFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
             operator: '!=',
             value: ''
-        } as SimpleFilterDesign) as SimpleFilter;
-        // TODO THOR-1078 Remove this line
-        stringNotEmptyFilter.datastore = 'testDatastore1';
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(stringNotEmptyFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field');
         expect(stringNotEmptyFilter.getLabelForField(true)).toEqual('Test Name Field');
@@ -3637,42 +3317,42 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on date filters should return expected strings', () => {
-        let dateEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.DATE,
+        let dateEqualsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.DATE.columnName,
             operator: '=',
             value: '2000-01-02T00:00:00Z'
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(dateEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateEqualsFilter.getLabelForField(true)).toEqual('Test Date Field');
         expect(dateEqualsFilter.getLabelForOperator()).toEqual('');
         expect(dateEqualsFilter.getLabelForValue()).toEqual('2000-01-02');
 
-        let dateGreaterThanFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.DATE,
+        let dateGreaterThanFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.DATE.columnName,
             operator: '>',
             value: '2000-01-02T00:00:00Z'
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(dateGreaterThanFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateGreaterThanFilter.getLabelForField(true)).toEqual('Test Date Field');
         expect(dateGreaterThanFilter.getLabelForOperator()).toEqual('after');
         expect(dateGreaterThanFilter.getLabelForValue()).toEqual('2000-01-02');
 
-        let dateLessThanFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.DATE,
+        let dateLessThanFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.DATE.columnName,
             operator: '<',
             value: '2000-01-02T00:00:00Z'
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(dateLessThanFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Date Field');
         expect(dateLessThanFilter.getLabelForField(true)).toEqual('Test Date Field');
@@ -3683,42 +3363,42 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on number filters should return expected strings', () => {
-        let floatEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.SIZE,
+        let floatEqualsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '=',
             value: 1234.5678
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(floatEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(floatEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
         expect(floatEqualsFilter.getLabelForOperator()).toEqual('');
         expect(floatEqualsFilter.getLabelForValue()).toEqual('1234.568');
 
-        let intEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.SIZE,
+        let intEqualsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '=',
             value: 1234
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(intEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(intEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
         expect(intEqualsFilter.getLabelForOperator()).toEqual('');
         expect(intEqualsFilter.getLabelForValue()).toEqual('1234');
 
-        let zeroEqualsFilter: SimpleFilter = FilterUtil.createFilterFromDesign({
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.SIZE,
+        let zeroEqualsFilter: SimpleFilter = FilterUtil.createFilterFromConfig({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.SIZE.columnName,
             operator: '=',
             value: 0
-        } as SimpleFilterDesign) as SimpleFilter;
+        } as SimpleFilterConfig, DATASET) as SimpleFilter;
 
         expect(zeroEqualsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(zeroEqualsFilter.getLabelForField(true)).toEqual('Test Size Field');
@@ -3727,38 +3407,38 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on bounds filter should return expected strings', () => {
-        let boundsFilter: CompoundFilter = FilterUtil.createFilterFromDesign({
+        let boundsFilter: CompoundFilter = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '>=',
                 value: -50
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.X,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.X.columnName,
                 operator: '<=',
                 value: 50
             }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.Y,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.Y.columnName,
                 operator: '>=',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.Y,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.Y.columnName,
                 operator: '<=',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign) as CompoundFilter;
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET) as CompoundFilter;
 
         expect(boundsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
             'Test Table 1 / Test Y Field');
@@ -3768,31 +3448,31 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on compound filter should return expected strings', () => {
-        let compoundFilter: CompoundFilter = FilterUtil.createFilterFromDesign({
+        let compoundFilter: CompoundFilter = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.NAME,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.NAME.columnName,
                 operator: '=',
                 value: 'testName'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TEXT,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.TEXT.columnName,
                 operator: '=',
                 value: 'testText'
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testType'
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign) as CompoundFilter;
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET) as CompoundFilter;
 
         // TODO THOR-1333 Improve label for custom compound filter
         expect(compoundFilter.getLabelForField()).toEqual('');
@@ -3805,24 +3485,24 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on domain filter should return expected strings', () => {
-        let domainFilter: CompoundFilter = FilterUtil.createFilterFromDesign({
+        let domainFilter: CompoundFilter = FilterUtil.createFilterFromConfig({
             type: 'and',
             filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '>=',
                 value: -100
-            } as SimpleFilterDesign, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.SIZE,
+            } as SimpleFilterConfig, {
+                datastore: DATASTORE.name,
+                database: DATABASES.testDatabase1.name,
+                table: TABLES.testTable1.name,
+                field: FIELD_MAP.SIZE.columnName,
                 operator: '<=',
                 value: 100
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign) as CompoundFilter;
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig, DATASET) as CompoundFilter;
 
         expect(domainFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
         expect(domainFilter.getLabelForField(true)).toEqual('Test Size Field');
