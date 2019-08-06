@@ -522,6 +522,10 @@ layouts:
                     dateField: date_field_key
                     colorField: group_field_key_topics
               mapType: leaflet
+              west: 135
+              north: -5
+              east: 150
+              south: -6
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
