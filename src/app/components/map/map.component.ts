@@ -701,7 +701,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
 
     private createFilterDesignOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterDesign {
         return {
-            root: CompoundFilterType.OR,
             datastore: layer.datastore.name,
             database: layer.database,
             table: layer.table,

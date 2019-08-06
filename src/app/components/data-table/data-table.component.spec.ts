@@ -20,7 +20,6 @@ import { } from 'jasmine-core';
 import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
-import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -1084,7 +1083,6 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(0);
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -1123,7 +1121,6 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
             datastore: DashboardServiceMock.DATASTORE.name,
             database: DashboardServiceMock.DATABASES.testDatabase1,
             table: DashboardServiceMock.TABLES.testTable1,
@@ -1166,9 +1163,7 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1176,7 +1171,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1184,7 +1178,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1227,9 +1220,7 @@ describe('Component: DataTable', () => {
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
         expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'or',
-            root: CompoundFilterType.OR,
             filters: [{
-                root: CompoundFilterType.OR,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1237,7 +1228,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                root: CompoundFilterType.OR,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1245,7 +1235,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                root: CompoundFilterType.OR,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1287,9 +1276,7 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'and',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1297,7 +1284,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1305,7 +1291,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1348,9 +1333,7 @@ describe('Component: DataTable', () => {
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
         expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
             type: 'or',
-            root: CompoundFilterType.AND,
             filters: [{
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1358,7 +1341,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'books'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,
@@ -1366,7 +1348,6 @@ describe('Component: DataTable', () => {
                 operator: '=',
                 value: 'games'
             }, {
-                root: CompoundFilterType.AND,
                 datastore: DashboardServiceMock.DATASTORE.name,
                 database: DashboardServiceMock.DATABASES.testDatabase1,
                 table: DashboardServiceMock.TABLES.testTable1,

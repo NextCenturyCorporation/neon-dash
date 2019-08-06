@@ -70,7 +70,6 @@ export class FilterService {
                         // Do not create a relation that is the same as the original filter.
                         if (relation !== equivalentRelationList[0]) {
                             let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation);
-                            relationFilter.root = filter.root || CompoundFilterType.AND;
                             relationFilterList.push(relationFilter);
                         }
                     });
@@ -296,13 +295,10 @@ export class FilterService {
             if (ignore) {
                 return returnList;
             }
-            let filterListToAND: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                filter.root === CompoundFilterType.AND && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let filterListToOR: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                filter.root === CompoundFilterType.OR && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let filterAND: AbstractFilter = filterListToAND.length ? new CompoundFilter(CompoundFilterType.AND, filterListToAND) : null;
-            let filterOR: AbstractFilter = filterListToOR.length ? new CompoundFilter(CompoundFilterType.OR, filterListToOR) : null;
-            return returnList.concat(filterAND || []).concat(filterOR || []);
+            let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filter: AbstractFilter = filterList.length ? new CompoundFilter(CompoundFilterType.OR, filterList) : null;
+            return returnList.concat(filter || []);
         }, [] as AbstractFilter[]);
     }
 
