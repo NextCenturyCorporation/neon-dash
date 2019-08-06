@@ -41,6 +41,7 @@ describe('Component: Aggregation', () => {
     let component: AggregationComponent;
     let fixture: ComponentFixture<AggregationComponent>;
 
+    let DEFAULT_COLOR = new Color('#54C8CD', 'rgba(84,200,205,0.66)', 'rgba(84,200,205,0.33)');
     let COLOR_1 = new Color('var(--color-set-1)', 'var(--color-set-dark-1)', 'var(--color-set-1-transparency-high)');
     let COLOR_2 = new Color('var(--color-set-2)', 'var(--color-set-dark-2)', 'var(--color-set-2-transparency-high)');
 
@@ -1878,12 +1879,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
             y: 4
@@ -1908,12 +1909,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
             y: 4
@@ -2141,12 +2142,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -2172,12 +2173,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -2204,12 +2205,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 'a',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 'c',
             y: 4
@@ -2236,12 +2237,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
             y: 4
@@ -2275,12 +2276,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(2);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 4
@@ -2313,17 +2314,17 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(3);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -2358,22 +2359,22 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(4);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 5
@@ -2489,27 +2490,27 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(5);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 4
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: '2018-01-05T00:00:00.000Z',
             y: 0
@@ -2540,12 +2541,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
             y: 4
@@ -2570,12 +2571,12 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual(['All']);
         expect(actual).toEqual(6);
         expect(component.aggregationData).toEqual([{
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: COLOR_1,
+            color: DEFAULT_COLOR,
             group: 'All',
             x: 3,
             y: 4

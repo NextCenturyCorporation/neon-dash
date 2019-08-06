@@ -52,6 +52,9 @@ export namespace neonUtilities {
      * @return {object}
      */
     export function deepFind(item, pathString) {
+        if (item && typeof item[pathString] !== 'undefined') {
+            return item[pathString];
+        }
         let itemToReturn = item;
         let path = (pathString ? pathString.split('.') : []);
         for (let index = 0; index < path.length; index++) {
