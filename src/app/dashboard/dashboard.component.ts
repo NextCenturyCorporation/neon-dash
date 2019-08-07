@@ -459,6 +459,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+
+        this.onDashboardStateChange(this.dashboardService.state);
     }
 
     toggleGlobalMoving() {
