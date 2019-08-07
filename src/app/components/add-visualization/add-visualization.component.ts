@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
 
 import { AbstractColorThemeService } from '../../services/abstract.color-theme.service';
 import { NeonGridItem } from '../../models/neon-grid-item';
@@ -37,7 +36,7 @@ export class AddVisualizationComponent implements OnInit {
 
     public messenger: eventing.Messenger;
 
-    constructor(public colorThemeService: AbstractColorThemeService, public snackBar: MatSnackBar) {
+    constructor(public colorThemeService: AbstractColorThemeService) {
         this.messenger = new eventing.Messenger();
     }
 
@@ -60,10 +59,8 @@ export class AddVisualizationComponent implements OnInit {
             widgetGridItem: widgetGridItem
         });
 
-        this.snackBar.open('Visualization Added', 'x', {
-            duration: 5000,
-            verticalPosition: 'top',
-            panelClass: ['simpleSnackBar']
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            message: 'Visualization Added'
         });
     }
 
