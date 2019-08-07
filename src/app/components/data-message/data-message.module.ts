@@ -15,14 +15,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataMessageComponent } from './data-message.component';
-import { MatSnackBarModule } from '@angular/material';
 
 @NgModule({
     declarations: [DataMessageComponent],
     entryComponents: [DataMessageComponent],
     exports: [DataMessageComponent],
     imports: [
-        MatSnackBarModule,
         CommonModule
     ]
 })
