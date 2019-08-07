@@ -7,7 +7,7 @@
     </div>
     <mat-form-field *ngFor="let property of request.properties" appearance="outline">
         <textarea matInput *ngIf="property.choices == undefined" [placeholder]="property.pretty" [(ngModel)]="property.value"
-            [name]="property.name"></textarea>
+            [name]="property.name" required="true"></textarea>
         <mat-select *ngIf="property.choices != undefined" [placeholder]="property.pretty" [(ngModel)]="property.value" required="true">
             <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
         </mat-select>
