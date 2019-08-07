@@ -35,8 +35,8 @@ export interface NeonCustomRequests {
     endpoint: string;
     // Adds a unique ID to the body using the specified property name
     id?: string;
-    // Optional note to user
-    note?: string;
+    // Optional notes to user
+    notes?: string[];
     // Pretty name to show to user
     pretty: string;
     // Body properties
