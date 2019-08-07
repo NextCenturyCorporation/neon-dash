@@ -32,11 +32,16 @@
                     <span
                         class="text">{{ item[options.titleContentField.columnName] || item[options.contentField.columnName] }}</span>
                 </mat-panel-title>
-                <div *ngIf="item['mediaMetaDataList']">
-                    <img src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                <div *ngIf="item.mediaMetaDataList">
+                    <ng-container [ngSwitch]="item.mediaMetaDataList.selected.type">
+                        <img *ngSwitchCase="mediaTypes.image" src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.video" src="/assets/icons/dashboard/baseline-play-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.audio"
+                            src="/assets/icons/dashboard/baseline-audiotrack-24px.svg">
+                    </ng-container>
                 </div>
             </mat-expansion-panel-header>
-            <mat-panel-description>
+            <mat-panel-description *ngIf="isExpanded(item)">
                 <div>
                     <div class="text multiple-line" *ngIf="item[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
@@ -54,8 +59,7 @@
                             <mat-icon>filter_list</mat-icon>
                         </a>
                     </div>
-                    <app-media-group class=media-group *ngIf="item['mediaMetaDataList']"
-                        [media]="item['mediaMetaDataList']">
+                    <app-media-group class=media-group *ngIf="item.mediaMetaDataList" [media]="item.mediaMetaDataList">
                     </app-media-group>
                 </div>
             </mat-panel-description>

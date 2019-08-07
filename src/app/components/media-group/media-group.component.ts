@@ -19,6 +19,7 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import { MediaTypes } from '../../models/types';
+import { DomSanitizer } from '@angular/platform-browser';
 export interface MediaMetaData {
     // TODO Add a way for the user to select other items from the list.
     // Masks removed as VMAP was the only one using masks,
@@ -58,8 +59,20 @@ export class MediaGroupComponent {
         },
         list: []
     };
+    constructor(
+        private sanitizer: DomSanitizer
+    ) { }
 
     public selectedLinkIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
+
+
+    showMedia() {
+        return this.sanitizer.bypassSecurityTrustUrl(this.media.selected.link);
+    }
+
+    showVideoMedia() {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(this.media.selected.link);
+    }
 }

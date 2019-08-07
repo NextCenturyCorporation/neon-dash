@@ -77,7 +77,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         searchService: AbstractSearchService,
         injector: Injector,
         ref: ChangeDetectorRef,
-        private sanitizer: DomSanitizer,
         dialog: MatDialog,
         public visualization: ElementRef
     ) {
@@ -142,6 +141,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFieldOption('linkType', 'Link Type', true),
+            new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
@@ -269,45 +270,48 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     transformVisualizationQueryResults(options: any, results: any[]): number {
         this.newsFeedData = results.map((result) => {
             let item = {};
+            let type;
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
+                        if (field.columnName === this.options.linkType.columnName) {
+                            type = value;
+                        }
+                        if (field.columnName === this.options.linkField.columnName) {
+                            value = neonUtilities.transformToStringArray(value, this.options.delimiter);
+                            let tabsAndMedia: MediaMetaData;
+                            let index = 0;
+                            if (value.length > 0) {
+                                let tab: MediaMetaData = {
+                                    selected: undefined,
+                                    name: '',
+                                    loaded: false,
+                                    list: []
+                                };
+                                value.forEach((linkUrl) => {
+                                    tab.list.push({
+                                        // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                                        border: this.options.border,
+                                        link: this.appendPrefixIfNeeded(linkUrl, this.options.linkPrefix),
+                                        name: (index + 1) + ': ' + linkUrl.substring(linkUrl.lastIndexOf('/') + 1),
+                                        type: (this.getMediaType(linkUrl) || '')
+                                    });
+                                });
+                                tab.selected = tab.list[0];
+                                tabsAndMedia = tab;
+                                index++;
+                            }
+                            if (tabsAndMedia) {
+                                item['mediaMetaDataList'] = tabsAndMedia;
+                            }
+                        }
                         item[field.columnName] = value;
                     }
                 }
             }
-            let tabsAndMedia: MediaMetaData;
-            let index = 0;
-            if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 0) {
-                if (this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length > 3) {
-                    console.log("Item ID with more than 3 images: " + item['_id']);
-                    console.log("Has " + this.transformToStringArray(item['mediaEntities.mediaURLHttps'], ',').length + " images.")
-                }
-                item['mediaEntities.mediaURLHttps'].forEach((url) => {
-                    let tab: MediaMetaData = {
-                        selected: undefined,
-                        name: (item['mediaEntities.mediaURLHttps'].length > 1 ?
-                            ((index + 1) + ': ') : '') + url.substring(url.lastIndexOf('/') + 1),
-                        loaded: false,
-                        list: []
-                    };
-                    item['mediaEntities.mediaURLHttps'].forEach((linkUrl) => {
-                        tab.list.push({
-                            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                            border: this.options.border,
-                            link: this.appendPrefixIfNeeded(linkUrl, this.options.linkPrefix),
-                            name: '',
-                            type: (this.getMediaType(linkUrl) || '')
-                        });
-                    });
-                    tab.selected = tab.list[0];
-                    tabsAndMedia = tab;
-                    index++;
-                });
-            }
-            if (tabsAndMedia) {
-                item['mediaMetaDataList'] = tabsAndMedia;
+            if (type && item['mediaMetaDataList']) {
+                item['mediaMetaDataList'].selected.type = this.getMediaType(type);
             }
             return item;
         });
@@ -399,6 +403,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         )));
     }
 
+    isExpanded(item) {
+        return this.selectedItem === item;
+    }
+
     /**
      * Returns the media type for the thumbnail
      * @arg {object} item
@@ -408,27 +416,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
         return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
             this.options.typeMap[fileType] : '';
-    }
-
-    /**
-     * Transforms the given string or string array into a string array and returns the array.
-     *
-     * @arg {string|string[]} input
-     * @return {string[]}
-     */
-    transformToStringArray(input, delimiter: string) {
-        if (Array.isArray(input)) {
-            return input;
-        }
-        if (input !== '' && input !== null && typeof input !== 'undefined') {
-            let inputValue = input.toString();
-            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
-                typeof inputValue !== 'undefined') {
-                inputValue = inputValue.substring(1, inputValue.length - 1);
-            }
-            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
-        }
-        return [];
     }
 
     /**

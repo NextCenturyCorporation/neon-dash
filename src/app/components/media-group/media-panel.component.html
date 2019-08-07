@@ -1,3 +1,9 @@
 <div>
-    <img class="thumb" [src]="imageObj.link" (click)="select(imageObj)">
+    <ng-container [ngSwitch]="imageObj.type">
+        <img *ngSwitchCase="mediaTypes.video" class="thumb" src="./assets/icons/dashboard/baseline-play-24px.svg">
+        <img *ngSwitchCase="mediaTypes.pdf" class="thumb" src="./assets/icons/visualization/neon-teal/annotation.svg">
+        <img *ngSwitchCase="mediaTypes.audio" class="thumb" src="./assets/icons/dashboard/baseline-audiotrack-24px.svg">
+        <img *ngSwitchCase="mediaTypes.image" class="thumb" [src]="imageObj.link" (click)="select(imageObj)"
+            aria-label="imageObj.name">
+    </ng-container>
 </div>

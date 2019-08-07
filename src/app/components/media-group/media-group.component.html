@@ -2,7 +2,24 @@
     <ng-container *ngIf="media.list.length != 1">
         <div id="viewer-container">
             <div id="pres-container">
-                <img class="presentation" [src]='media.selected.link'>
+                <ng-container [ngSwitch]="media.selected.type">
+                    <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='media.selected.link'>
+                    <ng-container *ngSwitchCase="mediaTypes.video">
+                        <video controls>
+                            <source [src]="showVideoMedia()" type="video/mp4">
+                        </video>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="mediaTypes.pdf">
+                        <p>Open the PDF file <a [href]="showMedia()" target="_blank">
+                                <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                            </a></p>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="mediaTypes.audio">
+                        <audio controls>
+                            <source [src]="media.selected.link" type="audio/mp3">
+                        </audio>
+                    </ng-container>
+                </ng-container>
             </div>
             <div id="container-thumb">
                 <!-- Thumbnails -->
@@ -18,6 +35,22 @@
     </ng-container>
 
     <ng-container *ngIf="media.list.length == 1">
-        <img class="presentation" [src]="media.list[0].link">
+        <ng-container [ngSwitch]="media.selected.type">
+            <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='showMedia()'>
+            <ng-container *ngSwitchCase="mediaTypes.video">
+                <iframe [src]="showVideoMedia()">
+                </iframe>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.pdf">
+                <p>Open the PDF file <a [href]="showMedia()" target="_blank">
+                        <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                    </a></p>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.audio">
+                <audio controls>
+                    <source [src]="showMedia()" type="audio/mp3">
+                </audio>
+            </ng-container>
+        </ng-container>
     </ng-container>
 </ng-container>

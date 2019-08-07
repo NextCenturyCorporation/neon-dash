@@ -122,13 +122,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         fields.forEach((fieldsConfig) => {
             if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
-                links = links.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                links = links.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'name') {
-                names = names.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                names = names.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'type') {
-                types = types.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                types = types.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
         });
 
@@ -472,17 +472,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             if (options.nameField.columnName) {
                 names = neonUtilities.deepFind(result, options.nameField.columnName);
                 names = typeof names === 'undefined' ? [] : names;
-                names = this.transformToStringArray(names, options.delimiter);
+                names = neonUtilities.transformToStringArray(names, options.delimiter);
             }
 
             if (options.typeField.columnName) {
                 types = neonUtilities.deepFind(result, options.typeField.columnName) || '';
-                types = this.transformToStringArray(types, options.delimiter);
+                types = neonUtilities.transformToStringArray(types, options.delimiter);
             }
 
             options.linkFields.forEach((linkField) => {
                 let links = neonUtilities.deepFind(result, linkField.columnName) || '';
-                links = this.transformToStringArray(links, options.delimiter);
+                links = neonUtilities.transformToStringArray(links, options.delimiter);
                 let tabs: MediaMetaData[] = this.createTabs(links, names, types, this.noDataId);
                 tabs.forEach((tab) => {
                     if (tab.list.length) {
@@ -533,27 +533,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-
-    /**
-     * Transforms the given string or string array into a string array and returns the array.
-     *
-     * @arg {string|string[]} input
-     * @return {string[]}
-     */
-    transformToStringArray(input, delimiter: string) {
-        if (Array.isArray(input)) {
-            return input;
-        }
-        if (input !== '' && input !== null && typeof input !== 'undefined') {
-            let inputValue = input.toString();
-            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
-                typeof inputValue !== 'undefined') {
-                inputValue = inputValue.substring(1, inputValue.length - 1);
-            }
-            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
-        }
-        return [];
     }
 
     /**
