@@ -450,7 +450,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         this.sortTaxonomies(group);
 
-        this._updateEachTreeNodeStatus(group);
+        this._updateEachTreeNodeCheckBox(group);
 
         this.taxonomyGroups = group.children as TaxonomyGroup[];
 
@@ -561,8 +561,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     checkRelatedNodes(node: TreeNode | TaxonomyNode, $event: any) {
         // Update all the groups in the taxonomy (select or unselect them).
-        this.updateChildNodesCheckBox(node, $event.target.checked);
-        this.updateParentNodesCheckBox(node.parent);
+        this._updateChildNodesCheckBox(node, $event.target.checked);
+        this._updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
         const unselectedGroups = this.taxonomyGroups.reduce((array, group) =>
@@ -627,7 +627,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterConfigListToDelete);
     }
 
-    updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean) {
+    private _updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean): void {
         let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
         setNode.checked = checked;
         if (checked === false && setNode.indeterminate) {
@@ -635,74 +635,53 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         if (setNode.children) {
-            setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+            setNode.children.forEach((child) => this._updateChildNodesCheckBox(child, checked));
         }
     }
 
-    private _updateEachTreeNodeStatus(node: TaxonomyGroup | TaxonomyNode) {
+    private _updateEachTreeNodeCheckBox(node: TaxonomyGroup | TaxonomyNode): void {
         if ('children' in node && node.children.length) {
-            let allChildrenChecked = true;
-            let noChildrenChecked = true;
+            this._updateNodeCheckBox(node);
 
             for (const child of node.children) {
-                if (node.level === 1 && child.indeterminate) {
-                    allChildrenChecked = false;
-                    noChildrenChecked = false;
-                } else if (!child.checked) {
-                    allChildrenChecked = false;
-                } else if (child.checked) {
-                    noChildrenChecked = false;
-                }
-            }
-
-            if (allChildrenChecked) {
-                node.checked = true;
-                node.indeterminate = false;
-            } else if (noChildrenChecked) {
-                node.checked = false;
-                node.indeterminate = false;
-            } else {
-                node.checked = true;
-                node.indeterminate = true;
-            }
-
-            for (const child of node.children) {
-                this._updateEachTreeNodeStatus(child);
+                this._updateEachTreeNodeCheckBox(child);
             }
         }
     }
 
-    updateParentNodesCheckBox(node: TreeNode | TaxonomyGroup) {
+    private _updateNodeCheckBox(node: TaxonomyGroup): void {
+        let allChildrenChecked = true;
+        let noChildrenChecked = true;
+
+        for (const child of node.children) {
+            if (node.level === 1 && child.indeterminate) {
+                allChildrenChecked = false;
+                noChildrenChecked = false;
+            } else if (!child.checked) {
+                allChildrenChecked = false;
+            } else if (child.checked) {
+                noChildrenChecked = false;
+            }
+        }
+
+        if (allChildrenChecked) {
+            node.checked = true;
+            node.indeterminate = false;
+        } else if (noChildrenChecked) {
+            node.checked = false;
+            node.indeterminate = false;
+        } else {
+            node.checked = true;
+            node.indeterminate = true;
+        }
+    }
+
+    private _updateParentNodesCheckBox(node: TreeNode | TaxonomyGroup): void {
         if (node && node.level > 0 && node.children) {
-            let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
-            let allChildrenChecked = true;
-            let noChildrenChecked = true;
-
-            for (let child of node.children) {
-                let setChild: TaxonomyNode = 'data' in child ? child.data : child;
-                if (node.level === 1 && !!setChild.indeterminate) {
-                    allChildrenChecked = false;
-                    noChildrenChecked = false;
-                } else if (!setChild.checked) {
-                    allChildrenChecked = false;
-                } else if (setChild.checked) {
-                    noChildrenChecked = false;
-                }
-            }
-
-            if (allChildrenChecked) {
-                setNode.checked = true;
-                setNode.indeterminate = false;
-            } else if (noChildrenChecked) {
-                setNode.checked = false;
-                setNode.indeterminate = false;
-            } else {
-                setNode.checked = true;
-                setNode.indeterminate = true;
-            }
+            this._updateNodeCheckBox('data' in node ? node.data : node);
 
             if (node.parent) {
-                this.updateParentNodesCheckBox(node.parent);
+                this._updateParentNodesCheckBox(node.parent);
             }
         }
     }
