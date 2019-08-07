@@ -12,18 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SnackBarComponent } from './snack-bar.component';
-import { MatButtonModule } from '@angular/material';
 
-@NgModule({
-    declarations: [SnackBarComponent],
-    exports: [SnackBarComponent],
-    entryComponents: [SnackBarComponent],
-    imports: [
-        MatButtonModule,
-        CommonModule
-    ]
-})
-export class SnackBarModule { }
+export interface FilterDataSource {
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator?: string;
+}
+
+export interface SimpleFilterConfig {
+    id?: string;
+    datastore: string;
+    database: string;
+    table: string;
+    field: string;
+    operator: string;
+    value?: any;
+}
+
+export interface CompoundFilterConfig {
+    id?: string;
+    type: 'and' | 'or';
+    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
+}
+
+export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
+

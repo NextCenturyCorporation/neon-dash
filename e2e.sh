@@ -46,9 +46,9 @@ function find-newest() {
 function protract() {
   log "Starting protractor"
   if [[ "$1" == "debug" ]]; then
-    node --inspect-brk node_modules/.bin/protractor e2e/docker/protractor.conf.debug.js
+    node --inspect-brk node_modules/.bin/protractor e2e/protractor.conf.debug.js
   else
-    npx protractor e2e/docker/protractor.conf.js
+    npx protractor e2e/protractor.conf.js
   fi
 }
 

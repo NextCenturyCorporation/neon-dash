@@ -906,6 +906,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             layout: 'DISCOVERY',
+            fullTitle: 'Test Title',
             category: 'Select an option...',
             options: {
                 connectOnLoad: true
@@ -946,6 +947,10 @@ describe('Dashboard Custom', () => {
             done();
         });
 
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
+        });
+
         configService.setActive({
             ...config,
             dashboards: testDashboard
@@ -983,6 +988,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             category: 'Select an option...',
+            fullTitle: 'Test Title',
             layout: 'DISCOVERY',
             options: { connectOnLoad: true }
         });
@@ -1020,6 +1026,10 @@ describe('Dashboard Custom', () => {
             expect(component.showDashboardSelector).toEqual(false);
 
             done();
+        });
+
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
         });
 
         configService.setActive({

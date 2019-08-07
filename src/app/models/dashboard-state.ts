@@ -247,16 +247,19 @@ export class DashboardState {
 
             return relationFilterFields.map((item) => {
                 const { database, table, field } = this.deconstructTableName(item);
+                const databaseObject: NeonDatabaseMetaData = this.getDatabaseWithName(database);
+                const tableObject: NeonTableMetaData = this.getTableWithName(database, table);
+                const fieldObject: NeonFieldMetaData = this.getFieldWithName(database, table, field);
 
                 const res = {
-                    datastore: this.datastore.name,
-                    database: this.getDatabaseWithName(database),
-                    table: this.getTableWithName(database, table),
-                    field: this.getFieldWithName(database, table, field)
+                    datastore: this.datastore ? this.datastore.name : null,
+                    database: databaseObject ? databaseObject.name : null,
+                    table: tableObject ? tableObject.name : null,
+                    field: fieldObject ? fieldObject.columnName : null
                 } as SingleField;
 
                 return res;
-            }).filter((item) => item.database && item.table && item.field);
+            }).filter((item) => item.datastore && item.database && item.table && item.field);
         })).filter((relationData) => {
             if (relationData.length > 1) {
                 // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
