@@ -4,7 +4,7 @@ Events listed in:  [**src/neon-namespaces.ts**](./src/neon-namespaces.ts)
 
 Event Channel | Intent | Event Payload
 --------------|--------|--------------
-DASHBOARD_ERROR | Shows an error message. | { error: Error, message: string }
+DASHBOARD_MESSAGE | Shows an error message. | { error?: Error | Exception | string, message: string }
 DASHBOARD_REFRESH | Signals a resize on all of the widgets. | {}
 SELECT_ID | Selects a data item in the dashboard.  Some visualizations will update to highlight this data selection. | { item: any, metadata: any }
 SHOW_OPTION_MENU | Opens the options menu from the navbar to show a specific visualization's options. | { changeData: Function, changeFilterData: Function, createLayer: Function, deleteLayer: Function, exportData: Function, finalizeCreateLayer: Function, finalizeDeleteLayer: Function, handleChangeSubcomponentType: Function, options: WidgetOptionCollection }

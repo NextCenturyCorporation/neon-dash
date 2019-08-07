@@ -14,11 +14,13 @@
  */
 import { Component, ViewContainerRef, Input } from '@angular/core';
 
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
-
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 import { DashboardState } from '../../models/dashboard-state';
+
+import { neonEvents } from '../../models/neon-namespaces';
+
+import { eventing } from 'neon-framework';
 
 @Component({
     selector: 'app-export-control',
@@ -39,12 +41,14 @@ export class ExportControlComponent {
     public exportFormat: number;
     public readonly dashboardState: DashboardState;
 
+    private messenger: eventing.Messenger;
+
     constructor(
         dashboardService: DashboardService,
         protected connectionService: InjectableConnectionService,
-        private matSnackBar: MatSnackBar,
         private viewContainerRef: ViewContainerRef
     ) {
+        this.messenger = new eventing.Messenger();
         this.exportFormat = this.exportFormatList[0].value;
 
         // TODO Why is this needed?
@@ -63,21 +67,17 @@ export class ExportControlComponent {
     }
 
     exportSuccess(queryResults) {
-        let config = new MatSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
-        config.duration = 3000;
-        this.matSnackBar.open('Export In Progress...', 'OK', config);
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            message: 'Exporting...'
+        });
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     }
 
     exportFail(response) {
-        let config = new MatSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
-        if (response.responseJSON) {
-            this.matSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
-        } else {
-            this.matSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
-        }
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            error: response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
+            message: 'Export Failed'
+        });
     }
 
     getExportButtonText(): string {
@@ -87,8 +87,6 @@ export class ExportControlComponent {
     handleExportClick() {
         let connection = this.connectionService.connect(this.dashboardState.getDatastoreType(),
             this.dashboardState.getDatastoreHost());
-        let config = new MatSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
             name: ((this.exportCallbacks.length > 1) ? 'All_Widgets' : 'Export'),
@@ -96,7 +94,9 @@ export class ExportControlComponent {
         };
 
         if (!connection) {
-            this.matSnackBar.open('Please select a dataset before exporting.', 'OK', config);
+            this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                message: 'Please select a dataset to export.'
+            });
             return;
         }
 
@@ -109,7 +109,9 @@ export class ExportControlComponent {
         }
 
         if (!widgetExportDataList.length) {
-            this.matSnackBar.open('There are no visualizations to export.', 'OK', config);
+            this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                message: 'No visualizations to export.'
+            });
             return;
         }
         if (data && data.data && data.data.length === 1) {
