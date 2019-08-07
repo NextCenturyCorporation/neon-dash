@@ -465,20 +465,11 @@ body {
     padding: 5px;
 }
 
-.simpleSnackBar { // sass-lint:disable-line class-name-format
+.mat-snack-bar-container {
     background-color: var(--color-background, white) !important;
-    color: var(--color-text, dimgrey);
-
-    .mat-simple-snackbar-action {
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-weight: 800;
-    }
-
-    .mat-simple-snackbar {
-        justify-content: center;
-    }
+    color: var(--color-text, dimgrey) !important;
+    margin: 30px !important;
+    padding: 20px !important;
 }
 
 context-menu-content {

@@ -110,6 +110,15 @@ export class FilterUtil {
 
         if (this.isSimpleFilterConfig(filterConfig)) {
             let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[filterConfig.datastore] : null;
+
+            // Backwards compatibility:  in old saved states, assume an empty datastore references the first datastore.
+            if (!datastore && !filterConfig.datastore) {
+                let datastoreNames = Object.keys(dataset.datastores);
+                if (datastoreNames.length) {
+                    datastore = dataset.datastores[datastoreNames[0]];
+                }
+            }
+
             let database: NeonDatabaseMetaData = datastore ? datastore.databases[filterConfig.database] : null;
             let table: NeonTableMetaData = database ? database.tables[filterConfig.table] : null;
             let field: NeonFieldMetaData = table ? table.fields.filter((element) => element.columnName === filterConfig.field)[0] : null;

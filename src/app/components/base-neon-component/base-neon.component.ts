@@ -531,19 +531,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
      * @arg {(elementCount: number) => void} successCallback
-     * @arg {(err: Error) => void} successCallback
+     * @arg {(error: Error) => void} successCallback
      */
     protected handleTransformVisualizationQueryResults(
         options: any,
         results: any[],
         successCallback: (elementCount: number) => void,
-        failureCallback: (err: Error) => void
+        failureCallback: (error: Error) => void
     ): void {
         try {
             let data = this.transformVisualizationQueryResults(options, results, this.retrieveCompatibleFilters());
             successCallback(data);
-        } catch (err) {
-            failureCallback(err);
+        } catch (error) {
+            failureCallback(error);
         }
     }
 
@@ -589,13 +589,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             }
         };
 
-        let failureCallback = (err: Error) => {
+        let failureCallback = (error: Error) => {
             this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
             this.errorMessage = 'Error';
             this.layerIdToElementCount.set(options._id, 0);
-            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                error: err,
-                message: 'FAILED ' + options.title + ' transform results'
+            this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                error: error,
+                message: 'Failed transform results on ' + options.title
             });
             callback();
         };
@@ -684,9 +684,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
             this.loadingCount--;
             if (response.statusText !== 'abort') {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response && !!response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
-                    message: 'FAILED ' + options.title + ' ' + queryId
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    error: (response && response.responseJSON) ? response.responseJSON.stackTrace : response.responseText,
+                    message: 'Failed ' + queryId + ' on ' + options.title
                 });
                 this.changeDetection.detectChanges();
             }

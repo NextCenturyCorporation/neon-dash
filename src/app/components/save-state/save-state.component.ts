@@ -14,7 +14,7 @@
  */
 import { Component, OnInit, Input } from '@angular/core';
 
-import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
+import { MatDialog, MatSidenav } from '@angular/material';
 
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -61,16 +61,16 @@ export function Confirm(config: {
 export class SaveStateComponent implements OnInit {
     @Input() sidenav: MatSidenav;
 
-    private isLoading: boolean = false;
-    private messenger: eventing.Messenger;
     public states: { total: number, results: NeonConfig[] } = { total: 0, results: [] };
 
     public readonly dashboardState: DashboardState;
 
+    private isLoading: boolean = false;
+    private messenger: eventing.Messenger;
+
     constructor(
         protected configService: ConfigService,
         protected dashboardService: DashboardService,
-        private snackBar: MatSnackBar,
         private dialog: MatDialog,
         private router: Router
     ) {
@@ -148,9 +148,9 @@ export class SaveStateComponent implements OnInit {
      */
     private handleStateFailure(name: string, response: any) {
         this.isLoading = false;
-        this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-            error: response.responseJSON ? response.responseJSON.error : undefined,
-            message: 'State operation failed on ' + name
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            error: response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
+            message: 'Dashboard state operation failed on "' + name + '"'
         });
     }
 
@@ -181,10 +181,8 @@ export class SaveStateComponent implements OnInit {
     }
 
     public openNotification(stateName: string, actionName: string) {
-        let message = `'State "${stateName}" was ${actionName}`;
-        this.snackBar.open(message, 'x', {
-            duration: 5000,
-            verticalPosition: 'top'
+        this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+            message: `Dashboard state "${stateName}" was ${actionName} successfully!`
         });
     }
 }
