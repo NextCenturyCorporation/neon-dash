@@ -29,7 +29,6 @@ import { RouteDashboardComponent } from './route-dashboard.component';
 import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
-import { SnackBarModule } from './components/snack-bar/snack-bar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ConfigService } from './services/config.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -52,7 +51,6 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         CustomRequestsModule,
         DashboardModule,
         DynamicDialogModule,
-        SnackBarModule,
         AppLazyModule,
         AppRoutingModule
     ],

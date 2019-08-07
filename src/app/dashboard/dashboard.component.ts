@@ -21,7 +21,6 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    ViewContainerRef,
     Inject,
     ElementRef
 } from '@angular/core';
@@ -41,7 +40,6 @@ import { NeonConfig } from '../models/types';
 import { neonEvents } from '../models/neon-namespaces';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { SimpleSearchFilterComponent } from '../components/simple-search-filter/simple-search-filter.component';
-import { SnackBarComponent } from '../components/snack-bar/snack-bar.component';
 import { VisualizationContainerComponent } from '../components/visualization-container/visualization-container.component';
 import { GridState } from '../models/grid-state';
 import { ConfigurableWidget } from '../models/widget-option-collection';
@@ -146,7 +144,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         private matIconRegistry: MatIconRegistry,
         public snackBar: MatSnackBar,
         public colorThemeService: InjectableColorThemeService,
-        public viewContainerRef: ViewContainerRef,
         public router: Router,
         public location: Location,
         @Inject(APP_BASE_HREF) private baseHref: string
@@ -172,7 +169,6 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filtersIcon = 'filters';
         this.showFilterTray = true;
         this.showCustomConnectionButton = true;
-        this.snackBar = snackBar;
 
         this.dashboardService.configSource
             .subscribe((config) => this.onConfigChange(config));
@@ -201,11 +197,13 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     private onConfigChange(config: NeonConfig) {
         if (config.errors && config.errors.length > 0) {
-            let snackBarRef = this.snackBar.openFromComponent(SnackBarComponent, {
-                viewContainerRef: this.viewContainerRef
+            config.errors.forEach((error) => {
+                this.handleDashboardMessage({
+                    error: error,
+                    message: 'Configuration Error'
+                });
             });
-            snackBarRef.instance.snackBarRef = snackBarRef;
-            snackBarRef.instance.addErrors('Configuration Errors', config.errors);
+            config.errors = [];
         }
     }
 
@@ -354,10 +352,18 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Handles the given error and message.
      */
-    private handleDashboardError(eventMessage: { error: Error | ExceptionInformation, message: string }) {
-        // TODO THOR-916
-        console.error('An error occured: ' + eventMessage.message + '\n' + eventMessage.error);
-        this.snackBar.open(eventMessage.message, 'Ok');
+    private handleDashboardMessage(eventMessage: { error?: Error | ExceptionInformation | string, message: string }) {
+        if (eventMessage.error) {
+            console.error('DASHBOARD ERROR: ' + eventMessage.message, eventMessage.error);
+        } else {
+            console.warn('DASHBOARD MESSAGE: ' + eventMessage.message);
+        }
+
+        setTimeout(() => {
+            this.snackBar.open(eventMessage.message + (eventMessage.error ? (': ' + eventMessage.error) : ''), 'OK', {
+                verticalPosition: 'top'
+            });
+        });
     }
 
     /**
@@ -440,7 +446,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterService.overrideFilterChangeNotifier(this.onFiltersChanged.bind(this));
         this.messageReceiver.subscribe(eventing.channels.DATASET_UPDATED, this.dataAvailableDashboard.bind(this));
-        this.messageReceiver.subscribe(neonEvents.DASHBOARD_ERROR, this.handleDashboardError.bind(this));
+        this.messageReceiver.subscribe(neonEvents.DASHBOARD_MESSAGE, this.handleDashboardMessage.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_FILTER_TRAY, this.updateShowFilterTray.bind(this));
         this.messageReceiver.subscribe(neonEvents.TOGGLE_VISUALIZATIONS_SHORTCUT, this.updateShowVisualizationsShortcut.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_ADD, this.addWidget.bind(this));
@@ -453,6 +459,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         this.messageReceiver.subscribe(neonEvents.WIDGET_UNREGISTER, this.unregisterWidget.bind(this));
         this.messageReceiver.subscribe(neonEvents.SHOW_OPTION_MENU, this.showVizSettings.bind(this));
         this.messageReceiver.subscribe(neonEvents.WIDGET_CONFIGURED, this.generalChange.bind(this));
+
+        this.onDashboardStateChange(this.dashboardService.state);
     }
 
     toggleGlobalMoving() {

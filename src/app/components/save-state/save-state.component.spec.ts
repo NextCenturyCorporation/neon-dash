@@ -22,7 +22,6 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { MatSnackBar } from '@angular/material';
 import { NeonConfig } from '../../models/types';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -56,7 +55,6 @@ describe('Component: SaveStateComponent', () => {
             { provide: DashboardService, useClass: DashboardServiceMock },
             InjectableFilterService,
             { provide: AbstractSearchService, useClass: SearchServiceMock },
-            MatSnackBar,
             ViewContainerRef
         ]
     });
