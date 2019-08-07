@@ -142,8 +142,8 @@ export class CustomRequestsComponent {
 
     protected updateRequests(dashboardState: DashboardState): void {
         this.requests = ((dashboardState.getOptions() || {}).customRequests || []).filter((request) =>
-            ((request.type.toUpperCase() === 'PUT' || request.type.toUpperCase() === 'POST' || request.type.toUpperCase() === 'GET' ||
-                request.type.toUpperCase() === 'DELETE') && request.endpoint && request.pretty));
+            ((!request.type || request.type.toUpperCase() === 'PUT' || request.type.toUpperCase() === 'POST' ||
+                request.type.toUpperCase() === 'GET' || request.type.toUpperCase() === 'DELETE') && request.endpoint && request.pretty));
         this.loading = false;
     }
 
