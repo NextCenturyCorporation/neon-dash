@@ -21,6 +21,7 @@ import { Observable } from 'rxjs';
 import { CustomRequestsComponent } from './custom-requests.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
+import { NeonCustomRequests } from '../../models/types';
 
 class TestCustomRequestsComponent extends CustomRequestsComponent {
     public createSpy(name: string): any {
@@ -135,7 +136,7 @@ describe('Component: Custom Requests', () => {
                 pretty: 'Two',
                 value: 'b'
             }]
-        };
+        } as NeonCustomRequests;
 
         component.deleteData(request);
         expect(request).toEqual({
@@ -161,7 +162,7 @@ describe('Component: Custom Requests', () => {
             type: 'get',
             endpoint: 'http://test/get',
             pretty: 'Test Get'
-        };
+        } as NeonCustomRequests;
 
         component.deleteData(request);
         expect(request).toEqual({
@@ -350,6 +351,84 @@ describe('Component: Custom Requests', () => {
             two: 'b'
         }]);
         expect(spyRun.calls.count()).toEqual(1);
+    });
+
+    it('submitData with date does add date to request property values', () => {
+        let observable = new Observable<Record<string, any>>();
+        let spyBuild = component.createSpy('buildRequest').and.returnValue(observable);
+        let spyRun = component.createSpy('runRequest');
+
+        component.submitData({
+            type: 'post',
+            endpoint: 'http://test/post',
+            date: 'testDate',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: 'a'
+            }, {
+                name: 'two',
+                pretty: 'Two',
+                value: 'b'
+            }]
+        });
+
+        expect(spyBuild.calls.count()).toEqual(1);
+        let args = spyBuild.calls.argsFor(0);
+        expect(args[0]).toEqual('post');
+        expect(args[1]).toEqual('http://test/post');
+        expect(Object.keys(args[2]).length).toEqual(3);
+        expect(args[2].one).toEqual('a');
+        expect(args[2].two).toEqual('b');
+        expect(args[2].testDate).toBeDefined();
+        expect(spyRun.calls.count()).toEqual(1);
+    });
+
+    it('submitData with id does add id to request property values', () => {
+        let observable = new Observable<Record<string, any>>();
+        let spyBuild = component.createSpy('buildRequest').and.returnValue(observable);
+        let spyRun = component.createSpy('runRequest');
+
+        component.submitData({
+            type: 'post',
+            endpoint: 'http://test/post',
+            id: 'testId',
+            pretty: 'Test Post',
+            properties: [{
+                name: 'one',
+                pretty: 'One',
+                value: 'a'
+            }, {
+                name: 'two',
+                pretty: 'Two',
+                value: 'b'
+            }]
+        });
+
+        expect(spyBuild.calls.count()).toEqual(1);
+        let args = spyBuild.calls.argsFor(0);
+        expect(args[0]).toEqual('post');
+        expect(args[1]).toEqual('http://test/post');
+        expect(Object.keys(args[2]).length).toEqual(3);
+        expect(args[2].one).toEqual('a');
+        expect(args[2].two).toEqual('b');
+        expect(args[2].testId).toBeDefined();
+        expect(spyRun.calls.count()).toEqual(1);
+    });
+
+    it('toggleResponse does update showResponse', () => {
+        let request = {
+            type: 'get',
+            endpoint: 'http://test/get',
+            pretty: 'Test Get'
+        } as NeonCustomRequests;
+
+        component.toggleResponse(request);
+        expect(request.showResponse).toEqual(true);
+
+        component.toggleResponse(request);
+        expect(request.showResponse).toEqual(false);
     });
 });
 
