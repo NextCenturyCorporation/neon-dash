@@ -14,17 +14,15 @@
  */
 import { CompoundFilterType } from '../models/widget-option';
 import { Dataset, SingleField } from '../models/dataset';
-import { FilterConfig } from '../models/types';
+import { FilterConfig, FilterDataSource } from '../models/filter';
 import {
     AbstractFilter,
     CompoundFilter,
     FilterCollection,
-    FilterDataSource,
-    FilterDesign,
     FilterUtil
 } from '../util/filter.util';
 
-export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>) => void;
+export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) => void;
 
 export class FilterService {
     protected filterCollection: FilterCollection = new FilterCollection();
@@ -42,14 +40,14 @@ export class FilterService {
      * (list of IDs) on the given filter and all its relation filters.
      *
      * @arg {AbstractFilter} filter
-     * @arg {SingleField[][][]} relationDataList
+     * @arg {Dataset} dataset
      * @return {AbstractFilter[]}
      * @private
      */
-    private _createRelationFilterList(filter: AbstractFilter, relationDataList: SingleField[][][]): AbstractFilter[] {
-        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromDesign(filter, true);
+    private _createRelationFilterList(filter: AbstractFilter, dataset: Dataset): AbstractFilter[] {
+        let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(filter.toConfig(), true);
 
-        return relationDataList.reduce((returnList, relationData) => {
+        return dataset.relations.reduce((returnList, relationData) => {
             let relationFilterList: AbstractFilter[] = [];
 
             // Assume that each item within the relationData list is a nested list with the same length.
@@ -69,8 +67,7 @@ export class FilterService {
                     relationData.forEach((relation) => {
                         // Do not create a relation that is the same as the original filter.
                         if (relation !== equivalentRelationList[0]) {
-                            let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation);
-                            relationFilter.root = filter.root || CompoundFilterType.AND;
+                            let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation, dataset);
                             relationFilterList.push(relationFilter);
                         }
                     });
@@ -90,22 +87,22 @@ export class FilterService {
     }
 
     /**
-     * Deletes the filter with the given filter design.
+     * Deletes the filter with the given filter config.
      *
      * @arg {string} callerId
-     * @arg {FilterDesign} filterDesign
-     * @return {Map<FilterDataSource[], FilterDesign[]>}
+     * @arg {FilterConfig} filterConfig
+     * @return {Map<FilterDataSource[], FilterConfig[]>}
      */
     public deleteFilter(
         callerId: string,
-        filterDesign: FilterDesign
-    ): Map<FilterDataSource[], FilterDesign[]> {
-        let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
+        filterConfig: FilterConfig
+    ): Map<FilterDataSource[], FilterConfig[]> {
+        let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
 
-        let filterDataSourceListToDelete: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
+        let filterDataSourceListToDelete: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterConfig);
 
         let deleteIdList: string[] = this.filterCollection.getFilters(filterDataSourceListToDelete).reduce((idList, filter) =>
-            (filter.id === filterDesign.id ? idList.concat(filter.id).concat(filter.relations) : idList), []);
+            (filter.id === filterConfig.id ? idList.concat(filter.id).concat(filter.relations) : idList), []);
 
         if (deleteIdList.length) {
             // Loop over the data sources of the complete collection to delete the old relation filters in each data source.
@@ -116,14 +113,14 @@ export class FilterService {
 
                 let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSource, modifiedFilterList);
 
-                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
+                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toConfig()));
             });
 
             this._notifier(callerId, returnCollection);
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSource) => {
                 returnCollection.set(filterDataSource, this.filterCollection.getFilters(filterDataSource).map((filter) =>
-                    filter.toDesign()));
+                    filter.toConfig()));
             });
         }
 
@@ -134,15 +131,15 @@ export class FilterService {
      * Deletes the given filters from the given data sources (or all the filters if no data sources are given).
      *
      * @arg {string} callerId
-     * @arg {FilterDesign[]} [filterDesignListToDelete=[]]
-     * @return {Map<FilterDataSource[], FilterDesign[]>}
+     * @arg {FilterConfig[]} [filterConfigListToDelete=[]]
+     * @return {Map<FilterDataSource[], FilterConfig[]>}
      */
-    public deleteFilters(callerId: string, filterDesignListToDelete: FilterDesign[] = []): Map<FilterDataSource[], FilterDesign[]> {
+    public deleteFilters(callerId: string, filterConfigListToDelete: FilterConfig[] = []): Map<FilterDataSource[], FilterConfig[]> {
         // Find all filter collection keys matching the data source, if it is given; or find all filter collection keys otherwise.
-        let filterCollectionKeys: FilterDataSource[][] = (filterDesignListToDelete.length ? filterDesignListToDelete.map((filterDesign) =>
-            this.filterCollection.findFilterDataSources(filterDesign)) : this.filterCollection.getDataSources());
+        let filterCollectionKeys: FilterDataSource[][] = (filterConfigListToDelete.length ? filterConfigListToDelete.map((filterConfig) =>
+            this.filterCollection.findFilterDataSources(filterConfig)) : this.filterCollection.getDataSources());
 
-        let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
+        let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
 
         let deleteIdList: string[] = filterCollectionKeys.reduce((outerList, filterDataSourceList) =>
             outerList.concat(this.filterCollection.getFilters(filterDataSourceList).reduce((innerList, filter) =>
@@ -157,14 +154,14 @@ export class FilterService {
 
                 let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
 
-                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
+                returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toConfig()));
             });
 
             this._notifier(callerId, returnCollection);
         } else {
             this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
                 returnCollection.set(filterDataSourceList, this.filterCollection.getFilters(filterDataSourceList)
-                    .map((filter) => filter.toDesign()));
+                    .map((filter) => filter.toConfig()));
             });
         }
 
@@ -172,33 +169,33 @@ export class FilterService {
     }
 
     /**
-     * Exchanges all the filters in the given data sources with the given filters.  If filterDesignListToDelete is given, also deletes the
-     * filters of each data source with the given designs (useful if you want to both delete and exchange with one filter-change event).
+     * Exchanges all the filters in the given data sources with the given filters.  If filterConfigListToDelete is given, also deletes the
+     * filters of each data source with the given configs (useful if you want to both delete and exchange with one filter-change event).
      *
      * @arg {string} callerId
-     * @arg {FilterDesign[]} filterDesignList
-     * @arg {SingleField[][][]} relationDataList
-     * @arg {FilterDesign[]} [filterDesignListToDelete=[]]
-     * @return {Map<FilterDataSource[], FilterDesign[]>}
+     * @arg {FilterConfig[]} filterConfigList
+     * @arg {Dataset} dataset
+     * @arg {FilterConfig[]} [filterConfigListToDelete=[]]
+     * @return {Map<FilterDataSource[], FilterConfig[]>}
      */
     public exchangeFilters(
         callerId: string,
-        filterDesignList: FilterDesign[],
-        relationDataList: SingleField[][][],
-        filterDesignListToDelete: FilterDesign[] = []
-    ): Map<FilterDataSource[], FilterDesign[]> {
+        filterConfigList: FilterConfig[],
+        dataset: Dataset,
+        filterConfigListToDelete: FilterConfig[] = []
+    ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
-        let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
+        let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
         let deleteIdList: string[] = [];
 
-        filterDesignList.forEach((filterDesign) => {
+        filterConfigList.forEach((filterConfig) => {
             // Create the new filters and new relation filters to add in the exchange.
-            let exchangeFilter: AbstractFilter = FilterUtil.createFilterFromDesign(filterDesign);
-            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(exchangeFilter, relationDataList);
+            let exchangeFilter: AbstractFilter = FilterUtil.createFilterFromConfig(filterConfig, dataset);
+            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(exchangeFilter, dataset);
 
             // Save the new filters and new relation filters in an intermediary collection to separate filters by unique data source.
             [exchangeFilter].concat(relationFilterList).forEach((relationFilter) => {
-                let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toDesign());
+                let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toConfig());
                 let filterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
                 updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter));
 
@@ -208,9 +205,9 @@ export class FilterService {
             });
         });
 
-        // Delete the filters of each data source with the given designs.
-        filterDesignListToDelete.forEach((filterDesign) => {
-            let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesign);
+        // Delete the filters of each data source with the given configs.
+        filterConfigListToDelete.forEach((filterConfig) => {
+            let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterConfig);
 
             // Find the IDs of all the filters and relation filters to delete.  Repeat IDs don't matter.
             let deleteFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
@@ -233,10 +230,10 @@ export class FilterService {
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
             let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
-            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
+            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toConfig()));
         });
 
-        if (filterDesignList.length || filterDesignListToDelete.length) {
+        if (filterConfigList.length || filterConfigListToDelete.length) {
             this._notifier(callerId, returnCollection);
         }
 
@@ -244,13 +241,13 @@ export class FilterService {
     }
 
     /**
-     * Returns the filters for the given data sources, or all filters if no data sources are given.
+     * Returns the filter configs for the given data sources, or all filter configs if no data sources are given.
      *
      * @arg {FilterDataSource[]} [filterDataSourceList]
-     * @return {FilterDesign[]}
+     * @return {FilterConfig[]}
      */
-    public getFilters(filterDataSourceList?: FilterDataSource[]): FilterDesign[] {
-        return this.getRawFilters(filterDataSourceList).map((filter) => filter.toDesign());
+    public getFilters(filterDataSourceList?: FilterDataSource[]): FilterConfig[] {
+        return this.getRawFilters(filterDataSourceList).map((filter) => filter.toConfig());
     }
 
     /**
@@ -267,42 +264,32 @@ export class FilterService {
     }
 
     /**
-     * Returns the filters as JSON objects to save in a config file.
-     */
-    public getFiltersToSaveInConfig(): FilterConfig[] {
-        return this.getFilters().map((filter) => FilterUtil.createFilterJsonObjectFromDesign(filter)).filter((filter) => !!filter);
-    }
-
-    /**
      * Returns all the filters to search on the given datastore/database/table (ignoring filters from the given data sources).
      *
      * @arg {string} datastoreName
      * @arg {string} databaseName
      * @arg {string} tableName
-     * @arg {FilterDesign[]} [filterDesignListToIgnore=[]]
+     * @arg {FilterConfig[]} [filterConfigListToIgnore=[]]
      * @return {AbstractFilter[]}
      */
     public getFiltersToSearch(
         datastoreName: string,
         databaseName: string,
         tableName: string,
-        filterDesignListToIgnore: FilterDesign[] = []
+        filterConfigListToIgnore: FilterConfig[] = []
     ): AbstractFilter[] {
         return this.filterCollection.getDataSources().reduce((returnList, filterDataSourceList) => {
-            let ignore = filterDesignListToIgnore.some((filterDesignToIgnore) => {
-                let filterDataSourceListToIgnore: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterDesignToIgnore);
+            let ignore = filterConfigListToIgnore.some((filterConfigToIgnore) => {
+                let filterDataSourceListToIgnore: FilterDataSource[] = this.filterCollection.findFilterDataSources(filterConfigToIgnore);
                 return FilterUtil.areFilterDataSourceListsEquivalent(filterDataSourceList, filterDataSourceListToIgnore);
             });
             if (ignore) {
                 return returnList;
             }
-            let filterListToAND: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                filter.root === CompoundFilterType.AND && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let filterListToOR: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
-                filter.root === CompoundFilterType.OR && filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let filterAND: AbstractFilter = filterListToAND.length ? new CompoundFilter(CompoundFilterType.AND, filterListToAND) : null;
-            let filterOR: AbstractFilter = filterListToOR.length ? new CompoundFilter(CompoundFilterType.OR, filterListToOR) : null;
-            return returnList.concat(filterAND || []).concat(filterOR || []);
+            let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
+                filter.doesAffectSearch(datastoreName, databaseName, tableName));
+            let filter: AbstractFilter = filterList.length ? new CompoundFilter(CompoundFilterType.OR, filterList) : null;
+            return returnList.concat(filter || []);
         }, [] as AbstractFilter[]);
     }
 
@@ -315,14 +302,14 @@ export class FilterService {
      * @private
      */
     private _isRelationEquivalent(inputField: SingleField, filterDataSource: FilterDataSource): boolean {
-        return !!(inputField.datastore === filterDataSource.datastoreName && inputField.database.name === filterDataSource.databaseName &&
-            inputField.table.name === filterDataSource.tableName && inputField.field.columnName === filterDataSource.fieldName);
+        return !!(inputField.datastore === filterDataSource.datastore && inputField.database === filterDataSource.database &&
+            inputField.table === filterDataSource.table && inputField.field === filterDataSource.field);
     }
 
     /**
      * Notifies all the filter-change listeners using the given caller ID and change collection.
      */
-    public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
+    public notifyFilterChangeListeners(callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
         for (const listener of Array.from(this._listeners.values())) {
             listener(callerId, changeCollection);
         }
@@ -345,17 +332,17 @@ export class FilterService {
     }
 
     /**
-     * Returns the filters from the global filter collection that are compatible (matching) the given filter designs.
+     * Returns the filters from the global filter collection that are compatible (matching) the given filter configs.
      */
-    public retrieveCompatibleFilterCollection(filterDesignList: FilterDesign[]): FilterCollection {
+    public retrieveCompatibleFilterCollection(filterConfigList: FilterConfig[]): FilterCollection {
         let compatibleCollection: FilterCollection = new FilterCollection();
 
-        for (const filterDesign of filterDesignList) {
-            // Find the data source for the filter design.
-            let filterDataSourceList: FilterDataSource[] = compatibleCollection.findFilterDataSources(filterDesign);
+        for (const filterConfig of filterConfigList) {
+            // Find the data source for the filter config.
+            let filterDataSourceList: FilterDataSource[] = compatibleCollection.findFilterDataSources(filterConfig);
 
-            // Find the global filter list that is compatible with the filter design.
-            let filterList: AbstractFilter[] = this.filterCollection.getFilters(this.filterCollection.findFilterDataSources(filterDesign));
+            // Find the global filter list that is compatible with the filter config.
+            let filterList: AbstractFilter[] = this.filterCollection.getFilters(this.filterCollection.findFilterDataSources(filterConfig));
 
             // Add the new filters to the existing list from the collection, but don't add the same filter twice.
             let compatibleFilterList: AbstractFilter[] = filterList.reduce((list, nextFilter) =>
@@ -370,13 +357,12 @@ export class FilterService {
     /**
      * Sets the filters in the FilterService to the given filter JSON objects from a config file.
      */
-    public setFiltersFromConfig(filtersFromConfig: FilterConfig[], dataset: Dataset) {
+    public setFiltersFromConfig(filterConfigs: FilterConfig[], dataset: Dataset) {
         let collection: FilterCollection = new FilterCollection();
-        for (const filterFromConfig of filtersFromConfig) {
-            const filterDesign: FilterDesign = FilterUtil.createFilterDesignFromJsonObject(filterFromConfig, dataset);
-            if (filterDesign) {
-                const filterDataSourceList = collection.findFilterDataSources(filterDesign);
-                const filter = FilterUtil.createFilterFromDesign(filterDesign);
+        for (const filterConfig of filterConfigs) {
+            if (filterConfig) {
+                const filterDataSourceList = collection.findFilterDataSources(filterConfig);
+                const filter = FilterUtil.createFilterFromConfig(filterConfig, dataset);
                 collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
             }
         }
@@ -388,26 +374,26 @@ export class FilterService {
      * in the given data sources.
      *
      * @arg {string} callerId
-     * @arg {FilterDesign[]} filterDesignList
-     * @arg {SingleField[][][]} relationDataList
-     * @return {Map<FilterDataSource, FilterDesign[]>}
+     * @arg {FilterConfig[]} filterConfigList
+     * @arg {Dataset} dataset
+     * @return {Map<FilterDataSource, FilterConfig[]>}
      */
     public toggleFilters(
         callerId: string,
-        filterDesignList: FilterDesign[],
-        relationDataList: SingleField[][][]
-    ): Map<FilterDataSource[], FilterDesign[]> {
+        filterConfigList: FilterConfig[],
+        dataset: Dataset,
+    ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
-        let returnCollection: Map<FilterDataSource[], FilterDesign[]> = new Map<FilterDataSource[], FilterDesign[]>();
+        let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
 
-        filterDesignList.forEach((toggleFilterDesign) => {
+        filterConfigList.forEach((toggleFilterConfig) => {
             // Create the new filters and new relation filters to add (toggle ON).
-            let toggleFilter: AbstractFilter = FilterUtil.createFilterFromDesign(toggleFilterDesign);
-            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(toggleFilter, relationDataList);
+            let toggleFilter: AbstractFilter = FilterUtil.createFilterFromConfig(toggleFilterConfig, dataset);
+            let relationFilterList: AbstractFilter[] = this._createRelationFilterList(toggleFilter, dataset);
 
             // Save the new filters and new relation filters in an intermediary collection to separate filters by unique data source.
             [toggleFilter].concat(relationFilterList).forEach((relationFilter) => {
-                let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toDesign());
+                let filterDataSourceList: FilterDataSource[] = this.filterCollection.findFilterDataSources(relationFilter.toConfig());
                 let filterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
                 updateCollection.setFilters(filterDataSourceList, filterList.concat(relationFilter));
             });
@@ -442,10 +428,10 @@ export class FilterService {
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
             let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);
-            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toDesign()));
+            returnCollection.set(actualDataSourceList, modifiedFilterList.map((filter) => filter.toConfig()));
         });
 
-        if (filterDesignList.length) {
+        if (filterConfigList.length) {
             this._notifier(callerId, returnCollection);
         }
 

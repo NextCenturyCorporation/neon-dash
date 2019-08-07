@@ -19,7 +19,6 @@ import {
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
 
 @Component({
     selector: 'app-data-message',
@@ -29,11 +28,7 @@ import { MatSnackBar } from '@angular/material';
     encapsulation: ViewEncapsulation.Emulated
 })
 export class DataMessageComponent implements OnInit {
-    constructor(
-        private changeDetection: ChangeDetectorRef,
-        public snackBar: MatSnackBar,
-    ) {
-    }
+    constructor(private changeDetection: ChangeDetectorRef) { }
 
     ngOnInit() {
         this.changeDetection.detectChanges();

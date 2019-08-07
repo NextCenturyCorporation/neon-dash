@@ -29,7 +29,6 @@ import { ConfigUtil } from '../util/config.util';
     providedIn: 'root'
 })
 export class ConfigService {
-    private configErrors = [];
     private source = new Subject<NeonConfig>();
 
     private $default: Observable<NeonConfig>;
@@ -53,15 +52,15 @@ export class ConfigService {
         return this.connectionService.connect('.', '.', true);
     }
 
-    private handleConfigFileError(error, file?: any) {
+    private handleConfigFileError(error) {
         if (error.status === 404) {
             // Fail silently.
-        } else {
-            console.error(error);
-            this.configErrors.push('Error reading config file ' + file);
-            this.configErrors.push(error.message);
+            return of(undefined);
         }
-        return of(undefined);
+        console.error(error);
+        return of(NeonConfig.get({
+            errors: [error.message]
+        }));
     }
 
     private loadFromFolder(path): Observable<NeonConfig | undefined> {
@@ -70,14 +69,13 @@ export class ConfigService {
             params: {
                 rnd: `${Math.random() * 1000000}.${Date.now()}`
             }
-        })
-            .pipe(
-                map((response: any) => yaml.load(response) as NeonConfig),
-                tap((config) => {
-                    config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
-                }),
-                catchError((error) => this.handleConfigFileError(error))
-            );
+        }).pipe(
+            map((response: any) => (yaml.load(response) as NeonConfig) || NeonConfig.get()),
+            tap((config) => {
+                config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
+            }),
+            catchError((error) => this.handleConfigFileError(error))
+        );
     }
 
     private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
@@ -90,17 +88,11 @@ export class ConfigService {
     }
 
     private finalizeConfig(configInput: NeonConfig, filters: string, dashboardPath: string) {
-        let config = configInput;
+        let config: NeonConfig = configInput;
 
-        if (!config) {
-            console.error('Config is empty', config);
-            this.configErrors.push('Config is empty!');
-            config = NeonConfig.get();
-        }
-
-        if (this.configErrors.length) {
-            config.errors = this.configErrors;
-            this.configErrors = [];
+        if ((!config.errors || !config.errors.length) && (!config || !config.datastores || !Object.keys(config.datastores).length)) {
+            console.error('Config does not have any datastores!');
+            config.errors = (config.errors || []).concat('Config does not have any datastores!');
         }
 
         if (config.neonServerUrl) {
@@ -157,9 +149,9 @@ export class ConfigService {
         setTimeout(() => {
             // TODO THOR-1300 Handle when we get rid of default
             from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe(
-                catchError((err) => this.getDefault(environment.config).pipe(
-                    tap((conf) => {
-                        conf.errors = [err ? err.message as string : err];
+                catchError((error) => this.getDefault(environment.config).pipe(
+                    tap((config) => {
+                        config.errors = (config.errors || []).concat(error ? [error] : []);
                     })
                 )),
                 map((config) => this.finalizeConfig(config, filters, dashboardPath)),
