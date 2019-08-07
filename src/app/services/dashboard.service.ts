@@ -81,6 +81,7 @@ export class DashboardService {
 
     private applyConfig(config: NeonConfig) {
         return Object.assign(this.config, {
+            errors: config.errors,
             dashboards: DashboardUtil.validateDashboards(
                 config.dashboards ?
                     _.cloneDeep(config.dashboards) :
