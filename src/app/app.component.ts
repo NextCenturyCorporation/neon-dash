@@ -12,40 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit, HostBinding, Inject } from '@angular/core';
-import { ConfigService } from './services/config.service';
-import { NeonConfig } from './models/types';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter, mergeMap, distinctUntilKeyChanged } from 'rxjs/operators';
-import { APP_BASE_HREF } from '@angular/common';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-    public config: NeonConfig;
-
-    @HostBinding('class.loading')
-    loading = true;
-
-    constructor(
-        private service: ConfigService,
-        private router: Router,
-        @Inject(APP_BASE_HREF) private baseHref: string
-    ) { }
-
-    ngOnInit() {
-        this.router.events
-            .pipe(
-                filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.service.setActiveByURL(window.location, this.baseHref)),
-                distinctUntilKeyChanged('fileName')
-            )
-            .subscribe((config) => {
-                this.loading = false;
-                this.config = config;
-            });
-    }
-}
+export class AppComponent {}

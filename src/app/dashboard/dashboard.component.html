@@ -6,7 +6,8 @@
             </mat-toolbar>
 
             <div class="right-panel-container" [ngSwitch]="currentPanel">
-                <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}"></wt-lazy>
+                <wt-lazy *ngSwitchCase="'aboutNeon'" [location]="{moduleId:'about-neon', selector: 'app-about-neon'}">
+                </wt-lazy>
                 <wt-lazy *ngSwitchCase="'addVis'" [location]="{moduleId: 'add-visualization', selector: 'app-add-visualization'}"></wt-lazy>
                 <wt-lazy *ngSwitchCase="'customConnection'" [location]="{moduleId: 'custom-connection', selector: 'app-custom-connection'}">
                 </wt-lazy>
@@ -18,6 +19,8 @@
                 </wt-lazy>
                 <wt-lazy *ngSwitchCase="'settings'" [location]="{moduleId:'settings', selector: 'app-settings'}"
                     [inputs]="{widgets:widgets}">
+                </wt-lazy>
+                <wt-lazy *ngSwitchCase="'customRequests'" [location]="{moduleId:'custom-requests', selector: 'app-custom-requests'}">
                 </wt-lazy>
             </div>
         </div>
@@ -68,6 +71,9 @@
                 </button>
                 <button mat-menu-item (click)="setPanel('settings', 'Dashboard Settings');">
                     <mat-icon>settings</mat-icon>Dashboard Settings
+                </button>
+                <button mat-menu-item (click)="setPanel('customRequests', 'Submit Data');">
+                    <mat-icon>save_alt</mat-icon>Submit Data
                 </button>
                 <button mat-menu-item (click)="toggleGlobalMoving()">
                     <mat-icon>grid_on</mat-icon>{{globalMoveWidgets ? 'End ':''}}Layout Dashboard

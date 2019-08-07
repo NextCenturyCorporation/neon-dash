@@ -86,6 +86,10 @@ import { ReactiveComponentLoaderModule } from '@wishtack/reactive-component-load
             loadChildren: './components/about-neon/about-neon.module#AboutNeonModule'
         }),
         ReactiveComponentLoaderModule.withModule({
+            moduleId: 'custom-requests',
+            loadChildren: './components/custom-requests/custom-requests.module#CustomRequestsModule'
+        }),
+        ReactiveComponentLoaderModule.withModule({
             moduleId: 'gear',
             loadChildren: './components/gear/gear.module#GearModule'
         }),
