@@ -536,7 +536,7 @@ describe('Component: Gear Component', () => {
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_ERROR);
+        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_MESSAGE);
     });
 
     it('toggleFilter does update layerHidden', () => {

@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AddVisualizationComponent } from './add-visualization.component';
-import { MatGridListModule, MatSnackBarModule, MatDividerModule } from '@angular/material';
+import { MatGridListModule, MatDividerModule } from '@angular/material';
 
 @NgModule({
     declarations: [
@@ -28,7 +28,6 @@ import { MatGridListModule, MatSnackBarModule, MatDividerModule } from '@angular
     imports: [
         MatGridListModule,
         MatDividerModule,
-        MatSnackBarModule,
         CommonModule
     ]
 })
