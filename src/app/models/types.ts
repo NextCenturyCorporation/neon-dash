@@ -15,6 +15,7 @@
 
 import { ColorMap } from './color';
 import { DeepPartial, NeonDatastoreConfig, translateValues } from './dataset';
+import { FilterConfig } from './filter';
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
@@ -27,9 +28,44 @@ export interface NeonSimpleSearchFilter {
     fieldName?: string;
 }
 
+export interface NeonCustomRequests {
+    // Adds the current timestamp to the body using the specified property name
+    date?: string;
+    // Endpoint link
+    endpoint: string;
+    // Adds a unique ID to the body using the specified property name
+    id?: string;
+    // Optional notes to user
+    notes?: string[];
+    // Pretty name to show to user
+    pretty: string;
+    // Body properties
+    properties?: PropertyMetaData[];
+    // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
+    type?: string;
+    // Response data (not in config file)
+    response?: any;
+    // Show the response JSON
+    showResponse?: boolean;
+    // Response status (not in config file)
+    status?: any;
+}
+
+export interface PropertyMetaData {
+    // List of dropdown choices (if not specified, shows a text input element)
+    choices?: { pretty: string, value: string }[];
+    // Property name to save in body
+    name: string;
+    // Pretty name to show to user
+    pretty: string;
+    // Input value from user (not in config file)
+    value?: string;
+}
+
 export interface NeonDashboardOptions {
     connectOnLoad?: boolean;
     colorMaps?: ColorMap;
+    customRequests?: NeonCustomRequests[];
     simpleFilter?: NeonSimpleSearchFilter;
 }
 
@@ -41,24 +77,6 @@ export interface NeonContributor {
     website: string;
     logo: string;
 }
-
-export interface SimpleFilterConfig {
-    root: string;
-    datastore: string;
-    database: string;
-    table: string;
-    field: string;
-    operator: string;
-    value?: any;
-}
-
-export interface CompoundFilterConfig {
-    root: string;
-    type: 'and' | 'or';
-    filters: (SimpleFilterConfig | CompoundFilterConfig)[];
-}
-
-export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
 export interface NeonDashboardBaseConfig {
     fullTitle?: string; // Added to dashboard in validateDashboards()

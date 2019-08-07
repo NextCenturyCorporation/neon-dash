@@ -130,9 +130,9 @@ export class NeonDatastoreConfig {
 
 export interface SingleField {
     datastore: string;
-    database: NeonDatabaseMetaData;
-    table: NeonTableMetaData;
-    field: NeonFieldMetaData;
+    database: string;
+    table: string;
+    field: string;
 }
 
 export interface Dataset {

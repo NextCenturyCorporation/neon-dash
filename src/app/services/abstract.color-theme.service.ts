@@ -70,12 +70,28 @@ export abstract class AbstractColorThemeService {
     public abstract getThemes(): Theme[];
 
     /**
+     * Returns the accent color for the current application theme.
+     *
+     * @return {Color}
+     * @abstract
+     */
+    public abstract getThemeAccentColor(): Color;
+
+    /**
      * Returns the hex for the accent color for the current application theme.
      *
      * @return {string}
      * @abstract
      */
     public abstract getThemeAccentColorHex(): string;
+
+    /**
+     * Returns the text color for the current application theme.
+     *
+     * @return {Color}
+     * @abstract
+     */
+    public abstract getThemeTextColor(): Color;
 
     /**
      * Returns the hex for the text color for the current application theme.

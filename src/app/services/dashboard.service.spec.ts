@@ -14,9 +14,9 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
-import { NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
-import { CompoundFilterDesign, SimpleFilterDesign } from '../util/filter.util';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../models/filter';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
+import { NeonDatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
@@ -86,17 +86,16 @@ describe('Service: DashboardService', () => {
 
         dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             filters: ConfigUtil.translate(`[
-                [".databaseZ.tableA.field1","=","value1","or"],
-                ["and", "and",
-                    [".databaseY.tableB.field2", "!=", "", "or"],
-                    [".databaseY.tableB.field2", "!=", null, "or"]
+                [".databaseZ.tableA.field1","=","value1"],
+                ["and",
+                    [".databaseY.tableB.field2", "!=", ""],
+                    [".databaseY.tableB.field2", "!=", null]
                 ]
             ]`, ConfigUtil.encodeFiltersMap)
         }));
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual([{
-            root: 'or',
             datastore: '',
             database: 'databaseZ',
             table: 'tableA',
@@ -104,10 +103,8 @@ describe('Service: DashboardService', () => {
             operator: '=',
             value: 'value1'
         }, {
-            root: 'and',
             type: 'and',
             filters: [{
-                root: 'or',
                 datastore: '',
                 database: 'databaseY',
                 table: 'tableB',
@@ -115,7 +112,6 @@ describe('Service: DashboardService', () => {
                 operator: '!=',
                 value: ''
             }, {
-                root: 'or',
                 datastore: '',
                 database: 'databaseY',
                 table: 'tableB',
@@ -130,41 +126,37 @@ describe('Service: DashboardService', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
         spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
-            root: 'or',
             datastore: '',
-            database: NeonDatabaseMetaData.get({ name: 'databaseZ' }),
-            table: NeonTableMetaData.get({ name: 'tableA' }),
-            field: NeonFieldMetaData.get({ columnName: 'field1' }),
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
             operator: '=',
             value: 'value1'
-        } as SimpleFilterDesign, {
-            root: 'and',
+        } as SimpleFilterConfig, {
             type: 'and',
             filters: [{
-                root: 'or',
                 datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
                 operator: '!=',
                 value: ''
-            } as SimpleFilterDesign, {
-                root: 'or',
+            } as SimpleFilterConfig, {
                 datastore: '',
-                database: NeonDatabaseMetaData.get({ name: 'databaseY' }),
-                table: NeonTableMetaData.get({ name: 'tableB' }),
-                field: NeonFieldMetaData.get({ columnName: 'field2' }),
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
                 operator: '!=',
                 value: null
-            } as SimpleFilterDesign]
-        } as CompoundFilterDesign]);
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
+            [".databaseZ.tableA.field1","=","value1"],
+            ["and",
+                [".databaseY.tableB.field2", "!=", ""],
+                [".databaseY.tableB.field2", "!=", null]
             ]
         ]`)), ConfigUtil.encodeFiltersMap));
     });
@@ -622,7 +614,6 @@ describe('Service: DashboardService with Mock Data', () => {
     it('exportConfig should produce valid results', (done) => {
         const { config, layouts, filters } = getConfig([
             {
-                root: 'or',
                 datastore: 'datastore1',
                 database: 'databaseZ',
                 table: 'tableA',
@@ -631,11 +622,9 @@ describe('Service: DashboardService with Mock Data', () => {
                 value: 'value1'
             },
             {
-                root: 'and',
                 type: 'and',
                 filters: [
                     {
-                        root: 'or',
                         datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
@@ -644,7 +633,6 @@ describe('Service: DashboardService with Mock Data', () => {
                         value: ''
                     },
                     {
-                        root: 'or',
                         datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
@@ -693,6 +681,10 @@ describe('Service: DashboardService with Mock Data', () => {
                     fieldName: 'field1'
                 }
             });
+            (filters[0] as any).id = (data.dashboards as any).filters[0].id;
+            (filters[1] as any).id = (data.dashboards as any).filters[1].id;
+            (filters[1] as any).filters[0].id = (data.dashboards as any).filters[1].filters[0].id;
+            (filters[1] as any).filters[1].id = (data.dashboards as any).filters[1].filters[1].id;
             expect(data.dashboards.filters).toEqual(filters);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
@@ -710,10 +702,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
-            ["datastore1.databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                ["datastore1.databaseY.tableB.field2", "!=", "", "or"],
-                ["datastore1.databaseY.tableB.field2", "!=", null, "or"]
+            ["datastore1.databaseZ.tableA.field1","=","value1"],
+            ["and",
+                ["datastore1.databaseY.tableB.field2", "!=", ""],
+                ["datastore1.databaseY.tableB.field2", "!=", null]
             ]
         ]`);
 
@@ -756,7 +748,7 @@ describe('Service: DashboardService with Mock Data', () => {
             });
             expect(data.dashboards.filters).toEqual([
                 {
-                    root: 'or',
+                    id: (data.dashboards as any).filters[0].id,
                     datastore: 'datastore1',
                     database: 'databaseZ',
                     table: 'tableA',
@@ -765,11 +757,11 @@ describe('Service: DashboardService with Mock Data', () => {
                     value: 'value1'
                 },
                 {
-                    root: 'and',
+                    id: (data.dashboards as any).filters[1].id,
                     type: 'and',
                     filters: [
                         {
-                            root: 'or',
+                            id: (data.dashboards as any).filters[1].filters[0].id,
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
@@ -778,7 +770,7 @@ describe('Service: DashboardService with Mock Data', () => {
                             value: ''
                         },
                         {
-                            root: 'or',
+                            id: (data.dashboards as any).filters[1].filters[1].id,
                             datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',

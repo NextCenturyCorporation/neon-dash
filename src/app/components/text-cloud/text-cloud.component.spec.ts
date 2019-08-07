@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CompoundFilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { FilterCollection } from '../../util/filter.util';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 
@@ -127,10 +128,10 @@ describe('Component: TextCloud', () => {
 
         component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
         let actual = (component as any).designEachFilterWithNoValues();
-        expect(actual.length).toEqual(1);
-        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
+        expect(actual.length).toEqual(2);
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
         expect((actual[0]).operator).toEqual('=');
         expect((actual[0]).value).toBeUndefined();
     });
@@ -139,39 +140,113 @@ describe('Component: TextCloud', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         component.options.dataField = DashboardServiceMock.FIELD_MAP.TEXT;
-        let spy = spyOn((component as any), 'toggleFilters');
+        let spyExchange = spyOn((component as any), 'exchangeFilters');
+        let spyToggle = spyOn((component as any), 'toggleFilters');
+
+        component.options.andFilters = false;
 
         component.onClick({
             key: 'testText1'
         });
 
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            root: CompoundFilterType.AND,
+        expect(spyExchange.calls.count()).toEqual(0);
+        expect(spyToggle.calls.count()).toEqual(1);
+        expect(spyToggle.calls.argsFor(0)).toEqual([[{
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TEXT,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
             operator: '=',
             value: 'testText1'
-        }]]);
-
-        component.options.andFilters = false;
+        } as SimpleFilterConfig]]);
 
         component.onClick({
             key: 'testText2'
         });
 
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            root: CompoundFilterType.OR,
+        expect(spyExchange.calls.count()).toEqual(0);
+        expect(spyToggle.calls.count()).toEqual(2);
+        expect(spyToggle.calls.argsFor(1)).toEqual([[{
             datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TEXT,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
             operator: '=',
             value: 'testText2'
-        }]]);
+        } as SimpleFilterConfig]]);
+
+        component.options.andFilters = true;
+
+        component.onClick({
+            key: 'testText3'
+        });
+
+        expect(spyToggle.calls.count()).toEqual(2);
+        expect(spyExchange.calls.count()).toEqual(1);
+        expect(spyExchange.calls.argsFor(0)).toEqual([[{
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText1'
+            } as SimpleFilterConfig, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText2'
+            } as SimpleFilterConfig, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText3'
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig]]);
+
+        component.onClick({
+            key: 'testText4'
+        });
+
+        expect(spyToggle.calls.count()).toEqual(2);
+        expect(spyExchange.calls.count()).toEqual(2);
+        expect(spyExchange.calls.argsFor(1)).toEqual([[{
+            type: CompoundFilterType.AND,
+            filters: [{
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText1'
+            } as SimpleFilterConfig, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText2'
+            } as SimpleFilterConfig, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText3'
+            } as SimpleFilterConfig, {
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
+                operator: '=',
+                value: 'testText4'
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig]]);
     });
 
     it('redrawFilters does update textCloudData if no text is selected', () => {

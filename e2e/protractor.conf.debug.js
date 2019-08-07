@@ -13,17 +13,24 @@
  * limitations under the License.
  */
 
-const {SpecReporter} = require('jasmine-spec-reporter');
+const path = require('path');
+const { SpecReporter } = require('jasmine-spec-reporter');
 
 exports.config = {
     allScriptsTimeout: 111000,
     specs: [
-        '../**/*.e2e-spec.ts'
+        '**/*.e2e-spec.ts'
     ],
     capabilities: {
         browserName: 'chrome',
         chromeOptions: {
-            args: ['--disable-dev-shm-usage', '--disable-gpu', '--window-size=1920x1080']
+            args: [
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--window-size=1920x1080'
+            ]
         }
     },
     directConnect: true,
@@ -37,10 +44,10 @@ exports.config = {
     skipSourceMapSupport: true,
     beforeLaunch: function () {
         require('ts-node-2').register({
-            project: 'e2e/tsconfig.e2e.json'
+            project: path.resolve(__dirname, 'tsconfig.e2e.json')
         });
     },
-    onPrepare() {
-        jasmine.getEnv().addReporter(new SpecReporter({spec: {displayStacktrace: true}}));
+    onPrepare () {
+        jasmine.getEnv().addReporter(new SpecReporter({ spec: { displayStacktrace: true } }));
     }
 };
