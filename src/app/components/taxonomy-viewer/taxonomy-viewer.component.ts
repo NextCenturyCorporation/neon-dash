@@ -450,6 +450,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         this.sortTaxonomies(group);
 
+        this._updateEachTreeNodeStatus(group);
+
         this.taxonomyGroups = group.children as TaxonomyGroup[];
 
         return this.taxonomyGroups.reduce((acc, grp) => acc + grp.nodeCount, 0);
@@ -634,6 +636,39 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         if (setNode.children) {
             setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+        }
+    }
+
+    private _updateEachTreeNodeStatus(node: TaxonomyGroup | TaxonomyNode) {
+        if ('children' in node && node.children.length) {
+            let allChildrenChecked = true;
+            let noChildrenChecked = true;
+
+            for (const child of node.children) {
+                if (node.level === 1 && child.indeterminate) {
+                    allChildrenChecked = false;
+                    noChildrenChecked = false;
+                } else if (!child.checked) {
+                    allChildrenChecked = false;
+                } else if (child.checked) {
+                    noChildrenChecked = false;
+                }
+            }
+
+            if (allChildrenChecked) {
+                node.checked = true;
+                node.indeterminate = false;
+            } else if (noChildrenChecked) {
+                node.checked = false;
+                node.indeterminate = false;
+            } else {
+                node.checked = true;
+                node.indeterminate = true;
+            }
+
+            for (const child of node.children) {
+                this._updateEachTreeNodeStatus(child);
+            }
         }
     }
 
