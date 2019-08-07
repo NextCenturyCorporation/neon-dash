@@ -87,14 +87,22 @@ dashboards:
                         connectOnLoad: true
                         customRequests:
                             - endpoint: http://localhost:4200/lorelei-service/
-                              pretty: THOR Data Input
+                              date: createdAt
+                              id: ID
+                              notes:
+                                  - "Please enter both a specific location (like a city name) and a specific emergency (like crime, food, medicine, rescue, shelter, terrorism, violence, or water)."
+                                  - "Example:  I need medicine in Washington DC."
+                              pretty: THOR Instant Messaging
                               properties:
+                                - name: language
+                                  pretty: Language
+                                  choices:
+                                      - value: en
+                                        pretty: English
+                                      - value: tpi
+                                        pretty: Tok Pisin
                                 - name: originalText
                                   pretty: Original Text
-                                - name: createdAt
-                                  pretty: Date Created
-                                - name: id
-                                  pretty: ID
                     fields:
                         original_text_key: es1.lorelei_event.lorelei_event.originaltext
                         translated_text_key: es1.lorelei_event.lorelei_event.originaltext
