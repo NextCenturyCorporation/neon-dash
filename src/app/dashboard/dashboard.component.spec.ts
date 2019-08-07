@@ -906,6 +906,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             layout: 'DISCOVERY',
+            fullTitle: 'Test Title',
             category: 'Select an option...',
             options: {
                 connectOnLoad: true
@@ -987,6 +988,7 @@ describe('Dashboard Custom', () => {
 
         let testDashboard = NeonDashboardLeafConfig.get({
             category: 'Select an option...',
+            fullTitle: 'Test Title',
             layout: 'DISCOVERY',
             options: { connectOnLoad: true }
         });
