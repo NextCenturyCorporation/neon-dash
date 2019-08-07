@@ -29,8 +29,12 @@ export interface NeonSimpleSearchFilter {
 }
 
 export interface NeonCustomRequests {
+    // Adds the current timestamp to the body using the specified property name
+    date?: string;
     // Endpoint link
     endpoint: string;
+    // Adds a unique ID to the body using the specified property name
+    id?: string;
     // Optional note to user
     note?: string;
     // Pretty name to show to user
@@ -39,13 +43,17 @@ export interface NeonCustomRequests {
     properties?: PropertyMetaData[];
     // Type like GET, POST, PUT, or DELETE (assumes POST if properties exist or GET otherwise)
     type?: string;
-    // Response status (not in config file)
-    status?: any;
     // Response data (not in config file)
     response?: any;
+    // Show the response JSON
+    showResponse?: boolean;
+    // Response status (not in config file)
+    status?: any;
 }
 
 export interface PropertyMetaData {
+    // List of dropdown choices (if not specified, shows a text input element)
+    choices?: { pretty: string, value: string }[];
     // Property name to save in body
     name: string;
     // Pretty name to show to user

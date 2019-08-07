@@ -20,6 +20,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
 import { NeonCustomRequests } from '../../models/types';
 
+import * as moment from 'moment';
+import * as uuidv4 from 'uuid/v4';
 import * as yaml from 'js-yaml';
 
 @Component({
@@ -107,22 +109,35 @@ export class CustomRequestsComponent {
             return data;
         }, {});
 
+        if (request.date) {
+            bodyData[request.date] = moment.utc(new Date()).format('YYYY-MM-DD[T]HH:mm:ss.SSS');
+        }
+
+        if (request.id) {
+            bodyData[request.id] = uuidv4();
+        }
+
         let httpObservable: Observable<Record<string, any>> = this.buildRequest(request.type || '', request.endpoint, bodyData);
 
         if (httpObservable) {
             request.status = 'Loading...';
             this.runRequest(httpObservable, (response: any) => {
-                request.status = 'Successful';
                 request.response = response;
+                request.status = 'Successful';
                 this.changeDetection.detectChanges();
             }, (error: any) => {
-                request.status = 'Failed';
                 request.response = error.message;
+                request.showResponse = true;
+                request.status = 'Failed';
                 this.changeDetection.detectChanges();
             });
         } else {
             request.status = 'Dashboard Error';
         }
+    }
+
+    toggleResponse(request: NeonCustomRequests): void {
+        request.showResponse = !request.showResponse;
     }
 
     protected updateRequests(dashboardState: DashboardState): void {
