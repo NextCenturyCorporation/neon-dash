@@ -244,6 +244,7 @@ dashboards:
                     options:
                         connectOnLoad: true
                         customRequests:
+                            # for local environment:
                             #- endpoint: http://localhost:4200/lorelei-service/
                             - endpoint: ../lorelei-service
                               date: createdAt
