@@ -10,7 +10,7 @@
                         </video>
                     </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.pdf">
-                        <p>Open the PDF file <a [href]="showMedia()" target="_blank">
+                        <p>Open the PDF file <a class="pdfLink" [href]="showMedia()" target="_blank">
                                 <img src="/assets/icons/dashboard/baseline-description-24px.svg">
                             </a></p>
                     </ng-container>
@@ -42,7 +42,7 @@
                 </iframe>
             </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.pdf">
-                <p>Open the PDF file <a [href]="showMedia()" target="_blank">
+                <p>Open the PDF file <a class="pdfLink" [href]="showMedia()" target="_blank">
                         <img src="/assets/icons/dashboard/baseline-description-24px.svg">
                     </a></p>
             </ng-container>
