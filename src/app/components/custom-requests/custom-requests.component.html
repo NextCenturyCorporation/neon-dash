@@ -2,9 +2,15 @@
 
 <div *ngFor="let request of requests; let i = index;" class="request-section">
     <div class="request-title">{{ request.pretty }}</div>
-    <div *ngIf="request.note != undefined && request.note != ''" class="request-description">{{ request.note }}</div>
+    <div *ngIf="request.notes != undefined">
+        <div *ngFor="let note of request.notes" class="request-description">{{ note }}</div>
+    </div>
     <mat-form-field *ngFor="let property of request.properties" appearance="outline">
-        <textarea matInput placeholder={{property.pretty}} [(ngModel)]="property.value" [name]="property.name"></textarea>
+        <textarea matInput *ngIf="property.choices == undefined" [placeholder]="property.pretty" [(ngModel)]="property.value"
+            [name]="property.name" required="true"></textarea>
+        <mat-select *ngIf="property.choices != undefined" [placeholder]="property.pretty" [(ngModel)]="property.value" required="true">
+            <mat-option *ngFor="let choice of property.choices" [value]="choice.value">{{ choice.pretty }}</mat-option>
+        </mat-select>
     </mat-form-field>
     <div>
         <button mat-raised-button class="neon-button-large" [disabled]="!isValidRequestBody(request)" (click)="submitData(request)">
@@ -14,9 +20,12 @@
             *ngIf="doesHaveProperties(request)">
             Reset
         </button>
+        <button mat-raised-button class="neon-button-large" (click)="toggleResponse(request)" *ngIf="request.response != undefined">
+            {{ request.showResponse ? 'Hide' : 'Show' }} Details
+        </button>
         <span *ngIf="request.status != undefined">{{ request.status }}</span>
     </div>
-    <ngx-monaco-editor #editor *ngIf="request.response != undefined" [options]="{
+    <ngx-monaco-editor #editor *ngIf="request.showResponse" [options]="{
         readOnly: true,
         theme: 'vs',
         language: 'yaml',
