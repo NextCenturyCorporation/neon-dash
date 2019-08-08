@@ -463,6 +463,10 @@ layouts:
               north: -5
               east: 150
               south: -6
+              customServer:
+                  useCustomServer: true
+                  mapUrl: "http://localhost:8081/services/?"
+                  layer: "osm-bright"
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -567,6 +571,10 @@ layouts:
               north: 6
               east: 147
               south: 0
+              customServer:
+                  useCustomServer: true
+                  mapUrl: "http://localhost:8081/services/?"
+                  layer: "osm-bright"
         - name: Text Cloud
           type: textCloud
           icon: TagCloud64
@@ -683,6 +691,10 @@ layouts:
                 north: -5
                 east: 150
                 south: -6
+                customServer:
+                  useCustomServer: true
+                  mapUrl: "http://localhost:8081/services/?"
+                  layer: "osm-bright"
           - name: Text Cloud
             type: textCloud
             icon: TagCloud64
