@@ -5,14 +5,14 @@ datastores:
         type: elasticsearchrest
         databases:
             aida-docs-parents:
-                prettyName: Documents
+                prettyName: TA1 Parents
                 tables:
                     parents:
                         prettyName: Root Documents
                         fields:
                         labelOptions:
             aida-docs-parent-children:
-                prettyName: Documents
+                prettyName: TA1 Children
                 tables:
                     parent-children:
                          prettyName: Child Documents
@@ -56,12 +56,17 @@ dashboards:
                                 graph_field_type: es1.gaia-graph.graph.types
                                 graph_field_category: es1.gaia-graph.graph.categories
                             relations:
-                                - - es1.aida-docs-parents.parents.children
-                                  - es1.gaia-graph.graph.docIds
                                 - - es1.aida-docs-parents.parents.id
                                   - es1.gaia-graph.graph.parentIds
                             options:
-                                connectOnLoad: true
+                                connectOnLoad: false
+                                colorMaps:
+                                    gaia-graph:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
         ldc-pilot:
             name: LDC Pilot
             category: 'Select...'
@@ -84,13 +89,17 @@ dashboards:
                                 graph_field_type: es1.ldc-graph.graph.types
                                 graph_field_category: es1.ldc-graph.graph.categories
                             relations:
-                                - - es1.aida-docs-parents.parents.children
-                                  - es1.ldc-graph.graph.docIds
                                 - - es1.aida-docs-parents.parents.id
                                   - es1.ldc-graph.graph.parentIds
                             options:
                                 connectOnLoad: false
-
+                                colorMaps:
+                                    ldc-graph:
+                                        graph:
+                                            categories:
+                                                ENTITY: '#ADD8E6'
+                                                EVENT: '#D98C8C'
+                                                RELATION: '#FFE4B5'
 layouts:
     gaia-ta1-pilot:
         - type: dataTable
@@ -257,6 +266,6 @@ layouts:
               tableKey: document_table
               idField: document_field_id
               linkField: document_field_link
-              linkPrefix: '../../Reconstructed/html/ldc/'
+              linkPrefix: '../Reconstructed/html/ldc/'
               typeField: document_field_documenttype
               clearMedia: false

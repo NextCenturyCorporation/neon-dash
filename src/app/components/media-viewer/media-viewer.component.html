@@ -49,9 +49,9 @@
 
     <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
         <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
-        <div *ngFor="let tab of tabsAndMedia">
+        <div class="full-height" *ngFor="let tab of tabsAndMedia">
             <div class="viewer-text">{{ tab.name }}</div>
-            <div [ngSwitch]="tab.selected.type">
+            <div class="full-height" [ngSwitch]="tab.selected.type">
                 <!-- TODO Move into a subcomponent shared with the multiple-tab behavior -->
                 <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
                     <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
