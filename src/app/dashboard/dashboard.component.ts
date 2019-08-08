@@ -352,15 +352,23 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Handles the given error and message.
      */
-    private handleDashboardMessage(eventMessage: { error?: Error | ExceptionInformation | string, message: string }) {
+    private handleDashboardMessage(eventMessage: { error?: any, message: string }) {
+        // Errors from the Neon Server should have a responseJSON property.
+        let errorLabel = (eventMessage.error && eventMessage.error.responseJSON) ? (eventMessage.error.responseJSON.status + ' ' +
+            eventMessage.error.responseJSON.error + ' ' + eventMessage.error.responseJSON.trace[0]) : '';
+        let errorTrace = (eventMessage.error && eventMessage.error.responseJSON) ? eventMessage.error.responseJSON.trace :
+            eventMessage.error;
+
+        let wholeMessage = eventMessage.message + (errorLabel ? (': ' + errorLabel) : '');
+
         if (eventMessage.error) {
-            console.error('DASHBOARD ERROR: ' + eventMessage.message, eventMessage.error);
+            console.error('[DASHBOARD ERROR] ' + wholeMessage, errorTrace);
         } else {
-            console.warn('DASHBOARD MESSAGE: ' + eventMessage.message);
+            console.warn('[DASHBOARD MESSAGE] ' + wholeMessage);
         }
 
         setTimeout(() => {
-            this.snackBar.open(eventMessage.message + (eventMessage.error ? (': ' + eventMessage.error) : ''), 'OK', {
+            this.snackBar.open(wholeMessage, 'OK', {
                 verticalPosition: 'top'
             });
         });
