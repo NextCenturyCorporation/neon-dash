@@ -1032,8 +1032,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
             if (source && destinations[index]) {
-                ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), {to: this.options.isDirected}, 1, colorObject, colorMapVal,
-                    edgeTextObject, edgeChosenObject));
+                ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
+                    colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
             }
         }
         return ret;
