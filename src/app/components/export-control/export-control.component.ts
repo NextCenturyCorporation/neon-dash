@@ -75,7 +75,7 @@ export class ExportControlComponent {
 
     exportFail(response) {
         this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-            error: response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
+            error: response,
             message: 'Export Failed'
         });
     }

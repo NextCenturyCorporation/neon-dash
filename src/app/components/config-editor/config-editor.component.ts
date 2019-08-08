@@ -71,9 +71,9 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
                     message: 'New configuration saved successfully.  Refresh to see changes.'
                 });
             },
-            (error) => {
+            (response) => {
                 this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                    error: error,
+                    error: response,
                     message: 'Error saving new configuration'
                 });
             });
