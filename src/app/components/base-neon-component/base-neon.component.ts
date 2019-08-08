@@ -685,7 +685,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.loadingCount--;
             if (response.statusText !== 'abort') {
                 this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-                    error: (response && response.responseJSON) ? response.responseJSON.stackTrace : response.responseText,
+                    error: response,
                     message: 'Failed ' + queryId + ' on ' + options.title
                 });
                 this.changeDetection.detectChanges();

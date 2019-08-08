@@ -13,6 +13,9 @@ RUN echo $'server {\n\
   location /neon {\n\
   proxy_pass http://neon-server-service;\n\
   }\n\
+  location /lorelei-service {\n\
+  proxy_pass http://lorelei-pipeline-service;\n\
+  }\n\
   }' > /etc/nginx/conf.d/default.conf;
 
 RUN /bin/sh -c 'cat /var/www/app/config/config.yaml | sed -e "s/host: localhost/host: elasticsearch/g" > /var/www/app/config/config.clean.yaml'

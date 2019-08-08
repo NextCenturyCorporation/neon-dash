@@ -149,7 +149,7 @@ export class SaveStateComponent implements OnInit {
     private handleStateFailure(name: string, response: any) {
         this.isLoading = false;
         this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-            error: response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
+            error: response,
             message: 'Dashboard state operation failed on "' + name + '"'
         });
     }
