@@ -1,0 +1,26 @@
+# This file can be used to do really simple smoke testing on the
+# docker image built with the Dockefile. It's assumed to be named
+# neon/ui.
+#
+# For the neon server, it uses the latest from our AWS ECR
+#
+# Go to localhost:80 to see the dashboard
+#
+version: '3'
+
+services:
+  neon-ui:
+    image: neon/ui
+    ports: 
+      - 80:80
+  neon-server:
+    container_name: neon-server-service
+    image: 670848316581.dkr.ecr.us-east-1.amazonaws.com/neon/server
+#    expose:
+#      - 80
+    environment:
+#      STATE_DIRECTORY: /states
+      SERVER_PORT: 80
+#    volumes:
+#      - ./states:/states
+
