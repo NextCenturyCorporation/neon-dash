@@ -2,4 +2,4 @@
 #
 set -e
 npm run build-prod
-docker build -t neon:ui .
+docker build -t neon/ui:latest .

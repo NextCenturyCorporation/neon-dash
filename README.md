@@ -35,10 +35,6 @@ To see anything useful, you will need to ingest data into your datastore(s).
 
 To start the unit tests and linters, run: `npm test`
 
-## Unit Test
-
-To start just the unit tests, run: `npm run-script unit-test`
-
 The unit tests are run using a [Karma config file](./karma.conf.js).  The unit tests are written with [Jasmine](https://jasmine.github.io/).
 
 ## Lint
