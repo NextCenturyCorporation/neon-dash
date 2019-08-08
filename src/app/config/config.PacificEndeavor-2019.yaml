@@ -244,15 +244,16 @@ dashboards:
                     options:
                         connectOnLoad: true
                         customRequests:
+                            #- endpoint: http://localhost:4200/lorelei-service/
                             - endpoint: ../lorelei-service
                               date: createdAt
-                              id: ID
+                              id: id
                               notes:
                                   - "Please enter both a specific location (like a city name) and a specific emergency (like crime, food, medicine, rescue, shelter, terrorism, violence, or water)."
                                   - "Example:  I need medicine in Washington DC."
                               pretty: THOR Instant Messaging
                               properties:
-                                - name: language
+                                - name: lang
                                   pretty: Language
                                   choices:
                                       - value: en
