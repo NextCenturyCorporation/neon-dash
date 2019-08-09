@@ -89,6 +89,7 @@
     word-wrap: break-word;
     display: flex;
     flex-direction: column;
+    overflow-y:auto;
 
     p {
         font-size: 0.8em;
@@ -159,12 +160,12 @@
     height: 80px;
     width: 98%;
     flex: auto;
-    overflow-y: scroll;
-    overflow: auto;
+    overflow-y: auto;
+    word-break : break-word;
 
     p {
         font-size: 0.8em;
-        margin: 4px;
+        margin: 6px;
     }
 }
 
