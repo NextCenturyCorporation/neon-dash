@@ -21,7 +21,6 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
-    Inject,
     ElementRef
 } from '@angular/core';
 
@@ -48,7 +47,7 @@ import { Router } from '@angular/router';
 import { ConfigUtil } from '../util/config.util';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { Subject, fromEvent } from 'rxjs';
-import { Location, APP_BASE_HREF } from '@angular/common';
+import { Location } from '@angular/common';
 import { distinctUntilKeyChanged, takeUntil } from 'rxjs/operators';
 
 export function DashboardModified() {
@@ -145,8 +144,7 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
         public snackBar: MatSnackBar,
         public colorThemeService: InjectableColorThemeService,
         public router: Router,
-        public location: Location,
-        @Inject(APP_BASE_HREF) private baseHref: string
+        public location: Location
     ) {
         this.messageReceiver = new eventing.Messenger();
         this.messageSender = new eventing.Messenger();
@@ -213,9 +211,9 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     private onDashboardStateChange(state: DashboardState) {
         // Validate url first
         const currentFilter = this.dashboardService.getFiltersToSaveInURL();
-        const { fullPath, filters, url } = ConfigUtil.getUrlState(window.location, this.baseHref);
-        if ((!filters && currentFilter) || url.pathname === '/') {
-            this.location.replaceState(`${fullPath}#${currentFilter}`);
+        const { dashboard, filters, paths } = ConfigUtil.getUrlState(window.location);
+        if ((!filters && currentFilter) || !dashboard) {
+            this.location.replaceState('?dashboard=' + paths.join('/') + '#' + currentFilter);
         }
 
         // Clean on different dashboard
@@ -298,24 +296,24 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Adds the given widget to the grid in its specified column and row or in the first open space if no column and row are specified.
      */
     @DashboardModified()
-    private addWidget(eventMessage: { gridName?: string, widgetGridItem: NeonGridItem }) {
-        this.gridState.add(eventMessage.widgetGridItem, eventMessage.gridName);
+    private addWidget(event: { gridName?: string, widgetGridItem: NeonGridItem }) {
+        this.gridState.add(event.widgetGridItem, event.gridName);
     }
 
     /**
      * Contracts the given widget to its previous size.
      */
     @DashboardModified()
-    private contractWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        this.gridState.contract(eventMessage.widgetGridItem);
+    private contractWidget(event: { widgetGridItem: NeonGridItem }) {
+        this.gridState.contract(event.widgetGridItem);
     }
 
     /**
      * Deletes the widget with the given ID from the grid.
      */
     @DashboardModified()
-    public deleteWidget(eventMessage: { id: string }) {
-        this.gridState.delete(eventMessage.id);
+    public deleteWidget(event: { id: string }) {
+        this.gridState.delete(event.id);
     }
 
     disableClose(): boolean {
@@ -326,8 +324,8 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Expands the given widget to fill the width of the grid.
      */
     @DashboardModified()
-    private expandWidget(eventMessage: { widgetGridItem: NeonGridItem }) {
-        this.gridState.expand(eventMessage.widgetGridItem, this.getVisibleRowCount());
+    private expandWidget(event: { widgetGridItem: NeonGridItem }) {
+        this.gridState.expand(event.widgetGridItem, this.getVisibleRowCount());
     }
 
     /**
@@ -352,16 +350,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
     /**
      * Handles the given error and message.
      */
-    private handleDashboardMessage(eventMessage: { error?: any, message: string }) {
-        // Errors from the Neon Server should have a responseJSON property.
-        let errorLabel = (eventMessage.error && eventMessage.error.responseJSON) ? (eventMessage.error.responseJSON.status + ' ' +
-            eventMessage.error.responseJSON.error + ' ' + eventMessage.error.responseJSON.trace[0]) : '';
-        let errorTrace = (eventMessage.error && eventMessage.error.responseJSON) ? eventMessage.error.responseJSON.trace :
-            eventMessage.error;
+    private handleDashboardMessage(event: { error?: any, message: string }) {
+        // Errors may be strings or objects.  Neon Server errors have a responseJSON property.  JS Error objects have a message property.
+        let errorLabel = !event.error ? '' : (typeof event.error === 'string' ? event.error : (event.error.responseJSON ?
+            (event.error.responseJSON.status + ' ' + event.error.responseJSON.error + ' ' + event.error.responseJSON.trace[0]) :
+            (event.error.message || '')));
+        let errorTrace = (event.error && event.error.responseJSON) ? event.error.responseJSON.trace : event.error;
 
-        let wholeMessage = eventMessage.message + (errorLabel ? (': ' + errorLabel) : '');
+        let wholeMessage = event.message + (errorLabel ? (': ' + errorLabel) : '');
 
-        if (eventMessage.error) {
+        if (event.error) {
             console.error('[DASHBOARD ERROR] ' + wholeMessage, errorTrace);
         } else {
             console.warn('[DASHBOARD MESSAGE] ' + wholeMessage);
@@ -378,16 +376,16 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Moves the given widget to the bottom of the grid.
      */
     @DashboardModified()
-    private moveWidgetToBottom(eventMessage: { widgetGridItem: NeonGridItem }) {
-        this.gridState.moveToBottom(eventMessage.widgetGridItem);
+    private moveWidgetToBottom(event: { widgetGridItem: NeonGridItem }) {
+        this.gridState.moveToBottom(event.widgetGridItem);
     }
 
     /**
      * Moves the given widget to the top of the grid.
      */
     @DashboardModified()
-    private moveWidgetToTop(eventMessage: { widgetGridItem: NeonGridItem }) {
-        this.gridState.moveToTop(eventMessage.widgetGridItem);
+    private moveWidgetToTop(event: { widgetGridItem: NeonGridItem }) {
+        this.gridState.moveToTop(event.widgetGridItem);
     }
 
     ngAfterViewInit() {
@@ -481,10 +479,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
             callerId: callerId,
             changeCollection: changeCollection
         };
-        const { pathParts } = ConfigUtil.getUrlState(window.location, this.baseHref);
-        this.router.navigate(pathParts, {
+        const { paths } = ConfigUtil.getUrlState(window.location);
+        this.router.navigate(['/'], {
             fragment: this.dashboardService.getFiltersToSaveInURL(),
-            queryParamsHandling: 'merge',
+            queryParams: {
+                dashboard: paths.join('/')
+            },
             relativeTo: this.router.routerState.root
         });
     }
@@ -543,12 +543,12 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Registers the given widget with the given ID.
      */
     @DashboardModified()
-    private registerWidget(eventMessage: { id: string, widget: BaseNeonComponent }) {
-        if (!this.widgets.has(eventMessage.id)) {
+    private registerWidget(event: { id: string, widget: BaseNeonComponent }) {
+        if (!this.widgets.has(event.id)) {
             if (this.pendingInitialRegistrations > 0) {
                 this.pendingInitialRegistrations -= 1;
             }
-            this.widgets.set(eventMessage.id, eventMessage.widget);
+            this.widgets.set(event.id, event.widget);
         }
     }
 
@@ -572,21 +572,21 @@ export class DashboardComponent implements AfterViewInit, OnInit, OnDestroy {
      * Unregisters the widget with the given ID.
      */
     @DashboardModified()
-    private unregisterWidget(eventMessage: { id: string }) {
-        this.widgets.delete(eventMessage.id);
+    private unregisterWidget(event: { id: string }) {
+        this.widgets.delete(event.id);
     }
 
     /**
      * Updates the showVisualizationsShortcut boolean value from the messenger channel
      */
-    private updateShowVisualizationsShortcut(eventMessage: { show: boolean }) {
-        this.showVisualizationsShortcut = eventMessage.show;
+    private updateShowVisualizationsShortcut(event: { show: boolean }) {
+        this.showVisualizationsShortcut = event.show;
     }
 
     /**
      * Updates the showFilterTray boolean value from the messenger channel
      */
-    private updateShowFilterTray(eventMessage: { show: boolean }) {
-        this.showFilterTray = eventMessage.show;
+    private updateShowFilterTray(event: { show: boolean }) {
+        this.showFilterTray = event.show;
     }
 }
