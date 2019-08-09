@@ -8,19 +8,6 @@ datastores:
                 tables:
                     ui_out:
                         prettyName: UI out
-                        fields:
-                            - columnName: createdDate
-                              prettyName: Date Created
-                            - columnName: topic
-                              prettyName: Need Type
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: status
-                              prettyName: Status
-                            - columnName: translatedText
-                              prettyName: Translated Text
-                            - columnName: originalText
-                              prettyName: Original Text
                         labelOptions:
                             topic:
                                 food: Food
@@ -41,15 +28,6 @@ datastores:
                 tables:
                     ui_out:
                         prettyName: ui_out
-                        fields:
-                            - columnName: createdAt
-                              prettyName: Date Created
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: JustificationEN
-                              prettyName: Translated Text
-                            - columnName: JustificationIL
-                              prettyName: Original Text
                         labelOptions:
                             topic:
                                 food: Food
@@ -70,19 +48,6 @@ datastores:
                 tables:
                     annotations:
                         prettyName: Annotations
-                        fields:
-                            - columnName: createdAt
-                              prettyName: Date Created
-                            - columnName: topic
-                              prettyName: Need Type
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: status
-                              prettyName: Status
-                            - columnName: translatedText
-                              prettyName: Translated Text
-                            - columnName: originalText
-                              prettyName: Original Text
                         labelOptions:
                             topic:
                                 food: Food
@@ -103,19 +68,6 @@ datastores:
                 tables:
                     annotations:
                         prettyName: Annotations
-                        fields:
-                            - columnName: createdAt
-                              prettyName: Date Created
-                            - columnName: topic
-                              prettyName: Need Type
-                            - columnName: location
-                              prettyName: Location
-                            - columnName: status
-                              prettyName: Status
-                            - columnName: JustificationEN
-                              prettyName: Translated Text
-                            - columnName: JustificationIL
-                              prettyName: Original Text
                         mappings:
                             date: createdAt
                         labelOptions:
