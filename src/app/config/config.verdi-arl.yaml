@@ -958,7 +958,7 @@ layouts:
                       idField: geo_field_id
                       filterFields:
                         - geo_field_parentid
-                      colorField: geo_field_category
+                      colorField: geo_field_type
 
         - type: thumbnailGrid
           row: 0
@@ -1285,7 +1285,7 @@ layouts:
                       idField: geo_field_id
                       filterFields:
                         - geo_field_parentid
-                      colorField: geo_field_category
+                      colorField: geo_field_type
         - type: thumbnailGrid
           row: 0
           col: 11
