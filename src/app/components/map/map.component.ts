@@ -685,14 +685,14 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 table: layer.table.name,
                 field: layer.latitudeField.columnName,
                 operator: '=',
-                value: latitude
+                value: Number.isInteger(latitude) ? latitude.toFixed(1) : latitude
             }, {
                 datastore: layer.datastore.name,
                 database: layer.database.name,
                 table: layer.table.name,
                 field: layer.longitudeField.columnName,
                 operator: '=',
-                value: longitude
+                value: Number.isInteger(longitude) ? longitude.toFixed(1) : longitude
             }] as SimpleFilterConfig[]
         } as CompoundFilterConfig;
     }
