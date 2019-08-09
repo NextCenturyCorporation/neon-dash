@@ -503,6 +503,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
+
     }
 
     private restartPhysics(): void {
