@@ -38,9 +38,8 @@
                         <p>
                             <ng-container *ngIf="hasUrl(item[options.contentField.columnName])">
                                 {{removeUrl(item[options.contentField.columnName])}}
-                                <a *ngIf="hasUrl(item[options.contentField.columnName])" href="{{this.url}}"
-                                    target="_blank">
-                                    {{checkStringForUrl(item[options.contentField.columnName])}}</a>
+                                <a href="{{this.url}}" target="_blank">
+                                    {{this.url}}</a>
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.contentField.columnName])">
                                 {{item[options.contentField.columnName]}}
@@ -54,7 +53,7 @@
                                 {{removeUrl(item[options.secondaryContentField.columnName])}}
                                 <a *ngIf="hasUrl(item[options.secondaryContentField.columnName])" href="{{this.url}}"
                                     target="_blank">
-                                    {{checkStringForUrl(item[options.secondaryContentField.columnName])}}</a>
+                                    {{this.url}}</a>
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.secondaryContentField.columnName])">
                                 {{item[options.secondaryContentField.columnName]}}
