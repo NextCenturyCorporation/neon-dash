@@ -130,15 +130,13 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
     public updateDashboardState(dashboard: NeonDashboardConfig) {
         if (dashboard && 'tables' in dashboard) {
             this.dashboardChoice = dashboard;
-            this.router.navigate(
-                [
-                    this.dashboardService.config.fileName,
-                    ...this.computeNamePath()
-                ],
-                {
-                    relativeTo: this.router.routerState.root
-                }
-            );
+            this.router.navigate(['/'], {
+                fragment: '',
+                queryParams: {
+                    dashboard: [this.dashboardService.config.fileName, ...this.computeNamePath()].join('/')
+                },
+                relativeTo: this.router.routerState.root
+            });
         }
     }
 

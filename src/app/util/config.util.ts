@@ -15,12 +15,9 @@
 import { NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
 
 interface URLConfigState {
-    filename: string;
+    dashboard: string;
     filters: string;
-    url: URL;
-    fullPath: string;
-    dashboardPath: string;
-    pathParts: string[];
+    paths: string[];
 }
 
 export class ConfigUtil {
@@ -140,34 +137,16 @@ export class ConfigUtil {
         });
     }
 
-    static getUrlState(urlStr: string | Location, baseHref: string): URLConfigState {
-        const searchHref = `/${baseHref}/`.replace(/^[/]+|[/]+$/g, '/');
+    static getUrlState(urlStr: string | Location): URLConfigState {
         const url = new URL(urlStr.toString());
-        const rel = url.pathname.substring(url.pathname.indexOf(searchHref) + searchHref.length);
-
-        const [path, ...subPath] = rel.split('/').filter((part) => !!part);
-        const dashboardPath = subPath.join('.');
-
+        const parameter = url.searchParams.get('dashboard') || '';
         const filters = decodeURIComponent(url.hash.replace(/^#/g, ''));
-        const filename = path || this.DEFAULT_CONFIG_NAME;
-        const params = url.searchParams.toString();
-
-        let pathParts = [filename, ...subPath];
-        let finalPath = ['', ...pathParts].join('/');
-
-        if (params) {
-            finalPath = `${finalPath}?${params}`;
-        }
-
-        const out = {
-            filename,
+        const [dashboard, ...pathsArray] = parameter.split('/').filter((part) => !!part);
+        const paths = [dashboard || this.DEFAULT_CONFIG_NAME, ...pathsArray];
+        return {
+            dashboard,
             filters,
-            url,
-            fullPath: finalPath,
-            dashboardPath,
-            pathParts
+            paths
         };
-
-        return out;
     }
 }
