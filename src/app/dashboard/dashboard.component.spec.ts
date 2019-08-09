@@ -34,6 +34,7 @@ import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMoc
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';
+import { ConfigUtil } from '../util/config.util';
 import { GearModule } from '../components/gear/gear.module';
 
 const Modules = {
@@ -123,8 +124,10 @@ describe('Dashboard', () => {
         component.onFiltersChanged('testCaller', null);
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual(['context.html']);
-        expect(params.queryParamsHandling).toEqual('merge');
+        expect(path).toEqual(['/']);
+        expect(params.queryParams).toEqual({
+            dashboard: ConfigUtil.DEFAULT_CONFIG_NAME
+        });
         expect(params.fragment).toBeTruthy();
     });
 

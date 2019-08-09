@@ -162,7 +162,7 @@ export interface NeonConfig {
     datastores: Record<string, NeonDatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
-    errors?: string[];
+    errors?: any[];
     neonServerUrl?: string;
     version: string;
 }
