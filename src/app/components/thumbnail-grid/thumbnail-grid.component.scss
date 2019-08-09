@@ -30,6 +30,12 @@
 
 .thumbnail-grid-div {
     display: flex;
+    flex: 0 auto;
+    align-items: center;
+}
+
+.thumbnail-grid-div-scaled {
+    display: flex;
     flex: 1 auto;
     align-items: center;
 }
