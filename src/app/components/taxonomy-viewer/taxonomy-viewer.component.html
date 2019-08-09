@@ -26,7 +26,7 @@
                 <div [ngClass]="setClassForTreePosition(node, 'tree-node tree-node-level-')" [class]="node.getClass()">
                     <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
                         <tree-node-expander [node]="node"></tree-node-expander>
-                        <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)"
+                        <div class="node-content-wrapper" (click)="node.mouseAction('click', $event)" [title]="node.data.name"
                             (dblclick)="node.mouseAction('dblClick', $event)" [class.node-content-wrapper-active]="node.isActive"
                             [class.node-content-wrapper-focused]="node.isFocused">
                             <div *ngIf="node.data.description != options.valueField.columnName">
