@@ -170,7 +170,9 @@ export class DashboardService {
                                     columnName: fieldName,
                                     prettyName: fieldName,
                                     // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
-                                    hide: existingFields.size > 25
+                                    hide: existingFields.size > 25,
+                                    // Set the default type to text.
+                                    type: 'text'
                                 });
                                 table.fields.push(newField);
                             }
