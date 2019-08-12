@@ -711,13 +711,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
 
         // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
-        if (this.cachedPage > 0 && !compatibleFilterCollection.getFilters().length) {
+        let returnToCachedPage = (this.cachedPage > 0 && !compatibleFilterCollection.getFilters().length);
+        if (returnToCachedPage) {
             this.page = this.cachedPage;
             this.cachedPage = -1;
         }
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
         if (callerId !== this.id || this.shouldFilterSelf()) {
+            // Return to page 1 unless we used the cached page.
+            this.page = returnToCachedPage ? this.page : 1;
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
         } else {
