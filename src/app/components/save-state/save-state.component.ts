@@ -117,8 +117,13 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         this.configService.load(name)
             .subscribe((config) => {
-                this.router.navigate([config.fileName], { relativeTo: this.router.routerState.root });
-                this.openNotification(name, 'loaded');
+                this.router.navigate(['/'], {
+                    fragment: '',
+                    queryParams: {
+                        dashboard: config.fileName
+                    },
+                    relativeTo: this.router.routerState.root
+                });
                 this.closeSidenav();
             }, this.handleStateFailure.bind(this, name));
     }
