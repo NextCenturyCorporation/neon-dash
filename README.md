@@ -81,13 +81,17 @@ The linters are run using the following files:
 
 ## Production Deployment Instructions
 
-The Neon Dashboard is deployed as either a docker container (together with the Neon Server) or a WAR in Apache Tomcat (independently from the Neon Server).
+The Neon Dashboard is deployed as either a [docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-docker-container) (together with the Neon Server) or a [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-war-in-apache-tomcat) (independently from the Neon Server).
 
 ### Deploy as Docker Container
 
-#### 1. Install [Docker Compose](https://docs.docker.com/compose/install/)
+#### 1. Perform All Initial Setup
 
-#### 2. Update the Datastore Host in Your Neon Dashboard Configuration File
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+
+#### 2. Install [Docker Compose](https://docs.docker.com/compose/install/)
+
+#### 3. Update the Datastore Host in Your Neon Dashboard Configuration File
 
 If you have a dashboard configuration file (`src/app/config/config.yaml` or `src/app/config/config.json`) containing a datastore with a `host` of `localhost`, you'll need to change `localhost` to your local IP address.  For example, if your local IP address is `1.2.3.4`, then your dashboard configuration file may look like:
 
@@ -102,7 +106,7 @@ datastores:
 
 Note that you may need to [bind the network host in the configuration of your Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/network.host.html) by adding the line `network.host: 0.0.0.0` to the `<elasticsearch>/config/elasticsearch.yml` file of your Elasticsearch deployment and restarting Elasticsearch.
 
-#### 3. Build the Neon Dashboard
+#### 4. Build the Neon Dashboard
 
 ```
 cd <neon-dash-internal>
@@ -111,7 +115,7 @@ npm run-script build
 
 This will generate the `<neon-dash-internal>/dist` directory.
 
-#### 4. Run the Neon Server and the Neon Dashboard Simultaneously with Docker Compose
+#### 5. Run the Neon Server and the Neon Dashboard Simultaneously with Docker Compose
 
 This option uses Docker Compose to deploy the Neon Dashboard within an Nginx docker image alongside your existing Neon Server docker image.
 
@@ -126,15 +130,19 @@ docker-compose up -d
 
 - In `<neon-dash-internal>/docker-compose.yml`, change the `4100` in the line `- 4100:80` to your port.
 
-#### 5. Verify Deployment
+#### 6. Verify Deployment
 
 Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser by going to http://localhost:4100/
 
 ### Deploy as WAR in Apache Tomcat
 
-#### 1. Install [Apache Tomcat](http://tomcat.apache.org/)
+#### 1. Perform All Initial Setup
 
-#### 2. Run the Neon Server as a Docker Container
+Follow the [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions) above.
+
+#### 2. Install [Apache Tomcat](http://tomcat.apache.org/)
+
+#### 3. Run the Neon Server as a Docker Container
 
 While the Neon Dashboard can run in Apache Tomcat, the Neon Server can't, so you need to deploy it as a docker container.
 
@@ -143,22 +151,22 @@ cd <neon-server>
 docker run -it --network=host --rm -d com.ncc.neon/server:latest
 ```
 
-#### 3. Build the Neon Dashboard for Apache Tomcat Deployment
+#### 4. Build the Neon Dashboard for Apache Tomcat Deployment
 
 ```
 cd <neon-dash-internal>
-npm run-script build neon_dashboard
+npm run-script build-war neon_dashboard
 ```
 
 This will generate `<neon-dash-internal>/target/neon_dashboard.war`.
 
-**Note**: If you want, you can replace neon_dashboard with any other name.  Use the same name in the following steps.
+**Note**: If you want, you can replace `neon_dashboard` with any other name.  Use the same name in the following steps.
 
-#### 4. Deploy the Neon Dashboard to Your Apache Tomcat
+#### 5. Deploy the Neon Dashboard to Your Apache Tomcat
 
 Copy `<neon-dash-internal>/target/neon_dashboard.war` into your `<apache-tomcat>/webapps` directory.
 
-#### 5. Verify Deployment
+#### 6. Verify Deployment
 
 Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser. For example, if your Apache Tomcat is installed on `localhost:8080`, go to http://localhost:8080/neon_dashboard
 
