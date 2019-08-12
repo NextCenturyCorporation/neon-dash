@@ -7,7 +7,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions)
 * [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#local-development-instructions)
 * [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
-* [Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#datastore-configuration)
+* [Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
