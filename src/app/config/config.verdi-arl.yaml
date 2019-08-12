@@ -176,6 +176,7 @@ dashboards:
                                 graph_field_x: es1.rpi-m9-ta1-union.graph-children.x
                                 graph_field_y: es1.rpi-m9-ta1-union.graph-children.y
                                 graph_field_documentid: es1.rpi-m9-ta1-union.graph-children.docIds
+                                graph_field_parentid: es1.rpi-m9-ta1-union.graph-children.parentIds
                                 graph_field_link: es1.rpi-m9-ta1-union.graph-children.edgeTarget
                                 graph_field_linkname: es1.rpi-m9-ta1-union.graph-children.edgeLabel
                                 graph_field_targetname: es1.rpi-m9-ta1-union.graph-children.targetName
@@ -184,7 +185,7 @@ dashboards:
                                 graph_field_targetcategory: es1.rpi-m9-ta1-union.graph-children.targetCategories
                             relations:
                                 - - es1.arl_m18_docs-parents.parents.id
-                                  - es1.rpi-m9-ta1-events.union.parentIds
+                                  - es1.rpi-m9-ta1-union.graph-children.parentIds
                             options:
                                 connectOnLoad: false
                                 colorMaps:
@@ -309,6 +310,7 @@ dashboards:
                                 graph_field_x: es1.arl_m18_ta2-graph.graph.x
                                 graph_field_y: es1.arl_m18_ta2-graph.graph.y
                                 graph_field_documentid: es1.arl_m18_ta2-graph.graph.docIds
+                                graph_field_parentid: es1.arl_m18_ta2-graph.graph.parentIds
                                 graph_field_link: es1.arl_m18_ta2-graph.graph.edgeTarget
                                 graph_field_linkname: es1.arl_m18_ta2-graph.graph.edgeLabel
                                 graph_field_targetname: es1.arl_m18_ta2-graph.graph.targetName
@@ -726,7 +728,7 @@ layouts:
               hideUnfiltered: false
               physics: false
               filterFields:
-                  - graph_field_documentid
+                  - graph_field_parentid
               idField: graph_field_id
               filterable: true
               multiFilter: true
@@ -1053,7 +1055,7 @@ layouts:
               hideUnfiltered: false
               physics: false
               filterFields:
-                  - graph_field_documentid
+                  - graph_field_parentid
               idField: graph_field_id
               filterable: true
               multiFilter: true
