@@ -74,4 +74,20 @@ describe('Component: AnnotationViewer', () => {
         expect(component.data).toEqual([]);
         expect(component.options.singleColor).toEqual(false);
     });
+
+    it('hasUrl checks if url is in string and sets url variable', () => {
+        let testString = 'Hello World, https://www.google.com Goodbye world';
+
+        component.hasUrl(testString);
+
+        expect(component.url).toEqual('https://www.google.com');
+    });
+
+    it('hasUrl checks if url is in string and sets url variable, and adds http if needed', () => {
+        let testString = 'Hello World, www.google.com Goodbye world';
+
+        component.hasUrl(testString);
+
+        expect(component.url).toEqual('http://www.google.com');
+    });
 });

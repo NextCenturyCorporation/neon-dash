@@ -370,4 +370,14 @@ describe('NeonUtilities', () => {
             { keyA: 'value4', keyB: 'bravo' }
         ]);
     });
+
+    it('checkStringForUrl returns the first occurrence of a url in the string', () => {
+        let testString = 'Hello World, https://www.google.com Goodbye world';
+        expect(neonUtilities.checkStringForUrl(testString)).toEqual('https://www.google.com');
+    });
+
+    it('removeUrl correctly removes the url substring from original string', () => {
+        let testString = 'Hello World, Goodbye world https://www.google.com';
+        expect(neonUtilities.removeUrl(testString)).toEqual('Hello World, Goodbye world ');
+    });
 });
