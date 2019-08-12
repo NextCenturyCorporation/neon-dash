@@ -45,7 +45,7 @@ If you were given a sample data bundle, copy the `config.yaml` file from the sam
 
 If you were not given a sample data bundle and/or do not have a configuration file, please see the [dashboard configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#datastore-configuration) for more information.
 
-## Local Development
+## Local Development Instructions
 
 ### Run Locally
 
@@ -79,7 +79,7 @@ The linters are run using the following files:
 - [.jsbeautifyrc](./.jsbeautifyrc)
 - [sass-lint.yaml](./sass-lint.yaml) and [sass-lint-auto-fix.yaml](./sass-lint-auto-fix.yaml)
 
-## Production Deployment
+## Production Deployment Instructions
 
 The Neon Dashboard is deployed as either a docker container (together with the Neon Server) or a WAR in Apache Tomcat (independently from the Neon Server).
 
