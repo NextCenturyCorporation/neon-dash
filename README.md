@@ -7,7 +7,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions)
 * [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#local-development-instructions)
 * [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
-* [Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#dashboard-configuration)
+* [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#custom-dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
@@ -162,7 +162,7 @@ Copy `<neon-dash-internal>/target/neon_dashboard.war` into your `<apache-tomcat>
 
 Verify that the Neon Dashboard is deployed correctly by opening it in your internet browser. For example, if your Apache Tomcat is installed on `localhost:8080`, go to http://localhost:8080/neon_dashboard
 
-## Dashboard Configuration
+## Custom Dashboard Configuration
 
 If you were not given a sample data bundle and/or do not have a configuration file, you can create your own at `src/app/config/config.yaml` or `src/app/config/config.json`.
 
