@@ -4,9 +4,9 @@
   "license": "Apache2",
   "scripts": {
     "start": "npx ng serve --proxy-config proxy.conf.json  --host 0.0.0.0 --port 4200",
-    "build": "npx ng build --aot --base-href=/$npm_config_base --deploy-url=/$npm_config_base",
-    "build-prod": "npx ng build --aot --prod --base-href=/$npm_config_base --deploy-url=/$npm_config_base",
-    "build-war": "./scripts/build_dashboard.sh",
+    "build": "./scripts/generate_environment.sh && npx ng build --aot --base-href=/$npm_config_base --deploy-url=/$npm_config_base",
+    "build-prod": "./scripts/generate_environment.sh && npx ng build --aot --prod --base-href=/$npm_config_base --deploy-url=/$npm_config_base",
+    "build-war": "./scripts/generate_environment.sh && ./scripts/build_dashboard.sh",
     "lint": "./scripts/lint.sh",
     "test": "npx ng test && npm run lint",
     "e2e": "npx ng e2e",
