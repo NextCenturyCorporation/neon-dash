@@ -46,20 +46,6 @@ datastores:
                          prettyName: Geonames Index
                          fields:
                          labelOptions:
-            aida-docs-parents:
-                prettyName: GAIA TA1 Parent Documents
-                tables:
-                    parents:
-                        prettyName: Root Index
-                        fields:
-                        labelOptions:
-            gaia-graph:
-                prettyName: GAIA TA1 Graph
-                tables:
-                    graph:
-                        prettyName: Graph Index
-                        fields:
-                        labelOptions:
             arl-docs-parents:
                 prettyName: ARL M9 TA1 Parent Documents
                 tables:
@@ -265,16 +251,16 @@ dashboards:
                             name: Demo
                             layout: arl-ta1-m18-demo
                             tables:
-                                document_table: es1.arl_m18_docs-parents.parents
+                                document_table: es1.rpi-m9-ta1-docs.docs
                                 graph_table: es1.arl_m18_ta1.graph
                             fields:
-                                document_field_id: es1.arl_m18_docs-parents.parents.id
-                                document_field_link: es1.arl_m18_docs-parents.parents.reconstructed
+                                document_field_id: es1.rpi-m9-ta1-docs.docs.id
+                                document_field_link: es1.rpi-m9-ta1-docs.docs.reconstructed
 
                                 graph_field_type: es1.arl_m18_ta1.graph.types
                                 graph_field_category: es1.arl_m18_ta1.graph.categories
                             relations:
-                                - - es1.arl_m18_docs-parents.parents.id
+                                - - es1.rpi-m9-ta1-docs.docs.id
                                   - es1.arl_m18_ta1.graph.parentIds
                             options:
                                 connectOnLoad: false
@@ -388,124 +374,8 @@ dashboards:
                                   - es1.arl_m18_ta2-geo.geo.parentIds
                             options:
                                 connectOnLoad: false
-        gaia-pilot:
-            name: GAIA Pilot
-            category: 'Select...'
-            choices:
-                gaia-ta1:
-                    name: TA1
-                    category: 'Select...'
-                    choices:
-                        pilot:
-                            name: Pilot
-                            layout: gaia-ta1-pilot
-                            tables:
-                                document_table: es1.aida-docs-parents.parents
-                                graph_table: es1.gaia-graph.graph
-                            fields:
-                                document_field_id: es1.aida-docs-parents.parents.id
-                                document_field_link: es1.aida-docs-parents.parents.reconstructed
-
-                                graph_field_type: es1.gaia-graph.graph.types
-                                graph_field_category: es1.gaia-graph.graph.categories
-                            relations:
-                                - - es1.aida-docs-parents.parents.id
-                                  - es1.gaia-graph.graph.parentIds
-                            options:
-                                connectOnLoad: false
-                                colorMaps:
-                                    gaia-graph:
-                                        graph:
-                                            categories:
-                                                ENTITY: '#ADD8E6'
-                                                EVENT: '#D98C8C'
-                                                RELATION: '#FFE4B5'
 
 layouts:
-    gaia-ta1-pilot:
-        - type: dataTable
-          row: 1
-          col: 1
-          sizex: 2
-          sizey: 17.5
-          bindings:
-              title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              sortField: document_field_id
-              filterable: true
-              ignoreSelf: true
-              singleFilter: true
-              filterFields:
-                - document_field_id
-              exceptionsToStatus:
-                - document_field_id
-              allColumnStatus: hide
-
-        - type: aggregation
-          row: 1
-          col: 3
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Entities
-              tableKey: graph_table
-              type: bar-h
-              xField: graph_field_type
-              groupField: graph_field_category
-              aggregation: count
-              logScaleX: true
-              sortByAggregation: true
-              unsharedFilterField: graph_field_category
-              unsharedFilterValue: ENTITY
-
-        - type: aggregation
-          row: 7
-          col: 3
-          sizex: 4
-          sizey: 5.5
-          bindings:
-              title: Events
-              tableKey: graph_table
-              type: bar-h
-              xField: graph_field_type
-              groupField: graph_field_category
-              aggregation: count
-              logScaleX: true
-              sortByAggregation: true
-              unsharedFilterField: graph_field_category
-              unsharedFilterValue: EVENT
-
-        - type: aggregation
-          row: 13
-          col: 3
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Relations
-              tableKey: graph_table
-              type: bar-h
-              xField: graph_field_type
-              groupField: graph_field_category
-              aggregation: count
-              logScaleX: true
-              sortByAggregation: true
-              unsharedFilterField: graph_field_category
-              unsharedFilterValue: RELATION
-
-        - type: mediaViewer
-          row: 1
-          col: 7
-          sizex: 6
-          sizey: 17.5
-          bindings:
-              title: 'Media Viewer'
-              tableKey: document_table
-              idField: document_field_id
-              linkField: document_field_link
-              linkPrefix: '../Reconstructed/html/gaia/'
-              typeField: document_field_documenttype
-              clearMedia: false
     arl-ta1-m9:
         - type: dataTable
           row: 1
@@ -671,7 +541,7 @@ layouts:
               tableKey: document_table
               idField: document_field_id
               linkField: document_field_link
-              linkPrefix:
+              linkPrefix: '../Reconstructed/html_m18/'
               typeField: document_field_documenttype
               clearMedia: false
     arl-ta2-network:
