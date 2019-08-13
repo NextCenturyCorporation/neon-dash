@@ -35,7 +35,7 @@ Please see the Neon Server's Initial Setup Instructions for more information on 
 
 ### Other Setup
 
-Copy the [sample proxy config file](./sample.proxy.conf.json) to `./proxy.conf.json` and, if your Neon Server will not run on `http://localhost:8090` (the default), change the hostname and/or port (under `target`) with a text editor.
+Copy `sample.proxy.conf.json` to `./proxy.conf.json` and, if your Neon Server will not run on `http://localhost:8090` (the default), change the hostname and/or port (under `target`) with a text editor.
 
 ### Dashboard Configuration
 
@@ -49,7 +49,7 @@ If you were not given a sample data bundle and/or do not have a configuration fi
 
 ### Run Locally
 
-To run the Neon Dashboard, first start the Neon Server, then do `npm start`
+To run the Neon Dashboard, first start the Neon Server, then run `npm start`
 
 This will start the Neon Dashboard on http://localhost:4200 and should auto-reload the page whenever you modify a file.
 
@@ -57,17 +57,17 @@ To see anything useful, you will need to ingest data into your datastore(s).
 
 ### Unit Test and Lint
 
-To run the unit tests and linters: `npm test`
+`npm test`
 
 ### Unit Test
 
-To run just the unit tests: `npm run-script unit-test`
+`npm run-script unit-test`
 
-The unit tests are run using a [Karma config file](./karma.conf.js).  The unit tests are written with [Jasmine](https://jasmine.github.io/).
+The unit tests are run using a [Karma](https://karma-runner.github.io/latest/index.html) config file [karma.conf.js](./karma.conf.js).  The unit tests are written with [Jasmine](https://jasmine.github.io/).
 
 ### Lint
 
-To run just the linters: `npm run-script lint`
+`npm run-script lint`
 
 The linters use the following libraries:
 - [ESLint](https://eslint.org/) and [TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint)
@@ -203,6 +203,14 @@ Additionally, if your data contains many (hundreds of) fields, we recommend that
 If you define `datastores` in your configuration file but you do not define any `dashboards` or `layouts`, the default dashboard will be blank when you first load it.  However, you can easily add new widgets to your dashboard, configure the widgets to show your data sources, save your custom dashboards, and reload them in the future, all within the UI.  More documentation and a detailed user tutorial are coming soon.
 
 For the full, detailed instructions, please see the [Neon Dashboard Configuration Guide](./docs/DASHBOARD_CONFIGURATION_GUIDE.md)
+
+### Elasticsearch Notes
+
+Elasticsearch does not have "databases" or "tables"; instead, it has "indexes" and "mapping types".  In Neon, we consider "indexes" to be the equivalent of "databases" and "mapping types" to be the equivalent of "tables".
+
+#### Elasticsearch 7
+
+In Elasticsearch 7, mapping types have been removed.  In the Neon Dashboard's configuration file, please use the word `properties` for all Elasticsearch 7 `tables` (and there should only be one per index).
 
 ## Technical Stack
 
