@@ -503,7 +503,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
-
     }
 
     private restartPhysics(): void {
@@ -889,7 +888,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
-        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationNodeIdentifier?: string, showToolTip?: boolean) {
+        xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationNodeIdentifier?: string,
+        showToolTip?: boolean)
+    {
         let ret: Node[] = [];
         let relationNodes: any[] = [];
         let color = originalColor;
@@ -936,8 +937,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 // Set node name with or without type description
                 let nodes = this.getArray(id);
                 let nodeNames: any[] = [];
-                let typeExtension: string = this.options.typeField.columnName && relationNodeIdentifier
-                && name.toLowerCase() !== this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() ?
+                let typeExtension: string = this.options.typeField.columnName && relationNodeIdentifier &&
+                name.toLowerCase() !== this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() ?
                     '\n' + this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() + '' : '';
 
                 if (name) {
@@ -966,14 +967,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                             }
                         }
 
-                        if(showToolTip){
+                        if (showToolTip) {
                             ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, { color: this.options.fontColor },
                                 this.options.nodeShape, xPosition, yPosition, filterFieldData, nodeChosenObject, nodeNames[index]));
-                        } else{
+                        } else {
                             ret.push(new Node(nodeEntry, nodeNames[index], colorMapVal, 1, color, false, { color: this.options.fontColor },
                                 this.options.nodeShape, xPosition, yPosition, filterFieldData, nodeChosenObject));
                         }
-
                     }
                 }
             } else {
