@@ -1116,7 +1116,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         // Assume nodes will take precedence over edges so create nodes first
         graph.nodes = this.getAllNodes(this.responseData, nodeName, nodeNameColumn, nodeColorField, nodeColor, xPositionField,
-            yPositionField, this.options.filterFields);
+            yPositionField, this.options.filterFields, null, true);
 
         // Create edges and destination nodes only if required
         for (let entry of this.responseData) {
