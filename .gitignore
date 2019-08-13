@@ -78,3 +78,6 @@ savedStates/*
 
 # Proxy config file
 proxy.conf.json
+
+src/environments/environment.prod.ts
+
