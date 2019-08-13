@@ -79,6 +79,12 @@ The linters are run using the following files:
 - [.jsbeautifyrc](./.jsbeautifyrc)
 - [sass-lint.yaml](./sass-lint.yaml) and [sass-lint-auto-fix.yaml](./sass-lint-auto-fix.yaml)
 
+### End-to-End Tests
+
+`./e2e.sh`
+
+Please see the documentation on [End-to-End Testing in the Neon Dashboard](./docs/END_TO_END_TESTING.md) for more information.
+
 ## Production Deployment Instructions
 
 The Neon Dashboard is deployed as either a [docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-docker-container) (together with the Neon Server) or a [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-war-in-apache-tomcat) (independently from the Neon Server).
