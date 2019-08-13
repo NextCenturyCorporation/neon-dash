@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
 import { distinctUntilKeyChanged } from 'rxjs/operators';
 
 import { AbstractColorThemeService } from './services/abstract.color-theme.service';
@@ -31,13 +30,12 @@ export class RouteRequestComponent extends RouteWithStateComponent {
     public webpageTitle: string = 'Loading...';
 
     constructor(
-        @Inject(APP_BASE_HREF) private href: string,
         private colorThemeService: AbstractColorThemeService,
         configService: ConfigService,
         dashboardService: DashboardService,
         router: Router
     ) {
-        super(href, configService, dashboardService, router, 'submit/');
+        super(configService, dashboardService, router);
         dashboardService.configSource.pipe(distinctUntilKeyChanged('fileName')).subscribe((config) => {
             this.webpageTitle = 'Submit Data to ' + (config.projectTitle || 'Neon');
             document.title = this.webpageTitle;
