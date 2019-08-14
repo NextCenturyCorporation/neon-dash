@@ -34,10 +34,13 @@
                     <div class="text multiple-line" *ngIf="item[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
                         <p>
-                            <ng-container *ngIf="hasUrl(item[options.contentField.columnName])">
-                                {{removeUrl(item[options.contentField.columnName])}}
-                                <a href="{{this.url}}" target="_blank">
-                                    {{this.url}}</a>
+                            <ng-container *ngIf="hasUrl(item[options.secondaryContentField.columnName])">
+                                <ng-container *ngFor="let link of this.url; let i = index">
+                                    {{this.text[i]}}
+                                    <a href="{{link}}" target="_blank">
+                                        {{link}}</a>
+                                </ng-container>
+                                {{this.text[-1]}}
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.contentField.columnName])">
                                 {{item[options.contentField.columnName]}}
@@ -48,9 +51,12 @@
                         <h4 *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</h4>
                         <p>
                             <ng-container *ngIf="hasUrl(item[options.secondaryContentField.columnName])">
-                                {{removeUrl(item[options.secondaryContentField.columnName])}}
-                                <a *ngIf="hasUrl(item[options.secondaryContentField.columnName])" href="{{this.url}}" target="_blank">
-                                    {{this.url}}</a>
+                                <ng-container *ngFor="let link of this.url; let i = index">
+                                    {{this.text[i]}}
+                                    <a href="{{link}}" target="_blank">
+                                        {{link}}</a>
+                                </ng-container>
+                                {{this.text[-1]}}
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.secondaryContentField.columnName])">
                                 {{item[options.secondaryContentField.columnName]}}
