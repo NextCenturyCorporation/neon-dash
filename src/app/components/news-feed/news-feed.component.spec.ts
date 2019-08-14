@@ -178,18 +178,23 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(component.newsFeedData).toEqual([{
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1',
-            _id: 'id1'
+            field: {
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1',
+                _id: 'id1'
+            },
+            media: undefined
         }, {
-
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2',
-            _id: 'id2'
+            field: {
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2',
+                _id: 'id2'
+            },
+            media: undefined
         }]);
         expect(actual).toEqual(2);
     });
@@ -222,18 +227,23 @@ describe('Component: NewsFeed', () => {
         }]);
 
         expect(component.newsFeedData).toEqual([{
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1',
-            _id: 'id1'
+            field: {
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1',
+                _id: 'id1'
+            },
+            media: undefined
         }, {
-
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2',
-            _id: 'id2'
+            field: {
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2',
+                _id: 'id2'
+            },
+            media: undefined
         }]);
         expect(actual).toEqual(2);
     });
@@ -257,18 +267,23 @@ describe('Component: NewsFeed', () => {
 
         expect(actual).toEqual(2);
         expect(component.newsFeedData).toEqual([{
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1',
-            _id: 'id1'
+            field: {
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1',
+                _id: 'id1'
+            },
+            media: undefined
         }, {
-
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2',
-            _id: 'id2'
+            field: {
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2',
+                _id: 'id2'
+            },
+            media: undefined
         }]);
     });
 
@@ -285,11 +300,14 @@ describe('Component: NewsFeed', () => {
         let actual = component.transformVisualizationQueryResults(component.options, results);
         expect(actual).toEqual(1);
         expect(component.newsFeedData).toEqual([{
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1',
-            _id: 'id1'
+            field: {
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1',
+                _id: 'id1'
+            },
+            media: undefined
         }]);
     });
 
@@ -315,7 +333,9 @@ describe('Component: NewsFeed', () => {
         component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.selectItem({
-            testIdField: 'id1'
+            field: {
+                testIdField: 'id1'
+            }
         });
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['id1']);
@@ -332,7 +352,9 @@ describe('Component: NewsFeed', () => {
         component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
 
         component.filterItem({
-            testFilterField: 'filter1'
+            field: {
+                testFilterField: 'filter1'
+            }
         });
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['filter1']);

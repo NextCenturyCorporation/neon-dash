@@ -44,7 +44,6 @@ import { MatDialog, MatAccordion } from '@angular/material';
 import * as moment from 'moment';
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
-import { DomSanitizer } from '@angular/platform-browser';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -269,7 +268,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     transformVisualizationQueryResults(options: any, results: any[]): number {
         this.newsFeedData = results.map((result) => {
-            let item = {};
+            let item = {
+                field: {},
+                media: undefined
+            };
             let type;
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
@@ -280,7 +282,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                         }
                         if (field.columnName === this.options.linkField.columnName) {
                             value = neonUtilities.transformToStringArray(value, this.options.delimiter);
-                            let tabsAndMedia: MediaMetaData;
+                            let mediaMetaData: MediaMetaData;
                             let index = 0;
                             if (value.length > 0) {
                                 let tab: MediaMetaData = {
@@ -299,19 +301,19 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                                     });
                                 });
                                 tab.selected = tab.list[0];
-                                tabsAndMedia = tab;
+                                mediaMetaData = tab;
                                 index++;
                             }
-                            if (tabsAndMedia) {
-                                item['mediaMetaDataList'] = tabsAndMedia;
+                            if (mediaMetaData) {
+                                item.media = mediaMetaData;
                             }
                         }
-                        item[field.columnName] = value;
+                        item.field[field.columnName] = value;
                     }
                 }
             }
-            if (type && item['mediaMetaDataList']) {
-                item['mediaMetaDataList'].selected.type = this.getMediaType(type);
+            if (type && item.media) {
+                item.media.selected.type = this.getMediaType(type);
             }
             return item;
         });
@@ -368,7 +370,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     selectItem(item) {
         this.selectedItem = item;
         if (this.options.idField.columnName) {
-            this.publishSelectId(item[this.options.idField.columnName]);
+            this.publishSelectId(item.field[this.options.idField.columnName]);
         }
     }
 
@@ -378,7 +380,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterItem(item) {
         if (this.options.filterField.columnName) {
-            this.createFilter(item[this.options.filterField.columnName]);
+            this.createFilter(item.field[this.options.filterField.columnName]);
         }
     }
 
@@ -399,7 +401,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     isSelected(item) {
         return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item[this.options.filterField.columnName]
+            item.field[this.options.filterField.columnName]
         )));
     }
 
