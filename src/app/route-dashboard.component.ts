@@ -25,6 +25,7 @@ import { RouteWithStateComponent } from './route-with-state.component';
     styleUrls: ['./route-dashboard.component.scss']
 })
 export class RouteDashboardComponent extends RouteWithStateComponent {
+    /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
     constructor(
         configService: ConfigService,
         dashboardService: DashboardService,
