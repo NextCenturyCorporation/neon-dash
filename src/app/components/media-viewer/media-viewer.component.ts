@@ -70,7 +70,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public mediaTypes: any = MediaTypes;
 
-    public tabsAndMedia: MediaMetaData[] = [];
     public media: MediaMetaData = {
         loaded: false,
         name: '',
@@ -110,7 +109,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Adds the links for the given fields in the given metadata object to the component as a new tab with the given name next to the
+     * Adds the links for the given fields in the given metadata object to the component as a new item with the given name next to the
      * existing queryItems.
      *
      * @arg {any[]} fields
@@ -159,24 +158,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         }
 
-        let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types);
+        this.media = this.createMediaMetaData(links, masks, names, types);
 
-        tabs.forEach((tab) => {
-            if (tab.list.length) {
-                // Check to see if the tab already exists before adding it again.
-                let tabExists = false;
-                this.tabsAndMedia.forEach((previousTab) => {
-                    if (previousTab.name === tab.name) {
-                        tabExists = true;
-                    }
-                });
-
-                if (!tabExists) {
-                    this.tabsAndMedia.push(tab);
-                }
-            }
-        });
-        this.consolidateTabs();
         this.refreshVisualization();
     }
 
@@ -236,13 +219,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
             new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', ''),
             new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('oneTabPerArray', 'Tab Behavior with Link Arrays', false, [{
-                prettyName: 'One Tab per Element',
-                variable: false
-            }, {
-                prettyName: 'One Tab per Array',
-                variable: true
-            }]),
             new WidgetNumberOption('sliderValue', 'Slider Value', 0),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
             new WidgetFreeTextOption('url', 'URL', '')
@@ -278,28 +254,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     /**
      * Adds the given links to the global list.
      *
-     * @arg {any} tab
      * @arg {any[]} links
      * @arg {any[]} masks
      * @arg {any[]} names
      * @arg {any[]} types
-     * @arg {string} [oneTabName='']
-     * @return {MediaMetaData[]}
+     * @return {MediaMetaData}
      */
-    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
-        let oneTab: MediaMetaData = {
+    createMediaMetaData(links: any, masks: any, names: any[], types: any[]): MediaMetaData {
+        let mediaMetaData: MediaMetaData = {
             selected: undefined,
-            name: oneTabName,
+            name: '',
             loaded: false,
             list: []
         };
 
-        let tabs = this.options.oneTabPerArray ? [oneTab] : [];
-
         links.filter((link) => !!link).forEach((link, index) => {
             let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
                 this.options.linkPrefix);
-            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : ''));
             let type = this.findElementAtIndex(types, index, (this._retrieveFileType(link) || ''));
 
             // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
@@ -307,19 +279,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
             }
 
-            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            // Only add a list item if the link is non-empty; only add a list item for a mask-type if the mask is also non-empty.
             if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
-                let tab = oneTab;
-                if (!this.options.oneTabPerArray) {
-                    tab = {
-                        selected: undefined,
-                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
-                        loaded: false,
-                        list: []
-                    };
-                }
-
-                tab.list.push({
+                mediaMetaData.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
                     link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
@@ -327,16 +289,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     name: name,
                     type: type
                 });
-
-                tab.selected = tab.list[0];
-
-                if (!this.options.oneTabPerArray) {
-                    tabs.push(tab);
-                }
             }
         });
 
-        return tabs;
+        mediaMetaData.selected = mediaMetaData.list.length ? mediaMetaData.list[0] : undefined;
+        return mediaMetaData;
     }
 
     /**
@@ -407,18 +364,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the label for the tab using the given array of names and the given index.
-     *
-     * @arg {array} names
-     * @arg {number} index
-     * @return {string}
-     * @private
-     */
-    getTabLabel(names, index) {
-        return names && names.length > index ? names[index] : '';
-    }
-
-    /**
      * Returns the default limit for the visualization.
      *
      * @return {string}
@@ -462,7 +407,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.noDataId = options.id;
-        this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
@@ -471,6 +415,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             options.id = '_id';
             return 0;
         }
+
+        let mediaMetaDataList: MediaMetaData[] = [];
 
         results.forEach((result) => {
             let masks = [];
@@ -496,23 +442,29 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             options.linkFields.forEach((linkField) => {
                 let links = neonUtilities.deepFind(result, linkField.columnName) || '';
                 links = neonUtilities.transformToStringArray(links, options.delimiter);
-                let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types, this.noDataId);
-                tabs.forEach((tab) => {
-                    if (tab.list.length) {
-                        this.tabsAndMedia.push(tab);
-                        // Use concat to copy the list.
-                        this.queryItems = this.queryItems.concat(tab.list);
-                        this.noDataId = undefined;
-                    }
-                });
+                mediaMetaDataList.push(this.createMediaMetaData(links, masks, names, types));
             });
         });
-        this.consolidateTabs();
-        return this.tabsAndMedia.length;
+
+        let mediaList = mediaMetaDataList.reduce((items, media) => items.concat(media.list), []);
+
+        // Save a copy of the list of media from the query results.
+        this.queryItems = mediaList.map((item) => item);
+        // If any media exist, reset noDataId.
+        this.noDataId = this.queryItems.length ? undefined : this.noDataId;
+
+        this.media = {
+            loaded: false,
+            name: '',
+            selected: mediaList.length ? mediaList[0] : undefined,
+            list: mediaList
+        };
+
+        return mediaList.length;
     }
 
     /**
-     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
+     * Updates the slider value to the given percentage.
      *
      * @arg {number} percentage
      */
@@ -573,14 +525,5 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         } else {
             this.addEventLinks(fields, metadata, name);
         }
-    }
-
-    consolidateTabs() {
-        this.media = {
-            loaded: false,
-            name: '',
-            selected: (!this.tabsAndMedia.length || !this.tabsAndMedia[0]) ? null : this.tabsAndMedia[0].list[0],
-            list: this.tabsAndMedia.map((tab) => tab.list[0])
-        };
     }
 }
