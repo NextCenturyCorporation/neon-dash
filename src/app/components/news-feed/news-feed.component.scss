@@ -56,7 +56,6 @@
             margin: 8px 0;
         }
     }
-
 }
 
 mat-accordion {
@@ -88,6 +87,12 @@ mat-accordion {
                     font-size: 0.7em;
                     opacity: 0.8;
                     text-align: left;
+                }
+            }
+
+            div {
+                img {
+                    margin-right: 5px;
                 }
             }
         }
@@ -129,6 +134,12 @@ mat-accordion {
                     font-size: 0.7em;
                     line-height: 30px;
                 }
+            }
+
+            .media-group {
+                align-content: center;
+                display: grid;
+                box-sizing: border-box;
             }
         }
 

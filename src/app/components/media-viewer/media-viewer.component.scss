@@ -15,8 +15,7 @@
 */
 @import '../base-neon-component/base-neon.component';
 
-.full-height,
-.mat-tab-group {
+.full-height {
     height: calc(100% - #{$vis-title-expected-height});
 }
 
@@ -57,51 +56,16 @@ video {
     width: auto;
 }
 
-/*TODO: ng-deep will be deprecated in the future. Need to find another workaround to shadow piercing due to angular shadow DOM boundaries*/
-.mat-tab-group ::ng-deep {
-    .mat-tab-body-wrapper {
-        flex: 1 auto;
-    }
-
-    .mat-tab-body-content {
-        overflow: hidden !important;
-    }
-}
-
-.mat-slider {
-    margin: 0 10px;
-    width: calc(100% - 20px);
-    z-index: 4;
-
-    ::ng-deep {
-        .mat-slider-thumb-label {
-            ::after {
-                content: '%';
-            }
-        }
-
-        .mat-slider-thumb-label-text {
-            font-size: 11px;
-        }
-    }
-}
-
-.maskingDiv { // sass-lint:disable-line class-name-format
+.widget-container {
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
-
-    .medium {
-        z-index: 3;
-        position: relative;
-    }
-
-    .mask {
-        z-index: 1;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
 }
 
+.media-group {
+    max-width: 100%;
+    height: 100%;
+}
 
 
 

@@ -10,75 +10,23 @@
     </span>
 </mat-toolbar>
 
-<div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
-    <mat-spinner></mat-spinner>
-</div>
-
-<app-data-message *ngIf="showNoData"></app-data-message>
-
-<div *ngIf="options.url == '' && !showNoData">
-    <div *ngIf="noDataId && tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
-
-    <mat-tab-group *ngIf="tabsAndMedia.length > 1" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="updateOnResize($event)">
-        <mat-tab class="tab" *ngFor="let tab of tabsAndMedia; let i = index" [label]="tab.name">
-            <div [ngSwitch]="tab.selected.type">
-                <!-- TODO Move into a subcomponent shared with the single-tab behavior -->
-                <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                    <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" [id]="'medium' + i"
-                        [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, i)"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                    <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [id]="'mask' + i"
-                        [hidden]="!tab.loaded"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                    <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                        (input)="onSliderChange($event.value)"></mat-slider>
-                </div>
-                <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
-                    [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
-                    [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
-                    <source [src]="tab.selected.link">
-                </audio>
-                <!-- Use iframe for mediaTypes.video and other types -->
-                <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
-                    [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
-                </iframe>
-            </div>
-        </mat-tab>
-    </mat-tab-group>
-
-    <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected">
-        <!-- Use an ngFor to force the widget to reload and redraw its media elements -->
-        <div class="full-height" *ngFor="let tab of tabsAndMedia">
-            <div class="viewer-text">{{ tab.name }}</div>
-            <div class="full-height" [ngSwitch]="tab.selected.type">
-                <!-- TODO Move into a subcomponent shared with the multiple-tab behavior -->
-                <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                    <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" id="medium0"
-                        [style.opacity]="calculateOpacity(options.sliderValue)" (load)="setTabLoaded(tab, 0)"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                    <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" id="mask0" [hidden]="!tab.loaded"
-                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
-                    <mat-slider color="accent" min="0" max="100" step="1" thumbLabel [value]="options.sliderValue"
-                        (input)="onSliderChange($event.value)"></mat-slider>
-                </div>
-                <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
-                    [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                <audio *ngSwitchCase="mediaTypes.audio" controls [attr.autoplay]='options.autoplay ? true : null'
-                    [class]="tab.selected.border ? ('audio with-border border-mat-' + tab.selected.border) : 'audio'">
-                    <source [src]="tab.selected.link">
-                </audio>
-                <!-- Use iframe for mediaTypes.video and other types -->
-                <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
-                    [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
-                </iframe>
-            </div>
-        </div>
+<div class="widget-container">
+    <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
+        <mat-spinner></mat-spinner>
     </div>
-</div>
 
-<div class="full-height" *ngIf="options.url != ''">
-    <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
+    <app-data-message *ngIf="showNoData"></app-data-message>
+
+    <div class="full-height" *ngIf="options.url == '' && !showNoData">
+        <div *ngIf="noDataId && media.list.length === 0" class="viewer-text">No Data: {{ noDataId }}</div>
+        <ng-container *ngIf="media.list.length > 0">
+            <app-media-group id="viewer-presentation" class="media-group" [media]="media"></app-media-group>
+        </ng-container>
+    </div>
+
+    <div class="full-height" *ngIf="options.url != ''">
+        <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
+    </div>
 </div>
 
 <div class="contribution-text" *ngIf="showContribution()">
