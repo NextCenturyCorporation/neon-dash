@@ -38,11 +38,14 @@ import {
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
-    WidgetSelectOption
+    WidgetSelectOption,
+    WidgetNonPrimitiveOption
 } from '../../models/widget-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
 import * as moment from 'moment';
+import { MediaMetaData } from '../media-group/media-group.component';
+import { MediaTypes } from '../../models/types';
 
 /**
  * A visualization that displays binary and text files triggered through a select_id event.
@@ -62,6 +65,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
+    public selectedItem: object = undefined;
+    public noDataId: string = undefined;
+    public queryItems: any[] = [];
+    public selectedTabIndex: number = 0;
+
+    public mediaTypes: any = MediaTypes;
 
     constructor(
         dashboardService: DashboardService,
@@ -130,13 +139,18 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', null),
-            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {})
         ];
     }
 
@@ -249,16 +263,44 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             let item = {
                 _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
                     result[this.options.filterField.columnName]
-                )))
+                ))),
+                field: {},
+                media: undefined
             };
-
-            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
-                        item[field.columnName] = value;
+                        item.field[field.columnName] = value;
                     }
+                }
+            }
+            if (this.options.linkField.columnName && item.field[this.options.linkField.columnName]) {
+                let links = neonUtilities.transformToStringArray(item.field[this.options.linkField.columnName], this.options.delimiter);
+                let types = links.map((link) => link.substring(link.lastIndexOf('.') + 1).toLowerCase());
+                if (this.options.typeField.columnName && item.field[this.options.typeField.columnName]) {
+                    types = neonUtilities.transformToStringArray(item.field[this.options.typeField.columnName], this.options.delimiter);
+                }
+                types = types.map((type) => (this.options.typeMap || {})[type] || type);
+
+                if (links.length) {
+                    item.media = {
+                        selected: undefined,
+                        name: '',
+                        loaded: false,
+                        list: []
+                    } as MediaMetaData;
+                    links.forEach((link, index) => {
+                        item.media.list.push({
+                            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                            border: this.options.border,
+                            link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
+                            name: (index + 1) + ': ' + link.substring(link.lastIndexOf('/') + 1),
+                            type: types.length > index ? (link.indexOf('https://www.youtube.com') < 0 ? types[index] :
+                                this.mediaTypes.youtube) : ''
+                        });
+                    });
+                    item.media.selected = item.media.list[0];
                 }
             }
             return item;
@@ -307,7 +349,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     refreshVisualization() {
-        // Do nothing.
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        this.updateOnResize();
     }
 
     onResize() {
@@ -324,8 +369,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @private
      */
     selectItem(item) {
+        this.selectedItem = item;
         if (this.options.idField.columnName) {
-            this.publishSelectId(item[this.options.idField.columnName]);
+            this.publishSelectId(item.field[this.options.idField.columnName]);
         }
     }
 
@@ -335,7 +381,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterItem(item) {
         if (this.options.filterField.columnName) {
-            this.createFilter(item[this.options.filterField.columnName]);
+            this.createFilter(item.field[this.options.filterField.columnName]);
         }
     }
 
@@ -356,5 +402,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     isSelected(item) {
         return item._filtered;
+    }
+
+    isExpanded(item) {
+        return this.selectedItem === item;
+    }
+
+    /**
+     * Appends the given prefix to the given link if it is not already there.
+     *
+     * @arg {string} link
+     * @arg {string} prefix
+     * @return {string}
+     */
+    appendPrefixIfNeeded(link: string, prefix: string) {
+        return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
     }
 }
