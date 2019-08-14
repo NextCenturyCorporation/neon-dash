@@ -140,7 +140,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFieldOption('linkType', 'Link Type', true),
             new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
@@ -272,48 +271,41 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 field: {},
                 media: undefined
             };
-            let type;
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     let value = neonUtilities.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
-                        if (field.columnName === this.options.linkType.columnName) {
-                            type = value;
-                        }
-                        if (field.columnName === this.options.linkField.columnName) {
-                            value = neonUtilities.transformToStringArray(value, this.options.delimiter);
-                            let mediaMetaData: MediaMetaData;
-                            let index = 0;
-                            if (value.length > 0) {
-                                let tab: MediaMetaData = {
-                                    selected: undefined,
-                                    name: '',
-                                    loaded: false,
-                                    list: []
-                                };
-                                value.forEach((linkUrl) => {
-                                    tab.list.push({
-                                        // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                                        border: this.options.border,
-                                        link: this.appendPrefixIfNeeded(linkUrl, this.options.linkPrefix),
-                                        name: (index + 1) + ': ' + linkUrl.substring(linkUrl.lastIndexOf('/') + 1),
-                                        type: (this.getMediaType(linkUrl) || '')
-                                    });
-                                });
-                                tab.selected = tab.list[0];
-                                mediaMetaData = tab;
-                                index++;
-                            }
-                            if (mediaMetaData) {
-                                item.media = mediaMetaData;
-                            }
-                        }
                         item.field[field.columnName] = value;
                     }
                 }
             }
-            if (type && item.media) {
-                item.media.selected.type = this.getMediaType(type);
+            if (this.options.linkField.columnName && item.field[this.options.linkField.columnName]) {
+                let links = neonUtilities.transformToStringArray(item.field[this.options.linkField.columnName], this.options.delimiter);
+                let types = links.map((link) => link.substring(link.lastIndexOf('.') + 1).toLowerCase());
+                if (this.options.typeField.columnName && item.field[this.options.typeField.columnName]) {
+                    types = neonUtilities.transformToStringArray(item.field[this.options.typeField.columnName], this.options.delimiter);
+                }
+                types = types.map((type) => (this.options.typeMap || {})[type] || type);
+
+                if (links.length) {
+                    item.media = {
+                        selected: undefined,
+                        name: '',
+                        loaded: false,
+                        list: []
+                    } as MediaMetaData;
+                    links.forEach((link, index) => {
+                        item.media.list.push({
+                            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                            border: this.options.border,
+                            link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
+                            name: (index + 1) + ': ' + link.substring(link.lastIndexOf('/') + 1),
+                            type: types.length > index ? (link.indexOf('https://www.youtube.com') < 0 ? types[index] :
+                                this.mediaTypes.youtube) : ''
+                        });
+                    });
+                    item.media.selected = item.media.list[0];
+                }
             }
             return item;
         });
@@ -407,17 +399,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
     isExpanded(item) {
         return this.selectedItem === item;
-    }
-
-    /**
-     * Returns the media type for the thumbnail
-     * @arg {object} item
-     * @return string
-     */
-    getMediaType(item) {
-        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
-        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
-            this.options.typeMap[fileType] : '';
     }
 
     /**

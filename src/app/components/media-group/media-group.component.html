@@ -4,15 +4,28 @@
             <div id="pres-container">
                 <ng-container [ngSwitch]="media.selected.type">
                     <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='media.selected.link'>
+                    <ng-container *ngSwitchCase="mediaTypes.youtube">
+                        <a [href]="showMedia()" target="_blank">
+                            <span>Click to open Youtube</span>
+                            <img src="/assets/icons/dashboard/baseline-play-24px.svg">
+                        </a>
+                    </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.video">
                         <video controls>
                             <source [src]="showVideoMedia()" type="video/mp4">
                         </video>
                     </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.pdf">
-                        <p>Open the PDF file <a class="pdfLink" [href]="showMedia()" target="_blank">
-                                <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                            </a></p>
+                        <a [href]="showMedia()" target="_blank">
+                            <span>Click to open PDF</span>
+                            <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                        </a>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="mediaTypes.html">
+                        <a [href]="showMedia()" target="_blank">
+                            <span>Click to open HTML</span>
+                            <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                        </a>
                     </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.audio">
                         <audio controls>
@@ -37,14 +50,27 @@
     <ng-container *ngIf="media.list.length == 1">
         <ng-container [ngSwitch]="media.selected.type">
             <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='showMedia()'>
+            <ng-container *ngSwitchCase="mediaTypes.youtube">
+                <a [href]="showMedia()" target="_blank">
+                    <span>Click to open Youtube</span>
+                    <img src="/assets/icons/dashboard/baseline-play-24px.svg">
+                </a>
+            </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.video">
                 <iframe [src]="showVideoMedia()">
                 </iframe>
             </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.pdf">
-                <p>Click the icon to open the PDF file <a class="pdfLink" [href]="showMedia()" target="_blank">
-                        <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                    </a></p>
+                <a [href]="showMedia()" target="_blank">
+                    <span>Click to open PDF</span>
+                    <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                </a>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.html">
+                <a [href]="showMedia()" target="_blank">
+                    <span>Click to open HTML</span>
+                    <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                </a>
             </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.audio">
                 <audio controls>

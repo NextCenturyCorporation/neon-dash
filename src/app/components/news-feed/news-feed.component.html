@@ -33,9 +33,13 @@
                 </mat-panel-title>
                 <div *ngIf="item.media">
                     <ng-container [ngSwitch]="item.media.selected.type">
-                        <img *ngSwitchCase="mediaTypes.image" src="/assets/icons/dashboard/baseline-photo-24px.svg">
-                        <img *ngSwitchCase="mediaTypes.video" src="/assets/icons/dashboard/baseline-play-24px.svg">
                         <img *ngSwitchCase="mediaTypes.audio" src="/assets/icons/dashboard/baseline-audiotrack-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.html" src="/assets/icons/dashboard/baseline-description-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.image" src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.maskImage" src="/assets/icons/dashboard/baseline-photo-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.pdf" src="/assets/icons/dashboard/baseline-description-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.video" src="/assets/icons/dashboard/baseline-play-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.youtube" src="/assets/icons/dashboard/baseline-play-24px.svg">
                     </ng-container>
                 </div>
             </mat-expansion-panel-header>
