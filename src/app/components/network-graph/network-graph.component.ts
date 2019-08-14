@@ -887,10 +887,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
+    // TODO Reduce complexity of getAllNodes
+    /* eslint-disable-next-line complexity */
     private getAllNodes(data: any[], idField: string, nameField: string, colorField: string, originalColor: string,
         xPositionField: string, yPositionField: string, filterFields: NeonFieldMetaData[], relationNodeIdentifier?: string,
-        showToolTip?: boolean)
-    {
+        showToolTip?: boolean) {
         let ret: Node[] = [];
         let relationNodes: any[] = [];
         let color = originalColor;
