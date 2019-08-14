@@ -14,6 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { Injector } from '@angular/core';
 
@@ -21,7 +22,8 @@ import { } from 'jasmine-core';
 
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
+import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -132,11 +134,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent).toContain('Test Error Message');
     }));
-
-    it('does show settings icon button in toolbar', () => {
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toEqual('settings');
-    });
 
     it('does hide loading overlay by default', () => {
         component.changeDetection.detectChanges();
@@ -501,18 +498,18 @@ describe('Component: ThumbnailGrid', () => {
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect((actual[1].filterDesign).type).toEqual(CompoundFilterType.OR);
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual(CompoundFilterType.OR);
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.FILTER.columnName);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
     });
 
     it('isSelectable does return expected boolean', () => {
@@ -528,39 +525,15 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('isSelected does return expected boolean', () => {
-        expect(component.isSelected({})).toEqual(false);
-
         expect(component.isSelected({
+            _filtered: false,
             testFilterField: 'testFilterValue1'
         })).toEqual(false);
 
-        component.options.filterFields = [DashboardServiceMock.FIELD_MAP.FILTER];
-
         expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        spyOn((component as any), 'isFiltered').and.callFake((filterDesign) => filterDesign.database === component.options.database &&
-            filterDesign.table === component.options.table && filterDesign.field === component.options.filterFields[0] &&
-            filterDesign.operator === '=' && filterDesign.value === 'testFilterValue1');
-
-        expect(component.isSelected({
+            _filtered: true,
             testFilterField: 'testFilterValue1'
         })).toEqual(true);
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue2'
-        })).toEqual(false);
-
-        expect(component.isSelected({
-            testNotAFilterField: 'testFilterValue1'
-        })).toEqual(false);
-
-        component.options.filterFields = [];
-
-        expect(component.isSelected({
-            testFilterField: 'testFilterValue1'
-        })).toEqual(false);
     });
 
     it('validateVisualizationQuery does return expected boolean', () => {
@@ -652,9 +625,10 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'predictedName2',
             testSortField: 'sort2',
             testTypeField: 'type2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.gridArray).toEqual([{
+            _filtered: false,
             _id: 'id1',
             testCategoryField: 'category1',
             testCompareField: 'compare1',
@@ -668,6 +642,7 @@ describe('Component: ThumbnailGrid', () => {
             testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
+            _filtered: false,
             _id: 'id2',
             testCategoryField: 'category2',
             testCompareField: 'compare2',
@@ -688,7 +663,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
         component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
-        let actual = component.transformVisualizationQueryResults(component.options, []);
+        let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.gridArray).toEqual([]);
         expect(actual).toEqual(0);
@@ -715,15 +690,17 @@ describe('Component: ThumbnailGrid', () => {
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.gridArray).toEqual([{
+            _filtered: false,
             _id: 'id1',
             testLinkField: 'prefix/link1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
         }, {
+            _filtered: false,
             _id: 'id2',
             testLinkField: 'prefix/link2',
             testNameField: 'name2',

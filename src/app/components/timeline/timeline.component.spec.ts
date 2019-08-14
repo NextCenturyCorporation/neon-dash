@@ -28,7 +28,9 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
+import { TimeInterval } from '../../models/widget-option';
 
 describe('Component: Timeline', () => {
     let component: TimelineComponent;
@@ -77,17 +79,17 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
@@ -123,17 +125,17 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
@@ -158,27 +160,26 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
         }, {
             // TODO NEON-36
-            root: 'or',
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: ''
         }]]);
@@ -214,42 +215,39 @@ describe('Component: Timeline', () => {
         expect(spy.calls.argsFor(0)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '>=',
                 value: startDate
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.DATE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
                 operator: '<=',
                 value: endDate
             }]
         }, {
-            root: 'or',
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue1'
         }, {
-            root: 'or',
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue2'
         }, {
-            root: 'or',
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.FILTER,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue3'
         }]]);
@@ -288,7 +286,7 @@ describe('Component: Timeline', () => {
             }
         });
 
-        component.options.granularity = 'month';
+        component.options.granularity = TimeInterval.MONTH;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -360,7 +358,7 @@ describe('Component: Timeline', () => {
             }
         });
 
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -391,7 +389,7 @@ describe('Component: Timeline', () => {
                 {
                     type: 'count',
                     name: '_aggregation',
-                    field: '_day'
+                    field: '_dayOfMonth'
                 }
             ],
             sort: {
@@ -407,7 +405,7 @@ describe('Component: Timeline', () => {
         component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
         component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
         component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
-        component.options.granularity = 'month';
+        component.options.granularity = TimeInterval.MONTH;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testFilterField: 'filter1',
@@ -437,7 +435,7 @@ describe('Component: Timeline', () => {
             _date: 1515110400000,
             _month: 1,
             _year: 2018
-        }]);
+        }], new FilterCollection());
 
         expect(actual).toEqual(4);
         // Expected date value equals UTCMonth - 1
@@ -446,13 +444,13 @@ describe('Component: Timeline', () => {
             ids: ['id1', 'id2', 'id3'],
             filters: ['filter1', 'filter2', 'filter3'],
             origDate: 1509035593000,
-            date: new Date(2017, 9, 26, 12, 33, 13)
+            date: new Date(1509035593000)
         }, {
             value: 1,
             ids: ['id4'],
             filters: ['filter4'],
             origDate: 1515110400000,
-            date: new Date(2017, 12, 4, 19, 0, 0)
+            date: new Date(1515110400000)
         }]);
     });
 
@@ -473,21 +471,21 @@ describe('Component: Timeline', () => {
             _date: 1515110400000,
             _month: 1,
             _year: 2018
-        }]);
+        }], new FilterCollection());
 
         expect(actual).toEqual(11);
         // Expected date value equals UTCMonth - 1
         expect(component.timelineQueryResults).toEqual([{
             value: 10,
-            date: new Date(2017, 9, 26, 12, 33, 13)
+            date: new Date(1509035593000)
         }, {
             value: 1,
-            date: new Date(2017, 12, 4, 19, 0, 0)
+            date: new Date(1515110400000)
         }]);
     });
 
     it('findDateInPreviousItem does return a previous item when the current item is within range of granularity', () => {
-        component.options.granularity = 'year';
+        component.options.granularity = TimeInterval.YEAR;
 
         let previousItem = component.findDateInPreviousItem([{
             value: 1,
@@ -520,7 +518,7 @@ describe('Component: Timeline', () => {
             date: new Date(2017, 12, 4, 19, 0, 0)
         });
 
-        component.options.granularity = 'day';
+        component.options.granularity = TimeInterval.DAY_OF_MONTH;
 
         let previousItem2 = component.findDateInPreviousItem([{
             value: 1,
@@ -560,7 +558,7 @@ describe('Component: Timeline', () => {
         component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
         component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
         component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
-        component.options.granularity = 'hour';
+        component.options.granularity = TimeInterval.HOUR;
 
         let previousItem = component.findDateInPreviousItem([{
             value: 1,
@@ -586,7 +584,7 @@ describe('Component: Timeline', () => {
 
         expect(previousItem).toEqual(undefined);
 
-        component.options.granularity = 'minute';
+        component.options.granularity = TimeInterval.MINUTE;
 
         let previousItem2 = component.findDateInPreviousItem([{
             value: 1,

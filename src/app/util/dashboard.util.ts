@@ -70,7 +70,9 @@ export class DashboardUtil {
     static validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
         ConfigUtil.visitDashboards(dashboard, {
             leaf: (leaf, path) => {
-                const parent = path[path.length - 1];
+                let parent = path[path.length - 1];
+                parent.choices = parent.choices || {};
+
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
                 if (!leaf['layout'] || !leaf['tables']) {

@@ -83,6 +83,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "proxyConfig": "proxy.conf.json",
             "browserTarget": "neon-gtd:build"
           },
           "configurations": {

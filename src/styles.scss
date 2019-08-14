@@ -122,16 +122,16 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
-    background-color: var(--color-body, white) !important;
     position: relative;
 }
 
 .grid-item {
-    border-radius: 5px;
-    background-color: inherit !important;
-
     &.moving {
         z-index: z-index + 1;
+    }
+
+    .mat-toolbar {
+        border-bottom: 2px solid var(--color-accent, lightgrey) !important;
     }
 }
 
@@ -279,7 +279,6 @@ body {
     .mat-form-field-infix {
         border-top: 15px solid transparent !important;
         font-size: 14px !important;
-        height: 15px !important;
         line-height: 15px !important;
         padding: 5px 0 !important;
         width: unset;
@@ -345,7 +344,7 @@ body {
     line-height: 20px !important;
     height: 20px !important;
     width: 20px !important;
-    vertical-align: bottom !important;
+    vertical-align: bottom;
 
     &.neon-icon-large {
         font-size: 30px !important;
@@ -448,27 +447,14 @@ body {
 }
 
 .mat-toolbar {
-    line-height: 30px !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    padding: 5px 10px !important;
-    border-bottom: 2px solid var(--color-border, lightgrey);
-
-    &.neon-toolbar-navbar {
-        border-bottom: 0;
+    &.titlebar-header-text {
         font-size: 20px;
-        height: 50px !important;
-        line-height: 40px !important;
-        min-height: 50px !important;
-        padding: 5px 20px !important;
+        font-weight: 400;
     }
 
-    &.neon-toolbar-thin {
+    &.widget-header-text {
         font-size: 14px;
-        line-height: 20px !important;
-        height: 32px !important;
-        min-height: 32px !important;
-        padding: 6px !important;
+        font-weight: 500;
     }
 }
 
@@ -479,18 +465,59 @@ body {
     padding: 5px;
 }
 
-.simpleSnackBar { // sass-lint:disable-line class-name-format
+.mat-snack-bar-container {
     background-color: var(--color-background, white) !important;
-    color: var(--color-text, dimgrey);
+    color: var(--color-text, dimgrey) !important;
+    margin: 30px !important;
+    padding: 20px !important;
+}
 
-    .mat-simple-snackbar-action {
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-weight: 800;
+context-menu-content {
+    background: var(--color-background, lightgray);
+    min-width: 200px;
+    filter: drop-shadow(0 0 10px rgba(128, 128, 128, 0.6));
+
+    &:focus,
+    ul,
+    li {
+        outline: none;
     }
 
-    .mat-simple-snackbar {
-        justify-content: center;
+    ul {
+        list-style-position: inside;
+        list-style-type: none;
+
+        &,
+        li {
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            font-size: 0.9em;
+            padding: 0 1em;
+            line-height: 2.5em;
+
+            &:not(.header) {
+                &:hover {
+                    background: var(--color-background-contrast, gray);
+                }
+            }
+
+            &.divider {
+                border-bottom: 1px solid var(--color-background-contrast);
+            }
+
+            a {
+                width: 100%;
+                display: block;
+                color: var(--color-text, black);
+                text-decoration: none;
+
+                .mat-icon {
+                    vertical-align: middle;
+                }
+            }
+        }
     }
 }

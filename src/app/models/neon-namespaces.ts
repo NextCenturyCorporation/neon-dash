@@ -14,7 +14,7 @@
  */
 
 export namespace neonEvents {
-    export const DASHBOARD_ERROR = 'DASHBOARD_ERROR';
+    export const DASHBOARD_MESSAGE = 'DASHBOARD_MESSAGE';
     export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
     export const SELECT_ID = 'SELECT_ID';
     export const SHOW_OPTION_MENU = 'SHOW_OPTION_MENU';
@@ -73,6 +73,9 @@ export namespace neonUtilities {
      * @return {object}
      */
     export function deepFind(item, pathString) {
+        if (item && typeof item[pathString] !== 'undefined') {
+            return item[pathString];
+        }
         let itemToReturn = item;
         let path = (pathString ? pathString.split('.') : []);
         for (let index = 0; index < path.length; index++) {

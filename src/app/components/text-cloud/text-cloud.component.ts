@@ -24,23 +24,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {
-    AbstractSearchService,
-    CompoundFilterType,
-    FilterClause,
-    QueryPayload,
-    SortOrder
-} from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
 import {
     AggregationType,
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetOption,
     WidgetSelectOption
@@ -62,6 +58,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     public textCloud: TextCloud;
 
     public textCloudData: any[] = [];
+
+    // Cached filtered terms used to create new intersection (AND) filters.
+    private _filteredTerms: string[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -104,6 +103,34 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions(textColorHex, accentColorHex));
     }
 
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this._filteredTerms = [];
+
+        this.textCloudData = this.textCloudData.map((item) => {
+            let itemCopy = {
+                color: item.color,
+                fontSize: item.fontSize,
+                key: item.key,
+                keyTranslated: item.keyTranslated,
+                selected: false,
+                value: item.value
+            };
+
+            if (filters.isFiltered(this.createFilterConfigOnSingleTerm(item.key)) ||
+                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]))) {
+                this._filteredTerms.push(item.key);
+                itemCopy.selected = true;
+            }
+
+            return itemCopy;
+        });
+    }
+
     refreshVisualization() {
         // Do nothing.
     }
@@ -120,16 +147,22 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             (options.aggregation !== AggregationType.COUNT ? options.sizeField.columnName : true);
     }
 
-    private createFilterDesignOnText(value?: any): FilterDesign {
+    private createFilterConfigOnMultipleTerms(values: any[] = [undefined]): FilterConfig {
         return {
-            root: this.options.andFilters ? CompoundFilterType.AND : CompoundFilterType.OR,
-            datastore: '',
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.dataField as NeonFieldMetaData,
+            type: CompoundFilterType.AND,
+            filters: values.map((term) => this.createFilterConfigOnSingleTerm(term))
+        } as CompoundFilterConfig;
+    }
+
+    private createFilterConfigOnSingleTerm(value?: any): FilterConfig {
+        return {
+            datastore: this.options.datastore.name,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.dataField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -151,23 +184,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        if (this.options.dataField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnText(),
-                redrawCallback: this.redrawText.bind(this)
-            } as FilterBehavior);
-        }
-
-        return behaviors;
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        return this.options.dataField.columnName ? [this.createFilterConfigOnSingleTerm(), this.createFilterConfigOnMultipleTerms()] : [];
     }
 
     /**
@@ -238,40 +262,32 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Term' + (count === 1 ? '' : 's');
     }
 
-    private redrawText(__filterDesigns: FilterDesign[]): void {
-        this.textCloudData = this.textCloudData.map((item) => {
-            let itemCopy = {
-                color: item.color,
-                fontSize: item.fontSize,
-                key: item.key,
-                keyTranslated: item.keyTranslated,
-                selected: false,
-                value: item.value
-            };
-            if (this.isFiltered(this.createFilterDesignOnText(item.key))) {
-                itemCopy.selected = true;
-            }
-            return itemCopy;
-        });
-        this.changeDetection.detectChanges();
-    }
-
     /**
      * Transforms the given array of query results using the given options into an array of objects to be shown in the visualization.
      * Returns the count of elements shown in the visualization.
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
+        this._filteredTerms = [];
+
         let data: any[] = results.map((item) => {
             let key = item[options.dataField.columnName];
+            let filtered = filters.isFiltered(this.createFilterConfigOnSingleTerm(key)) ||
+                filters.isFiltered(this.createFilterConfigOnMultipleTerms([item.key]));
+
+            if (filtered) {
+                this._filteredTerms.push(key);
+            }
+
             return {
                 key: key,
                 keyTranslated: key,
-                selected: this.isFiltered(this.createFilterDesignOnText(key)),
+                selected: filtered,
                 value: item[this.searchService.getAggregationName()]
             };
         });
@@ -292,8 +308,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onClick(item) {
-        let filter: FilterDesign = this.createFilterDesignOnText(item.key);
-        this.toggleFilters([filter]);
+        this._filteredTerms.push(item.key);
+
+        if (this.options.andFilters) {
+            this.exchangeFilters([this.createFilterConfigOnMultipleTerms(this._filteredTerms)]);
+        } else {
+            this.toggleFilters([this.createFilterConfigOnSingleTerm(item.key)]);
+        }
     }
 
     // These methods must be present for AoT compile

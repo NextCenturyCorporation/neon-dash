@@ -24,16 +24,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFieldArrayOption,
     WidgetFreeTextOption,
@@ -130,36 +133,31 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    private addFilterBehaviorToList(list: FilterBehavior[], field: NeonFieldMetaData): FilterBehavior[] {
-        list.push({
-            // Match a single NOT EQUALS filter on the specific filter field.
-            filterDesign: this.createFilterDesign(field),
-            redrawCallback: this.redrawTaxonomy.bind(this)
-        });
-        list.push({
-            // Match a compound AND filter with one or more NOT EQUALS filters on the specific filter field.
-            filterDesign: this.createFilterDesignOnList([this.createFilterDesign(field)]),
-            redrawCallback: this.redrawTaxonomy.bind(this)
-        });
-        return list;
+    private createFilterConfigsForField(field: NeonFieldMetaData): FilterConfig[] {
+        let designs: FilterConfig[] = [];
+        // Match a single NOT EQUALS filter on the specific filter field.
+        designs.push(this.createFilterConfig(field));
+        // Match a compound AND filter with one or more NOT EQUALS filters on the specific filter field.
+        designs.push(this.createFilterConfigOnList([this.createFilterConfig(field)]));
+        return designs;
     }
 
-    private createFilterDesign(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfig(field: NeonFieldMetaData, value?: any): SimpleFilterConfig {
         return {
-            datastore: '',
-            database: this.options.database,
-            table: this.options.table,
-            field: field,
+            datastore: this.options.datastore.name,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: field.columnName,
             operator: '!=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
-    private createFilterDesignOnList(filters: FilterDesign[]): FilterDesign {
+    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
         return {
             type: CompoundFilterType.AND,
             filters: filters
-        } as CompoundFilterDesign;
+        } as CompoundFilterConfig;
     }
 
     /**
@@ -186,43 +184,28 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        let designs: FilterConfig[] = [];
 
         if (this.options.categoryField.columnName) {
-            behaviors = this.addFilterBehaviorToList(behaviors, this.options.categoryField);
+            designs = designs.concat(this.createFilterConfigsForField(this.options.categoryField));
         }
 
         if (this.options.typeField.columnName) {
-            behaviors = this.addFilterBehaviorToList(behaviors, this.options.typeField);
+            designs = designs.concat(this.createFilterConfigsForField(this.options.typeField));
         }
 
         if (this.options.subTypeField.columnName) {
-            behaviors = this.addFilterBehaviorToList(behaviors, this.options.subTypeField);
+            designs = designs.concat(this.createFilterConfigsForField(this.options.subTypeField));
         }
 
-        if (this.options.sourceIdField.columnName) {
-            // TODO AIDA-607
-            // behaviors.push({
-            //     // Match a compound AND filter with one or more NOT EQUALS filters on the source ID field.
-            //     filterDesign: this.createFilterDesignOnList([this.createFilterDesign(this.options.sourceIdField)]),
-            //     redrawCallback: () => {}
-            // });
-            // behaviors.push({
-            //     // Match a compound AND filter with one or more compound AND filters with one or more NOT EQUALS filters.
-            //     filterDesign: this.createFilterDesignOnList([this.createFilterDesignOnList(
-            //         [this.createFilterDesign(this.options.sourceIdField)])]),
-            //     redrawCallback: () => {}
-            // });
-        }
-
-        return behaviors;
+        return designs;
     }
 
     /**
@@ -236,8 +219,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters: FilterClause[] = [
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-            this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+            this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
         ];
 
         this.searchService.updateFilter(query, this.searchService.buildCompoundFilterClause(sharedFilters.concat(filters)))
@@ -281,9 +263,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return 'Taxonomy Viewer';
     }
 
-    private isTaxonomyNodeFiltered(field: NeonFieldMetaData, value: any) {
-        let filterDesign: FilterDesign = this.createFilterDesign(field, value);
-        return this.isFiltered(filterDesign) || this.isFiltered(this.createFilterDesignOnList([filterDesign]));
+    private isTaxonomyNodeFiltered(filters: FilterCollection, field: NeonFieldMetaData, value: any) {
+        let filterConfig: FilterConfig = this.createFilterConfig(field, value);
+        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
     }
 
     /**
@@ -300,36 +282,39 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     mergeTaxonomyData(
         group: TaxonomyGroup,
         lineage: { category: string | string[], type: string | string[], subtype?: string | string[] },
-        child: TaxonomyNode
+        child: TaxonomyNode,
+        filters: FilterCollection
     ) {
         let currentGroup = group;
         let toArray = (el: string | string[]) => Array.isArray(el) ? el : (el ? el.split('.') : []);
 
         // Compose all layers into single array of [name, type][]
-        const segments: [string[], string][] = [
+        const categoriesAndTypes: [string[], string][] = [
             [toArray(lineage.category), 'category'],
             [toArray(lineage.type), 'type'],
             [toArray(lineage.subtype), 'subtype']
         ];
 
         let pos = 0;
-        for (const [segment, ptype] of segments) {
+        for (const [categoryOrTypeList, fieldNamePrefix] of categoriesAndTypes) {
             let subPos = 0;
             // Travel inward, one level at a time
-            for (const pcat of segment) {
+            for (const categoryOrType of categoryOrTypeList) {
                 // Traverse forward in each layer
-                if (!(pcat in currentGroup.childrenMap)) {
+                if (!(categoryOrType in currentGroup.childrenMap)) {
                     // Find field that this node should be filtered by
-                    const fieldToCheck = this.options[`${ptype}Field`];
+                    const fieldToCheck = this.options[`${fieldNamePrefix}Field`];
+                    // The node's type.subtype
+                    const dottedNodeType = categoryOrTypeList.slice(0, subPos + 1).join('.');
 
                     // Build new object
                     const node: TaxonomyGroup = {
                         id: `${this.counter++}`,
                         description: fieldToCheck,
-                        name: pcat,
-                        externalName: segment.slice(0, subPos + 1).join('.'),
+                        name: categoryOrType,
+                        externalName: dottedNodeType,
                         parent: currentGroup,
-                        checked: !this.isTaxonomyNodeFiltered(fieldToCheck, pcat),
+                        checked: !this.isTaxonomyNodeFiltered(filters, fieldToCheck, dottedNodeType),
                         sourceIds: [],
                         nodeIds: new Set(),
                         level: pos + 1,
@@ -340,11 +325,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     };
 
                     // Register node with parent
-                    currentGroup.childrenMap[pcat] = node;
+                    currentGroup.childrenMap[categoryOrType] = node;
                     currentGroup.children.push(node);
                 }
                 // Descend into child
-                const next = currentGroup.childrenMap[pcat] as TaxonomyGroup;
+                const next = currentGroup.childrenMap[categoryOrType] as TaxonomyGroup;
                 currentGroup = next;
                 pos += 1;
                 subPos += 1;
@@ -401,10 +386,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      *
      * @arg {any} options
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         const group = {
             childrenMap: {},
             children: []
@@ -434,7 +420,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             // If a value is not found for the leafValue, id will be used
             const name = find(data, 'valueField') || find(data, 'idField');
             const child = {
-                description: options.valueField,
+                description: options.valueField.columnName,
                 name,
                 sourceIds: find(data, 'sourceIdField'),
                 externalId: find(data, 'idField'),
@@ -450,15 +436,15 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                             this.mergeTaxonomyData(group, { ...lineage, subtype }, {
                                 ...child,
                                 id: `${this.counter++}`,
-                                checked: !this.isTaxonomyNodeFiltered(options.subTypeField, subtype)
-                            });
+                                checked: !this.isTaxonomyNodeFiltered(filters, options.subTypeField, type + '.' + subtype)
+                            }, filters);
                         }
                     } else {
                         this.mergeTaxonomyData(group, lineage, {
                             ...child,
                             id: `${this.counter++}`,
-                            checked: !this.isTaxonomyNodeFiltered(options.typeField, type)
-                        });
+                            checked: !this.isTaxonomyNodeFiltered(filters, options.typeField, type)
+                        }, filters);
                     }
                 }
             }
@@ -466,7 +452,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         this.sortTaxonomies(group);
 
+        this._updateEachTreeNodeCheckBox(group);
+
         this.taxonomyGroups = group.children as TaxonomyGroup[];
+
         return this.taxonomyGroups.reduce((acc, grp) => acc + grp.nodeCount, 0);
     }
 
@@ -574,33 +563,27 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     checkRelatedNodes(node: TreeNode | TaxonomyNode, $event: any) {
         // Update all the groups in the taxonomy (select or unselect them).
-        this.updateChildNodesCheckBox(node, $event.target.checked);
-        this.updateParentNodesCheckBox(node.parent);
+        this._updateChildNodesCheckBox(node, $event.target.checked);
+        this._updateParentNodesCheckBox(node.parent);
 
         // Find all the unselected groups in the taxonomy (parents and children).
         const unselectedGroups = this.taxonomyGroups.reduce((array, group) =>
             array.concat(this.findUnselectedGroups(group)), [] as TaxonomyNode[]);
 
         // Create filters for all the unselected groups with valid fields (description properties).
-        const filters: SimpleFilterDesign[] = unselectedGroups
+        const filters: SimpleFilterConfig[] = unselectedGroups
             .filter((group) => group.description && group.description.columnName)
-            .map((group) => this.createFilterDesign(group.description, group.externalName || group.name));
+            .map((group) => this.createFilterConfig(group.description, group.externalName || group.name));
 
-        const categoryFilters: FilterDesign[] = filters.filter(
-            (filter) => filter.field.columnName === this.options.categoryField.columnName
-        );
-        const typeFilters: FilterDesign[] = filters.filter(
-            (filter) => filter.field.columnName === this.options.typeField.columnName
-        );
-        const subTypeFilters: FilterDesign[] = filters.filter(
-            (filter) => filter.field.columnName === this.options.subTypeField.columnName
-        );
+        const categoryFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.categoryField.columnName);
+        const typeFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.typeField.columnName);
+        const subTypeFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.subTypeField.columnName);
 
         // Create a single compound AND filter (with a pretty name) for all the filters on each filterable field.
-        const categoryFilter: FilterDesign = (categoryFilters.length) ?
+        const categoryFilter: FilterConfig = (categoryFilters.length) ?
             (categoryFilters.length === 1 ?
                 categoryFilters[0] :
-                this.createFilterDesignOnList(categoryFilters)) :
+                this.createFilterConfigOnList(categoryFilters)) :
             null;
 
         // Ignore the type filters if the type field is the same as the category field.
@@ -608,10 +591,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             this.options.typeField.columnName === this.options.categoryField.columnName &&
             categoryFilters.length
         );
-        const typeFilter: FilterDesign = (typeFilters.length && !typeIsDuplicated) ?
+        const typeFilter: FilterConfig = (typeFilters.length && !typeIsDuplicated) ?
             (typeFilters.length === 1 ?
                 typeFilters[0] :
-                this.createFilterDesignOnList(typeFilters)) :
+                this.createFilterConfigOnList(typeFilters)) :
             null;
 
         // Ignore the subtype filters if the subtype field is the same as the type field or the category field.
@@ -624,82 +607,84 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 this.options.subTypeField.columnName === this.options.categoryField.columnName &&
                 categoryFilters.length
             );
-        const subTypeFilter: FilterDesign = (subTypeFilters.length && !subTypeIsDuplicated) ?
+        const subTypeFilter: FilterConfig = (subTypeFilters.length && !subTypeIsDuplicated) ?
             (subTypeFilters.length === 1 ?
                 subTypeFilters[0] :
-                this.createFilterDesignOnList(subTypeFilters)) :
+                this.createFilterConfigOnList(subTypeFilters)) :
             null;
 
         // If we don't need to filter a valid filterable field, ensure that we delete all previous filters that were set on that field.
-        const filterDesignListToDelete: FilterDesign[] = [];
+        const filterConfigListToDelete: FilterConfig[] = [];
         if (!categoryFilter && this.options.categoryField.columnName) {
-            filterDesignListToDelete.push(this.createFilterDesign(this.options.categoryField));
+            filterConfigListToDelete.push(this.createFilterConfig(this.options.categoryField));
         }
         // Don't accidentally delete filters from duplicated fields!
         if (!typeFilter && !typeIsDuplicated && this.options.typeField.columnName) {
-            filterDesignListToDelete.push(this.createFilterDesign(this.options.typeField));
+            filterConfigListToDelete.push(this.createFilterConfig(this.options.typeField));
         }
         if (!subTypeFilter && !subTypeIsDuplicated && this.options.subTypeField.columnName) {
-            filterDesignListToDelete.push(this.createFilterDesign(this.options.subTypeField));
+            filterConfigListToDelete.push(this.createFilterConfig(this.options.subTypeField));
         }
 
-        // TODO AIDA-607 (Add sourceFilter to existing call of exchangeFilters)
-        // let sourceFilters: FilterDesign[] = unselectedGroups.filter((group) => group.sourceIds.length).map((group) =>
-        //     this.createFilterDesignOnList(group.sourceIds.map((sourceId) =>
-        //         this.createFilterDesign(this.options.sourceIdField, sourceId))));
-        // let filterOnSource = !!(sourceFilters.length);
-        // let sourceFilter: FilterDesign = filterOnSource ? (sourceFilters.length === 1 ? sourceFilters[0] :
-        //     this.createFilterDesignOnList(sourceFilters)) : null;
-        // if (!sourceFilter && this.options.sourceIdField.columnName) {
-        //   filterDesignListToDelete.push(this.createFilterDesign(this.options.sourceIdField));
-        // }
-
-        this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterDesignListToDelete);
+        this.exchangeFilters([categoryFilter, typeFilter, subTypeFilter].filter((filter) => !!filter), filterConfigListToDelete);
     }
 
-    updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean) {
-        let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
-        setNode.checked = checked;
-        if (checked === false && setNode.indeterminate) {
-            setNode.indeterminate = checked;
+    private _updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean): void {
+        let nodeData: TaxonomyGroup = 'data' in node ? node.data : node;
+        nodeData.checked = checked;
+        if (!checked) {
+            nodeData.indeterminate = false;
         }
-
-        if (setNode.children) {
-            setNode.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+        if (nodeData.children) {
+            nodeData.children.forEach((child) => this._updateChildNodesCheckBox(child, checked));
         }
     }
 
-    updateParentNodesCheckBox(node: TreeNode | TaxonomyGroup) {
-        if (node && node.level > 0 && node.children) {
-            let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
-            let allChildrenChecked = true;
-            let noChildrenChecked = true;
-
-            for (let child of node.children) {
-                let setChild: TaxonomyNode = 'data' in child ? child.data : child;
-                if (node.level === 1 && !!setChild.indeterminate) {
-                    allChildrenChecked = false;
-                    noChildrenChecked = false;
-                } else if (!setChild.checked) {
-                    allChildrenChecked = false;
-                } else if (setChild.checked) {
-                    noChildrenChecked = false;
+    private _updateEachTreeNodeCheckBox(node: TaxonomyGroup | TaxonomyNode): void {
+        if ('children' in node && node.children.length) {
+            for (const child of node.children) {
+                if (child.checked) {
+                    this._updateChildNodesCheckBox(child, true);
+                    this._updateParentNodesCheckBox(node);
                 }
+                this._updateEachTreeNodeCheckBox(child);
             }
+        }
+    }
 
-            if (allChildrenChecked) {
-                setNode.checked = true;
-                setNode.indeterminate = false;
-            } else if (noChildrenChecked) {
-                setNode.checked = false;
-                setNode.indeterminate = false;
-            } else {
-                setNode.checked = true;
-                setNode.indeterminate = true;
+    private _updateNodeCheckBox(node: TaxonomyGroup): void {
+        let allChildrenChecked = true;
+        let noChildrenChecked = true;
+
+        for (const child of node.children) {
+            if (node.level === 1 && child.indeterminate) {
+                allChildrenChecked = false;
+                noChildrenChecked = false;
+            } else if (!child.checked) {
+                allChildrenChecked = false;
+            } else if (child.checked) {
+                noChildrenChecked = false;
             }
+        }
+
+        if (allChildrenChecked) {
+            node.checked = true;
+            node.indeterminate = false;
+        } else if (noChildrenChecked) {
+            node.checked = false;
+            node.indeterminate = false;
+        } else {
+            node.checked = true;
+            node.indeterminate = true;
+        }
+    }
+
+    private _updateParentNodesCheckBox(node: TreeNode | TaxonomyGroup): void {
+        if (node && node.level > 0 && node.children) {
+            this._updateNodeCheckBox('data' in node ? node.data : node);
 
             if (node.parent) {
-                this.updateParentNodesCheckBox(node.parent);
+                this._updateParentNodesCheckBox(node.parent);
             }
         }
     }
@@ -725,8 +710,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return relatives;
     }
 
-    private redrawTaxonomy(__filters: FilterDesign[]) {
-        // TODO AIDA-753
+    /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(__filters: FilterCollection): void {
+        // TODO AIDA-753 Update the checked nodes in the taxonomy tree using the given filters
     }
 
     /**

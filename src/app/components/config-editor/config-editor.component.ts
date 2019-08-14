@@ -14,13 +14,17 @@
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { MatSnackBar } from '@angular/material';
-import { NeonConfig } from '../../models/types';
-
-import * as yaml from 'js-yaml';
-import { ConfigService } from '../../services/config.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+import { ConfigService } from '../../services/config.service';
+import { NeonConfig } from '../../models/types';
+
+import { neonEvents } from '../../models/neon-namespaces';
+
+import { eventing } from 'neon-framework';
+
+import * as yaml from 'js-yaml';
 
 @Component({
     selector: 'app-config-editor',
@@ -32,15 +36,13 @@ import { takeUntil } from 'rxjs/operators';
 export class ConfigEditorComponent implements OnInit, OnDestroy {
     public CONFIG_PROP_NAME: string = 'config';
     public currentConfig: NeonConfig;
-    public DEFAULT_SNACK_BAR_DURATION: number = 3000;
     public configText: string;
     destroy = new Subject();
 
-    constructor(
-        private configService: ConfigService,
-        public snackBar: MatSnackBar,
-    ) {
-        this.snackBar = snackBar;
+    private messenger: eventing.Messenger;
+
+    constructor(private configService: ConfigService) {
+        this.messenger = new eventing.Messenger();
     }
 
     ngOnInit(): void {
@@ -65,16 +67,15 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
         this.configService.save(settings)
             .subscribe(() => {
                 this.configService.setActive(settings);
-                this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.', 'OK', {
-                    duration: this.DEFAULT_SNACK_BAR_DURATION
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    message: 'New configuration saved successfully.  Refresh to see changes.'
                 });
             },
-            (err) => {
-                this.snackBar.open('Error attempting to save configuration', 'OK', {
-                    duration: this.DEFAULT_SNACK_BAR_DURATION
+            (response) => {
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    error: response,
+                    message: 'Error saving new configuration'
                 });
-                console.warn('Error attempting to save configuration:');
-                console.warn(err);
             });
     }
 

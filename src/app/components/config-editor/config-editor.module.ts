@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 import { ConfigEditorComponent } from './config-editor.component';
 import {
     MatToolbarModule, MatTooltipModule, MatSelectModule,
-    MatDialogModule, MatSnackBarModule, MatButtonModule
+    MatDialogModule, MatButtonModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
@@ -35,7 +35,6 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
         MonacoEditorModule.forRoot({ baseUrl: 'assets/' }),
         MatDialogModule,
         MatButtonModule,
-        MatSnackBarModule,
         MatToolbarModule,
         MatTooltipModule,
         MatSelectModule,

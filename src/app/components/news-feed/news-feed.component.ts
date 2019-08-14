@@ -24,15 +24,17 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetOption,
@@ -109,18 +111,18 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return;
         }
 
-        this.toggleFilters([this.createFilterDesignOnText(text)]);
+        this.toggleFilters([this.createFilterConfigOnText(text)]);
     }
 
-    private createFilterDesignOnText(value?: any): FilterDesign {
+    private createFilterConfigOnText(value?: any): FilterConfig {
         return {
-            datastore: '',
-            database: this.options.database,
-            table: this.options.table,
-            field: this.options.filterField,
+            datastore: this.options.datastore.name,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: this.options.filterField.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -141,6 +143,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('linkField', 'Link Field', true),
             new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
             new WidgetFreeTextOption('contentLabel', 'Content Label', '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', '', true),
             new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, OptionChoices.NoFalseYesTrue, true),
@@ -152,24 +155,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        if (this.options.filterField.columnName) {
-            behaviors.push({
-                filterDesign: this.createFilterDesignOnText(),
-                // No redraw callback:  The filtered text will automatically be styled with isSelected as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            });
-        }
-
-        return behaviors;
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        return this.options.filterField.columnName ? [this.createFilterConfigOnText()] : [];
     }
 
     /**
@@ -187,8 +180,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.sortField.columnName) {
             filters = [
                 ...filters,
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', null),
-                this.searchService.buildFilterClause(options.idField.columnName, '!=', '')
+                this.searchService.buildFilterClause(options.idField.columnName, '!=', null)
             ];
         }
 
@@ -262,12 +254,16 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.newsFeedData = results.map((result) => {
             let item = {
+                _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
+                    result[this.options.filterField.columnName]
+                ))),
                 field: {},
                 media: undefined
             };
@@ -335,6 +331,19 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this.newsFeedData.forEach((item) => {
+            item._filtered = this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
+                item[this.options.filterField.columnName]
+            ));
+        });
+    }
+
+    /**
      * Updates and redraws the elements and properties for the visualization.
      *
      * @override
@@ -392,9 +401,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @return {boolean}
      */
     isSelected(item) {
-        return (!!this.options.filterField.columnName && this.isFiltered(this.createFilterDesignOnText(
-            item.field[this.options.filterField.columnName]
-        )));
+        return item._filtered;
     }
 
     isExpanded(item) {
