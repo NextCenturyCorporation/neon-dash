@@ -156,16 +156,6 @@ describe('Component: MediaViewer', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('getTabLabel does return expected tab label', (() => {
-        let names = [];
-        let index = null;
-        expect(component.getTabLabel(names, index)).toBe('');
-
-        names = ['a', 'b', 'c', 'd'];
-        index = 2;
-        expect(component.getTabLabel(names, index)).toBe('c');
-    }));
-
     it('validateVisualizationQuery does return expected result', (() => {
         expect(component.validateVisualizationQuery(component.options)).toBe(false);
 
@@ -205,12 +195,8 @@ describe('Component: MediaViewer', () => {
 
         component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
-        expect(component.media).toEqual({
-            loaded: false,
-            name: '',
-            selected: null,
-            list: []
-        });
+        expect(component.media.selected).toEqual(undefined);
+        expect(component.media.list).toEqual([]);
     }));
 
     it('transformVisualizationQueryResults does reset options.id and return correct error if filter is selected', (() => {
@@ -260,7 +246,8 @@ describe('Component: MediaViewer', () => {
 
         component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([]);
+        expect(component.media.selected).toEqual(undefined);
+        expect(component.media.list).toEqual([]);
     }));
 
     it('transformVisualizationQueryResults does set expected properties with selected filter and data', () => {
@@ -280,23 +267,19 @@ describe('Component: MediaViewer', () => {
             testTypeField: 'testTypeValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'testLinkValue',
+            mask: '',
             name: 'testNameValue',
-            selected: {
-                border: '',
-                link: 'testLinkValue',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            }]
+            type: 'testTypeValue'
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'testLinkValue',
+            mask: '',
+            name: 'testNameValue',
+            type: 'testTypeValue'
         }]);
     });
 
@@ -310,9 +293,9 @@ describe('Component: MediaViewer', () => {
         component.options.id = 'testId';
         (component as any).isFiltered = () => true;
 
-        component.tabsAndMedia = [{
+        component.media = {
             loaded: false,
-            name: 'testOldTab',
+            name: '',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
@@ -325,7 +308,7 @@ describe('Component: MediaViewer', () => {
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             }]
-        }];
+        };
 
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue2',
@@ -334,23 +317,19 @@ describe('Component: MediaViewer', () => {
             testTypeField: 'testTypeValue2'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'testLinkValue2',
+            mask: '',
             name: 'testNameValue2',
-            selected: {
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue2',
-                type: 'testTypeValue2'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue2',
-                type: 'testTypeValue2'
-            }]
+            type: 'testTypeValue2'
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'testLinkValue2',
+            mask: '',
+            name: 'testNameValue2',
+            type: 'testTypeValue2'
         }]);
     });
 
@@ -371,40 +350,25 @@ describe('Component: MediaViewer', () => {
             testTypeField: 'testTypeValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
-            name: '1: testNameValue',
-            selected: {
-                border: '',
-                link: 'testLinkValue1',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue1',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            }]
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'testLinkValue1',
+            mask: '',
+            name: 'testNameValue',
+            type: 'testTypeValue'
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'testLinkValue1',
+            mask: '',
+            name: 'testNameValue',
+            type: 'testTypeValue'
         }, {
-            loaded: false,
-            name: '2: testNameValue',
-            selected: {
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue',
-                type: 'testTypeValue'
-            }]
+            border: '',
+            link: 'testLinkValue2',
+            mask: '',
+            name: 'testNameValue',
+            type: 'testTypeValue'
         }]);
     });
 
@@ -425,40 +389,25 @@ describe('Component: MediaViewer', () => {
             testTypeField: ['testTypeValue1', 'testTypeValue2']
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
-            name: '1: testNameValue1',
-            selected: {
-                border: '',
-                link: 'testLinkValue1',
-                mask: '',
-                name: 'testNameValue1',
-                type: 'testTypeValue1'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue1',
-                mask: '',
-                name: 'testNameValue1',
-                type: 'testTypeValue1'
-            }]
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'testLinkValue1',
+            mask: '',
+            name: 'testNameValue1',
+            type: 'testTypeValue1'
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'testLinkValue1',
+            mask: '',
+            name: 'testNameValue1',
+            type: 'testTypeValue1'
         }, {
-            loaded: false,
-            name: '2: testNameValue2',
-            selected: {
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue2',
-                type: 'testTypeValue2'
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue2',
-                mask: '',
-                name: 'testNameValue2',
-                type: 'testTypeValue2'
-            }]
+            border: '',
+            link: 'testLinkValue2',
+            mask: '',
+            name: 'testNameValue2',
+            type: 'testTypeValue2'
         }]);
     });
 
@@ -475,7 +424,8 @@ describe('Component: MediaViewer', () => {
             testLinkField: ''
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([]);
+        expect(component.media.selected).toEqual(undefined);
+        expect(component.media.list).toEqual([]);
     });
 
     it('transformVisualizationQueryResults does add border if filter selected', () => {
@@ -492,23 +442,19 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: 'grey',
+            link: 'testLinkValue',
+            mask: '',
             name: 'testLinkValue',
-            selected: {
-                border: 'grey',
-                link: 'testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            },
-            list: [{
-                border: 'grey',
-                link: 'testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            }]
+            type: ''
+        });
+        expect(component.media.list).toEqual([{
+            border: 'grey',
+            link: 'testLinkValue',
+            mask: '',
+            name: 'testLinkValue',
+            type: ''
         }]);
     });
 
@@ -526,23 +472,19 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'linkPrefix/testLinkValue',
+            mask: '',
             name: 'testLinkValue',
-            selected: {
-                border: '',
-                link: 'linkPrefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'linkPrefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            }]
+            type: ''
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'linkPrefix/testLinkValue',
+            mask: '',
+            name: 'testLinkValue',
+            type: ''
         }]);
     });
 
@@ -557,23 +499,19 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'linkPrefix/testLinkValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'linkPrefix/testLinkValue',
+            mask: '',
             name: 'testLinkValue',
-            selected: {
-                border: '',
-                link: 'linkPrefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'linkPrefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            }]
+            type: ''
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'linkPrefix/testLinkValue',
+            mask: '',
+            name: 'testLinkValue',
+            type: ''
         }]);
     });
 
@@ -587,23 +525,19 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'prefix/testLinkValue'
         }], new FilterCollection());
 
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'prefix/testLinkValue',
+            mask: '',
             name: 'testLinkValue',
-            selected: {
-                border: '',
-                link: 'prefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'prefix/testLinkValue',
-                mask: '',
-                name: 'testLinkValue',
-                type: ''
-            }]
+            type: ''
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'prefix/testLinkValue',
+            mask: '',
+            name: 'testLinkValue',
+            type: ''
         }]);
     });
 
@@ -627,91 +561,43 @@ describe('Component: MediaViewer', () => {
         }], new FilterCollection());
 
         expect((component as any).errorMessage).toBe('');
-        expect(component.tabsAndMedia).toEqual([{
-            loaded: false,
-            name: '1: video.avi',
-            selected: {
-                border: '',
-                link: 'video.avi',
-                mask: '',
-                name: 'video.avi',
-                type: 'vid'
-            },
-            list: [{
-                border: '',
-                link: 'video.avi',
-                mask: '',
-                name: 'video.avi',
-                type: 'vid'
-            }]
+        expect(component.media.selected).toEqual({
+            border: '',
+            link: 'video.avi',
+            mask: '',
+            name: 'video.avi',
+            type: 'vid'
+        });
+        expect(component.media.list).toEqual([{
+            border: '',
+            link: 'video.avi',
+            mask: '',
+            name: 'video.avi',
+            type: 'vid'
         }, {
-            loaded: false,
-            name: '2: image.jpg',
-            selected: {
-                border: '',
-                link: 'image.jpg',
-                mask: '',
-                name: 'image.jpg',
-                type: 'img'
-            },
-            list: [{
-                border: '',
-                link: 'image.jpg',
-                mask: '',
-                name: 'image.jpg',
-                type: 'img'
-            }]
+            border: '',
+            link: 'image.jpg',
+            mask: '',
+            name: 'image.jpg',
+            type: 'img'
         }, {
-            loaded: false,
-            name: '3: alpha.txt',
-            selected: {
-                border: '',
-                link: 'alpha.txt',
-                mask: '',
-                name: 'alpha.txt',
-                type: 'txt'
-            },
-            list: [{
-                border: '',
-                link: 'alpha.txt',
-                mask: '',
-                name: 'alpha.txt',
-                type: 'txt'
-            }]
+            border: '',
+            link: 'alpha.txt',
+            mask: '',
+            name: 'alpha.txt',
+            type: 'txt'
         }, {
-            loaded: false,
-            name: '4: audio.wav',
-            selected: {
-                border: '',
-                link: 'audio.wav',
-                mask: '',
-                name: 'audio.wav',
-                type: 'aud'
-            },
-            list: [{
-                border: '',
-                link: 'audio.wav',
-                mask: '',
-                name: 'audio.wav',
-                type: 'aud'
-            }]
+            border: '',
+            link: 'audio.wav',
+            mask: '',
+            name: 'audio.wav',
+            type: 'aud'
         }, {
-            loaded: false,
-            name: '5: other.xyz',
-            selected: {
-                border: '',
-                link: 'other.xyz',
-                mask: '',
-                name: 'other.xyz',
-                type: 'xyz'
-            },
-            list: [{
-                border: '',
-                link: 'other.xyz',
-                mask: '',
-                name: 'other.xyz',
-                type: 'xyz'
-            }]
+            border: '',
+            link: 'other.xyz',
+            mask: '',
+            name: 'other.xyz',
+            type: 'xyz'
         }]);
     });
 
@@ -775,62 +661,6 @@ describe('Component: MediaViewer', () => {
         let spinner = fixture.debugElement.query(By.css('.loading-overlay mat-spinner'));
         expect(spinner).not.toBeNull();
     }));
-
-    it('consolidateTabs properly updates the media variable', () => {
-        component.tabsAndMedia = [{
-            loaded: false,
-            name: 'testLinkName',
-            selected: {
-                border: '',
-                link: 'testLinkValue1',
-                name: 'testLinkValue1',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue1',
-                name: 'testLinkValue1',
-                type: ''
-            }]
-        }, {
-            loaded: false,
-            name: 'testLinkName2',
-            selected: {
-                border: '',
-                link: 'testLinkValue2',
-                name: 'testLinkValue2',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue2',
-                name: 'testLinkValue2',
-                type: ''
-            }]
-        }];
-        component.consolidateTabs();
-        expect(component.media).toEqual({
-            loaded: false,
-            name: '',
-            selected: {
-                border: '',
-                link: 'testLinkValue1',
-                name: 'testLinkValue1',
-                type: ''
-            },
-            list: [{
-                border: '',
-                link: 'testLinkValue1',
-                name: 'testLinkValue1',
-                type: ''
-            }, {
-                border: '',
-                link: 'testLinkValue2',
-                name: 'testLinkValue2',
-                type: ''
-            }]
-        });
-    });
 });
 
 describe('Component: MediaViewer with config', () => {
