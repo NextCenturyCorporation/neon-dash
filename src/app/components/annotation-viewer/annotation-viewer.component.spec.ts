@@ -76,11 +76,38 @@ describe('Component: AnnotationViewer', () => {
     });
 
     it('hasUrl checks if url is in string and sets url variable', () => {
-        let testString = 'Hello World, https://www.google.com Goodbye world';
+        let testString = 'Hello World, https://www.google.com Goodbye world.';
 
         component.hasUrl(testString);
 
-        expect(component.url).toEqual('https://www.google.com');
+        expect(component.url).toEqual(['https://www.google.com']);
+        expect(component.text).toEqual(['Hello World, ', ' Goodbye world.']);
+    });
+
+    it('hasUrl correctly recognizes different link prefixes or postfixes', () => {
+        let ftpString = 'Hello World, ftp://www.files.org Goodbye world.';
+        let queryString = 'Hello World, ftp://www.files.org/there?next=free Goodbye world.';
+        let fragIdString = 'Hello World, ftp://www.files.org/there.html#bar Goodbye world.';
+
+        component.hasUrl(ftpString);
+        expect(component.url).toEqual(['ftp://www.files.org']);
+        expect(component.text).toEqual(['Hello World, ', ' Goodbye world.']);
+
+        component.hasUrl(queryString);
+        expect(component.url).toEqual(['ftp://www.files.org/there?next=free']);
+        expect(component.text).toEqual(['Hello World, ', ' Goodbye world.']);
+
+        component.hasUrl(fragIdString);
+        expect(component.url).toEqual(['ftp://www.files.org/there.html#bar']);
+        expect(component.text).toEqual(['Hello World, ', ' Goodbye world.']);
+    });
+
+    it('hasUrl works with multiple links', () => {
+        let multUrlString = 'Use https://www.google.com to search as well as http://www.bing.com They both work well.';
+
+        component.hasUrl(multUrlString);
+        expect(component.url).toEqual(['https://www.google.com', 'http://www.bing.com']);
+        expect(component.text).toEqual(['Use ', ' to search as well as ', ' They both work well.']);
     });
 
     it('hasUrl checks if url is in string and sets url variable, and adds http if needed', () => {
@@ -88,6 +115,6 @@ describe('Component: AnnotationViewer', () => {
 
         component.hasUrl(testString);
 
-        expect(component.url).toEqual('http://www.google.com');
+        expect(component.url).toEqual(['http://www.google.com']);
     });
 });
