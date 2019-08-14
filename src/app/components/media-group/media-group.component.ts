@@ -59,14 +59,14 @@ export class MediaGroupComponent {
         },
         list: []
     };
-    constructor(
-        private sanitizer: DomSanitizer
-    ) { }
 
     public selectedLinkIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
 
+    constructor(
+        private sanitizer: DomSanitizer
+    ) { }
 
     showMedia() {
         return this.sanitizer.bypassSecurityTrustUrl(this.media.selected.link);
