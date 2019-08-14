@@ -35,6 +35,7 @@ export interface MediaMetaData {
     list: {
         border: string;
         link: string;
+        mask?: string;
         name: string;
         type: string;
     }[];

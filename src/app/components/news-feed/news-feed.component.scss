@@ -62,7 +62,8 @@ mat-accordion {
     mat-expansion-panel {
         margin: 0;
         box-shadow: none;
-        border-bottom: solid 1px var(--color-text, dimgrey);
+        border-bottom: 1px solid var(--color-background-contrast, #333333);
+        background-color: var(--color-background, dimgrey);
 
         mat-expansion-panel-header {
             padding: 0 12px;
@@ -158,13 +159,15 @@ mat-accordion {
 
         &.selectable {
             &:hover {
-                background-color: lightgrey;
-                color: var(--color-data-item-selectable-text, dimgrey);
-                cursor: pointer;
+                mat-expansion-panel-header {
+                    background-color: var(--color-data-item-selectable, lightgrey);
+                    color: var(--color-data-item-selectable-text, dimgrey);
+                    cursor: pointer;
 
-                .date,
-                .text {
-                    color: var(--color-data-item-selectable-text, white);
+                    .date,
+                    .text {
+                        color: var(--color-data-item-selectable-text, white);
+                    }
                 }
             }
         }

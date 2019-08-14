@@ -25,16 +25,19 @@ import {
     HostListener
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterDesign, FilterBehavior, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    CompoundFilterType,
     OptionChoices,
+    SortOrder,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetNumberOption,
@@ -121,29 +124,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    private createFilterDesignOnArrayValue(filters: FilterDesign[]): FilterDesign {
+    private createFilterConfigOnArrayValue(filters: FilterConfig[]): FilterConfig {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return {
             type: compoundFilterType,
-            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
-            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
-                CompoundFilterType.OR,
             filters: filters
-        } as CompoundFilterDesign;
+        } as CompoundFilterConfig;
     }
 
-    private createFilterDesignOnOneValue(field: NeonFieldMetaData, value?: any): FilterDesign {
+    private createFilterConfigOnOneValue(field: NeonFieldMetaData, value?: any): FilterConfig {
         return {
-            // TODO THOR-1101 Add a new config property to set root if singleFilter is false (don't reuse arrayFilterOperator!)
-            root: (this.options.singleFilter || this.options.arrayFilterOperator === 'and') ? CompoundFilterType.AND :
-                CompoundFilterType.OR,
-            datastore: '',
-            database: this.options.database,
-            table: this.options.table,
-            field: field,
+            datastore: this.options.datastore.name,
+            database: this.options.database.name,
+            table: this.options.table.name,
+            field: field.columnName,
             operator: '=',
             value: value
-        } as SimpleFilterDesign;
+        } as SimpleFilterConfig;
     }
 
     /**
@@ -206,32 +203,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
-        let behaviors: FilterBehavior[] = [];
-
-        this.options.filterFields.forEach((filterField) => {
-            behaviors.push({
+    protected designEachFilterWithNoValues(): FilterConfig[] {
+        return this.options.filterFields.reduce((designs, filterField) => {
+            if (filterField.columnName) {
                 // Match a single EQUALS filter on the specific filter field.
-                filterDesign: this.createFilterDesignOnOneValue(filterField),
-                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
-
-            behaviors.push({
+                designs.push(this.createFilterConfigOnOneValue(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                filterDesign: this.createFilterDesignOnArrayValue([this.createFilterDesignOnOneValue(filterField)]),
-                // No redraw callback:  The filtered rows will be automatically styled with getRowClassFunction as called by the HTML.
-                redrawCallback: () => { /* Do nothing */ }
-            } as FilterBehavior);
-        });
-
-        return behaviors;
+                designs.push(this.createFilterConfigOnArrayValue([this.createFilterConfigOnOneValue(filterField)]));
+            }
+            return designs;
+        }, [] as FilterConfig[]);
     }
 
     /**
@@ -494,6 +481,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
+     * Redraws this visualization with the given compatible filters.
+     *
+     * @override
+     */
+    protected redrawFilters(filters: FilterCollection): void {
+        this.tableData.forEach((item) => {
+            item._filtered = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
+                if (filterField.columnName) {
+                    let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, item[filterField.columnName]);
+                    return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnArrayValue([filterConfig]));
+                }
+                return false;
+            });
+        });
+    }
+
+    /**
      * Updates and redraws the elements and properties for the visualization.
      *
      * @override
@@ -588,12 +592,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.tableData = results.map((result) => {
-            let row = {};
+            let row = {
+                _filtered: !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
+                    if (filterField.columnName) {
+                        let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, result[filterField.columnName]);
+                        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnArrayValue([filterConfig]));
+                    }
+                    return false;
+                })
+            };
+            // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
@@ -725,17 +739,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                         rowValue = rowValue.substring(1, rowValue.length - 1).split(',');
                     }
 
-                    let filterDesigns: FilterDesign[] = (Array.isArray(rowValue) ? rowValue : [rowValue]).map((value) =>
-                        this.createFilterDesignOnOneValue(filterField, value));
+                    let filterConfigs: FilterConfig[] = (Array.isArray(rowValue) ? rowValue : [rowValue]).map((value) =>
+                        this.createFilterConfigOnOneValue(filterField, value));
 
-                    let singleFilterDesign: FilterDesign = filterDesigns.length ? (filterDesigns.length === 1 ? filterDesigns[0] :
-                        this.createFilterDesignOnArrayValue(filterDesigns)) : null;
+                    let singleFilterConfig: FilterConfig = filterConfigs.length ? (filterConfigs.length === 1 ? filterConfigs[0] :
+                        this.createFilterConfigOnArrayValue(filterConfigs)) : null;
 
-                    if (singleFilterDesign) {
+                    if (singleFilterConfig) {
                         if (this.options.singleFilter) {
-                            this.exchangeFilters([singleFilterDesign]);
+                            this.exchangeFilters([singleFilterConfig]);
                         } else {
-                            this.toggleFilters([singleFilterDesign]);
+                            this.toggleFilters([singleFilterConfig]);
                         }
                     }
                 }
@@ -830,14 +844,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getRowClassFunction(): any {
         return (row): any => {
-            let rowClass: any = {};
-            rowClass.active = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
-                if (filterField.columnName) {
-                    let dataFilterDesign: FilterDesign = this.createFilterDesignOnOneValue(filterField, row[filterField.columnName]);
-                    return this.isFiltered(dataFilterDesign) || this.isFiltered(this.createFilterDesignOnArrayValue([dataFilterDesign]));
-                }
-                return false;
-            });
+            let rowClass: any = {
+                active: !!row._filtered
+            };
 
             if (this.options.heatmapField.columnName && this.options.heatmapDivisor) {
                 let heatmapClass = 'heat-0';

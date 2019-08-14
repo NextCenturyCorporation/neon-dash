@@ -18,8 +18,8 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, CompoundFilterType } from '../../services/abstract.search.service';
-import { CompoundFilterDesign, FilterDesign, SimpleFilterDesign } from '../../services/filter.service';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -48,14 +48,12 @@ export class FilterBuilderComponent {
     ];
 
     public compoundTypeIsOr: boolean = false;
-    public parentFilterIsOr: boolean = false;
 
     private _dataset: Dataset;
 
     constructor(
         public dashboardService: DashboardService,
-        public filterService: InjectableFilterService,
-        public searchService: AbstractSearchService
+        public filterService: InjectableFilterService
     ) {
         this._dataset = dashboardService.state.asDataset();
 
@@ -74,7 +72,7 @@ export class FilterBuilderComponent {
      */
     public addBlankFilterClause(): void {
         let filterClause: FilterClauseMetaData = new FilterClauseMetaData();
-        filterClause.updateDatabases(this._dataset);
+        filterClause.updateDatastores(this._dataset);
         filterClause.field = NeonFieldMetaData.get();
         filterClause.operator = this.operators[0];
         filterClause.value = '';
@@ -85,8 +83,11 @@ export class FilterBuilderComponent {
         filterClause.tables = existingFilterClause ? existingFilterClause.tables : filterClause.tables;
         filterClause.fields = existingFilterClause ? existingFilterClause.fields : filterClause.fields;
         filterClause.changeDatabase = existingFilterClause ? existingFilterClause.changeDatabase : filterClause.database;
+        this.handleChangeDatabaseOfClause(filterClause);
         filterClause.changeTable = existingFilterClause ? existingFilterClause.changeTable : filterClause.table;
+        this.handleChangeTableOfClause(filterClause);
         filterClause.changeField = existingFilterClause ? existingFilterClause.changeField : filterClause.field;
+        this.handleChangeFieldOfClause(filterClause);
 
         if (filterClause.database && filterClause.table) {
             this.filterClauses.push(filterClause);
@@ -161,8 +162,8 @@ export class FilterBuilderComponent {
             return;
         }
 
-        // Turn the filter clauses into filter designs.
-        let filterDesigns: SimpleFilterDesign[] = this.filterClauses.map((filterClause) => {
+        // Turn the filter clauses into filter configs.
+        let filterConfigs: SimpleFilterConfig[] = this.filterClauses.map((filterClause) => {
             let value: any = filterClause.value;
             if (filterClause.operator.value !== 'contains' && filterClause.operator.value !== 'not contains') {
                 value = parseFloat(filterClause.value);
@@ -172,25 +173,23 @@ export class FilterBuilderComponent {
                 }
             }
             return {
-                root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-                datastore: '',
-                database: filterClause.database,
-                table: filterClause.table,
-                field: filterClause.field,
+                datastore: filterClause.datastore.name,
+                database: filterClause.database.name,
+                table: filterClause.table.name,
+                field: filterClause.field.columnName,
                 operator: filterClause.operator.value,
                 value: value
-            } as SimpleFilterDesign;
+            } as SimpleFilterConfig;
         });
 
         // Create a compound filter from multiple filters if needed.
-        let filterDesign: FilterDesign = !filterDesigns.length ? null : (filterDesigns.length === 1 ? filterDesigns[0] : {
+        let filterConfig: FilterConfig = !filterConfigs.length ? null : (filterConfigs.length === 1 ? filterConfigs[0] : {
             type: this.compoundTypeIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-            root: this.parentFilterIsOr ? CompoundFilterType.OR : CompoundFilterType.AND,
-            filters: filterDesigns
-        } as CompoundFilterDesign);
+            filters: filterConfigs
+        } as CompoundFilterConfig);
 
-        if (filterDesign) {
-            this.filterService.toggleFilters('CustomFilter', [filterDesign], this._dataset.relations, this.searchService);
+        if (filterConfig) {
+            this.filterService.toggleFilters('CustomFilter', [filterConfig], this._dataset);
             this.clearEveryFilterClause();
         }
     }

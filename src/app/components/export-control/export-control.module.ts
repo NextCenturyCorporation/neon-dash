@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExportControlComponent } from './export-control.component';
-import { MatRadioModule, MatSnackBarModule, MatButtonModule } from '@angular/material';
+import { MatRadioModule, MatButtonModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -24,7 +24,6 @@ import { FormsModule } from '@angular/forms';
     imports: [
         MatRadioModule,
         MatButtonModule,
-        MatSnackBarModule,
         FormsModule,
         CommonModule
     ]

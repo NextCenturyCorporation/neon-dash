@@ -20,6 +20,7 @@ import { NeonFieldMetaData } from '../../models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
+import { FilterCollection } from '../../util/filter.util';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -158,7 +159,7 @@ describe('Component: NetworkGraph', () => {
             predicate: 'testPredicate3',
             provenance: 'testProvenance4',
             subject: ['testSubject4']
-        }]);
+        }], new FilterCollection());
 
         expect(component.totalNodes).toEqual(8); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
@@ -173,6 +174,8 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -186,7 +189,8 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue',
             testNodeNameField: 'testNodeNameValue',
             testTypeField: 'testTypeValue',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue',
+            testEdgeColorField: 'testEdgeColorValue',
             testXPositionField: 100,
             testYPositionField: 215
         },
@@ -196,7 +200,8 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue2',
             testNodeNameField: 'testNodeNameValue2',
             testTypeField: 'testTypeValue2',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue2',
+            testEdgeColorField: 'testEdgeColorValue2',
             testXPositionField: -858,
             testYPositionField: 495
         },
@@ -206,7 +211,8 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue3',
             testNodeNameField: 'testNodeNameValue3',
             testTypeField: 'testTypeValue3',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue3',
+            testEdgeColorField: 'testEdgeColorValue3',
             testXPositionField: -549,
             testYPositionField: -656
         },
@@ -216,10 +222,11 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue4',
             testNodeNameField: 'testNodeNameValue4',
             testTypeField: 'testTypeValue4',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue4',
+            testEdgeColorField: 'testEdgeColorValue4',
             testXPositionField: 191,
             testYPositionField: -525
-        }]);
+        }], new FilterCollection());
 
         expect(component.totalNodes).toEqual(3); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
@@ -287,7 +294,7 @@ describe('Component: NetworkGraph', () => {
             testNodeColorField: 'Entity',
             testNodeXPositionField: 191,
             testNodeYPositionField: -525
-        }]);
+        }], new FilterCollection());
 
         let edgesData = [{
             testEdgeNameField: 'edgeName1',
@@ -310,12 +317,113 @@ describe('Component: NetworkGraph', () => {
             testEdgeDestinationIdField: 'nodeId1'
         }];
 
-        component.transformVisualizationQueryResults(options.layers[1], edgesData);
+        component.transformVisualizationQueryResults(options.layers[1], edgesData, new FilterCollection());
 
         expect(component.totalNodes).toEqual(component.options.limit); // Total based on allowed limit
         expect(component.displayGraph).toEqual(true);
         expect(component.graphData.nodes.length).toEqual(component.options.limit);
         expect(component.graphData.edges.length).toEqual(edgesData.length);
+    }));
+
+    it('transformVisualizationQueryResults does load the Network Graph with relation data', (() => {
+        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
+        component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
+        component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
+        component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
+        component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
+        component.options.nodeColor = '#96f4f2';
+        component.options.edgeColor = '#93663e';
+        component.options.linkColor = '#938d8f';
+        component.options.nodeShape = 'star';
+        component.options.relationLinks = true;
+        component.options.relationNodeIdentifier = 'testNodeColorValue2';
+        component.options.isReified = false;
+        component.options.limit = Infinity;
+
+        component.transformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue',
+            testNodeNameField: 'testNodeNameValue',
+            testTypeField: 'testTypeValue',
+            testNodeColorField: 'testNodeColorValue',
+            testEdgeColorField: 'testEdgeColorValue',
+            testXPositionField: 100,
+            testYPositionField: 215
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testNodeColorField: 'testNodeColorValue2',
+            testEdgeColorField: 'testEdgeColorValue2',
+            testXPositionField: -858,
+            testYPositionField: 495
+        },
+        {
+            testLinkField: 'testLinkValue',
+            testLinkNameField: 'testLinkNameValue',
+            testNodeField: 'testNodeValue3',
+            testNodeNameField: 'testNodeNameValue3',
+            testTypeField: 'testTypeValue3',
+            testNodeColorField: 'testNodeColorValue3',
+            testEdgeColorField: 'testEdgeColorValue',
+            testXPositionField: -549,
+            testYPositionField: -656
+        },
+        {
+            testLinkField: 'testLinkValue2',
+            testLinkNameField: 'testLinkNameValue2',
+            testNodeField: 'testNodeValue3',
+            testNodeNameField: 'testNodeNameValue3',
+            testTypeField: 'testTypeValue3',
+            testNodeColorField: 'testNodeColorValue3',
+            testEdgeColorField: 'testEdgeColorValue2',
+            testXPositionField: -549,
+            testYPositionField: -656
+        },
+        {
+            testNodeField: 'testNodeValue4',
+            testNodeNameField: 'testNodeNameValue4',
+            testTypeField: 'testTypeValue4',
+            testNodeColorField: 'testNodeColorValue4',
+            testXPositionField: 191,
+            testYPositionField: -525
+        },
+        {
+            testLinkField: 'testLinkValue5',
+            testLinkNameField: 'testLinkNameValue5',
+            testNodeField: 'testNodeValue5',
+            testNodeNameField: 'testNodeNameValue5',
+            testTypeField: 'testTypeValue',
+            testNodeColorField: 'testNodeColorValue5',
+            testEdgeColorField: 'testEdgeColorValue5',
+            testXPositionField: 439,
+            testYPositionField: -211
+        },
+        {
+            testLinkField: 'testLinkValue5',
+            testLinkNameField: 'testLinkNameValue5',
+            testNodeField: 'testNodeValue2',
+            testNodeNameField: 'testNodeNameValue2',
+            testTypeField: 'testTypeValue2',
+            testNodeColorField: 'testNodeColorValue2',
+            testEdgeColorField: 'testEdgeColorValue5',
+            testXPositionField: -858,
+            testYPositionField: 495
+        }], new FilterCollection());
+
+        expect(component.options.relationNodeIdentifier).not.toBeNull();
+        expect(component.options.relationNodeIdentifier).not.toEqual('');
+        expect(component.totalNodes).toEqual(5); // Total based on allowed limit
+        expect(component.displayGraph).toEqual(true);
+        expect(component.graphData.nodes.length).toEqual(component.totalNodes);
+        expect(component.graphData.edges.length).toEqual(6);
     }));
 
     it('legendIsNeeded does not display a legend when display boolean is set to false', () => {
@@ -361,6 +469,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
         component.options.nodeColor = '#715e93';
         component.options.edgeColor = '#93663e';
         component.options.linkColor = '#938d8f';
@@ -374,7 +483,7 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue',
             testNodeNameField: 'testNodeNameValue',
             testTypeField: 'testTypeValue',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue',
             testXPositionField: 100,
             testYPositionField: 215
         },
@@ -384,10 +493,10 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue2',
             testNodeNameField: 'testNodeNameValue2',
             testTypeField: 'testTypeValue2',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue2',
             testXPositionField: -858,
             testYPositionField: 495
-        }]);
+        }], new FilterCollection());
 
         let spy = spyOn((component as any), 'toggleFilters');
 
@@ -396,10 +505,10 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue']]);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '!=',
             value: 'testTypeValue'
         }]]);
@@ -409,10 +518,10 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue'], ['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '!=',
             value: 'testTypeValue2'
         }]]);
@@ -422,10 +531,10 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(3);
         expect(spy.calls.argsFor(2)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '!=',
             value: 'testTypeValue'
         }]]);
@@ -435,10 +544,10 @@ describe('Component: NetworkGraph', () => {
         expect((component as any).disabledSet).toEqual([]);
         expect(spy.calls.count()).toEqual(4);
         expect(spy.calls.argsFor(3)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '!=',
             value: 'testTypeValue2'
         }]]);
@@ -451,6 +560,8 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
+        component.options.edgeColorField = NeonFieldMetaData.get({ columnName: 'testEdgeColorField' });
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -466,7 +577,8 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue',
             testNodeNameField: 'testNodeNameValue',
             testTypeField: 'testTypeValue',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue',
+            testEdgeColorField: 'testEdgeColorValue',
             testXPositionField: 100,
             testYPositionField: 215
         },
@@ -476,10 +588,11 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue2',
             testNodeNameField: 'testNodeNameValue2',
             testTypeField: 'testTypeValue2',
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue2',
+            testEdgeColorField: 'testEdgeColorValue2',
             testXPositionField: -858,
             testYPositionField: 495
-        }]);
+        }], new FilterCollection());
 
         let spy = spyOn((component as any), 'toggleFilters');
 
@@ -487,10 +600,10 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValue'
         }]]);
@@ -499,10 +612,10 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValue2'
         }]]);
@@ -515,6 +628,7 @@ describe('Component: NetworkGraph', () => {
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
         component.options.xPositionField = NeonFieldMetaData.get({ columnName: 'testXPositionField' });
         component.options.yPositionField = NeonFieldMetaData.get({ columnName: 'testYPositionField' });
+        component.options.nodeColorField = NeonFieldMetaData.get({ columnName: 'testNodeColorField' });
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.TYPE];
         component.options.nodeColor = '#96f4f2';
         component.options.edgeColor = '#93663e';
@@ -530,7 +644,7 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue',
             testNodeNameField: 'testNodeNameValue',
             testTypeField: ['testTypeValueA'],
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue',
             testXPositionField: 100,
             testYPositionField: 215
         },
@@ -540,10 +654,10 @@ describe('Component: NetworkGraph', () => {
             testNodeField: 'testNodeValue2',
             testNodeNameField: 'testNodeNameValue2',
             testTypeField: ['testTypeValueB', 'testTypeValueC', 'testTypeValueD'],
-            testEdgeColorField: '#5f9365',
+            testNodeColorField: 'testNodeColorValue2',
             testXPositionField: -858,
             testYPositionField: 495
-        }]);
+        }], new FilterCollection());
 
         let spy = spyOn((component as any), 'toggleFilters');
 
@@ -551,10 +665,10 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValueA'
         }]]);
@@ -565,24 +679,24 @@ describe('Component: NetworkGraph', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'and',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueD'
             }]
@@ -624,7 +738,7 @@ describe('Component: NetworkGraph', () => {
             testEdgeColorField: '#5f9365',
             testXPositionField: -858,
             testYPositionField: 495
-        }]);
+        }], new FilterCollection());
 
         let spy = spyOn((component as any), 'toggleFilters');
 
@@ -632,10 +746,10 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValueA'
         }]]);
@@ -646,24 +760,24 @@ describe('Component: NetworkGraph', () => {
         expect(spy.calls.argsFor(1)).toEqual([[{
             type: 'or',
             filters: [{
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueB'
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueC'
             }, {
-                datastore: '',
-                database: DashboardServiceMock.DATABASES.testDatabase1,
-                table: DashboardServiceMock.TABLES.testTable1,
-                field: DashboardServiceMock.FIELD_MAP.TYPE,
+                datastore: DashboardServiceMock.DATASTORE.name,
+                database: DashboardServiceMock.DATABASES.testDatabase1.name,
+                table: DashboardServiceMock.TABLES.testTable1.name,
+                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
                 operator: '=',
                 value: 'testTypeValueD'
             }]
@@ -707,7 +821,7 @@ describe('Component: NetworkGraph', () => {
             testEdgeColorField: '#5f9365',
             testXPositionField: -858,
             testYPositionField: 495
-        }]);
+        }], new FilterCollection());
 
         let spy = spyOn((component as any), 'toggleFilters');
 
@@ -715,17 +829,17 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.ID.columnName,
             operator: '=',
             value: 1
         }, {
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValue'
         }]]);
@@ -734,17 +848,17 @@ describe('Component: NetworkGraph', () => {
 
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.ID,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.ID.columnName,
             operator: '=',
             value: 2
         }, {
-            datastore: '',
-            database: DashboardServiceMock.DATABASES.testDatabase1,
-            table: DashboardServiceMock.TABLES.testTable1,
-            field: DashboardServiceMock.FIELD_MAP.TYPE,
+            datastore: DashboardServiceMock.DATASTORE.name,
+            database: DashboardServiceMock.DATABASES.testDatabase1.name,
+            table: DashboardServiceMock.TABLES.testTable1.name,
+            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
             operator: '=',
             value: 'testTypeValue2'
         }]]);
@@ -756,153 +870,135 @@ describe('Component: NetworkGraph', () => {
         component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(1);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
         component.options.edgeColorField = NeonFieldMetaData.get();
 
         component.options.nodeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('or');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('or');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
         component.options.nodeField = NeonFieldMetaData.get();
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('or');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('or');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
 
         component.options.multiFilterOperator = 'and';
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(2);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
 
         component.options.filterFields = [DashboardServiceMock.FIELD_MAP.CATEGORY, DashboardServiceMock.FIELD_MAP.TEXT];
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(4);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[0].filterDesign).operator).toEqual('=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[1].filterDesign).type).toEqual('and');
-        expect((actual[1].filterDesign).filters.length).toEqual(1);
-        expect((actual[1].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[1].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[1].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[2].filterDesign).operator).toEqual('=');
-        expect((actual[2].filterDesign).value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign).type).toEqual('and');
-        expect((actual[3].filterDesign).filters.length).toEqual(1);
-        expect((actual[3].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[3].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[3].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[0]).operator).toEqual('=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).type).toEqual('and');
+        expect((actual[1]).filters.length).toEqual(1);
+        expect((actual[1]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[1]).filters[0].operator).toEqual('=');
+        expect((actual[1]).filters[0].value).toBeUndefined();
+        expect((actual[2]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[2]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[2]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[2]).operator).toEqual('=');
+        expect((actual[2]).value).toBeUndefined();
+        expect((actual[3]).type).toEqual('and');
+        expect((actual[3]).filters.length).toEqual(1);
+        expect((actual[3]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[3]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[3]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[3]).filters[0].operator).toEqual('=');
+        expect((actual[3]).filters[0].value).toBeUndefined();
 
         component.options.edgeColorField = DashboardServiceMock.FIELD_MAP.TYPE;
         component.options.nodeField = DashboardServiceMock.FIELD_MAP.NAME;
         actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect((actual[1].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[1].filterDesign).operator).toEqual('=');
-        expect((actual[1].filterDesign).value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign).type).toEqual('and');
-        expect((actual[2].filterDesign).filters.length).toEqual(1);
-        expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[3].filterDesign).operator).toEqual('=');
-        expect((actual[3].filterDesign).value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[4].filterDesign).type).toEqual('and');
-        expect((actual[4].filterDesign).filters.length).toEqual(1);
-        expect((actual[4].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[4].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[5].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[5].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[5].filterDesign).operator).toEqual('=');
-        expect((actual[5].filterDesign).value).toBeUndefined();
-        expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[6].filterDesign).type).toEqual('and');
-        expect((actual[6].filterDesign).filters.length).toEqual(1);
-        expect((actual[6].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[6].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[1]).operator).toEqual('=');
+        expect((actual[1]).value).toBeUndefined();
+        expect((actual[2]).type).toEqual('and');
+        expect((actual[2]).filters.length).toEqual(1);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[2]).filters[0].operator).toEqual('=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[3]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[3]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[3]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[3]).operator).toEqual('=');
+        expect((actual[3]).value).toBeUndefined();
+        expect((actual[4]).type).toEqual('and');
+        expect((actual[4]).filters.length).toEqual(1);
+        expect((actual[4]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[4]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[4]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[4]).filters[0].operator).toEqual('=');
+        expect((actual[4]).filters[0].value).toBeUndefined();
+        expect((actual[5]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[5]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[5]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[5]).operator).toEqual('=');
+        expect((actual[5]).value).toBeUndefined();
+        expect((actual[6]).type).toEqual('and');
+        expect((actual[6]).filters.length).toEqual(1);
+        expect((actual[6]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[6]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[6]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[6]).filters[0].operator).toEqual('=');
+        expect((actual[6]).filters[0].value).toBeUndefined();
     });
 
     it('designEachFilterWithNoValues with layers does return expected object', () => {
@@ -914,53 +1010,46 @@ describe('Component: NetworkGraph', () => {
 
         let actual = (component as any).designEachFilterWithNoValues();
         expect(actual.length).toEqual(7);
-        expect((actual[0].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[0].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[0].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE);
-        expect((actual[0].filterDesign).operator).toEqual('!=');
-        expect((actual[0].filterDesign).value).toBeUndefined();
-        expect(actual[0].redrawCallback.toString()).toEqual((component as any).redrawLegend.bind(component).toString());
-        expect((actual[1].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[1].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[1].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[1].filterDesign).operator).toEqual('=');
-        expect((actual[1].filterDesign).value).toBeUndefined();
-        expect(actual[1].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[2].filterDesign).type).toEqual('or');
-        expect((actual[2].filterDesign).filters.length).toEqual(1);
-        expect((actual[2].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[2].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[2].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME);
-        expect((actual[2].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[2].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[2].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[3].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[3].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[3].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[3].filterDesign).operator).toEqual('=');
-        expect((actual[3].filterDesign).value).toBeUndefined();
-        expect(actual[3].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[4].filterDesign).type).toEqual('or');
-        expect((actual[4].filterDesign).filters.length).toEqual(1);
-        expect((actual[4].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[4].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[4].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY);
-        expect((actual[4].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[4].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[4].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[5].filterDesign).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[5].filterDesign).table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[5].filterDesign).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[5].filterDesign).operator).toEqual('=');
-        expect((actual[5].filterDesign).value).toBeUndefined();
-        expect(actual[5].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
-        expect((actual[6].filterDesign).type).toEqual('or');
-        expect((actual[6].filterDesign).filters.length).toEqual(1);
-        expect((actual[6].filterDesign).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
-        expect((actual[6].filterDesign).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect((actual[6].filterDesign).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT);
-        expect((actual[6].filterDesign).filters[0].operator).toEqual('=');
-        expect((actual[6].filterDesign).filters[0].value).toBeUndefined();
-        expect(actual[6].redrawCallback.toString()).toEqual((component as any).redrawFilteredNodes.bind(component).toString());
+        expect((actual[0]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[0]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[0]).field).toEqual(DashboardServiceMock.FIELD_MAP.TYPE.columnName);
+        expect((actual[0]).operator).toEqual('!=');
+        expect((actual[0]).value).toBeUndefined();
+        expect((actual[1]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[1]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[1]).field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[1]).operator).toEqual('=');
+        expect((actual[1]).value).toBeUndefined();
+        expect((actual[2]).type).toEqual('or');
+        expect((actual[2]).filters.length).toEqual(1);
+        expect((actual[2]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[2]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[2]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.NAME.columnName);
+        expect((actual[2]).filters[0].operator).toEqual('=');
+        expect((actual[2]).filters[0].value).toBeUndefined();
+        expect((actual[3]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[3]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[3]).field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[3]).operator).toEqual('=');
+        expect((actual[3]).value).toBeUndefined();
+        expect((actual[4]).type).toEqual('or');
+        expect((actual[4]).filters.length).toEqual(1);
+        expect((actual[4]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[4]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[4]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.CATEGORY.columnName);
+        expect((actual[4]).filters[0].operator).toEqual('=');
+        expect((actual[4]).filters[0].value).toBeUndefined();
+        expect((actual[5]).database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[5]).table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[5]).field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[5]).operator).toEqual('=');
+        expect((actual[5]).value).toBeUndefined();
+        expect((actual[6]).type).toEqual('or');
+        expect((actual[6]).filters.length).toEqual(1);
+        expect((actual[6]).filters[0].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1.name);
+        expect((actual[6]).filters[0].table).toEqual(DashboardServiceMock.TABLES.testTable1.name);
+        expect((actual[6]).filters[0].field).toEqual(DashboardServiceMock.FIELD_MAP.TEXT.columnName);
+        expect((actual[6]).filters[0].operator).toEqual('=');
+        expect((actual[6]).filters[0].value).toBeUndefined();
     });
 });

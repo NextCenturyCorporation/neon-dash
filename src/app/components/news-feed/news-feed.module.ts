@@ -16,6 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewsFeedComponent } from './news-feed.component';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { DataMessageModule } from '../data-message/data-message.module';
 import { MatExpansionModule } from '@angular/material';
 import { MediaGroupModule } from '../media-group/media-group.module';
 
@@ -27,6 +28,7 @@ import { MediaGroupModule } from '../media-group/media-group.module';
         MatExpansionModule,
         CommonWidgetModule,
         CommonModule,
+        DataMessageModule,
         MediaGroupModule
     ]
 })
