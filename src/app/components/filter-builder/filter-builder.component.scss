@@ -15,6 +15,10 @@
  */
 @import '../base-neon-component/base-neon.component';
 
+:host {
+    display: block;
+}
+
 .mat-button-toggle-group {
     margin: 0 5px;
 

@@ -117,12 +117,6 @@ describe('Component: WikiViewer', () => {
         expect(component.validateVisualizationQuery(component.options)).toBe(true);
     }));
 
-    it('refreshVisualization does call changeDetection.detectChanges', (() => {
-        let spy = spyOn(component.changeDetection, 'detectChanges');
-        component.refreshVisualization();
-        expect(spy.calls.count()).toBe(1);
-    }));
-
     it('does show toolbar and sidenav', (() => {
         let toolbar = fixture.debugElement.query(By.css('mat-toolbar'));
         expect(toolbar).not.toBeNull();
@@ -137,14 +131,6 @@ describe('Component: WikiViewer', () => {
     it('does hide error-message in toolbar and sidenav if errorMessage is undefined', (() => {
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
-    }));
-
-    it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
-        expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
-
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {

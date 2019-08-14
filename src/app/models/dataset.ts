@@ -130,13 +130,13 @@ export class NeonDatastoreConfig {
 
 export interface SingleField {
     datastore: string;
-    database: NeonDatabaseMetaData;
-    table: NeonTableMetaData;
-    field: NeonFieldMetaData;
+    database: string;
+    table: string;
+    field: string;
 }
 
 export interface Dataset {
-    datastores: NeonDatastoreConfig[];
+    datastores: Record<string, NeonDatastoreConfig>;
     tableKeys: Record<string, string>;
     fieldKeys: Record<string, string>;
     relations: SingleField[][][];
@@ -145,11 +145,11 @@ export interface Dataset {
 export class Dataset {
     static get(dataset: DeepPartial<Dataset> = {}) {
         return {
-            datastores: [],
             tableKeys: {},
             fieldKeys: {},
             relations: [],
-            ...dataset
+            ...dataset,
+            datastores: translateValues(dataset.datastores || {}, Dataset.get.bind(null), true)
         } as Dataset;
     }
 }

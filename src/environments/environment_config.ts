@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 export const environment = {
-    config: ['./app/config/config.json', './app/config/config.yaml'],
-    // Default Dev config
-    production: false,
-    buildDate: '{BUILD_DATE}',
-    recentGit: '{RECENT_COMMIT}'
+    config: ['./app/config/config.yaml', './app/config/config.json'],
+    buildDate: '',
+    recentGit: '',
+    production: true
 };

@@ -14,6 +14,7 @@
  */
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FilterCollection } from '../../util/filter.util';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { Injector } from '@angular/core';
 
@@ -169,7 +170,7 @@ describe('Component: DocumentViewer', () => {
         component.options.dateField = DashboardServiceMock.FIELD_MAP.DATE;
         component.options.idField = DashboardServiceMock.FIELD_MAP.ID;
 
-        let actual = component.transformVisualizationQueryResults(component.options, []);
+        let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.documentViewerData).toEqual([]);
         expect(actual).toEqual(0);
@@ -188,7 +189,7 @@ describe('Component: DocumentViewer', () => {
             testTextField: 'text2',
             testDateField: 'date2',
             testIdField: 'id2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.documentViewerData).toEqual([{
             data: {

@@ -18,6 +18,7 @@ import { DataTableComponent } from './data-table.component';
 import { MatListModule, MatCheckboxModule } from '@angular/material';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { FormsModule } from '@angular/forms';
+import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -30,6 +31,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
         MatListModule,
         NgxDatatableModule,
         FormsModule,
+        DataMessageModule,
         CommonModule
     ]
 })

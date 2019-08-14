@@ -22,10 +22,8 @@
                         </a>
                     </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.html">
-                        <a [href]="showMedia()" target="_blank">
-                            <span>Click to open HTML</span>
-                            <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                        </a>
+                        <iframe [src]="showVideoMedia()">
+                        </iframe>
                     </ng-container>
                     <ng-container *ngSwitchCase="mediaTypes.audio">
                         <audio controls>
@@ -67,10 +65,8 @@
                 </a>
             </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.html">
-                <a [href]="showMedia()" target="_blank">
-                    <span>Click to open HTML</span>
-                    <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                </a>
+                <iframe [src]="showVideoMedia()">
+                </iframe>
             </ng-container>
             <ng-container *ngSwitchCase="mediaTypes.audio">
                 <audio controls>

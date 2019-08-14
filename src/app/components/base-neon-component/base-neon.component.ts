@@ -21,11 +21,10 @@ import {
 } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import {
-    FilterBehavior,
-    FilterCollection,
-    FilterDataSource,
-    FilterDesign
-} from '../../services/filter.service';
+    AbstractFilter,
+    FilterCollection
+} from '../../util/filter.util';
+import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
@@ -70,9 +69,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected id: string;
     protected messenger: eventing.Messenger;
 
-    // Maps a specific filter data source list to its filter list.
-    private cachedFilters: FilterCollection = new FilterCollection();
-
     // Maps the options/layer ID to the element count.
     private layerIdToElementCount: Map<string, number> = new Map<string, number>();
 
@@ -91,9 +87,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     protected visualizationQueryPaginates: boolean = false;
 
     // The data pagination properties.
+    protected cachedPage: number = -1;
     protected lastPage: boolean = true;
     protected page: number = 1;
-    protected savedPages: Map<string, number> = new Map<string, number>();
 
     public options: RootWidgetOptionCollection & { [key: string]: any };
 
@@ -138,7 +134,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.messenger.subscribe(neonEvents.DASHBOARD_REFRESH, () => {
             this.destroyVisualization();
             this.constructVisualization();
-            this.cachedFilters = new FilterCollection();
             this.handleChangeFilterField();
         });
         this.messenger.subscribe(neonEvents.SELECT_ID, (eventMessage) => {
@@ -164,8 +159,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
 
         this.initializeProperties();
-
-        this.updateCollectionWithGlobalCompatibleFilters();
 
         this.initializing = false;
     }
@@ -283,6 +276,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             // second transition so wait until that has finished before redrawing.
             setTimeout(() => {
                 this.refreshVisualization();
+                this.changeDetection.detectChanges();
             }, 300);
         }
     }
@@ -323,72 +317,49 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Deletes the given filters from the widget and the dash (or all the filters if no args are given) and runs a visualization query.
      *
-     * @arg {FilterDesign[]} [filterDesignListToDelete]
+     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public deleteFilters(filterDesignListToDelete?: FilterDesign[]) {
-        let results: Map<any, FilterDesign[]> = this.filterService.deleteFilters(this.id, this.searchService, filterDesignListToDelete);
-
-        // Return to the previously saved page that was being viewed when the deleted filter was first added.
-        let page = this.page;
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                // TODO THOR-1107 How to choose the page if multiple filters are deleted.
-                page = this.savedPages.get(outputFilterDesign.id) || page;
-                this.savedPages.delete(outputFilterDesign.id);
-            });
-        });
-
-        if (this.shouldFilterSelf()) {
-            this.page = page;
-        }
+    public deleteFilters(filterConfigListToDelete?: FilterConfig[]) {
+        this.filterService.deleteFilters(this.id, filterConfigListToDelete);
     }
 
     /**
-     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterDesignListToDelete is
+     * Exchanges all the filters in the widget with the given filters and runs a visualization query.  If filterConfigListToDelete is
      * given, also deletes the filters of each data source in the list (useful if you want to do both with a single filter-change event).
      *
-     * @arg {FilterDesign[]} filterDesignList
-     * @arg {FilterDesign[]} [filterDesignListToDelete]
+     * @arg {FilterConfig[]} filterConfigList
+     * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterDesignList: FilterDesign[], filterDesignListToDelete?: FilterDesign[]): void {
-        let results: Map<any, FilterDesign[]> = this.filterService.exchangeFilters(this.id, filterDesignList,
-            this.dataset.relations, this.searchService, filterDesignListToDelete);
-
-        // Save the page that is being viewed.
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, this.page);
-            });
-        });
+    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[]): void {
+        if (this.cachedPage <= 0) {
+            this.cachedPage = this.page;
+        }
 
         if (this.shouldFilterSelf()) {
             this.page = 1;
         }
+
+        // Update the filters only once the page is changed.
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete);
     }
 
     /**
      * Toggles the given filters (adds input filters that are not in the global list and deletes input filters that are in the global list)
      * in the widget and the dash and runs a visualization query.
      *
-     * @arg {FilterDesign[]} filterDesignList
+     * @arg {FilterConfig[]} filterConfigList
      */
-    public toggleFilters(filterDesignList: FilterDesign[]): void {
-        let results: Map<any, FilterDesign[]> = this.filterService.toggleFilters(this.id, filterDesignList,
-            this.dataset.relations, this.searchService);
-
-        // Save the page that is being viewed.
-        Array.from(results ? results.keys() : []).forEach((key) => {
-            let outputFilterDesignList: FilterDesign[] = results.get(key);
-            outputFilterDesignList.forEach((outputFilterDesign) => {
-                this.savedPages.set(outputFilterDesign.id, this.page);
-            });
-        });
+    public toggleFilters(filterConfigList: FilterConfig[]): void {
+        if (this.cachedPage <= 0) {
+            this.cachedPage = this.page;
+        }
 
         if (this.shouldFilterSelf()) {
             this.page = 1;
         }
+
+        // Update the filters only once the page is changed.
+        this.filterService.toggleFilters(this.id, filterConfigList, this.dataset);
     }
 
     /**
@@ -506,28 +477,31 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {FilterClause[]}
      */
     public createSharedFilters(options: WidgetOptionCollection): FilterClause[] {
-        let globalFilters: FilterClause[] = this.getGlobalFilterClauses(options);
+        let filterClauses: FilterClause[] = this.retrieveApplicableFilters(options).map((filter) =>
+            this.searchService.generateFilterClauseFromFilter(filter));
 
         if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
-            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
+            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
                 options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter(options)) {
-            globalFilters = globalFilters.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
+            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
                 options.unsharedFilterValue));
         }
 
-        return globalFilters;
+        return filterClauses;
     }
 
-    private getGlobalFilterClauses(options: WidgetOptionCollection): FilterClause[] {
-        let ignoreFilters: FilterDesign[] = this.shouldFilterSelf() ? [] :
-            this.cachedFilters.getDataSources()
-                .map((dataSource) => this.cachedFilters.getFilters(dataSource))
-                .reduce((acc, filters) => [...acc, ...filters], [])
-                .map((filter) => filter.toDesign());
-        return this.filterService.getFiltersToSearch('', options.database.name, options.table.name, this.searchService, ignoreFilters);
+    private retrieveApplicableFilters(options: WidgetOptionCollection): AbstractFilter[] {
+        let compatibleFilters: AbstractFilter[] = this.retrieveCompatibleFilters().getFilters();
+
+        return this.filterService.getFiltersToSearch(options.datastore.name, options.database.name, options.table.name,
+            this.shouldFilterSelf() ? [] : compatibleFilters.map((filter) => filter.toConfig()));
+    }
+
+    private retrieveCompatibleFilters(): FilterCollection {
+        return this.filterService.retrieveCompatibleFilterCollection(this.designEachFilterWithNoValues());
     }
 
     /**
@@ -557,19 +531,19 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
      * @arg {(elementCount: number) => void} successCallback
-     * @arg {(err: Error) => void} successCallback
+     * @arg {(error: Error) => void} successCallback
      */
     protected handleTransformVisualizationQueryResults(
         options: any,
         results: any[],
         successCallback: (elementCount: number) => void,
-        failureCallback: (err: Error) => void
+        failureCallback: (error: Error) => void
     ): void {
         try {
-            let data = this.transformVisualizationQueryResults(options, results);
+            let data = this.transformVisualizationQueryResults(options, results, this.retrieveCompatibleFilters());
             successCallback(data);
-        } catch (err) {
-            failureCallback(err);
+        } catch (error) {
+            failureCallback(error);
         }
     }
 
@@ -583,7 +557,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     private handleSuccessfulVisualizationQuery(options: WidgetOptionCollection, response: any, callback: () => void): void {
         if (!response || !response.data || !response.data.length) {
-            this.transformVisualizationQueryResults(options, []);
+            this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
             this.errorMessage = 'No Data';
             this.layerIdToElementCount.set(options._id, 0);
             callback();
@@ -615,13 +589,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             }
         };
 
-        let failureCallback = (err: Error) => {
-            this.transformVisualizationQueryResults(options, []);
+        let failureCallback = (error: Error) => {
+            this.transformVisualizationQueryResults(options, [], this.retrieveCompatibleFilters());
             this.errorMessage = 'Error';
             this.layerIdToElementCount.set(options._id, 0);
-            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                error: err,
-                message: 'FAILED ' + options.title + ' transform results'
+            this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                error: error,
+                message: 'Failed transform results on ' + options.title
             });
             callback();
         };
@@ -635,10 +609,18 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @abstract
      */
-    public abstract transformVisualizationQueryResults(options: WidgetOptionCollection, results: any[]): number;
+    public abstract transformVisualizationQueryResults(options: WidgetOptionCollection, results: any[], filters: FilterCollection): number;
+
+    /**
+     * Redraws this visualization with the given compatible filters.
+     */
+    protected redrawFilters(__filters: FilterCollection): void {
+        // Override if needed.
+    }
 
     /**
      * Updates and redraws the elements and properties for the visualization.
@@ -687,10 +669,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).abort();
         }
 
-        // TODO THOR-1062 Allow multiple datastores
-        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(
-            this.dataset.datastores[0].type, this.dataset.datastores[0].host, query
-        ));
+        this.layerIdToQueryIdToQueryObject.get(options._id).set(queryId, this.searchService.runSearch(options.datastore.type,
+            options.datastore.host, query));
 
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).always(() => {
             this.layerIdToQueryIdToQueryObject.get(options._id).delete(queryId);
@@ -704,9 +684,9 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.layerIdToQueryIdToQueryObject.get(options._id).get(queryId).fail((response) => {
             this.loadingCount--;
             if (response.statusText !== 'abort') {
-                this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                    error: response && !!response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
-                    message: 'FAILED ' + options.title + ' ' + queryId
+                this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                    error: response,
+                    message: 'Failed ' + queryId + ' on ' + options.title
                 });
                 this.changeDetection.detectChanges();
             }
@@ -720,49 +700,43 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @return {boolean}
      */
     private cannotExecuteQuery(options: WidgetOptionCollection): boolean {
-        // TODO THOR-1062 Allow multiple datastores
-        return (!this.searchService.canRunSearch(this.dataset.datastores[0].type, this.dataset.datastores[0].host) ||
-            (this.options.hideUnfiltered && !this.getGlobalFilterClauses(options).length));
+        return (!this.searchService.canRunSearch(options.datastore.type, options.datastore.host) ||
+            (this.options.hideUnfiltered && !this.retrieveApplicableFilters(options).length));
     }
 
     /**
      * Handles any needed behavior on a filter-change event and then runs the visualization query.
      */
-    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterDesign[]>): void {
-        this.updateCollectionWithGlobalCompatibleFilters();
+    private handleFiltersChanged(callerId: string, __changeCollection: Map<FilterDataSource[], FilterConfig[]>): void {
+        let compatibleFilterCollection: FilterCollection = this.retrieveCompatibleFilters();
+
+        // If the visualization was previously filtered but is no longer filtered, return to the page when the filter was first added.
+        let returnToCachedPage = (this.cachedPage > 0 && !compatibleFilterCollection.getFilters().length);
+        if (returnToCachedPage) {
+            this.page = this.cachedPage;
+            this.cachedPage = -1;
+        }
 
         // Don't run the visualization query if the event was sent from this visualization and this visualization ignores its own filters.
         if (callerId !== this.id || this.shouldFilterSelf()) {
+            // Return to page 1 unless we used the cached page.
+            this.page = returnToCachedPage ? this.page : 1;
             // TODO THOR-1108 Ignore filters on non-matching datastores/databases/tables.
             this.executeAllQueryChain();
+        } else {
+            this.redrawFilters(compatibleFilterCollection);
+            this.refreshVisualization();
+            this.changeDetection.detectChanges();
         }
     }
 
     /**
-     * Replaces the existing global widget filters with all the compatible (matching) dash filters.
-     */
-    private updateCollectionWithGlobalCompatibleFilters(): void {
-        let behaviors: FilterBehavior[] = this.designEachFilterWithNoValues();
-        this.filterService.updateCollectionWithGlobalCompatibleFilters(behaviors, this.cachedFilters);
-    }
-
-    /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      */
-    protected abstract designEachFilterWithNoValues(): FilterBehavior[];
-
-    /**
-     * Returns if the visualization is filtered (optionally, filtered matching the given filter design).
-     *
-     * @arg {FilterDesign} [filterDesign]
-     * @return {boolean}
-     */
-    protected isFiltered(filterDesign?: FilterDesign): boolean {
-        return this.filterService.isFiltered(this.cachedFilters, filterDesign);
-    }
+    protected abstract designEachFilterWithNoValues(): FilterConfig[];
 
     /**
      * Updates filters whenever a filter field is changed and then runs the visualization query.
@@ -771,7 +745,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {boolean} [databaseOrTableChange]
      */
     public handleChangeFilterField(options?: WidgetOptionCollection, databaseOrTableChange?: boolean): void {
-        this.updateCollectionWithGlobalCompatibleFilters();
         this.handleChangeData(options, databaseOrTableChange);
     }
 
@@ -793,6 +766,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         this.layerIdToElementCount.set((options || this.options)._id, 0);
 
         this.errorMessage = '';
+        this.cachedPage = -1;
         this.lastPage = true;
         this.page = 1;
         this.showingZeroOrMultipleElementsPerResult = false;
@@ -845,9 +819,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         // If the query was empty, show the relevant text.
         if (!elementCount) {
-            let filtered: boolean = this.cachedFilters.getDataSources().some((dataSource) =>
-                !!this.cachedFilters.getFilters(dataSource).length);
-            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : ('0' + (elementLabel ? (' ' + elementLabel) : ''));
+            let filtered = !!this.retrieveApplicableFilters(options).length;
+            return (this.options.hideUnfiltered && !filtered) ? 'Please Filter' : (elementLabel ? ('0 ' + elementLabel) : 'None');
         }
 
         // If the visualization query does pagination, show the pagination text.
@@ -916,11 +889,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         });
     }
 
-    /**
-     * Publishes the component's option object to the gear component
-     */
-    publishOptions() {
-        this.messenger.publish(neonEvents.SHOW_OPTION_MENU, {
+    getOptions(): ConfigurableWidget {
+        return {
             changeData: this.handleChangeData.bind(this),
             changeFilterData: this.handleChangeFilterField.bind(this),
             createLayer: this.createLayer.bind(this),
@@ -930,7 +900,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             finalizeDeleteLayer: this.finalizeDeleteLayer.bind(this),
             handleChangeSubcomponentType: this.handleChangeSubcomponentType.bind(this),
             options: this.options
-        } as ConfigurableWidget);
+        } as ConfigurableWidget;
     }
 
     /**
@@ -961,13 +931,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     }
 
     /**
-     * Publishes the toggleGear so the app component can toggle the gear panel
-     */
-    toggleGear() {
-        this.publishOptions();
-    }
-
-    /**
      * Returns whether the given item is a number.
      *
      * @arg {any} item
@@ -993,9 +956,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {any} options A WidgetOptionCollection object.
      */
     private getLabelOptions(options: WidgetOptionCollection) {
-        // TODO THOR-1062 Allow multiple datastores
-        let datastore = this.dataset.datastores[0];
-        let matchingDatabase = datastore.databases[options.database.name];
+        let matchingDatabase = options.datastore.databases[options.database.name];
         let matchingTable = matchingDatabase.tables[options.table.name];
         return matchingTable ? matchingTable.labelOptions : {};
     }

@@ -27,9 +27,10 @@ import { DashboardUtil } from '../util/dashboard.util';
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
-import { FilterUtil } from './filter.service';
+import { ConfigUtil } from '../util/config.util';
+import { FilterConfig } from '../models/filter';
+import { FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
-import { AbstractSearchService } from './abstract.search.service';
 
 @Injectable({
     providedIn: 'root'
@@ -46,8 +47,7 @@ export class DashboardService {
     constructor(
         private configService: ConfigService,
         private connectionService: InjectableConnectionService,
-        private filterService: InjectableFilterService,
-        private searchService: AbstractSearchService
+        private filterService: InjectableFilterService
     ) {
         this.configSource = this.configService
             .getActive()
@@ -81,6 +81,7 @@ export class DashboardService {
 
     private applyConfig(config: NeonConfig) {
         return Object.assign(this.config, {
+            errors: config.errors,
             dashboards: DashboardUtil.validateDashboards(
                 config.dashboards ?
                     _.cloneDeep(config.dashboards) :
@@ -111,10 +112,9 @@ export class DashboardService {
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
-        const filters = typeof dashboard.filters === 'string' ?
-            FilterUtil.fromSimpleFilterQueryString(dashboard.filters) : dashboard.filters;
+        let filters = this._translateFilters(dashboard.filters);
 
-        this.filterService.setFiltersFromConfig(filters || [], this.state, this.searchService);
+        this.filterService.setFiltersFromConfig(filters || [], this.state.asDataset());
         this.stateSubject.next(this.state);
     }
 
@@ -162,11 +162,18 @@ export class DashboardService {
                     let table = database.tables[tableName];
 
                     if (table) {
-                        let hasField = new Set(table.fields.map((field) => field.columnName));
+                        let existingFields = new Set(table.fields.map((field) => field.columnName));
 
                         tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                            if (!hasField.has(fieldName)) {
-                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName });
+                            if (!existingFields.has(fieldName)) {
+                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
+                                    columnName: fieldName,
+                                    prettyName: fieldName,
+                                    // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
+                                    hide: existingFields.size > 25,
+                                    // Set the default type to text.
+                                    type: 'text'
+                                });
                                 table.fields.push(newField);
                             }
                         });
@@ -230,7 +237,7 @@ export class DashboardService {
             dashboards: _.cloneDeep({
                 ...this.state.dashboard,
                 name,
-                filters: this.filterService.getFiltersToSaveInConfig(),
+                filters: this.filterService.getFilters(),
                 layout: name
             }),
             projectTitle: name
@@ -241,5 +248,21 @@ export class DashboardService {
             out.dashboards.options.connectOnLoad = true;
         }
         return out;
+    }
+
+    /**
+     * Returns the filters as string for use in URL
+     */
+    public getFiltersToSaveInURL(): string {
+        let filters: FilterConfig[] = this.filterService.getFilters();
+        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+    }
+
+    private _translateFilters(filters: FilterConfig[] | string): FilterConfig[] {
+        if (typeof filters === 'string') {
+            const stringFilters = ConfigUtil.translate(filters, ConfigUtil.decodeFiltersMap);
+            return (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter));
+        }
+        return filters;
     }
 }

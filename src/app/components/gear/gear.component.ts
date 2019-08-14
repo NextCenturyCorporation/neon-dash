@@ -185,15 +185,10 @@ export class GearComponent implements OnDestroy {
             this.layerHidden.delete(layer._id);
             this.changeMade = true;
         } else {
-            this.messenger.publish(neonEvents.DASHBOARD_ERROR, {
-                message: 'Cannot delete final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
+            this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
+                message: 'Sorry, you cannot delete the final layer of ' + this.modifiedOptions.title + ' (' + layer.title + ')'
             });
         }
-    }
-
-    public handleRefreshClick() {
-        this.comp.changeData(undefined, false);
-        this.resetOptionsAndClose();
     }
 
     private isFilterData(optionType: OptionType): boolean {

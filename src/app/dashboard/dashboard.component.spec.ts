@@ -19,7 +19,8 @@ import { By } from '@angular/platform-browser';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { DashboardComponent } from './dashboard.component';
-import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig, FilterConfig } from '../models/types';
+
+import { NeonConfig, NeonDashboardLeafConfig, NeonLayoutConfig } from '../models/types';
 import { NeonGridItem } from '../models/neon-grid-item';
 import { neonEvents } from '../models/neon-namespaces';
 
@@ -33,6 +34,7 @@ import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMoc
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import { ConfigService } from '../services/config.service';
+import { ConfigUtil } from '../util/config.util';
 import { GearModule } from '../components/gear/gear.module';
 
 const Modules = {
@@ -122,18 +124,37 @@ describe('Dashboard', () => {
         component.onFiltersChanged('testCaller', null);
         expect(spyOnRouter.calls.count()).toEqual(1);
         const [path, params] = spyOnRouter.calls.argsFor(0);
-        expect(path).toEqual(['context.html']);
-        expect(params.queryParamsHandling).toEqual('merge');
+        expect(path).toEqual(['/']);
+        expect(params.queryParams).toEqual({
+            dashboard: ConfigUtil.DEFAULT_CONFIG_NAME
+        });
         expect(params.fragment).toBeTruthy();
     });
 
     it('toggle filters component', () => {
-        component.showFilterTray = false;
-        expect(debugElement.nativeElement.querySelectorAll('app-filters').length).toEqual(0);
-        component.showFilterTray = true;
-        component.createFiltersComponent = true;
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = false;
         component.toggleFiltersDialog();
-        expect(debugElement.nativeElement.querySelectorAll('app-filters')).toBeTruthy();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = false;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = false;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(true);
+
+        component.showDashboardSelector = true;
+        component.showFiltersComponent = true;
+        component.toggleFiltersDialog();
+        expect(component.showDashboardSelector).toEqual(false);
+        expect(component.showFiltersComponent).toEqual(false);
     });
 
     it('check that the messenger subscribes to the correct channels and that the callbacks update the correct booleans', () => {
@@ -857,7 +878,7 @@ describe('Dashboard Custom', () => {
         fixture.detectChanges();
     });
 
-    it('showDashboardState does work as expected', (done) => {
+    it('setting active dashboard does work as expected', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -886,14 +907,9 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
-        ];
-
         let testDashboard = NeonDashboardLeafConfig.get({
-            filters,
             layout: 'DISCOVERY',
+            fullTitle: 'Test Title',
             category: 'Select an option...',
             options: {
                 connectOnLoad: true
@@ -934,6 +950,10 @@ describe('Dashboard Custom', () => {
             done();
         });
 
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
+        });
+
         configService.setActive({
             ...config,
             dashboards: testDashboard
@@ -942,7 +962,7 @@ describe('Dashboard Custom', () => {
         fixture.detectChanges();
     });
 
-    it('showDashboardState does work with tabs', (done) => {
+    it('setting active dashboard does work with tabs', (done) => {
         let spySender = spyOn(component.messageSender, 'publish');
         let spySimpleFilter = spyOn(component.simpleFilter, 'updateSimpleFilterConfig');
 
@@ -969,14 +989,9 @@ describe('Dashboard Custom', () => {
             }
         });
 
-        const filters: FilterConfig[] = [
-            { database: '', datastore: '', field: 'x', table: '', operator: '>', value: '-', name: '', root: '' },
-            { database: '', datastore: '', field: 'y', table: '', operator: '>', value: '-', name: '', root: '' }
-        ];
-
         let testDashboard = NeonDashboardLeafConfig.get({
-            filters,
             category: 'Select an option...',
+            fullTitle: 'Test Title',
             layout: 'DISCOVERY',
             options: { connectOnLoad: true }
         });
@@ -1014,6 +1029,10 @@ describe('Dashboard Custom', () => {
             expect(component.showDashboardSelector).toEqual(false);
 
             done();
+        });
+
+        component.dashboardService.configSource.pipe(take(1)).subscribe(() => {
+            component.dashboardService.setActiveDashboard(testDashboard);
         });
 
         configService.setActive({

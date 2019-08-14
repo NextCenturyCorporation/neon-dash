@@ -19,7 +19,6 @@ import { ConfigService } from '../../app/services/config.service';
 import { InjectableConnectionService } from '../../app/services/injectable.connection.service';
 import { Injectable } from '@angular/core';
 import { InjectableFilterService } from '../../app/services/injectable.filter.service';
-import { SearchServiceMock } from './SearchServiceMock';
 import {
     DATABASES,
     DATABASES_LIST,
@@ -46,6 +45,7 @@ export class DashboardServiceMock extends DashboardService {
     public static TABLES_LIST = TABLES_LIST;
     public static DATABASES = DATABASES;
     public static DATABASES_LIST = DATABASES_LIST;
+    public static DATASTORE = DATASTORE;
 
     static init(svc: DashboardServiceMock) {
         const datastore = DATASTORE;
@@ -78,8 +78,7 @@ export class DashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         DashboardServiceMock.init(this);
@@ -93,8 +92,7 @@ export class EmptyDashboardServiceMock extends DashboardService {
         super(
             configService,
             new MockConnectionService(),
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
     }
 }
