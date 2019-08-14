@@ -44,7 +44,6 @@ export namespace neonUtilities {
         return (input || []).reduce((array, element) => array.concat(Array.isArray(element) ? flatten(element) : element), []);
     }
 
-
     /**
      * Transforms the given string or string array into a string array and returns the array.
      *
