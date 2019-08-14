@@ -188,10 +188,11 @@ export class Dataset {
 }*/
 
 export const MediaTypes = {
-    image: 'img',
-    video: 'vid',
-    html: 'htm',
-    pdf: 'pdf',
     audio: 'aud',
-    maskImage: 'mask'
+    html: 'htm',
+    image: 'img',
+    maskImage: 'mask',
+    pdf: 'pdf',
+    video: 'vid',
+    youtube: 'youtube'
 };
