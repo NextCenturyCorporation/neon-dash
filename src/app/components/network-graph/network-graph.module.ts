@@ -16,6 +16,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NetworkGraphComponent } from './network-graph.component';
 import { LegendModule } from '../legend/legend.module';
+import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -25,6 +26,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
     imports: [
         CommonWidgetModule,
         LegendModule,
+        DataMessageModule,
         CommonModule
     ]
 })

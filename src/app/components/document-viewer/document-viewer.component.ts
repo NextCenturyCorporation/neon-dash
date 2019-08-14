@@ -25,9 +25,10 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior } from '../../services/filter.service';
+import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -35,6 +36,7 @@ import { DocumentViewerSingleItemComponent } from '../document-viewer-single-ite
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
+    SortOrder,
     WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
@@ -106,13 +108,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Returns each type of filter made by this visualization as an object containing 1) a filter design with undefined values and 2) a
-     * callback to redraw the filter.  This visualization will automatically update with compatible filters that were set externally.
+     * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
+     * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
+    protected designEachFilterWithNoValues(): FilterConfig[] {
         // This visualization does not filter.
         return [];
     }
@@ -196,10 +198,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      *
      * @arg {any} options A WidgetOptionCollection object.
      * @arg {any[]} results
+     * @arg {FilterCollection} filters
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], __filters: FilterCollection): number {
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
             neonUtilities.flatten(options.popoutFields)
         );
@@ -236,6 +239,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
             return activeItem;
         });
+        if (!this.documentViewerData.length) {
+            this.errorMessage = 'No Data: New';
+        }
 
         return this.documentViewerData.length;
     }

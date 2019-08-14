@@ -23,6 +23,7 @@ import { } from 'jasmine-core';
 import { MediaViewerComponent } from './media-viewer.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
+import { FilterCollection } from '../../util/filter.util';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -202,7 +203,7 @@ describe('Component: MediaViewer', () => {
             }]
         };
 
-        component.transformVisualizationQueryResults(component.options, []);
+        component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.media).toEqual({
             loaded: false,
@@ -228,7 +229,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue',
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect((component as any).errorMessage).toBe('No Data');
         expect(component.options.id).toBe('_id');
@@ -257,7 +258,7 @@ describe('Component: MediaViewer', () => {
         component.options.clearMedia = false;
         (component as any).isFiltered = () => true;
 
-        component.transformVisualizationQueryResults(component.options, []);
+        component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([]);
     }));
@@ -277,7 +278,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue',
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -285,12 +286,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -329,7 +332,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: 'testLinkValue2',
             testNameField: 'testNameValue2',
             testTypeField: 'testTypeValue2'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -337,12 +340,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             }]
@@ -364,7 +369,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: ['testLinkValue1', 'testLinkValue2'],
             testNameField: 'testNameValue',
             testTypeField: 'testTypeValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -372,12 +377,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -387,12 +394,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -414,7 +423,7 @@ describe('Component: MediaViewer', () => {
             testLinkField: ['testLinkValue1', 'testLinkValue2'],
             testNameField: ['testNameValue1', 'testNameValue2'],
             testTypeField: ['testTypeValue1', 'testTypeValue2']
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -422,12 +431,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             }]
@@ -437,12 +448,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             }]
@@ -460,7 +473,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: ''
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([]);
     });
@@ -477,7 +490,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -485,12 +498,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: 'grey',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: 'grey',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -509,7 +524,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -517,12 +532,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'linkPrefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'linkPrefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -538,7 +555,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'linkPrefix/testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -546,12 +563,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'linkPrefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'linkPrefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -566,7 +585,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: 'prefix/testLinkValue'
-        }]);
+        }], new FilterCollection());
 
         expect(component.tabsAndMedia).toEqual([{
             loaded: false,
@@ -574,12 +593,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'prefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'prefix/testLinkValue',
+                mask: '',
                 name: 'testLinkValue',
                 type: ''
             }]
@@ -603,7 +624,7 @@ describe('Component: MediaViewer', () => {
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'testIdValue',
             testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'audio.wav', 'other.xyz']
-        }]);
+        }], new FilterCollection());
 
         expect((component as any).errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
@@ -612,12 +633,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'video.avi',
+                mask: '',
                 name: 'video.avi',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: 'video.avi',
+                mask: '',
                 name: 'video.avi',
                 type: 'vid'
             }]
@@ -627,12 +650,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'image.jpg',
+                mask: '',
                 name: 'image.jpg',
                 type: 'img'
             },
             list: [{
                 border: '',
                 link: 'image.jpg',
+                mask: '',
                 name: 'image.jpg',
                 type: 'img'
             }]
@@ -642,12 +667,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'alpha.txt',
+                mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
             },
             list: [{
                 border: '',
                 link: 'alpha.txt',
+                mask: '',
                 name: 'alpha.txt',
                 type: 'txt'
             }]
@@ -657,12 +684,14 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'audio.wav',
+                mask: '',
                 name: 'audio.wav',
                 type: 'aud'
             },
             list: [{
                 border: '',
                 link: 'audio.wav',
+                mask: '',
                 name: 'audio.wav',
                 type: 'aud'
             }]
@@ -672,14 +701,16 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'other.xyz',
+                mask: '',
                 name: 'other.xyz',
-                type: ''
+                type: 'xyz'
             },
             list: [{
                 border: '',
                 link: 'other.xyz',
+                mask: '',
                 name: 'other.xyz',
-                type: ''
+                type: 'xyz'
             }]
         }]);
     });
@@ -709,7 +740,7 @@ describe('Component: MediaViewer', () => {
     it('does show header in toolbar with visualization name', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe(' Media Viewer');
+        expect(header.nativeElement.textContent).toContain('Media Viewer');
     }));
 
     it('does hide error-message in toolbar if errorMessage is undefined', (() => {
@@ -724,14 +755,6 @@ describe('Component: MediaViewer', () => {
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-toolbar .error-message'));
         expect(errorMessageInToolbar).not.toBeNull();
         expect(errorMessageInToolbar.nativeElement.textContent.indexOf('Test Error Message')).not.toEqual(-1);
-    }));
-
-    it('does show settings icon button in toolbar', (() => {
-        let button = fixture.debugElement.query(By.css('mat-toolbar button'));
-        expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
-
-        let icon = fixture.debugElement.query(By.css('mat-toolbar button mat-icon'));
-        expect(icon.nativeElement.textContent).toBe('settings');
     }));
 
     it('does hide loading overlay by default', (() => {
@@ -873,6 +896,6 @@ describe('Component: MediaViewer with config', () => {
     it('does show header in toolbar with title from config', (() => {
         let header = fixture.debugElement.query(By.css('mat-toolbar .header'));
         expect(header).not.toBeNull();
-        expect(header.nativeElement.textContent).toBe(' Test Title');
+        expect(header.nativeElement.textContent).toContain('Test Title');
     }));
 });

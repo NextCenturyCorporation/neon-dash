@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterContentInit } from '@angular/core';
-import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -41,8 +40,7 @@ export class CustomConnectionComponent implements AfterContentInit {
 
     constructor(
         private datasetService: DashboardService,
-        private filterService: InjectableFilterService,
-        private searchService: AbstractSearchService
+        private filterService: InjectableFilterService
     ) {
         this.messenger = new eventing.Messenger();
 
@@ -94,7 +92,7 @@ export class CustomConnectionComponent implements AfterContentInit {
         // TODO: THOR-1056: fix so that this uses dashboards properly/incorporate next line
         // this.datasetService.setCurrentDashboard(??)
 
-        this.filterService.deleteFilters('CustomConnection', this.searchService);
+        this.filterService.deleteFilters('CustomConnection');
         this.datasetCreated.emit(datastore);
     }
 

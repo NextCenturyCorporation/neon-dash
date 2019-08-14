@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material';
 import { AnnotationViewerComponent } from './annotation-viewer.component';
 import { LegendModule } from '../legend/legend.module';
-
+import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
@@ -34,6 +34,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
         LegendModule,
         CommonWidgetModule,
         MatListModule,
+        DataMessageModule,
         CommonModule
     ]
 })

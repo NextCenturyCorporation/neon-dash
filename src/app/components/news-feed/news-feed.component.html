@@ -9,16 +9,14 @@
         <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
             {{ getButtonText() }}
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
-            (click)="toggleGear();">
-            <mat-icon>settings</mat-icon>
-        </button>
     </span>
 </mat-toolbar>
 
 <div [class.loading-overlay]="loadingCount > 0" [class.not-loading-overlay]="loadingCount == 0">
     <mat-spinner></mat-spinner>
 </div>
+
+<app-data-message *ngIf="showNoData"></app-data-message>
 
 <div #newsFeed class="body-container">
     <mat-accordion class="news-feed-container" *ngIf="newsFeedData != null && newsFeedData.length" displayMode="flat"
@@ -69,7 +67,7 @@
 </div>
 
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
-<div class="footer" *ngIf="showPagination() && !showContribution()">
+<div class="footer" *ngIf="showPagination()">
     <div class="footer-button-container">
         <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
             Previous

@@ -8,10 +8,6 @@
         </span>
         <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
     </span>
-    <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu"
-        tooltip-position="below" (click)="toggleGear();">
-        <mat-icon>settings</mat-icon>
-    </button>
 </mat-toolbar>
 
 <div class="widget-container">
@@ -21,8 +17,8 @@
 
     <app-data-message *ngIf="showNoData"></app-data-message>
 
-    <div *ngIf="options.url == ''">
-        <div *ngIf="media.list.length === 0" class="viewer-text">No Data: {{ noDataId }}</div>
+    <div class="full-height" *ngIf="options.url == '' && !showNoData">
+        <div *ngIf="noDataId && media.list.length === 0" class="viewer-text">No Data: {{ noDataId }}</div>
         <ng-container *ngIf="media.list.length > 0">
             <app-media-group id="viewer-presentation" class="media-group" [media]="media"></app-media-group>
         </ng-container>

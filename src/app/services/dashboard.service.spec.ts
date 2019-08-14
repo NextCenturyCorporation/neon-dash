@@ -14,15 +14,14 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { AbstractSearchService } from './abstract.search.service';
-import { NeonConfig, NeonDashboardLeafConfig, FilterConfig } from '../models/types';
+import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../models/filter';
+import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { NeonDatastoreConfig } from '../models/dataset';
 import { DashboardService } from './dashboard.service';
 
 import { initializeTestBed, getConfigService } from '../../testUtils/initializeTestBed';
 import { DashboardServiceMock, MockConnectionService } from '../../testUtils/MockServices/DashboardServiceMock';
 import { ConfigService } from './config.service';
-import { SearchServiceMock } from '../../testUtils/MockServices/SearchServiceMock';
 
 import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
@@ -49,7 +48,6 @@ describe('Service: DashboardService', () => {
 
     initializeTestBed('Dashboard Service', {
         providers: [
-            { provide: AbstractSearchService, useClass: SearchServiceMock },
             DashboardService,
             InjectableFilterService
         ]
@@ -81,6 +79,86 @@ describe('Service: DashboardService', () => {
             type: '',
             databases: {}
         });
+    });
+
+    it('setActiveDashboard should translate string filter list', () => {
+        let spy = spyOn(dashboardService['filterService'], 'setFiltersFromConfig');
+
+        dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
+            filters: ConfigUtil.translate(`[
+                [".databaseZ.tableA.field1","=","value1"],
+                ["and",
+                    [".databaseY.tableB.field2", "!=", ""],
+                    [".databaseY.tableB.field2", "!=", null]
+                ]
+            ]`, ConfigUtil.encodeFiltersMap)
+        }));
+
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)[0]).toEqual([{
+            datastore: '',
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
+            operator: '=',
+            value: 'value1'
+        }, {
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: ''
+            }, {
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: null
+            }]
+        }]);
+    });
+
+    it('getFiltersToSaveInURL should return expected output', () => {
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
+
+        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
+            datastore: '',
+            database: 'databaseZ',
+            table: 'tableA',
+            field: 'field1',
+            operator: '=',
+            value: 'value1'
+        } as SimpleFilterConfig, {
+            type: 'and',
+            filters: [{
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: ''
+            } as SimpleFilterConfig, {
+                datastore: '',
+                database: 'databaseY',
+                table: 'tableB',
+                field: 'field2',
+                operator: '!=',
+                value: null
+            } as SimpleFilterConfig]
+        } as CompoundFilterConfig]);
+
+        // Use the parse and stringify functions so we don't have to type unicode here.
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+            [".databaseZ.tableA.field1","=","value1"],
+            ["and",
+                [".databaseY.tableB.field2", "!=", ""],
+                [".databaseY.tableB.field2", "!=", null]
+            ]
+        ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
 
@@ -167,13 +245,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -181,13 +259,13 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -243,13 +321,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -257,23 +335,23 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }, {
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -293,13 +371,13 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(extractNames(dashboardService.state.findRelationDataList())).toEqual(extractNames([
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_A
@@ -307,13 +385,13 @@ describe('Service: DashboardService with Mock Data', () => {
             ],
             [
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase1,
                     table: DashboardServiceMock.TABLES.testTable1,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
                 }],
                 [{
-                    datastore: '',
+                    datastore: DashboardServiceMock.DATASTORE,
                     database: DashboardServiceMock.DATABASES.testDatabase2,
                     table: DashboardServiceMock.TABLES.testTable2,
                     field: DashboardServiceMock.FIELD_MAP.RELATION_B
@@ -536,9 +614,7 @@ describe('Service: DashboardService with Mock Data', () => {
     it('exportConfig should produce valid results', (done) => {
         const { config, layouts, filters } = getConfig([
             {
-                root: 'or',
-                name: 'field1',
-                datastore: '',
+                datastore: 'datastore1',
                 database: 'databaseZ',
                 table: 'tableA',
                 field: 'field1',
@@ -546,14 +622,10 @@ describe('Service: DashboardService with Mock Data', () => {
                 value: 'value1'
             },
             {
-                root: 'and',
-                name: 'combo',
                 type: 'and',
                 filters: [
                     {
-                        root: 'or',
-                        name: 'field2',
-                        datastore: '',
+                        datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -561,9 +633,7 @@ describe('Service: DashboardService with Mock Data', () => {
                         value: ''
                     },
                     {
-                        root: 'or',
-                        name: 'field2b',
-                        datastore: '',
+                        datastore: 'datastore1',
                         database: 'databaseY',
                         table: 'tableB',
                         field: 'field2',
@@ -579,8 +649,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -612,6 +681,10 @@ describe('Service: DashboardService with Mock Data', () => {
                     fieldName: 'field1'
                 }
             });
+            (filters[0] as any).id = (data.dashboards as any).filters[0].id;
+            (filters[1] as any).id = (data.dashboards as any).filters[1].id;
+            (filters[1] as any).filters[0].id = (data.dashboards as any).filters[1].filters[0].id;
+            (filters[1] as any).filters[1].id = (data.dashboards as any).filters[1].filters[1].id;
             expect(data.dashboards.filters).toEqual(filters);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
@@ -629,10 +702,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
-            [".databaseZ.tableA.field1","=","value1","or"],
-            ["and", "and",
-                [".databaseY.tableB.field2", "!=", "", "or"],
-                [".databaseY.tableB.field2", "!=", null, "or"]
+            ["datastore1.databaseZ.tableA.field1","=","value1"],
+            ["and",
+                ["datastore1.databaseY.tableB.field2", "!=", ""],
+                ["datastore1.databaseY.tableB.field2", "!=", null]
             ]
         ]`);
 
@@ -641,8 +714,7 @@ describe('Service: DashboardService with Mock Data', () => {
         const localDashboardService = new DashboardService(
             localConfigService,
             conn,
-            new InjectableFilterService(),
-            new SearchServiceMock()
+            new InjectableFilterService()
         );
 
         localDashboardService.stateSource.subscribe(() => {
@@ -676,9 +748,8 @@ describe('Service: DashboardService with Mock Data', () => {
             });
             expect(data.dashboards.filters).toEqual([
                 {
-                    root: 'or',
-                    name: 'databaseZ / tableA / Field1 = value1',
-                    datastore: '',
+                    id: (data.dashboards as any).filters[0].id,
+                    datastore: 'datastore1',
                     database: 'databaseZ',
                     table: 'tableA',
                     field: 'field1',
@@ -686,14 +757,12 @@ describe('Service: DashboardService with Mock Data', () => {
                     value: 'value1'
                 },
                 {
-                    root: 'and',
-                    name: 'and',
+                    id: (data.dashboards as any).filters[1].id,
                     type: 'and',
                     filters: [
                         {
-                            root: 'or',
-                            name: 'databaseY / tableB / Field2 != ',
-                            datastore: '',
+                            id: (data.dashboards as any).filters[1].filters[0].id,
+                            datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
                             field: 'field2',
@@ -701,9 +770,8 @@ describe('Service: DashboardService with Mock Data', () => {
                             value: ''
                         },
                         {
-                            root: 'or',
-                            name: 'databaseY / tableB / Field2 != null',
-                            datastore: '',
+                            id: (data.dashboards as any).filters[1].filters[1].id,
+                            datastore: 'datastore1',
                             database: 'databaseY',
                             table: 'tableB',
                             field: 'field2',

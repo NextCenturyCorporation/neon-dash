@@ -26,9 +26,10 @@ import {
 
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { AbstractSearchService, FilterClause, QueryPayload, SortOrder } from '../../services/abstract.search.service';
+import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterBehavior } from '../../services/filter.service';
+import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -36,6 +37,7 @@ import { MediaTypes } from '../../models/types';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     OptionChoices,
+    SortOrder,
     WidgetFieldArrayOption,
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -117,12 +119,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     addEventLinks(fields: any[], metadata: any, __name: string) {
         let links = [];
+        let masks = [];
         let names = [];
         let types = [];
 
         fields.forEach((fieldsConfig) => {
             if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
                 links = links.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'mask') {
+                masks = masks.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'name') {
                 names = names.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
@@ -132,10 +138,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         });
 
-        // If the event has link, but is missing other data, use the query data as the defaults.
-        if (this.queryItems.length && links.length) {
+        // If the event has link or mask data, but is missing other data, use the query data as the defaults.
+        if (this.queryItems.length && (links.length || masks.length)) {
             if (!links.length) {
                 links = this.queryItems.map((item) => item.link);
+            }
+            if (links.length === 1 && masks.length > 1) {
+                while (links.length < masks.length) {
+                    links.push(links[0]);
+                }
+            }
+            if (!masks.length) {
+                masks = this.queryItems.map((item) => item.mask);
             }
             if (!names.length) {
                 names = this.queryItems.map((item) => item.name);
@@ -145,7 +159,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         }
 
-        let tabs: MediaMetaData[] = this.createTabs(links, names, types);
+        let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types);
 
         tabs.forEach((tab) => {
             if (tab.list.length) {
@@ -164,10 +178,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         });
         this.consolidateTabs();
         this.refreshVisualization();
-    }
-
-    getMedia(media: MediaMetaData) {
-        return media;
     }
 
     /**
@@ -195,10 +205,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Returns the design for each type of filter made by this visualization.  This visualization will automatically update itself with all
      * compatible filters that were set internally or externally whenever it runs a visualization query.
      *
-     * @return {FilterBehavior[]}
+     * @return {FilterConfig[]}
      * @override
      */
-    protected designEachFilterWithNoValues(): FilterBehavior[] {
+    protected designEachFilterWithNoValues(): FilterConfig[] {
         // This visualization does not filter.
         return [];
     }
@@ -213,6 +223,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return [
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('linkField', 'Link Field', false, true), // DEPRECATED
+            new WidgetFieldOption('maskField', 'Mask Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
@@ -275,7 +286,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {string} [oneTabName='']
      * @return {MediaMetaData[]}
      */
-    createTabs(links: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
+    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = ''): MediaMetaData[] {
         let oneTab: MediaMetaData = {
             selected: undefined,
             name: oneTabName,
@@ -286,17 +297,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
+            let mask = this.appendPrefixIfNeeded(this.findElementAtIndex(masks, index), this.options.maskLinkPrefix ||
+                this.options.linkPrefix);
             let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
-            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
+            let type = this.findElementAtIndex(types, index, (this._retrieveFileType(link) || ''));
 
-            if (type === this.mediaTypes.image) {
-                type = this.mediaTypes.image;
-            } else if (type === this.mediaTypes.video) {
-                type = this.mediaTypes.video;
+            // If the type is "mask,img" then change the type to "mask" if the mask link exists else change the type to "img" (the backup).
+            if (type === (this.mediaTypes.maskImage + ',' + this.mediaTypes.image)) {
+                type = (mask ? this.mediaTypes.maskImage : this.mediaTypes.image);
             }
 
-            // Only add a tab if the link is non-empty
-            if (link) {
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link && (type === this.mediaTypes.maskImage ? mask : true)) {
                 let tab = oneTab;
                 if (!this.options.oneTabPerArray) {
                     tab = {
@@ -311,6 +323,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
                     link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
+                    mask: mask,
                     name: name,
                     type: type
                 });
@@ -377,15 +390,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         };
     }
 
-    /**
-     * Returns the media type for the thumbnail
-     * @arg {object} item
-     * @return string
-     */
-    getMediaType(item) {
-        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
-        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
-            this.options.typeMap[fileType] : '';
+    _retrieveFileType(link) {
+        let fileType = link.indexOf('.') >= 0 ? link.substring(link.lastIndexOf('.') + 1).toLowerCase() : '';
+        return (this.options.typeMap || {})[fileType] || fileType;
     }
 
     /**
@@ -453,21 +460,27 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {number}
      * @override
      */
-    transformVisualizationQueryResults(options: any, results: any[]): number {
+    transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
         this.noDataId = options.id;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryItems = [];
 
-        if (options.clearMedia) {
+        if (options.clearMedia && !filters.getFilters().length) {
             this.errorMessage = 'No Data';
             options.id = '_id';
             return 0;
         }
 
         results.forEach((result) => {
+            let masks = [];
             let names = [];
             let types = [];
+
+            if (options.maskField.columnName) {
+                masks = neonUtilities.deepFind(result, options.maskField.columnName) || '';
+                masks = neonUtilities.transformToStringArray(masks, options.delimiter);
+            }
 
             if (options.nameField.columnName) {
                 names = neonUtilities.deepFind(result, options.nameField.columnName);
@@ -483,7 +496,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             options.linkFields.forEach((linkField) => {
                 let links = neonUtilities.deepFind(result, linkField.columnName) || '';
                 links = neonUtilities.transformToStringArray(links, options.delimiter);
-                let tabs: MediaMetaData[] = this.createTabs(links, names, types, this.noDataId);
+                let tabs: MediaMetaData[] = this.createTabs(links, masks, names, types, this.noDataId);
                 tabs.forEach((tab) => {
                     if (tab.list.length) {
                         this.tabsAndMedia.push(tab);
@@ -496,6 +509,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         });
         this.consolidateTabs();
         return this.tabsAndMedia.length;
+    }
+
+    /**
+     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
+     *
+     * @arg {number} percentage
+     */
+    onSliderChange(percentage: number) {
+        this.options.sliderValue = percentage;
+        this.refreshVisualization();
     }
 
     /**

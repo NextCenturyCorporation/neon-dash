@@ -536,7 +536,7 @@ describe('Component: Gear Component', () => {
         expect(component.layerHidden.get('testId1')).toEqual(true);
         expect(component.changeMade).toEqual(false);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_ERROR);
+        expect(spy.calls.argsFor(0)[0]).toEqual(neonEvents.DASHBOARD_MESSAGE);
     });
 
     it('toggleFilter does update layerHidden', () => {
@@ -594,22 +594,6 @@ describe('Component: Gear Component', () => {
 
     it('does have expected default HTML elements', () => {
         // TODO
-    });
-
-    it('handleRefreshClick does reset options and close menu', () => {
-        const mock = new MockConfigurable(component['dashboardState']);
-        component.comp = mock;
-
-        let calledCloseSidenav = 0;
-        (component as any).closeSidenav = () => {
-            calledCloseSidenav++;
-        };
-
-        component.handleRefreshClick();
-
-        expect(mock.calledChangeData).toEqual(1);
-        expect(component.changeMade).toEqual(false);
-        expect(calledCloseSidenav).toEqual(1);
     });
 
     it('resetOptionsAndClose does reset HTML elements and close gear menu', () => {

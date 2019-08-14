@@ -29,10 +29,11 @@ import { ConfigUtil } from '../util/config.util';
     providedIn: 'root'
 })
 export class ConfigService {
-    private configErrors = [];
     private source = new Subject<NeonConfig>();
 
     private $default: Observable<NeonConfig>;
+
+    private _configFileLoadErrors: string[] = [];
 
     // eslint-disable-next-line no-invalid-this
     $source = this.source.asObservable()
@@ -53,15 +54,14 @@ export class ConfigService {
         return this.connectionService.connect('.', '.', true);
     }
 
-    private handleConfigFileError(error, file?: any) {
+    private handleConfigFileError(error) {
         if (error.status === 404) {
             // Fail silently.
-        } else {
-            console.error(error);
-            this.configErrors.push('Error reading config file ' + file);
-            this.configErrors.push(error.message);
+            return of(undefined);
         }
-        return of(undefined);
+        console.error(error);
+        this._configFileLoadErrors.push(error.message);
+        return of(NeonConfig.get());
     }
 
     private loadFromFolder(path): Observable<NeonConfig | undefined> {
@@ -70,14 +70,13 @@ export class ConfigService {
             params: {
                 rnd: `${Math.random() * 1000000}.${Date.now()}`
             }
-        })
-            .pipe(
-                map((response: any) => yaml.load(response) as NeonConfig),
-                tap((config) => {
-                    config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
-                }),
-                catchError((error) => this.handleConfigFileError(error))
-            );
+        }).pipe(
+            map((response: any) => (yaml.load(response) as NeonConfig) || NeonConfig.get()),
+            tap((config) => {
+                config.fileName = ConfigUtil.DEFAULT_CONFIG_NAME;
+            }),
+            catchError((error) => this.handleConfigFileError(error))
+        );
     }
 
     private takeFirstLoadedOrFetchDefault(all: (NeonConfig | null)[]) {
@@ -89,18 +88,23 @@ export class ConfigService {
             .pipe(map(({ results: [remoteFirst] }) => remoteFirst));
     }
 
-    private finalizeConfig(configInput: NeonConfig, filters: string, dashboardPath: string) {
-        let config = configInput;
+    private finalizeConfig(configInput: NeonConfig, filters: string, paths: string[]) {
+        let config: NeonConfig = configInput;
 
-        if (!config) {
-            console.error('Config is empty', config);
-            this.configErrors.push('Config is empty!');
-            config = NeonConfig.get();
+        if (!config || !config.datastores || !Object.keys(config.datastores).length) {
+            console.error('Config does not have any datastores!');
+            config.errors = (config.errors || []).concat('Config does not have any datastores!');
         }
 
-        if (this.configErrors.length) {
-            config.errors = this.configErrors;
-            this.configErrors = [];
+        // If a config file failed to load but another one loaded successfully, don't bother showing any of the load errors.
+        if (this._configFileLoadErrors.length && config.fileName !== ConfigUtil.DEFAULT_CONFIG_NAME) {
+            config.errors = (config.errors || []).concat(this._configFileLoadErrors);
+        }
+
+        this._configFileLoadErrors = [];
+
+        if (config.neonServerUrl) {
+            neon.setNeonServerUrl(config.neonServerUrl);
         }
 
         let dash: NeonDashboardLeafConfig;
@@ -108,8 +112,8 @@ export class ConfigService {
         ConfigUtil.nameDashboards(config.dashboards, config.fileName || '');
 
         // If dashboard path is provided, find the dashboard to activate
-        if (dashboardPath) {
-            const parts = dashboardPath.split('.').filter((key) => !!key);
+        if (paths.length) {
+            const parts = paths.filter((key) => !!key);
             const active = ConfigUtil.findDashboardByKey(config.dashboards, parts) as NeonDashboardLeafConfig;
 
             // If found
@@ -147,18 +151,22 @@ export class ConfigService {
     /**
      * Loads config state by URL, given a base path
      */
-    setActiveByURL(url: string | Location, base: string) {
-        const { filename, filters, dashboardPath } = ConfigUtil.getUrlState(url, base);
+    setActiveByURL(url: string | Location) {
+        const { dashboard, filters, paths } = ConfigUtil.getUrlState(url);
 
         setTimeout(() => {
             // TODO THOR-1300 Handle when we get rid of default
-            from(filename !== ConfigUtil.DEFAULT_CONFIG_NAME ? this.load(filename) : throwError(null)).pipe(
-                catchError((err) => this.getDefault(environment.config).pipe(
-                    tap((conf) => {
-                        conf.errors = [err ? err.message as string : err];
+            from((dashboard && dashboard !== ConfigUtil.DEFAULT_CONFIG_NAME) ? this.load(dashboard) : throwError(null)).pipe(
+                catchError((error) => this.getDefault(environment.config).pipe(
+                    tap((config) => {
+                        // The Error object seems to disappear before it gets to the dashboard, so create a new object for the error.
+                        config.errors = error ? [{
+                            message: error.message,
+                            stack: error.stack
+                        }] : [];
                     })
                 )),
-                map((config) => this.finalizeConfig(config, filters, dashboardPath)),
+                map((config) => this.finalizeConfig(config, filters, paths.slice(1))),
                 tap((config) => this.setActive(config))
             ).subscribe();
         }, 1);
@@ -196,8 +204,10 @@ export class ConfigService {
         })).pipe(
             take(1),
             map((config) => {
-                if (!(config.dashboards && config.datastores && config.layouts)) {
-                    throw new Error(`${name} not loaded:  bad format`);
+                let list = [].concat(config.dashboards ? [] : ['dashboards']).concat(config.datastores ? [] : ['datastores'])
+                    .concat(config.layouts ? [] : ['layouts']);
+                if (list.length) {
+                    throw new Error('Cannot open saved state "' + name + '" because config file does not have ' + list.join(', '));
                 }
                 return config;
             })
