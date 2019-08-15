@@ -1,8 +1,44 @@
 <div>
-    <ng-container [ngSwitch]="imageObj.type">
-        <img *ngSwitchCase="mediaTypes.video" class="thumb" src="./assets/icons/dashboard/baseline-play-24px.svg">
-        <img *ngSwitchCase="mediaTypes.pdf" class="thumb" src="./assets/icons/visualization/neon-teal/annotation.svg">
-        <img *ngSwitchCase="mediaTypes.audio" class="thumb" src="./assets/icons/dashboard/baseline-audiotrack-24px.svg">
-        <img *ngSwitchCase="mediaTypes.image" class="thumb" [src]="imageObj.link" (click)="select(imageObj)" aria-label="imageObj.name">
+    <ng-container *ngIf="!isThumbnail">
+        <ng-container [ngSwitch]="imageObj.type">
+            <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='media.selected.link'>
+            <ng-container *ngSwitchCase="mediaTypes.youtube">
+                <a [href]="showMedia()" target="_blank">
+                    <span>Click to open Youtube</span>
+                    <img src="/assets/icons/dashboard/baseline-play-24px.svg">
+                </a>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.video">
+                <video controls>
+                    <source [src]="showVideoMedia()" type="video/mp4">
+                </video>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.pdf">
+                <a [href]="showMedia()" target="_blank">
+                    <span>Click to open PDF</span>
+                    <img src="/assets/icons/dashboard/baseline-description-24px.svg">
+                </a>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.html">
+                <iframe [src]="showVideoMedia()">
+                </iframe>
+            </ng-container>
+            <ng-container *ngSwitchCase="mediaTypes.audio">
+                <audio controls>
+                    <source [src]="media.selected.link" type="audio/mp3">
+                </audio>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    <ng-container *ngIf="isThumbnail">
+        <ng-container [ngSwitch]="imageObj.type">
+            <img *ngSwitchCase="mediaTypes.video" class="thumb" src="./assets/icons/dashboard/baseline-play-24px.svg">
+            <img *ngSwitchCase="mediaTypes.pdf" class="thumb"
+                src="./assets/icons/visualization/neon-teal/annotation.svg">
+            <img *ngSwitchCase="mediaTypes.audio" class="thumb"
+                src="./assets/icons/dashboard/baseline-audiotrack-24px.svg">
+            <img *ngSwitchCase="mediaTypes.image" class="thumb" [src]="imageObj.link" (click)="select(imageObj)"
+                aria-label="imageObj.name">
+        </ng-container>
     </ng-container>
 </div>
