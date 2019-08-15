@@ -22,6 +22,7 @@ import {
 } from '@angular/core';
 import { MediaTypes } from '../../models/types';
 import { MediaMetaData } from './media-group.component';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-media-panel',
@@ -34,12 +35,15 @@ import { MediaMetaData } from './media-group.component';
 export class MediaPanelComponent {
     @Input() media: MediaMetaData;
     @Input() imageObj: any;
-    @Input() shownIndex: number;
     @Input() isThumbnail: boolean = false;
     @Output() selectionChange = new EventEmitter();
 
     public mediaTypes: any = MediaTypes;
     public active: boolean;
+
+    constructor(
+        private sanitizer: DomSanitizer
+    ) { }
 
     public select(imageToSelect) {
         if (this.isThumbnail) {
@@ -52,5 +56,13 @@ export class MediaPanelComponent {
 
     isSelected(): boolean {
         return this.imageObj === this.media.selected;
+    }
+
+    showMedia() {
+        return this.sanitizer.bypassSecurityTrustUrl(this.media.selected.link);
+    }
+
+    showVideoMedia() {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(this.media.selected.link);
     }
 }
