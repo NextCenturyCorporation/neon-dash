@@ -29,7 +29,7 @@ variable lambda_role {
 }
 
 variable neon_server_host {
-  default = "ec2-52-201-222-156.compute-1.amazonaws.com"
+  default = "ec2-3-227-39-102.compute-1.amazonaws.com"
 }
 
 data "archive_file" "lambda_zip" {
