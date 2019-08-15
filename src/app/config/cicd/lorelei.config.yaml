@@ -1,4 +1,5 @@
-neonServerUrl: http://neon-server.nc-demo.com:8090/neon
+neonServerUrl: https://neon-server.nc-demo.com/neon
+
 datastores:
     es1:
         host: lorelei:***REMOVED***@52.201.222.156:9020
