@@ -1,3 +1,4 @@
+neonServerUrl: http://neon-server.nc-demo.com:8090/neon
 datastores:
     es1:
         host: lorelei:thorthor@52.201.222.156:9020
