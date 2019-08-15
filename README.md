@@ -196,7 +196,7 @@ datastores:
 
 Replace `<ip_address>`, `<elasticsearch_index_name>`, and `<elasticsearch_index_type>` with the appropriate values.
 
-Additionally, if your data contains many (hundreds of) fields, we recommend that you add all the fields you want to show in the UI to the datastore configuration under `fields:`.  For example:
+You don't need to list each field in your datastore because Neon will automatically find them all and make them available to you in the UI.  However, if your data contains many (hundreds of) fields, we recommend that you add all the fields you want to show in the UI to the datastore configuration under `fields:`.  For example:
 
 ```yaml
                         fields:
