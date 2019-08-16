@@ -84,16 +84,16 @@ export class DashboardUtil {
                     if (filter.tableKey) {
                         let tableKey = filter.tableKey;
 
-                        const { database, table } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                        const tableReference = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
-                        filter.databaseName = database;
-                        filter.tableName = table;
+                        filter.databaseName = tableReference.database;
+                        filter.tableName = tableReference.table;
 
                         if (filter.fieldKey) {
                             let fieldKey = filter.fieldKey;
-                            const { field: fieldName } = DatasetUtil.deconstructDottedReference(leaf.fields[fieldKey]);
+                            const fieldReference = DatasetUtil.deconstructDottedReference(leaf.fields[fieldKey]);
 
-                            filter.fieldName = fieldName;
+                            filter.fieldName = fieldReference.field;
                         } else {
                             filter.fieldName = '';
                         }
@@ -123,9 +123,9 @@ export class DashboardUtil {
                 const parent = path[path.length - 1];
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                    const databaseReference = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
 
-                    if (database === invalidDatabaseName) {
+                    if (databaseReference.database === invalidDatabaseName) {
                         delete parent.choices[leaf.name];
                         return;
                     }
