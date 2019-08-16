@@ -199,8 +199,12 @@ export class FilterUtil {
             } as CompoundFilterConfig;
         } // Simple filter
         const [field, operator, value] = simple as string[];
+        const reference = DatasetUtil.deconstructDottedReference(field);
         return {
-            ...DatasetUtil.deconstructDottedReference(field),
+            datastore: reference.datastore,
+            database: reference.database,
+            table: reference.table,
+            field: reference.field,
             operator,
             value
         } as SimpleFilterConfig;

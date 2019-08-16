@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { SingleField } from '../models/dataset';
 
 export class DatasetUtil {
     /**
      * Returns dotted reference in constituent parts(datastore.database.table.field).
      */
-    static deconstructDottedReference(name: string): { datastore: string, database: string, table: string, field: string } {
+    static deconstructDottedReference(name: string): SingleField {
         const [datastore, database, table, ...field] = (name || '').split('.');
         return {
             datastore: datastore || '',
@@ -30,20 +31,14 @@ export class DatasetUtil {
     /**
      * Returns the datastore/database/table for the given table key.
      */
-    static deconstructTableName(
-        tableKeys: Record<string, string>,
-        tableKey: string
-    ): { datastore: string, database: string, table: string, field: string } {
+    static deconstructTableName(tableKeys: Record<string, string>, tableKey: string): SingleField {
         return DatasetUtil.deconstructDottedReference(tableKeys[tableKey] || tableKey);
     }
 
     /**
      * Returns the datastore/database/table/field for the given field key.
      */
-    static deconstructFieldName(
-        fieldKeys: Record<string, string>,
-        fieldKey: string
-    ): { datastore: string, database: string, table: string, field: string } {
+    static deconstructFieldName(fieldKeys: Record<string, string>, fieldKey: string): SingleField {
         return DatasetUtil.deconstructDottedReference(fieldKeys[fieldKey] || fieldKey);
     }
 
