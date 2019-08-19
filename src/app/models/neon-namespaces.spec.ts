@@ -376,8 +376,38 @@ describe('NeonUtilities', () => {
         expect(neonUtilities.checkStringForUrl(testString)).toEqual(['https://www.google.com', 'https://www.yahoo.com']);
     });
 
-    it('removeUrl correctly removes the url substring from original string', () => {
-        let testString = 'Hello World, Goodbye world https://www.google.com';
-        expect(neonUtilities.removeUrl(testString)).toEqual('Hello World, Goodbye world ');
+    it('hasUrl works with multiple links', () => {
+        let multUrlString = 'Use https://www.google.com to search as well as http://www.bing.com They both work well.';
+
+        let testOut = neonUtilities.hasUrl(multUrlString);
+        expect(testOut.url).toEqual(['https://www.google.com', 'http://www.bing.com']);
+        expect(testOut.splitText).toEqual(['Use ', ' to search as well as ', ' They both work well.']);
+        expect(testOut.test).toEqual(true);
+    });
+
+    it('hasUrl checks if url is in string and sets url variable, and adds http if needed', () => {
+        let testString = 'Hello World, www.google.com Goodbye world';
+
+        let testOut = neonUtilities.hasUrl(testString);
+
+        expect(testOut.url).toEqual(['http://www.google.com']);
+    });
+
+    it('hasUrl correctly recognizes different link prefixes or postfixes', () => {
+        let ftpString = 'Hello World, ftp://www.files.org Goodbye world.';
+        let queryString = 'Hello World, ftp://www.files.org/there?next=free Goodbye world.';
+        let fragIdString = 'Hello World, ftp://www.files.org/there.html#bar Goodbye world.';
+
+        let testOut = neonUtilities.hasUrl(ftpString);
+        expect(testOut.url).toEqual(['ftp://www.files.org']);
+        expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
+
+        testOut = neonUtilities.hasUrl(queryString);
+        expect(testOut.url).toEqual(['ftp://www.files.org/there?next=free']);
+        expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
+
+        testOut = neonUtilities.hasUrl(fragIdString);
+        expect(testOut.url).toEqual(['ftp://www.files.org/there.html#bar']);
+        expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
     });
 });

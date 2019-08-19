@@ -34,13 +34,13 @@
                     <div class="text multiple-line" *ngIf="item[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
                         <p>
-                            <ng-container *ngIf="hasUrl(item[options.secondaryContentField.columnName])">
+                            <ng-container *ngIf="hasUrl(item[options.contentField.columnName])">
                                 <ng-container *ngFor="let link of this.url; let i = index">
                                     {{this.text[i]}}
                                     <a href="{{link}}" target="_blank">
                                         {{link}}</a>
                                 </ng-container>
-                                {{this.text[-1]}}
+                                {{this.text.slice(-1)[0]}}
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.contentField.columnName])">
                                 {{item[options.contentField.columnName]}}
@@ -56,7 +56,7 @@
                                     <a href="{{link}}" target="_blank">
                                         {{link}}</a>
                                 </ng-container>
-                                {{this.text[-1]}}
+                                {{this.text.slice(-1)[0]}}
                             </ng-container>
                             <ng-container *ngIf="!hasUrl(item[options.secondaryContentField.columnName])">
                                 {{item[options.secondaryContentField.columnName]}}
