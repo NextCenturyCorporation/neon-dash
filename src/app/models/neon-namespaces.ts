@@ -91,9 +91,19 @@ export namespace neonUtilities {
         return matches;
     }
 
-    export function removeUrl(text: string) {
-        let newText = text.replace(urlPattern, '');
-        return newText;
+    export function hasUrl(text: string) {
+        let test = urlPattern.test(text);
+        let url = [];
+        let splitText = [];
+        if (test) {
+            url = checkStringForUrl(text);
+            splitText = splitStringByUrl(text);
+        }
+        return {
+            test,
+            url,
+            splitText
+        };
     }
 
     export function splitStringByUrl(text: string) {
