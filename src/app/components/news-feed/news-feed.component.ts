@@ -296,7 +296,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                             border: this.options.border,
                             link: this.appendPrefixIfNeeded(link, this.options.linkPrefix),
                             name: (index + 1) + ': ' + link.substring(link.lastIndexOf('/') + 1),
-                            type: types.length > index ? (link.indexOf('https://www.youtube.com') < 0 ? types[index] :
+                            // Unsecure (non-https) or embedded ("/embed") youtube links should work properly with the video element.
+                            type: types.length > index ? (link.indexOf('https://www.youtube.com/watch') < 0 ? types[index] :
                                 this.mediaTypes.youtube) : ''
                         });
                     });
