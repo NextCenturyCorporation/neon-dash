@@ -2,77 +2,20 @@
     <ng-container *ngIf="media.list.length != 1">
         <div id="viewer-container">
             <div id="pres-container">
-                <ng-container [ngSwitch]="media.selected.type">
-                    <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='media.selected.link'>
-                    <ng-container *ngSwitchCase="mediaTypes.youtube">
-                        <a [href]="showMedia()" target="_blank">
-                            <span>Click to open Youtube</span>
-                            <img src="/assets/icons/dashboard/baseline-play-24px.svg">
-                        </a>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="mediaTypes.video">
-                        <video controls>
-                            <source [src]="showVideoMedia()" type="video/mp4">
-                        </video>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="mediaTypes.pdf">
-                        <a [href]="showMedia()" target="_blank">
-                            <span>Click to open PDF</span>
-                            <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                        </a>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="mediaTypes.html">
-                        <iframe [src]="showVideoMedia()">
-                        </iframe>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="mediaTypes.audio">
-                        <audio controls>
-                            <source [src]="media.selected.link" type="audio/mp3">
-                        </audio>
-                    </ng-container>
-                </ng-container>
+                <app-media-panel [media]="media" [imageObj]="media.selected"></app-media-panel>
             </div>
             <div id="container-thumb">
                 <!-- Thumbnails -->
                 <ol>
                     <li *ngFor="let imageObj of media.list; index as j">
-                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="media" [imageObj]="imageObj" [shownIndex]="j"
-                            [isThumbnail]="true">
+                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="media" [imageObj]="imageObj" [isThumbnail]="true">
                         </app-media-panel>
                     </li>
                 </ol>
             </div>
         </div>
     </ng-container>
-
     <ng-container *ngIf="media.list.length == 1">
-        <ng-container [ngSwitch]="media.selected.type">
-            <img *ngSwitchCase="mediaTypes.image" class="presentation" [src]='showMedia()'>
-            <ng-container *ngSwitchCase="mediaTypes.youtube">
-                <a [href]="showMedia()" target="_blank">
-                    <span>Click to open Youtube</span>
-                    <img src="/assets/icons/dashboard/baseline-play-24px.svg">
-                </a>
-            </ng-container>
-            <ng-container *ngSwitchCase="mediaTypes.video">
-                <iframe [src]="showVideoMedia()">
-                </iframe>
-            </ng-container>
-            <ng-container *ngSwitchCase="mediaTypes.pdf">
-                <a [href]="showMedia()" target="_blank">
-                    <span>Click to open PDF</span>
-                    <img src="/assets/icons/dashboard/baseline-description-24px.svg">
-                </a>
-            </ng-container>
-            <ng-container *ngSwitchCase="mediaTypes.html">
-                <iframe [src]="showVideoMedia()">
-                </iframe>
-            </ng-container>
-            <ng-container *ngSwitchCase="mediaTypes.audio">
-                <audio controls>
-                    <source [src]="showMedia()" type="audio/mp3">
-                </audio>
-            </ng-container>
-        </ng-container>
+        <app-media-panel [media]="media" [imageObj]="media.selected"></app-media-panel>
     </ng-container>
 </ng-container>
