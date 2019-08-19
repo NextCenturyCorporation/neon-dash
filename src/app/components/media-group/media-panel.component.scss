@@ -8,4 +8,30 @@
     border-radius: 3px;
     border-style: groove;
     box-shadow: 2px 2px 5px #222222;
+    cursor: pointer;
+}
+
+.presentation {
+    width: 98%;
+    height: 280px;
+    object-fit: contain;
+    border: 3px var(--color-dash-item-selectable, lightgrey);
+    border-radius: 5px;
+    border-style: groove;
+    transition: color 1s ease-in-out 1s;
+}
+
+a {
+    span {
+        float: left;
+        height: 24px;
+        line-height: 24px;
+        margin-right: 5px;
+    }
+}
+
+iframe {
+    height: 100%;
+    min-height: 345px;
+    width: 100%;
 }
