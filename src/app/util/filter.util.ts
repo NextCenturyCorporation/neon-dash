@@ -15,7 +15,7 @@
 
 import { CompoundFilterType } from '../models/widget-option';
 import { CompoundFilterConfig, FilterConfig, FilterDataSource, SimpleFilterConfig } from '../models/filter';
-import { Dataset, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, SingleField, NeonTableMetaData } from '../models/dataset';
+import { Dataset, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
 
 import * as _ from 'lodash';
@@ -79,9 +79,8 @@ export class FilterUtil {
         if (this.isCompoundFilterConfig(filterConfig)) {
             let returnList: FilterDataSource[] = [];
 
-            filterConfig.filters.forEach((nestedFilterConfig) => {
-                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromConfig(nestedFilterConfig,
-                    ignoreOperator);
+            filterConfig.filters.forEach((nestedConfig) => {
+                let nestedDataSourceList: FilterDataSource[] = this.createFilterDataSourceListFromConfig(nestedConfig, ignoreOperator);
 
                 nestedDataSourceList.forEach((nestedDataSource) => {
                     let exists = returnList.some((existingDataSource) => this.areFilterDataSourcesEquivalent(nestedDataSource,
@@ -147,6 +146,14 @@ export class FilterUtil {
             filter.operator === operator);
     }
 
+    /**
+     * Returns the names of all the fields in the given filter object.
+     */
+    static retrieveFields(filter: AbstractFilter): string[] {
+        return filter instanceof SimpleFilter ? [filter.field] : (filter instanceof CompoundFilter ?
+            filter.filters.reduce((list, nestedFilter) => list.concat(this.retrieveFields(nestedFilter)), []) : []);
+    }
+
     // https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
     /**
      * Returns if the given filter config is a CompoundFilterConfig.
@@ -199,12 +206,12 @@ export class FilterUtil {
             } as CompoundFilterConfig;
         } // Simple filter
         const [field, operator, value] = simple as string[];
-        const reference = DatasetUtil.deconstructDottedReference(field);
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(field);
         return {
-            datastore: reference.datastore,
-            database: reference.database,
-            table: reference.table,
-            field: reference.field,
+            datastore: fieldKey ? fieldKey.datastore : '',
+            database: fieldKey ? fieldKey.database : '',
+            table: fieldKey ? fieldKey.table : '',
+            field: fieldKey ? fieldKey.field : '',
             operator,
             value
         } as SimpleFilterConfig;
@@ -342,15 +349,15 @@ export abstract class AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {SingleField[]} equivalentRelationFilterFields
-     * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentRelationFilterFields
+     * @arg {FieldKey[]} substituteRelationFilterFields
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @abstract
      */
     public abstract createRelationFilter(
-        equivalentRelationFilterFields: SingleField[],
-        substituteRelationFilterFields: SingleField[],
+        equivalentRelationFilterFields: FieldKey[],
+        substituteRelationFilterFields: FieldKey[],
         dataset: Dataset
     ): AbstractFilter;
 
@@ -436,15 +443,15 @@ export class SimpleFilter extends AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {SingleField[]} equivalentRelationFilterFields
-     * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentRelationFilterFields
+     * @arg {FieldKey[]} substituteRelationFilterFields
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @override
      */
     public createRelationFilter(
-        equivalentRelationFilterFields: SingleField[],
-        substituteRelationFilterFields: SingleField[],
+        equivalentRelationFilterFields: FieldKey[],
+        substituteRelationFilterFields: FieldKey[],
         dataset: Dataset
     ): AbstractFilter {
         if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
@@ -456,7 +463,7 @@ export class SimpleFilter extends AbstractFilter {
         equivalentRelationFilterFields.forEach((equivalent, index) => {
             if (equivalent.datastore === this.datastore && equivalent.database === this.database.name &&
                 equivalent.table === this.table.name && equivalent.field === this.field.columnName) {
-                let substitute: SingleField = substituteRelationFilterFields[index];
+                let substitute: FieldKey = substituteRelationFilterFields[index];
 
                 if (substitute.database && substitute.table && substitute.field) {
                     let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[substitute.datastore] : null;
@@ -655,15 +662,15 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {SingleField[]} equivalentRelationFilterFields
-     * @arg {SingleField[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentRelationFilterFields
+     * @arg {FieldKey[]} substituteRelationFilterFields
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @override
      */
     public createRelationFilter(
-        equivalentRelationFilterFields: SingleField[],
-        substituteRelationFilterFields: SingleField[],
+        equivalentRelationFilterFields: FieldKey[],
+        substituteRelationFilterFields: FieldKey[],
         dataset: Dataset
     ): AbstractFilter {
         if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
