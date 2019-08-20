@@ -128,7 +128,7 @@ export class NeonDatastoreConfig {
     }
 }
 
-export interface SingleField {
+export interface FieldKey {
     datastore: string;
     database: string;
     table: string;
@@ -139,7 +139,7 @@ export interface Dataset {
     datastores: Record<string, NeonDatastoreConfig>;
     tableKeys: Record<string, string>;
     fieldKeys: Record<string, string>;
-    relations: SingleField[][][];
+    relations: FieldKey[][][];
 }
 
 export class Dataset {

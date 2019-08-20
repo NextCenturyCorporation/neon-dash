@@ -27,6 +27,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { DatasetUtil } from '../../util/dataset.util';
 import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { FilterCollection } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -330,7 +331,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getColumnWidth(fieldConfig) {
         for (let miniArray of this.options.customColumnWidths) {
-            let name = this.dashboardState.translateFieldKeyToValue(miniArray[0]);
+            let name = DatasetUtil.translateFieldKeyToFieldName(miniArray[0], this.dashboardState.dashboard.fields);
             if (fieldConfig === name) {
                 return miniArray[1];
             }
@@ -380,7 +381,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let pName = header.prettyName;
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let name = this.dashboardState.translateFieldKeyToValue(exception);
+            let name = DatasetUtil.translateFieldKeyToFieldName(exception, this.dashboardState.dashboard.fields);
             if (colName === name || pName === name) {
                 return true;
             }
@@ -393,7 +394,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let sorted = [];
         // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
         for (let exception of this.options.exceptionsToStatus) {
-            let header = this.dashboardState.translateFieldKeyToValue(exception);
+            let header = DatasetUtil.translateFieldKeyToFieldName(exception, this.dashboardState.dashboard.fields);
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);

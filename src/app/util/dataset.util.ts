@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SingleField } from '../models/dataset';
+import { FieldKey } from '../models/dataset';
 
 export class DatasetUtil {
     /**
-     * Returns dotted reference in constituent parts(datastore.database.table.field).
+     * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
+     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection.
      */
-    static deconstructDottedReference(name: string): SingleField {
-        const [datastore, database, table, ...field] = (name || '').split('.');
+    static deconstructTableOrFieldKeySafely(key: string, keys: Record<string, string> = {}): FieldKey {
+        const [datastore, database, table, ...field] = (keys[key] || key || '').split('.');
         return {
             datastore: datastore || '',
             database: database || '',
@@ -29,23 +30,18 @@ export class DatasetUtil {
     }
 
     /**
-     * Returns the datastore/database/table for the given table key.
+     * Returns an object containing the datastore/database/table/field in the given tablekey (datastore.database.table) or fieldkey
+     * (datastore.database.table.field) or the given tablekey/fieldkey in the given collection, or null if the key is not viable.
      */
-    static deconstructTableName(tableKeys: Record<string, string>, tableKey: string): SingleField {
-        return DatasetUtil.deconstructDottedReference(tableKeys[tableKey] || tableKey);
+    static deconstructTableOrFieldKey(key: string, keys: Record<string, string> = {}): FieldKey {
+        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key, keys);
+        return (fieldKeyObject.datastore && fieldKeyObject.database && fieldKeyObject.table) ? fieldKeyObject : null;
     }
 
     /**
-     * Returns the datastore/database/table/field for the given field key.
+     * Returns just the field name for the given field key.
      */
-    static deconstructFieldName(fieldKeys: Record<string, string>, fieldKey: string): SingleField {
-        return DatasetUtil.deconstructDottedReference(fieldKeys[fieldKey] || fieldKey);
-    }
-
-    /**
-     * Returns the field for the given field key.
-     */
-    static translateFieldKeyToValue(fieldKeys: Record<string, string>, fieldKey: string): string {
-        return DatasetUtil.deconstructFieldName(fieldKeys, fieldKey).field || fieldKey;
+    static translateFieldKeyToFieldName(fieldKey: string, fieldKeys: Record<string, string>): string {
+        return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKey, fieldKeys).field || fieldKey;
     }
 }
