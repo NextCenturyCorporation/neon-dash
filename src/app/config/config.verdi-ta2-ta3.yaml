@@ -8,56 +8,56 @@ datastores:
                 prettyName: Events
                 tables:
                     union:
-                        prettyName: Seedling
+                        prettyName: Seedling Index
                         fields:
                         labelOptions:
             kb-geo:
                 prettyName: Geolocation
                 tables:
                     union:
-                        prettyName: Seedling
+                        prettyName: Seedling Index
                         fields:
                         labelOptions:
             kb-union:
                 prettyName: Network
                 tables:
                     rdf-kb:
-                        prettyName: Seedling
+                        prettyName: Seedling Index
                         fields:
                         labelOptions:
             verdi-rdf-normal:
                 prettyName: Documents
                 tables:
                     normal:
-                        prettyName: Normal
+                        prettyName: Normal Index
                         fields:
                         labelOptions:
             verdi-rdf-kb:
-                prettyName: Documents
+                prettyName: Knowledge Elements
                 tables:
                     kb:
-                      prettyName: Knowledge Base
+                      prettyName: Knowledge Base Index
                       fields:
                       labelOptions:
             verdi-rdf-reified:
-                prettyName: Documents
+                prettyName: Reified Documents
                 tables:
                     reified:
-                        prettyName: Reified
+                        prettyName: Reified Index
                         fields:
                         labelOptions:
             verdi-support-hypothesis:
-                prettyName: Support
+                prettyName: Hypotheses
                 tables:
                     hypothesis-info:
-                        prettyName: Hypotheses
+                        prettyName: Support Hypotheses Index
                         fields:
                         labelOptions:
             verdi-support-parent-children:
-                prettyName: Support
+                prettyName: Child Documents
                 tables:
                     parent-children:
-                        prettyName: Parent Children Documents
+                        prettyName: SUpport Parent Children Index
                         fields:
                         labelOptions:
 dashboards:
