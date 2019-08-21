@@ -20,7 +20,8 @@
 
 <div #thumbnailGrid class="body-container thumbnail-grid">
     <div class="thumbnail-grid-container" *ngIf="gridArray.length">
-        <div class="thumbnail-grid-div" *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
+        <div [className]="options.viewType === view.CARD ? 'thumbnail-grid-div' : 'thumbnail-grid-div-scaled'"
+            *ngFor="let item of gridArray" [matTooltip]="getThumbnailTitle(item)"
             [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
             <app-subcomponent-title-thumbnail *ngIf="!options.viewType || options.viewType === view.TITLE" [item]="item"
                 [options]="options">

@@ -5,31 +5,31 @@ datastores:
         type: elasticsearchrest
         databases:
             aida-docs-parents:
-                prettyName: TA1 Parents
+                prettyName: TA1 Parent Documents
                 tables:
                     parents:
-                        prettyName: Root Documents
+                        prettyName: Root Index
                         fields:
                         labelOptions:
             aida-docs-parent-children:
-                prettyName: TA1 Children
+                prettyName: TA1 Child Documents
                 tables:
                     parent-children:
-                         prettyName: Child Documents
+                         prettyName: Child Index
                          fields:
                          labelOptions:
             gaia-graph:
-                prettyName: GAIA
+                prettyName: GAIA TA1 Graph
                 tables:
                     graph:
-                        prettyName: Documents
+                        prettyName: Graph Index
                         fields:
                         labelOptions:
             ldc-graph:
-                prettyName: LDC
+                prettyName: LDC TA1 Graph
                 tables:
                     graph:
-                        prettyName: Documents
+                        prettyName: Graph Index
                         fields:
                         labelOptions:
 dashboards:
@@ -59,7 +59,7 @@ dashboards:
                                 - - es1.aida-docs-parents.parents.id
                                   - es1.gaia-graph.graph.parentIds
                             options:
-                                connectOnLoad: false
+                                connectOnLoad: true
                                 colorMaps:
                                     gaia-graph:
                                         graph:
@@ -139,24 +139,7 @@ layouts:
               unsharedFilterValue: ENTITY
 
         - type: aggregation
-          row: 6
-          col: 3
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Relations
-              tableKey: graph_table
-              type: bar-h
-              xField: graph_field_type
-              groupField: graph_field_category
-              aggregation: count
-              logScaleX: true
-              sortByAggregation: true
-              unsharedFilterField: graph_field_category
-              unsharedFilterValue: RELATION
-
-        - type: aggregation
-          row: 11
+          row: 7
           col: 3
           sizex: 4
           sizey: 5.5
@@ -171,6 +154,23 @@ layouts:
               sortByAggregation: true
               unsharedFilterField: graph_field_category
               unsharedFilterValue: EVENT
+
+        - type: aggregation
+          row: 13
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Relations
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: true
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: RELATION
 
         - type: mediaViewer
           row: 1
@@ -223,24 +223,7 @@ layouts:
               unsharedFilterValue: ENTITY
 
         - type: aggregation
-          row: 6
-          col: 3
-          sizex: 4
-          sizey: 6
-          bindings:
-              title: Relations
-              tableKey: graph_table
-              type: bar-h
-              xField: graph_field_type
-              groupField: graph_field_category
-              aggregation: count
-              logScaleX: true
-              sortByAggregation: true
-              unsharedFilterField: graph_field_category
-              unsharedFilterValue: RELATION
-
-        - type: aggregation
-          row: 11
+          row: 7
           col: 3
           sizex: 4
           sizey: 5.5
@@ -255,6 +238,23 @@ layouts:
               sortByAggregation: true
               unsharedFilterField: graph_field_category
               unsharedFilterValue: EVENT
+
+        - type: aggregation
+          row: 13
+          col: 3
+          sizex: 4
+          sizey: 6
+          bindings:
+              title: Relations
+              tableKey: graph_table
+              type: bar-h
+              xField: graph_field_type
+              groupField: graph_field_category
+              aggregation: count
+              logScaleX: true
+              sortByAggregation: true
+              unsharedFilterField: graph_field_category
+              unsharedFilterValue: RELATION
 
         - type: mediaViewer
           row: 1

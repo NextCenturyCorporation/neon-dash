@@ -86,17 +86,17 @@ describe('Service: DashboardService', () => {
 
         dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             filters: ConfigUtil.translate(`[
-                [".databaseZ.tableA.field1","=","value1"],
+                ["datastore1.databaseZ.tableA.field1","=","value1"],
                 ["and",
-                    [".databaseY.tableB.field2", "!=", ""],
-                    [".databaseY.tableB.field2", "!=", null]
+                    ["datastore1.databaseY.tableB.field2", "!=", ""],
+                    ["datastore1.databaseY.tableB.field2", "!=", null]
                 ]
             ]`, ConfigUtil.encodeFiltersMap)
         }));
 
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)[0]).toEqual([{
-            datastore: '',
+            datastore: 'datastore1',
             database: 'databaseZ',
             table: 'tableA',
             field: 'field1',
@@ -105,14 +105,14 @@ describe('Service: DashboardService', () => {
         }, {
             type: 'and',
             filters: [{
-                datastore: '',
+                datastore: 'datastore1',
                 database: 'databaseY',
                 table: 'tableB',
                 field: 'field2',
                 operator: '!=',
                 value: ''
             }, {
-                datastore: '',
+                datastore: 'datastore1',
                 database: 'databaseY',
                 table: 'tableB',
                 field: 'field2',
@@ -501,13 +501,6 @@ describe('Service: DashboardService with Mock Data', () => {
         }));
 
         expect(dashboardService.state.findRelationDataList()).toEqual([]);
-    });
-
-    it('translateFieldKeyToValue does return expected string', () => {
-        expect(dashboardService.state.translateFieldKeyToValue('field_key_1')).toEqual('testFieldKeyField');
-        expect(dashboardService.state.translateFieldKeyToValue('testDateField')).toEqual('testDateField');
-        expect(dashboardService.state.translateFieldKeyToValue('testNameField')).toEqual('testNameField');
-        expect(dashboardService.state.translateFieldKeyToValue('testSizeField')).toEqual('testSizeField');
     });
 
     function getConfig(filters: string | FilterConfig[]) {

@@ -15,6 +15,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaViewerComponent } from './media-viewer.component';
+import { MediaGroupModule } from '../media-group/media-group.module';
 import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
@@ -28,6 +29,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
         MatTabsModule,
         MatSliderModule,
         DataMessageModule,
+        MediaGroupModule,
         CommonModule
     ]
 })

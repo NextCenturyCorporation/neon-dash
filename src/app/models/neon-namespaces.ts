@@ -46,6 +46,27 @@ export namespace neonUtilities {
     }
 
     /**
+     * Transforms the given string or string array into a string array and returns the array.
+     *
+     * @arg {string|string[]} input
+     * @return {string[]}
+     */
+    export function transformToStringArray(input, delimiter: string) {
+        if (Array.isArray(input)) {
+            return input;
+        }
+        if (input !== '' && input !== null && typeof input !== 'undefined') {
+            let inputValue = input.toString();
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
+                typeof inputValue !== 'undefined') {
+                inputValue = inputValue.substring(1, inputValue.length - 1);
+            }
+            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
+        }
+        return [];
+    }
+
+    /**
      * Returns the object nested inside the given object using the given path string (with periods to mark each nested property).
      *
      * @arg {object} item
