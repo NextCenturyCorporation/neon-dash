@@ -51,11 +51,10 @@ export class DashboardState {
         if (!this.dashboard.options.simpleFilter) {
             let tableKey = Object.keys(this.dashboard.tables)[0];
 
-            const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(tableKey, this.dashboard.tables);
+            const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(tableKey);
 
             this.dashboard.options.simpleFilter = {
                 fieldKey: '',
-                tableKey: '',
                 databaseName: fieldKeyObject.database,
                 tableName: fieldKeyObject.table,
                 fieldName: ''
@@ -232,7 +231,7 @@ export class DashboardState {
                 [configRelationFilterFields];
 
             return relationFilterFields.map((item) => {
-                const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item, this.dashboard.tables);
+                const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item);
                 // Verify that the datastore, database, table, and field are all objects that exist within the current dashboard state.
                 const databaseObject: NeonDatabaseMetaData = this.getDatabaseWithName(fieldKey.database);
                 const tableObject: NeonTableMetaData = this.getTableWithName(fieldKey.database, fieldKey.table);
