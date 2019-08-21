@@ -33,7 +33,7 @@ export class ConfigService {
 
     private $default: Observable<NeonConfig>;
 
-    private _errors: string[] = [];
+    private _configFileLoadErrors: string[] = [];
 
     // eslint-disable-next-line no-invalid-this
     $source = this.source.asObservable()
@@ -60,7 +60,7 @@ export class ConfigService {
             return of(undefined);
         }
         console.error(error);
-        this._errors.push(error.message);
+        this._configFileLoadErrors.push(error.message);
         return of(NeonConfig.get());
     }
 
@@ -96,8 +96,12 @@ export class ConfigService {
             config.errors = (config.errors || []).concat('Config does not have any datastores!');
         }
 
-        config.errors = (config.errors || []).concat(this._errors);
-        this._errors = [];
+        // If a config file failed to load but another one loaded successfully, don't bother showing any of the load errors.
+        if (this._configFileLoadErrors.length && config.fileName !== ConfigUtil.DEFAULT_CONFIG_NAME) {
+            config.errors = (config.errors || []).concat(this._configFileLoadErrors);
+        }
+
+        this._configFileLoadErrors = [];
 
         if (config.neonServerUrl) {
             neon.setNeonServerUrl(config.neonServerUrl);

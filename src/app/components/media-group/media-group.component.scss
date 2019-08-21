@@ -1,0 +1,59 @@
+:host {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+
+iframe {
+    height: 100%;
+    min-height: 345px;
+    width: 100%;
+}
+
+ol {
+    clear: both;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    align-content: center;
+    padding-inline-start: 2px;
+}
+
+li {
+    list-style: none;
+}
+
+#viewer-container {
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#pres-container {
+    position: relative;
+    align-content: top;
+}
+
+#container-thumb {
+    position: relative;
+}
+
+.presentation {
+    width: 98%;
+    height: 280px;
+    object-fit: contain;
+    border: 3px var(--color-dash-item-selectable, lightgrey);
+    border-radius: 5px;
+    border-style: groove;
+    transition: color 1s ease-in-out 1s;
+}
+
+a {
+    span {
+        float: left;
+        height: 24px;
+        line-height: 24px;
+        margin-right: 5px;
+    }
+}
