@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { CompoundFilterType } from '../models/widget-option';
-import { Dataset, SingleField } from '../models/dataset';
+import { Dataset, FieldKey } from '../models/dataset';
 import { FilterConfig, FilterDataSource } from '../models/filter';
 import {
     AbstractFilter,
@@ -53,7 +53,7 @@ export class FilterService {
             // Assume that each item within the relationData list is a nested list with the same length.
             // EX:  [[x1, y1], [x2, y2], [x3, y3]]
             if (relationData.length && relationData[0].length === filterDataSourceList.length) {
-                let equivalentRelationList: SingleField[][] = relationData.filter((relationFilterFields) =>
+                let equivalentRelationList: FieldKey[][] = relationData.filter((relationFilterFields) =>
                     // Each item within the relationFilterFields must be equivalent to a FilterDataSource.
                     relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
                         this._isRelationEquivalent(relatedField, filterDataSource))) &&
@@ -296,12 +296,12 @@ export class FilterService {
     /**
      * Returns if the given field is equivalent to the given data source.
      *
-     * @arg {SingleField} inputField
+     * @arg {FieldKey} inputField
      * @arg {FilterDataSource} filterDataSource
      * @return {boolean}
      * @private
      */
-    private _isRelationEquivalent(inputField: SingleField, filterDataSource: FilterDataSource): boolean {
+    private _isRelationEquivalent(inputField: FieldKey, filterDataSource: FilterDataSource): boolean {
         return !!(inputField.datastore === filterDataSource.datastore && inputField.database === filterDataSource.database &&
             inputField.table === filterDataSource.table && inputField.field === filterDataSource.field);
     }

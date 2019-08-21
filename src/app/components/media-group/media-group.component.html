@@ -1,0 +1,21 @@
+<ng-container *ngIf="media.list">
+    <ng-container *ngIf="media.list.length != 1">
+        <div id="viewer-container">
+            <div id="pres-container">
+                <app-media-panel [media]="media" [imageObj]="media.selected"></app-media-panel>
+            </div>
+            <div id="container-thumb">
+                <!-- Thumbnails -->
+                <ol>
+                    <li *ngFor="let imageObj of media.list; index as j">
+                        <app-media-panel id="thumb-{{j}}" class="thumbnail" [media]="media" [imageObj]="imageObj" [isThumbnail]="true">
+                        </app-media-panel>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="media.list.length == 1">
+        <app-media-panel [media]="media" [imageObj]="media.selected"></app-media-panel>
+    </ng-container>
+</ng-container>
