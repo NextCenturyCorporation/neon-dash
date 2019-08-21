@@ -1,10 +1,12 @@
 #!/bin/bash
 
-BUILD_DATE=$(date +"%B %d, %Y at %H:%M")
-GIT_HASH=$(git log --format="%H" -n 1)
+cp src/environments/environment_config.ts src/environments/environment.prod.ts
 
-# Replacing stubs of Environment variables
-for FILE in src/environments/*.prod.ts; do
-  npx replace-in-file /[{]build-date[}]/ "${BUILD_DATE}" $FILE --isRegex
-  npx replace-in-file /[{]git-hash[}] "${GIT_HASH}" $FILE --isRegex
-done
+BUILD_DATE=$(date +"%B %d, %Y at %H:%M")
+BUILD_DATE_STRING="buildDate: '${BUILD_DATE}',"
+RECENT_GIT=$(git log --format="%H" -n 1)
+RECENT_GIT_STRING="recentGit: '${RECENT_GIT}',"
+
+npx replace-in-file /buildDate.*/ "${BUILD_DATE_STRING}" src/environments/environment.prod.ts --isRegex
+npx replace-in-file /recentGit.*/ "${RECENT_GIT_STRING}" src/environments/environment.prod.ts --isRegex
+

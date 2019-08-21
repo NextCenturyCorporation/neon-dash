@@ -289,30 +289,32 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         let toArray = (el: string | string[]) => Array.isArray(el) ? el : (el ? el.split('.') : []);
 
         // Compose all layers into single array of [name, type][]
-        const segments: [string[], string][] = [
+        const categoriesAndTypes: [string[], string][] = [
             [toArray(lineage.category), 'category'],
             [toArray(lineage.type), 'type'],
             [toArray(lineage.subtype), 'subtype']
         ];
 
         let pos = 0;
-        for (const [segment, ptype] of segments) {
+        for (const [categoryOrTypeList, fieldNamePrefix] of categoriesAndTypes) {
             let subPos = 0;
             // Travel inward, one level at a time
-            for (const pcat of segment) {
+            for (const categoryOrType of categoryOrTypeList) {
                 // Traverse forward in each layer
-                if (!(pcat in currentGroup.childrenMap)) {
+                if (!(categoryOrType in currentGroup.childrenMap)) {
                     // Find field that this node should be filtered by
-                    const fieldToCheck = this.options[`${ptype}Field`];
+                    const fieldToCheck = this.options[`${fieldNamePrefix}Field`];
+                    // The node's type.subtype
+                    const dottedNodeType = categoryOrTypeList.slice(0, subPos + 1).join('.');
 
                     // Build new object
                     const node: TaxonomyGroup = {
                         id: `${this.counter++}`,
                         description: fieldToCheck,
-                        name: pcat,
-                        externalName: segment.slice(0, subPos + 1).join('.'),
+                        name: categoryOrType,
+                        externalName: dottedNodeType,
                         parent: currentGroup,
-                        checked: !this.isTaxonomyNodeFiltered(filters, fieldToCheck, pcat),
+                        checked: !this.isTaxonomyNodeFiltered(filters, fieldToCheck, dottedNodeType),
                         sourceIds: [],
                         nodeIds: new Set(),
                         level: pos + 1,
@@ -323,11 +325,11 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     };
 
                     // Register node with parent
-                    currentGroup.childrenMap[pcat] = node;
+                    currentGroup.childrenMap[categoryOrType] = node;
                     currentGroup.children.push(node);
                 }
                 // Descend into child
-                const next = currentGroup.childrenMap[pcat] as TaxonomyGroup;
+                const next = currentGroup.childrenMap[categoryOrType] as TaxonomyGroup;
                 currentGroup = next;
                 pos += 1;
                 subPos += 1;
@@ -434,7 +436,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                             this.mergeTaxonomyData(group, { ...lineage, subtype }, {
                                 ...child,
                                 id: `${this.counter++}`,
-                                checked: !this.isTaxonomyNodeFiltered(filters, options.subTypeField, subtype)
+                                checked: !this.isTaxonomyNodeFiltered(filters, options.subTypeField, type + '.' + subtype)
                             }, filters);
                         }
                     } else {
@@ -628,22 +630,23 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     private _updateChildNodesCheckBox(node: TreeNode | TaxonomyNode, checked: boolean): void {
-        let setNode: TaxonomyGroup = 'data' in node ? node.data : node;
-        setNode.checked = checked;
-        if (checked === false && setNode.indeterminate) {
-            setNode.indeterminate = checked;
+        let nodeData: TaxonomyGroup = 'data' in node ? node.data : node;
+        nodeData.checked = checked;
+        if (!checked) {
+            nodeData.indeterminate = false;
         }
-
-        if (setNode.children) {
-            setNode.children.forEach((child) => this._updateChildNodesCheckBox(child, checked));
+        if (nodeData.children) {
+            nodeData.children.forEach((child) => this._updateChildNodesCheckBox(child, checked));
         }
     }
 
     private _updateEachTreeNodeCheckBox(node: TaxonomyGroup | TaxonomyNode): void {
         if ('children' in node && node.children.length) {
-            this._updateNodeCheckBox(node);
-
             for (const child of node.children) {
+                if (child.checked) {
+                    this._updateChildNodesCheckBox(child, true);
+                    this._updateParentNodesCheckBox(node);
+                }
                 this._updateEachTreeNodeCheckBox(child);
             }
         }

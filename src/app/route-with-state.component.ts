@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { OnInit, HostBinding, Inject } from '@angular/core';
+import { OnInit, HostBinding } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
 
 import { distinctUntilKeyChanged, filter, mergeMap } from 'rxjs/operators';
 
@@ -30,18 +29,16 @@ export class RouteWithStateComponent implements OnInit {
     loading = true;
 
     constructor(
-        @Inject(APP_BASE_HREF) private baseHref: string,
         private configService: ConfigService,
         private dashboardService: DashboardService,
-        private router: Router,
-        private hrefSuffix: string = ''
+        private router: Router
     ) { }
 
     ngOnInit() {
         this.router.events
             .pipe(
                 filter((ev) => ev instanceof NavigationEnd),
-                mergeMap(() => this.configService.setActiveByURL(window.location, this.baseHref + this.hrefSuffix)),
+                mergeMap(() => this.configService.setActiveByURL(window.location)),
                 distinctUntilKeyChanged('fileName')
             )
             .subscribe((config) => {
@@ -57,7 +54,7 @@ export class RouteWithStateComponent implements OnInit {
             }
         });
 
-        this.configService.setActiveByURL(window.location, this.baseHref + this.hrefSuffix).subscribe((config) => {
+        this.configService.setActiveByURL(window.location).subscribe((config) => {
             this.config = config;
             this.loading = false;
         });

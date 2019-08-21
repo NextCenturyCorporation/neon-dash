@@ -117,8 +117,13 @@ export class SaveStateComponent implements OnInit {
     public loadState(name: string): void {
         this.configService.load(name)
             .subscribe((config) => {
-                this.router.navigate([config.fileName], { relativeTo: this.router.routerState.root });
-                this.openNotification(name, 'loaded');
+                this.router.navigate(['/'], {
+                    fragment: '',
+                    queryParams: {
+                        dashboard: config.fileName
+                    },
+                    relativeTo: this.router.routerState.root
+                });
                 this.closeSidenav();
             }, this.handleStateFailure.bind(this, name));
     }
@@ -149,7 +154,7 @@ export class SaveStateComponent implements OnInit {
     private handleStateFailure(name: string, response: any) {
         this.isLoading = false;
         this.messenger.publish(neonEvents.DASHBOARD_MESSAGE, {
-            error: response.responseJSON ? response.responseJSON.stackTrace : response.responseText,
+            error: response,
             message: 'Dashboard state operation failed on "' + name + '"'
         });
     }
