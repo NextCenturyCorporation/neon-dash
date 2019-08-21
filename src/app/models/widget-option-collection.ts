@@ -144,7 +144,7 @@ export class OptionCollection {
      */
     public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
         let fieldKey = this.config.get(bindingKey, '');
-        return this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey)) || NeonFieldMetaData.get();
+        return this.findField(DatasetUtil.translateFieldKeyToFieldName(fieldKey, dataset.fieldKeys)) || NeonFieldMetaData.get();
     }
 
     /**
@@ -152,8 +152,9 @@ export class OptionCollection {
      */
     public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
         let bindings = this.config.get(bindingKey, []);
-        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) =>
-            this.findField(DatasetUtil.translateFieldKeyToValue(dataset.fieldKeys, fieldKey))).filter((fieldsObject) => !!fieldsObject);
+        return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(DatasetUtil.translateFieldKeyToFieldName(
+            fieldKey, dataset.fieldKeys
+        ))).filter((fieldsObject) => !!fieldsObject);
     }
 
     protected getConstructor<T>(this: T): new (...args: any[]) => T {
@@ -199,13 +200,14 @@ export class OptionCollection {
         if (this.databases.length) {
             // By default, set the initial database to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
-                configuredTableKeys[0]).database;
+            let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
+                configuredTableKeys[0], dataset.tableKeys
+            ).database;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredDatabase = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).database;
+                configuredDatabase = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey, dataset.tableKeys).database;
             }
 
             if (configuredDatabase) {
@@ -262,13 +264,14 @@ export class OptionCollection {
         if (this.tables.length > 0) {
             // By default, set the initial table to the first one in the dataset's configured table keys.
             let configuredTableKeys = Object.keys(dataset.tableKeys || {});
-            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableName(dataset.tableKeys,
-                configuredTableKeys[0]).table;
+            let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
+                configuredTableKeys[0], dataset.tableKeys
+            ).table;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
             if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredTable = DatasetUtil.deconstructTableName(dataset.tableKeys, configuredTableKey).table;
+                configuredTable = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey, dataset.tableKeys).table;
             }
 
             if (configuredTable) {

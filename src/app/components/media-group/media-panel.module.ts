@@ -12,24 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NewsFeedComponent } from './news-feed.component';
-import { CommonWidgetModule } from '../../common-widget.module';
+import { FormsModule } from '@angular/forms';
+import { MediaPanelComponent } from './media-panel.component';
 import { DataMessageModule } from '../data-message/data-message.module';
-import { MatExpansionModule } from '@angular/material';
-import { MediaGroupModule } from '../media-group/media-group.module';
-
+import { CommonWidgetModule } from '../../common-widget.module';
 @NgModule({
-    declarations: [NewsFeedComponent],
-    exports: [NewsFeedComponent],
-    entryComponents: [NewsFeedComponent],
+    declarations: [MediaPanelComponent],
+    exports: [MediaPanelComponent],
+    entryComponents: [MediaPanelComponent],
     imports: [
-        MatExpansionModule,
+        FormsModule,
         CommonWidgetModule,
-        CommonModule,
         DataMessageModule,
-        MediaGroupModule
+        CommonModule
     ]
 })
-export class NewsFeedModule { }
+export class MediaPanelModule { }
