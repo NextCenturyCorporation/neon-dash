@@ -359,7 +359,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     appendType(link: string, type: string) {
-        return ((!!type && this.isValidMediaType(type) && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' +  type) : link);
+        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' +  type) : link);
     }
 
     /**
