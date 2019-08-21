@@ -63,6 +63,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.defaultLabel).toEqual('');
         expect(component.options.defaultPercent).toEqual('');
         expect(component.options.id).toEqual('');
+
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
@@ -91,14 +92,7 @@ describe('Component: ThumbnailGrid', () => {
 
     it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
-        expect(component.mediaTypes).toEqual({
-            image: 'img',
-            video: 'vid',
-            html: 'htm',
-            pdf: 'pdf',
-            audio: 'aud',
-            maskImage: 'mask'
-        });
+        expect(component.mediaTypes).toBeDefined();
     });
 
     it('does show toolbar', () => {
@@ -170,11 +164,12 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does not show thumbnail-grid-div elements if gridArray is empty array', () => {
+        component.options.viewType = 'card';
         let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
         expect(elements.length).toEqual(0);
     });
 
-    it('does show thumbnail-grid-div elements if gridArray is non-empty array', async(() => {
+    it('does show thumbnail-grid-div-scaled elements if gridArray is non-empty array', async(() => {
         component.options.linkField = NeonFieldMetaData.get({
             columnName: 'testLinkField', prettyName: 'Test Link Field'
         });
@@ -213,7 +208,7 @@ describe('Component: ThumbnailGrid', () => {
         // Force the component to update all its ngFor and ngIf elements.
         component.changeDetection.detectChanges();
 
-        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
+        let elements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div-scaled'));
         expect(elements.length).toEqual(2);
 
         expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
@@ -222,7 +217,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
         expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
 
-        let divElements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div'));
+        let divElements = fixture.debugElement.queryAll(By.css('.body-container .thumbnail-grid-div-scaled'));
         expect(divElements.length).toEqual(2);
     }));
 

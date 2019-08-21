@@ -4,7 +4,7 @@ const app = express();
 const path = require('path');
 
 app.use(express.static('dist'));
-app.use('/', proxy('loreleidemo.ddns.net', {
+app.use('/', proxy('neon-server.nc-demo.com', {
   filter: (req) => req.path.includes('/neon/'),
   proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
     proxyReqOpts.headers['Authorization'] = 'Basic bG9yZWxlaTp0aG9ydGhvcg==';

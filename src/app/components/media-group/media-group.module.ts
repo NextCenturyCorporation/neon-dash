@@ -14,22 +14,25 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NewsFeedComponent } from './news-feed.component';
-import { CommonWidgetModule } from '../../common-widget.module';
+import { FormsModule } from '@angular/forms';
+import { MediaGroupComponent } from './media-group.component';
+import { MatTabsModule, MatSliderModule } from '@angular/material';
 import { DataMessageModule } from '../data-message/data-message.module';
-import { MatExpansionModule } from '@angular/material';
-import { MediaGroupModule } from '../media-group/media-group.module';
+import { CommonWidgetModule } from '../../common-widget.module';
+import { MediaPanelModule } from './media-panel.module';
 
 @NgModule({
-    declarations: [NewsFeedComponent],
-    exports: [NewsFeedComponent],
-    entryComponents: [NewsFeedComponent],
+    declarations: [MediaGroupComponent],
+    exports: [MediaGroupComponent],
+    entryComponents: [MediaGroupComponent],
     imports: [
-        MatExpansionModule,
+        FormsModule,
         CommonWidgetModule,
-        CommonModule,
+        MatTabsModule,
+        MatSliderModule,
         DataMessageModule,
-        MediaGroupModule
+        MediaPanelModule,
+        CommonModule
     ]
 })
-export class NewsFeedModule { }
+export class MediaGroupModule { }

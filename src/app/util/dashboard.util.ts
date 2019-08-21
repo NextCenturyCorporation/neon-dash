@@ -15,7 +15,7 @@
 import * as _ from 'lodash';
 
 import { NeonDashboardConfig } from '../models/types';
-import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
+import { FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 import { ConfigUtil } from './config.util';
 import { DatasetUtil } from './dataset.util';
 
@@ -82,20 +82,18 @@ export class DashboardUtil {
                 if (leaf.options.simpleFilter) {
                     const filter = leaf.options.simpleFilter;
                     if (filter.tableKey) {
-                        let tableKey = filter.tableKey;
+                        const tableKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[filter.tableKey]);
 
-                        const { database, table } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
-
-                        filter.databaseName = database;
-                        filter.tableName = table;
-
-                        if (filter.fieldKey) {
-                            let fieldKey = filter.fieldKey;
-                            const { field: fieldName } = DatasetUtil.deconstructDottedReference(leaf.fields[fieldKey]);
-
-                            filter.fieldName = fieldName;
-                        } else {
+                        if (tableKeyObject) {
+                            filter.databaseName = tableKeyObject.database;
+                            filter.tableName = tableKeyObject.table;
                             filter.fieldName = '';
+
+                            if (filter.fieldKey) {
+                                const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.fields[filter.fieldKey]);
+
+                                filter.fieldName = fieldKeyObject ? fieldKeyObject.field : '';
+                            }
                         }
                     } else {
                         delete leaf.options.simpleFilter;
@@ -123,9 +121,9 @@ export class DashboardUtil {
                 const parent = path[path.length - 1];
 
                 for (const tableKey of tableKeys) {
-                    const { database } = DatasetUtil.deconstructDottedReference(leaf.tables[tableKey]);
+                    const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
 
-                    if (database === invalidDatabaseName) {
+                    if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
                         delete parent.choices[leaf.name];
                         return;
                     }

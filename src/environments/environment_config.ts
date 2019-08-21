@@ -14,7 +14,7 @@
  */
 export const environment = {
     config: ['./app/config/config.yaml', './app/config/config.json'],
-    production: true,
-    buildDate: '{build-date}',
-    recentGit: '{git-hash}'
+    buildDate: '',
+    recentGit: '',
+    production: true
 };
