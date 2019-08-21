@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData, SingleField } from './dataset';
+import { Dataset, FieldKey, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from './dataset';
 import { NeonDashboardLeafConfig } from './types';
 import { DatasetUtil } from '../util/dataset.util';
 
@@ -26,20 +26,6 @@ export class DashboardState {
 
     get id() {
         return this.dashboard.fullTitle;
-    }
-
-    /**
-     * Returns database name from matching table key within the dashboard passed in.
-     */
-    deconstructTableName(key: string) {
-        return DatasetUtil.deconstructTableName(this.dashboard.tables, key);
-    }
-
-    /**
-     * Returns database name from matching table key within the dashboard passed in.
-     */
-    deconstructFieldName(key: string) {
-        return DatasetUtil.deconstructFieldName(this.dashboard.fields, key);
     }
 
     /**
@@ -65,13 +51,13 @@ export class DashboardState {
         if (!this.dashboard.options.simpleFilter) {
             let tableKey = Object.keys(this.dashboard.tables)[0];
 
-            const { database, table } = this.deconstructTableName(tableKey);
+            const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(tableKey, this.dashboard.tables);
 
             this.dashboard.options.simpleFilter = {
                 fieldKey: '',
                 tableKey: '',
-                databaseName: database,
-                tableName: table,
+                databaseName: fieldKeyObject.database,
+                tableName: fieldKeyObject.table,
                 fieldName: ''
             };
         }
@@ -214,7 +200,7 @@ export class DashboardState {
      * Returns the list of relation data for the current datastore:  elements of the outer array are individual relations and elements of
      * the inner array are specific fields within the relations.
      */
-    public findRelationDataList(): SingleField[][][] {
+    public findRelationDataList(): FieldKey[][][] {
         // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
         // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
         let configRelationDataList: (string | string[])[][] = this.dashboard.relations || [];
@@ -246,20 +232,13 @@ export class DashboardState {
                 [configRelationFilterFields];
 
             return relationFilterFields.map((item) => {
-                const { database, table, field } = this.deconstructTableName(item);
-                const databaseObject: NeonDatabaseMetaData = this.getDatabaseWithName(database);
-                const tableObject: NeonTableMetaData = this.getTableWithName(database, table);
-                const fieldObject: NeonFieldMetaData = this.getFieldWithName(database, table, field);
-
-                const res = {
-                    datastore: this.datastore ? this.datastore.name : null,
-                    database: databaseObject ? databaseObject.name : null,
-                    table: tableObject ? tableObject.name : null,
-                    field: fieldObject ? fieldObject.columnName : null
-                } as SingleField;
-
-                return res;
-            }).filter((item) => item.datastore && item.database && item.table && item.field);
+                const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item, this.dashboard.tables);
+                // Verify that the datastore, database, table, and field are all objects that exist within the current dashboard state.
+                const databaseObject: NeonDatabaseMetaData = this.getDatabaseWithName(fieldKey.database);
+                const tableObject: NeonTableMetaData = this.getTableWithName(fieldKey.database, fieldKey.table);
+                const fieldObject: NeonFieldMetaData = this.getFieldWithName(fieldKey.database, fieldKey.table, fieldKey.field);
+                return (this.datastore && databaseObject && tableObject && fieldObject) ? fieldKey : null;
+            }).filter((item) => !!item);
         })).filter((relationData) => {
             if (relationData.length > 1) {
                 // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
@@ -282,13 +261,6 @@ export class DashboardState {
      */
     public getFieldByKey(key: string): string {
         return this.dashboard.fields[key];
-    }
-
-    /**
-     * If field key is referenced in config file, find field value using current dashboard.
-     */
-    public translateFieldKeyToValue(fieldKey: string): string {
-        return DatasetUtil.translateFieldKeyToValue(this.dashboard.fields, fieldKey);
     }
 
     /**

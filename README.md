@@ -79,6 +79,12 @@ The linters are run using the following files:
 - [.jsbeautifyrc](./.jsbeautifyrc)
 - [sass-lint.yaml](./sass-lint.yaml) and [sass-lint-auto-fix.yaml](./sass-lint-auto-fix.yaml)
 
+### End-to-End Tests
+
+`./e2e.sh`
+
+Please see the documentation on [End-to-End Testing in the Neon Dashboard](./docs/END_TO_END_TESTING.md) for more information.
+
 ## Production Deployment Instructions
 
 The Neon Dashboard is deployed as either a [docker container](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-docker-container) (together with the Neon Server) or a [WAR in Apache Tomcat](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#deploy-as-war-in-apache-tomcat) (independently from the Neon Server).
@@ -190,7 +196,7 @@ datastores:
 
 Replace `<ip_address>`, `<elasticsearch_index_name>`, and `<elasticsearch_index_type>` with the appropriate values.
 
-Additionally, if your data contains many (hundreds of) fields, we recommend that you add all the fields you want to show in the UI to the datastore configuration under `fields:`.  For example:
+You don't need to list each field in your datastore because Neon will automatically find them all and make them available to you in the UI.  However, if your data contains many (hundreds of) fields, we recommend that you add all the fields you want to show in the UI to the datastore configuration under `fields:`.  For example:
 
 ```yaml
                         fields:
