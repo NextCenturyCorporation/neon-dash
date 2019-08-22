@@ -107,6 +107,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
+    public url: string[] = [];
+    public text: string[] = [];
 
     constructor(
         protected colorThemeService: InjectableColorThemeService,
@@ -714,5 +716,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         return (!this.options.singleColor && this.colorKeys.length > 0);
+    }
+
+    hasUrl(text: string) {
+        let textObject = neonUtilities.hasUrl(text);
+        this.url = textObject.url;
+        this.text = textObject.splitText;
+        return textObject.test;
     }
 }
