@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 export namespace neonEvents {
     export const DASHBOARD_MESSAGE = 'DASHBOARD_MESSAGE';
     export const DASHBOARD_REFRESH = 'DASHBOARD_REFRESH';
@@ -33,6 +32,8 @@ export namespace neonEvents {
 }
 
 export namespace neonUtilities {
+    // eslint-disable-next-line max-len
+    const urlPattern = /(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}\-\x{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?/ig;
 
     /**
      * Flattens and returns the given array.
@@ -94,6 +95,41 @@ export namespace neonUtilities {
             itemToReturn = itemToReturn ? itemToReturn[path[index]] : undefined;
         }
         return itemToReturn;
+    }
+
+    export function checkStringForUrl(text: string) {
+        // Need to use match operator and not RegExp.exec() because use of global flag
+        // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+        let matches = text.match(urlPattern);
+        let prefixPattern = new RegExp('^(http|https|ftp)://');
+        let temp;
+        matches.forEach((url, index) => {
+            if (!prefixPattern.test(url)) {
+                temp = 'http://' + url;
+                matches[index] = temp;
+            }
+        });
+        return matches;
+    }
+
+    export function hasUrl(text: string) {
+        let test = urlPattern.test(text);
+        let url = [];
+        let splitText = [];
+        if (test) {
+            url = checkStringForUrl(text);
+            splitText = splitStringByUrl(text);
+        }
+        return {
+            test,
+            url,
+            splitText
+        };
+    }
+
+    export function splitStringByUrl(text: string) {
+        let textParts = text.split(urlPattern);
+        return textParts;
     }
 
     /**
