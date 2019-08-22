@@ -71,6 +71,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public selectedTabIndex: number = 0;
 
     public mediaTypes: any = MediaTypes;
+    public url: string[] = [];
+    public text: string[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -267,6 +269,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                 field: {},
                 media: undefined
             };
+
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
                     let value = neonUtilities.deepFind(result, field.columnName);
@@ -418,5 +421,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     appendPrefixIfNeeded(link: string, prefix: string) {
         return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
+    }
+
+    hasUrl(text: string) {
+        let textObject = neonUtilities.hasUrl(text);
+        this.url = textObject.url;
+        this.text = textObject.splitText;
+        return textObject.test;
     }
 }
