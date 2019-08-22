@@ -19,6 +19,7 @@ import { CommonWidgetModule } from '../../common-widget.module';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { MatExpansionModule } from '@angular/material';
 import { MediaGroupModule } from '../media-group/media-group.module';
+import { TextWithUrlModule } from '../text-with-url/text-with-url.module';
 
 @NgModule({
     declarations: [NewsFeedComponent],
@@ -29,7 +30,8 @@ import { MediaGroupModule } from '../media-group/media-group.module';
         CommonWidgetModule,
         CommonModule,
         DataMessageModule,
-        MediaGroupModule
+        MediaGroupModule,
+        TextWithUrlModule
     ]
 })
 export class NewsFeedModule { }
