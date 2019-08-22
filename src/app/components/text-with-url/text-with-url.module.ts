@@ -12,32 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material';
-import { AnnotationViewerComponent } from './annotation-viewer.component';
-import { LegendModule } from '../legend/legend.module';
+import { FormsModule } from '@angular/forms';
+import { TextWithUrlComponent } from './text-with-url.component';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
-import { TextWithUrlModule } from '../text-with-url/text-with-url.module';
 
 @NgModule({
-    declarations: [
-        AnnotationViewerComponent
-    ],
-    exports: [
-        AnnotationViewerComponent
-    ],
-    entryComponents: [
-        AnnotationViewerComponent
-    ],
+    declarations: [TextWithUrlComponent],
+    exports: [TextWithUrlComponent],
+    entryComponents: [TextWithUrlComponent],
     imports: [
-        LegendModule,
+        FormsModule,
         CommonWidgetModule,
-        MatListModule,
         DataMessageModule,
-        CommonModule,
-        TextWithUrlModule
+        CommonModule
     ]
 })
-export class AnnotationViewerModule { }
+export class TextWithUrlModule { }

@@ -35,19 +35,11 @@
                                 'document-row': !options.respondMode || options.highlightInRespondMode,
                                 'document-row-no-highlight-respond': options.respondMode && !options.highlightInRespondMode
                             }" (click)="onClick(item)">
-                        <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type"
-                            (click)="onClickPart(parts, item); stopEventPropagation($event)" tooltip-position="below">
-                            <ng-container *ngIf="hasUrl(parts.text)">
-                                <ng-container *ngFor="let link of this.url; let i = index">
-                                    {{this.text[i]}}
-                                    <a href="{{link}}" target="_blank">
-                                        {{link}}</a>
-                                </ng-container>
-                                {{this.text.slice(-1)[0]}}
-                            </ng-container>
-                            <ng-container *ngIf="!hasUrl(parts.text)">
-                                {{parts.text}}
-                            </ng-container>
+                        <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor"
+                            [matTooltip]="parts.type" (click)="onClickPart(parts, item); stopEventPropagation($event)"
+                            tooltip-position="below">
+                            <app-text-with-url [text]=parts.text>
+                            </app-text-with-url>
                         </span>
                     </li>
                 </ng-template>
@@ -59,11 +51,13 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button"
+            (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
-        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button"
+            (click)="goToNextPage()">
             Next
         </button>
     </div>
