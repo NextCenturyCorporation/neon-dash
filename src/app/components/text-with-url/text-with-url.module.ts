@@ -15,19 +15,13 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TextWithUrlComponent } from './text-with-url.component';
-import { DataMessageModule } from '../data-message/data-message.module';
-import { CommonWidgetModule } from '../../common-widget.module';
 
 @NgModule({
     declarations: [TextWithUrlComponent],
     exports: [TextWithUrlComponent],
     entryComponents: [TextWithUrlComponent],
     imports: [
-        FormsModule,
-        CommonWidgetModule,
-        DataMessageModule,
         CommonModule
     ]
 })
