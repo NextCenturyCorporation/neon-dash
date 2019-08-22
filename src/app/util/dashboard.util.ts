@@ -81,20 +81,12 @@ export class DashboardUtil {
 
                 if (leaf.options.simpleFilter) {
                     const filter = leaf.options.simpleFilter;
-                    if (filter.tableKey) {
-                        const tableKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[filter.tableKey]);
-
-                        if (tableKeyObject) {
-                            filter.databaseName = tableKeyObject.database;
-                            filter.tableName = tableKeyObject.table;
-                            filter.fieldName = '';
-
-                            if (filter.fieldKey) {
-                                const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.fields[filter.fieldKey]);
-
-                                filter.fieldName = fieldKeyObject ? fieldKeyObject.field : '';
-                            }
-                        }
+                    if (filter.fieldKey) {
+                        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.fields[filter.fieldKey]);
+                        filter.databaseName = fieldKeyObject.database;
+                        filter.tableName = fieldKeyObject.table;
+                        filter.fieldName = '';
+                        filter.fieldName = fieldKeyObject ? fieldKeyObject.field : '';
                     } else {
                         delete leaf.options.simpleFilter;
                     }
