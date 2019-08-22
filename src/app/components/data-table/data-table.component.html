@@ -36,35 +36,7 @@
                 (resize)="onTableResize($event)"
                 (select)="onSelect($event)">
             </ngx-datatable>
-            <!-- beautify ignore:end -->
-
-        <div *ngIf="getShowColumnSelector()" class="column-selector">
-            <div class="column-selector-header"><span> Columns </span>
-                <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" matTooltipPosition="below"
-                    (click)="closeColumnSelector()">
-                    <mat-icon class="column-selector-close-icon">close</mat-icon>
-                </button>
-
-            </div>
-            <div class="button-row">
-                <button mat-raised-button class="neon-button-small" (click)="deactivateAllHeaders()">
-                    <span class="mat-button-wrapper">Uncheck All</span>
-                </button>
-                <button mat-raised-button class="neon-button-small" (click)="activateAllHeaders()">
-                    <span class="mat-button-wrapper">Check All</span>
-                </button>
-            </div>
-            <mat-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
-                <mat-list-item *ngFor="let header of headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
-                    (mouseleave)="onMouseLeaveItem(i)"
-                    [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
-                    <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                    <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">
-                        {{ header.name }}
-                    </mat-checkbox>
-                </mat-list-item>
-            </mat-list>
-        </div>
+        <!-- beautify ignore:end -->
     </div>
 </div>
 
