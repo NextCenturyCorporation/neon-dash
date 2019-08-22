@@ -172,13 +172,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
             new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
-                prettyName: 'Yes',
-                variable: 'show'
-            }, {
-                prettyName: 'No',
-                variable: 'hide'
-            }]),
             new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetSelectOption('skinny', 'Table Style', false, [{
                 prettyName: 'Normal',
@@ -374,12 +367,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return null;
-    }
-
-    closeColumnSelector() {
-        this.options.showColumnSelector = 'hide';
-        this.refreshVisualization();
-        this.changeDetection.detectChanges();
     }
 
     deactivateAllHeaders() {
@@ -797,10 +784,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getTableRowHeight() {
         return this.options.skinny ? 20 : 25;
-    }
-
-    getShowColumnSelector(): boolean {
-        return this.options.showColumnSelector === 'show';
     }
 
     /**
