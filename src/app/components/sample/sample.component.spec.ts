@@ -582,8 +582,6 @@ describe('Component: Sample with config', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
-        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'test_publish_event',
             fields: [{
