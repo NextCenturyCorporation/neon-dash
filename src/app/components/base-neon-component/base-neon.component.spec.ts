@@ -499,20 +499,15 @@ describe('BaseNeonComponent', () => {
 
         component.options.filter = {
             lhs: 'testField1',
-            operator: '!=',
+            operator: '=',
             rhs: 'testValue1'
         };
 
         expect(component.createSharedFilters(component.options)).toEqual([{
             field: 'testField1',
-            operator: '!=',
+            operator: '=',
             value: 'testValue1'
         }]);
-
-        component.options.filter = null;
-
-        expect(component.createSharedFilters(component.options)).toEqual([
-        ]);
 
         spyOn((component as any), 'retrieveApplicableFilters').and.returnValue([
             new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
@@ -529,12 +524,16 @@ describe('BaseNeonComponent', () => {
             field: 'testTextField',
             operator: 'not contains',
             value: 'testValue2'
+        }, {
+            field: 'testField1',
+            operator: '=',
+            value: 'testValue1'
         }]);
 
         component.options.filter = {
-            lhs: 'testField3',
+            lhs: 'testField2',
             operator: '!=',
-            rhs: 'testValue3'
+            rhs: 'testValue2'
         };
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -546,10 +545,20 @@ describe('BaseNeonComponent', () => {
             operator: 'not contains',
             value: 'testValue2'
         }, {
-            field: 'testField3',
+            field: 'testField2',
             operator: '!=',
-            value: 'testValue3'
+            value: 'testValue2'
         }]);
+
+        component.options.filter = [{
+            lhs: 'testField2',
+            operator: '!=',
+            rhs: 'testValue2'
+        }, {
+            lhs: 'testField3',
+            operator: '=',
+            rhs: 'testValue3'
+        }];
 
         expect(component.createSharedFilters(component.options)).toEqual([{
             field: 'testTextField',
@@ -560,8 +569,12 @@ describe('BaseNeonComponent', () => {
             operator: 'not contains',
             value: 'testValue2'
         }, {
-            field: 'testField3',
+            field: 'testField2',
             operator: '!=',
+            value: 'testValue2'
+        }, {
+            field: 'testField3',
+            operator: '=',
             value: 'testValue3'
         }]);
     });

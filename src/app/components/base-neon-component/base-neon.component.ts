@@ -448,7 +448,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         if (Array.isArray(options.filter)) {
             options.filter.forEach((filter) => {
-                if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
+                if (filter && filter.lhs && filter.operator && typeof filter.rhs !== 'undefined') {
                     fields = [filter.lhs].concat(fields);
                 }
             });
@@ -488,7 +488,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
 
         if (Array.isArray(options.filter)) {
             options.filter.forEach((filter) => {
-                if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+                if (filter && filter.lhs && filter.operator && filter.rhs) {
                     filterClauses = filterClauses.concat(this.searchService.buildFilterClause(filter.lhs, filter.operator,
                         filter.rhs));
                 }
