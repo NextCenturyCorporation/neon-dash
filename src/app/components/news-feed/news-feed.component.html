@@ -23,8 +23,7 @@
         [multi]="options.multiOpen">
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
-            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'"
-                (mousedown)="selectItem(item)">
+            <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
                 <mat-panel-title>
                     <span class="date">{{ relativeTime(item.field[options.dateField.columnName]) }}</span>
                     <span
@@ -32,10 +31,8 @@
                 </mat-panel-title>
                 <div *ngIf="item.media">
                     <ng-container [ngSwitch]="item.media.selected.type">
-                        <img *ngSwitchCase="mediaTypes.audio"
-                            src="/assets/icons/dashboard/baseline-audiotrack-24px.svg">
-                        <img *ngSwitchCase="mediaTypes.html"
-                            src="/assets/icons/dashboard/baseline-description-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.audio" src="/assets/icons/dashboard/baseline-audiotrack-24px.svg">
+                        <img *ngSwitchCase="mediaTypes.html" src="/assets/icons/dashboard/baseline-description-24px.svg">
                         <img *ngSwitchCase="mediaTypes.image" src="/assets/icons/dashboard/baseline-photo-24px.svg">
                         <img *ngSwitchCase="mediaTypes.maskImage" src="/assets/icons/dashboard/baseline-photo-24px.svg">
                         <img *ngSwitchCase="mediaTypes.pdf" src="/assets/icons/dashboard/baseline-description-24px.svg">
@@ -57,8 +54,7 @@
                     </div>
                     <div class="appendix">
                         <span class="date">{{ item.field[options.dateField.columnName] }}</span>
-                        <a mat-icon-button
-                            *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
+                        <a mat-icon-button *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
                             class="neon-icon-button-contrast" (click)="filterItem(item)">
                             <mat-icon>filter_list</mat-icon>
                         </a>
@@ -74,13 +70,11 @@
 <!-- need to account for footer only, contribution text only, or footer and contribution text together -->
 <div class="footer" *ngIf="showPagination()">
     <div class="footer-button-container">
-        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button"
-            (click)="goToPreviousPage()">
+        <button mat-raised-button [disabled]="page == 1" class="neon-button-small pagination-button" (click)="goToPreviousPage()">
             Previous
         </button>
         <span class="pagination-button-spacer"></span>
-        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button"
-            (click)="goToNextPage()">
+        <button mat-raised-button [disabled]="lastPage" class="neon-button-small pagination-button" (click)="goToNextPage()">
             Next
         </button>
     </div>
