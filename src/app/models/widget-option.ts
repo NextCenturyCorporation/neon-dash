@@ -211,7 +211,10 @@ export class WidgetFieldOption extends WidgetOption {
      * @arg {boolean} [isRequired=false]
      * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey: string, prettyName: string | Function, isRequired: boolean = false, hideFromMenu: boolean | OptionCallback = false) {
+    constructor(bindingKey: string,
+        prettyName: string | Function,
+        isRequired: boolean = false,
+        hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
