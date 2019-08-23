@@ -562,9 +562,7 @@ describe('Component: Sample with config', () => {
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
             { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'unsharedFilterField', useValue: 'testFilterField' },
-            { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
+            { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
             CommonWidgetModule
