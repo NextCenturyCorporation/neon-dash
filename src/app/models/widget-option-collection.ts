@@ -21,7 +21,6 @@ import {
     OptionChoices,
     OptionType,
     WidgetDatabaseOption,
-    WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,

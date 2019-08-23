@@ -430,8 +430,6 @@ describe('RootWidgetOptionCollection', () => {
             hideUnfiltered: true,
             limit: '1234',
             title: 'Test Custom Title',
-            unsharedFilterField: 'testFilterField',
-            unsharedFilterValue: 'testFilterValue',
             testCustomField: 'testTextField',
             testCustomFieldArray: ['testNameField', 'testTypeField'],
             testCustomKey: 'testCustomValue',
