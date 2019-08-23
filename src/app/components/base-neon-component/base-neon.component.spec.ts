@@ -299,8 +299,6 @@ describe('BaseNeonComponent', () => {
     it('createCompleteVisualizationQuery with advanced options does return expected query object', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
-        component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
             operator: '!=',
@@ -694,8 +692,6 @@ describe('BaseNeonComponent', () => {
     it('executeQueryChain with advanced options does call executeQuery', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
-        component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
             operator: '!=',
