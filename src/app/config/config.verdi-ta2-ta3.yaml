@@ -174,19 +174,20 @@ dashboards:
                             layout: seedling-ta3-network
                             tables:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
-                                document_table: es1.verdi-support-parent-children.parent-children
+                                document_table: es1.verdi-rdf-normal.normal
                                 kb_table: es1.kb-union.rdf-kb
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
                                 hypotheses_field_query: es1.verdi-support-hypothesis.hypothesis-info.query
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
+                                hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
-                                document_field_id: es1.verdi-support-parent-children.parent-children.id
-                                document_field_sourceid: es1.verdi-support-parent-children.parent-children.parent_uid
-                                document_field_date: es1.verdi-support-parent-children.parent-children.download_date
-                                document_field_doctype: es1.verdi-support-parent-children.parent-children.dtyp
-                                document_field_link: es1.verdi-support-parent-children.parent-children.url
+                                document_field_id: 'es1.verdi-rdf-normal.normal.@id'
+                                document_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
+                                document_field_date: es1.verdi-rdf-normal.normal.date
+                                document_field_doctype: es1.verdi-rdf-normal.normal.docType
+                                document_field_link: es1.verdi-rdf-normal.normal.url
 
                                 kb_field_objectid: es1.kb-union.rdf-kb.kbid
                                 kb_field_category: es1.kb-union.rdf-kb.categories
@@ -204,11 +205,11 @@ dashboards:
                                 kb_field_type: es1.kb-union.rdf-kb.types
                                 kb_field_hypotheses: es1.kb-union.rdf-kb.hypotheses
                             relations:
-                                - - es1.verdi-support-parent-children.parent-children.id
+                                - - 'es1.verdi-rdf-normal.normal.@id'
                                   - es1.kb-union.rdf-kb.docIds
 
-                                - - es1.verdi-support-parent-children.parent-children.hypotheses
-                                  - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
+                                #- - es1.verdi-support-parent-children.parent-children.hypotheses
+                                - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                   - es1.kb-union.rdf-kb.hypotheses
                             options:
                                 connectOnLoad: false
@@ -232,6 +233,7 @@ dashboards:
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
                                 hypotheses_field_query: es1.verdi-support-hypothesis.hypothesis-info.query
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
+                                hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
                                 document_field_id: es1.verdi-support-parent-children.parent-children.id
                                 document_field_sourceid: es1.verdi-support-parent-children.parent-children.parent_uid
@@ -269,6 +271,7 @@ dashboards:
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
                                 hypotheses_field_query: es1.verdi-support-hypothesis.hypothesis-info.query
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
+                                hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
                                 document_field_id: es1.verdi-support-parent-children.parent-children.id
                                 document_field_sourceid: es1.verdi-support-parent-children.parent-children.parent_uid
@@ -631,12 +634,13 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - database: verdi-support-hypothesis
-                    table: hypothesis-info
-                    idField: hypothesis_id
                   - database: kb-union
                     table: rdf-kb
                     idField: docIds
+                    filterField: hypotheses
+                  - database: verdi-rdf-normal
+                    table: normal
+                    idField: '@id'
 
         - type: newsFeed
           row: 2
@@ -742,6 +746,8 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
+              keepSameFiltersOn: false
+              toggleFiltered: false
               typeMap:
                   jpg: img
                   png: img
