@@ -164,8 +164,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].testOption).toEqual('testText');
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(component.changeMade).toEqual(false);
         expect(component.layerHidden).toEqual(new Map<string, boolean>());
@@ -307,8 +307,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(1);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -356,8 +356,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].layers.length).toEqual(1);
         expect(component['originalOptions'].layers[0]._id).toEqual(layer._id);
         expect(component['originalOptions'].layers[0].testNestedOption).toEqual('testNestedText');
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(0);
@@ -397,8 +397,8 @@ describe('Component: Gear Component', () => {
         expect(component['originalOptions'].database).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component['originalOptions'].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component['originalOptions'].layers.length).toEqual(0);
-        expect(mock.calledChangeData).toEqual(0);
-        expect(mock.calledChangeFilterData).toEqual(1);
+        expect(mock.calledChangeData).toEqual(1);
+        expect(mock.calledChangeFilterData).toEqual(0);
         expect(calledCloseSidenav).toEqual(1);
         expect(mock.calledFinalizeCreateLayer).toEqual(0);
         expect(mock.calledFinalizeDeleteLayer).toEqual(1);
