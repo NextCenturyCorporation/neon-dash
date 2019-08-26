@@ -20,8 +20,9 @@ import { } from 'jasmine-core';
 import { DataTableComponent } from './data-table.component';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -1082,14 +1083,10 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(0);
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-            operator: '=',
-            value: 'books'
-        }]]);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', 'books')
+        ]]);
     });
 
     it('onSelect does create simple filter and call exchangeFilters if singleFilter=true', () => {
@@ -1120,14 +1117,10 @@ describe('Component: DataTable', () => {
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
-        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-            operator: '=',
-            value: 'books'
-        }]]);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', 'books')
+        ]]);
         expect(toggleFiltersSpy.calls.count()).toEqual(0);
     });
 
@@ -1161,31 +1154,11 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(0);
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'books'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'games'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'shows'
-            }]
-        }]]);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
+        ]]);
     });
 
     it('onSelect does create compound OR filter if arrayFilterOperator=or', () => {
@@ -1218,31 +1191,11 @@ describe('Component: DataTable', () => {
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(0);
         expect(toggleFiltersSpy.calls.count()).toEqual(1);
-        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[{
-            type: 'or',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'books'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'games'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'shows'
-            }]
-        }]]);
+        expect(toggleFiltersSpy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
+        ]]);
     });
 
     it('onSelect does create compound AND filter and call exchangeFilters if singleFilter=true', () => {
@@ -1274,31 +1227,11 @@ describe('Component: DataTable', () => {
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
-        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'books'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'games'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'shows'
-            }]
-        }]]);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
+        ]]);
         expect(toggleFiltersSpy.calls.count()).toEqual(0);
     });
 
@@ -1331,31 +1264,11 @@ describe('Component: DataTable', () => {
         expect(publishIdSpy).toHaveBeenCalled();
         expect(publishAnySpy).toHaveBeenCalled();
         expect(exchangeFiltersSpy.calls.count()).toEqual(1);
-        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[{
-            type: 'or',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'books'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'games'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-                operator: '=',
-                value: 'shows'
-            }]
-        }]]);
+        expect(exchangeFiltersSpy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '=', ['books', 'games', 'shows'])
+        ]]);
         expect(toggleFiltersSpy.calls.count()).toEqual(0);
     });
 

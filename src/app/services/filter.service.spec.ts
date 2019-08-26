@@ -15,7 +15,7 @@
 
 import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
 import { CompoundFilterType } from '../models/widget-option';
-import { CompoundFilterConfig, FilterDataSource, FilterConfig, SimpleFilterConfig } from '../models/filter';
+import { FilterDataSource, FilterConfig } from '../models/filter';
 import { Dataset } from '../models/dataset';
 import { FilterChangeListener, FilterService } from './filter.service';
 
@@ -45,16 +45,16 @@ describe('FilterService with filters', () => {
     let filterService: FilterService;
     let source1: FilterDataSource[];
     let source2: FilterDataSource[];
-    let config1A: SimpleFilterConfig;
-    let config1B: SimpleFilterConfig;
-    let config2A: CompoundFilterConfig;
+    let config1A: SimpleFilterDesign;
+    let config1B: SimpleFilterDesign;
+    let config2A: CompoundFilterDesign;
     let filter1A: any;
     let filter1B: any;
     let filter2A: any;
     let relationSource1: FilterDataSource[];
     let relationSource2: FilterDataSource[];
-    let relationConfig1: SimpleFilterConfig;
-    let relationConfig2: SimpleFilterConfig;
+    let relationConfig1: SimpleFilterDesign;
+    let relationConfig2: SimpleFilterDesign;
     let relationFilter1: any;
     let relationFilter2: any;
     let dataset: Dataset;

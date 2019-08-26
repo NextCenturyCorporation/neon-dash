@@ -26,8 +26,8 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
-import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
@@ -105,14 +105,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     private createFilterConfig(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
     /**

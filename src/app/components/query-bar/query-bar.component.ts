@@ -20,8 +20,8 @@ import { map, startWith } from 'rxjs/operators';
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -85,33 +85,23 @@ export class QueryBarComponent extends BaseNeonComponent {
         tableName: string,
         fieldName: string,
         value?: any
-    ): FilterConfig {
-        return {
-            datastore: this.dashboardState.datastore.name,
-            database: databaseName,
-            table: tableName,
-            field: fieldName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    ): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.dashboardState.datastore.name, databaseName, tableName, fieldName, '=', value);
     }
 
-    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
-        return {
-            type: CompoundFilterType.OR,
-            filters: filters
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(
+        databaseName: string,
+        tableName: string,
+        fieldName: string,
+        values: any[] = [undefined]
+    ): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.dashboardState.datastore.name + '.' + databaseName + '.' + tableName +
+            '.' + fieldName, '=', values);
     }
 
-    private createFilterConfigOnText(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.filterField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.filterField.columnName, '=', value);
     }
 
     /**
@@ -150,8 +140,7 @@ export class QueryBarComponent extends BaseNeonComponent {
                     extensionField.idField));
 
                 // Match a compound OR filter with one or more EQUALS filters on the extension database/table/field.
-                designs.push(this.createFilterConfigOnList([this.createFilterConfigOnExtensionField(extensionField.database,
-                    extensionField.table, extensionField.idField)]));
+                designs.push(this.createFilterConfigOnList(extensionField.database, extensionField.table, extensionField.idField));
             });
         }
 
@@ -387,12 +376,10 @@ export class QueryBarComponent extends BaseNeonComponent {
      * @private
      */
     private extensionAddFilter(__text: string, fields: any, array: any[]): FilterConfig {
-        let filters: FilterConfig[] = array.map((element) => {
-            let value: any = ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element);
-            return this.createFilterConfigOnExtensionField(fields.database, fields.table, fields.idField, value);
-        }).filter((filterConfig) => !!filterConfig);
+        let filterValues: any[] = array.map((element) =>
+            ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element));
 
-        return filters.length ? this.createFilterConfigOnList(filters) : null;
+        return filterValues.length ? this.createFilterConfigOnList(fields.database, fields.table, fields.idField, filterValues) : null;
     }
 
     public removeFilters() {
