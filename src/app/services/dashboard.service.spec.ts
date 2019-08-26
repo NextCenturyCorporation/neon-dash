@@ -14,7 +14,7 @@
  */
 import { inject } from '@angular/core/testing';
 
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../models/filter';
+import { FilterConfig } from '../models/filter';
 import { CompoundFilterType } from '../models/widget-option';
 import { NeonConfig, NeonDashboardLeafConfig } from '../models/types';
 import { NeonDatastoreConfig } from '../models/dataset';
@@ -27,7 +27,7 @@ import { ConfigService } from './config.service';
 import * as _ from 'lodash';
 import { InjectableFilterService } from './injectable.filter.service';
 import { ConfigUtil } from '../util/config.util';
-import { CompoundFilterDesign, FilterUtil, SimpleFilterDesign } from '../util/filter.util';
+import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
 import { DATASET } from '../../testUtils/mock-dataset';
 
 function extractNames(data: { [key: string]: any } | any[]) {
@@ -84,42 +84,50 @@ describe('Service: DashboardService', () => {
         });
     });
 
-    it('getFiltersToSaveInURL should return expected output', () => {
+    it('getFiltersToSaveInURL should return expected JSON string', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
-        spyOn(dashboardService['filterService'], 'getFilters').and.returnValue([{
-            datastore: 'datastore1',
-            database: 'testDatabase1',
-            table: 'testTable1',
-            field: 'testNameField',
-            operator: '=',
-            value: 'testValue'
-        } as SimpleFilterConfig, {
-            type: 'and',
-            filters: [{
-                datastore: 'datastore1',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                field: 'testTypeField',
-                operator: '!=',
-                value: ''
-            } as SimpleFilterConfig, {
-                datastore: 'datastore1',
-                database: 'testDatabase2',
-                table: 'testTable2',
-                field: 'testTypeField',
-                operator: '!=',
-                value: null
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]);
+        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+            new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 'testId1'),
+            new CompoundFilter(CompoundFilterType.AND, [
+                new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase2,
+                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.NAME, 'contains', 'testName1'),
+                new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase2,
+                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.TYPE, 'not contains', 'testType1')
+            ])
+        ]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            ["datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
+            ["datastore1.testDatabase1.testTable1.testIdField", "!=", "testId1"],
             ["and",
-                ["datastore1.testDatabase2.testTable2.testTypeField", "!=", ""],
-                ["datastore1.testDatabase2.testTable2.testTypeField", "!=", null]
+                ["datastore1.testDatabase2.testTable2.testNameField", "contains", "testName1"],
+                ["datastore1.testDatabase2.testTable2.testTypeField", "not contains", "testType1"]
             ]
+        ]`)), ConfigUtil.encodeFiltersMap));
+    });
+
+    it('getFiltersToSaveInURL does work with booleans, empty strings, nulls, and numbers', () => {
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
+
+        spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
+            new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', false),
+            new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', ''),
+            new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', null),
+            new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 1234)
+        ]);
+
+        // Use the parse and stringify functions so we don't have to type unicode here.
+        expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
+            ["datastore1.testDatabase1.testTable1.testIdField", "!=", false],
+            ["datastore1.testDatabase1.testTable1.testIdField", "!=", ""],
+            ["datastore1.testDatabase1.testTable1.testIdField", "!=", null],
+            ["datastore1.testDatabase1.testTable1.testIdField", "!=", 1234]
         ]`)), ConfigUtil.encodeFiltersMap));
     });
 });

@@ -252,14 +252,14 @@ export class DashboardService {
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
-        let filters: FilterConfig[] = this.filterService.getFilters();
-        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+        let filters: AbstractFilter[] = this.filterService.getRawFilters();
+        return ConfigUtil.translate(JSON.stringify(filters.map((filter) => filter.toDataList())), ConfigUtil.encodeFiltersMap);
     }
 
     private _translateFilters(filterConfigs: FilterConfig[] | string): AbstractFilter[] {
         if (typeof filterConfigs === 'string') {
             const stringFilters = ConfigUtil.translate(filterConfigs, ConfigUtil.decodeFiltersMap);
-            return (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter,
+            return (JSON.parse(stringFilters) as any[]).map((dataList) => FilterUtil.createFilterFromDataList(dataList,
                 this.state.asDataset()));
         }
         return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig, this.state.asDataset()));

@@ -20,6 +20,8 @@ import {
     DomainFilter,
     FilterCollection,
     FilterUtil,
+    ListFilter,
+    PairFilter,
     SimpleFilter,
     SimpleFilterDesign
 } from './filter.util';
@@ -601,70 +603,170 @@ describe('FilterUtil', () => {
             } as SimpleFilterConfig]
         } as CompoundFilterConfig)).toEqual(false);
     });
-});
 
-describe('simpleFiltering', () => {
-    const filterConfigs = [
-        {
-            datastore: DATASTORE.name,
-            database: 'testDatabase1',
-            table: 'testTable1',
-            field: 'testNameField',
-            operator: '=',
-            value: 'testValue'
-        } as SimpleFilterConfig,
-        {
-            type: 'and',
-            filters: [
-                {
-                    datastore: DATASTORE.name,
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testTypeField',
-                    operator: '!=',
-                    value: ''
-                } as SimpleFilterConfig,
-                {
-                    datastore: DATASTORE.name,
-                    database: 'testDatabase2',
-                    table: 'testTable2',
-                    field: 'testTypeField',
-                    operator: '!=',
-                    value: null
-                } as SimpleFilterConfig
-            ]
-        } as CompoundFilterConfig
-
-    ];
-
-    const testList = [
-        ['datastore1.testDatabase1.testTable1.testNameField', '=', 'testValue'],
-        [
-            'and',
-            ['datastore1.testDatabase2.testTable2.testTypeField', '!=', ''],
-            ['datastore1.testDatabase2.testTable2.testTypeField', '!=', null]
-        ]
-    ];
-
-    it('toPlainFilterJSON should return expected output', () => {
-        expect(FilterUtil.toPlainFilterJSON(filterConfigs)).toEqual(testList);
-        expect(FilterUtil.toPlainFilterJSON([])).toEqual([]);
+    it('createFilterFromDataList does return simple filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['datastore1.testDatabase2.testTable2.testIdField', '=', 'testValue'], DATASET);
+        expect(actual instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).datastore).toEqual('datastore1');
+        expect((actual as any).database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).table).toEqual(TABLES.testTable2);
+        expect((actual as any).field).toEqual(FIELD_MAP.ID);
+        expect((actual as any).operator).toEqual('=');
+        expect((actual as any).value).toEqual('testValue');
     });
 
-    it('fromPlainFilterJSON should return expected output', () => {
-        const actual = testList.map((exp) => FilterUtil.fromPlainFilterJSON(exp, DATASET));
-        let expected = [
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testValue'),
-            new CompoundFilter(CompoundFilterType.AND, [
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.TYPE, '!=', ''),
-                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.TYPE, '!=', null)
-            ])
-        ];
-        expected[0].id = actual[0].id;
-        expected[1].id = actual[1].id;
-        (expected[1] as any).filters[0].id = (actual[1] as any).filters[0].id;
-        (expected[1] as any).filters[1].id = (actual[1] as any).filters[1].id;
-        expect(actual).toEqual(expected);
+    it('createFilterFromDataList does return bounds filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['bounds',
+            'datastore1.testDatabase2.testTable2.testXField',
+            'testBegin1',
+            'testEnd1',
+            'datastore1.testDatabase2.testTable2.testYField',
+            'testBegin2',
+            'testEnd2'], DATASET);
+        expect(actual instanceof BoundsFilter).toEqual(true);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(4);
+        expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].field).toEqual(FIELD_MAP.X);
+        expect((actual as any).filters[0].operator).toEqual('>=');
+        expect((actual as any).filters[0].value).toEqual('testBegin1');
+        expect((actual as any).filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[1].field).toEqual(FIELD_MAP.X);
+        expect((actual as any).filters[1].operator).toEqual('<=');
+        expect((actual as any).filters[1].value).toEqual('testEnd1');
+        expect((actual as any).filters[2] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[2].datastore).toEqual('datastore1');
+        expect((actual as any).filters[2].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[2].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[2].field).toEqual(FIELD_MAP.Y);
+        expect((actual as any).filters[2].operator).toEqual('>=');
+        expect((actual as any).filters[2].value).toEqual('testBegin2');
+        expect((actual as any).filters[3] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[3].datastore).toEqual('datastore1');
+        expect((actual as any).filters[3].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[3].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[3].field).toEqual(FIELD_MAP.Y);
+        expect((actual as any).filters[3].operator).toEqual('<=');
+        expect((actual as any).filters[3].value).toEqual('testEnd2');
+    });
+
+    it('createFilterFromDataList does return domain filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['domain',
+            'datastore1.testDatabase2.testTable2.testSizeField',
+            'testBegin',
+            'testEnd'], DATASET);
+        expect(actual instanceof DomainFilter).toEqual(true);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].field).toEqual(FIELD_MAP.SIZE);
+        expect((actual as any).filters[0].operator).toEqual('>=');
+        expect((actual as any).filters[0].value).toEqual('testBegin');
+        expect((actual as any).filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[1].field).toEqual(FIELD_MAP.SIZE);
+        expect((actual as any).filters[1].operator).toEqual('<=');
+        expect((actual as any).filters[1].value).toEqual('testEnd');
+    });
+
+    it('createFilterFromDataList does return list filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['list',
+            'and',
+            'datastore1.testDatabase2.testTable2.testTextField',
+            '!=',
+            'testValue1',
+            'testValue2'], DATASET);
+        expect(actual instanceof ListFilter).toEqual(true);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].field).toEqual(FIELD_MAP.TEXT);
+        expect((actual as any).filters[0].operator).toEqual('!=');
+        expect((actual as any).filters[0].value).toEqual('testValue1');
+        expect((actual as any).filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[1].field).toEqual(FIELD_MAP.TEXT);
+        expect((actual as any).filters[1].operator).toEqual('!=');
+        expect((actual as any).filters[1].value).toEqual('testValue2');
+    });
+
+    it('createFilterFromDataList does return pair filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['pair',
+            'and',
+            'datastore1.testDatabase2.testTable2.testNameField',
+            'contains',
+            'testValue1',
+            'datastore1.testDatabase2.testTable2.testTypeField',
+            'not contains',
+            'testValue2'], DATASET);
+        expect(actual instanceof PairFilter).toEqual(true);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].field).toEqual(FIELD_MAP.NAME);
+        expect((actual as any).filters[0].operator).toEqual('contains');
+        expect((actual as any).filters[0].value).toEqual('testValue1');
+        expect((actual as any).filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[1].field).toEqual(FIELD_MAP.TYPE);
+        expect((actual as any).filters[1].operator).toEqual('not contains');
+        expect((actual as any).filters[1].value).toEqual('testValue2');
+    });
+
+    it('createFilterFromDataList does return compound filter object', () => {
+        const actual = FilterUtil.createFilterFromDataList(['and',
+            ['and', ['datastore1.testDatabase2.testTable2.testNameField',
+                'contains',
+                'testValue1'], ['datastore1.testDatabase2.testTable2.testTypeField', 'not contains', 'testValue2']],
+            ['datastore1.testDatabase2.testTable2.testIdField', '=', 'testValue3']], DATASET);
+        expect(actual instanceof CompoundFilter).toEqual(true);
+        expect((actual as any).type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters.length).toEqual(2);
+        expect((actual as any).filters[0] instanceof CompoundFilter).toEqual(true);
+        expect((actual as any).filters[0].type).toEqual(CompoundFilterType.AND);
+        expect((actual as any).filters[0].filters.length).toEqual(2);
+        expect((actual as any).filters[0].filters[0] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[0].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].filters[0].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].filters[0].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].filters[0].field).toEqual(FIELD_MAP.NAME);
+        expect((actual as any).filters[0].filters[0].operator).toEqual('contains');
+        expect((actual as any).filters[0].filters[0].value).toEqual('testValue1');
+        expect((actual as any).filters[0].filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[0].filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[0].filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[0].filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[0].filters[1].field).toEqual(FIELD_MAP.TYPE);
+        expect((actual as any).filters[0].filters[1].operator).toEqual('not contains');
+        expect((actual as any).filters[0].filters[1].value).toEqual('testValue2');
+        expect((actual as any).filters[1] instanceof SimpleFilter).toEqual(true);
+        expect((actual as any).filters[1].datastore).toEqual('datastore1');
+        expect((actual as any).filters[1].database).toEqual(DATABASES.testDatabase2);
+        expect((actual as any).filters[1].table).toEqual(TABLES.testTable2);
+        expect((actual as any).filters[1].field).toEqual(FIELD_MAP.ID);
+        expect((actual as any).filters[1].operator).toEqual('=');
+        expect((actual as any).filters[1].value).toEqual('testValue3');
     });
 });
 
