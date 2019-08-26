@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { CompoundFilterType } from './widget-option';
+
 export interface FilterDataSource {
     datastore: string;
     database: string;
@@ -33,9 +35,41 @@ export interface SimpleFilterConfig {
 
 export interface CompoundFilterConfig {
     id?: string;
-    type: 'and' | 'or';
+    type: CompoundFilterType;
     filters: (SimpleFilterConfig | CompoundFilterConfig)[];
 }
 
 export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
+
+export interface BoundsValues {
+    begin1: boolean|number|string;
+    begin2: boolean|number|string;
+    field1: string;
+    field2: string;
+    end1: boolean|number|string;
+    end2: boolean|number|string;
+}
+
+export interface DomainValues {
+    begin: boolean|number|string;
+    field: string;
+    end: boolean|number|string;
+}
+
+export interface PairOfValues {
+    field1: string;
+    field2: string;
+    operator1: string;
+    operator2: string;
+    value1: boolean|number|string;
+    value2: boolean|number|string;
+}
+
+export interface OneValue {
+    field: string;
+    operator: string;
+    value: boolean|number|string;
+}
+
+export type FilterValues = BoundsValues | DomainValues | PairOfValues | OneValue;
 
