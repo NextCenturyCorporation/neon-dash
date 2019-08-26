@@ -17,12 +17,12 @@ import { } from 'jasmine-core';
 import { FilterBuilderComponent } from './filter-builder.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { getConfigService } from '../../../testUtils/initializeTestBed';
+import { CompoundFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { CompoundFilterType } from '../../models/widget-option';
 
 describe('Component: Filter Builder', () => {
@@ -162,14 +162,9 @@ describe('Component: Filter Builder', () => {
     it('saveFilter does call filterService.toggleFilters with a simple filter and clear the internal list of filter clauses', () => {
         // Arrange
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
-        let filterConfig: FilterConfig = {
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database.name,
-            table: component.filterClauses[0].table.name,
-            field: component.filterClauses[0].field.columnName,
-            operator: 'contains',
-            value: ''
-        } as SimpleFilterConfig;
+        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
+            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
+            'contains', '');
 
         // Act
         component.saveFilter();
@@ -187,27 +182,12 @@ describe('Component: Filter Builder', () => {
         component.compoundTypeIsOr = true;
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
         component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
-        let filterConfigs: SimpleFilterConfig[] = [{
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database.name,
-            table: component.filterClauses[0].table.name,
-            field: component.filterClauses[0].field.columnName,
-            operator: 'contains',
-            value: ''
-        } as SimpleFilterConfig,
-        {
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[1].database.name,
-            table: component.filterClauses[1].table.name,
-            field: component.filterClauses[1].field.columnName,
-            operator: 'contains',
-            value: ''
-        } as SimpleFilterConfig];
-
-        let filterConfig: FilterConfig = {
-            type: CompoundFilterType.OR,
-            filters: filterConfigs
-        } as CompoundFilterConfig;
+        let filterConfig: CompoundFilterDesign = new CompoundFilterDesign(CompoundFilterType.OR, [
+            new SimpleFilterDesign(component.filterClauses[0].datastore.name, component.filterClauses[0].database.name,
+                component.filterClauses[0].table.name, component.filterClauses[0].field.columnName, 'contains', ''),
+            new SimpleFilterDesign(component.filterClauses[1].datastore.name, component.filterClauses[1].database.name,
+                component.filterClauses[1].table.name, component.filterClauses[1].field.columnName, 'contains', '')
+        ]);
 
         // Act
         component.saveFilter();
@@ -224,27 +204,12 @@ describe('Component: Filter Builder', () => {
         component.addBlankFilterClause();
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.NAME;
         component.filterClauses[1].field = DashboardServiceMock.FIELD_MAP.TYPE;
-        let filterConfigs: SimpleFilterConfig[] = [{
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database.name,
-            table: component.filterClauses[0].table.name,
-            field: component.filterClauses[0].field.columnName,
-            operator: 'contains',
-            value: ''
-        } as SimpleFilterConfig,
-        {
-            datastore: component.filterClauses[1].datastore.name,
-            database: component.filterClauses[1].database.name,
-            table: component.filterClauses[1].table.name,
-            field: component.filterClauses[1].field.columnName,
-            operator: 'contains',
-            value: ''
-        } as SimpleFilterConfig];
-
-        let filterConfig: FilterConfig = {
-            type: CompoundFilterType.AND,
-            filters: filterConfigs
-        } as CompoundFilterConfig;
+        let filterConfig: CompoundFilterDesign = new CompoundFilterDesign(CompoundFilterType.AND, [
+            new SimpleFilterDesign(component.filterClauses[0].datastore.name, component.filterClauses[0].database.name,
+                component.filterClauses[0].table.name, component.filterClauses[0].field.columnName, 'contains', ''),
+            new SimpleFilterDesign(component.filterClauses[1].datastore.name, component.filterClauses[1].database.name,
+                component.filterClauses[1].table.name, component.filterClauses[1].field.columnName, 'contains', '')
+        ]);
 
         // Act
         component.saveFilter();
@@ -261,14 +226,9 @@ describe('Component: Filter Builder', () => {
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
         component.filterClauses[0].operator = component.operators[3];
         component.filterClauses[0].value = '53';
-        let filterConfig: FilterConfig = {
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database.name,
-            table: component.filterClauses[0].table.name,
-            field: component.filterClauses[0].field.columnName,
-            operator: '!=',
-            value: 53
-        } as SimpleFilterConfig;
+        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
+            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
+            '!=', 53);
 
         // Act
         component.saveFilter();
@@ -282,14 +242,9 @@ describe('Component: Filter Builder', () => {
         // Arrange
         component.filterClauses[0].field = DashboardServiceMock.FIELD_MAP.FILTER;
         component.filterClauses[0].value = '53';
-        let filterConfig: FilterConfig = {
-            datastore: component.filterClauses[0].datastore.name,
-            database: component.filterClauses[0].database.name,
-            table: component.filterClauses[0].table.name,
-            field: component.filterClauses[0].field.columnName,
-            operator: 'contains',
-            value: '53'
-        } as SimpleFilterConfig;
+        let filterConfig: SimpleFilterDesign = new SimpleFilterDesign(component.filterClauses[0].datastore.name,
+            component.filterClauses[0].database.name, component.filterClauses[0].table.name, component.filterClauses[0].field.columnName,
+            'contains', '53');
 
         // Act
         component.saveFilter();

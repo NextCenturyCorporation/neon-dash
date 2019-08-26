@@ -20,7 +20,7 @@ import { } from 'jasmine-core';
 
 import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from './news-feed.component';
@@ -79,14 +79,10 @@ describe('Component: NewsFeed', () => {
         component.createFilter('testText');
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'testText'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testText')
+        ]]);
     });
 
     it('designEachFilterWithNoValues does return expected object', () => {

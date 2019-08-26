@@ -26,8 +26,8 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -138,26 +138,18 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // Match a single NOT EQUALS filter on the specific filter field.
         designs.push(this.createFilterConfig(field));
         // Match a compound AND filter with one or more NOT EQUALS filters on the specific filter field.
-        designs.push(this.createFilterConfigOnList([this.createFilterConfig(field)]));
+        designs.push(this.createFilterConfigOnList(field));
         return designs;
     }
 
-    private createFilterConfig(field: NeonFieldMetaData, value?: any): SimpleFilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '!=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfig(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '!=', value);
     }
 
-    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: filters
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '!=', values);
     }
 
     /**
@@ -265,7 +257,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     private isTaxonomyNodeFiltered(filters: FilterCollection, field: NeonFieldMetaData, value: any) {
         let filterConfig: FilterConfig = this.createFilterConfig(field, value);
-        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
+        let listFilterConfig: FilterConfig = this.createFilterConfigOnList(field, [value]);
+        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
     }
 
     /**
@@ -571,46 +564,28 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             array.concat(this.findUnselectedGroups(group)), [] as TaxonomyNode[]);
 
         // Create filters for all the unselected groups with valid fields (description properties).
-        const filters: SimpleFilterConfig[] = unselectedGroups
+        const filters: SimpleFilterDesign[] = unselectedGroups
             .filter((group) => group.description && group.description.columnName)
             .map((group) => this.createFilterConfig(group.description, group.externalName || group.name));
 
-        const categoryFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.categoryField.columnName);
-        const typeFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.typeField.columnName);
-        const subTypeFilters: FilterConfig[] = filters.filter((filter) => filter.field === this.options.subTypeField.columnName);
+        const categoryFilters: SimpleFilterDesign[] = filters.filter((filter) => filter.field === this.options.categoryField.columnName);
+        const typeFilters: SimpleFilterDesign[] = filters.filter((filter) => filter.field === this.options.typeField.columnName);
+        const subTypeFilters: SimpleFilterDesign[] = filters.filter((filter) => filter.field === this.options.subTypeField.columnName);
 
         // Create a single compound AND filter (with a pretty name) for all the filters on each filterable field.
-        const categoryFilter: FilterConfig = (categoryFilters.length) ?
-            (categoryFilters.length === 1 ?
-                categoryFilters[0] :
-                this.createFilterConfigOnList(categoryFilters)) :
-            null;
+        const categoryFilter: FilterConfig = (categoryFilters.length) ? (categoryFilters.length === 1 ? categoryFilters[0] :
+            this.createFilterConfigOnList(this.options.categoryField, categoryFilters.map((filter) => filter.value))) : null;
 
         // Ignore the type filters if the type field is the same as the category field.
-        const typeIsDuplicated = !!(
-            this.options.typeField.columnName === this.options.categoryField.columnName &&
-            categoryFilters.length
-        );
-        const typeFilter: FilterConfig = (typeFilters.length && !typeIsDuplicated) ?
-            (typeFilters.length === 1 ?
-                typeFilters[0] :
-                this.createFilterConfigOnList(typeFilters)) :
-            null;
+        const typeIsDuplicated = !!(this.options.typeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
+        const typeFilter: FilterConfig = (typeFilters.length && !typeIsDuplicated) ? (typeFilters.length === 1 ? typeFilters[0] :
+            this.createFilterConfigOnList(this.options.typeField, typeFilters.map((filter) => filter.value))) : null;
 
         // Ignore the subtype filters if the subtype field is the same as the type field or the category field.
-        const subTypeIsDuplicated =
-            !!(
-                this.options.subTypeField.columnName === this.options.typeField.columnName &&
-                typeFilters.length
-            ) ||
-            !!(
-                this.options.subTypeField.columnName === this.options.categoryField.columnName &&
-                categoryFilters.length
-            );
-        const subTypeFilter: FilterConfig = (subTypeFilters.length && !subTypeIsDuplicated) ?
-            (subTypeFilters.length === 1 ?
-                subTypeFilters[0] :
-                this.createFilterConfigOnList(subTypeFilters)) :
+        const subTypeIsDuplicated = !!(this.options.subTypeField.columnName === this.options.typeField.columnName && typeFilters.length) ||
+            !!(this.options.subTypeField.columnName === this.options.categoryField.columnName && categoryFilters.length);
+        const subTypeFilter: FilterConfig = (subTypeFilters.length && !subTypeIsDuplicated) ? (subTypeFilters.length === 1 ?
+            subTypeFilters[0] : this.createFilterConfigOnList(this.options.subTypeField, subTypeFilters.map((filter) => filter.value))) :
             null;
 
         // If we don't need to filter a valid filterable field, ensure that we delete all previous filters that were set on that field.

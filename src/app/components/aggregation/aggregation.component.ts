@@ -37,11 +37,15 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    BoundsFilterDesign,
     CompoundFilter,
+    DomainFilterDesign,
     FilterCollection,
-    SimpleFilter
+    ListFilterDesign,
+    SimpleFilter,
+    SimpleFilterDesign
 } from '../../util/filter.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -325,89 +329,34 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '>=',
-                value: beginX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '<=',
-                value: endX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.yField.columnName,
-                operator: '>=',
-                value: beginY
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.yField.columnName,
-                operator: '<=',
-                value: endY
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
+        return new BoundsFilterDesign(
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.yField.columnName}`,
+            beginX, beginY, endX, endY
+        );
     }
 
-    private createFilterConfigOnDomain(beginX?: any, endX?: any): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '>=',
-                value: beginX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '<=',
-                value: endX
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
+        return new DomainFilterDesign(
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
+            beginX, endX
+        );
     }
 
-    private createFilterConfigOnLegend(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.groupField.columnName,
-            operator: '!=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName, '!=', value);
     }
 
-    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: values.map((value) => this.createFilterConfigOnSingleItem(value))
-        } as CompoundFilterConfig;
+    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.xField.columnName, '=', values);
     }
 
-    private createFilterConfigOnSingleItem(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.xField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnSingleItem(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.xField.columnName, '=', value);
     }
 
     /**
