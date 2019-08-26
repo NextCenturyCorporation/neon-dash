@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { FilterUtil, SimpleFilter } from '../util/filter.util';
+import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
 import { CompoundFilterType } from '../models/widget-option';
 import { CompoundFilterConfig, FilterDataSource, FilterConfig, SimpleFilterConfig } from '../models/filter';
 import { Dataset } from '../models/dataset';
@@ -95,40 +95,16 @@ describe('FilterService with filters', () => {
             operator: '<'
         } as FilterDataSource];
 
-        config1A = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId1'
-        } as SimpleFilterConfig;
-        config1B = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId2'
-        } as SimpleFilterConfig;
-        config2A = {
-            type: 'and',
-            filters: [{
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '>',
-                value: 10
-            } as SimpleFilterConfig, {
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '<',
-                value: 20
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig;
+        config1A = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName,
+            '=', 'testId1');
+        config1B = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName,
+            '=', 'testId2');
+        config2A = new CompoundFilterDesign(CompoundFilterType.AND, [
+            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.SIZE.columnName, '>',
+                10),
+            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.SIZE.columnName, '<',
+                20)
+        ]);
 
         filter1A = FilterUtil.createFilterFromConfig(config1A, dataset);
         filter1B = FilterUtil.createFilterFromConfig(config1B, dataset);
@@ -177,22 +153,10 @@ describe('FilterService with filters', () => {
             operator: '='
         } as FilterDataSource];
 
-        relationConfig1 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_A.columnName,
-            operator: '=',
-            value: 'testRelation'
-        } as SimpleFilterConfig;
-        relationConfig2 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_B.columnName,
-            operator: '=',
-            value: 'testRelation'
-        } as SimpleFilterConfig;
+        relationConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_A.columnName, '=', 'testRelation');
+        relationConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_B.columnName, '=', 'testRelation');
 
         relationFilter1 = FilterUtil.createFilterFromConfig(relationConfig1, dataset);
         relationFilter2 = FilterUtil.createFilterFromConfig(relationConfig2, dataset);
@@ -312,13 +276,8 @@ describe('FilterService with filters', () => {
     it('deleteFilters should not publish any event if no filters are affected', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let actual = filterService.deleteFilters('testCaller', [{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as SimpleFilterConfig]);
+        let actual = filterService.deleteFilters('testCaller', [new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name,
+            TABLES.testTable1.name, FIELD_MAP.TEXT.columnName, '=')]);
 
         expect(actual.size).toEqual(3);
         let keys = Array.from(actual.keys());
@@ -339,14 +298,8 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should add new filters and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '=',
-            value: 'testText'
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.TEXT.columnName, '=', 'testText');
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -385,14 +338,8 @@ describe('FilterService with filters', () => {
     it('exchangeFilters should delete old filters and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId5'
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.ID.columnName, '=', 'testId5');
 
         let actual = filterService.exchangeFilters('testCaller', [testConfig], dataset);
 
@@ -465,14 +412,8 @@ describe('FilterService with filters', () => {
 
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig2 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_B.columnName,
-            operator: '=',
-            value: 'testExchangeRelation'
-        } as SimpleFilterConfig;
+        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_B.columnName, '=', 'testExchangeRelation');
 
         let actual = filterService.exchangeFilters('testCaller', [testConfig2], dataset);
 
@@ -487,15 +428,8 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).operator).toEqual('=');
         expect((listComplete[0] as SimpleFilter).value).toEqual('testExchangeRelation');
 
-        let testConfig1 = {
-            id: listComplete[0].id,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_A.columnName,
-            operator: '=',
-            value: 'testExchangeRelation'
-        } as SimpleFilterConfig;
+        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_A.columnName, '=', 'testExchangeRelation', listComplete[0].id);
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
@@ -597,47 +531,33 @@ describe('FilterService with filters', () => {
         let filters = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1');
         expect(filters.map((filter) => {
             let config = filter.toConfig();
-            delete config.id;
+            config.id = undefined;
             return config;
-        })).toEqual([{
-            type: CompoundFilterType.OR,
-            filters: [filter1A.toConfig(), filter1B.toConfig()]
-        }, {
-            type: CompoundFilterType.OR,
-            filters: [filter2A.toConfig()]
-        }]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toConfig(), filter1B.toConfig()]),
+            new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
     });
 
     it('getFiltersToSearch with filter-list-to-ignore should return expected array', () => {
         let filters1 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1A]);
         expect(filters1.map((filter) => {
             let config = filter.toConfig();
-            delete config.id;
+            config.id = undefined;
             return config;
-        })).toEqual([{
-            type: CompoundFilterType.OR,
-            filters: [filter2A.toConfig()]
-        }]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
 
         let filters2 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1B]);
         expect(filters2.map((filter) => {
             let config = filter.toConfig();
-            delete config.id;
+            config.id = undefined;
             return config;
-        })).toEqual([{
-            type: CompoundFilterType.OR,
-            filters: [filter2A.toConfig()]
-        }]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter2A.toConfig()])]);
 
         let filters3 = filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config2A]);
         expect(filters3.map((filter) => {
             let config = filter.toConfig();
-            delete config.id;
+            config.id = undefined;
             return config;
-        })).toEqual([{
-            type: CompoundFilterType.OR,
-            filters: [filter1A.toConfig(), filter1B.toConfig()]
-        }]);
+        })).toEqual([new CompoundFilterDesign(CompoundFilterType.OR, [filter1A.toConfig(), filter1B.toConfig()])]);
 
         expect(filterService.getFiltersToSearch('datastore1', 'testDatabase1', 'testTable1', [config1A, config2A])).toEqual([]);
     });
@@ -720,16 +640,9 @@ describe('FilterService with filters', () => {
         // Remove the filter value to make the config compatible with each filter of its data source
         config1A.value = undefined;
 
-        let testConfig = {
-            type: 'and',
-            filters: [{
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.ID.columnName,
-                operator: '='
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig;
+        let testConfig = new CompoundFilterDesign(CompoundFilterType.AND, [
+            new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.ID.columnName, '=')
+        ]);
 
         let testCollection = filterService.retrieveCompatibleFilterCollection([config1A, testConfig]);
 
@@ -738,13 +651,8 @@ describe('FilterService with filters', () => {
     });
 
     it('retrieveCompatibleFilterCollection should do nothing with no compatible filters', () => {
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '='
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.TEXT.columnName, '=');
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -760,20 +668,15 @@ describe('FilterService with filters', () => {
         expect(testCollection.getFilters(testSource)).toEqual([]);
     });
 
-    it('setFiltersFromConfig should change filterCollection', () => {
+    it('setFilters should change filterCollection', () => {
         let actual;
 
-        filterService.setFiltersFromConfig([], dataset);
+        filterService.setFilters([]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([]);
 
-        filterService.setFiltersFromConfig([{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId1'
-        }], dataset);
+        filterService.setFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1')
+        ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(1);
@@ -783,35 +686,12 @@ describe('FilterService with filters', () => {
         expect(actual[0].operator).toEqual('=');
         expect(actual[0].value).toEqual('testId1');
 
-        filterService.setFiltersFromConfig([{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId1'
-        }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId2'
-        }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId3'
-        }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId4'
-        }], dataset);
+        filterService.setFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId3'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId4')
+        ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(4);
@@ -836,24 +716,12 @@ describe('FilterService with filters', () => {
         expect(actual[3].operator).toEqual('=');
         expect(actual[3].value).toEqual('testId4');
 
-        filterService.setFiltersFromConfig([{
-            type: 'and',
-            filters: [{
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '>',
-                value: 10
-            }, {
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '<',
-                value: 20
-            }]
-        }], dataset);
+        filterService.setFilters([
+            new CompoundFilter(CompoundFilterType.AND, [
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>', 10),
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<', 20)
+            ])
+        ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source2]);
         actual = filterService['filterCollection'].getFilters(source2);
         expect(actual.length).toEqual(1);
@@ -870,38 +738,14 @@ describe('FilterService with filters', () => {
         expect(actual[0].filters[1].operator).toEqual('<');
         expect(actual[0].filters[1].value).toEqual(20);
 
-        filterService.setFiltersFromConfig([{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId1'
-        }, {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId2'
-        }, {
-            type: 'and',
-            filters: [{
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '>',
-                value: 10
-            }, {
-                datastore: DATASTORE.name,
-                database: DATABASES.testDatabase1.name,
-                table: TABLES.testTable1.name,
-                field: FIELD_MAP.SIZE.columnName,
-                operator: '<',
-                value: 20
-            }]
-        }], dataset);
+        filterService.setFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.ID, '=', 'testId2'),
+            new CompoundFilter(CompoundFilterType.AND, [
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>', 10),
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<', 20)
+            ])
+        ]);
         expect(filterService['filterCollection'].getDataSources()).toEqual([source1, source2]);
         actual = filterService['filterCollection'].getFilters(source1);
         expect(actual.length).toEqual(2);
@@ -934,14 +778,8 @@ describe('FilterService with filters', () => {
     it('toggleFilters should add new filters to an existing data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 'testId5'
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.ID.columnName, '=', 'testId5');
 
         let actual = filterService.toggleFilters('testCaller', [testConfig], dataset);
 
@@ -972,14 +810,8 @@ describe('FilterService with filters', () => {
     it('toggleFilters should add new filters to a new data source and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '=',
-            value: 'testText'
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.TEXT.columnName, '=', 'testText');
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -1036,14 +868,8 @@ describe('FilterService with filters', () => {
     it('toggleFilters should add new argument filters, delete old argument filters, and call the _notifier', () => {
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.TEXT.columnName,
-            operator: '=',
-            value: 'testText'
-        } as SimpleFilterConfig;
+        let testConfig = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.TEXT.columnName, '=', 'testText');
 
         let testSource = [{
             datastore: DATASTORE.name,
@@ -1126,14 +952,8 @@ describe('FilterService with filters', () => {
 
         let spy = spyOn(filterService as any, '_notifier');
 
-        let testConfig2 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_B.columnName,
-            operator: '=',
-            value: 'testToggleRelation'
-        } as SimpleFilterConfig;
+        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_B.columnName, '=', 'testToggleRelation');
 
         let actual = filterService.toggleFilters('testCaller', [testConfig2], dataset);
 
@@ -1149,15 +969,8 @@ describe('FilterService with filters', () => {
         expect((listComplete[1] as SimpleFilter).operator).toEqual('=');
         expect((listComplete[1] as SimpleFilter).value).toEqual('testToggleRelation');
 
-        let testConfig1 = {
-            id: listComplete[1].id,
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_A.columnName,
-            operator: '=',
-            value: 'testToggleRelation'
-        } as SimpleFilterConfig;
+        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation', listComplete[1].id);
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
@@ -1209,22 +1022,10 @@ describe('FilterService with filters', () => {
     it('toggleFilters should keep non-argument relation filters and delete argument relation filters', () => {
         activateRelationFilters();
 
-        let testConfig1 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_A.columnName,
-            operator: '=',
-            value: 'testToggleRelation'
-        } as SimpleFilterConfig;
-        let testConfig2 = {
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_B.columnName,
-            operator: '=',
-            value: 'testToggleRelation'
-        } as SimpleFilterConfig;
+        let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation');
+        let testConfig2 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
+            FIELD_MAP.RELATION_B.columnName, '=', 'testToggleRelation');
 
         let testFilter1 = FilterUtil.createFilterFromConfig(testConfig1, dataset);
         let testFilter2 = FilterUtil.createFilterFromConfig(testConfig2, dataset);
