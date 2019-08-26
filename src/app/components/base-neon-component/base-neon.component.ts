@@ -340,7 +340,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete);
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete, this.options.keepSameFiltersOn);
     }
 
     /**

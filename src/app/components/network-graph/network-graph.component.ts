@@ -52,6 +52,7 @@ import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as vis from 'vis/dist/vis-network.min';
 import { MatDialog } from '@angular/material';
+import {clean} from '@angular-devkit/core';
 
 let styleImport: any;
 
@@ -679,8 +680,22 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     edgeLabelFormat(label: any) {
         let cleanLabel = label instanceof Array ? label[0] : label;
         cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.').join('\n') : cleanLabel;
-        cleanLabel = cleanLabel.indexOf(',') > -1 ? cleanLabel.split(',').join('\n') : cleanLabel;
         cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join('\n') : cleanLabel;
+
+        if(cleanLabel.indexOf(' ') > -1 && cleanLabel.indexOf('\n') == -1){
+            let splitSpace = cleanLabel.split(' ');
+            let lastIndex = 0;
+
+            for(let i = 1; i < splitSpace.length && lastIndex < splitSpace.length ; i++){
+                if(Math.floor(i%3) == 0){
+                    splitSpace.splice(i + lastIndex, 0, '\n');
+                    lastIndex++;
+                }
+            }
+
+            cleanLabel = splitSpace.join(' ');
+        }
+
         return cleanLabel;
     }
 
@@ -940,7 +955,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeNames: any[] = [];
                 let typeExtension: string = this.options.typeField.columnName && relationNodeIdentifier &&
                 name.toLowerCase() !== this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() ?
-                    '\n' + this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() + '' : '';
+                    '\n : '+  this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() + '' : '';
 
                 if (name) {
                     for (const title of this.getArray(name)) {
