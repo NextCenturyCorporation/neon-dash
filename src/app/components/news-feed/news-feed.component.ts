@@ -26,8 +26,8 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
-import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -116,15 +116,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.toggleFilters([this.createFilterConfigOnText(text)]);
     }
 
-    private createFilterConfigOnText(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.filterField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.filterField.columnName, '=', value);
     }
 
     /**

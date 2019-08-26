@@ -28,7 +28,7 @@ import { SearchServiceMock } from '../../../testUtils/MockServices/SearchService
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 
 import { TimelineModule } from './timeline.module';
-import { FilterCollection } from '../../util/filter.util';
+import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { TimeInterval } from '../../models/widget-option';
 
@@ -76,24 +76,10 @@ describe('Component: Timeline', () => {
         expect((component as any).selected).toEqual([startDate, endDate]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '>=',
-                value: startDate
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '<=',
-                value: endDate
-            }]
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate)
+        ]]);
     });
 
     it('onTimelineSelection does not set custom filters if filterField does not exist', () => {
@@ -122,24 +108,10 @@ describe('Component: Timeline', () => {
         expect((component as any).selected).toEqual([startDate, endDate]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '>=',
-                value: startDate
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '<=',
-                value: endDate
-            }]
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate)
+        ]]);
     });
 
     it('onTimelineSelection does set custom filters on empty string if filterField does exist but selectedData does not exist', () => {
@@ -157,32 +129,13 @@ describe('Component: Timeline', () => {
         expect((component as any).selected).toEqual([startDate, endDate]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '>=',
-                value: startDate
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '<=',
-                value: endDate
-            }]
-        }, {
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate),
             // TODO NEON-36
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: ''
-        }]]);
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', '')
+        ]]);
     });
 
     it('onTimelineSelection does set custom filters if filterField and selectedData both exist', () => {
@@ -212,45 +165,16 @@ describe('Component: Timeline', () => {
         expect((component as any).selected).toEqual([startDate, endDate]);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '>=',
-                value: startDate
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.DATE.columnName,
-                operator: '<=',
-                value: endDate
-            }]
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'filterValue1'
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'filterValue2'
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'filterValue3'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.DATE.columnName, startDate, endDate),
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue1'),
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue2'),
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'filterValue3')
+        ]]);
     });
 
     it('finalizeVisualizationQuery does return expected query without id and filter fields', () => {

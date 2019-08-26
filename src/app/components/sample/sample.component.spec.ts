@@ -26,7 +26,7 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { NeonFieldMetaData } from '../../models/dataset';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -280,14 +280,10 @@ describe('Component: Sample', () => {
         }, true);
 
         expect(spyExchange.calls.count()).toEqual(1);
-        expect(spyExchange.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'testFilterValue'
-        }]]);
+        expect(spyExchange.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
+        ]]);
         expect(spyToggle.calls.count()).toEqual(0);
     });
 
@@ -302,14 +298,10 @@ describe('Component: Sample', () => {
 
         expect(spyExchange.calls.count()).toEqual(0);
         expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
-            operator: '=',
-            value: 'testFilterValue'
-        }]]);
+        expect(spyToggle.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.FILTER.columnName, '=', 'testFilterValue')
+        ]]);
     });
 
     it('getElementRefs does return expected object', () => {
