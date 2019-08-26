@@ -241,8 +241,6 @@ describe('BaseNeonComponent', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.options.title).toEqual('Mock Superclass');
-        expect(component.options.unsharedFilterField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.unsharedFilterValue).toEqual('');
     });
 
     it('ngOnInit does work as expected', () => {
@@ -301,8 +299,6 @@ describe('BaseNeonComponent', () => {
     it('createCompleteVisualizationQuery with advanced options does return expected query object', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
-        component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
             operator: '!=',
@@ -342,7 +338,6 @@ describe('BaseNeonComponent', () => {
             table: 'testTable2',
             fields: [
                 'testIdField',
-                'testFilterField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
@@ -354,16 +349,9 @@ describe('BaseNeonComponent', () => {
                 'testTypeField'
             ],
             filter: {
-                type: 'and',
-                filters: [{
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: 'testIdValue'
-                }, {
-                    field: 'testFilterField',
-                    operator: '=',
-                    value: 'testFilterValue'
-                }]
+                field: 'testIdField',
+                operator: '!=',
+                value: 'testIdValue'
             }
         });
     });
@@ -511,39 +499,15 @@ describe('BaseNeonComponent', () => {
 
         component.options.filter = {
             lhs: 'testField1',
-            operator: '!=',
+            operator: '=',
             rhs: 'testValue1'
         };
 
         expect(component.createSharedFilters(component.options)).toEqual([{
             field: 'testField1',
-            operator: '!=',
+            operator: '=',
             value: 'testValue1'
         }]);
-
-        component.options.unsharedFilterField = NeonFieldMetaData.get({ columnName: 'testField2' });
-        component.options.unsharedFilterValue = 'testValue2';
-
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testField1',
-            operator: '!=',
-            value: 'testValue1'
-        }, {
-            field: 'testField2',
-            operator: '=',
-            value: 'testValue2'
-        }]);
-
-        component.options.filter = null;
-
-        expect(component.createSharedFilters(component.options)).toEqual([{
-            field: 'testField2',
-            operator: '=',
-            value: 'testValue2'
-        }]);
-
-        component.options.unsharedFilterField = null;
-        component.options.unsharedFilterValue = null;
 
         spyOn((component as any), 'retrieveApplicableFilters').and.returnValue([
             new SimpleFilter('', DashboardServiceMock.DATABASES.testDatabase1, DashboardServiceMock.TABLES.testTable1,
@@ -560,12 +524,16 @@ describe('BaseNeonComponent', () => {
             field: 'testTextField',
             operator: 'not contains',
             value: 'testValue2'
+        }, {
+            field: 'testField1',
+            operator: '=',
+            value: 'testValue1'
         }]);
 
         component.options.filter = {
-            lhs: 'testField3',
+            lhs: 'testField2',
             operator: '!=',
-            rhs: 'testValue3'
+            rhs: 'testValue2'
         };
 
         expect(component.createSharedFilters(component.options)).toEqual([{
@@ -577,13 +545,20 @@ describe('BaseNeonComponent', () => {
             operator: 'not contains',
             value: 'testValue2'
         }, {
-            field: 'testField3',
+            field: 'testField2',
             operator: '!=',
-            value: 'testValue3'
+            value: 'testValue2'
         }]);
 
-        component.options.unsharedFilterField = NeonFieldMetaData.get({ columnName: 'testField4' });
-        component.options.unsharedFilterValue = 'testValue4';
+        component.options.filter = [{
+            lhs: 'testField2',
+            operator: '!=',
+            rhs: 'testValue2'
+        }, {
+            lhs: 'testField3',
+            operator: '=',
+            rhs: 'testValue3'
+        }];
 
         expect(component.createSharedFilters(component.options)).toEqual([{
             field: 'testTextField',
@@ -594,13 +569,13 @@ describe('BaseNeonComponent', () => {
             operator: 'not contains',
             value: 'testValue2'
         }, {
-            field: 'testField3',
+            field: 'testField2',
             operator: '!=',
-            value: 'testValue3'
+            value: 'testValue2'
         }, {
-            field: 'testField4',
+            field: 'testField3',
             operator: '=',
-            value: 'testValue4'
+            value: 'testValue3'
         }]);
     });
 
@@ -730,8 +705,6 @@ describe('BaseNeonComponent', () => {
     it('executeQueryChain with advanced options does call executeQuery', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase2;
         component.options.table = DashboardServiceMock.TABLES.testTable2;
-        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
-        component.options.unsharedFilterValue = 'testFilterValue';
         component.options.filter = {
             lhs: 'testIdField',
             operator: '!=',
@@ -777,7 +750,6 @@ describe('BaseNeonComponent', () => {
             table: 'testTable2',
             fields: [
                 'testIdField',
-                'testFilterField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
@@ -789,16 +761,9 @@ describe('BaseNeonComponent', () => {
                 'testTypeField'
             ],
             filter: {
-                type: 'and',
-                filters: [{
-                    field: 'testIdField',
-                    operator: '!=',
-                    value: 'testIdValue'
-                }, {
-                    field: 'testFilterField',
-                    operator: '=',
-                    value: 'testFilterValue'
-                }]
+                field: 'testIdField',
+                operator: '!=',
+                value: 'testIdValue'
             },
             limit: 1000
         });
@@ -1307,49 +1272,6 @@ describe('BaseNeonComponent', () => {
         component['handleTransformVisualizationQueryResults'](expectedOptions, expectedResults, successCallback, failureCallback);
     });
 
-    it('hasUnsharedFilter does return expected boolean', () => {
-        expect(component['hasUnsharedFilter']()).toEqual(false);
-        component.options.unsharedFilterField = DashboardServiceMock.FIELD_MAP.FILTER;
-        expect(component['hasUnsharedFilter']()).toEqual(false);
-        component.options.unsharedFilterValue = '';
-        expect(component['hasUnsharedFilter']()).toEqual(false);
-        component.options.unsharedFilterValue = 0;
-        expect(component['hasUnsharedFilter']()).toEqual(true);
-        component.options.unsharedFilterValue = false;
-        expect(component['hasUnsharedFilter']()).toEqual(true);
-        component.options.unsharedFilterValue = 'value';
-        expect(component['hasUnsharedFilter']()).toEqual(true);
-
-        // Given argument, still returns false
-        expect(component['hasUnsharedFilter']({})).toEqual(false);
-    });
-
-    it('hasUnsharedFilter with options argument does return expected boolean', () => {
-        expect(component['hasUnsharedFilter']({})).toEqual(false);
-        expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER
-        })).toEqual(false);
-        expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
-            unsharedFilterValue: ''
-        })).toEqual(false);
-        expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
-            unsharedFilterValue: 0
-        })).toEqual(true);
-        expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
-            unsharedFilterValue: false
-        })).toEqual(true);
-        expect(component['hasUnsharedFilter']({
-            unsharedFilterField: DashboardServiceMock.FIELD_MAP.FILTER,
-            unsharedFilterValue: 'value'
-        })).toEqual(true);
-
-        // Given no argument, still returns false
-        expect(component['hasUnsharedFilter']()).toEqual(false);
-    });
-
     it('isNumber does return expected boolean', () => {
         expect(component.isNumber(true)).toEqual(false);
         expect(component.isNumber('a')).toEqual(false);
@@ -1743,9 +1665,7 @@ describe('Advanced BaseNeonComponent with config', () => {
             { provide: 'testRequiredField', useValue: 'testSizeField' },
             { provide: 'testSelect', useValue: 'z' },
             { provide: 'testToggle', useValue: true },
-            { provide: 'title', useValue: 'VisualizationTitle' },
-            { provide: 'unsharedFilterField', useValue: 'testFilterField' },
-            { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
+            { provide: 'title', useValue: 'VisualizationTitle' }
         ]
     });
 
@@ -1794,8 +1714,6 @@ describe('Advanced BaseNeonComponent with config', () => {
         expect(component.options.testSelect).toEqual('z');
         expect(component.options.testToggle).toEqual(true);
         expect(component.options.title).toEqual('VisualizationTitle');
-        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
     it('createCompleteVisualizationQuery on widget with advanced config does return expected query object', () => {
@@ -1804,7 +1722,6 @@ describe('Advanced BaseNeonComponent with config', () => {
             table: 'testTable2',
             fields: [
                 'testConfigField',
-                'testFilterField',
                 'testSizeField',
                 'testNameField',
                 'testXField',
@@ -1813,16 +1730,9 @@ describe('Advanced BaseNeonComponent with config', () => {
                 'testReceiveColumnName'
             ],
             filter: {
-                type: 'and',
-                filters: [{
-                    field: 'testConfigField',
-                    operator: '!=',
-                    value: 'testConfigValue'
-                }, {
-                    field: 'testFilterField',
-                    operator: '=',
-                    value: 'testFilterValue'
-                }]
+                field: 'testConfigField',
+                operator: '!=',
+                value: 'testConfigValue'
             }
         });
     });
@@ -1832,18 +1742,11 @@ describe('Advanced BaseNeonComponent with config', () => {
             field: 'testConfigField',
             operator: '!=',
             value: 'testConfigValue'
-        }, {
-            field: 'testFilterField',
-            operator: '=',
-            value: 'testFilterValue'
         }]);
     });
 
     it('getExportFields on widget with advanced config does return expected array', () => {
         expect(component.getExportFields()).toEqual([{
-            columnName: 'testFilterField',
-            prettyName: 'Test Filter Field'
-        }, {
             columnName: 'testSizeField',
             prettyName: 'Test Size Field'
         }, {
@@ -1856,10 +1759,6 @@ describe('Advanced BaseNeonComponent with config', () => {
             columnName: 'testYField',
             prettyName: 'Test Y Field'
         }]);
-    });
-
-    it('hasUnsharedFilter on widget with advanced config does return expected boolean', () => {
-        expect(component['hasUnsharedFilter']()).toEqual(true);
     });
 
     it('showContribution() returns true', () => {
