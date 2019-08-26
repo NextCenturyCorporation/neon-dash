@@ -355,16 +355,13 @@ export class FilterService {
     }
 
     /**
-     * Sets the filters in the FilterService to the given filter JSON objects from a config file.
+     * Sets the filters in the FilterService to the given filters.
      */
-    public setFiltersFromConfig(filterConfigs: FilterConfig[], dataset: Dataset) {
+    public setFilters(filters: AbstractFilter[]) {
         let collection: FilterCollection = new FilterCollection();
-        for (const filterConfig of filterConfigs) {
-            if (filterConfig) {
-                const filterDataSourceList = collection.findFilterDataSources(filterConfig);
-                const filter = FilterUtil.createFilterFromConfig(filterConfig, dataset);
-                collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
-            }
+        for (const filter of filters) {
+            const filterDataSourceList = collection.findFilterDataSources(filter.toConfig());
+            collection.setFilters(filterDataSourceList, collection.getFilters(filterDataSourceList).concat(filter));
         }
         this.filterCollection = collection;
     }
