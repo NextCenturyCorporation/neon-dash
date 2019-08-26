@@ -1,7 +1,7 @@
 <div *ngIf="options.openOnMouseClick">
     <div class="thumbnail-card" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
         <div class="thumbnail-card-title" (click)="thumbnailGrid.selectGridItem(item)">
-            <p *ngIf="options.truncateLabel.value">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
+            <p *ngIf="options.truncateLabel.value" [title]="item[options.flagLabel.columnName]">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
             <p *ngIf="!options.truncateLabel.value">{{ item[options.flagLabel.columnName] }}</p>
         </div>
 
@@ -26,7 +26,7 @@
     <div class="thumbnail-card" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()"
         [class.selected]="thumbnailGrid.isSelected(item)">
         <div class="thumbnail-card-title">
-            <p *ngIf="options.truncateLabel.value">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
+            <p *ngIf="options.truncateLabel.value" [title]="item[options.flagLabel.columnName]">{{ thumbnailGrid.getTruncatedTitle(item) }}</p>
             <p *ngIf="!options.truncateLabel.value">{{ item[options.flagLabel.columnName] }}</p>
         </div>
 
