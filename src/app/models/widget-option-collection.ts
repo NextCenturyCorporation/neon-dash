@@ -432,6 +432,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
             new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null),
             new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue),
             new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true),
+            new WidgetSelectOption('keepSameFiltersOn', 'Keep filter after second click', true, OptionChoices.YesFalseNoTrue),
             ...super.createOptions()
         ];
     }
