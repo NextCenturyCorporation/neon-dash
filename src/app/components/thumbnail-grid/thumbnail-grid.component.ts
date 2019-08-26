@@ -28,8 +28,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -111,29 +111,21 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
             if (filterValues.length) {
                 filters.push(filterValues.length === 1 ? this.createFilterConfigOnItem(filterField, filterValues[0]) :
-                    this.createFilterConfigOnList(filterValues.map((value) => this.createFilterConfigOnItem(filterField, value))));
+                    this.createFilterConfigOnList(filterField, filterValues));
             }
         });
 
         this.toggleFilters(filters);
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
-    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
-        return {
-            type: CompoundFilterType.OR,
-            filters: filters
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '=', values);
     }
 
     /**
@@ -222,7 +214,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 // Match a single EQUALS filter on the specific filter field.
                 designs.push(this.createFilterConfigOnItem(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnList([this.createFilterConfigOnItem(filterField)]));
+                designs.push(this.createFilterConfigOnList(filterField));
             }
             return designs;
         }, [] as FilterConfig[]);
@@ -381,7 +373,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 _filtered: this.options.filterFields.length ? this.options.filterFields.every((filterField) => {
                     if (filterField.columnName) {
                         let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, result[filterField.columnName]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
+                        let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [result[filterField.columnName]]);
+                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                     }
                     return false;
                 }) : false
@@ -526,7 +519,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             item._filtered = this.options.filterFields.every((filterField) => {
                 if (filterField.columnName) {
                     let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, item[filterField.columnName]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
+                    let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [item[filterField.columnName]]);
+                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                 }
                 return false;
             });

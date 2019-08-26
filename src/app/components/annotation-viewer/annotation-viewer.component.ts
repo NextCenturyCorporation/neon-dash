@@ -27,8 +27,8 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
-import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -133,15 +133,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.visualizationQueryPaginates = true;
     }
 
-    private createFilterConfigOnAnnotationText(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.documentTextField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnAnnotationText(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.documentTextField.columnName, '=', value);
     }
 
     /**

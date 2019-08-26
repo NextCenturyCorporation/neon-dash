@@ -34,9 +34,11 @@ import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
     CompoundFilter,
-    FilterCollection
+    DomainFilterDesign,
+    FilterCollection,
+    SimpleFilterDesign
 } from '../../util/filter.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -45,7 +47,6 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
     AggregationType,
-    CompoundFilterType,
     OptionChoices,
     TimeInterval,
     WidgetFieldOption,
@@ -111,36 +112,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
-    private createFilterConfigOnTimeline(begin?: Date, end?: Date): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.dateField.columnName,
-                operator: '>=',
-                value: begin
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.dateField.columnName,
-                operator: '<=',
-                value: end
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnTimeline(begin?: Date, end?: Date): DomainFilterDesign {
+        return new DomainFilterDesign(this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name +
+            '.' + this.options.dateField.columnName, begin, end);
     }
 
     /**
