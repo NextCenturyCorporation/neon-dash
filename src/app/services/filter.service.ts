@@ -19,12 +19,12 @@ import {
     AbstractFilter,
     CompoundFilter,
     FilterCollection,
-    FilterUtil
+    FilterUtil, SimpleFilter
 } from '../util/filter.util';
 
 export type FilterChangeListener = (callerId: string, changeCollection: Map<FilterDataSource[], FilterConfig[]>) => void;
 
-export class FilterService {
+export class FilterService{
     protected filterCollection: FilterCollection = new FilterCollection();
 
     private _listeners: Map<string, FilterChangeListener> = new Map<string, FilterChangeListener>();
@@ -33,6 +33,7 @@ export class FilterService {
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
+        //localStorage.clear();
     }
 
     /**
@@ -182,7 +183,8 @@ export class FilterService {
         callerId: string,
         filterConfigList: FilterConfig[],
         dataset: Dataset,
-        filterConfigListToDelete: FilterConfig[] = []
+        filterConfigListToDelete: FilterConfig[] = [],
+        keepSameFiltersOn: boolean
     ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
         let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
@@ -221,11 +223,40 @@ export class FilterService {
         // Loop over the data sources of the complete collection to delete the old relation filters in each data source with no exchanges.
         this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
             let modifiedFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
+            let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
 
             // If this is a data source with no exchanges, keep the old filters but remove any old relation filters as needed.
             if (!modifiedFilterList.length) {
-                let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
                 modifiedFilterList = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
+            } else {
+                //If the same filters aren't being persisted, compare the modified filters with the previous filters and remove the ones that are equivalent
+                if(!keepSameFiltersOn){
+                    for(let i = 0; i < modifiedFilterList.length; i++){
+                        let modifiedFilter = modifiedFilterList[i];
+                        previousFilterList.forEach((previousFilter) => {
+                            let storageField = previousFilter.getLabelForField(true);
+
+                            if(!localStorage.getItem(storageField)) {
+                                localStorage[storageField] = JSON.stringify(previousFilter);
+                            }
+                            if(previousFilter.isEquivalentToFilter(modifiedFilter)){
+                                let cachedFilter = JSON.parse(localStorage[storageField]);
+/*                                let compoundCached : CompoundFilter[] = [];
+                                let simpleCached : SimpleFilter[] = [];
+
+                                if('filters' in cachedFilter){
+                                    compoundCached.push(cachedFilter);
+                                }
+                                else{
+                                    simpleCached.push(cachedFilter);
+                                }*/
+
+                                modifiedFilterList = [...modifiedFilterList.slice(0, i), ...modifiedFilterList.slice(i + 1), ...[cachedFilter]]; //...compoundCached, ...simpleCached
+                                localStorage.removeItem(storageField)
+                            }
+                        });
+                    }
+                }
             }
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
