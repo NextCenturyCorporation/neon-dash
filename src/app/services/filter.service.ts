@@ -33,7 +33,6 @@ export class FilterService{
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
-        //localStorage.clear();
     }
 
     /**
@@ -177,6 +176,7 @@ export class FilterService{
      * @arg {FilterConfig[]} filterConfigList
      * @arg {Dataset} dataset
      * @arg {FilterConfig[]} [filterConfigListToDelete=[]]
+     * @arg {boolean} [keepSameFilters=false]
      * @return {Map<FilterDataSource[], FilterConfig[]>}
      */
     public exchangeFilters(
@@ -184,7 +184,7 @@ export class FilterService{
         filterConfigList: FilterConfig[],
         dataset: Dataset,
         filterConfigListToDelete: FilterConfig[] = [],
-        keepSameFiltersOn: boolean
+        keepSameFilters: boolean = false
     ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
         let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
@@ -228,34 +228,10 @@ export class FilterService{
             // If this is a data source with no exchanges, keep the old filters but remove any old relation filters as needed.
             if (!modifiedFilterList.length) {
                 modifiedFilterList = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
-            } else {
-                //If the same filters aren't being persisted, compare the modified filters with the previous filters and remove the ones that are equivalent
-                if(!keepSameFiltersOn){
-                    for(let i = 0; i < modifiedFilterList.length; i++){
-                        let modifiedFilter = modifiedFilterList[i];
-                        previousFilterList.forEach((previousFilter) => {
-                            let storageField = previousFilter.getLabelForField(true);
-
-                            if(!localStorage.getItem(storageField)) {
-                                localStorage[storageField] = JSON.stringify(previousFilter);
-                            }
-                            if(previousFilter.isEquivalentToFilter(modifiedFilter)){
-                                let cachedFilter = JSON.parse(localStorage[storageField]);
-/*                                let compoundCached : CompoundFilter[] = [];
-                                let simpleCached : SimpleFilter[] = [];
-
-                                if('filters' in cachedFilter){
-                                    compoundCached.push(cachedFilter);
-                                }
-                                else{
-                                    simpleCached.push(cachedFilter);
-                                }*/
-
-                                modifiedFilterList = [...modifiedFilterList.slice(0, i), ...modifiedFilterList.slice(i + 1), ...[cachedFilter]]; //...compoundCached, ...simpleCached
-                                localStorage.removeItem(storageField)
-                            }
-                        });
-                    }
+            } else if (!keepSameFilters && modifiedFilterList.length === previousFilterList.length) {
+                // If each filter in the new ("modified") list is the same as each filter in the old ("previous") list, just remove them.
+                if (modifiedFilterList.every((modifiedFilter, index) => modifiedFilter.isEquivalentToFilter(previousFilterList[index]))) {
+                    modifiedFilterList = [];
                 }
             }
 
