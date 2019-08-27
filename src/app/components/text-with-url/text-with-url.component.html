@@ -1,0 +1,13 @@
+<p>
+    <ng-container *ngIf="hasUrl(text)">
+        <ng-container *ngFor="let link of this.url; let i = index">
+            {{this.splitText[i]}}
+            <a href="{{link}}" target="_blank">
+                {{link}}</a>
+        </ng-container>
+        {{this.splitText.slice(-1)[0]}}
+    </ng-container>
+    <ng-container *ngIf="!hasUrl(text)">
+        {{this.text}}
+    </ng-container>
+</p>
