@@ -746,7 +746,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              keepSameFiltersOn: false
               toggleFiltered: false
               typeMap:
                   jpg: img
