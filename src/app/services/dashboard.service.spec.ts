@@ -89,21 +89,21 @@ describe('Service: DashboardService', () => {
 
         spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 'testId1'),
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 'testValue', 'id1', ['relation1']),
             new CompoundFilter(CompoundFilterType.AND, [
                 new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase2,
-                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.NAME, 'contains', 'testName1'),
+                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.NAME, 'contains', 'testName1', 'id3'),
                 new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase2,
-                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.TYPE, 'not contains', 'testType1')
-            ])
+                    DashboardServiceMock.TABLES.testTable2, DashboardServiceMock.FIELD_MAP.TYPE, 'not contains', 'testType1', 'id4')
+            ], 'id2', ['relation2'])
         ]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            ["datastore1.testDatabase1.testTable1.testIdField", "!=", "testId1"],
-            ["and",
-                ["datastore1.testDatabase2.testTable2.testNameField", "contains", "testName1"],
-                ["datastore1.testDatabase2.testTable2.testTypeField", "not contains", "testType1"]
+            ["id1", ["relation1"], "datastore1.testDatabase1.testTable1.testIdField", "!=", "testValue"],
+            ["and", "id2", ["relation2"],
+                ["id3", [], "datastore1.testDatabase2.testTable2.testNameField", "contains", "testName1"],
+                ["id4", [], "datastore1.testDatabase2.testTable2.testTypeField", "not contains", "testType1"]
             ]
         ]`)), ConfigUtil.encodeFiltersMap));
     });
@@ -113,21 +113,21 @@ describe('Service: DashboardService', () => {
 
         spyOn(dashboardService['filterService'], 'getRawFilters').and.returnValue([
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', false),
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', false, 'id1'),
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', ''),
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', '', 'id2'),
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', null),
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', null, 'id3'),
             new SimpleFilter(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1,
-                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 1234)
+                DashboardServiceMock.TABLES.testTable1, DashboardServiceMock.FIELD_MAP.ID, '!=', 1234, 'id4')
         ]);
 
         // Use the parse and stringify functions so we don't have to type unicode here.
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate(JSON.stringify(JSON.parse(`[
-            ["datastore1.testDatabase1.testTable1.testIdField", "!=", false],
-            ["datastore1.testDatabase1.testTable1.testIdField", "!=", ""],
-            ["datastore1.testDatabase1.testTable1.testIdField", "!=", null],
-            ["datastore1.testDatabase1.testTable1.testIdField", "!=", 1234]
+            ["id1", [], "datastore1.testDatabase1.testTable1.testIdField", "!=", false],
+            ["id2", [], "datastore1.testDatabase1.testTable1.testIdField", "!=", ""],
+            ["id3", [], "datastore1.testDatabase1.testTable1.testIdField", "!=", null],
+            ["id4", [], "datastore1.testDatabase1.testTable1.testIdField", "!=", 1234]
         ]`)), ConfigUtil.encodeFiltersMap));
     });
 });
@@ -179,10 +179,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
         dashboardService.setActiveDashboard(NeonDashboardLeafConfig.get({
             filters: ConfigUtil.translate(`[
-                ["datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
-                ["and",
-                    ["datastore1.testDatabase2.testTable2.testTypeField", "!=", ""],
-                    ["datastore1.testDatabase2.testTable2.testTypeField", "!=", null]
+                ["id1", ["relation1"], "datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
+                ["and", "id2", ["relation2"],
+                    ["id3", [], "datastore1.testDatabase2.testTable2.testTypeField", "!=", ""],
+                    ["id4", [], "datastore1.testDatabase2.testTable2.testTypeField", "!=", null]
                 ]
             ]`, ConfigUtil.encodeFiltersMap)
         }));
@@ -190,7 +190,8 @@ describe('Service: DashboardService with Mock Data', () => {
         expect(spy.calls.count()).toEqual(1);
         const filters = spy.calls.argsFor(0)[0];
         expect(filters).toEqual([FilterUtil.createFilterFromConfig({
-            id: filters[0].id,
+            id: 'id1',
+            relations: ['relation1'],
             datastore: 'datastore1',
             database: 'testDatabase1',
             table: 'testTable1',
@@ -198,10 +199,11 @@ describe('Service: DashboardService with Mock Data', () => {
             operator: '=',
             value: 'testValue'
         }, DATASET), FilterUtil.createFilterFromConfig({
-            id: filters[1].id,
+            id: 'id2',
+            relations: ['relation2'],
             type: CompoundFilterType.AND,
             filters: [{
-                id: filters[1].filters[0].id,
+                id: 'id3',
                 datastore: 'datastore1',
                 database: 'testDatabase2',
                 table: 'testTable2',
@@ -209,7 +211,7 @@ describe('Service: DashboardService with Mock Data', () => {
                 operator: '!=',
                 value: ''
             }, {
-                id: filters[1].filters[1].id,
+                id: 'id4',
                 datastore: 'datastore1',
                 database: 'testDatabase2',
                 table: 'testTable2',
@@ -720,10 +722,10 @@ describe('Service: DashboardService with Mock Data', () => {
 
     it('exportConfig should produce valid results with string filter', (done) => {
         const { config, layouts } = getConfig(`[
-            ["datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
-            ["and",
-                ["datastore1.testDatabase2.testTable2.testTypeField", "!=", ""],
-                ["datastore1.testDatabase2.testTable2.testTypeField", "!=", null]
+            ["id1", ["relation1"], "datastore1.testDatabase1.testTable1.testNameField", "=", "testValue"],
+            ["and", "id2", ["relation2"],
+                ["id3", [], "datastore1.testDatabase2.testTable2.testTypeField", "!=", ""],
+                ["id4", [], "datastore1.testDatabase2.testTable2.testTypeField", "!=", null]
             ]
         ]`);
 
@@ -764,15 +766,13 @@ describe('Service: DashboardService with Mock Data', () => {
                     fieldName: 'testNameField'
                 }
             });
-            const filters = (data.dashboards as any).filters;
             expect(data.dashboards.filters).toEqual([
-                new SimpleFilterDesign('datastore1', 'testDatabase1', 'testTable1', 'testNameField', '=', 'testValue', filters[0].id),
+                new SimpleFilterDesign('datastore1', 'testDatabase1', 'testTable1', 'testNameField', '=', 'testValue', 'id1',
+                    ['relation1']),
                 new CompoundFilterDesign(CompoundFilterType.AND, [
-                    new SimpleFilterDesign('datastore1', 'testDatabase2', 'testTable2', 'testTypeField', '!=', '',
-                        filters[1].filters[0].id),
-                    new SimpleFilterDesign('datastore1', 'testDatabase2', 'testTable2', 'testTypeField', '!=', null,
-                        filters[1].filters[1].id)
-                ], filters[1].id)
+                    new SimpleFilterDesign('datastore1', 'testDatabase2', 'testTable2', 'testTypeField', '!=', '', 'id3'),
+                    new SimpleFilterDesign('datastore1', 'testDatabase2', 'testTable2', 'testTypeField', '!=', null, 'id4')
+                ], 'id2', ['relation2'])
             ]);
             expect(data.datastores).toEqual(config.datastores);
             expect(data.layouts).toEqual(layouts);
