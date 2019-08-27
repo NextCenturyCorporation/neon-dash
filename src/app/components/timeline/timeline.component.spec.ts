@@ -93,7 +93,7 @@ describe('Component: Timeline', () => {
                 operator: '<=',
                 value: endDate
             }]
-        }]]);
+        }], [], true]);
     });
 
     it('onTimelineSelection does not set custom filters if filterField does not exist', () => {
@@ -139,7 +139,7 @@ describe('Component: Timeline', () => {
                 operator: '<=',
                 value: endDate
             }]
-        }]]);
+        }], [], true]);
     });
 
     it('onTimelineSelection does set custom filters on empty string if filterField does exist but selectedData does not exist', () => {
@@ -182,7 +182,7 @@ describe('Component: Timeline', () => {
             field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: ''
-        }]]);
+        }], [], true]);
     });
 
     it('onTimelineSelection does set custom filters if filterField and selectedData both exist', () => {
@@ -250,7 +250,7 @@ describe('Component: Timeline', () => {
             field: DashboardServiceMock.FIELD_MAP.FILTER.columnName,
             operator: '=',
             value: 'filterValue3'
-        }]]);
+        }], [], true]);
     });
 
     it('finalizeVisualizationQuery does return expected query without id and filter fields', () => {
