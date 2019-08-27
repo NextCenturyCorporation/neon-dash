@@ -53,4 +53,20 @@ export class OptionsListComponent {
     public getOption(bindingKey: string): WidgetOption {
         return this.options.access(bindingKey);
     }
+
+    /**
+     * Trys the string of prettyName as a function
+     */
+    public getPrettyName(pretty: string) {
+        let name: string;
+        try {
+            // Careful as eval evaluates the string as a function if the pretty names ever become
+            // user input this could lead to some very dangerous XSS
+            // eslint-disable-next-line no-eval
+            name = eval(pretty);
+        } catch {
+            name = pretty;
+        }
+        return name;
+    }
 }
