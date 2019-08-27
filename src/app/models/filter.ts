@@ -25,6 +25,7 @@ export interface FilterDataSource {
 
 export interface SimpleFilterConfig {
     id?: string;
+    relations?: string[];
     datastore: string;
     database: string;
     table: string;
@@ -35,6 +36,7 @@ export interface SimpleFilterConfig {
 
 export interface CompoundFilterConfig {
     id?: string;
+    relations?: string[];
     type: CompoundFilterType;
     filters: (SimpleFilterConfig | CompoundFilterConfig)[];
 }
