@@ -204,7 +204,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 })
         ];
     }
 
@@ -359,7 +359,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     appendType(link: string, type: string) {
-        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' +  type) : link);
+        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' + type) : link);
     }
 
     /**
@@ -580,7 +580,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
     }
 
-    private defaultDocumentThumbnail(thumbnail){
+    private defaultDocumentThumbnail(thumbnail) {
         let img: HTMLImageElement = new Image();
         img.src = './assets/icons/dashboard/document.svg';
 
@@ -606,7 +606,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Todo: when canvases lose focus the images disappear. May need to go back to div
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view');
 
-        if(canvases.length){
+        if (canvases.length) {
             // TODO Move this code into separate functions
             /* eslint-disable-next-line complexity */
             this.gridArray.forEach((grid, index) => {
@@ -729,8 +729,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         case 'percentCompare': {
                             if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
-                                if ((percentFloat > this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
-                                    (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
+                                if ((percentFloat > this.options.borderPercentThreshold &&
+                                    comparison === this.options.borderCompareValue) ||
+                                    (percentFloat < this.options.borderPercentThreshold &&
+                                    comparison !== this.options.borderCompareValue)) {
                                     borderColor = 'blue';
                                 } else {
                                     borderColor = 'red';
@@ -811,7 +813,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     displayMediaTab(item) {
-        if(item[this.constructedLinkField] && item[this.constructedLinkField] !== 'n/a') {
+        if (item[this.constructedLinkField] && item[this.constructedLinkField] !== 'n/a') {
             if (this.options.openOnMouseClick) {
                 window.open(item[this.constructedLinkField]);
             }
