@@ -288,7 +288,8 @@ export class FilterService {
             }
             let filterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList).filter((filter) =>
                 filter.doesAffectSearch(datastoreName, databaseName, tableName));
-            let filter: AbstractFilter = filterList.length ? new CompoundFilter(CompoundFilterType.OR, filterList) : null;
+            // Assign a dummy ID because we won't need it here.
+            let filter: AbstractFilter = filterList.length ? new CompoundFilter(CompoundFilterType.OR, filterList, '_') : null;
             return returnList.concat(filter || []);
         }, [] as AbstractFilter[]);
     }
