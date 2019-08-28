@@ -157,30 +157,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
-            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false),
-            new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue,
+            new WidgetFieldArrayOption('showFields', 'Show Field(s)', true),
+            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', false, 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
-            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
-            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('skinny', 'Table Style', false, [{
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
+                this.optionsFilterable.bind(this)),
+            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('skinny', 'Table Style', false, false, [{
                 prettyName: 'Normal',
                 variable: false
             }, {
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], true)
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', false, [], true)
         ];
     }
 
