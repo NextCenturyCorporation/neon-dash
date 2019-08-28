@@ -3336,7 +3336,7 @@ describe('Component: Aggregation', () => {
                 operator: '<=',
                 value: 78
             } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        } as CompoundFilterConfig], [], true]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3388,7 +3388,7 @@ describe('Component: Aggregation', () => {
                 operator: '<=',
                 value: 'testText4'
             } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        } as CompoundFilterConfig], [], true]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3524,7 +3524,7 @@ describe('Component: Aggregation', () => {
                 operator: '<=',
                 value: 34
             } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        } as CompoundFilterConfig], [], true]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3562,7 +3562,7 @@ describe('Component: Aggregation', () => {
                 operator: '<=',
                 value: 'testText2'
             } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        } as CompoundFilterConfig], [], true]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
