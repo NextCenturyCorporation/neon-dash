@@ -15,13 +15,17 @@
 
 import {
     BoundsFilter,
+    BoundsFilterDesign,
     CompoundFilter,
     CompoundFilterDesign,
     DomainFilter,
+    DomainFilterDesign,
     FilterCollection,
     FilterUtil,
     ListFilter,
+    ListFilterDesign,
     PairFilter,
+    PairFilterDesign,
     SimpleFilter,
     SimpleFilterDesign
 } from './filter.util';
@@ -606,15 +610,15 @@ describe('FilterUtil', () => {
 
     it('createFilterFromDataList does return simple filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             'datastore1.testDatabase2.testTable2.testIdField',
             '=',
             'testValue'
         ], DATASET);
         expect(actual instanceof SimpleFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).datastore).toEqual('datastore1');
         expect((actual as any).database).toEqual(DATABASES.testDatabase2);
         expect((actual as any).table).toEqual(TABLES.testTable2);
@@ -626,8 +630,8 @@ describe('FilterUtil', () => {
     it('createFilterFromDataList does return bounds filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
             'bounds',
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             'datastore1.testDatabase2.testTable2.testXField',
             'testBegin1',
             'testEnd1',
@@ -636,8 +640,8 @@ describe('FilterUtil', () => {
             'testEnd2'
         ], DATASET);
         expect(actual instanceof BoundsFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters.length).toEqual(4);
         expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
@@ -673,15 +677,15 @@ describe('FilterUtil', () => {
     it('createFilterFromDataList does return domain filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
             'domain',
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             'datastore1.testDatabase2.testTable2.testSizeField',
             'testBegin',
             'testEnd'
         ], DATASET);
         expect(actual instanceof DomainFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters.length).toEqual(2);
         expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
@@ -703,8 +707,8 @@ describe('FilterUtil', () => {
     it('createFilterFromDataList does return list filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
             'list',
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             'and',
             'datastore1.testDatabase2.testTable2.testTextField',
             '!=',
@@ -712,8 +716,8 @@ describe('FilterUtil', () => {
             'testValue2'
         ], DATASET);
         expect(actual instanceof ListFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters.length).toEqual(2);
         expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
@@ -735,8 +739,8 @@ describe('FilterUtil', () => {
     it('createFilterFromDataList does return pair filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
             'pair',
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             'and',
             'datastore1.testDatabase2.testTable2.testNameField',
             'contains',
@@ -746,8 +750,8 @@ describe('FilterUtil', () => {
             'testValue2'
         ], DATASET);
         expect(actual instanceof PairFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters.length).toEqual(2);
         expect((actual as any).filters[0] instanceof SimpleFilter).toEqual(true);
@@ -769,23 +773,23 @@ describe('FilterUtil', () => {
     it('createFilterFromDataList does return compound filter object', () => {
         const actual = FilterUtil.createFilterFromDataList([
             'and',
-            'id1',
-            ['relation1'],
+            'filterId1',
+            ['relationId1'],
             ['and',
                 'id2',
-                ['relation2'],
+                ['relationId2'],
                 ['id3', [], 'datastore1.testDatabase2.testTable2.testNameField', 'contains', 'testValue1'],
                 ['id4', [], 'datastore1.testDatabase2.testTable2.testTypeField', 'not contains', 'testValue2']],
             ['id5', [], 'datastore1.testDatabase2.testTable2.testIdField', '=', 'testValue3']
         ], DATASET);
         expect(actual instanceof CompoundFilter).toEqual(true);
-        expect(actual.id).toEqual('id1');
-        expect(actual.relations).toEqual(['relation1']);
+        expect(actual.id).toEqual('filterId1');
+        expect(actual.relations).toEqual(['relationId1']);
         expect((actual as any).type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters.length).toEqual(2);
         expect((actual as any).filters[0] instanceof CompoundFilter).toEqual(true);
         expect((actual as any).filters[0].id).toEqual('id2');
-        expect((actual as any).filters[0].relations).toEqual(['relation2']);
+        expect((actual as any).filters[0].relations).toEqual(['relationId2']);
         expect((actual as any).filters[0].type).toEqual(CompoundFilterType.AND);
         expect((actual as any).filters[0].filters.length).toEqual(2);
         expect((actual as any).filters[0].filters[0] instanceof SimpleFilter).toEqual(true);
@@ -1886,6 +1890,14 @@ describe('SimpleFilter', () => {
         expect(simpleFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
+    it('retrieveValues on simple filter should return expected object', () => {
+        expect(simpleFilter.retrieveValues()).toEqual([{
+            field: 'testNameField',
+            operator: '=',
+            value: 'testName1'
+        }]);
+    });
+
     it('toConfig on simple filter should return expected object', () => {
         expect(simpleFilter.toConfig()).toEqual(new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name,
             TABLES.testTable1.name, FIELD_MAP.NAME.columnName, '=', 'testName1', simpleFilter.id));
@@ -2614,6 +2626,18 @@ describe('CompoundFilter (One Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
+    it('retrieveValues on compound filter should return expected object', () => {
+        expect(compoundFilter.retrieveValues()).toEqual([{
+            field: 'testXField',
+            operator: '>',
+            value: -100
+        }, {
+            field: 'testXField',
+            operator: '<',
+            value: 100
+        }]);
+    });
+
     it('toConfig on compound filter should return expected object', () => {
         expect(compoundFilter.toConfig()).toEqual(new CompoundFilterDesign(CompoundFilterType.AND, [
             new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.X.columnName, '>',
@@ -3214,6 +3238,18 @@ describe('CompoundFilter (Multi-Field)', () => {
         expect(compoundFilter.isEquivalentToFilter(testFilter8)).toEqual(true);
     });
 
+    it('retrieveValues on compound multi-field filter should return expected object', () => {
+        expect(compoundFilter.retrieveValues()).toEqual([{
+            field: 'testNameField',
+            operator: '=',
+            value: 'testName1'
+        }, {
+            field: 'testXField',
+            operator: '=',
+            value: 10
+        }]);
+    });
+
     it('toConfig on compound multi-field filter should return expected object', () => {
         expect(compoundFilter.toConfig()).toEqual(new CompoundFilterDesign(CompoundFilterType.OR, [
             new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name, FIELD_MAP.NAME.columnName,
@@ -3304,6 +3340,26 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
         expect(compoundFilter.filters[1].filters[1].value).toEqual('testName2');
     });
 
+    it('retrieveValues on compound nested filter should return expected object', () => {
+        expect(compoundFilter.retrieveValues()).toEqual([{
+            field: 'testXField',
+            operator: '=',
+            value: 10
+        }, {
+            field: 'testXField',
+            operator: '=',
+            value: 20
+        }, {
+            field: 'testNameField',
+            operator: '=',
+            value: 'testName1'
+        }, {
+            field: 'testNameField',
+            operator: '=',
+            value: 'testName2'
+        }]);
+    });
+
     it('toConfig on compound nested filters should return expected object', () => {
         expect(compoundFilter.toConfig()).toEqual(new CompoundFilterDesign(CompoundFilterType.AND, [
             new CompoundFilterDesign(CompoundFilterType.OR, [
@@ -3319,6 +3375,459 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
                     '=', 'testName2', compoundFilter.filters[1].filters[1].id)
             ], compoundFilter.filters[1].id)
         ], compoundFilter.id));
+    });
+});
+
+describe('Filter.fromDataList static functions', () => {
+    it('SimpleFilter.fromDataList does return expected object', () => {
+        expect(SimpleFilter.fromDataList(['filterId1', ['relationId1'], 'datastore1.testDatabase2.testTable2.testIdField', '=', 'testId'],
+            DATASET)).toEqual(new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID, '=', 'testId',
+            'filterId1', ['relationId1']));
+    });
+
+    it('CompoundFilter.fromDataList does return expected object', () => {
+        expect(CompoundFilter.fromDataList([
+            'and',
+            'filterId1',
+            ['relationId1'],
+            [
+                'and',
+                'filterId2',
+                ['relationId2'],
+                ['filterId3', [], 'datastore1.testDatabase2.testTable2.testNameField', '=', 'testName'],
+                ['filterId4', [], 'datastore1.testDatabase2.testTable2.testTypeField', '!=', 'testType']
+            ],
+            ['filterId5', [], 'datastore1.testDatabase2.testTable2.testIdField', '=', 'testId']
+        ], DATASET)).toEqual(new CompoundFilter(CompoundFilterType.AND, [
+            new CompoundFilter(CompoundFilterType.AND, [
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.NAME, '=', 'testName', 'filterId3'),
+                new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.TYPE, '!=', 'testType', 'filterId4')
+            ], 'filterId2', ['relationId2']),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID, '=', 'testId', 'filterId5')
+        ], 'filterId1', ['relationId1']));
+    });
+
+    it('BoundsFilter.fromDataList does return expected object', () => {
+        const boundsFilterA = BoundsFilter.fromDataList(['bounds',
+            'filterId1',
+            ['relationId1'],
+            'datastore1.testDatabase2.testTable2.testXField',
+            1,
+            2,
+            'datastore1.testDatabase2.testTable2.testYField',
+            3,
+            4], DATASET);
+        expect(boundsFilterA.fieldKey1).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.X.columnName);
+        expect(boundsFilterA.fieldKey2).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.Y.columnName);
+        expect(boundsFilterA.begin1).toEqual(1);
+        expect(boundsFilterA.begin2).toEqual(3);
+        expect(boundsFilterA.end1).toEqual(2);
+        expect(boundsFilterA.end2).toEqual(4);
+        expect(boundsFilterA.id).toEqual('filterId1');
+        expect(boundsFilterA.relations).toEqual(['relationId1']);
+        expect(boundsFilterA.type).toEqual(CompoundFilterType.AND);
+        expect(boundsFilterA.filters.length).toEqual(4);
+    });
+
+    it('DomainFilter.fromDataList does return expected object', () => {
+        const domainFilterA = DomainFilter.fromDataList(['domain',
+            'filterId1',
+            ['relationId1'],
+            'datastore1.testDatabase2.testTable2.testXField',
+            1,
+            2], DATASET);
+        expect(domainFilterA.fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.X.columnName);
+        expect(domainFilterA.begin).toEqual(1);
+        expect(domainFilterA.end).toEqual(2);
+        expect(domainFilterA.id).toEqual('filterId1');
+        expect(domainFilterA.relations).toEqual(['relationId1']);
+        expect(domainFilterA.type).toEqual(CompoundFilterType.AND);
+        expect(domainFilterA.filters.length).toEqual(2);
+    });
+
+    it('ListFilter.fromDataList does return expected object', () => {
+        const listFilterA = ListFilter.fromDataList(['list',
+            'filterId1',
+            ['relationId1'],
+            'or',
+            'datastore1.testDatabase2.testTable2.testTextField',
+            '!=',
+            'testText1',
+            'testText2'], DATASET);
+        expect(listFilterA.fieldKey).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.TEXT.columnName);
+        expect(listFilterA.operator).toEqual('!=');
+        expect(listFilterA.values).toEqual(['testText1', 'testText2']);
+        expect(listFilterA.id).toEqual('filterId1');
+        expect(listFilterA.relations).toEqual(['relationId1']);
+        expect(listFilterA.type).toEqual(CompoundFilterType.OR);
+        expect(listFilterA.filters.length).toEqual(2);
+    });
+
+    it('PairFilter.fromDataList does return expected object', () => {
+        const pairFilterA = PairFilter.fromDataList(['pair',
+            'filterId1',
+            ['relationId1'],
+            'or',
+            'datastore1.testDatabase2.testTable2.testNameField',
+            '=',
+            'testName',
+            'datastore1.testDatabase2.testTable2.testTypeField',
+            '!=',
+            'testType'], DATASET);
+        expect(pairFilterA.fieldKey1).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.NAME.columnName);
+        expect(pairFilterA.fieldKey2).toEqual(DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' +
+            FIELD_MAP.TYPE.columnName);
+        expect(pairFilterA.operator1).toEqual('=');
+        expect(pairFilterA.operator2).toEqual('!=');
+        expect(pairFilterA.value1).toEqual('testName');
+        expect(pairFilterA.value2).toEqual('testType');
+        expect(pairFilterA.id).toEqual('filterId1');
+        expect(pairFilterA.relations).toEqual(['relationId1']);
+        expect(pairFilterA.type).toEqual(CompoundFilterType.OR);
+        expect(pairFilterA.filters.length).toEqual(2);
+    });
+});
+
+describe('Filter.fromFilters static functions', () => {
+    it('BoundsFilter.fromFilters does return expected object', () => {
+        const filterA = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50);
+        const filterB = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50);
+        const filterC = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100);
+        const filterD = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100);
+        const boundsFilterA = BoundsFilter.fromFilters([filterA, filterB, filterC, filterD]);
+        expect(boundsFilterA).toEqual(new BoundsFilter(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -50,
+            -100,
+            50,
+            100,
+            [filterA, filterB, filterC, filterD],
+            boundsFilterA.id
+        ));
+    });
+
+    it('DomainFilter.fromFilters does return expected object', () => {
+        const filterA = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100);
+        const filterB = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100);
+        const domainFilterA = DomainFilter.fromFilters([filterA, filterB]);
+        expect(domainFilterA).toEqual(new DomainFilter(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+            -100,
+            100,
+            [filterA, filterB],
+            domainFilterA.id
+        ));
+    });
+
+    it('ListFilter.fromFilters does return expected object', () => {
+        const filterA = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1');
+        const filterB = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2');
+        const listFilterA = ListFilter.fromFilters([filterA, filterB], CompoundFilterType.OR);
+        expect(listFilterA).toEqual(new ListFilter(CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            '!=',
+            ['testText1', 'testText2'],
+            [filterA, filterB],
+            listFilterA.id));
+    });
+
+    it('PairFilter.fromFilters does return expected object', () => {
+        const filterA = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName');
+        const filterB = new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType');
+        const pairFilterA = PairFilter.fromFilters([filterA, filterB], CompoundFilterType.OR);
+        expect(pairFilterA).toEqual(new PairFilter(CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            '=',
+            '!=',
+            'testName',
+            'testType',
+            [filterA, filterB],
+            pairFilterA.id));
+    });
+});
+
+describe('BoundsFilter', () => {
+    it('getLabel functions on bounds filter should return expected strings', () => {
+        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
+        ]);
+
+        expect(boundsFilterA.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
+            'Test Table 1 / Test Y Field');
+        expect(boundsFilterA.getLabelForField(true)).toEqual('Test X Field and Test Y Field');
+        expect(boundsFilterA.getLabelForOperator()).toEqual('');
+        expect(boundsFilterA.getLabelForValue()).toEqual('from (-50, -100) to (50, 100)');
+    });
+
+    it('retrieveValues on bounds filter does return expected values', () => {
+        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
+        ]);
+
+        expect(boundsFilterA.retrieveValues()).toEqual([{
+            begin1: -50,
+            begin2: -100,
+            field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            end1: 50,
+            end2: 100
+        }]);
+    });
+
+    it('toDataList on bounds filter does return expected list', () => {
+        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
+        ]);
+
+        expect(boundsFilterA.toDataList()).toEqual([
+            'bounds',
+            boundsFilterA.id,
+            [],
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            -50,
+            50,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            -100,
+            100
+        ]);
+    });
+});
+
+describe('DomainFilter', () => {
+    it('getLabel functions on domain filter should return expected strings', () => {
+        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
+        ]);
+
+        expect(domainFilterA.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
+        expect(domainFilterA.getLabelForField(true)).toEqual('Test Size Field');
+        expect(domainFilterA.getLabelForOperator()).toEqual('');
+        expect(domainFilterA.getLabelForValue()).toEqual('between -100 and 100');
+    });
+
+    it('retrieveValues on domain filter does return expected values', () => {
+        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
+        ]);
+
+        expect(domainFilterA.retrieveValues()).toEqual([{
+            begin: -100,
+            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+            end: 100
+        }]);
+    });
+
+    it('toDataList on domain filter does return expected list', () => {
+        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
+        ]);
+
+        expect(domainFilterA.toDataList()).toEqual([
+            'domain',
+            domainFilterA.id,
+            [],
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+            -100,
+            100
+        ]);
+    });
+});
+
+describe('ListFilter', () => {
+    it('getLabel functions on list filter should return expected strings', () => {
+        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterA.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
+        expect(listFilterA.getLabelForField(true)).toEqual('Test Text Field');
+        expect(listFilterA.getLabelForOperator()).toEqual('');
+        expect(listFilterA.getLabelForValue()).toEqual('!= (testText1 or testText2 or testText3)');
+        expect(listFilterA.getLabelForValue(true)).toEqual('!= (testText1 or testText2 or testText3)');
+    });
+
+    it('getLabel functions on list filter with equals operator should return expected strings', () => {
+        let listFilterB: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterB.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
+        expect(listFilterB.getLabelForField(true)).toEqual('Test Text Field');
+        expect(listFilterB.getLabelForOperator()).toEqual('');
+        expect(listFilterB.getLabelForValue()).toEqual('testText1 or testText2 or testText3');
+        expect(listFilterB.getLabelForValue(true)).toEqual('testText1 or testText2 or testText3');
+    });
+
+    it('getLabel functions on list filter with many clauses should return expected strings', () => {
+        let listFilterC: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText4'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText5'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText6'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText7'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText8'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText9')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterC.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
+        expect(listFilterC.getLabelForField(true)).toEqual('Test Text Field');
+        expect(listFilterC.getLabelForOperator()).toEqual('');
+        expect(listFilterC.getLabelForValue()).toEqual('!= (testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...)');
+        expect(listFilterC.getLabelForValue(true)).toEqual('!= (testText1 or testText2 or testText3 or testText4 or testText5 or 4 ' +
+            'more...)');
+    });
+
+    it('getLabel functions on list filter with many clauses and equals operator should return expected strings', () => {
+        let listFilterD: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText4'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText5'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText6'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText7'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText8'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText9')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterD.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
+        expect(listFilterD.getLabelForField(true)).toEqual('Test Text Field');
+        expect(listFilterD.getLabelForOperator()).toEqual('');
+        expect(listFilterD.getLabelForValue()).toEqual('testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...');
+        expect(listFilterD.getLabelForValue(true)).toEqual('testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...');
+    });
+
+    it('retrieveValues on list filter does return expected values', () => {
+        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterA.retrieveValues()).toEqual([{
+            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            operator: '!=',
+            value: 'testText1'
+        }, {
+            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            operator: '!=',
+            value: 'testText2'
+        }, {
+            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            operator: '!=',
+            value: 'testText3'
+        }]);
+    });
+
+    it('toDataList on list filter does return expected list', () => {
+        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
+        ], CompoundFilterType.OR);
+
+        expect(listFilterA.toDataList()).toEqual([
+            'list',
+            listFilterA.id,
+            [],
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            '!=',
+            'testText1',
+            'testText2',
+            'testText3'
+        ]);
+    });
+});
+
+describe('PairFilter', () => {
+    it('getLabel functions on pair filter should return expected strings', () => {
+        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
+        ], CompoundFilterType.OR);
+
+        expect(pairFilterA.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
+            'Test Table 1 / Test Type Field');
+        expect(pairFilterA.getLabelForField(true)).toEqual('Test Name Field or Test Type Field');
+        expect(pairFilterA.getLabelForOperator()).toEqual('');
+        expect(pairFilterA.getLabelForValue()).toEqual('testName or != testType');
+        expect(pairFilterA.getLabelForValue(true)).toEqual('testName or != testType');
+    });
+
+    it('getLabel functions on pair filter with same operator should return expected strings', () => {
+        let pairFilterB: CompoundFilter = PairFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '!=', 'testName'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
+        ], CompoundFilterType.OR);
+
+        expect(pairFilterB.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
+            'Test Table 1 / Test Type Field');
+        expect(pairFilterB.getLabelForField(true)).toEqual('Test Name Field or Test Type Field');
+        expect(pairFilterB.getLabelForOperator()).toEqual('');
+        expect(pairFilterB.getLabelForValue()).toEqual('!= (testName or testType)');
+        expect(pairFilterB.getLabelForValue(true)).toEqual('!= (testName or testType)');
+    });
+
+    it('retrieveValues on pair filter does return expected values', () => {
+        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
+        ], CompoundFilterType.OR);
+
+        expect(pairFilterA.retrieveValues()).toEqual([{
+            field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            operator1: '=',
+            operator2: '!=',
+            value1: 'testName',
+            value2: 'testType'
+        }]);
+    });
+
+    it('toDataList on pair filter does return expected list', () => {
+        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
+            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
+        ], CompoundFilterType.OR);
+
+        expect(pairFilterA.toDataList()).toEqual([
+            'pair',
+            pairFilterA.id,
+            [],
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            '=',
+            'testName',
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            '!=',
+            'testType'
+        ]);
     });
 });
 
@@ -3457,21 +3966,6 @@ describe('Filter Labels', () => {
         expect(zeroEqualsFilter.getLabelForValue()).toEqual('0');
     });
 
-    it('getLabel functions on bounds filter should return expected strings', () => {
-        let boundsFilter: CompoundFilter = BoundsFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
-        ]);
-
-        expect(boundsFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test X Field and Test Database 1 / ' +
-            'Test Table 1 / Test Y Field');
-        expect(boundsFilter.getLabelForField(true)).toEqual('Test X Field and Test Y Field');
-        expect(boundsFilter.getLabelForOperator()).toEqual('');
-        expect(boundsFilter.getLabelForValue()).toEqual('from (-50, -100) to (50, 100)');
-    });
-
     it('getLabel functions on compound filter should return expected strings', () => {
         let compoundFilter: CompoundFilter = FilterUtil.createFilterFromConfig({
             type: 'or',
@@ -3509,114 +4003,117 @@ describe('Filter Labels', () => {
         expect(compoundFilter.getLabelForValue(true)).toEqual('(Test Name Field testName) or (Test Text Field contains testText) or ' +
             '(Test Type Field != testType)');
     });
+});
 
-    it('getLabel functions on domain filter should return expected strings', () => {
-        let domainFilter: CompoundFilter = DomainFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
-        ]);
-
-        expect(domainFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Size Field');
-        expect(domainFilter.getLabelForField(true)).toEqual('Test Size Field');
-        expect(domainFilter.getLabelForOperator()).toEqual('');
-        expect(domainFilter.getLabelForValue()).toEqual('between -100 and 100');
+describe('FilterDesign constructors', () => {
+    it('BoundsFilterDesign does have expected filters', () => {
+        const boundsDesignA = new BoundsFilterDesign(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            1,
+            2,
+            3,
+            4
+        );
+        expect(boundsDesignA.filters).toEqual([{
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName,
+            operator: '>=',
+            value: 1
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName,
+            operator: '<=',
+            value: 3
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.Y.columnName,
+            operator: '>=',
+            value: 2
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.Y.columnName,
+            operator: '<=',
+            value: 4
+        }]);
     });
 
-    it('getLabel functions on list filter should return expected strings', () => {
-        let listFilter: CompoundFilter = ListFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
-        ], CompoundFilterType.OR);
-
-        expect(listFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
-        expect(listFilter.getLabelForField(true)).toEqual('Test Text Field');
-        expect(listFilter.getLabelForOperator()).toEqual('');
-        expect(listFilter.getLabelForValue()).toEqual('!= (testText1 or testText2 or testText3)');
-        expect(listFilter.getLabelForValue(true)).toEqual('!= (testText1 or testText2 or testText3)');
+    it('DomainFilterDesign does have expected filters', () => {
+        const domainDesignA = new DomainFilterDesign(
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            1,
+            2
+        );
+        expect(domainDesignA.filters).toEqual([{
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName,
+            operator: '>=',
+            value: 1
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.X.columnName,
+            operator: '<=',
+            value: 2
+        }]);
     });
 
-    it('getLabel functions on list filter with equals operator should return expected strings', () => {
-        let listFilter: CompoundFilter = ListFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3')
-        ], CompoundFilterType.OR);
-
-        expect(listFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
-        expect(listFilter.getLabelForField(true)).toEqual('Test Text Field');
-        expect(listFilter.getLabelForOperator()).toEqual('');
-        expect(listFilter.getLabelForValue()).toEqual('testText1 or testText2 or testText3');
-        expect(listFilter.getLabelForValue(true)).toEqual('testText1 or testText2 or testText3');
+    it('ListFilterDesign does have expected filters', () => {
+        const listDesignA = new ListFilterDesign(CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            '!=',
+            ['testText1', 'testText2']);
+        expect(listDesignA.filters).toEqual([{
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TEXT.columnName,
+            operator: '!=',
+            value: 'testText1'
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TEXT.columnName,
+            operator: '!=',
+            value: 'testText2'
+        }]);
     });
 
-    it('getLabel functions on list filter with many clauses should return expected strings', () => {
-        let listFilter: CompoundFilter = ListFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText4'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText5'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText6'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText7'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText8'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText9')
-        ], CompoundFilterType.OR);
-
-        expect(listFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
-        expect(listFilter.getLabelForField(true)).toEqual('Test Text Field');
-        expect(listFilter.getLabelForOperator()).toEqual('');
-        expect(listFilter.getLabelForValue()).toEqual('!= (testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...)');
-        expect(listFilter.getLabelForValue(true)).toEqual('!= (testText1 or testText2 or testText3 or testText4 or testText5 or 4 ' +
-            'more...)');
-    });
-
-    it('getLabel functions on list filter with many clauses and equals operator should return expected strings', () => {
-        let listFilter: CompoundFilter = ListFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText4'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText5'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText6'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText7'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText8'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText9')
-        ], CompoundFilterType.OR);
-
-        expect(listFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Text Field');
-        expect(listFilter.getLabelForField(true)).toEqual('Test Text Field');
-        expect(listFilter.getLabelForOperator()).toEqual('');
-        expect(listFilter.getLabelForValue()).toEqual('testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...');
-        expect(listFilter.getLabelForValue(true)).toEqual('testText1 or testText2 or testText3 or testText4 or testText5 or 4 more...');
-    });
-
-    it('getLabel functions on pair filter should return expected strings', () => {
-        let pairFilter: CompoundFilter = PairFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
-        ], CompoundFilterType.OR);
-
-        expect(pairFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
-            'Test Table 1 / Test Type Field');
-        expect(pairFilter.getLabelForField(true)).toEqual('Test Name Field or Test Type Field');
-        expect(pairFilter.getLabelForOperator()).toEqual('');
-        expect(pairFilter.getLabelForValue()).toEqual('testName or != testType');
-        expect(pairFilter.getLabelForValue(true)).toEqual('testName or != testType');
-    });
-
-    it('getLabel functions on pair filter with same operator should return expected strings', () => {
-        let pairFilter: CompoundFilter = PairFilter.fromFilters([
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '!=', 'testName'),
-            new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
-        ], CompoundFilterType.OR);
-
-        expect(pairFilter.getLabelForField()).toEqual('Test Database 1 / Test Table 1 / Test Name Field or Test Database 1 / ' +
-            'Test Table 1 / Test Type Field');
-        expect(pairFilter.getLabelForField(true)).toEqual('Test Name Field or Test Type Field');
-        expect(pairFilter.getLabelForOperator()).toEqual('');
-        expect(pairFilter.getLabelForValue()).toEqual('!= (testName or testType)');
-        expect(pairFilter.getLabelForValue(true)).toEqual('!= (testName or testType)');
+    it('PairFilterDesign does have expected filters', () => {
+        const pairDesignA = new PairFilterDesign(CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            '=',
+            '!=',
+            'testName',
+            'testType');
+        expect(pairDesignA.filters).toEqual([{
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.NAME.columnName,
+            operator: '=',
+            value: 'testName'
+        }, {
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase1.name,
+            table: TABLES.testTable1.name,
+            field: FIELD_MAP.TYPE.columnName,
+            operator: '!=',
+            value: 'testType'
+        }]);
     });
 });
 
