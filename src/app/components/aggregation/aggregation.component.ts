@@ -37,15 +37,18 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    BoundsFilter,
     BoundsFilterDesign,
     CompoundFilter,
+    DomainFilter,
     DomainFilterDesign,
     FilterCollection,
     ListFilterDesign,
     SimpleFilter,
     SimpleFilterDesign
 } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { DatasetUtil } from '../../util/dataset.util';
+import { BoundsValues, DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -1037,30 +1040,36 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
-                let bounds = (boundsFilter as CompoundFilter).asBoundsFilter();
-                if (bounds.lowerA.field.columnName === this.options.xField.columnName) {
+                const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues()[0];
+                const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
+                const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
+                if (fieldKey1.field === this.options.xField.columnName && fieldKey2.field === this.options.yField.columnName) {
                     this.subcomponentMain.select([{
-                        beginX: bounds.lowerA.value,
-                        endX: bounds.upperA.value,
-                        beginY: bounds.lowerB.value,
-                        endY: bounds.upperB.value
+                        beginX: bounds.begin1,
+                        endX: bounds.end1,
+                        beginY: bounds.begin2,
+                        endY: bounds.end2
                     }]);
-                } else {
+                }
+                if (fieldKey1.field === this.options.yField.columnName && fieldKey2.field === this.options.xField.columnName) {
                     this.subcomponentMain.select([{
-                        beginX: bounds.lowerB.value,
-                        endX: bounds.upperB.value,
-                        beginY: bounds.lowerA.value,
-                        endY: bounds.upperA.value
+                        beginX: bounds.begin2,
+                        endX: bounds.end2,
+                        beginY: bounds.begin1,
+                        endY: bounds.end1
                     }]);
                 }
             }
 
             for (const domainFilter of domainFilters) {
-                let domain = (domainFilter as CompoundFilter).asDomainFilter();
-                this.subcomponentMain.select([{
-                    beginX: domain.lower.value,
-                    endX: domain.upper.value
-                }]);
+                let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues()[0];
+                const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
+                if (fieldKey.field === this.options.xField.columnName) {
+                    this.subcomponentMain.select([{
+                        beginX: domain.begin,
+                        endX: domain.end
+                    }]);
+                }
             }
 
             // TODO THOR-1057 Update the selectedArea

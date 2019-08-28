@@ -53,9 +53,9 @@ export interface BoundsValues {
 }
 
 export interface DomainValues {
-    begin: boolean|number|string;
+    begin: boolean|number|string|Date;
     field: string;
-    end: boolean|number|string;
+    end: boolean|number|string|Date;
 }
 
 export interface PairOfValues {
