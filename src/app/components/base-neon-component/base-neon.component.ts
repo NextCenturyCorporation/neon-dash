@@ -24,6 +24,7 @@ import {
     AbstractFilter,
     FilterCollection
 } from '../../util/filter.util';
+import { DatasetUtil } from '../../util/dataset.util';
 import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
@@ -446,31 +447,30 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (Array.isArray(options.filter)) {
-            options.filter.forEach((filter) => {
+        // Only add config option fields if any widget-specific fields exist because otherwise query will return all fields anyway.
+        if (fields.length) {
+            (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
                 if (filter && filter.lhs && filter.operator && typeof filter.rhs !== 'undefined') {
-                    fields = [filter.lhs].concat(fields);
+                    fields = fields.concat(DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys));
                 }
             });
-        } else if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
-            fields = [options.filter.lhs].concat(fields);
+
+            (options.customEventsToPublish || []).forEach((config) => {
+                (config.fields || []).forEach((fieldsConfig) => {
+                    if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                        fields.push(fieldsConfig.columnName);
+                    }
+                });
+            });
+
+            (options.customEventsToReceive || []).forEach((config) => {
+                (config.fields || []).forEach((fieldsConfig) => {
+                    if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                        fields.push(fieldsConfig.columnName);
+                    }
+                });
+            });
         }
-
-        (options.customEventsToPublish || []).forEach((config) => {
-            (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.columnName) < 0) {
-                    fields.push(fieldsConfig.columnName);
-                }
-            });
-        });
-
-        (options.customEventsToReceive || []).forEach((config) => {
-            (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.columnName) < 0) {
-                    fields.push(fieldsConfig.columnName);
-                }
-            });
-        });
 
         let query: QueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
         return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
@@ -486,17 +486,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let filterClauses: FilterClause[] = this.retrieveApplicableFilters(options).map((filter) =>
             this.searchService.generateFilterClauseFromFilter(filter));
 
-        if (Array.isArray(options.filter)) {
-            options.filter.forEach((filter) => {
-                if (filter && filter.lhs && filter.operator && filter.rhs) {
-                    filterClauses = filterClauses.concat(this.searchService.buildFilterClause(filter.lhs, filter.operator,
-                        filter.rhs));
-                }
-            });
-        } else if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
-            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
-                options.filter.rhs));
-        }
+        (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
+            if (filter && filter.lhs && filter.operator && filter.rhs) {
+                filterClauses = filterClauses.concat(this.searchService.buildFilterClause(
+                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys), filter.operator, filter.rhs
+                ));
+            }
+        });
 
         return filterClauses;
     }
