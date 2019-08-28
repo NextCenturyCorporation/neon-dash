@@ -396,6 +396,12 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
         if (!this.layers.length && defaultLayer) {
             this.addLayer();
         }
+
+        // Remove the database and the table from this options if it has a layer to manage them both.
+        if (defaultLayer) {
+            this.database = null;
+            this.table = null;
+        }
     }
 
     /**
