@@ -35,7 +35,6 @@ export class FilterService{
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
-        //localStorage.clear();
     }
 
     /**
@@ -187,7 +186,7 @@ export class FilterService{
         filterConfigList: FilterConfig[],
         dataset: Dataset,
         filterConfigListToDelete: FilterConfig[] = [],
-        keepSameFiltersOn: boolean = false,
+        keepSameFilters: boolean = false,
         applyPreviousFilter: boolean = false
     ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
@@ -235,9 +234,8 @@ export class FilterService{
             }
             else{
                 // If each filter in the new ("modified") list is the same as each filter in the old ("previous") list, just remove them.
-                if (!keepSameFiltersOn && modifiedFilterList.length === previousFilterList.length &&
+                if (!keepSameFilters && modifiedFilterList.length === previousFilterList.length &&
                     modifiedFilterList.every((modifiedFilter, index) => modifiedFilter.isEquivalentToFilter(previousFilterList[index]))) {
-                    console.log("don't keep same filters on")
                     modifiedFilterList = [];
                 }
 
@@ -261,30 +259,7 @@ export class FilterService{
                         console.log("set cached", previousFilterList)
                     }
                 }
-
-
-/*                if(!keepSameFiltersOn) {
-                    console.log("keeping same filters off")
-                    for (let i = 0; i < modifiedFilterList.length; i++) {
-                        let modifiedFilter = modifiedFilterList[i];
-                        previousFilterList.forEach((previousFilter) => {
-                            //let storageField = previousFilter.getLabelForField(true);
-
-                            if (!this._cachedFilters.get(callerId) || !this._cachedFilters.get(callerId).get(filterDataSourceList)) {
-                                this._cachedFilters.set(callerId, new Map().set(filterDataSourceList, previousFilter));
-                            }
-
-                            if (previousFilter.isEquivalentToFilter(modifiedFilter)) {
-                                let cachedFilter = this._cachedFilters.get(callerId).get(filterDataSourceList);
-                                console.log(cachedFilter)
-                                modifiedFilterList = [...modifiedFilterList.slice(0, i), ...modifiedFilterList.slice(i + 1), ...cachedFilter]; //...compoundCached, ...simpleCached
-                                //this._cachedFilters.get(callerId).delete(filterDataSourceList)
-                            }
-                        });
-                    }
-                }*/
             }
-
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).
             let actualDataSourceList: FilterDataSource[] = this.filterCollection.setFilters(filterDataSourceList, modifiedFilterList);

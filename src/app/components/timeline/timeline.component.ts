@@ -209,7 +209,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnItem(this.options.filterField, value)));
         }
 
-        this.exchangeFilters(filters);
+        this.exchangeFilters(filters, [], true);
 
         this.filterAndRefreshData(this.timelineQueryResults);
     }

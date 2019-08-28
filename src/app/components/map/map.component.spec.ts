@@ -558,7 +558,7 @@ describe('Component: Map', () => {
                 operator: '<=',
                 value: 4
             }]
-        }]]);
+        }], [], true]);
 
         updateMapLayer2(component);
 
@@ -628,7 +628,7 @@ describe('Component: Map', () => {
                 operator: '<=',
                 value: 8
             }]
-        }]]);
+        }], [], true]);
     });
 
     it('filterByMapPoint does call exchangeFilters with filters on each layer', () => {

@@ -196,7 +196,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public filterByLocation(box: BoundingBoxByDegrees): void {
         let filters: FilterConfig[] = this.options.layers.map((layer) => this.createFilterConfigOnBox(layer, box.north, box.south,
             box.east, box.west));
-        this.exchangeFilters(filters);
+        this.exchangeFilters(filters, [], true);
     }
 
     /**
