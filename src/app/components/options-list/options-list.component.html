@@ -43,6 +43,7 @@
     <div mat-fill class="editor" *ngSwitchCase="'NON_PRIMITIVE'">
         <label>{{ getPrettyName(getOption(bindingKey).prettyName) }}</label>
         <ngx-monaco-editor #editor [options]="{
+                automaticLayout: true,
                 theme: 'vs', 
                 language: 'yaml', 
                 lineNumbers: true,
