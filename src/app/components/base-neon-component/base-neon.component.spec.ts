@@ -1474,7 +1474,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1493,7 +1493,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(1);
     });
