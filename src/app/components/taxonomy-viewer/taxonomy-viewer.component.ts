@@ -176,10 +176,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetFieldOption('subTypeField', 'Sub Type Field', false),
             new WidgetFieldOption('valueField', 'Value Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('ascending', 'Sort Ascending', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('ascending', 'Sort Ascending', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

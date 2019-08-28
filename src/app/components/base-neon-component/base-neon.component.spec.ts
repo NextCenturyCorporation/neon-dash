@@ -140,8 +140,8 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
             new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
             new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
             new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
-            new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
-            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
+            new WidgetFreeTextOption('testFreeText', 'Test Free Text', false, ''),
+            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', false, [], [{
                 prettyName: 'A',
                 variable: 'a'
             }, {
@@ -151,9 +151,9 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'C',
                 variable: 'c'
             }]),
-            new WidgetNonPrimitiveOption('testArray', 'Test Array', []),
-            new WidgetNonPrimitiveOption('testObject', 'Test Object', {}),
-            new WidgetSelectOption('testSelect', 'Test Select', 'y', [{
+            new WidgetNonPrimitiveOption('testArray', 'Test Array', false, []),
+            new WidgetNonPrimitiveOption('testObject', 'Test Object', false, {}),
+            new WidgetSelectOption('testSelect', 'Test Select', false, 'y', [{
                 prettyName: 'X',
                 variable: 'x'
             }, {
@@ -163,7 +163,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'Z',
                 variable: 'z'
             }]),
-            new WidgetSelectOption('testToggle', 'Test Toggle', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 }

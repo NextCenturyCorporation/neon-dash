@@ -135,10 +135,11 @@ export class WidgetColorOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.COLOR, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
@@ -182,10 +183,12 @@ export class WidgetFieldArrayOption extends WidgetOption {
 }
 
 export class WidgetFieldOption extends WidgetOption {
-    constructor(bindingKey: string,
+    constructor(
+        bindingKey: string,
         prettyName: string | OptionCallback,
-        isRequired: boolean = false,
-        hideFromMenu: boolean | OptionCallback = false) {
+        isRequired: boolean,
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
@@ -205,10 +208,11 @@ export class WidgetFreeTextOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.FREE_TEXT, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
@@ -216,11 +220,12 @@ export class WidgetMultipleSelectOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
+        super(OptionType.MULTIPLE_SELECT, isRequired, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
@@ -230,10 +235,11 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.NON_PRIMITIVE, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -271,10 +277,11 @@ export class WidgetNumberOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.NUMBER, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -310,11 +317,12 @@ export class WidgetSelectOption extends WidgetOption {
     constructor(
         bindingKey: string,
         prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
+        super(OptionType.SELECT, isRequired, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 

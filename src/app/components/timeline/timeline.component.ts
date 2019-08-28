@@ -154,8 +154,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', true),
             new WidgetFieldOption('idField', 'Id Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity),
-            new WidgetFreeTextOption('yLabel', 'Count', '')
+            new WidgetSelectOption('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
+            new WidgetFreeTextOption('yLabel', 'Count', false, '')
         ];
     }
 
