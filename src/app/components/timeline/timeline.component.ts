@@ -33,12 +33,12 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    CompoundFilter,
+    DomainFilter,
     DomainFilterDesign,
     FilterCollection,
     SimpleFilterDesign
 } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -214,8 +214,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         if (timelineFilters.length) {
             // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
             for (const timelineFilter of timelineFilters) {
-                let domain = (timelineFilter as CompoundFilter).asDomainFilter();
-                this.selected = [domain.lower.value, domain.upper.value];
+                let domain: DomainValues = (timelineFilter as DomainFilter).retrieveValues()[0];
+                this.selected = [domain.begin as Date, domain.end as Date];
                 // TODO THOR-1106 Update the brush element in the timelineChart.
             }
         } else {
