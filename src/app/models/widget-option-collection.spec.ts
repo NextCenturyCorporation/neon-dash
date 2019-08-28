@@ -424,7 +424,6 @@ describe('RootWidgetOptionCollection', () => {
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
             new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
         ], 'Test Title', 100, true, new OptionConfig({
-            tableKey: 'table_key_2',
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
             hideUnfiltered: true,
@@ -446,9 +445,9 @@ describe('RootWidgetOptionCollection', () => {
 
     it('does have databases, fields, tables, custom properties, and custom layers', () => {
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.database).toEqual(null);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.table).toEqual(null);
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.contributionKeys).toEqual(['next_century']);
@@ -551,9 +550,9 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
     it('does have databases, fields, tables, custom properties, and custom layers with default values', () => {
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase1);
+        expect(options.database).toEqual(null);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable1);
+        expect(options.table).toEqual(null);
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.contributionKeys).toEqual(null);
@@ -567,6 +566,11 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.testCustomKey).toEqual('default value');
 
         expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].databases).toEqual(DATABASES_LIST);
+        expect(options.layers[0].database).toEqual(DATABASES.testDatabase1);
+        expect(options.layers[0].tables).toEqual(TABLES_LIST);
+        expect(options.layers[0].table).toEqual(TABLES.testTable1);
+        expect(options.layers[0].fields).toEqual(FIELDS);
         expect(options.layers[0].limit).toEqual(100);
         expect(options.layers[0].title).toEqual('Layer 1');
         expect(options.layers[0].testCustomLayerField).toEqual(NeonFieldMetaData.get());
