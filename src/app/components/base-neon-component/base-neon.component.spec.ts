@@ -337,10 +337,10 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
+                'testIdField',
                 'testDateField',
                 'testLinkField',
                 'testNameField',
@@ -352,6 +352,53 @@ describe('BaseNeonComponent', () => {
                 field: 'testIdField',
                 operator: '!=',
                 value: 'testIdValue'
+            }
+        });
+    });
+
+    it('createCompleteVisualizationQuery with multiple config filters does return expected query object', () => {
+        component.options.filter = [{
+            lhs: 'testNameField',
+            operator: '!=',
+            rhs: 'testName'
+        }, {
+            lhs: 'testTypeField',
+            operator: '!=',
+            rhs: 'testType'
+        }];
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            filter: {
+                type: 'and',
+                filters: [{
+                    field: 'testNameField',
+                    operator: '!=',
+                    value: 'testName'
+                }, {
+                    field: 'testTypeField',
+                    operator: '!=',
+                    value: 'testType'
+                }]
+            }
+        });
+    });
+
+    it('createCompleteVisualizationQuery with fieldkey config filters does return expected query object', () => {
+        component.options.filter = [{
+            lhs: 'field_key_1',
+            operator: '=',
+            rhs: 'testValue'
+        }];
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            filter: {
+                field: 'testFieldKeyField',
+                operator: '=',
+                value: 'testValue'
             }
         });
     });
@@ -749,10 +796,10 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
+                'testIdField',
                 'testDateField',
                 'testLinkField',
                 'testNameField',
@@ -1721,11 +1768,11 @@ describe('Advanced BaseNeonComponent with config', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testConfigField',
                 'testSizeField',
                 'testNameField',
                 'testXField',
                 'testYField',
+                'testConfigField',
                 'testPublishColumnName',
                 'testReceiveColumnName'
             ],
