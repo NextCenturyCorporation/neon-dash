@@ -210,7 +210,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }]),
             new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
             new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('keepSameFiltersOn', 'Keep same filters on', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
