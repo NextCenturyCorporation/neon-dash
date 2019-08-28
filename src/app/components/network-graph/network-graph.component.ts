@@ -350,7 +350,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
             new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', '')
+            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', ''),
+            new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
         ];
     }
 
@@ -1164,6 +1165,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let linkNameColumn = this.options.linkNameField.columnName;
         let nodeName = this.options.nodeField.columnName;
         let nodeNameColumn = this.options.nodeNameField.columnName;
+        let relationNameColumn = this.options.relationNameField.columnName ? this.options.relationNameField.columnName : nodeNameColumn;
         let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let nodeColor = this.options.nodeColor;
@@ -1204,7 +1206,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             // Convert relation nodes to edges. Ensure that the relation link object has two nodes before adding it to the network graph
             for (let relationNode of this.relationNodes) {
-                let linkNames = this.edgeLabelFormat(relationNode[nodeNameColumn]);
+                let linkNames = this.edgeLabelFormat(relationNode[relationNameColumn]);
                 if (relationNode.nodes.length === 2) {
                     graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
                         relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
