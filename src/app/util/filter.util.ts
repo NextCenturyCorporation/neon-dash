@@ -1238,7 +1238,8 @@ export class ListFilter extends CompoundFilter {
         let suffix = (this.filters.length > 5 ? (' ' + this.type + ' ' + (this.filters.length - 5) + ' more...') : '');
         let operator = this.filters[0].getLabelForOperator();
         // Do not show the operator if it is empty.
-        return (operator ? (operator + ' ') : '') + values.join(' ' + this.type + ' ') + suffix;
+        return (operator ? (operator + ' ' + (values.length > 1 ? '(' : '')) : '') + values.join(' ' + this.type + ' ') + suffix +
+            ((operator && values.length > 1) ? ')' : '');
     }
 
     /**
@@ -1346,14 +1347,16 @@ export class PairFilter extends CompoundFilter {
      * Returns the label for the filter's value(s).
      */
     public getLabelForValue(abridged: boolean = false): string {
+        let operator1 = this.filters[0].getLabelForOperator();
+        let operator2 = this.filters[1].getLabelForOperator();
         // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
-        if (this.operator1 === this.operator2) {
-            return (this.operator1 ? (this.operator1 + ' ') : '') + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-                this.filters[1].getLabelForValue(abridged);
+        if (operator1 === operator2) {
+            return (operator1 ? (operator1 + ' ') : '') + '(' + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+                this.filters[1].getLabelForValue(abridged) + ')';
         }
         // Do not show the operator if it is empty.
-        return (this.operator1 ? (this.operator1 + ' ') : '') + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-            (this.operator2 ? (this.operator2 + ' ') : '') + this.filters[1].getLabelForValue(abridged);
+        return (operator1 ? (operator1 + ' ') : '') + this.filters[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
+            (operator2 ? (operator2 + ' ') : '') + this.filters[1].getLabelForValue(abridged);
     }
 
     /**
