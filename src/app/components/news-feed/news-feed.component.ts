@@ -245,7 +245,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             options.database.name &&
             options.table.name &&
             options.idField.columnName &&
-            options.dateField.columnName &&
             options.contentField.columnName
         );
     }
