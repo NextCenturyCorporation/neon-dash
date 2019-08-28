@@ -127,11 +127,11 @@ export class QueryBarComponent extends BaseNeonComponent {
         return [
             new WidgetFieldOption('filterField', 'Filter Field', true),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
-            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
+            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', false, []),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('placeHolder', 'Place Holder', false, 'Query')
         ];
     }
 
