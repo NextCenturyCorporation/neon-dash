@@ -134,8 +134,6 @@ function updateMapLayer1(component: TestMapComponent) {
     component.options.layers[0].tables = [];
     component.options.layers[0].table = DashboardServiceMock.TABLES.testTable1;
     component.options.layers[0].title = 'Layer A';
-    component.options.layers[0].unsharedFilterField = NeonFieldMetaData.get();
-    component.options.layers[0].unsharedFilterValue = '';
 
     component.options.layers[0].filterFields = [];
     component.options.layers[0].idField = DashboardServiceMock.FIELD_MAP.ID;
@@ -159,8 +157,6 @@ function updateMapLayer2(component: TestMapComponent) {
     component.options.layers[1].tables = [];
     component.options.layers[1].table = DashboardServiceMock.TABLES.testTable2;
     component.options.layers[1].title = 'Layer B';
-    component.options.layers[1].unsharedFilterField = NeonFieldMetaData.get();
-    component.options.layers[1].unsharedFilterValue = '';
 
     component.options.layers[1].filterFields = [];
     component.options.layers[1].idField = DashboardServiceMock.FIELD_MAP.ID;

@@ -19,7 +19,6 @@ import { FilterConfig } from './filter';
 
 export interface NeonSimpleSearchFilter {
     placeHolder?: string;
-    tableKey: string;
     fieldKey: string;
 
     // Used at runtime

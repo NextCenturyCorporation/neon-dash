@@ -421,11 +421,4 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     appendPrefixIfNeeded(link: string, prefix: string) {
         return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
     }
-
-    hasUrl(text: string) {
-        let textObject = neonUtilities.hasUrl(text);
-        this.url = textObject.url;
-        this.text = textObject.splitText;
-        return textObject.test;
-    }
 }
