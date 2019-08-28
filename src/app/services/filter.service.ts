@@ -251,12 +251,10 @@ export class FilterService{
                                 modifiedFilterList = [...modifiedFilterList, ...cachedFilter];
                             }
                         });
-                        console.log("set empty modlist:" , modifiedFilterList)
                     }
                     else{
 
                         this._cachedFilters.set(callerId, new Map().set(filterDataSourceList, previousFilterList));
-                        console.log("set cached", previousFilterList)
                     }
                 }
             }
