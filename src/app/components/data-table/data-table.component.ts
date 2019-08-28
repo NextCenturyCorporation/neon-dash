@@ -412,9 +412,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         setTimeout(() => {
             // Must recalculateActiveHeaders before table.recalculate to update the header widths.
             this.recalculateActiveHeaders();
-            this.table.recalculate();
-            // Must detectChanges on the ChangeDetectorRef object in the table itself.
-            this.table.cd.detectChanges();
+            if (this.table) {
+                this.table.recalculate();
+                // Must detectChanges on the ChangeDetectorRef object in the table itself.
+                this.table.cd.detectChanges();
+            }
             // Must recalculateActiveHeaders a second time to remove unneeded scrollbars from within the table.
             this.recalculateActiveHeaders();
         }, 300);
