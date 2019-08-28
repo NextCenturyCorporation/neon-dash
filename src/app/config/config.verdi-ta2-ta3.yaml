@@ -404,6 +404,7 @@ layouts:
               ignoreSelf: false
               ascending: true
               viewType: details
+              toggleFiltered: true
               limit: 8
               typeMap:
                   jpg: img
@@ -467,6 +468,7 @@ layouts:
               ascending: false
               canvasSize: 180.00
               viewType: card
+              toggleFiltered: true
               truncateLabel:
                   value: true
                   length: 35
@@ -522,6 +524,7 @@ layouts:
                 - document_field_id
               ascending: true
               viewType: details
+              toggleFiltered: true
               limit: 8
               typeMap:
                   jpg: img
@@ -610,6 +613,7 @@ layouts:
               ignoreSelf: false
               ascending: true
               viewType: details
+              toggleFiltered: true
               limit: 8
               typeMap:
                   jpg: img
@@ -638,9 +642,6 @@ layouts:
                     table: rdf-kb
                     idField: docIds
                     filterField: hypotheses
-                  - database: verdi-rdf-normal
-                    table: normal
-                    idField: '@id'
 
         - type: newsFeed
           row: 2
@@ -746,7 +747,7 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              toggleFiltered: false
+              applyPreviousFilter: true
               typeMap:
                   jpg: img
                   png: img
