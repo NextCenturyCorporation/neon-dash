@@ -640,76 +640,6 @@ export class CompoundFilter extends AbstractFilter {
         super();
     }
 
-    public asBoundsFilter(): { lowerA: SimpleFilter, lowerB: SimpleFilter, upperA: SimpleFilter, upperB: SimpleFilter } {
-        // TODO THOR-1396 Delete this
-        if (this.type === CompoundFilterType.AND && this.filters.length === 4 &&
-            this.filters.every((filter) => filter instanceof SimpleFilter)) {
-            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-
-            if (uniqueFieldKeys.length === 2) {
-                let boundsFilter = {
-                    lowerA: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '>='),
-                    lowerB: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[1], '>='),
-                    upperA: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '<='),
-                    upperB: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[1], '<=')
-                };
-                return (boundsFilter.lowerA && boundsFilter.lowerB && boundsFilter.upperA && boundsFilter.upperB) ? boundsFilter : null;
-            }
-        }
-        return null;
-    }
-
-    public asDomainFilter(): { lower: SimpleFilter, upper: SimpleFilter } {
-        // TODO THOR-1396 Delete this
-        if (this.type === CompoundFilterType.AND && this.filters.length === 2 &&
-            this.filters.every((filter) => filter instanceof SimpleFilter)) {
-            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-
-            if (uniqueFieldKeys.length === 1) {
-                let domainFilter = {
-                    lower: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '>='),
-                    upper: FilterUtil.findFilterWithFieldKey(this.filters as SimpleFilter[], uniqueFieldKeys[0], '<=')
-                };
-                return (domainFilter.lower && domainFilter.upper) ? domainFilter : null;
-            }
-        }
-        return null;
-    }
-
-    public asListFilter(): SimpleFilter[] {
-        // TODO THOR-1396 Delete this
-        if (this.filters.length && this.filters.every((filter) => filter instanceof SimpleFilter)) {
-            let sample = this.filters[0] as SimpleFilter;
-            let fieldKey = sample.database.name + '.' + sample.table.name + '.' + sample.field.columnName;
-            let operator = sample.operator;
-
-            return this.filters.every((filter) => {
-                let simple = filter as SimpleFilter;
-                return (simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName) === fieldKey &&
-                    simple.operator === operator;
-            }) ? this.filters as SimpleFilter[] : null;
-        }
-        return null;
-    }
-
-    public asPairFilter(): SimpleFilter[] {
-        // TODO THOR-1396 Delete this
-        if (this.filters.length === 2 && this.filters.every((filter) => filter instanceof SimpleFilter)) {
-            let uniqueFieldKeys = _.uniq(this.filters.map((filter) => {
-                let simple = filter as SimpleFilter;
-                return simple.database.name + '.' + simple.table.name + '.' + simple.field.columnName;
-            }));
-            return uniqueFieldKeys.length === 2 ? this.filters as SimpleFilter[] : null;
-        }
-        return null;
-    }
-
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
         return new CompoundFilter(this.type, this.filters.map(filterTransformation));
     }
@@ -784,29 +714,7 @@ export class CompoundFilter extends AbstractFilter {
      *
      * @override
      */
-    public getLabelForField(abridged: boolean = false): string {
-        // TODO THOR-1396 Delete most of this
-        let boundsFilter = this.asBoundsFilter();
-        if (boundsFilter) {
-            return this.getLabelForDualFields(boundsFilter.lowerA.getLabelForField(abridged),
-                boundsFilter.lowerB.getLabelForField(abridged));
-        }
-
-        let domainFilter = this.asDomainFilter();
-        if (domainFilter) {
-            return domainFilter.lower.getLabelForField(abridged);
-        }
-
-        let listFilter = this.asListFilter();
-        if (listFilter) {
-            return listFilter[0].getLabelForField(abridged);
-        }
-
-        let pairFilter = this.asPairFilter();
-        if (pairFilter) {
-            return this.getLabelForDualFields(pairFilter[0].getLabelForField(abridged), pairFilter[1].getLabelForField(abridged));
-        }
-
+    public getLabelForField(__abridged: boolean = false): string {
         return '';
     }
 
@@ -825,42 +733,6 @@ export class CompoundFilter extends AbstractFilter {
      * @abstract
      */
     public getLabelForValue(abridged: boolean = false): string {
-        // TODO THOR-1396 Delete most of this
-        let boundsFilter = this.asBoundsFilter();
-        if (boundsFilter) {
-            return 'from (' + boundsFilter.lowerA.getLabelForValue(abridged) + ', ' + boundsFilter.lowerB.getLabelForValue(abridged) +
-                ') to (' + boundsFilter.upperA.getLabelForValue(abridged) + ', ' + boundsFilter.upperB.getLabelForValue(abridged) + ')';
-        }
-
-        let domainFilter = this.asDomainFilter();
-        if (domainFilter) {
-            return 'between ' + domainFilter.lower.getLabelForValue(abridged) + ' and ' + domainFilter.upper.getLabelForValue(abridged);
-        }
-
-        let listFilter = this.asListFilter();
-        if (listFilter) {
-            // Only show the first 5 filters.  Add a suffix with the count of the hidden values.
-            let values: any[] = listFilter.slice(0, 5).map((filter) => filter.getLabelForValue(abridged));
-            let suffix = (listFilter.length > 5 ? (' ' + this.type + ' ' + (listFilter.length - 5) + ' more...') : '');
-            let operator = listFilter[0].getLabelForOperator();
-            // Do not show the operator if it is empty.
-            return (operator ? (operator + ' ') : '') + values.join(' ' + this.type + ' ') + suffix;
-        }
-
-        let pairFilter = this.asPairFilter();
-        if (pairFilter) {
-            let operatorOne = pairFilter[0].getLabelForOperator();
-            let operatorTwo = pairFilter[1].getLabelForOperator();
-            // If the operator of each nested filter is the same, only show it once.  Do not show the operator if it is empty.
-            if (operatorOne === operatorTwo) {
-                return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-                    pairFilter[1].getLabelForValue(abridged);
-            }
-            // Do not show the operator if it is empty.
-            return (operatorOne ? (operatorOne + ' ') : '') + pairFilter[0].getLabelForValue(abridged) + ' ' + this.type + ' ' +
-                (operatorTwo ? (operatorTwo + ' ') : '') + pairFilter[1].getLabelForValue(abridged);
-        }
-
         // TODO THOR-1333 Improve label for custom compound filter
 
         // Group the filters by unique field.
