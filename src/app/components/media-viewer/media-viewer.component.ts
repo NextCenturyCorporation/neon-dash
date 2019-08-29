@@ -211,17 +211,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldArrayOption('linkFields', 'Link Field(s)', true),
-            new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('border', 'Border', ''),
-            new WidgetSelectOption('clearMedia', 'Clear Media', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('delimiter', 'Link Delimiter', ','),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
-            new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', ''),
-            new WidgetSelectOption('resize', 'Resize Media to Fit', true, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('sliderValue', 'Slider Value', 0),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetFreeTextOption('url', 'URL', '')
+            new WidgetSelectOption('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('border', 'Border', false, ''),
+            new WidgetSelectOption('clearMedia', 'Clear Media', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
+            new WidgetFreeTextOption('maskLinkPrefix', 'Mask Link Prefix', false, ''),
+            new WidgetSelectOption('resize', 'Resize Media to Fit', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetNumberOption('sliderValue', 'Slider Value', false, 0),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
+            new WidgetFreeTextOption('url', 'URL', false, '')
         ];
     }
 
