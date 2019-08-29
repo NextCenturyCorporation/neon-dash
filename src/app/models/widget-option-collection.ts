@@ -21,7 +21,6 @@ import {
     OptionChoices,
     OptionType,
     WidgetDatabaseOption,
-    WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
@@ -312,8 +311,8 @@ export class WidgetOptionCollection extends OptionCollection {
         let nonFieldOptions = this.createOptions().filter((option) => !isFieldOption(option));
 
         this.inject([
-            new WidgetFreeTextOption('title', 'Title', defaultTitle),
-            new WidgetFreeTextOption('limit', 'Limit', defaultLimit),
+            new WidgetFreeTextOption('title', 'Title', true, defaultTitle),
+            new WidgetFreeTextOption('limit', 'Limit', true, defaultLimit),
             ...nonFieldOptions
         ]);
 
@@ -396,6 +395,12 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
         if (!this.layers.length && defaultLayer) {
             this.addLayer();
         }
+
+        // Remove the database and the table from this options if it has a layer to manage them both.
+        if (defaultLayer) {
+            this.database = null;
+            this.table = null;
+        }
     }
 
     /**
@@ -428,13 +433,11 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      */
     protected createOptions(): WidgetOption[] {
         return [
-            new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false, true),
-            new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], true),
-            new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], true),
-            new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null),
-            new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('unsharedFilterValue', 'Local Filter Value', '', true),
-            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true),
+            new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', false, [], true),
+            new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', false, [], true),
+            new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', false, null),
+            new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', false, null, true),
             ...super.createOptions()
         ];
     }
