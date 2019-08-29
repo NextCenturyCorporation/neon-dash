@@ -59,6 +59,9 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     private previousText: string = '';
 
+    private extensionFiltersToDelete: FilterConfig[];
+    private extensionFiltersCollection: Map<string, FilterConfig[]> = new Map<string, FilterConfig[]>();
+
     constructor(
         dashboardService: DashboardService,
         filterService: InjectableFilterService,
@@ -124,11 +127,11 @@ export class QueryBarComponent extends BaseNeonComponent {
         return [
             new WidgetFieldOption('filterField', 'Filter Field', true),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
-            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
+            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', false, []),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('placeHolder', 'Place Holder', false, 'Query')
         ];
     }
 
@@ -302,23 +305,29 @@ export class QueryBarComponent extends BaseNeonComponent {
             value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase());
 
         if (values.length) {
-            let filtersToAdd: FilterConfig[] = [this.createFilterConfigOnText(text)];
-            let filtersToDelete: FilterConfig[] = [];
+            this.extensionFiltersCollection.clear();
+            this.extensionFiltersCollection.set('', [this.createFilterConfigOnText(text)]);
+            this.extensionFiltersToDelete = [];
 
             // Gathers ids from the filtered query text in order to extend filtering to the other components
             if (this.options.extendedFilter) {
                 this.options.extensionFields.forEach((extensionField) => {
-                    let extendedFilter: FilterConfig = this.extensionFilter(text, extensionField, values);
-                    if (extendedFilter) {
-                        filtersToAdd = filtersToAdd.concat(extendedFilter);
+                    if (extensionField.database !== this.options.database.name && extensionField.table !== this.options.table.name) {
+                        this.extensionFilter(text, extensionField, values, extensionField.database + '.' + extensionField.table + '.' +
+                            extensionField.idField);
                     } else {
-                        filtersToDelete.push(this.createFilterConfigOnExtensionField(extensionField.database, extensionField.table,
-                            extensionField.idField));
+                        let extendedFilter: FilterConfig = this.extensionAddFilter(text, extensionField, values);
+                        if (extendedFilter) {
+                            this.extensionFiltersCollection.set('', this.extensionFiltersCollection.get('').concat(extendedFilter));
+                        } else {
+                            this.extensionFiltersToDelete.push(this.createFilterConfigOnExtensionField(extensionField.database,
+                                extensionField.table, extensionField.idField));
+                        }
                     }
                 });
             }
 
-            this.exchangeFilters(filtersToAdd, filtersToDelete);
+            this.updateFiltersIfDone();
         } else {
             this.removeFilters();
         }
@@ -328,68 +337,64 @@ export class QueryBarComponent extends BaseNeonComponent {
      * Extends filtering across databases/indices that do not have related fields. Executes a query if necessary.
      *
      * @arg {string} text
-     * @arg {any} fields
+     * @arg {any} extensionField
      * @arg {any} array
      * @return {FilterConfig[]}
      *
      * @private
      */
-    private extensionFilter(text: string, fields: any, array: any[]): FilterConfig {
-        if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
-            let extensionQuery = new query.Query().selectFrom(fields.database, fields.table);
-            let queryFields = [fields.idField, fields.filterField];
-            let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
-                query: extensionQuery
-            });
-            let tempArray = [];
-            let queryClauses = [];
-            for (let value of array) {
-                queryClauses.push(query.where(fields.filterField, '=', value[this.options.idField.columnName]));
-            }
-
-            extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
-            execute.done((response) => {
-                if (response && response.data && response.data.length) {
-                    response.data.forEach((result) => {
-                        let value = neonUtilities.deepFind(result, fields.idField);
-                        if (typeof value !== 'undefined') {
-                            if (value instanceof Array) {
-                                for (let values of value) {
-                                    tempArray.push(values);
-                                }
-                            } else {
-                                tempArray.push(value);
-                            }
-                        }
-                    });
-                }
-
-                tempArray = tempArray.filter((value, index, items) => items.indexOf(value) === index);
-                let filter: FilterConfig = this.extensionAddFilter(text, fields, tempArray);
-                this.exchangeFilters([filter]);
-            });
-
-            // Don't return a filter because we're making an async ajax call.
-            return null;
+    private extensionFilter(text: string, extensionField: any, values: any[], collectionId: string): void {
+        this.extensionFiltersCollection.set(collectionId, null);
+        let extensionQuery = new query.Query().selectFrom(extensionField.database, extensionField.table);
+        let queryFields = [extensionField.idField, extensionField.filterField];
+        let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
+            query: extensionQuery
+        });
+        let queryClauses = [];
+        for (const value of values) {
+            queryClauses.push(query.where(extensionField.filterField, '=', value[this.options.idField.columnName]));
         }
 
-        return this.extensionAddFilter(text, fields, array);
+        extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
+        execute.done((response) => {
+            let responseValues = [];
+            if (response && response.data && response.data.length) {
+                response.data.forEach((result) => {
+                    let resultValues = neonUtilities.deepFind(result, extensionField.idField);
+                    if (typeof resultValues !== 'undefined') {
+                        if (resultValues instanceof Array) {
+                            for (const value of resultValues) {
+                                responseValues.push(value);
+                            }
+                        } else {
+                            responseValues.push(resultValues);
+                        }
+                    }
+                });
+            }
+
+            responseValues = responseValues.filter((value, index, items) => items.indexOf(value) === index);
+            const filter: FilterConfig = this.extensionAddFilter(text, extensionField, responseValues);
+            this.extensionFiltersCollection.set(collectionId, [filter]);
+            this.updateFiltersIfDone();
+        });
     }
 
     /**
      * Adds extension filters for the visualization
      *
      * @arg {string} text
-     * @arg {any} fields
+     * @arg {any} extensionField
      * @arg {any} array
      * @return {FilterConfig}
      *
      * @private
      */
-    private extensionAddFilter(__text: string, fields: any, array: any[]): FilterConfig {
+    private extensionAddFilter(__text: string, extensionField: any, array: any[]): FilterConfig {
         let filters: FilterConfig[] = array.map((element) => {
-            let value: any = ((typeof element === 'object' && element.hasOwnProperty(fields.idField)) ? element[fields.idField] : element);
-            return this.createFilterConfigOnExtensionField(fields.database, fields.table, fields.idField, value);
+            let value: any = ((typeof element === 'object' && element.hasOwnProperty(extensionField.idField)) ?
+                element[extensionField.idField] : element);
+            return this.createFilterConfigOnExtensionField(extensionField.database, extensionField.table, extensionField.idField, value);
         }).filter((filterConfig) => !!filterConfig);
 
         return filters.length ? this.createFilterConfigOnList(filters) : null;
@@ -423,5 +428,13 @@ export class QueryBarComponent extends BaseNeonComponent {
      */
     protected redrawFilters(__filters: FilterCollection): void {
         // TODO AIDA-754 Update the query bar active text using the given filters.
+    }
+
+    private updateFiltersIfDone(): void {
+        const filterLists: FilterConfig[][] = Array.from(this.extensionFiltersCollection.values());
+        if (filterLists.some((filterList) => filterList === null)) {
+            return;
+        }
+        this.exchangeFilters(filterLists.reduce((list, filterList) => list.concat(filterList), []), this.extensionFiltersToDelete);
     }
 }

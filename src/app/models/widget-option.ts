@@ -111,21 +111,11 @@ export enum OptionType {
 export class WidgetOption {
     public valueCurrent: any;
 
-    /**
-     * @constructor
-     * @arg {OptionType} optionType
-     * @arg {boolean} isRequired
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         public optionType: OptionType,
         public isRequired: boolean,
         public bindingKey: string,
-        public prettyName: string,
+        public prettyName: string | OptionCallback,
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public hideFromMenu: boolean | OptionCallback = false
@@ -142,27 +132,18 @@ export class WidgetOption {
 }
 
 export class WidgetColorOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.COLOR, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.COLOR, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
 export class WidgetDatabaseOption extends WidgetOption {
-    /**
-     * @constructor
-     */
     constructor() {
         // Value default and choices are set elsewhere.
         super(OptionType.DATABASE, true, 'database', 'Database', undefined, undefined, false);
@@ -180,14 +161,12 @@ export class WidgetDatabaseOption extends WidgetOption {
 }
 
 export class WidgetFieldArrayOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {boolean} isRequired
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, hideFromMenu: boolean | OptionCallback = false) {
+    constructor(
+        bindingKey: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
@@ -204,14 +183,12 @@ export class WidgetFieldArrayOption extends WidgetOption {
 }
 
 export class WidgetFieldOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {boolean} [isRequired=false]
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, hideFromMenu: boolean | OptionCallback = false) {
+    constructor(
+        bindingKey: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
+        hideFromMenu: boolean | OptionCallback = false
+    ) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
@@ -228,60 +205,41 @@ export class WidgetFieldOption extends WidgetOption {
 }
 
 export class WidgetFreeTextOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.FREE_TEXT, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.FREE_TEXT, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
     }
 }
 
 export class WidgetMultipleSelectOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.MULTIPLE_SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
+        super(OptionType.MULTIPLE_SELECT, isRequired, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
 export class WidgetNonPrimitiveOption extends WidgetOption {
     private _intermediateValue: string;
 
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NON_PRIMITIVE, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.NON_PRIMITIVE, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -314,22 +272,16 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
 }
 
 export class WidgetNumberOption extends WidgetOption {
-    private _intermediateValue: number|string;
+    private _intermediateValue: number | string;
 
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.NUMBER, false, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
+        super(OptionType.NUMBER, isRequired, bindingKey, prettyName, valueDefault, undefined, hideFromMenu);
         this._intermediateValue = undefined;
     }
 
@@ -362,29 +314,19 @@ export class WidgetNumberOption extends WidgetOption {
 }
 
 export class WidgetSelectOption extends WidgetOption {
-    /**
-     * @constructor
-     * @arg {string} bindingKey
-     * @arg {string} prettyName
-     * @arg {any} valueDefault
-     * @arg {OptionChoice[]} valueChoices
-     * @arg {boolean|function} [hideFromMenu=false]
-     */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | OptionCallback,
+        isRequired: boolean,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
     ) {
-        super(OptionType.SELECT, true, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
+        super(OptionType.SELECT, isRequired, bindingKey, prettyName, valueDefault, valueChoices, hideFromMenu);
     }
 }
 
 export class WidgetTableOption extends WidgetOption {
-    /**
-     * @constructor
-     */
     constructor() {
         // Value default and choices are set elsewhere.
         super(OptionType.TABLE, true, 'table', 'Table', undefined, undefined, false);
