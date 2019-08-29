@@ -109,7 +109,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         return [
             new WidgetFieldOption('idField', 'ID Field', true),
             new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFreeTextOption('id', 'ID', '')
+            new WidgetFreeTextOption('id', 'ID', false, '')
         ];
     }
 

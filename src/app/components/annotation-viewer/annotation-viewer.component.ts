@@ -107,6 +107,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public colorKeys: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
+    public url: string[] = [];
+    public text: string[] = [];
 
     constructor(
         protected colorThemeService: InjectableColorThemeService,
@@ -158,10 +160,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             new WidgetFieldOption('textField', 'Text Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             // True if text should be highlighted on hover while responseMode is true, false otherwise.
-            new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetSelectOption('respondMode', 'Respond Mode', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('highlightInRespondMode', 'Highlight in Respond Mode', false, false,
+                OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetSelectOption('respondMode', 'Respond Mode', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -714,5 +717,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     showLegendContainer(): boolean {
         return (!this.options.singleColor && this.colorKeys.length > 0);
+    }
+
+    hasUrl(text: string) {
+        let textObject = neonUtilities.hasUrl(text);
+        this.url = textObject.url;
+        this.text = textObject.splitText;
+        return textObject.test;
     }
 }

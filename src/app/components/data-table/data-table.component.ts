@@ -157,49 +157,31 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Field(s)', false),
-            new WidgetFieldArrayOption('showFields', 'Show Field(s)', false),
-            new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, OptionChoices.YesFalseNoTrue,
+            new WidgetFieldArrayOption('showFields', 'Show Field(s)', true),
+            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('singleFilter', 'Filter Multiple', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', 'and', [{
+            new WidgetSelectOption('arrayFilterOperator', 'Filter Operator', false, 'and', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
-            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', 0, this.optionsHeatmapTable.bind(this)),
-            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showColumnSelector', 'Show Column Selector', 'hide', [{
-                prettyName: 'Yes',
-                variable: 'show'
-            }, {
-                prettyName: 'No',
-                variable: 'hide'
-            }]),
-            // TODO THOR-1135 (Delete this) The allColumnStatus option is deprecated.  Please use showFields now.
-            new WidgetSelectOption('allColumnStatus', 'Show Columns on Reload', 'show', [{
-                prettyName: 'Show All',
-                variable: 'show'
-            }, {
-                prettyName: 'Hide all',
-                variable: 'hide'
-            }]),
-            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('skinny', 'Table Style', false, [{
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
+                this.optionsFilterable.bind(this)),
+            new WidgetNumberOption('heatmapDivisor', 'Heatmap Divisor', false, 0, this.optionsHeatmapTable.bind(this)),
+            new WidgetSelectOption('reorderable', 'Make Columns Reorderable', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('skinny', 'Table Style', false, false, [{
                 prettyName: 'Normal',
                 variable: false
             }, {
                 prettyName: 'Skinny',
                 variable: true
             }]),
-            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', [], true),
-            // TODO THOR-1135 (Delete this) The exceptionsToStatus option is deprecated.  Please use showFields now.
-            new WidgetNonPrimitiveOption('exceptionsToStatus', 'Exceptions to Status', [], true),
-            // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
-            new WidgetNonPrimitiveOption('fieldsConfig', 'Fields Config', {})
+            new WidgetNonPrimitiveOption('customColumnWidths', 'Custom Column Widths', false, [], true)
         ];
     }
 
@@ -242,43 +224,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Table';
     }
 
-    // TODO THOR-1135 (Delete this)
-    initializeHeadersFromExceptionsToStatus() {
-        let initialHeaderLimit = 25;
-        let orderedHeaders = [];
-        let unorderedHeaders = [];
-
-        // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
-        // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
-        let show = this.options.showFields.length ? false : (this.options.allColumnStatus === 'show');
-
-        for (let fieldObject of this.options.fields) {
-            // If field is an exception, set active to oppositve of show status.
-            if (this.headerIsInExceptions(fieldObject)) {
-                orderedHeaders.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: !show && orderedHeaders.length < initialHeaderLimit,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject.columnName)
-                });
-            } else {
-                unorderedHeaders.push({
-                    cellClass: this.getCellClassFunction(),
-                    prop: fieldObject.columnName,
-                    name: fieldObject.prettyName,
-                    active: show && unorderedHeaders.length < initialHeaderLimit,
-                    style: {},
-                    width: this.getColumnWidth(fieldObject.columnName)
-                });
-            }
-        }
-        // Order fields in exceptions first.
-        orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
-        this.headers = orderedHeaders.concat(unorderedHeaders);
-    }
-
     initializeHeadersFromFieldsConfig() {
         let existingFieldNames: string[] = this.options.showFields.filter((fieldObject) => !!fieldObject.columnName).map((fieldObject) => {
             this.headers.push({
@@ -292,18 +237,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return fieldObject.columnName;
         });
 
-        // TODO THOR-1135 (Delete this) The fieldsConfig option is deprecated.  Please use showFields now.
-        for (let fieldConfig of this.options.fieldsConfig) {
-            let fieldObject = this.options.findField(fieldConfig.name);
+        for (let showField of this.options.showFields) {
+            let fieldObject = this.options.findField(showField.name);
             if (fieldObject && fieldObject.columnName) {
                 existingFieldNames.push(fieldObject.columnName);
                 this.headers.push({
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
-                    active: !fieldConfig.hide,
+                    active: !showField.hide,
                     style: {},
-                    width: this.getColumnWidth(fieldConfig.name)
+                    width: this.getColumnWidth(showField.name)
                 });
             }
         }
@@ -315,9 +259,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
-                    // TODO THOR-1135 The allColumnStatus option is deprecated.  Please use showFields now.
                     // If showFields is populated, hide each field that is not in showFields (override allColumnStatus).
-                    active: this.options.showFields.length ? false : (this.options.allColumnStatus === 'show'),
+                    active: !this.options.showFields.length,
                     style: {},
                     width: this.getColumnWidth(fieldObject['name']) // TODO: Investigate
                 });
@@ -365,42 +308,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     initializeProperties() {
-        // TODO THOR-1135 The fieldsConfig option is deprecated.  Please use showFields now.
-        if (this.options.fieldsConfig.length || this.options.showFields.length) {
+        if (this.options.showFields.length) {
             this.initializeHeadersFromFieldsConfig();
-        } else {
-            // TODO THOR-1135 (Delete this)
-            this.initializeHeadersFromExceptionsToStatus();
         }
         this.recalculateActiveHeaders();
-    }
-
-    // TODO THOR-1135 (Delete this)
-    headerIsInExceptions(header) {
-        let colName = header.columnName;
-        let pName = header.prettyName;
-        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
-        for (let exception of this.options.exceptionsToStatus) {
-            let name = DatasetUtil.translateFieldKeyToFieldName(exception, this.dashboardState.dashboard.fields);
-            if (colName === name || pName === name) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // TODO THOR-1135 (Delete this)
-    sortOrderedHeaders(unordered) {
-        let sorted = [];
-        // TODO THOR-1135 The exceptionsToStatus option is deprecated.  Please use showFields now.
-        for (let exception of this.options.exceptionsToStatus) {
-            let header = DatasetUtil.translateFieldKeyToFieldName(exception, this.dashboardState.dashboard.fields);
-            let headerToPush = this.getHeaderByName(header, unordered);
-            if (headerToPush !== null) {
-                sorted.push(headerToPush);
-            }
-        }
-        return sorted;
     }
 
     recalculateActiveHeaders() {
@@ -459,12 +370,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return null;
     }
 
-    closeColumnSelector() {
-        this.options.showColumnSelector = 'hide';
-        this.refreshVisualization();
-        this.changeDetection.detectChanges();
-    }
-
     deactivateAllHeaders() {
         this.activeHeaders = [];
         for (let header of this.headers) {
@@ -508,9 +413,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         setTimeout(() => {
             // Must recalculateActiveHeaders before table.recalculate to update the header widths.
             this.recalculateActiveHeaders();
-            this.table.recalculate();
-            // Must detectChanges on the ChangeDetectorRef object in the table itself.
-            this.table.cd.detectChanges();
+            if (this.table) {
+                this.table.recalculate();
+                // Must detectChanges on the ChangeDetectorRef object in the table itself.
+                this.table.cd.detectChanges();
+            }
             // Must recalculateActiveHeaders a second time to remove unneeded scrollbars from within the table.
             this.recalculateActiveHeaders();
         }, 300);
@@ -882,10 +789,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options.skinny ? 20 : 25;
     }
 
-    getShowColumnSelector(): boolean {
-        return this.options.showColumnSelector === 'show';
-    }
-
     /**
      * Updates elements and properties whenever the widget config is changed.
      *
@@ -909,8 +812,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             }
             this.headers = unorderedHeaders;
+        } else {
+            this.headers = [];
+            this.selected = [];
+            this.activeHeaders = [];
+            this.initializeHeadersFromFieldsConfig();
+            this.recalculateActiveHeaders();
         }
-
-        // TODO THOR-1135 Must update this.headers if this.options.showFields changed.
     }
 }

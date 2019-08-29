@@ -36,8 +36,10 @@
                                 'document-row-no-highlight-respond': options.respondMode && !options.highlightInRespondMode
                             }" (click)="onClick(item)">
                         <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type"
-                            (click)="onClickPart(parts, item); stopEventPropagation($event)"
-                            tooltip-position="below">{{ parts.text }}</span>
+                            (click)="onClickPart(parts, item); stopEventPropagation($event)" tooltip-position="below">
+                            <app-text-with-url [text]=parts.text>
+                            </app-text-with-url>
+                        </span>
                     </li>
                 </ng-template>
             </ul>
