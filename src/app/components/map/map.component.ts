@@ -502,7 +502,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             if (boundsFilters.length) {
                 // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
                 for (const boundsFilter of boundsFilters) {
-                    const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues()[0];
+                    const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues();
                     const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
                     const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
                     if (fieldKey1.field === options.latitudeField.columnName && fieldKey2.field === options.longitudeField.columnName) {

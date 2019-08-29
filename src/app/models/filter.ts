@@ -52,10 +52,22 @@ export interface BoundsValues {
     end2: boolean|number|string;
 }
 
+export interface CompoundValues {
+    nested: FilterValues[];
+    type: CompoundFilterType;
+}
+
 export interface DomainValues {
     begin: boolean|number|string|Date;
     field: string;
     end: boolean|number|string|Date;
+}
+
+export interface ListOfValues {
+    field: string;
+    operator: string;
+    type: CompoundFilterType;
+    values: (boolean|number|string)[];
 }
 
 export interface PairOfValues {
@@ -63,6 +75,7 @@ export interface PairOfValues {
     field2: string;
     operator1: string;
     operator2: string;
+    type: CompoundFilterType;
     value1: boolean|number|string;
     value2: boolean|number|string;
 }
@@ -73,5 +86,5 @@ export interface OneValue {
     value: boolean|number|string;
 }
 
-export type FilterValues = BoundsValues | DomainValues | PairOfValues | OneValue;
+export type FilterValues = BoundsValues | CompoundValues | DomainValues | ListOfValues | PairOfValues | OneValue;
 

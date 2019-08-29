@@ -214,7 +214,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         if (timelineFilters.length) {
             // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
             for (const timelineFilter of timelineFilters) {
-                let domain: DomainValues = (timelineFilter as DomainFilter).retrieveValues()[0];
+                let domain: DomainValues = (timelineFilter as DomainFilter).retrieveValues();
                 this.selected = [domain.begin as Date, domain.end as Date];
                 // TODO THOR-1106 Update the brush element in the timelineChart.
             }

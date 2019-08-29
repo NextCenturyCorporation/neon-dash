@@ -1891,11 +1891,11 @@ describe('SimpleFilter', () => {
     });
 
     it('retrieveValues on simple filter should return expected object', () => {
-        expect(simpleFilter.retrieveValues()).toEqual([{
+        expect(simpleFilter.retrieveValues()).toEqual({
             field: 'testNameField',
             operator: '=',
             value: 'testName1'
-        }]);
+        });
     });
 
     it('toConfig on simple filter should return expected object', () => {
@@ -2627,15 +2627,18 @@ describe('CompoundFilter (One Field)', () => {
     });
 
     it('retrieveValues on compound filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual([{
-            field: 'testXField',
-            operator: '>',
-            value: -100
-        }, {
-            field: 'testXField',
-            operator: '<',
-            value: 100
-        }]);
+        expect(compoundFilter.retrieveValues()).toEqual({
+            type: CompoundFilterType.AND,
+            nested: [{
+                field: 'testXField',
+                operator: '>',
+                value: -100
+            }, {
+                field: 'testXField',
+                operator: '<',
+                value: 100
+            }]
+        });
     });
 
     it('toConfig on compound filter should return expected object', () => {
@@ -3239,15 +3242,18 @@ describe('CompoundFilter (Multi-Field)', () => {
     });
 
     it('retrieveValues on compound multi-field filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual([{
-            field: 'testNameField',
-            operator: '=',
-            value: 'testName1'
-        }, {
-            field: 'testXField',
-            operator: '=',
-            value: 10
-        }]);
+        expect(compoundFilter.retrieveValues()).toEqual({
+            type: CompoundFilterType.OR,
+            nested: [{
+                field: 'testNameField',
+                operator: '=',
+                value: 'testName1'
+            }, {
+                field: 'testXField',
+                operator: '=',
+                value: 10
+            }]
+        });
     });
 
     it('toConfig on compound multi-field filter should return expected object', () => {
@@ -3341,23 +3347,32 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
     });
 
     it('retrieveValues on compound nested filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual([{
-            field: 'testXField',
-            operator: '=',
-            value: 10
-        }, {
-            field: 'testXField',
-            operator: '=',
-            value: 20
-        }, {
-            field: 'testNameField',
-            operator: '=',
-            value: 'testName1'
-        }, {
-            field: 'testNameField',
-            operator: '=',
-            value: 'testName2'
-        }]);
+        expect(compoundFilter.retrieveValues()).toEqual({
+            type: CompoundFilterType.AND,
+            nested: [{
+                type: CompoundFilterType.OR,
+                nested: [{
+                    field: 'testXField',
+                    operator: '=',
+                    value: 10
+                }, {
+                    field: 'testXField',
+                    operator: '=',
+                    value: 20
+                }]
+            }, {
+                type: CompoundFilterType.OR,
+                nested: [{
+                    field: 'testNameField',
+                    operator: '=',
+                    value: 'testName1'
+                }, {
+                    field: 'testNameField',
+                    operator: '=',
+                    value: 'testName2'
+                }]
+            }]
+        });
     });
 
     it('toConfig on compound nested filters should return expected object', () => {
@@ -3577,14 +3592,14 @@ describe('BoundsFilter', () => {
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
         ]);
 
-        expect(boundsFilterA.retrieveValues()).toEqual([{
+        expect(boundsFilterA.retrieveValues()).toEqual({
             begin1: -50,
             begin2: -100,
             field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
             field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
             end1: 50,
             end2: 100
-        }]);
+        });
     });
 
     it('toDataList on bounds filter does return expected list', () => {
@@ -3628,11 +3643,11 @@ describe('DomainFilter', () => {
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
         ]);
 
-        expect(domainFilterA.retrieveValues()).toEqual([{
+        expect(domainFilterA.retrieveValues()).toEqual({
             begin: -100,
             field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
             end: 100
-        }]);
+        });
     });
 
     it('toDataList on domain filter does return expected list', () => {
@@ -3729,19 +3744,12 @@ describe('ListFilter', () => {
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
         ], CompoundFilterType.OR);
 
-        expect(listFilterA.retrieveValues()).toEqual([{
+        expect(listFilterA.retrieveValues()).toEqual({
+            type: CompoundFilterType.OR,
             field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
             operator: '!=',
-            value: 'testText1'
-        }, {
-            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
-            operator: '!=',
-            value: 'testText2'
-        }, {
-            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
-            operator: '!=',
-            value: 'testText3'
-        }]);
+            values: ['testText1', 'testText2', 'testText3']
+        });
     });
 
     it('toDataList on list filter does return expected list', () => {
@@ -3800,14 +3808,15 @@ describe('PairFilter', () => {
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
         ], CompoundFilterType.OR);
 
-        expect(pairFilterA.retrieveValues()).toEqual([{
+        expect(pairFilterA.retrieveValues()).toEqual({
+            type: CompoundFilterType.OR,
             field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
             field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
             operator1: '=',
             operator2: '!=',
             value1: 'testName',
             value2: 'testType'
-        }]);
+        });
     });
 
     it('toDataList on pair filter does return expected list', () => {
