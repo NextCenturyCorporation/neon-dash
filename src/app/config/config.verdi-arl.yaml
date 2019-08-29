@@ -203,7 +203,6 @@ dashboards:
                                 event_field_name: es1.rpi-m9-ta1-events.union.name
                                 event_field_date: es1.rpi-m9-ta1-events.union.download_date
                                 event_field_link: es1.rpi-m9-ta1-events.union.url
-                                event_field_documenttype: es1.rpi-m9-ta1-events.union.dtype
                             relations:
                                 - - es1.arl_m18_docs-parents.parents.id
                                   - es1.rpi-m9-ta1-events.union.parentIds
@@ -231,7 +230,6 @@ dashboards:
                                 geo_field_name: es1.rpi-m9-ta1-geo.union.name
                                 geo_field_date: es1.rpi-m9-ta1-geo.union.download_date
                                 geo_field_link: es1.rpi-m9-ta1-geo.union.url
-                                geo_field_doctype: es1.rpi-m9-ta1-geo.union.dtype
                                 geo_field_latitude: es1.rpi-m9-ta1-geo.union.geoLocation.lat
                                 geo_field_longitude: es1.rpi-m9-ta1-geo.union.geoLocation.lon
                             relations:
@@ -338,7 +336,6 @@ dashboards:
                                 event_field_start_date: es1.arl_m18_ta2-events.events.startTime
                                 event_field_end_date: es1.arl_m18_ta2-events.events.endTime
                                 event_field_link: es1.arl_m18_ta2-events.events.url
-                                event_field_documenttype: es1.arl_m18_ta2-events.events.dtype
                             relations:
                                 - - es1.arl_m18_docs-parents.parents.id
                                   - es1.arl_m18_ta2-events.events.parentIds
@@ -366,7 +363,6 @@ dashboards:
                                 geo_field_name: es1.arl_m18_ta2-geo.geo.name
                                 geo_field_date: es1.arl_m18_ta2-geo.geo.download_date
                                 geo_field_link: es1.arl_m18_ta2-geo.geo.url
-                                geo_field_doctype: es1.arl_m18_ta2-geo.geo.dtype
                                 geo_field_latitude: es1.arl_m18_ta2-geo.geo.geoLocation.lat
                                 geo_field_longitude: es1.arl_m18_ta2-geo.geo.geoLocation.lon
                             relations:
@@ -635,7 +631,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -650,9 +647,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -661,6 +655,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
     arl-ta2-events:
         - type: taxonomyViewer
           row: 0
@@ -701,7 +696,7 @@ layouts:
               dateField: event_field_date
               objectNameField:
               objectIdField: event_field_id
-              typeField: event_field_documenttype
+              typeField: event_field_id
               predictedNameField:
               percentField:
               openOnMouseClick: true
@@ -717,9 +712,6 @@ layouts:
                   value: true
                   length: 35
               limit: 12
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -728,6 +720,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
 
         - type: timeline
           row: 16
@@ -755,7 +748,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -771,9 +765,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -782,6 +773,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
     arl-ta2-map:
         - type: taxonomyViewer
           row: 0
@@ -844,7 +836,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -860,9 +853,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -871,6 +861,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
     arl-ta2-m18-network:
         - type: taxonomyViewer
           row: 0
@@ -962,7 +953,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -977,9 +969,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -988,6 +977,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
     arl-ta2-m18-events:
         - type: taxonomyViewer
           row: 0
@@ -1028,7 +1018,7 @@ layouts:
               dateField: event_field_start_date
               objectNameField:
               objectIdField: event_field_id
-              typeField: event_field_documenttype
+              typeField: event_field_id
               predictedNameField:
               percentField:
               openOnMouseClick: true
@@ -1044,9 +1034,6 @@ layouts:
                   value: true
                   length: 35
               limit: 12
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -1055,7 +1042,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
-
+                  html: htm
         - type: timeline
           row: 16
           col: 4
@@ -1082,7 +1069,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -1098,9 +1086,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -1109,6 +1094,7 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
+                  html: htm
     arl-ta2-m18-map:
         - type: taxonomyViewer
           row: 0
@@ -1170,7 +1156,8 @@ layouts:
               flagSubLabel1: document_field_date
               flagSubLabel2: document_field_documenttype
               flagSubLabel3:
-              linkField: document_field_annotations
+              linkField: document_field_id
+              linkPrefix: '../Reconstructed/html_m18/'
               dateField: document_field_date
               objectNameField:
               objectIdField: document_field_id
@@ -1186,9 +1173,6 @@ layouts:
               ascending: true
               viewType: details
               limit: 8
-              ignoreMediaTypes:
-                  - ltf
-                  - html
               typeMap:
                   jpg: img
                   png: img
@@ -1197,4 +1181,4 @@ layouts:
                   gif: img
                   mp3: aud
                   svg: img
-
+                  html: htm
