@@ -24,10 +24,13 @@
         <mat-expansion-panel class="news-feed-div" *ngFor="let item of newsFeedData" [class.selectable]="isSelectable()"
             [class.selected]="isSelected(item)">
             <mat-expansion-panel-header [collapsedHeight]="'35px'" [expandedHeight]="'35px'" (mousedown)="selectItem(item)">
-                <mat-panel-title>
-                    <span class="date">{{ relativeTime(item.field[options.dateField.columnName]) }}</span>
-                    <span
-                        class="text">{{ item.field[options.titleContentField.columnName] || item.field[options.contentField.columnName] }}</span>
+                <mat-panel-title [class.with-date]="options.dateField.columnName != ''">
+                    <span class="date" *ngIf="options.dateField.columnName != ''">
+                        {{ relativeTime(item.field[options.dateField.columnName]) }}
+                    </span>
+                    <span class="text">
+                        {{ item.field[options.titleContentField.columnName] || item.field[options.contentField.columnName] }}
+                    </span>
                 </mat-panel-title>
                 <div *ngIf="item.media">
                     <ng-container [ngSwitch]="item.media.selected.type">
@@ -45,38 +48,15 @@
                 <div>
                     <div class="text multiple-line" *ngIf="item.field[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
-                        <p>
-                            <ng-container *ngIf="hasUrl(item.field[options.contentField.columnName])">
-                                <ng-container *ngFor="let link of this.url; let i = index">
-                                    {{this.text[i]}}
-                                    <a href="{{link}}" target="_blank">
-                                        {{link}}</a>
-                                </ng-container>
-                                {{this.text.slice(-1)[0]}}
-                            </ng-container>
-                            <ng-container *ngIf="!hasUrl(item.field[options.contentField.columnName])">
-                                {{item.field[options.contentField.columnName]}}
-                            </ng-container>
-                        </p>
+                        <app-text-with-url [text]=item.field[options.contentField.columnName]></app-text-with-url>
                     </div>
                     <div class="text multiple-line" *ngIf="item.field[options.secondaryContentField.columnName]">
                         <h4 *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</h4>
-                        <p>
-                            <ng-container *ngIf="hasUrl(item.field[options.secondaryContentField.columnName])">
-                                <ng-container *ngFor="let link of this.url; let i = index">
-                                    {{this.text[i]}}
-                                    <a href="{{link}}" target="_blank">
-                                        {{link}}</a>
-                                </ng-container>
-                                {{this.text.slice(-1)[0]}}
-                            </ng-container>
-                            <ng-container *ngIf="!hasUrl(item.field[options.secondaryContentField.columnName])">
-                                {{item.field[options.secondaryContentField.columnName]}}
-                            </ng-container>
-                        </p>
+                        <app-text-with-url [text]=item.field[options.secondaryContentField.columnName]>
+                        </app-text-with-url>
                     </div>
                     <div class="appendix">
-                        <span class="date">{{ item.field[options.dateField.columnName] }}</span>
+                        <span class="date" *ngIf="options.dateField.columnName != ''">{{ item.field[options.dateField.columnName] }}</span>
                         <a mat-icon-button *ngIf="options.filterField.columnName && item.field[options.filterField.columnName]"
                             class="neon-icon-button-contrast" (click)="filterItem(item)">
                             <mat-icon>filter_list</mat-icon>

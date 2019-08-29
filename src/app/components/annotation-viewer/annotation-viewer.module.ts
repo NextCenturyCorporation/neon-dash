@@ -19,6 +19,7 @@ import { AnnotationViewerComponent } from './annotation-viewer.component';
 import { LegendModule } from '../legend/legend.module';
 import { DataMessageModule } from '../data-message/data-message.module';
 import { CommonWidgetModule } from '../../common-widget.module';
+import { TextWithUrlModule } from '../text-with-url/text-with-url.module';
 
 @NgModule({
     declarations: [
@@ -35,7 +36,8 @@ import { CommonWidgetModule } from '../../common-widget.module';
         CommonWidgetModule,
         MatListModule,
         DataMessageModule,
-        CommonModule
+        CommonModule,
+        TextWithUrlModule
     ]
 })
 export class AnnotationViewerModule { }

@@ -23,24 +23,8 @@
             </mat-toolbar>
             <div class="option-well" [hidden]="layerHidden.get(layer._id)">
                 <mat-form-field class="option-container">
-                    <input matInput placeholder="Title" [(ngModel)]="layer.title" (ngModelChange)="updateOnChange('title')"
+                    <input matInput placeholder="Layer Title" [(ngModel)]="layer.title" (ngModelChange)="updateOnChange('title')"
                         [name]="layer._id + '_title'" required="false">
-                </mat-form-field>
-
-                <mat-form-field class="option-container">
-                    <mat-select placeholder="Database" [(ngModel)]="layer.database" required="true" [name]="layer._id + '_database'"
-                        (ngModelChange)="handleChangeDatabase(layer)" [disabled]="layer.databases.length < 2">
-                        <mat-option *ngFor="let database of layer.databases" [value]="database">
-                            {{ database.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field class="option-container">
-                    <mat-select placeholder="Table" [(ngModel)]="layer.table" required="true" [name]="layer._id + '_table'"
-                        (ngModelChange)="handleChangeTable(layer)" [disabled]="layer.tables.length < 2">
-                        <mat-option *ngFor="let table of layer.tables" [value]="table">{{ table.prettyName }}
-                        </mat-option>
-                    </mat-select>
                 </mat-form-field>
 
                 <!-- layer option list -->
@@ -51,6 +35,7 @@
             </div>
         </div>
     </div>
+
     <!-- Non Multilayer option list-->
     <app-options-section [optionCollection]="modifiedOptions" [updateOnChange]="updateOnChange.bind(this)"
         [handleChangeDatabase]="handleChangeDatabase.bind(this,modifiedOptions)"

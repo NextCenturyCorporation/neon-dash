@@ -76,9 +76,9 @@ describe('Component: Options-Section', () => {
         let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
-        optionList.append(new WidgetFreeTextOption('freeText', '', ''));
-        optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
+        optionList.append(new WidgetFreeTextOption('freeText', '', false, ''));
+        optionList.append(new WidgetSelectOption('select', '', false, false, OptionChoices.NoFalseYesTrue));
+        optionList.append(new WidgetSelectOption('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getRequiredFields(optionList)).toEqual(['field']);
     });
 
@@ -86,29 +86,29 @@ describe('Component: Options-Section', () => {
         let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
-        optionList.append(new WidgetFreeTextOption('freeText', '', ''));
-        optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
-        expect(component.getRequiredNonFields(optionList)).toEqual(['select']);
+        optionList.append(new WidgetFreeTextOption('freeText', '', false, ''));
+        optionList.append(new WidgetSelectOption('select', '', false, false, OptionChoices.NoFalseYesTrue));
+        optionList.append(new WidgetSelectOption('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
+        expect(component.getRequiredNonFields(optionList)).toEqual([]);
     });
 
     it('getOptionalNonFields removes options from list and returns a new list', () => {
         let optionList: any = new WidgetOptionCollection();
 
         optionList.append(new WidgetFieldOption('field', '', true));
-        optionList.append(new WidgetFreeTextOption('freeText', '', ''));
-        optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
-        expect(component.getOptionalNonFields(optionList)).toEqual(['freeText']);
+        optionList.append(new WidgetFreeTextOption('freeText', '', false, ''));
+        optionList.append(new WidgetSelectOption('select', '', false, false, OptionChoices.NoFalseYesTrue));
+        optionList.append(new WidgetSelectOption('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
+        expect(component.getOptionalNonFields(optionList)).toEqual(['freeText', 'select']);
     });
 
     it('getOptionalFields removes options from list and returns a new list', () => {
         let optionList: any = new WidgetOptionCollection();
 
-        optionList.append(new WidgetFieldOption('field', '', true));
-        optionList.append(new WidgetFreeTextOption('freeText', '', ''));
-        optionList.append(new WidgetSelectOption('select', '', false, OptionChoices.NoFalseYesTrue));
-        optionList.append(new WidgetSelectOption('hidden', '', false, OptionChoices.NoFalseYesTrue, true));
+        optionList.append(new WidgetFieldOption('field', '', false, true));
+        optionList.append(new WidgetFreeTextOption('freeText', '', false, ''));
+        optionList.append(new WidgetSelectOption('select', '', false, false, OptionChoices.NoFalseYesTrue));
+        optionList.append(new WidgetSelectOption('hidden', '', false, false, OptionChoices.NoFalseYesTrue, true));
         expect(component.getOptionalFields(optionList)).toEqual([]);
     });
 });
