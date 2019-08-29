@@ -75,6 +75,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     public mediaTypes: any = MediaTypes;
     public view: any = ViewType;
+    public constructedLinkField: string = 'constructedUrl';
 
     constructor(
         dashboardService: DashboardService,
@@ -154,13 +155,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('border', 'Border', ''),
-            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
+            new WidgetSelectOption('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('border', 'Border', false, ''),
+            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', false, '',
                 this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
-            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
                 this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
-            new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
+            new WidgetSelectOption('cropAndScale', 'Crop or Scale', false, '', [{
                 prettyName: 'None',
                 variable: ''
             }, {
@@ -173,18 +174,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Both',
                 variable: 'both'
             }]),
-            new WidgetFreeTextOption('defaultLabel', 'Default Label', ''),
-            new WidgetFreeTextOption('defaultPercent', 'Default Percent', ''),
-            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
-            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('showLabelName', 'Label Names', false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetSelectOption('viewType', 'View', ViewType.TITLE, [{
+            new WidgetFreeTextOption('defaultLabel', 'Default Label', false, ''),
+            new WidgetFreeTextOption('defaultPercent', 'Default Percent', false, ''),
+            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
+            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', false, true, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('showLabelName', 'Label Names', false, false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetNonPrimitiveOption('textMap', 'Text Map', false, {}),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
+            new WidgetSelectOption('viewType', 'View', false, ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {
@@ -194,10 +195,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Card',
                 variable: ViewType.CARD
             }]),
-            new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
-            new WidgetNonPrimitiveOption('ignoreMediaTypes', 'Ignore Media Types', [])
-
+            new WidgetNumberOption('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 })
         ];
     }
 
@@ -342,6 +341,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         return title;
+    }
+
+    /**
+     * Appends the given type to the given link if it is not already there.
+     *
+     * @arg {string} link
+     * @arg {string} prefix
+     * @return {string}
+     */
+    appendType(link: string, type: string) {
+        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' + type) : link);
     }
 
     /**
@@ -542,15 +552,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Retrieves the thumbnail grid using the given array of links.
-     *
+     * Retrieves the thumbnail grid using the given array of links. Prepends a linkPrefix if it exists and
+     * appends a type to the link if necessary
      * @arg {array} links
      * @private
      */
     private retreiveMedia(item, link) {
         let gridIndex = this.gridArray.length > 0 ? this.gridArray.length : 0;
         let grid = item;
-        grid[this.options.linkField.columnName] = this.options.linkPrefix + link;
+        grid[this.constructedLinkField] = this.options.linkPrefix + this.appendType(link, grid[this.options.typeField.columnName]);
         this.gridArray[gridIndex] = grid;
     }
 
@@ -564,6 +574,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
     }
 
+    private defaultDocumentThumbnail(thumbnail) {
+        let img: HTMLImageElement = new Image();
+        img.src = './assets/icons/dashboard/document.svg';
+
+        img.onload = () => {
+            if (this.options.viewType === ViewType.CARD) {
+                thumbnail.drawImage(img, this.options.canvasSize * 0.41, this.options.canvasSize * 0.25,
+                    img.width + 2, img.height + 6);
+            } else {
+                thumbnail.drawImage(img, this.options.canvasSize * 0.37, this.options.canvasSize * 0.35,
+                    img.width - 4, img.height);
+            }
+        };
+
+        return thumbnail;
+    }
+
     /**
      * Creates a media thumbnail for each item in the grid
      *
@@ -573,175 +600,164 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Todo: when canvases lose focus the images disappear. May need to go back to div
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view');
 
-        // TODO Move this code into separate functions
-        /* eslint-disable-next-line complexity */
-        this.gridArray.forEach((grid, index) => {
-            let link = grid[this.options.linkField.columnName];
-            let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
-            let type = this.getMediaType(grid);
-            let objectId = grid[this.options.objectIdField.columnName];
-            let percentage = grid[this.options.percentField.columnName];
-            let comparison = grid[this.options.compareField.columnName];
-            let categoryId = grid[this.options.categoryField.columnName];
-            let thumbnail = canvases[index].getContext('2d');
+        if (canvases.length) {
+            // TODO Move this code into separate functions
+            /* eslint-disable-next-line complexity */
+            this.gridArray.forEach((grid, index) => {
+                let link = grid[this.constructedLinkField];
+                let type = this.getMediaType(grid);
+                let objectId = grid[this.options.objectIdField.columnName];
+                let percentage = grid[this.options.percentField.columnName];
+                let comparison = grid[this.options.compareField.columnName];
+                let categoryId = grid[this.options.categoryField.columnName];
+                let thumbnail = canvases[index].getContext('2d');
 
-            thumbnail.fillStyle = '#ffffff';
-            thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
+                thumbnail.fillStyle = '#ffffff';
+                thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-            if (link && link !== 'n/a' && !this.options.ignoreMediaTypes.includes(grid[this.options.typeField.columnName])) {
-                switch (type) {
-                    case this.mediaTypes.image: {
-                        let image: HTMLImageElement = new Image();
-                        image.src = link;
-                        image.onload = () => {
-                            switch (this.options.cropAndScale) {
-                                case 'both': {
-                                    // Use the MIN to crop the scale
-                                    let size = Math.min(image.width, image.height);
-                                    let multiplier = this.options.canvasSize / size;
-                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                    break;
+                if (link && link !== 'n/a') {
+                    switch (type) {
+                        case this.mediaTypes.image: {
+                            let image: HTMLImageElement = new Image();
+                            image.src = link;
+                            image.onload = () => {
+                                switch (this.options.cropAndScale) {
+                                    case 'both': {
+                                        // Use the MIN to crop the scale
+                                        let size = Math.min(image.width, image.height);
+                                        let multiplier = this.options.canvasSize / size;
+                                        thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                        break;
+                                    }
+                                    case 'crop': {
+                                        thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                        break;
+                                    }
+                                    case 'scale': {
+                                        // Use the MAX to scale
+                                        let size = Math.max(image.width, image.height);
+                                        let multiplier = this.options.canvasSize / size;
+                                        thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                        break;
+                                    }
+                                    default: {
+                                        thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                    }
                                 }
-                                case 'crop': {
-                                    thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                                    break;
-                                }
-                                case 'scale': {
-                                    // Use the MAX to scale
-                                    let size = Math.max(image.width, image.height);
-                                    let multiplier = this.options.canvasSize / size;
-                                    thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                                    break;
-                                }
-                                default: {
-                                    thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                                }
-                            }
-                        };
-                        break;
-                    }
-                    case this.mediaTypes.video: {
-                        let video: HTMLVideoElement = document.createElement('video');
-                        video.src = link + '#t=1,1.1'; // 1 second starting place for video screenshot
-
-                        video.onloadeddata = () => {
-                            switch (this.options.cropAndScale) {
-                                case 'both': {
-                                    // Use the MIN to crop the scale
-                                    let size = Math.min(video.width, video.height);
-                                    let multiplier = this.options.canvasSize / size;
-                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                    break;
-                                }
-                                case 'crop': {
-                                    thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                                    break;
-                                }
-                                case 'scale': {
-                                    // Use the MAX to scale
-                                    let size = Math.max(video.width, video.height);
-                                    let multiplier = this.options.canvasSize / size;
-                                    thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                                    break;
-                                }
-                                default: {
-                                    thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                                }
-                            }
-                        };
-
-                        video.onerror = () => {
-                            if (link.includes('youtube')) {
-                                let img: HTMLImageElement = new Image();
-                                img.src = './assets/images/youtube_logo.png';
-                                img.onload = () => {
-                                    thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
-                                };
-                            }
-                        };
-
-                        break;
-                    }
-                    case this.mediaTypes.audio: {
-                        let image: HTMLImageElement = new Image();
-                        image.src = '/assets/images/volume_up.svg';
-                        image.onclick = () => this.displayMediaTab(grid);
-                        image.onload = () => {
-                            thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
-                        };
-
-                        break;
-                    }
-                    default: {
-                        // Todo: get thumbnails of documents, pdf, and other similar types of media.
-                        thumbnail.fillStyle = '#111111';
-                        thumbnail.font = '20px Helvetica Neue';
-                        thumbnail.fillText(fileType.toUpperCase(), 10, 30);
-                    }
-                }
-            } else {
-                let img: HTMLImageElement = new Image();
-                img.src = './assets/icons/dashboard/document.svg';
-
-                img.onload = () => {
-                    if (this.options.viewType === ViewType.CARD) {
-                        thumbnail.drawImage(img, this.options.canvasSize * 0.41, this.options.canvasSize * 0.25,
-                            img.width + 2, img.height + 6);
-                    } else {
-                        thumbnail.drawImage(img, this.options.canvasSize * 0.37, this.options.canvasSize * 0.35,
-                            img.width - 4, img.height);
-                    }
-                };
-            }
-
-            // TODO Move this to a separate function and unit test all behavior.
-            let borderColor = '';
-            if (this.options.border) {
-                switch (this.options.border) {
-                    case 'percentField': {
-                        if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
-                            let percentFloat = parseFloat(percentage);
-                            borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
-                        } else {
-                            borderColor = 'grey';
+                            };
+                            break;
                         }
-                        break;
+                        case this.mediaTypes.video: {
+                            let video: HTMLVideoElement = document.createElement('video');
+                            video.src = link + '#t=1,1.1'; // 1 second starting place for video screenshot
+
+                            video.onloadeddata = () => {
+                                switch (this.options.cropAndScale) {
+                                    case 'both': {
+                                        // Use the MIN to crop the scale
+                                        let size = Math.min(video.width, video.height);
+                                        let multiplier = this.options.canvasSize / size;
+                                        thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                        break;
+                                    }
+                                    case 'crop': {
+                                        thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                        break;
+                                    }
+                                    case 'scale': {
+                                        // Use the MAX to scale
+                                        let size = Math.max(video.width, video.height);
+                                        let multiplier = this.options.canvasSize / size;
+                                        thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                        break;
+                                    }
+                                    default: {
+                                        thumbnail.drawImage(video, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                                    }
+                                }
+                            };
+
+                            video.onerror = () => {
+                                if (link.includes('youtube')) {
+                                    let img: HTMLImageElement = new Image();
+                                    img.src = './assets/images/youtube_logo.png';
+                                    img.onload = () => {
+                                        thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                                    };
+                                }
+                            };
+
+                            break;
+                        }
+                        case this.mediaTypes.audio: {
+                            let image: HTMLImageElement = new Image();
+                            image.src = '/assets/images/volume_up.svg';
+                            image.onclick = () => this.displayMediaTab(grid);
+                            image.onload = () => {
+                                thumbnail.drawImage(image, 0, 0, this.options.canvasSize, this.options.canvasSize);
+                            };
+
+                            break;
+                        }
+                        default: {
+                            thumbnail = this.defaultDocumentThumbnail(thumbnail);
+                        }
                     }
-                    case 'percentCompare': {
-                        if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
-                            let percentFloat = parseFloat(percentage);
-                            if ((percentFloat > this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
-                                (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
-                                borderColor = 'blue';
+                } else {
+                    thumbnail = this.defaultDocumentThumbnail(thumbnail);
+                }
+
+                // TODO Move this to a separate function and unit test all behavior.
+                let borderColor = '';
+                if (this.options.border) {
+                    switch (this.options.border) {
+                        case 'percentField': {
+                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                                let percentFloat = parseFloat(percentage);
+                                borderColor = ((percentFloat > this.options.borderPercentThreshold) ? 'blue' : 'red');
                             } else {
-                                borderColor = 'red';
+                                borderColor = 'grey';
                             }
-                        } else {
+                            break;
+                        }
+                        case 'percentCompare': {
+                            if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                                let percentFloat = parseFloat(percentage);
+                                if ((percentFloat > this.options.borderPercentThreshold &&
+                                    comparison === this.options.borderCompareValue) ||
+                                    (percentFloat < this.options.borderPercentThreshold &&
+                                    comparison !== this.options.borderCompareValue)) {
+                                    borderColor = 'blue';
+                                } else {
+                                    borderColor = 'red';
+                                }
+                            } else {
+                                borderColor = 'grey';
+                            }
+                            break;
+                        }
+                        case 'valueCompare': {
+                            borderColor = ((comparison === this.options.borderCompareValue) ? 'blue' : 'red');
+                            break;
+                        }
+                        default: {
                             borderColor = 'grey';
                         }
-                        break;
                     }
-                    case 'valueCompare': {
-                        borderColor = ((comparison === this.options.borderCompareValue) ? 'blue' : 'red');
-                        break;
-                    }
-                    default: {
-                        borderColor = 'grey';
-                    }
+                } else if (objectId && categoryId) {
+                    borderColor = ((objectId === categoryId) ? 'blue' : 'red');
                 }
-            } else if (objectId && categoryId) {
-                borderColor = ((objectId === categoryId) ? 'blue' : 'red');
-            }
 
-            if (thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
-                thumbnail.canvas.setAttribute('class',
-                    thumbnail.canvas.getAttribute('class').replace(thumbnail.canvas.getAttribute('class').split(' ').pop(), ''));
-            }
+                if (thumbnail.canvas.getAttribute('class').includes('border-mat-')) {
+                    thumbnail.canvas.setAttribute('class',
+                        thumbnail.canvas.getAttribute('class').replace(thumbnail.canvas.getAttribute('class').split(' ').pop(), ''));
+                }
 
-            if (borderColor) {
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' border-mat-' + borderColor);
-            }
-        });
+                if (borderColor) {
+                    thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' border-mat-' + borderColor);
+                }
+            });
+        }
     }
 
     /**
@@ -766,8 +782,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return string
      */
     getMediaType(item) {
-        let link = item[this.options.linkField.columnName];
+        let link = item[this.constructedLinkField];
         let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
+
         return this.options.typeMap[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
     }
 
@@ -790,10 +807,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     displayMediaTab(item) {
-        if (this.options.openOnMouseClick) {
-            window.open(item[this.options.linkField.columnName]);
+        if (item[this.constructedLinkField] && item[this.constructedLinkField] !== 'n/a') {
+            if (this.options.openOnMouseClick) {
+                window.open(item[this.constructedLinkField]);
+            }
+            this.publishAnyCustomEvents(item, this.constructedLinkField);
         }
-        this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
 
     sanitize(url) {

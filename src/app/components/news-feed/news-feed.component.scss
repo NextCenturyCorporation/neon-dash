@@ -70,10 +70,13 @@ mat-accordion {
 
             mat-panel-title {
                 display: grid;
-                grid-template-columns: 60px 1fr;
                 overflow: hidden;
                 align-items: center;
                 grid-gap: 0.5em;
+
+                &.with-date {
+                    grid-template-columns: 60px 1fr;
+                }
 
                 .text {
                     text-overflow: ellipsis;
