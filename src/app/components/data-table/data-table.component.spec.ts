@@ -128,47 +128,6 @@ describe('Component: DataTable', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('initializeHeadersFromExceptionsToStatus does create the expected headers in order', () => {
-        component.options.fields = [
-            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
-            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
-            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
-            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
-        ];
-        component.options.exceptionsToStatus = [
-            'date',
-            'field2'
-        ];
-
-        component.initializeHeadersFromExceptionsToStatus();
-
-        expect(component.headers.length).toEqual(4);
-        expect(component.headers[0].prop).toEqual('date');
-        expect(component.headers[0].name).toEqual('Date');
-        expect(component.headers[0].active).toEqual(false);
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[0].cellClass).toBeDefined();
-        expect(component.headers[0].width).toEqual(150);
-        expect(component.headers[1].prop).toEqual('field2');
-        expect(component.headers[1].name).toEqual('Field 2');
-        expect(component.headers[1].active).toEqual(false);
-        expect(component.headers[1].style).toEqual({});
-        expect(component.headers[1].cellClass).toBeDefined();
-        expect(component.headers[1].width).toEqual(150);
-        expect(component.headers[2].prop).toEqual('category');
-        expect(component.headers[2].name).toEqual('Category');
-        expect(component.headers[2].active).toEqual(true);
-        expect(component.headers[2].style).toEqual({});
-        expect(component.headers[2].cellClass).toBeDefined();
-        expect(component.headers[2].width).toEqual(150);
-        expect(component.headers[3].prop).toEqual('field1');
-        expect(component.headers[3].name).toEqual('Field 1');
-        expect(component.headers[3].active).toEqual(true);
-        expect(component.headers[3].style).toEqual({});
-        expect(component.headers[3].cellClass).toBeDefined();
-        expect(component.headers[3].width).toEqual(150);
-    });
-
     it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
         component.headers = [];
         component.options.fields = [
@@ -186,30 +145,30 @@ describe('Component: DataTable', () => {
         component.initializeHeadersFromFieldsConfig();
 
         expect(component.headers.length).toEqual(4);
-        expect(component.headers[0].prop).toEqual('date');
-        expect(component.headers[0].name).toEqual('Date');
-        expect(component.headers[0].active).toEqual(true);
-        expect(component.headers[0].style).toEqual({});
-        expect(component.headers[0].cellClass).toBeDefined();
-        expect(component.headers[0].width).toEqual(150);
-        expect(component.headers[1].prop).toEqual('field2');
-        expect(component.headers[1].name).toEqual('Field 2');
-        expect(component.headers[1].active).toEqual(false);
-        expect(component.headers[1].style).toEqual({});
-        expect(component.headers[1].cellClass).toBeDefined();
-        expect(component.headers[1].width).toEqual(150);
-        expect(component.headers[2].prop).toEqual('category');
-        expect(component.headers[2].name).toEqual('Category');
-        expect(component.headers[2].active).toEqual(true);
-        expect(component.headers[2].style).toEqual({});
-        expect(component.headers[2].cellClass).toBeDefined();
-        expect(component.headers[2].width).toEqual(150);
-        expect(component.headers[3].prop).toEqual('field1');
-        expect(component.headers[3].name).toEqual('Field 1');
+        expect(component.headers[3].prop).toEqual('date');
+        expect(component.headers[3].name).toEqual('Date');
         expect(component.headers[3].active).toEqual(true);
         expect(component.headers[3].style).toEqual({});
         expect(component.headers[3].cellClass).toBeDefined();
         expect(component.headers[3].width).toEqual(150);
+        expect(component.headers[2].prop).toEqual('field2');
+        expect(component.headers[2].name).toEqual('Field 2');
+        expect(component.headers[2].active).toEqual(true);
+        expect(component.headers[2].style).toEqual({});
+        expect(component.headers[2].cellClass).toBeDefined();
+        expect(component.headers[2].width).toEqual(150);
+        expect(component.headers[1].prop).toEqual('field1');
+        expect(component.headers[1].name).toEqual('Field 1');
+        expect(component.headers[1].active).toEqual(true);
+        expect(component.headers[1].style).toEqual({});
+        expect(component.headers[1].cellClass).toBeDefined();
+        expect(component.headers[1].width).toEqual(150);
+        expect(component.headers[0].prop).toEqual('category');
+        expect(component.headers[0].name).toEqual('Category');
+        expect(component.headers[0].active).toEqual(true);
+        expect(component.headers[0].style).toEqual({});
+        expect(component.headers[0].cellClass).toBeDefined();
+        expect(component.headers[0].width).toEqual(150);
     });
 
     it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
@@ -228,28 +187,24 @@ describe('Component: DataTable', () => {
         expect(component.getColumnWidth('anotherColumn')).toEqual(150);
     });
 
-    it('initializeProperties does call expected methods if options.fieldsConfig exists', () => {
-        component.options.fieldsConfig = [
+    it('initializeProperties does call expected methods if options.showFields exists', () => {
+        component.options.showFields = [
             { name: 'testField' }
         ];
         let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
-        let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
         component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalled();
-        expect(initHeadersFromExceptionsSpy).toHaveBeenCalledTimes(0);
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
 
-    it('initializeProperties does call expected methods if options.fieldsConfig does not exist', () => {
+    it('initializeProperties does call expected methods if options.showFields does not exist', () => {
         let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
-        let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
         let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
 
         component.initializeProperties();
         expect(initHeadersFromFieldsConfigSpy).toHaveBeenCalledTimes(0);
-        expect(initHeadersFromExceptionsSpy).toHaveBeenCalled();
         expect(recalcActiveHeadersSpy).toHaveBeenCalled();
     });
 
@@ -424,15 +379,6 @@ describe('Component: DataTable', () => {
         expect(component.getHeaderByName('notFound', headers)).toEqual(null);
     }));
 
-    it('closeColumnSelector does hide column selector and call refreshVisualization', (() => {
-        let spy = spyOn(component, 'refreshVisualization');
-        component.options.showColumnSelector = 'show';
-
-        component.closeColumnSelector();
-        expect(component.options.showColumnSelector).toEqual('hide');
-        expect(spy).toHaveBeenCalled();
-    }));
-
     it('deactivateAllHeaders does set all headers to inactive and calls detectChanges', (() => {
         let spy = spyOn(component.changeDetection, 'detectChanges');
         component.headers = [{
@@ -575,49 +521,6 @@ describe('Component: DataTable', () => {
         component.options.table = NeonTableMetaData.get({ name: 'documents' });
 
         expect(component.validateVisualizationQuery(component.options)).toBeTruthy();
-    }));
-
-    it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
-        component.options.exceptionsToStatus = ['testField2'];
-
-        expect(component.headerIsInExceptions({ columnName: 'testField1', prettyName: 'Test Field 1' })).toBeFalsy();
-        expect(component.headerIsInExceptions({ columnName: 'testField2', prettyName: 'Test Field 2' })).toBeTruthy();
-    }));
-
-    it('sortOrderedHeaders does sort based on options.exceptionsToStatus', (() => {
-        component.options.exceptionsToStatus = ['testField3', 'testField2'];
-
-        expect(component.sortOrderedHeaders([{
-            prop: 'testField1',
-            name: 'Test Field 1',
-            active: true,
-            style: {},
-            width: 100
-        }, {
-            prop: 'testField2',
-            name: 'Test Field 2',
-            active: false,
-            style: {},
-            width: 120
-        }, {
-            prop: 'testField3',
-            name: 'Test Field 3',
-            active: true,
-            style: {},
-            width: 100
-        }])).toEqual([{
-            prop: 'testField3',
-            name: 'Test Field 3',
-            active: true,
-            style: {},
-            width: 100
-        }, {
-            prop: 'testField2',
-            name: 'Test Field 2',
-            active: false,
-            style: {},
-            width: 120
-        }]);
     }));
 
     it('finalizeVisualizationQuery does return expected object', () => {
@@ -1686,21 +1589,6 @@ describe('Component: DataTable', () => {
 
         expect(component.getTableHeaderHeight()).toEqual(20);
         expect(component.getTableRowHeight()).toEqual(20);
-    });
-
-    it('onChangeData does not update headers if database or table is unchanged', () => {
-        expect(component.headers.length).toEqual(16);
-
-        component.options.fields = [
-            NeonFieldMetaData.get({ columnName: 'category', prettyName: 'Category' }),
-            NeonFieldMetaData.get({ columnName: 'field1', prettyName: 'Field 1' }),
-            NeonFieldMetaData.get({ columnName: 'field2', prettyName: 'Field 2' }),
-            NeonFieldMetaData.get({ columnName: 'date', prettyName: 'Date' })
-        ];
-
-        component.onChangeData();
-
-        expect(component.headers.length).toEqual(16);
     });
 
     it('onChangeData does update headers if database or table is updated', () => {

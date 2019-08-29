@@ -55,7 +55,6 @@ describe('Component: SimpleFilter', () => {
         filterService = fixture.debugElement.injector.get(InjectableFilterService);
         fixture.debugElement.injector.get(DashboardService).state.getOptions().simpleFilter = {
             fieldKey: '',
-            tableKey: '',
             databaseName: DashboardServiceMock.DATABASES.testDatabase1.name,
             tableName: DashboardServiceMock.TABLES.testTable1.name,
             fieldName: DashboardServiceMock.FIELD_MAP.TEXT.columnName

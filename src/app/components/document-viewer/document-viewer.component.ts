@@ -131,14 +131,14 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetSelectOption('showText', 'Main Document Text', false, OptionChoices.HideFalseShowTrue),
-            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', ''),
-            new WidgetSelectOption('showSelect', 'Select Button', false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', true, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetSelectOption('hideSource', 'Source Button', false, OptionChoices.ShowFalseHideTrue),
+            new WidgetSelectOption('showText', 'Main Document Text', false, false, OptionChoices.HideFalseShowTrue),
+            new WidgetFreeTextOption('nameWidthCss', 'Name (Left Column) Width CSS', false, ''),
+            new WidgetSelectOption('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetSelectOption('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
             // TODO THOR-950 Change metadataFields and popoutFields to arrays of NeonFieldMetaData objects!
-            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', []),
-            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', [])
+            new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', false, []),
+            new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', false, [])
         ];
     }
 
