@@ -30,7 +30,17 @@ import {
     SimpleFilterDesign
 } from './filter.util';
 
-import { CompoundFilterConfig, FilterDataSource, SimpleFilterConfig } from '../models/filter';
+import {
+    BoundsValues,
+    CompoundFilterConfig,
+    CompoundValues,
+    DomainValues,
+    FilterDataSource,
+    ListOfValues,
+    OneValue,
+    PairOfValues,
+    SimpleFilterConfig
+} from '../models/filter';
 import { CompoundFilterType } from '../models/widget-option';
 
 import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
@@ -1891,11 +1901,7 @@ describe('SimpleFilter', () => {
     });
 
     it('retrieveValues on simple filter should return expected object', () => {
-        expect(simpleFilter.retrieveValues()).toEqual({
-            field: 'testNameField',
-            operator: '=',
-            value: 'testName1'
-        });
+        expect(simpleFilter.retrieveValues()).toEqual(new OneValue('testNameField', '=', 'testName1'));
     });
 
     it('toConfig on simple filter should return expected object', () => {
@@ -2627,18 +2633,8 @@ describe('CompoundFilter (One Field)', () => {
     });
 
     it('retrieveValues on compound filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual({
-            type: CompoundFilterType.AND,
-            nested: [{
-                field: 'testXField',
-                operator: '>',
-                value: -100
-            }, {
-                field: 'testXField',
-                operator: '<',
-                value: 100
-            }]
-        });
+        expect(compoundFilter.retrieveValues()).toEqual(new CompoundValues(CompoundFilterType.AND,
+            [new OneValue('testXField', '>', -100), new OneValue('testXField', '<', 100)]));
     });
 
     it('toConfig on compound filter should return expected object', () => {
@@ -3242,18 +3238,8 @@ describe('CompoundFilter (Multi-Field)', () => {
     });
 
     it('retrieveValues on compound multi-field filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual({
-            type: CompoundFilterType.OR,
-            nested: [{
-                field: 'testNameField',
-                operator: '=',
-                value: 'testName1'
-            }, {
-                field: 'testXField',
-                operator: '=',
-                value: 10
-            }]
-        });
+        expect(compoundFilter.retrieveValues()).toEqual(new CompoundValues(CompoundFilterType.OR,
+            [new OneValue('testNameField', '=', 'testName1'), new OneValue('testXField', '=', 10)]));
     });
 
     it('toConfig on compound multi-field filter should return expected object', () => {
@@ -3347,32 +3333,13 @@ describe('CompoundFilter (Nested Compound Filters)', () => {
     });
 
     it('retrieveValues on compound nested filter should return expected object', () => {
-        expect(compoundFilter.retrieveValues()).toEqual({
-            type: CompoundFilterType.AND,
-            nested: [{
-                type: CompoundFilterType.OR,
-                nested: [{
-                    field: 'testXField',
-                    operator: '=',
-                    value: 10
-                }, {
-                    field: 'testXField',
-                    operator: '=',
-                    value: 20
-                }]
-            }, {
-                type: CompoundFilterType.OR,
-                nested: [{
-                    field: 'testNameField',
-                    operator: '=',
-                    value: 'testName1'
-                }, {
-                    field: 'testNameField',
-                    operator: '=',
-                    value: 'testName2'
-                }]
-            }]
-        });
+        expect(compoundFilter.retrieveValues()).toEqual(new CompoundValues(CompoundFilterType.AND, [
+            new CompoundValues(CompoundFilterType.OR, [new OneValue('testXField', '=', 10), new OneValue('testXField', '=', 20)]),
+            new CompoundValues(CompoundFilterType.OR, [
+                new OneValue('testNameField', '=', 'testName1'),
+                new OneValue('testNameField', '=', 'testName2')
+            ])
+        ]));
     });
 
     it('toConfig on compound nested filters should return expected object', () => {
@@ -3570,7 +3537,7 @@ describe('Filter.fromFilters static functions', () => {
 
 describe('BoundsFilter', () => {
     it('getLabel functions on bounds filter should return expected strings', () => {
-        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+        let boundsFilterA = BoundsFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
@@ -3585,25 +3552,25 @@ describe('BoundsFilter', () => {
     });
 
     it('retrieveValues on bounds filter does return expected values', () => {
-        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+        let boundsFilterA = BoundsFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '<=', 100)
         ]);
 
-        expect(boundsFilterA.retrieveValues()).toEqual({
-            begin1: -50,
-            begin2: -100,
-            field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
-            field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
-            end1: 50,
-            end2: 100
-        });
+        expect(boundsFilterA.retrieveValues()).toEqual(new BoundsValues(
+            -50,
+            -100,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.X.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.Y.columnName,
+            50,
+            100
+        ));
     });
 
     it('toDataList on bounds filter does return expected list', () => {
-        let boundsFilterA: CompoundFilter = BoundsFilter.fromFilters([
+        let boundsFilterA = BoundsFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '>=', -50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.X, '<=', 50),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.Y, '>=', -100),
@@ -3626,7 +3593,7 @@ describe('BoundsFilter', () => {
 
 describe('DomainFilter', () => {
     it('getLabel functions on domain filter should return expected strings', () => {
-        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+        let domainFilterA = DomainFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
         ]);
@@ -3638,20 +3605,20 @@ describe('DomainFilter', () => {
     });
 
     it('retrieveValues on domain filter does return expected values', () => {
-        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+        let domainFilterA = DomainFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
         ]);
 
-        expect(domainFilterA.retrieveValues()).toEqual({
-            begin: -100,
-            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
-            end: 100
-        });
+        expect(domainFilterA.retrieveValues()).toEqual(new DomainValues(
+            -100,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.SIZE.columnName,
+            100
+        ));
     });
 
     it('toDataList on domain filter does return expected list', () => {
-        let domainFilterA: CompoundFilter = DomainFilter.fromFilters([
+        let domainFilterA = DomainFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '>=', -100),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.SIZE, '<=', 100)
         ]);
@@ -3669,7 +3636,7 @@ describe('DomainFilter', () => {
 
 describe('ListFilter', () => {
     it('getLabel functions on list filter should return expected strings', () => {
-        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+        let listFilterA = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
@@ -3683,7 +3650,7 @@ describe('ListFilter', () => {
     });
 
     it('getLabel functions on list filter with equals operator should return expected strings', () => {
-        let listFilterB: CompoundFilter = ListFilter.fromFilters([
+        let listFilterB = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3')
@@ -3697,7 +3664,7 @@ describe('ListFilter', () => {
     });
 
     it('getLabel functions on list filter with many clauses should return expected strings', () => {
-        let listFilterC: CompoundFilter = ListFilter.fromFilters([
+        let listFilterC = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3'),
@@ -3718,7 +3685,7 @@ describe('ListFilter', () => {
     });
 
     it('getLabel functions on list filter with many clauses and equals operator should return expected strings', () => {
-        let listFilterD: CompoundFilter = ListFilter.fromFilters([
+        let listFilterD = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '=', 'testText3'),
@@ -3738,22 +3705,22 @@ describe('ListFilter', () => {
     });
 
     it('retrieveValues on list filter does return expected values', () => {
-        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+        let listFilterA = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
         ], CompoundFilterType.OR);
 
-        expect(listFilterA.retrieveValues()).toEqual({
-            type: CompoundFilterType.OR,
-            field: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
-            operator: '!=',
-            values: ['testText1', 'testText2', 'testText3']
-        });
+        expect(listFilterA.retrieveValues()).toEqual(new ListOfValues(
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TEXT.columnName,
+            '!=',
+            ['testText1', 'testText2', 'testText3']
+        ));
     });
 
     it('toDataList on list filter does return expected list', () => {
-        let listFilterA: CompoundFilter = ListFilter.fromFilters([
+        let listFilterA = ListFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText1'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText2'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TEXT, '!=', 'testText3')
@@ -3775,7 +3742,7 @@ describe('ListFilter', () => {
 
 describe('PairFilter', () => {
     it('getLabel functions on pair filter should return expected strings', () => {
-        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+        let pairFilterA = PairFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
         ], CompoundFilterType.OR);
@@ -3789,7 +3756,7 @@ describe('PairFilter', () => {
     });
 
     it('getLabel functions on pair filter with same operator should return expected strings', () => {
-        let pairFilterB: CompoundFilter = PairFilter.fromFilters([
+        let pairFilterB = PairFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '!=', 'testName'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
         ], CompoundFilterType.OR);
@@ -3803,24 +3770,24 @@ describe('PairFilter', () => {
     });
 
     it('retrieveValues on pair filter does return expected values', () => {
-        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+        let pairFilterA = PairFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
         ], CompoundFilterType.OR);
 
-        expect(pairFilterA.retrieveValues()).toEqual({
-            type: CompoundFilterType.OR,
-            field1: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
-            field2: DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
-            operator1: '=',
-            operator2: '!=',
-            value1: 'testName',
-            value2: 'testType'
-        });
+        expect(pairFilterA.retrieveValues()).toEqual(new PairOfValues(
+            CompoundFilterType.OR,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.NAME.columnName,
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.TYPE.columnName,
+            '=',
+            '!=',
+            'testName',
+            'testType'
+        ));
     });
 
     it('toDataList on pair filter does return expected list', () => {
-        let pairFilterA: CompoundFilter = PairFilter.fromFilters([
+        let pairFilterA = PairFilter.fromFilters([
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.NAME, '=', 'testName'),
             new SimpleFilter(DATASTORE.name, DATABASES.testDatabase1, TABLES.testTable1, FIELD_MAP.TYPE, '!=', 'testType')
         ], CompoundFilterType.OR);
@@ -3976,7 +3943,7 @@ describe('Filter Labels', () => {
     });
 
     it('getLabel functions on compound filter should return expected strings', () => {
-        let compoundFilter: CompoundFilter = FilterUtil.createFilterFromConfig({
+        let compoundFilter = FilterUtil.createFilterFromConfig({
             type: 'or',
             filters: [{
                 datastore: DATASTORE.name,
