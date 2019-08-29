@@ -604,12 +604,8 @@ export class SimpleFilter extends AbstractFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): FilterValues {
-        return {
-            field: this.field.columnName,
-            operator: this.operator,
-            value: this.value
-        } as OneValue;
+    public retrieveValues(): OneValue {
+        return new OneValue(this.field.columnName, this.operator, this.value);
     }
 
     /**
@@ -830,10 +826,7 @@ export class CompoundFilter extends AbstractFilter {
      * Returns the filtered values for the filter object.
      */
     public retrieveValues(): FilterValues {
-        return {
-            type: this.type,
-            nested: this.filters.reduce((list, filter) => list.concat(filter.retrieveValues()), [])
-        } as CompoundValues;
+        return new CompoundValues(this.type, this.filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []));
     }
 
     /**
@@ -946,14 +939,7 @@ export class BoundsFilter extends CompoundFilter {
      * Returns the filtered values for the filter object.
      */
     public retrieveValues(): BoundsValues {
-        return {
-            begin1: this.begin1,
-            begin2: this.begin2,
-            field1: this.fieldKey1,
-            field2: this.fieldKey2,
-            end1: this.end1,
-            end2: this.end2
-        } as BoundsValues;
+        return new BoundsValues(this.begin1, this.begin2, this.fieldKey1, this.fieldKey2, this.end1, this.end2);
     }
 
     /**
@@ -1051,11 +1037,7 @@ export class DomainFilter extends CompoundFilter {
      * Returns the filtered values for the filter object.
      */
     public retrieveValues(): DomainValues {
-        return {
-            begin: this.begin,
-            field: this.fieldKey,
-            end: this.end
-        } as DomainValues;
+        return new DomainValues(this.begin, this.fieldKey, this.end);
     }
 
     /**
@@ -1157,12 +1139,7 @@ export class ListFilter extends CompoundFilter {
      * Returns the filtered values for the filter object.
      */
     public retrieveValues(): ListOfValues {
-        return {
-            type: this.type,
-            field: this.fieldKey,
-            operator: this.operator,
-            values: this.values
-        } as ListOfValues;
+        return new ListOfValues(this.type, this.fieldKey, this.operator, this.values);
     }
 
     /**
@@ -1279,15 +1256,7 @@ export class PairFilter extends CompoundFilter {
      * Returns the filtered values for the filter object.
      */
     public retrieveValues(): PairOfValues {
-        return {
-            type: this.type,
-            field1: this.fieldKey1,
-            field2: this.fieldKey2,
-            operator1: this.operator1,
-            operator2: this.operator2,
-            value1: this.value1,
-            value2: this.value2
-        } as PairOfValues;
+        return new PairOfValues(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2);
     }
 
     /**
