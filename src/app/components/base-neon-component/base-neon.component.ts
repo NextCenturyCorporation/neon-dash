@@ -24,6 +24,7 @@ import {
     AbstractFilter,
     FilterCollection
 } from '../../util/filter.util';
+import { DatasetUtil } from '../../util/dataset.util';
 import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { Dataset, NeonFieldMetaData } from '../../models/dataset';
@@ -446,25 +447,30 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
-            fields = [options.filter.lhs].concat(fields);
+        // Only add config option fields if any widget-specific fields exist because otherwise query will return all fields anyway.
+        if (fields.length) {
+            (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
+                if (filter && filter.lhs && filter.operator && typeof filter.rhs !== 'undefined') {
+                    fields = fields.concat(DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys));
+                }
+            });
+
+            (options.customEventsToPublish || []).forEach((config) => {
+                (config.fields || []).forEach((fieldsConfig) => {
+                    if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                        fields.push(fieldsConfig.columnName);
+                    }
+                });
+            });
+
+            (options.customEventsToReceive || []).forEach((config) => {
+                (config.fields || []).forEach((fieldsConfig) => {
+                    if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                        fields.push(fieldsConfig.columnName);
+                    }
+                });
+            });
         }
-
-        (options.customEventsToPublish || []).forEach((config) => {
-            (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.columnName) < 0) {
-                    fields.push(fieldsConfig.columnName);
-                }
-            });
-        });
-
-        (options.customEventsToReceive || []).forEach((config) => {
-            (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.columnName) < 0) {
-                    fields.push(fieldsConfig.columnName);
-                }
-            });
-        });
 
         let query: QueryPayload = this.searchService.buildQueryPayload(options.database.name, options.table.name, fields);
         return this.finalizeVisualizationQuery(options, query, this.createSharedFilters(options));
@@ -480,15 +486,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let filterClauses: FilterClause[] = this.retrieveApplicableFilters(options).map((filter) =>
             this.searchService.generateFilterClauseFromFilter(filter));
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
-            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
-                options.filter.rhs));
-        }
-
-        if (this.hasUnsharedFilter(options)) {
-            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
-                options.unsharedFilterValue));
-        }
+        (Array.isArray(options.filter) ? options.filter : [options.filter]).forEach((filter) => {
+            if (filter && filter.lhs && filter.operator && filter.rhs) {
+                filterClauses = filterClauses.concat(this.searchService.buildFilterClause(
+                    DatasetUtil.translateFieldKeyToFieldName(filter.lhs, this.dataset.fieldKeys), filter.operator, filter.rhs
+                ));
+            }
+        });
 
         return filterClauses;
     }
@@ -787,17 +791,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeSubcomponentType(options?: WidgetOptionCollection | any) {
         this.handleChangeData(options);
-    }
-
-    /**
-     * Returns whether the local unshared filter field and value are set.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @return {boolean}
-     */
-    private hasUnsharedFilter(options?: WidgetOptionCollection | { [key: string]: any }): boolean {
-        return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
-            typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
     }
 
     /**
