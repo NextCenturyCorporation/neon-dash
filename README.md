@@ -4,6 +4,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 
 ## Table of Content
 
+* [Why Use the Neon Dashboard?](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#why-use-the-neon-dashboard)
 * [Initial Setup Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#initial-setup-instructions)
 * [Local Development Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#local-development-instructions)
 * [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
@@ -12,6 +13,15 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
 * [Contact Us](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#contact-us)
+
+## Why Use the Neon Dashboard
+
+The Neon Dashboard offers multiple benefits over other big data exploration and visualization applications:
+
+* The Neon Dashboard is free and open-source
+* The Neon Dashboard supports different types of datastores (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
+* The Neon Dashboard allows you to **view and filter on data from separate datastores at the same time**
+* The Neon Dashboard displays data from your own datastores; it doesn't need to load and save a copy of your data (though we have suggestions on how you should [configure your datastore](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the Neon Dashboard)
 
 ## Initial Setup Instructions
 
