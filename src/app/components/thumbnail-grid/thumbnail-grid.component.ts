@@ -158,8 +158,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
             new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
             new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('objectIdField', 'Object ID Field', false),
             new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
@@ -246,7 +246,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters = sharedFilters;
 
-        if (this.options.sortField.columnName) {
+        if (this.options.linkField && this.options.linkField.columnName && this.options.sortField.columnName) {
             filters = [
                 ...filters,
                 this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
@@ -377,7 +377,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.linkField.columnName);
+        return !!(options.database.name && options.table.name);
     }
 
     /**
@@ -405,7 +405,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             };
 
             let links = [];
-            if (options.linkField.columnName) {
+            if (options.linkField && options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(result, options.linkField.columnName) || '');
             }
 
@@ -465,11 +465,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 });
             });
 
-            for (let link of links) {
-                this.retreiveMedia(item, link);
+            if(links.length){
+                for (let link of links) {
+                    this.retreiveMedia(item, link);
+                }
+            }
+            else{
+                this.gridArray.push(item)
             }
 
-            this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length !== 1);
+            this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length > 1);
         });
 
         return this.gridArray.length;
@@ -579,6 +584,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         else{
             grid[this.constructedLinkField] = this.options.linkPrefix + this.appendType(link, grid[this.options.typeField.columnName]);
         }
+
+
 
         this.gridArray[gridIndex] = grid;
     }
@@ -817,7 +824,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getMediaType(item) {
         let link = item[this.constructedLinkField];
-        let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
+        let fileType = link ? link.substring(link.lastIndexOf('.') + 1).toLowerCase() : '';
 
         return this.options.typeMap[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
     }

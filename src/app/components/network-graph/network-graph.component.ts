@@ -1351,7 +1351,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     onSelect(properties: { nodes: string[] }) {
         if (properties.nodes.length === 1) {
             let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
-
             let filters: FilterConfig[] = [];
 
             for (let filterField of selectedNode.filterFields) {
@@ -1366,7 +1365,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            this.toggleFilters(filters);
+            this.exchangeFilters(filters);
         }
     }
 
