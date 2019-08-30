@@ -26,10 +26,10 @@ datastores:
                         fields:
                         labelOptions:
             verdi-rdf-normal:
-                prettyName: Documents
+                prettyName: RDF Documents
                 tables:
                     normal:
-                        prettyName: Normal Index
+                        prettyName: RDF Index
                         fields:
                         labelOptions:
             verdi-rdf-kb:
@@ -46,6 +46,20 @@ datastores:
                         prettyName: Reified Index
                         fields:
                         labelOptions:
+            verdi-rdf_docs-parents:
+                prettyName: Parent Documents
+                tables:
+                    parents:
+                        prettyName: Parent Document Index
+                        fields:
+                        labelOptions:
+            verdi-rdf_docs-parent_children:
+                prettyName: Child Documents
+                tables:
+                    parent_children:
+                        prettyName: Child Document Index
+                        fields:
+                        labelOptions:
             verdi-support-hypothesis:
                 prettyName: Hypotheses
                 tables:
@@ -54,10 +68,10 @@ datastores:
                         fields:
                         labelOptions:
             verdi-support-parent-children:
-                prettyName: Child Documents
+                prettyName: Support Child Documents
                 tables:
                     parent-children:
-                        prettyName: SUpport Parent Children Index
+                        prettyName: Support Parent Children Index
                         fields:
                         labelOptions:
 dashboards:
@@ -75,14 +89,30 @@ dashboards:
                             name: Network
                             layout: seedling-ta2-network
                             tables:
-                                document_table: es1.verdi-rdf-normal.normal
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
+                                normal_table: es1.verdi-rdf-normal.normal
                                 kb_table: es1.kb-union.rdf-kb
                             fields:
-                                document_field_id: 'es1.verdi-rdf-normal.normal.@id'
-                                document_field_date: es1.verdi-rdf-normal.normal.date
-                                document_field_link: es1.verdi-rdf-normal.normal.url
-                                document_field_doctype: es1.verdi-rdf-normal.normal.docType
-                                document_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
+
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
+
+                                normal_field_id: 'es1.verdi-rdf-normal.normal.@id'
+                                normal_field_date: es1.verdi-rdf-normal.normal.date
+                                normal_field_link: es1.verdi-rdf-normal.normal.url
+                                normal_field_doctype: es1.verdi-rdf-normal.normal.docType
+                                normal_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
 
                                 kb_field_objectid: es1.kb-union.rdf-kb.kbid
                                 kb_field_category: es1.kb-union.rdf-kb.categories
@@ -98,11 +128,13 @@ dashboards:
                                 kb_field_name: es1.kb-union.rdf-kb.name
                                 kb_field_type: es1.kb-union.rdf-kb.types
                             relations:
-                                - - 'es1.verdi-rdf-normal.normal.@id'
+                                #- - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                  #- 'es1.verdi-rdf-normal.normal.@id'
                                   - es1.kb-union.rdf-kb.docIds
                                 # This is an ambitious assumption being that documents and kb elements have
                                 # a many to many relationship. Removing this.
-                                #- - es1.verdi-rdf-normal.normal.date
+                                #- - es1.verdi-rdf_docs-parents.parents.date
                                 #  - es1.kb-union.rdf-kb.docDate
                             options:
                                 connectOnLoad: true
@@ -117,14 +149,23 @@ dashboards:
                             name: Events
                             layout: seedling-ta2-events
                             tables:
-                                document_table: es1.verdi-rdf-normal.normal
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 event_table: es1.kb-events.union
                             fields:
-                                document_field_id: 'es1.verdi-rdf-normal.normal.@id'
-                                document_field_date: es1.verdi-rdf-normal.normal.date
-                                document_field_link: es1.verdi-rdf-normal.normal.url
-                                document_field_doctype: es1.verdi-rdf-normal.normal.docType
-                                document_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
+
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
                                 event_field_objectid: es1.kb-events.union.kbid
                                 event_field_type: es1.kb-events.union.types
@@ -135,7 +176,8 @@ dashboards:
                                 event_field_link: es1.kb-events.union.url
                                 event_field_doctype: es1.kb-events.union.docType
                             relations:
-                                - - 'es1.verdi-rdf-normal.normal.@id'
+                               # - - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-events.union.docIds
                             options:
                                 connectOnLoad: false
@@ -143,14 +185,23 @@ dashboards:
                             name: Map
                             layout: seedling-ta2-map
                             tables:
-                                document_table: es1.verdi-rdf-normal.normal
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 geo_table: es1.kb-geo.union
                             fields:
-                                document_field_id: 'es1.verdi-rdf-normal.normal.@id'
-                                document_field_date: es1.verdi-rdf-normal.normal.date
-                                document_field_link: es1.verdi-rdf-normal.normal.url
-                                document_field_doctype: es1.verdi-rdf-normal.normal.docType
-                                document_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
+
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
                                 geo_field_objectid: es1.kb-geo.union.kbid
                                 geo_field_name: es1.kb-geo.union.name
@@ -161,7 +212,8 @@ dashboards:
                                 geo_field_documentid: es1.kb-geo.union.docIds
                                 geo_field_docdate: es1.kb-geo.union.docDate
                             relations:
-                                - - 'es1.verdi-rdf-normal.normal.@id'
+                               # - - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-geo.union.docIds
                             options:
                                 connectOnLoad: false
@@ -174,7 +226,8 @@ dashboards:
                             layout: seedling-ta3-network
                             tables:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
-                                document_table: es1.verdi-rdf-normal.normal
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 kb_table: es1.kb-union.rdf-kb
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -183,11 +236,19 @@ dashboards:
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
                                 hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
-                                document_field_id: 'es1.verdi-rdf-normal.normal.@id'
-                                document_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
-                                document_field_date: es1.verdi-rdf-normal.normal.date
-                                document_field_doctype: es1.verdi-rdf-normal.normal.docType
-                                document_field_link: es1.verdi-rdf-normal.normal.url
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
+
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
                                 kb_field_objectid: es1.kb-union.rdf-kb.kbid
                                 kb_field_category: es1.kb-union.rdf-kb.categories
@@ -205,10 +266,10 @@ dashboards:
                                 kb_field_type: es1.kb-union.rdf-kb.types
                                 kb_field_hypotheses: es1.kb-union.rdf-kb.hypotheses
                             relations:
-                                - - 'es1.verdi-rdf-normal.normal.@id'
+                               # - - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-union.rdf-kb.docIds
 
-                                #- - es1.verdi-support-parent-children.parent-children.hypotheses
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                   - es1.kb-union.rdf-kb.hypotheses
                             options:
@@ -226,7 +287,8 @@ dashboards:
                             layout: seedling-ta3-events
                             tables:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
-                                document_table: es1.verdi-support-parent-children.parent-children
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 event_table: es1.kb-events.union
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -235,11 +297,19 @@ dashboards:
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
                                 hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
-                                document_field_id: es1.verdi-support-parent-children.parent-children.id
-                                document_field_sourceid: es1.verdi-support-parent-children.parent-children.parent_uid
-                                document_field_date: es1.verdi-support-parent-children.parent-children.download_date
-                                document_field_doctype: es1.verdi-support-parent-children.parent-children.dtyp
-                                document_field_link: es1.verdi-support-parent-children.parent-children.url
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
+
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
                                 event_field_objectid: es1.kb-events.union.kbid
                                 event_field_type: es1.kb-events.union.types
@@ -251,11 +321,11 @@ dashboards:
                                 event_field_doctype: es1.kb-events.union.docType
                                 event_field_hypotheses: es1.kb-events.union.hypotheses
                             relations:
-                                - - es1.verdi-support-parent-children.parent-children.id
+                               # - - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-events.union.docIds
 
-                                - - es1.verdi-support-parent-children.parent-children.hypotheses
-                                  - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
+                                - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                   - es1.kb-events.union.hypotheses
                             options:
                                 connectOnLoad: false
@@ -264,7 +334,8 @@ dashboards:
                             layout: seedling-ta3-map
                             tables:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
-                                document_table: es1.verdi-support-parent-children.parent-children
+                                document_table: es1.verdi-rdf_docs-parents.parents
+                                children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 geo_table: es1.kb-geo.union
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -273,11 +344,19 @@ dashboards:
                                 hypotheses_field_hypothesis: es1.verdi-support-hypothesis.hypothesis-info.hypothesis
                                 hypotheses_field_documentId: es1.verdi-support-hypothesis.hypothesis-info.docIds
 
-                                document_field_id: es1.verdi-support-parent-children.parent-children.id
-                                document_field_sourceid: es1.verdi-support-parent-children.parent-children.parent_uid
-                                document_field_date: es1.verdi-support-parent-children.parent-children.download_date
-                                document_field_doctype: es1.verdi-support-parent-children.parent-children.dtyp
-                                document_field_link: es1.verdi-support-parent-children.parent-children.url
+                                children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
+                                children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
+                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
+                                children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
+                                children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
+
+                                document_field_id: es1.verdi-rdf_docs-parents.parents.id
+                                document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
+                                document_field_link: es1.verdi-rdf_docs-parents.parents.url
+                                document_field_children: es1.verdi-rdf_docs-parents.parents.children
+                                document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
+                                document_field_host: es1.verdi-rdf_docs-parents.parents.host
 
                                 geo_field_objectid: es1.kb-geo.union.kbid
                                 geo_field_name: es1.kb-geo.union.name
@@ -289,11 +368,11 @@ dashboards:
                                 geo_field_docdate: es1.kb-geo.union.docDate
                                 geo_field_hypotheses: es1.kb-geo.union.hypotheses
                             relations:
-                                - - es1.verdi-support-parent-children.parent-children.id
+                               # - - es1.verdi-rdf_docs-parents.parents.children
+                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-geo.union.docIds
 
-                                - - es1.verdi-support-parent-children.parent-children.hypotheses
-                                  - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
+                                - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                   - es1.kb-geo.union.hypotheses
                             options:
                                 connectOnLoad: false
@@ -343,6 +422,7 @@ layouts:
               linkColor: '#f5b12a' #deep yellow
               showRelationLinks: true
               relationNodeIdentifier: 'RELATION'
+              relationNameField: kb_field_type
               xPositionField: kb_field_x
               yPositionField: kb_field_y
               xTargetPositionField: kb_field_edgex
@@ -371,10 +451,10 @@ layouts:
           sizey: 4
           bindings:
               title: Document Timeline
-              tableKey: document_table
-              idField: document_field_id
-              filterField: document_field_id
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              filterField: children_field_id
+              dateField: children_field_parentdate
               granularity: month
               hideUnfiltered: false
 
@@ -385,23 +465,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_date
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: document_field_id
-              filterField: document_field_id
-              ignoreSelf: false
+              sortField: children_field_id
+              filterField:
+                - children_field_id
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -505,23 +586,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_date
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: document_field_id
+              sortField: children_field_id
               filterField:
-                - document_field_id
+                - children_field_id
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -593,24 +675,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_date
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: document_field_id
+              sortField: children_field_id
               filterField:
-               - document_field_id
-              ignoreSelf: false
+                - children_field_id
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -685,6 +767,7 @@ layouts:
               linkColor: '#f5b12a' #deep yellow
               showRelationLinks: true
               relationNodeIdentifier: 'RELATION'
+              relationNameField: kb_field_type
               xPositionField: kb_field_x
               yPositionField: kb_field_y
               xTargetPositionField: kb_field_edgex
@@ -714,10 +797,10 @@ layouts:
           sizey: 4
           bindings:
               title: Document Timeline
-              tableKey: document_table
-              idField: document_field_id
-              filterField: document_field_id
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              filterField: children_field_id
+              dateField: children_field_parentdate
               granularity: month
               hideUnfiltered: true
 
@@ -728,22 +811,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_docdate
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: document_field_id
-              filterField: document_field_id
+              sortField: children_field_id
+              filterField:
+                - children_field_id
               ascending: true
               viewType: details
               limit: 8
@@ -758,7 +843,6 @@ layouts:
                   mp3: aud
                   svg: img
                   html: htm
-
     seedling-ta3-events:
         - type: queryBar
           row: 1
@@ -772,12 +856,10 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - database: verdi-support-hypothesis
-                    table: hypothesis-info
-                    idField: hypothesis_id
                   - database: kb-events
                     table: union
                     idField: docIds
+                    filterField: hypotheses
 
         - type: newsFeed
           row: 2
@@ -824,7 +906,6 @@ layouts:
               sortField: event_field_docdate
               filterFields:
                 - event_field_objectid
-                - event_field_documentid
               ascending: false
               canvasSize: 180.00
               viewType: card
@@ -864,26 +945,28 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_date
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: document_field_id
+              sortField: children_field_id
               filterField:
-                - document_field_id
+                - children_field_id
               ascending: true
               viewType: details
               limit: 8
+              applyPreviousFilter: true
               typeMap:
                   jpg: img
                   png: img
@@ -907,12 +990,10 @@ layouts:
               placeholder: 'Query Hypotheses'
               extendedFilter: true
               extensionFields:
-                  - database: verdi-support-hypothesis
-                    table: hypothesis-info
-                    idField: hypothesis_id
                   - database: kb-geo
                     table: union
                     idField: docIds
+                    filterField: hypotheses
         - type: newsFeed
           row: 2
           col: 1
@@ -968,26 +1049,28 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: document_table
-              idField: document_field_id
-              flagSubLabel1: document_field_sourceid
-              flagSubLabel2: document_field_date
-              flagSubLabel3: document_field_doctype
-              linkField: document_field_link
-              dateField: document_field_date
+              tableKey: children_table
+              idField: children_field_id
+              flagSubLabel1: children_field_parentdate
+              flagSubLabel2: children_field_parentid
+              flagSubLabel3:
+              linkPrefix: '../Reconstructed/html_seedling/'
+              linkField: children_field_annotations
+              dateField: children_field_parentdate
               objectNameField:
-              objectIdField: document_field_id
-              typeField: document_field_doctype
+              objectIdField: children_field_id
+              typeField: children_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: document_field_id
+              sortField: children_field_id
               filterField:
-                - document_field_id
+                - children_field_id
               ascending: true
               viewType: details
               limit: 8
+              applyPreviousFilter: true
               typeMap:
                   jpg: img
                   png: img
