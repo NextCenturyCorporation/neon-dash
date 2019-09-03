@@ -18,9 +18,9 @@ import { Observable } from 'rxjs';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardState } from '../../models/dashboard-state';
+import { DateUtil } from '../../util/date.util';
 import { NeonCustomRequests } from '../../models/types';
 
-import * as moment from 'moment';
 import * as uuidv4 from 'uuid/v4';
 import * as yaml from 'js-yaml';
 
@@ -110,7 +110,7 @@ export class CustomRequestsComponent {
         }, {});
 
         if (request.date) {
-            bodyData[request.date] = moment.utc(new Date()).format('YYYY-MM-DD[T]HH:mm:ss.SSS');
+            bodyData[request.date] = DateUtil.fromDateToString(new Date());
         }
 
         if (request.id) {

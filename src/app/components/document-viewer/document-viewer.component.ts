@@ -27,6 +27,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { DateFormat, DateUtil } from '../../util/date.util';
 import { FilterCollection } from '../../util/filter.util';
 import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -44,7 +45,6 @@ import {
     WidgetSelectOption
 } from '../../models/widget-option';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
@@ -314,12 +314,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     createTableRowText(activeItemData: any, arrayFilter?: any): string {
         if (_.isDate(activeItemData)) {
-            return moment.utc(activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+            return DateUtil.fromDateToString(activeItemData, DateFormat.PRETTY);
         }
 
         if (typeof activeItemData === 'string' || typeof activeItemData === 'number' || typeof activeItemData === 'boolean') {
-            if (moment('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]', true).isValid()) {
-                return moment.utc('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+            if (DateUtil.verifyDateStringStrict('' + activeItemData)) {
+                return DateUtil.fromDateToString('' + activeItemData, DateFormat.PRETTY);
             }
             return ('' + activeItemData) || '';
         }
