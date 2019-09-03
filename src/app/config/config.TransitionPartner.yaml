@@ -1373,6 +1373,7 @@ dashboards:
                                 date_field_key: es1.ilocano_sf.ui_output.createdAt
                                 id_field_key_1: es1.ilocano_sf.ui_output.id
                                 id_field_key_2: es1.ilocano_tab.ui_output.id
+                                id_field_key_DocumentID: es1.ilocano_sf.ui_output.DocumentID
                                 latitude_key: es1.ilocano_sf.ui_output.geoLocation.lat
                                 longitude_key: es1.ilocano_sf.ui_output.geoLocation.lon
                                 group_field_key_topics: es1.ilocano_sf.ui_output.Type
@@ -3341,6 +3342,7 @@ layouts:
                 secondaryContentField: original_text_key
                 sortField: date_field_key
                 dateField: date_field_key
+                filterField: id_field_key_DocumentID
                 titleContentField: translated_text_key
                 limit: 100
           - name: Map
@@ -3394,7 +3396,7 @@ layouts:
               singleFilter: true
               ignoreSelf: false
               filterFields:
-                  - id_field_key_1
+                  - id_field_key_DocumentID
           - name: Bar Chart
             type: aggregation
             icon: bar_chart
