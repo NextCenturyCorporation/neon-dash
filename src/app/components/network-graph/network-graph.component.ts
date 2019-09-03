@@ -117,6 +117,12 @@ interface ArrowUpdate {
     color?: Record<string, any>;
 }
 
+interface NodeUpdate {
+    id: string;
+    x: number;
+    y: number;
+}
+
 interface EdgeColorProperties {
     color: string;
     highlight: string;
@@ -172,6 +178,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public totalNodes: number;
     public prettifiedNodeLegendLabels: string[] = [];
     public prettifiedEdgeLegendLabels: string[] = [];
+
+    public updatedNodePositions: NodeUpdate[] = [];
 
     existingNodeNames: string[];
     view: any[];
@@ -776,8 +784,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.createRelationsAsLinksGraphProperties() : this.createTabularGraphProperties();
 
         if (graphProperties) {
-            this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
-                array.findIndex((object) => object.id === value.id) === index).length;
+            this.totalNodes = graphProperties.nodes.filter((node, index, array) =>
+                array.findIndex((nodeObject) => nodeObject.id === node.id) === index).length;
 
             this.graphData.clear();
             if (this.displayGraph) {
@@ -785,6 +793,23 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.graphData.update(graphProperties);
             }
         }
+
+        this.graph.on("dragEnd", params => {
+            for (let i = 0; i < params.nodes.length; i++) {
+                let nodeId = params.nodes[i];
+                let x = this.graph.getPositions([nodeId])[nodeId].x;
+                let y = this.graph.getPositions([nodeId])[nodeId].y;
+
+                let indexToUpdate = this.updatedNodePositions.findIndex(node => node.id === nodeId);
+                if(indexToUpdate > -1 ){
+                    this.updatedNodePositions[indexToUpdate].x = x;
+                    this.updatedNodePositions[indexToUpdate].y = y;
+                }
+                else{
+                    this.updatedNodePositions.push({id: nodeId, x: x, y: y});
+                }
+            }
+        });
 
         this.loadingCount--;
     }
@@ -931,9 +956,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         for (let entry of data) {
             let colorMapVal = entry[colorField];
             let id = entry[idField];
+            let updatedPosition = this.updatedNodePositions.findIndex(node => node.id === id);
             let name = nameField && entry[nameField];
-            let xPosition = entry[xPositionField];
-            let yPosition = entry[yPositionField];
+            let xPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].x : entry[xPositionField];
+            let yPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].y : entry[yPositionField];
             let filterFieldData: any[] = [];
 
             // Create a tabular network graph
@@ -1213,6 +1239,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
         }
+
         return graph;
     }
 
