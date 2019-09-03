@@ -1381,7 +1381,7 @@ dashboards:
                                 sf_location: es1.ilocano_sf.ui_output.location
                                 entity_name_tab: es1.ilocano_tab.ui_output.EntityName
                             contributors:
-                                USC- ISI:
+                                USC-ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
                                     abbreviation: 'USC/ISI'
                                     contactName: 'Jonathan May'
@@ -3414,8 +3414,7 @@ layouts:
                 sortByAggregation: true
                 ignoreSelf: true
                 contributionKeys:
-                  - isi
-                  - rpi
+                  - USC-ISI
           - name: Text Cloud
             type: textCloud
             icon: TagCloud64
@@ -3430,6 +3429,5 @@ layouts:
                 dataField: sf_location
                 preFilter: false
                 contributionKeys:
-                  - isi
                   - rpi
         
