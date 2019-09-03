@@ -29,9 +29,9 @@ import {
 } from '../models/filter';
 import { Dataset, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 import { DatasetUtil } from './dataset.util';
+import { DateFormat, DateUtil } from './date.util';
 
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 export class FilterUtil {
     /**
@@ -565,7 +565,7 @@ export class SimpleFilter extends AbstractFilter {
         if (this.field.type === 'date' || this.value instanceof Date) {
             // TODO THOR-1259 Let user switch from UTC to local time
             // TODO THOR-1329 If hour or minutes are not zero, add hour and minutes and seconds to output string format.
-            return moment.utc(this.value).format('YYYY-MM-DD');
+            return DateUtil.fromDateToString(this.value, DateFormat.SHORT);
         }
         if (typeof this.value === 'number') {
             return '' + (this.value % 1 === 0 ? this.value : parseFloat('' + this.value).toFixed(3));
