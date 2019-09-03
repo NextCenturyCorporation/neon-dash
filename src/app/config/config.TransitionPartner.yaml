@@ -666,6 +666,8 @@ datastores:
                         fields:
                             - columnName: DocumentID
                               prettyName: Document ID
+                            - columnName: location
+                              prettyName: Location
                         labelOptions:
                             Type:
                                 food: Food
@@ -1353,7 +1355,6 @@ dashboards:
                             layout: ilocano_layout
                             tables:
                                 table_key_1: es1.ilocano_sf.ui_output
-                                table_key_2: es1.ilocano_tab.ui_output
                             options:
                                 connectOnLoad: true
                                 customRequests:
@@ -1378,13 +1379,6 @@ dashboards:
                                 group_field_key_topics_2: es1.ilocano_tab.ui_output.Type
                                 sf_location: es1.ilocano_sf.ui_output.location
                                 entity_name_tab: es1.ilocano_tab.ui_output.EntityName
-                            relations:
-                                - - es1.ilocano_tab.ui_output.DocumentID
-                                  - es1.ilocano_sf.ui_output.DocumentID
-                                - - es1.ilocano_tab.ui_output.Type
-                                  - es1.ilocano_sf.ui_output.Type
-                                - - es1.ilocano_tab.ui_output.EntityName
-                                  - es1.ilocano_sf.ui_output.location
                             contributors:
                                 USC- ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
@@ -3384,17 +3378,17 @@ layouts:
             sizey: 8
             bindings:
               title: Situation Frames
-              tableKey: table_key_2
-              idField: id_field_key_2
-              sortField: id_field_key_2
+              tableKey: table_key_1
+              idField: id_field_key_1
+              sortField: id_field_key_1
               limit: 100
               showFields:
-                  - entity_name_tab
-                  - group_field_key_topics_2
+                  - sf_location
+                  - group_field_key_topics
               customColumnWidths:
-                  - - entity_name_tab
+                  - - sf_location
                     - 160
-                  - - group_field_key_topics_2
+                  - - group_field_key_topics
                     - 80
               filterable: true
               singleFilter: true
