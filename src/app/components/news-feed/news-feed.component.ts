@@ -26,6 +26,7 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { DateFormat, DateUtil } from '../../util/date.util';
 import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
@@ -43,7 +44,6 @@ import {
 } from '../../models/widget-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
-import * as moment from 'moment';
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
 
@@ -97,10 +97,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     relativeTime(date: Date) {
-        if (moment(date).diff(Date.now(), 'd', true) < -3) {
-            return moment(date).format('YYYY/MM/DD');
-        }
-        return moment(date).fromNow();
+        return DateUtil.retrievePastTime(date, DateFormat.SHORT);
     }
 
     /**
