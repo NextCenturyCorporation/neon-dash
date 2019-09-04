@@ -277,12 +277,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
             }
-            let responseBody = JSON.parse(wikiResponse.body);
-            if (responseBody.error) {
-                data.push(new WikiData(links[0], this.sanitizer.bypassSecurityTrustHtml(responseBody.error.info)));
-            } else {
-                data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
-            }
+            data.push(new WikiData(wikiResponse.parse.title, this.sanitizer.bypassSecurityTrustHtml(wikiResponse.parse.text['*'])));
             return this.retrieveWikiPage(links.slice(1), data, callback);
         }, (error: HttpErrorResponse) => handleErrorOrFailure(error.error));
     }
