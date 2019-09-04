@@ -51,7 +51,7 @@ import {
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -220,7 +220,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.options.layers.forEach((layer) => {
             filters.push(this.createFilterConfigOnPoint(layer, lat, lon));
             layer.filterFields.forEach((filterField) => {
-                let filterValues: any[] = neonUtilities.flatten(filterFieldToValueList.map((filterFieldToValue) =>
+                let filterValues: any[] = CoreUtil.flatten(filterFieldToValueList.map((filterFieldToValue) =>
                     filterFieldToValue.get(filterField.columnName))).filter((value) => !!value);
                 if (!filterValues.length) {
                     // Delete any previous filters on the filter field.
@@ -311,15 +311,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
-            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField));
-            let latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField));
-            let colorValue = neonUtilities.deepFind(point, colorField);
-            let idValue = neonUtilities.deepFind(point, idField);
+            let lngCoord = this.convertToFloatIfString(CoreUtil.deepFind(point, lngField));
+            let latCoord = this.convertToFloatIfString(CoreUtil.deepFind(point, latField));
+            let colorValue = CoreUtil.deepFind(point, colorField);
+            let idValue = CoreUtil.deepFind(point, idField);
             let filterValues = new Map<string, any>();
-            let hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
+            let hoverPopupValue = hoverPopupField.columnName ? CoreUtil.deepFind(point, hoverPopupField.columnName) : '';
 
             for (let field of filterFields) {
-                let fieldValue = neonUtilities.deepFind(point, field.columnName);
+                let fieldValue = CoreUtil.deepFind(point, field.columnName);
                 filterValues.set(field.columnName, fieldValue);
             }
 
