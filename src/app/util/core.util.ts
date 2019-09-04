@@ -17,6 +17,18 @@ export class CoreUtil {
     // eslint-disable-next-line max-len
     static URL_PATTERN = /(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}\-\x{ffff}0-9]+-?)*[a-z\x{00a1}\-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}\-\x{ffff}]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?/ig;
 
+    /**
+     * Add the given listener of the given event on the element with the given ID.
+     */
+    static addListener(listener: (event: any) => void, elementId: string, eventName: string): void {
+        if (elementId && eventName) {
+            const element = document.getElementById(elementId) as any;
+            if (element) {
+                element.addEventListener(eventName, listener);
+            }
+        }
+    }
+
     static checkStringForUrl(text: string) {
         // Need to use match operator and not RegExp.exec() because use of global flag
         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
@@ -89,6 +101,18 @@ export class CoreUtil {
     }
 
     /**
+     * Removes the given listener of the given event on the element with the given ID.
+     */
+    static removeListener(listener: (event: any) => void, elementId: string, eventName: string): void {
+        if (elementId && eventName) {
+            const element = document.getElementById(elementId) as any;
+            if (element) {
+                element.removeEventListener(eventName, listener);
+            }
+        }
+    }
+
+    /**
      * Dynamic sorting over an array of objects
      * https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
      *
@@ -142,6 +166,21 @@ export class CoreUtil {
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
         }
         return [];
+    }
+
+    /**
+     * Removes the given listener of the given old event on the element with the given old ID and adds the listener of
+     * the given new event on the element with the given new ID.
+     */
+    static updateListener(
+        listener: (event: any) => void,
+        oldElementId: string,
+        oldEventName: string,
+        newElementId: string,
+        newEventName: string
+    ): void {
+        CoreUtil.removeListener(listener, oldElementId, oldEventName);
+        CoreUtil.addListener(listener, newElementId, newEventName);
     }
 }
 
