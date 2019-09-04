@@ -83,6 +83,7 @@
     "@types/vis": "^4.21.15",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
+    "@webcomponents/webcomponentsjs": "^2.2.10",
     "ajv": "^5.2.0",
     "ajv-keywords": "^1.5.1",
     "eslint": "^5.16.0",
