@@ -29,8 +29,8 @@ export class RouteWithStateComponent implements OnInit {
     loading = true;
 
     constructor(
-        private configService: ConfigService,
-        private dashboardService: DashboardService,
+        public configService: ConfigService,
+        public dashboardService: DashboardService,
         private router: Router
     ) { }
 

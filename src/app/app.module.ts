@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, APP_BASE_HREF, PlatformLocation } from '@angular/common';
@@ -26,6 +26,7 @@ import { InjectableSearchService } from './services/injectable.search.service';
 
 import { AppComponent } from './app.component';
 import { RouteDashboardComponent } from './route-dashboard.component';
+import { RouteExampleComponent } from './route-example.component';
 import { RouteRequestComponent } from './route-request.component';
 import { CustomRequestsModule } from './components/custom-requests/custom-requests.module';
 
@@ -42,7 +43,8 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 }
 
 @NgModule({
-    declarations: [AppComponent, RouteDashboardComponent, RouteRequestComponent],
+    declarations: [AppComponent, RouteDashboardComponent, RouteExampleComponent, RouteRequestComponent],
+    entryComponents: [AppComponent, DynamicDialogComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -68,7 +70,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
             useClass: InjectableSearchService
         }
     ],
-    entryComponents: [AppComponent, DynamicDialogComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent]
 })
 export class AppModule { }
