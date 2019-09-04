@@ -34,7 +34,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -700,7 +700,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 for (let field of options.fields) {
                     if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName) &&
                         options.cleanLegendLabels && options.displayLegend) {
-                        let types = neonUtilities.deepFind(result, field.columnName);
+                        let types = CoreUtil.deepFind(result, field.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedNodeLegendLabels.push(this.labelAbbreviation(value));
@@ -711,7 +711,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                     if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels &&
                         options.displayLegend) {
-                        let types = neonUtilities.deepFind(result, options.edgeColorField.columnName);
+                        let types = CoreUtil.deepFind(result, options.edgeColorField.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedEdgeLegendLabels.push(this.labelAbbreviation(value));
