@@ -1,0 +1,184 @@
+<!-- beautify ignore:start -->
+
+<div class="column">
+    <next-century-example #vis1
+        id="vis1"
+        selection-field="fields._id"
+        vis-title="Search Match All, Filter by ID"
+    >
+    </next-century-example>
+
+    <next-century-search #search1
+        id="search1"
+        data-host="localhost"
+        data-type="elasticsearchrest"
+        filter-self
+        search-field-key="es1.ldc_uyg_jul_18.ui_out.*"
+        search-limit=10000
+        server="http://localhost:8090/neon"
+        sort-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+        sort-order="descending"
+        vis-draw-function="drawData"
+        vis-element-id="vis1"
+    >
+    </next-century-search>
+
+    <next-century-filter #filter1A
+        id="filter1A"
+        list-field-key="es1.ldc_uyg_jul_18.ui_out._id"
+        list-operator="="
+        search-element-id="search1"
+        vis-element-id="vis1"
+        vis-filter-input-function="changeSelectedText"
+        vis-filter-output-event="dataSelected"
+    ></next-century-filter>
+</div>
+
+<div class="column">
+    <next-century-example #vis2
+        id="vis2"
+        selection-field="fields.topic"
+        vis-title="Aggregate on Topic, Filter by Topic"
+    >
+    </next-century-example>
+
+    <next-century-search #search2
+        id="search2"
+        data-host="localhost"
+        data-type="elasticsearchrest"
+        search-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+        search-limit=10000
+        server="http://localhost:8090/neon"
+        sort-aggregation="_records"
+        sort-order="descending"
+        vis-draw-function="drawData"
+        vis-element-id="vis2"
+    >
+        <next-century-aggregation
+            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+            name="_records"
+        ></next-century-aggregation>
+        <next-century-group
+            field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+        ></next-century-group>
+    </next-century-search>
+
+    <next-century-filter #filter2A
+        id="filter2A"
+        list-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
+        list-operator="="
+        search-element-id="search2"
+        vis-element-id="vis2"
+        vis-filter-input-function="changeSelectedText"
+        vis-filter-output-event="dataSelected"
+    ></next-century-filter>
+</div>
+
+<div class="column">
+    <next-century-example #vis3
+        id="vis3"
+        selection-field="fields.translatedText"
+        vis-title="Aggregate on Text, Filter by Text"
+    >
+    </next-century-example>
+
+    <next-century-search #search3
+        id="search3"
+        data-host="localhost"
+        data-type="elasticsearchrest"
+        search-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+        search-limit=10000
+        server="http://localhost:8090/neon"
+        sort-aggregation="_records"
+        sort-order="descending"
+        vis-draw-function="drawData"
+        vis-element-id="vis3"
+    >
+        <next-century-aggregation
+            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+            name="_records"
+        ></next-century-aggregation>
+        <next-century-group
+            field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+        ></next-century-group>
+    </next-century-search>
+
+    <next-century-filter #filter3A
+        id="filter3A"
+        list-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
+        list-operator="contains"
+        search-element-id="search3"
+        vis-element-id="vis3"
+        vis-filter-input-function="changeSelectedText"
+        vis-filter-output-event="dataSelected"
+    ></next-century-filter>
+</div>
+
+<div class="column">
+    <next-century-example #vis4
+        id="vis4"
+        selection-field="aggregations._timeline"
+        vis-title="Aggregate on Day, Filter by Day"
+    >
+    </next-century-example>
+
+    <next-century-search #search4
+        id="search4"
+        data-host="localhost"
+        data-type="elasticsearchrest"
+        search-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+        search-limit=10000
+        server="http://localhost:8090/neon"
+        sort-aggregation="_timeline"
+        sort-order="ascending"
+        vis-draw-function="drawData"
+        vis-element-id="vis4"
+    >
+        <next-century-aggregation
+            field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+            name="_timeline"
+            type="min"
+        ></next-century-aggregation>
+        <next-century-aggregation
+            group="_dayOfMonth"
+            name="_records"
+        ></next-century-aggregation>
+        <next-century-group
+            field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+            type="dayOfMonth"
+        ></next-century-group>
+    </next-century-search>
+
+    <next-century-filter #filter4A
+        id="filter4A"
+        domain-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
+        search-element-id="search4"
+        type="domain"
+    ></next-century-filter>
+</div>
+
+<div class="column">
+    <next-century-example #vis5
+        id="vis5"
+        vis-title="Total Count Query"
+    >
+    </next-century-example>
+
+    <next-century-search #search5
+        id="search5"
+        data-host="localhost"
+        data-type="elasticsearchrest"
+        search-field-key="es1.ldc_uyg_jul_18.ui_out.*"
+        search-limit=10000
+        server="http://localhost:8090/neon"
+        vis-draw-function="drawData"
+        vis-element-id="vis5"
+    >
+        <next-century-aggregation
+            field-key="es1.ldc_uyg_jul_18.ui_out.*"
+            name="_records"
+        ></next-century-aggregation>
+    </next-century-search>
+</div>
+
+<!-- beautify ignore:end -->

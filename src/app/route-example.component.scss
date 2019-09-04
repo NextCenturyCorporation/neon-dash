@@ -15,6 +15,14 @@
  */
 
 :host {
-    display: block;
+    display: grid;
+    grid-template-columns: repeat(5, 20%);
 }
 
+.column {
+    font-size: 14px;
+    height: 400px;
+    padding: 10px;
+    overflow-y: scroll;
+    word-break: break-word;
+}

@@ -45,6 +45,11 @@
                 "output": "assets/monaco"
               },
               {
+                "glob": "**/*.js",
+                "input": "node_modules/@webcomponents/webcomponentsjs",
+                "output": "webcomponents/"
+              },
+              {
                 "glob": "*.json",
                 "input": "src/app/config",
                 "output": "app/config/"
