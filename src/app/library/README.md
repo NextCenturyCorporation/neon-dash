@@ -27,6 +27,7 @@
   * [What is a field key?](#what-is-a-field-key)
   * [What is a filter design?](#what-is-a-filter-design)
   * [What is externally filtered data?](#what-is-externally-filtered-data)
+  * [What is a related field?](#what-is-a-related-field)
 * [The Neon Dashboard](#the-neon-dashboard)
 * [Documentation Links](#documentation-links)
 * [License](#license)
@@ -40,6 +41,8 @@ The NCCL also offers a collection of configurable **data visualizations** that y
 
 The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
 
+![NCCL Overview](./images/NCCL-Overview.jpg)
+
 ## Why should I use the Next Century Component Library?
 
 The Next Century Component Library grants multiple unique benefits over other data visualization libraries:
@@ -47,41 +50,21 @@ The Next Century Component Library grants multiple unique benefits over other da
 * It is **free** and **open-source**
 * It supports **different types of datastores** (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
 * It lets you **view and filter on data from separate datastores at the same time**
-* It operates on your own datastores, so it **doesn't need to load and save a copy of your data** in order to work (though we have suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the NCCL).
-
-## How does the Next Century Component Library work?
-
-#### Setup
-
-* Import Web Component polyfills and the NCCL (**Core Components**) into your codebase.
-* Define NCCL **Search** and **Filter** DOM elements for each of your application's data visualizations (or import and use the **Visualization Components** from the NCCL).
-* Create **Dataset**, **FilterService**, and **SearchService** objects and use them to initialize your NCCL **Search** and **Filter** DOM elements.
-* Separately, deploy the NCCL **Data Server** so that it can facilitate communication between your application and your datastores.
-
-#### Runtime
-
-1. When a **Search** DOM element (a.k.a. "**Search Component**") is initialized (typically on page load), it will automatically run a search query using its configured attributes, dataset, and services.  The query request is sent using the **SearchService** to the **Data Server** which passes the query to the datastore and returns the query results back to that **Search Component**.
-2. The **Search Component** transforms the query results into a [search data object](#search-data-object), combining each result with the query's corresponding aggregations and its filtered status.
-3. The **Search Component** sends the search data object to its corresponding visualization, either by calling the visualization's draw function itself or by emitting an event that notifies the application to send the search data object to the visualization.
-4. The visualization renders the search data.
-5. When user interaction with a visualization should generate a filter on some data (for example, clicking on an element), that visualization will dispatch an event to notify its corresponding **Filter** DOM element.
-6. When a **Filter** DOM element (a.k.a. "**Filter Component**") is notified with a filter event from its corresponding visualization, it will create a new filter and send it to the **FilterService**.
-7. When the **FilterService** is sent a filter, it notifies each relevant **Search Component** to automatically run a new search query using that filter and have its visualization re-render the search data (see 1-4).  A Search Component is relevant if the datastore, database, and table in its `search-field-key` match a datastore, database, and table in the new filter(s).
-8. Additionally, when the **FilterService** is sent a filter, it also notifies each relevant **Filter Component** to pass the [externally filtered data](#what-is-externally-filtered-data) onto its corresponding visualization if needed.  A Filter Component is relevant if its [filter designs](#what-is-a-filter-design) match the new filter(s).
+* It operates on your own datastores, so it **doesn't need to load and save a copy of your data** in order to work (though we have suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the NCCL)
 
 ## What are the parts of the Next Century Component Library?
 
 ### Search
 
-The **Search Component** builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#what-is-a-filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
+The **Search Component** is an HTML Element (JavaScript Web Component) that builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#what-is-a-filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
 
 ### Filter
 
-The **Filter Component** listens to filter events from its corresponding visualization element, creates [filter designs](#what-is-a-filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#what-is-externally-filtered-data) to the visualization element.
+The **Filter Component** is an HTML Element (JavaScript Web Component) that listens to filter events from its corresponding visualization element, creates [filter designs](#what-is-a-filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#what-is-externally-filtered-data) to the visualization element.
 
 #### Types of Filters
 
-1. **List Filters** are the most common type of filter.  They require that all records have values in a specific field that satify a specific operator (like "equals" or "not equals") and one or more values.  By default, a record needs only to satisfy one of the listed values; however, if the `list-intersection` attribute on the Filter Component is true, a record must match ALL of the listed values.
+**List Filters** are the most common type of filter.  They require that all records have values in a specific field that satify a specific [operator](#filter-operators) (like "equals" or "not equals") and one or more values.  By default, a record needs only to satisfy one of the listed values; however, if the `list-intersection` attribute on the Filter Component is true, a record must match ALL of the listed values.
 
 Example:
 
@@ -93,7 +76,7 @@ Example:
 }
 ```
 
-2. **Bounds Filters** are intended for use with numeric data in visualizations like maps and scatter plots.  They require that all records have values in two specific fields that fall within two specific ranges.
+**Bounds Filters** are intended for use with numeric data in visualizations like maps and scatter plots.  They require that all records have values in two specific fields that fall within two separate corresponding ranges.
 
 Example:
 
@@ -108,7 +91,7 @@ Example:
 }
 ```
 
-3. **Domain Filters** are intended for use with date or numeric data in visualizations like histograms or line charts.  They require that all records have data in a specific field that
+**Domain Filters** are intended for use with date or numeric data in visualizations like histograms or line charts.  They require that all records have data in a specific field that falls within a range.
 
 Example:
 
@@ -120,7 +103,7 @@ Example:
 }
 ```
 
-4. **Pair Filters** require that all records have values in two specific fields that satisfy corresponding operators (like "equals" or "not equals") on two corresponding values.  By default, a record needs only to satisfy one of the two values; however, if the `pair-intersection` attribute on the Filter Component is true, a record must match BOTH of the values.
+**Pair Filters** require that all records have values in two specific fields that satisfy corresponding [operator](#filter-operators) (like "equals" or "not equals") on two corresponding values.  By default, a record needs only to satisfy one of the two values; however, if the `pair-intersection` attribute on the Filter Component is true, a record must match BOTH of the values.
 
 Example:
 
@@ -133,9 +116,7 @@ Example:
     value2: 'b'
 ```
 
-5. **Compound Filters**
-
-TODO
+**Compound Filters** are used to create filters that can't be constructed using other filter types due to their unusual formats.  Compound filters require that all records have values matching one or more filters, called "**nested filters**".  The nested filters may be of any combination of filter types, including compound filters.  By default, a record needs only to satisfy one of the nested filters; however, if the intersection attribute is true, a record must match ALL of the filters.
 
 Example:
 
@@ -200,30 +181,92 @@ TODO
 
 #### FilterService
 
-TODO
+The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#what-is-a-filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on [related fields](#what-is-a-related-field).
 
 #### SearchService
 
-TODO
+The **SearchService** creates the search queries that are sent to the NCCL Data Server.
 
 #### ConnectionService
 
-TODO
+The **ConnectionService** facilitates the connections and communication between your frontend application and the NCCL Data Server.
 
 ### Datasets
 
+A **Dataset** contains the datastores, databases, tables, and fields that you want to show in your frontend application.  A simple Dataset may have just a single datastore, database, and table.
+
 TODO
+
+Note that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.  See the [NCCL Data Server's README file](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) on more information regarding Elasticsearch datastore configuration.
+
+Example:
+
+```js
+{
+    datastores: {
+        datastore_id_1: {
+            name: 'datastore_id_1',
+            host: 'localhost:9200',
+            type: 'elasticsearchrest',
+            databases: {
+                database_name_1: {
+                    name: 'database_name_1',
+                    prettyName: 'Database 1',
+                    tables: {
+                        table_name_1: {
+                            name: 'table_name_1',
+                            prettyName: 'Table 1'
+                        }
+                    }
+                }
+            }
+        }
+    },
+    tableKeys: {
+    },
+    fieldKeys: {
+    },
+    relations: []
+}
+```
 
 ### The Data Server
 
 The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server), formerly called the "Neon Server", is a Java REST Server that serves as an intermediary between your frontend application and your datastores.  Its job is to provide datastore adapters, run datastore queries, transform query results, and perform optional data processing.  The [**Search Component**](#search) sends queries to it and receives query results from it using the [SearchService](#searchservice).  As a standalone application, the NCCL Data Server must be deployed separately from your frontend application.
 
+## How does the Next Century Component Library work?
+
+![NCCL Workflow](./images/NCCL-Workflow.jpg)
+
+#### Setup
+
+* Import the NCCL Core Components and the Web Component polyfills into your frontend application.
+* Define a [**Search Component**](#search) and zero or more [**Filter Components**](#filter) for each of your application's data visualizations (or import and use NCCL [**Visualization Components**](#visualizations)).
+* Create [**Dataset**](#datasets), [**FilterService**](#filterservice), and [**SearchService**](#searchservice) objects and use them to initialize your Search and Filter Components.
+* Separately, deploy the [**NCCL Data Server**](#the-data-server) so that it can communicate with your frontend application and your datastores.
+
+#### Runtime
+
+1. When a **Search Component** is initialized (typically on page load), it will automatically run a search query using its configured attributes, dataset, and services.  The query request is sent using the **SearchService** to the **Data Server** which passes the query to the datastore and returns the query results back to that **Search Component**.
+2. The **Search Component** transforms the query results into a [search data object](#search-data-object), combining each result with the query's corresponding aggregations and its filtered status.
+3. The **Search Component** sends the search data object to its corresponding visualization, either by calling the visualization's draw function itself or by emitting an event that notifies the application to send the search data object to the visualization.
+4. The visualization renders the search data.
+5. When a user's interaction with a visualization should generate a filter on some data (for example, clicking on an element), that visualization will dispatch an event to notify its corresponding **Filter Component**.
+6. When a **Filter Component** is notified with a filter event from its corresponding visualization, it will create a new filter and send it to the **FilterService**.
+7. When the **FilterService** is sent a filter, it notifies each relevant **Search Component** to automatically run a new search query using that filter and have its visualization re-render the search data (see 1-4).  A Search Component is relevant if the datastore, database, and table in its `search-field-key` match a datastore, database, and table in the new filter(s).
+8. Additionally, when the **FilterService** is sent a filter, it also notifies each relevant **Filter Component** to pass the [externally filtered data](#what-is-externally-filtered-data) onto its corresponding visualization if needed.  A Filter Component is relevant if its [filter designs](#what-is-a-filter-design) match the new filter(s).
+
 ## How can I use the Next Century Component Library too?
 
 ### Dependencies
 
-* [Web Components Polyfills](https://www.npmjs.com/package/@webcomponents/webcomponentsjs)
-* A deployed instance of the [NCCL Data Server](https://github.com/NextCenturyCorporation/neon-server)
+Your frontend application must import the following dependencies:
+
+* The NCCL Core Components
+* The [Web Components Polyfills](https://www.npmjs.com/package/@webcomponents/webcomponentsjs)
+* (Optionally) One or more NCCL Visualization Components
+
+Additionally, you must have a deployed instance of the [NCCL Data Server](https://github.com/NextCenturyCorporation/neon-server).
 
 ### The Basics
 
@@ -276,12 +319,12 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 #### Search
 
-1. You will start with a specific Visualization element. Give it an `id` attribute.
-2. Define a Search element and give it an `id` attribute.
-3. This Search element will be querying a specific datastore.  Give your Search element a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
-4. This Search element will be querying one or more fields in a specific table.  Give your Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
-5. Give your Search element a `server` attribute containing the hostname of your deployed NCCL Data Server WITH the `http` prefix if needed.
-6. Unless this Visualization element does not have an applicable "draw" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give your Search element a `vis-element-id` attribute containing the ID of your Visualization element and a `vis-draw-function` attribute containing the name of the "draw" function defined on your Visualization element.
+1. Start with a specific Visualization element. Give it an `id` attribute.
+2. Define a Search Component and give it an `id` attribute.
+3. This Search Component will be querying a specific datastore.  Give your Search Component a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
+4. This Search Component will be querying one or more fields in a specific table.  Give your Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
+5. Give your Search Component a `server` attribute containing the hostname of your deployed NCCL Data Server WITH the `http` prefix if needed.
+6. Unless this Visualization element does not have an applicable "draw" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give your Search Component a `vis-element-id` attribute containing the ID of your Visualization element and a `vis-draw-function` attribute containing the name of the "draw" function defined on your Visualization element.
 
 ```html
 <visualization-element id="vis1"></visualization-element>
@@ -545,7 +588,7 @@ TODO
 
 ### What is a field key?
 
-A **field key** is a string containing a **unique datastore identifier**, **database name**, **table name**, and **field name**, separated by dots (i.e. `datastore_id.database_name.table_name.field_name`).  Remember that, with Elasticsearch, we equate **indexes** with databases and **index mapping types** with tables.
+A **field key** is a string containing a **unique datastore identifier**, **database name**, **table name**, and **field name**, separated by dots (i.e. `datastore_id.database_name.table_name.field_name`).  Remember that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.
 
 ### What is a filter design?
 
@@ -561,6 +604,8 @@ Most filterable visualizations have a way to generate filters by interacting wit
 * We have two separate line charts showing different data over the same time period and, when a time period is selected in one chart (and generates a filter), we want to highlight that selected time period in the second chart.
 
 An **externally set filter** is a filter that is applicable to the visualization but was not originally generated by the visualization.  This way, you have the option to change or redraw your visualization based on these filters.
+
+### What is a related field?
 
 ## The Neon Dashboard
 
