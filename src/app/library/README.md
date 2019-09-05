@@ -4,13 +4,16 @@
 
 * [What is the Next Century Component Library?](#what-is-the-next-century-component-library)
 * [Why should I use the Next Century Component Library?](#why-should-i-use-the-next-century-component-library)
-* [How does the Next Century Component Library work?](#how-does-the-next-century-component-library-work)
 * [What are the parts of the Next Century Component Library?](#what-are-the-parts-of-the-next-century-component-library)
-  * [Search and Filter](#search-and-filter)
+  * [Search](#search)
+  * [Filter](#filter)
+  * [Aggregation](#aggregation)
+  * [Group](#group)
   * [Visualizations](#visualizations)
   * [Services](#services)
   * [Datasets](#datasets)
   * [The Data Server](#the-data-server)
+* [How does the Next Century Component Library work?](#how-does-the-next-century-component-library-work)
 * [How can I use the Next Century Component Library too?](#how-can-i-use-the-next-century-component-library-too)
   * [Dependencies](#dependencies)
   * [The Basics](#the-basics)
@@ -31,18 +34,20 @@
 
 ## What is the Next Century Component Library?
 
-The **Next Century Component Library** (or **NCCL**) offers lightweight tools to easily facilitate the integration of **searching**, **filtering**, and **big data visualization** capabilities into your application.
+The **Next Century Component Library** (or NCCL) allows you to rapidly integrate **searching** and **filtering** capabilities into your **big data visualization application** with simple, easy-to-use components that interact directly with your datastores.
 
-The NCCL is **framework-agnostic** so it can be used with Angular, React, Vue, and more.
+The NCCL also offers a collection of configurable **data visualizations** that you can integrate into your own application.
+
+The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
 
 ## Why should I use the Next Century Component Library?
 
-The NCCL offers multiple benefits over other available big data visualization libraries:
+The Next Century Component Library grants multiple unique benefits over other data visualization libraries:
 
-* The NCCL is **free** and **open-source**
-* The NCCL supports **different types of datastores** (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
-* The NCCL lets you **view and filter on data from separate datastores at the same time**
-* The NCCL operates on your own datastores -- it **doesn't need to load and save a copy of your data first** (though we have suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the NCCL).
+* It is **free** and **open-source**
+* It supports **different types of datastores** (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
+* It lets you **view and filter on data from separate datastores at the same time**
+* It operates on your own datastores, so it **doesn't need to load and save a copy of your data** in order to work (though we have suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the NCCL).
 
 ## How does the Next Century Component Library work?
 
@@ -66,15 +71,142 @@ The NCCL offers multiple benefits over other available big data visualization li
 
 ## What are the parts of the Next Century Component Library?
 
-### Search and Filter
+### Search
 
-The NCCL's **Search** and **Filter** components are its core capabilities.
+The **Search Component** builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#what-is-a-filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
+
+### Filter
+
+The **Filter Component** listens to filter events from its corresponding visualization element, creates [filter designs](#what-is-a-filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#what-is-externally-filtered-data) to the visualization element.
+
+#### Types of Filters
+
+1. **List Filters** are the most common type of filter.  They require that all records have values in a specific field that satify a specific operator (like "equals" or "not equals") and one or more values.  By default, a record needs only to satisfy one of the listed values; however, if the `list-intersection` attribute on the Filter Component is true, a record must match ALL of the listed values.
+
+Example:
+
+```js
+{
+    fieldKey: 'es1.index_name.index_type.field_name',
+    operator: '=',
+    values: ['a', 'b', 'c']
+}
+```
+
+2. **Bounds Filters** are intended for use with numeric data in visualizations like maps and scatter plots.  They require that all records have values in two specific fields that fall within two specific ranges.
+
+Example:
+
+```js
+{
+    fieldKey1: 'es1.index_name.index_type.x_field',
+    begin1: 1,
+    end1: 2,
+    fieldKey2: 'es1.index_name.index_type.y_field',
+    begin2: 3,
+    end2: 4
+}
+```
+
+3. **Domain Filters** are intended for use with date or numeric data in visualizations like histograms or line charts.  They require that all records have data in a specific field that
+
+Example:
+
+```js
+{
+    fieldKey: 'es1.index_name.index_type.date_field',
+    begin: 1,
+    end: 2
+}
+```
+
+4. **Pair Filters** require that all records have values in two specific fields that satisfy corresponding operators (like "equals" or "not equals") on two corresponding values.  By default, a record needs only to satisfy one of the two values; however, if the `pair-intersection` attribute on the Filter Component is true, a record must match BOTH of the values.
+
+Example:
+
+```js
+    fieldKey1: 'es1.index_name.index_type.field_1',
+    operator1: '=',
+    value1: 'a',
+    fieldKey2: 'es1.index_name.index_type.field_2',
+    operator2: '!=',
+    value2: 'b'
+```
+
+5. **Compound Filters**
+
+TODO
+
+Example:
+
+```js
+{
+    intersection: true,
+    filters: [{
+      fieldKey: 'es1.index_name.index_type.field_name',
+      operator: '=',
+      values: ['a', 'b', 'c']
+    }, {
+      fieldKey: 'es1.index_name.index_type.date_field',
+      begin: 1,
+      end: 2
+    }]
+}
+```
+
+#### Filter Operators
+
+* Equals (`=`)
+* Not Equals (`!=`)
+* Contains (`contains`)
+* Not Contains (`not contains`)
+* Greater Than (`>`)
+* Less Than (`<`)
+* Greter Than or Equal To (`>=`)
+* Less Than or Equal To (`<=`)
+
+Note that a filter on `field != null` or `field = null` is equivalent to an "exists" or "not exists" filter, respectively.
+
+### Aggregation
+
+The **Aggregation Component** lets you define an [aggregate function](https://en.wikipedia.org/wiki/Aggregate_function) on a field in your search query, like the corresponding SQL functions ([COUNT, AVG, SUM](https://www.w3schools.com/sql/sql_count_avg_sum.asp), [MIN, MAX](https://www.w3schools.com/sql/sql_min_max.asp)).
+
+#### Types of Aggregations
+
+* Count (`'count'`), the default
+* Average (`'avg'`)
+* Maximum (`'max'`)
+* Minimum (`'min'`)
+* Sum (`'sum'`)
+
+### Group
+
+The **Group Component** lets you define a data grouping on a field in your search query, often combined with an [aggregate function](#aggregation), like the corresponding SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
+
+#### Types of Groups
+
+* Non-Date Group, the default
+* Date Group on Year (`'year'`)
+* Date Group on Month (`'month'`)
+* Date Group on Day of the Month (`'dayOfMonth'`)
+* Date Group on Hour (`'hour'`)
+* Date Group on Minute (`'minute'`)
 
 ### Visualizations
 
 TODO
 
 ### Services
+
+#### FilterService
+
+TODO
+
+#### SearchService
+
+TODO
+
+#### ConnectionService
 
 TODO
 
@@ -84,14 +216,14 @@ TODO
 
 ### The Data Server
 
-TODO
+The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server), formerly called the "Neon Server", is a Java REST Server that serves as an intermediary between your frontend application and your datastores.  Its job is to provide datastore adapters, run datastore queries, transform query results, and perform optional data processing.  The [**Search Component**](#search) sends queries to it and receives query results from it using the [SearchService](#searchservice).  As a standalone application, the NCCL Data Server must be deployed separately from your frontend application.
 
 ## How can I use the Next Century Component Library too?
 
 ### Dependencies
 
 * [Web Components Polyfills](https://www.npmjs.com/package/@webcomponents/webcomponentsjs)
-* A deployed instance of the [NCCL Data Server](https://github.com/NextCenturyCorporation/neon-server) (formerly called the Neon Server)
+* A deployed instance of the [NCCL Data Server](https://github.com/NextCenturyCorporation/neon-server)
 
 ### The Basics
 
@@ -325,7 +457,7 @@ TODO
 To use your own Visualization Elements:
 
 1. It's best if your Visualization Element has a "draw" function that accepts an array of [search data objects](#search-data-object).  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [custom data transformations](#using-custom-data-transformations) to notify your Visualization Element to render the search data.
-2. If you want your Visualization Element to generate search filters, your Visualization Element should emit filter events with a `detail->values` property containing a [filter data object](#filter-data-object).  If it does not, you will need to use [custom data transformations](#using-custom-data-transformations) to call the `updateFilters` function on the Filter Component in order to create the new filters.
+2. If you want your Visualization Element to generate search filters, your Visualization Element should emit filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a [filter data array](#filter-data-array).  If it does not, you will need to use [custom data transformations](#using-custom-data-transformations) to call the `updateFilters` function on the Filter Component in order to create the new filters.
 
 #### Search Data Object
 
@@ -362,9 +494,36 @@ Or:
 }
 ```
 
-#### Filter Data Object
+#### Filter Data Array
 
-TODO
+A filter data array contains filtered values in a format depending on the [type of filter](#types-of-filters) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
+
+A **List Filter** contains data in one of two formats:  first, it may be a single value, not in an array (yes, the name "filter data array" is confusing in this case); second, it may be an array of one or more values.  All of the values will be included in the filter.
+
+A **Bounds Filter** contains exactly four values in a specific order: `begin1, begin2, end1, end2`, where `begin1` and `end1` correspond to `fieldKey1` while `begin2` and `end2` correspond to `fieldKey2`.
+
+A **Domain Filter** contains exactly two values in a specific order: `begin, end1`.
+
+A **Pair Filter** contains exactly two values in a specific order: `value1, value2`, where `value1` corresponds to `fieldKey1` while `value2` corresponds to `fieldKey2`.
+
+Any filter data array may be nested inside another array.  In this case, a filter will be created using each nested filter data array.
+
+Examples:
+
+```js
+const listFilterData1 = 'a';
+const listFilterData2 = ['a', 'b', 'c'];
+const listFilterData3 = [['a'], ['b', 'c']];
+
+const boundsFilterData1 = [1, 2, 3, 4];
+const boundsFilterData2 = [[1, 2, 3, 4], [5, 6, 7, 8]];
+
+const domainFilterData1 = [1, 2];
+const domainFilterData2 = [[1, 2], [3, 4]];
+
+const pairFilterData1 = ['a', 'b'];
+const pairFilterData2 = [['a', 'b'], ['c', 'd']];
+```
 
 ### Using Custom Data Transformations
 
@@ -390,7 +549,9 @@ A **field key** is a string containing a **unique datastore identifier**, **data
 
 ### What is a filter design?
 
-TODO
+A **filter design** contains the data needed to create specific filter, including [field key(s)](#what-is-a-field-key), operator(s), values, and [filter type](#types-of-filters).  The FilterService transforms filter designs into filter objects that it then saves and gives to the Search Component.
+
+However, a filter design can also be made without filter values.  In this case, it's used to match all filters with the same field keys, operators, and filter type (and nested format for compound filters) but different values.  Each Filter Component creates filters of a specific design; the Search Component uses the filter designs from its corresponding Filter Components to identify [externally filtered data](#what-is-externally-filtered-data).
 
 ### What is externally filtered data?
 
