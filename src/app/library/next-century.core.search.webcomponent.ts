@@ -39,6 +39,7 @@ interface AggregationData {
 
 interface GroupData {
     fieldKey: FieldKey;
+    name: string;
     type: AggregationType;
 }
 
@@ -56,8 +57,8 @@ export class NextCenturySearch extends NextCenturyElement {
         return [
             'data-host',
             'data-type',
-            'filter-self',
-            'hide-unfiltered',
+            'enable-hide-if-unfiltered',
+            'enable-ignore-self-filter',
             'id',
             'search-field-key',
             'search-limit',
@@ -84,7 +85,8 @@ export class NextCenturySearch extends NextCenturyElement {
                 // Falls through
             case 'data-host':
             case 'data-type':
-            case 'hide-unfiltered':
+            case 'enable-hide-if-unfiltered':
+            case 'enable-ignore-self-filter':
             case 'search-field-key':
             case 'search-limit':
             case 'search-page':
@@ -159,6 +161,7 @@ export class NextCenturySearch extends NextCenturyElement {
 
         const fields: string[] = (fieldKey.field !== '*' ? [fieldKey.field] : [])
             .concat(aggregations.filter((aggregation) => aggregation.fieldKey).map((aggregation) => aggregation.fieldKey.field))
+            .concat(groups.filter((group) => group.fieldKey).map((group) => group.fieldKey.field))
             .concat(unsharedFilters.reduce((list, filter) => list.concat(FilterUtil.retrieveFields(filter)), []));
 
         let queryPayload: QueryPayload = this._searchService.buildQueryPayload(fieldKey.database, fieldKey.table,
@@ -186,19 +189,20 @@ export class NextCenturySearch extends NextCenturyElement {
             for (const group of groups) {
                 switch (group.type) {
                     case (TimeInterval.MINUTE as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MINUTE));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MINUTE, group.name));
                         // Falls through
                     case (TimeInterval.HOUR as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.HOUR));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.HOUR, group.name));
                         // Falls through
                     case (TimeInterval.DAY_OF_MONTH as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.DAY_OF_MONTH));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.DAY_OF_MONTH,
+                            group.name));
                         // Falls through
                     case (TimeInterval.MONTH as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MONTH));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.MONTH, group.name));
                         // Falls through
                     case (TimeInterval.YEAR as string):
-                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.YEAR));
+                        searchGroups.push(this._searchService.buildDateQueryGroup(group.fieldKey.field, TimeInterval.YEAR, group.name));
                         break;
                     default:
                         searchGroups.push(this._searchService.buildQueryGroup(group.fieldKey.field));
@@ -249,7 +253,8 @@ export class NextCenturySearch extends NextCenturyElement {
             if (fieldKey) {
                 groups.push({
                     fieldKey,
-                    type: groupElement.getAttribute('type') || ''
+                    name: groupElement.getAttribute('name'),
+                    type: groupElement.getAttribute('type')
                 });
             }
         }
@@ -265,7 +270,7 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         // Don't run the search query if the event was sent with this element's ID and if filter-self is false.
-        if (callerId === this.getAttribute('id') && !this.hasAttribute('filter-self')) {
+        if (callerId === this.getAttribute('id') && this.hasAttribute('enable-ignore-self-filter')) {
             return;
         }
 
@@ -287,7 +292,9 @@ export class NextCenturySearch extends NextCenturyElement {
                     return collection;
                 }, {}),
                 fields: Object.keys(result).reduce((collection, key) => {
-                    collection[key] = result[key];
+                    if (aggregations.every((aggregation) => aggregation.name !== key)) {
+                        collection[key] = result[key];
+                    }
                     return collection;
                 }, {}),
                 filtered: this._isFiltered(result, filterValuesList)
@@ -301,7 +308,7 @@ export class NextCenturySearch extends NextCenturyElement {
             visElement[drawFunction](data);
         }
 
-        this.dispatchEvent(new CustomEvent('dataUpdated', {
+        this.dispatchEvent(new CustomEvent('dataReceived', {
             bubbles: true,
             detail: {
                 data
@@ -508,12 +515,12 @@ export class NextCenturySearch extends NextCenturyElement {
             return [];
         }
 
-        const sharedFilters: AbstractFilter[] = this._retrieveSharedFilters();
+        const sharedFilters: AbstractFilter[] = this.hasAttribute('enable-ignore-self-filter') ? this._retrieveSharedFilters() : [];
 
         const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
 
         return !fieldKey ? [] : this._filterService.getFiltersToSearch(fieldKey.datastore, fieldKey.database, fieldKey.table,
-            this.hasAttribute('filter-self') ? [] : sharedFilters.map((filter) => filter.toConfig()));
+            sharedFilters.map((filter) => filter.toConfig()));
     }
 
     /**
@@ -544,9 +551,9 @@ export class NextCenturySearch extends NextCenturyElement {
 
         const dataHost = this.getAttribute('data-host');
         const dataType = this.getAttribute('data-type');
-        const hideIfUnfiltered = !!this.getAttribute('hide-unfiltered');
+        const hideIfUnfiltered = !!this.getAttribute('enable-hide-if-unfiltered');
 
-        // Don't run a search query if it is not possible, or if hide-unfiltered is true and the search query is not filtered.
+        // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.
         if (!this._searchService.canRunSearch(dataType, dataHost) || (hideIfUnfiltered && !isFiltered)) {
             this._handleQuerySuccess({ data: [] });
             return;
