@@ -25,11 +25,17 @@
   * [Developing in Angular](#developing-in-angular)
   * [Developing in React](#developing-in-react)
   * [Developing in Vue](#developing-in-vue)
-* [Questions](#questions)
-  * [What is a field key?](#what-is-a-field-key)
-  * [What is a filter design?](#what-is-a-filter-design)
-  * [What is externally filtered data?](#what-is-externally-filtered-data)
-  * [What is a relation?](#what-is-a-relation)
+* [Definitions](#definitions)
+  * [Aggregation Type](#aggregation-type)
+  * [Externally Filtered Data](#externally-filtered-data)
+  * [Field Key](#field-key)
+  * [Filter Data Array](#filter-data-array)
+  * [Filter Design](#filter-design)
+  * [Filter Operator](#filter-operator)
+  * [Filter Type](#filter-type)
+  * [Group Type](#group-type)
+  * [Relation](#relation)
+  * [Search Data Object](#search-data-object)
 * [The Neon Dashboard](#the-neon-dashboard)
 * [Documentation Links](#documentation-links)
 * [License](#license)
@@ -58,122 +64,19 @@ The Next Century Component Library grants multiple unique benefits over other da
 
 ### Search Component
 
-The **Search Component** is an HTML Element (JavaScript Web Component) that builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#what-is-a-filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
+The **Search Component** is an HTML Element (JavaScript Web Component) that builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
 
 ### Filter Component
 
-The **Filter Component** is an HTML Element (JavaScript Web Component) that listens to filter events from its corresponding visualization element, creates [filter designs](#what-is-a-filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#what-is-externally-filtered-data) to the visualization element.
-
-#### Types of Filters
-
-**List Filters** are the most common type of filter.  They require that all records have values in a specific field that satify a specific [operator](#filter-operators) (like "equals" or "not equals") and one or more values.  By default, a record needs only to satisfy one of the listed values; however, if the `list-intersection` attribute on the Filter Component is true, a record must match ALL of the listed values.
-
-Example:
-
-```js
-{
-    fieldKey: 'es1.index_name.index_type.field_name',
-    operator: '=',
-    values: ['a', 'b', 'c']
-}
-```
-
-**Bounds Filters** are intended for use with numeric data in visualizations like maps and scatter plots.  They require that all records have values in two specific fields that fall within two separate corresponding ranges.
-
-Example:
-
-```js
-{
-    fieldKey1: 'es1.index_name.index_type.x_field',
-    begin1: 1,
-    end1: 2,
-    fieldKey2: 'es1.index_name.index_type.y_field',
-    begin2: 3,
-    end2: 4
-}
-```
-
-**Domain Filters** are intended for use with date or numeric data in visualizations like histograms or line charts.  They require that all records have data in a specific field that falls within a range.
-
-Example:
-
-```js
-{
-    fieldKey: 'es1.index_name.index_type.date_field',
-    begin: 1,
-    end: 2
-}
-```
-
-**Pair Filters** require that all records have values in two specific fields that satisfy corresponding [operator](#filter-operators) (like "equals" or "not equals") on two corresponding values.  By default, a record needs only to satisfy one of the two values; however, if the `pair-intersection` attribute on the Filter Component is true, a record must match BOTH of the values.
-
-Example:
-
-```js
-    fieldKey1: 'es1.index_name.index_type.field_1',
-    operator1: '=',
-    value1: 'a',
-    fieldKey2: 'es1.index_name.index_type.field_2',
-    operator2: '!=',
-    value2: 'b'
-```
-
-**Compound Filters** are used to create filters that can't be constructed using other filter types due to their unusual formats.  Compound filters require that all records have values matching one or more filters, called "**nested filters**".  The nested filters may be of any combination of filter types, including compound filters.  By default, a record needs only to satisfy one of the nested filters; however, if the intersection attribute is true, a record must match ALL of the filters.
-
-Example:
-
-```js
-{
-    intersection: true,
-    filters: [{
-      fieldKey: 'es1.index_name.index_type.field_name',
-      operator: '=',
-      values: ['a', 'b', 'c']
-    }, {
-      fieldKey: 'es1.index_name.index_type.date_field',
-      begin: 1,
-      end: 2
-    }]
-}
-```
-
-#### Filter Operators
-
-* Equals (`=`)
-* Not Equals (`!=`)
-* Contains (`contains`)
-* Not Contains (`not contains`)
-* Greater Than (`>`)
-* Less Than (`<`)
-* Greter Than or Equal To (`>=`)
-* Less Than or Equal To (`<=`)
-
-Note that a filter on `field != null` or `field = null` is equivalent to an "exists" or "not exists" filter, respectively.
+The **Filter Component** is an HTML Element (JavaScript Web Component) that listens to filter events from its corresponding visualization element, creates [filter designs](#filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#externally-filtered-data) to the visualization element.
 
 ### Aggregation Component
 
 The **Aggregation Component** lets you define an [aggregate function](https://en.wikipedia.org/wiki/Aggregate_function) on a field in your search query, like the corresponding SQL functions ([COUNT, AVG, SUM](https://www.w3schools.com/sql/sql_count_avg_sum.asp), [MIN, MAX](https://www.w3schools.com/sql/sql_min_max.asp)).
 
-#### Types of Aggregations
-
-* Count (`'count'`), the default
-* Average (`'avg'`)
-* Maximum (`'max'`)
-* Minimum (`'min'`)
-* Sum (`'sum'`)
-
 ### Group Component
 
 The **Group Component** lets you define a data grouping on a field in your search query, often combined with an [aggregate function](#aggregation), like the corresponding SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
-
-#### Types of Groups
-
-* Non-Date Group, the default
-* Date Group on Year (`'year'`)
-* Date Group on Month (`'month'`)
-* Date Group on Day of the Month (`'dayOfMonth'`)
-* Date Group on Hour (`'hour'`)
-* Date Group on Minute (`'minute'`)
 
 ### Visualization Components
 
@@ -183,7 +86,7 @@ TODO
 
 #### FilterService
 
-The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#what-is-a-filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on configured [relations](#what-is-a-relation).
+The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on configured [relations](#relation).
 
 #### SearchService
 
@@ -258,7 +161,7 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 5. When a user's interaction with a visualization should generate a filter on some data (for example, clicking on an element), that visualization will dispatch an event to notify its corresponding **Filter Component**.
 6. When a **Filter Component** is notified with a filter event from its corresponding visualization, it will create a new filter and send it to the **FilterService**.
 7. When the **FilterService** is sent a filter, it notifies each relevant **Search Component** to automatically run a new search query using that filter and have its visualization re-render the search data (see 1-4).  A Search Component is relevant if the datastore, database, and table in its `search-field-key` match a datastore, database, and table in the new filter(s).
-8. Additionally, when the **FilterService** is sent a filter, it also notifies each relevant **Filter Component** to pass the [externally filtered data](#what-is-externally-filtered-data) onto its corresponding visualization if needed.  A Filter Component is relevant if its [filter designs](#what-is-a-filter-design) match the new filter(s).
+8. Additionally, when the **FilterService** is sent a filter, it also notifies each relevant **Filter Component** to pass the [externally filtered data](#externally-filtered-data) onto its corresponding visualization if needed.  A Filter Component is relevant if its [filter designs](#filter-design) match the new filter(s).
 
 ## How can I use the Next Century Component Library too?
 
@@ -323,12 +226,12 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 #### Search
 
-1. Start with a specific **Visualization element**. Give it an `id` attribute.
+1. Define your **Visualization element** and give it an `id` attribute.
 2. Define a **[Search Component](#search-component)** and give it an `id` attribute.
-3. This Search Component will be querying a specific datastore.  Give your Search Component a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
-4. This Search Component will be querying one or more fields in a specific table.  Give your Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
-5. Give your Search Component a `server` attribute containing the hostname of your deployed NCCL Data Server WITH the `http` prefix if needed.
-6. Unless this Visualization element does not have an applicable "draw" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give your Search Component a `vis-element-id` attribute containing the ID of your Visualization element and a `vis-draw-function` attribute containing the name of the "draw" function defined on your Visualization element.
+3. This Search Component will be querying a specific datastore.  Give the Search Component a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
+4. This Search Component will be querying one or more fields in a specific table.  Give the Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
+5. Give the Search Component a `server` attribute containing the hostname of your deployed [NCCL Data Server](#the-data-server) WITH the `http` prefix if needed.
+6. Unless your Visualization element does not have an applicable "draw data" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Search Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-draw-function` attribute containing the name of the Visualization's"draw data" function.
 
 ```html
 <visualization-element id="vis1"></visualization-element>
@@ -347,6 +250,11 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 #### Search with Aggregations and Groups
 
+1. Define your **Visualization element** and a **[Search Component](#search-component)** as normal ([see above](#search)).
+2. Inside the Search Component, define a **[Group Component](#group-component)** and an **[Aggregation Component](#aggregation-component)**.
+3. Give the Group Component a `field-key` attribute containing the [field-key](#field-key) of the specific group field.
+4. Give the Aggregation Component a `field-key` attribute containing the [field-key](#field-key) of the specific aggregation field (probably the same as a corresponding group field), a `name` attribute for the unique aggregation name, and a `type` attribute for the [type of aggregation function](#aggregation-type).  Instead of a `field-key`, you may use the `group` attribute for the name of an [advanced grouping](#group-type) defined in a Group Component.
+
 ```html
 <visualization-element id="vis1"></visualization-element>
 
@@ -359,21 +267,28 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
+    <next-century-group
+        field-key="es1.index_name.index_type.username_field"
+    >
+    </next-century-group>
+    
     <next-century-aggregation
         field-key="es1.index_name.index_type.username_field"
         name="_records"
         type="count"
     >
     </next-century-aggregation>
-
-    <next-century-group
-        field-key="es1.index_name.index_type.username_field"
-    >
-    </next-century-group>
 </next-century-search>
 ```
 
 #### Search and Filter
+
+1. Define your **Visualization element** and a **[Search Component](#search-component)** as normal ([see above](#search)).
+2. Define a **[Filter Component](#filter-component)** and give it an `id` attribute.
+3. This Filter Component will be creating filters of a specific [filter type](#filter-type).  Give the Filter Component all of the attributes required by the chosen filter type.
+4. This Filter Component will be sending [filter designs](#filter-design) to the Search Component.  Give the Filter Component a `search-element-id` attribute containing the `id` of the Search Component.
+5. This Filter Component will be receiving filtered values from filter events sent by the Visualization element.  Unless your Visualization element does not have a filter event with applicable event data (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Filter Component a `vis-element-id` attribute containing the `id` of the Visualization element and a `vis-filter-output-event` attribute containing the name of the Visualization's filter event.
+6. Unless your Visualization element does not have an applicable "change filters" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Filter Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-filter-input-function` attribute containing the name of the Visualization's "change filters" function.
 
 ```html
 <visualization-element id="vis1"></visualization-element>
@@ -394,6 +309,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
     vis-filter-output-event="dataSelected"
@@ -433,6 +349,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     list-field-key="es1.index_name.index_type.username_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
     vis-filter-output-event="dataSelected"
@@ -477,6 +394,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     list-field-key="es1.index_name.index_type.username_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedUsername"
     vis-filter-output-event="usernameSelected"
@@ -488,6 +406,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
     list-field-key="es1.index_name.index_type.text_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedText"
     vis-filter-output-event="textSelected"
@@ -503,73 +422,9 @@ TODO
 
 To use your own Visualization Elements:
 
-1. It's best if your Visualization element has a "draw data" function that accepts an **array of [search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
+1. It's best if your Visualization element has a "draw data" function that accepts an **[array of search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
 2. If you want your Visualization element to generate search filters, it's best if your Visualization element emits filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter output data transformations](#transforming-filter-data-sent-from-my-visualization) to call the `updateFilters` function on the Filter Component in order for it to create the new filters.
-3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#what-is-externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its filtered values.
-
-#### Search Data Object
-
-A search data object contains three properties: `aggregations`, an object containing the names and values of all aggregations returned by the search query; `fields`, an object containing the names and values of all fields returned by the search query; and `filtered`, a boolean indicating if the record is filtered based on the Search Component's [filter designs](#what-is-a-filter-design).
-
-Examples:
-
-```js
-{
-  aggregations: {},
-  fields: {
-    date_field: '2019-09-01T05:00:00',
-    id_field: 'id_1',
-    latitude_field: 38.904722,
-    longitude_field: -77.016389,
-    text_field: 'The quick brown fox jumps over the lazy dog.',
-    username_field: 'user_A'
-  },
-  filtered: false
-}
-```
-
-```js
-{
-  aggregations: {
-    _records: 1234
-  },
-  fields: {
-    username_field: 'user_A'
-  },
-  filtered: false
-}
-```
-
-#### Filter Data Array
-
-A filter data array contains filtered values in a format depending on the [type of filter](#types-of-filters) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
-
-A **List Filter** contains data in one of two formats:  first, it may be a single value, not in an array (yes, the name "filter data array" is confusing in this case); second, it may be an array of one or more values.  All of the values will be included in the filter.
-
-A **Bounds Filter** contains exactly four values in a specific order: `begin1, begin2, end1, end2`, where `begin1` and `end1` correspond to `fieldKey1` while `begin2` and `end2` correspond to `fieldKey2`.
-
-A **Domain Filter** contains exactly two values in a specific order: `begin, end1`.
-
-A **Pair Filter** contains exactly two values in a specific order: `value1, value2`, where `value1` corresponds to `fieldKey1` while `value2` corresponds to `fieldKey2`.
-
-Any filter data array may be nested inside another array.  In this case, a filter will be created using each nested filter data array.
-
-Examples:
-
-```js
-const listFilterData1 = 'a';
-const listFilterData2 = ['a', 'b', 'c'];
-const listFilterData3 = [['a'], ['b', 'c']];
-
-const boundsFilterData1 = [1, 2, 3, 4];
-const boundsFilterData2 = [[1, 2, 3, 4], [5, 6, 7, 8]];
-
-const domainFilterData1 = [1, 2];
-const domainFilterData2 = [[1, 2], [3, 4]];
-
-const pairFilterData1 = ['a', 'b'];
-const pairFilterData2 = [['a', 'b'], ['c', 'd']];
-```
+3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its filtered values.
 
 ### Using Custom Data Transformations
 
@@ -577,9 +432,10 @@ const pairFilterData2 = [['a', 'b'], ['c', 'd']];
 
 ![NCCL Search Transforms](./images/NCCL-Search-Transforms.jpg)
 
-1. Define and initialize your Visualization element and Search Component as normal ([see above](#search-and-visualize)), but you do not need to add the `vis-element-id` or `vis-draw-function` attributes to the Search Component.
-2. Define a transform function that accepts an **array of [search data objects](#search-data-object)**, transforms it into your data format, and sends the transformed visualization data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
+1. Define your Visualization element and Search Component as normal ([see above](#search-and-visualize)), but you do not need to add the `vis-element-id` or `vis-draw-function` attributes to the Search Component.
+2. Define a transform function that accepts an **[array of search data objects](#search-data-object)**, transforms it into your data format, and sends the transformed visualization data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
 3. Add your transform function as an event listener to the `dataReceived` event on the Search Component.
+4. Initialize the Search Component as normal ([see above](#initializing-nccl-core-services-and-components)).
 
 ```js
 const transformSearchDataArray = function(searchDataArray) {
@@ -615,6 +471,7 @@ search1.addEventListener('dataReceived', transformSearchDataArray);
 1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-output-event` attribute to the Filter Component.
 2. Define a transform function that accepts your Visualization element's filter event data, transforms it into a **[filter data array](#filter-data-array)**, and sends the filter data array to the Filter Component by calling its `updateFilters` function.
 3. Add your transform function as an event listener to your filter event on your Visualization element (or call the transform function by whatever method you desire).
+4. Initialize the Filter and Search Components as normal ([see above](#initializing-nccl-core-services-and-components)).
 
 ```js
 const transformFilterEventData = function(event) {
@@ -649,6 +506,7 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-input-function="changeSelectedData"
 >
@@ -662,6 +520,7 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-input-function` attribute to the Filter Component.
 2. Define a transform function that accepts a **[filter data array](#filter-data-array)**, transforms it into your data format, and sends the transformed filter data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
 3. Add your transform function as an event listener to the `filtersChanged` event on the Filter Component.
+4. Initialize the Filter and Search Components as normal ([see above](#initializing-nccl-core-services-and-components)).
 
 ```js
 const transformFilterDataArray = function(filterDataArray) {
@@ -696,6 +555,7 @@ filter1.addEventListener('filtersChanged', transformFilterDataArray);
     list-field-key="es1.index_name.index_type.id_field"
     list-operator="="
     search-element-id="search1"
+    type="list"
     vis-element-id="vis1"
     vis-filter-output-event="dataSelected"
 >
@@ -714,19 +574,17 @@ TODO
 
 TODO
 
-## Questions
+## Definitions
 
-### What is a field key?
+#### Aggregation Type
 
-A **field key** is a string containing a **unique datastore identifier**, **database name**, **table name**, and **field name**, separated by dots (i.e. `datastore_id.database_name.table_name.field_name`).  Remember that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.
+* Count (`'count'`), the default
+* Average (`'avg'`)
+* Maximum (`'max'`)
+* Minimum (`'min'`)
+* Sum (`'sum'`)
 
-### What is a filter design?
-
-A **filter design** contains the data needed to create specific filter, including [field key(s)](#what-is-a-field-key), operator(s), values, and [filter type](#types-of-filters).  The FilterService transforms filter designs into filter objects that it then saves and gives to the Search Component.
-
-However, a filter design can also be made without filter values.  In this case, it's used to match all filters with the same field keys, operators, and filter type (and nested format for compound filters) but different values.  Each Filter Component creates filters of a specific design; the Search Component uses the filter designs from its corresponding Filter Components to identify [externally filtered data](#what-is-externally-filtered-data).
-
-### What is externally filtered data?
+### Externally Filtered Data
 
 Most filterable visualizations have a way to generate filters by interacting with the visualization itself (like clicking on an element).  However, sometimes we want a visualization to show a filter that was generated outside the visualization.  For example:
 
@@ -735,7 +593,185 @@ Most filterable visualizations have a way to generate filters by interacting wit
 
 An **externally set filter** is a filter that is applicable to the visualization but was not originally generated by the visualization.  This way, you have the option to change or redraw your visualization based on these filters.
 
-### What is a relation?
+### Field Key
+
+A **field key** is a string containing a **unique datastore identifier**, **database name**, **table name**, and **field name**, separated by dots (i.e. `datastore_id.database_name.table_name.field_name`).  Remember that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.
+
+#### Filter Data Array
+
+A **filter data array** contains filtered values in a format depending on the [type of filter](#filter-type) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
+
+A **List Filter** contains data in one of two formats:  first, it may be a single value, not in an array (yes, the name "filter data array" is confusing in this case); second, it may be an array of one or more values.  All of the values will be included in the filter.
+
+A **Bounds Filter** contains exactly four values in a specific order: `begin1, begin2, end1, end2`, where `begin1` and `end1` correspond to `fieldKey1` while `begin2` and `end2` correspond to `fieldKey2`.
+
+A **Domain Filter** contains exactly two values in a specific order: `begin, end1`.
+
+A **Pair Filter** contains exactly two values in a specific order: `value1, value2`, where `value1` corresponds to `fieldKey1` while `value2` corresponds to `fieldKey2`.
+
+Any filter data array may be nested inside another array.  In this case, a filter will be created using each nested filter data array.
+
+Examples:
+
+```js
+const listFilterData1 = 'a';
+const listFilterData2 = ['a', 'b', 'c'];
+const listFilterData3 = [['a'], ['b', 'c']];
+
+const boundsFilterData1 = [1, 2, 3, 4];
+const boundsFilterData2 = [[1, 2, 3, 4], [5, 6, 7, 8]];
+
+const domainFilterData1 = [1, 2];
+const domainFilterData2 = [[1, 2], [3, 4]];
+
+const pairFilterData1 = ['a', 'b'];
+const pairFilterData2 = [['a', 'b'], ['c', 'd']];
+```
+
+### Filter Design
+
+A **filter design** contains the data needed to create specific filter, including [field key(s)](#field-key), operator(s), values, and [filter type](#filter-type).  The FilterService transforms filter designs into filter objects that it then saves and gives to the Search Component.
+
+However, a filter design can also be made without filter values.  In this case, it's used to match all filters with the same field keys, operators, and filter type (and nested format for compound filters) but different values.  Each Filter Component creates filters of a specific design; the Search Component uses the filter designs from its corresponding Filter Components to identify [externally filtered data](#externally-filtered-data).
+
+### Filter Operator
+
+* Equals (`=`)
+* Not Equals (`!=`)
+* Contains (`contains`)
+* Not Contains (`not contains`)
+* Greater Than (`>`)
+* Less Than (`<`)
+* Greter Than or Equal To (`>=`)
+* Less Than or Equal To (`<=`)
+
+Note that a filter on `field != null` or `field = null` is equivalent to an "exists" or "not exists" filter, respectively.
+
+### Filter Type
+
+#### List Filter
+
+**List Filters** are the most common type of filter.  They require that all records have values in a specific field that satify a specific [operator](#filter-operator) (like "equals" or "not equals") and one or more values.  By default, a record needs only to satisfy one of the listed values; however, if the `list-intersection` attribute on the Filter Component is true, a record must match ALL of the listed values.
+
+Example:
+
+```js
+{
+    fieldKey: 'es1.index_name.index_type.field_name',
+    operator: '=',
+    values: ['a', 'b', 'c']
+}
+```
+
+Filter Component Attributes:
+
+* `list-field-key` (string, a [field key](#field-key))
+* `list-intersection` (boolean)
+* `list-operator` (string, a [filter operator](#filter-operator))
+* `type` of `'list'`
+
+#### Bounds Filter
+
+**Bounds Filters** are intended for use with numeric data in visualizations like maps and scatter plots.  They require that all records have values in two specific fields that fall within two separate corresponding ranges.
+
+Example:
+
+```js
+{
+    fieldKey1: 'es1.index_name.index_type.x_field',
+    begin1: 1,
+    end1: 2,
+    fieldKey2: 'es1.index_name.index_type.y_field',
+    begin2: 3,
+    end2: 4
+}
+```
+
+Filter Component Attributes:
+
+* `bounds-field-key-x` (string, a [field key](#field-key))
+* `bounds-field-key-y` (string, a [field key](#field-key))
+* `type` of `'bounds'`
+
+#### Domain Filter
+
+**Domain Filters** are intended for use with date or numeric data in visualizations like histograms or line charts.  They require that all records have data in a specific field that falls within a range.
+
+Example:
+
+```js
+{
+    fieldKey: 'es1.index_name.index_type.date_field',
+    begin: 1,
+    end: 2
+}
+```
+
+Filter Component Attributes:
+
+* `domain-field-key` (string, a [field key](#field-key))
+* `type` of `'domain'`
+
+#### Pair Filter
+
+**Pair Filters** require that all records have values in two specific fields that satisfy corresponding [operator](#filter-operator) (like "equals" or "not equals") on two corresponding values.  By default, a record needs only to satisfy one of the two values; however, if the `pair-intersection` attribute on the Filter Component is true, a record must match BOTH of the values.
+
+Example:
+
+```js
+    fieldKey1: 'es1.index_name.index_type.field_1',
+    operator1: '=',
+    value1: 'a',
+    fieldKey2: 'es1.index_name.index_type.field_2',
+    operator2: '!=',
+    value2: 'b'
+```
+
+Filter Component Attributes:
+
+* `pair-field-key-1` (string, a [field key](#field-key))
+* `pair-field-key-2` (string, a [field key](#field-key))
+* `list-intersection` (boolean)
+* `pair-operator-1` (string, a [filter operator](#filter-operator))
+* `pair-operator-2` (string, a [filter operator](#filter-operator))
+* `type` of `'pair'`
+
+#### Compound Filter
+
+**Compound Filters** are used to create filters that can't be constructed using other filter types due to their unusual formats.  Compound filters require that all records have values matching one or more filters, called "**nested filters**".  The nested filters may be of any combination of filter types, including compound filters.  By default, a record needs only to satisfy one of the nested filters; however, if the intersection attribute is true, a record must match ALL of the filters.
+
+Example:
+
+```js
+{
+    intersection: true,
+    filters: [{
+      fieldKey: 'es1.index_name.index_type.field_name',
+      operator: '=',
+      values: ['a', 'b', 'c']
+    }, {
+      fieldKey: 'es1.index_name.index_type.date_field',
+      begin: 1,
+      end: 2
+    }]
+}
+```
+
+Filter Component Attributes:
+
+TODO
+
+#### Group Type
+
+By default, the Group Component creates a grouping on a specific field.  Instead, you may create one of the following advanced groupings:
+
+* Date Grouping on Year (`'year'`), creates a grouping named `_year`
+* Date Grouping on Month (`'month'`), creates a grouping named `_month`
+* Date Grouping on Day of the Month (`'dayOfMonth'`), creates a grouping named `_dayOfMonth`
+* Date Grouping on Hour (`'hour'`), creates a grouping named `_hour`
+* Date Grouping on Minute (`'minute'`), creates a grouping named `_minute`
+
+### Relation
 
 A **relation** identifies two or more fields in separate tables, databases, or datastores that are equivalent to one another and are filtered on simultaneously.  This allows your datastores to be designed following a [relational data model](https://en.wikipedia.org/wiki/Relational_model).  Relations are defined as an optional property in your **[Dataset](#datasets)**.  If your data is separated into multiple tables (or indexes), we recommend that you [denormalize your data](https://en.wikipedia.org/wiki/Denormalization) and **add relations for all shared fields on which you want to filter**.
 
@@ -817,6 +853,39 @@ relations: [
 ```
 
 TODO more examples
+
+#### Search Data Object
+
+A **search data object** contains three properties: `aggregations`, an object containing the names and values of all aggregations returned by the search query; `fields`, an object containing the names and values of all fields returned by the search query; and `filtered`, a boolean indicating if the record is filtered based on the Search Component's [filter designs](#filter-design).
+
+Examples:
+
+```js
+{
+  aggregations: {},
+  fields: {
+    date_field: '2019-09-01T05:00:00',
+    id_field: 'id_1',
+    latitude_field: 38.904722,
+    longitude_field: -77.016389,
+    text_field: 'The quick brown fox jumps over the lazy dog.',
+    username_field: 'user_A'
+  },
+  filtered: false
+}
+```
+
+```js
+{
+  aggregations: {
+    _records: 1234
+  },
+  fields: {
+    username_field: 'user_A'
+  },
+  filtered: false
+}
+```
 
 ## The Neon Dashboard
 
