@@ -273,10 +273,10 @@ export class NextCenturyFilter extends NextCenturyElement {
      */
     private _deleteFilters(filterDesigns: CompoundFilterDesign[]): void {
         this._filterService.deleteFilters(this.getAttribute('search-element-id'), filterDesigns);
-        this.dispatchEvent(new CustomEvent('filterDeleted', {
+        this.dispatchEvent(new CustomEvent('filtersDeleted', {
             bubbles: true,
             detail: {
-                filterDesignList: filterDesigns
+                filters: filterDesigns
             }
         }));
     }
@@ -331,10 +331,10 @@ export class NextCenturyFilter extends NextCenturyElement {
             const filterDesigns: CompoundFilterDesign[] = this._createFilterDesigns(values);
             if (filterDesigns.length) {
                 this._filterService.exchangeFilters(this.getAttribute('search-element-id'), filterDesigns, this._dataset);
-                this.dispatchEvent(new CustomEvent('filterCreated', {
+                this.dispatchEvent(new CustomEvent('filtersCreated', {
                     bubbles: true,
                     detail: {
-                        filterDesignList: filterDesigns
+                        filters: filterDesigns
                     }
                 }));
             }
@@ -368,7 +368,7 @@ export class NextCenturyFilter extends NextCenturyElement {
                 visElement[filterFunction](copyOfValueOrArray);
             }
 
-            this.dispatchEvent(new CustomEvent('filterValuesChanged', {
+            this.dispatchEvent(new CustomEvent('filtersChanged', {
                 bubbles: true,
                 detail: {
                     values: copyOfValueOrArray
@@ -494,10 +494,10 @@ export class NextCenturyFilter extends NextCenturyElement {
             this._filterDesigns = this._createFilterDesigns(this._generateFilterDesignValues(this._retrieveFilterType()));
             if (queryElement && this._filterDesigns.length) {
                 queryElement.updateFilterDesigns(this.getAttribute('id'), this._filterDesigns);
-                this.dispatchEvent(new CustomEvent('designUpdated', {
+                this.dispatchEvent(new CustomEvent('designsUpdated', {
                     bubbles: true,
                     detail: {
-                        filterDesignList: this._filterDesigns
+                        designs: this._filterDesigns
                     }
                 }));
                 this._handleDeleteFilters();

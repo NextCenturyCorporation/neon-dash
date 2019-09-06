@@ -12,7 +12,6 @@
         id="search1"
         data-host="localhost"
         data-type="elasticsearchrest"
-        filter-self
         search-field-key="es1.ldc_uyg_jul_18.ui_out.*"
         search-limit=10000
         server="http://localhost:8090/neon"
@@ -46,6 +45,7 @@
         id="search2"
         data-host="localhost"
         data-type="elasticsearchrest"
+        enable-igonre-self-filter
         search-field-key="es1.ldc_uyg_jul_18.ui_out.topic"
         search-limit=10000
         server="http://localhost:8090/neon"
@@ -86,6 +86,7 @@
         id="search3"
         data-host="localhost"
         data-type="elasticsearchrest"
+        enable-igonre-self-filter
         search-field-key="es1.ldc_uyg_jul_18.ui_out.translatedText"
         search-limit=10000
         server="http://localhost:8090/neon"
@@ -126,6 +127,7 @@
         id="search4"
         data-host="localhost"
         data-type="elasticsearchrest"
+        enable-igonre-self-filter
         search-field-key="es1.ldc_uyg_jul_18.ui_out.createdDate"
         search-limit=10000
         server="http://localhost:8090/neon"
