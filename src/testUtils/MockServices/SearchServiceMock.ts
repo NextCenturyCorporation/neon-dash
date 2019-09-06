@@ -32,7 +32,7 @@ export class SearchServiceMock extends AbstractSearchService {
         }) : null;
     }
 
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval): QueryGroup {
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval, __name?: string): QueryGroup {
         return {
             field: groupField,
             type: '' + interval
