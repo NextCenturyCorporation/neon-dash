@@ -1,15 +1,17 @@
 # Next Century Component Library
 
+![NCCL Splash](./images/NCCL-Splash.jpg)
+
 ## Table of Content
 
 * [What is the Next Century Component Library?](#what-is-the-next-century-component-library)
 * [Why should I use the Next Century Component Library?](#why-should-i-use-the-next-century-component-library)
 * [What are the parts of the Next Century Component Library?](#what-are-the-parts-of-the-next-century-component-library)
-  * [Search](#search)
-  * [Filter](#filter)
-  * [Aggregation](#aggregation)
-  * [Group](#group)
-  * [Visualizations](#visualizations)
+  * [Search Component](#search-component)
+  * [Filter Component](#filter-component)
+  * [Aggregation Component](#aggregation-component)
+  * [Group Component](#group-component)
+  * [Visualization Components](#visualization-components)
   * [Services](#services)
   * [Datasets](#datasets)
   * [The Data Server](#the-data-server)
@@ -27,7 +29,7 @@
   * [What is a field key?](#what-is-a-field-key)
   * [What is a filter design?](#what-is-a-filter-design)
   * [What is externally filtered data?](#what-is-externally-filtered-data)
-  * [What is a related field?](#what-is-a-related-field)
+  * [What is a relation?](#what-is-a-relation)
 * [The Neon Dashboard](#the-neon-dashboard)
 * [Documentation Links](#documentation-links)
 * [License](#license)
@@ -35,13 +37,11 @@
 
 ## What is the Next Century Component Library?
 
-The **Next Century Component Library** (or NCCL) allows you to rapidly integrate **searching** and **filtering** capabilities into your **big data visualization application** with simple, easy-to-use components that interact directly with your datastores.
+![NCCL Introduction](./images/NCCL-Introduction.jpg)
 
-The NCCL also offers a collection of configurable **data visualizations** that you can integrate into your own application.
+The **Next Century Component Library** (or NCCL) allows you to rapidly integrate **aggregated searching** and **filtering** capabilities into your **big data visualization application** with **simple, easy-to-use "plug-and-play" components** that interact directly with your datastores.  The NCCL also offers a collection of configurable data visualizations that you can use in your own application.
 
-The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
-
-![NCCL Overview](./images/NCCL-Overview.jpg)
+The NCCL is designed for any JavaScript application that searches on, filters, and visualizes big data.  The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
 
 ## Why should I use the Next Century Component Library?
 
@@ -54,11 +54,13 @@ The Next Century Component Library grants multiple unique benefits over other da
 
 ## What are the parts of the Next Century Component Library?
 
-### Search
+![NCCL Dependencies](./images/NCCL-Dependencies.jpg)
+
+### Search Component
 
 The **Search Component** is an HTML Element (JavaScript Web Component) that builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#what-is-a-filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
 
-### Filter
+### Filter Component
 
 The **Filter Component** is an HTML Element (JavaScript Web Component) that listens to filter events from its corresponding visualization element, creates [filter designs](#what-is-a-filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#what-is-externally-filtered-data) to the visualization element.
 
@@ -148,7 +150,7 @@ Example:
 
 Note that a filter on `field != null` or `field = null` is equivalent to an "exists" or "not exists" filter, respectively.
 
-### Aggregation
+### Aggregation Component
 
 The **Aggregation Component** lets you define an [aggregate function](https://en.wikipedia.org/wiki/Aggregate_function) on a field in your search query, like the corresponding SQL functions ([COUNT, AVG, SUM](https://www.w3schools.com/sql/sql_count_avg_sum.asp), [MIN, MAX](https://www.w3schools.com/sql/sql_min_max.asp)).
 
@@ -160,7 +162,7 @@ The **Aggregation Component** lets you define an [aggregate function](https://en
 * Minimum (`'min'`)
 * Sum (`'sum'`)
 
-### Group
+### Group Component
 
 The **Group Component** lets you define a data grouping on a field in your search query, often combined with an [aggregate function](#aggregation), like the corresponding SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
 
@@ -173,7 +175,7 @@ The **Group Component** lets you define a data grouping on a field in your searc
 * Date Group on Hour (`'hour'`)
 * Date Group on Minute (`'minute'`)
 
-### Visualizations
+### Visualization Components
 
 TODO
 
@@ -181,7 +183,7 @@ TODO
 
 #### FilterService
 
-The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#what-is-a-filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on [related fields](#what-is-a-related-field).
+The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#what-is-a-filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on configured [relations](#what-is-a-relation).
 
 #### SearchService
 
@@ -232,16 +234,18 @@ Example:
 
 ### The Data Server
 
-The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server), formerly called the "Neon Server", is a Java REST Server that serves as an intermediary between your frontend application and your datastores.  Its job is to provide datastore adapters, run datastore queries, transform query results, and perform optional data processing.  The [**Search Component**](#search) sends queries to it and receives query results from it using the [SearchService](#searchservice).  As a standalone application, the NCCL Data Server must be deployed separately from your frontend application.
+The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server), formerly called the "Neon Server", is a Java REST Server that serves as an intermediary between your frontend application and your datastores.  Its job is to provide datastore adapters, run datastore queries, transform query results, and perform optional data processing.  The [**Search Component**](#search-component) sends queries to it and receives query results from it using the [SearchService](#searchservice).  As a standalone application, the NCCL Data Server must be deployed separately from your frontend application.
 
 ## How does the Next Century Component Library work?
+
+![NCCL Sequence](./images/NCCL-Sequence.jpg)
 
 ![NCCL Workflow](./images/NCCL-Workflow.jpg)
 
 #### Setup
 
 * Import the NCCL Core Components and the Web Component polyfills into your frontend application.
-* Define a [**Search Component**](#search) and zero or more [**Filter Components**](#filter) for each of your application's data visualizations (or import and use NCCL [**Visualization Components**](#visualizations)).
+* Define a [**Search Component**](#search-component) and zero or more [**Filter Components**](#filter-component) for each of your application's data visualizations (or import and use NCCL [**Visualization Components**](#visualizations)).
 * Create [**Dataset**](#datasets), [**FilterService**](#filterservice), and [**SearchService**](#searchservice) objects and use them to initialize your Search and Filter Components.
 * Separately, deploy the [**NCCL Data Server**](#the-data-server) so that it can communicate with your frontend application and your datastores.
 
@@ -249,7 +253,7 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 1. When a **Search Component** is initialized (typically on page load), it will automatically run a search query using its configured attributes, dataset, and services.  The query request is sent using the **SearchService** to the **Data Server** which passes the query to the datastore and returns the query results back to that **Search Component**.
 2. The **Search Component** transforms the query results into a [search data object](#search-data-object), combining each result with the query's corresponding aggregations and its filtered status.
-3. The **Search Component** sends the search data object to its corresponding visualization, either by calling the visualization's draw function itself or by emitting an event that notifies the application to send the search data object to the visualization.
+3. The **Search Component** sends the search data object to its corresponding visualization, either by calling the visualization's draw function itself or by emitting an event that notifies a custom event listener to send the search data object to the visualization.
 4. The visualization renders the search data.
 5. When a user's interaction with a visualization should generate a filter on some data (for example, clicking on an element), that visualization will dispatch an event to notify its corresponding **Filter Component**.
 6. When a **Filter Component** is notified with a filter event from its corresponding visualization, it will create a new filter and send it to the **FilterService**.
@@ -319,8 +323,8 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 #### Search
 
-1. Start with a specific Visualization element. Give it an `id` attribute.
-2. Define a Search Component and give it an `id` attribute.
+1. Start with a specific **Visualization element**. Give it an `id` attribute.
+2. Define a **[Search Component](#search-component)** and give it an `id` attribute.
 3. This Search Component will be querying a specific datastore.  Give your Search Component a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
 4. This Search Component will be querying one or more fields in a specific table.  Give your Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
 5. Give your Search Component a `server` attribute containing the hostname of your deployed NCCL Data Server WITH the `http` prefix if needed.
@@ -397,7 +401,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 </next-century-filter>
 ```
 
-#### Filter with Aggregations and Groups
+#### Search and Filter with Aggregations and Groups
 
 ```html
 <visualization-element id="vis1"></visualization-element>
@@ -436,7 +440,7 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 </next-century-filter>
 ```
 
-#### Multiple Filters
+#### Search with Multiple Filters
 
 ```html
 <visualization-element id="vis1"></visualization-element>
@@ -499,14 +503,15 @@ TODO
 
 To use your own Visualization Elements:
 
-1. It's best if your Visualization Element has a "draw" function that accepts an array of [search data objects](#search-data-object).  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [custom data transformations](#using-custom-data-transformations) to notify your Visualization Element to render the search data.
-2. If you want your Visualization Element to generate search filters, your Visualization Element should emit filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a [filter data array](#filter-data-array).  If it does not, you will need to use [custom data transformations](#using-custom-data-transformations) to call the `updateFilters` function on the Filter Component in order to create the new filters.
+1. It's best if your Visualization element has a "draw data" function that accepts an **array of [search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
+2. If you want your Visualization element to generate search filters, it's best if your Visualization element emits filter events with a `values` property in its [event detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) containing a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter output data transformations](#transforming-filter-data-sent-from-my-visualization) to call the `updateFilters` function on the Filter Component in order for it to create the new filters.
+3. We recommend that all filterable visualizations should be able to accept [externally filtered data](#what-is-externally-filtered-data), so it's best if your Visualization element has a "change filters" function that accepts a **[filter data array](#filter-data-array)**.  If it does not, you will need to use [filter input data transformations](#transforming-filter-data-to-send-to-my-visualization) to notify your Visualization element to change its filtered values.
 
 #### Search Data Object
 
 A search data object contains three properties: `aggregations`, an object containing the names and values of all aggregations returned by the search query; `fields`, an object containing the names and values of all fields returned by the search query; and `filtered`, a boolean indicating if the record is filtered based on the Search Component's [filter designs](#what-is-a-filter-design).
 
-For example:
+Examples:
 
 ```js
 {
@@ -522,8 +527,6 @@ For example:
   filtered: false
 }
 ```
-
-Or:
 
 ```js
 {
@@ -570,7 +573,134 @@ const pairFilterData2 = [['a', 'b'], ['c', 'd']];
 
 ### Using Custom Data Transformations
 
-TODO
+#### Transforming Search Data to Send to My Visualization
+
+![NCCL Search Transforms](./images/NCCL-Search-Transforms.jpg)
+
+1. Define and initialize your Visualization element and Search Component as normal ([see above](#search-and-visualize)), but you do not need to add the `vis-element-id` or `vis-draw-function` attributes to the Search Component.
+2. Define a transform function that accepts an **array of [search data objects](#search-data-object)**, transforms it into your data format, and sends the transformed visualization data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
+3. Add your transform function as an event listener to the `dataReceived` event on the Search Component.
+
+```js
+const transformSearchDataArray = function(searchDataArray) {
+    // Transform the searchDataArray into your visualization-element's expected data format.
+    const yourData = searchDataArray.reduce((searchDataObject) => { ... }, []);
+    
+    // Send the transformed visualization data to your visualization-element by whatever method you desire.
+    const vis1 = document.getElementById('vis1');
+    vis1.drawData(yourData);
+};
+
+const search1 = document.getElementById('search1');
+search1.addEventListener('dataReceived', transformSearchDataArray);
+```
+
+```html
+<visualization-element id="vis1"></visualization-element>
+
+<next-century-search
+    id="search1"
+    data-host="localhost:9200"
+    data-type="elasticsearchrest"
+    search-field-key="es1.index_name.index_type.*"
+    server="http://localhost:8090/"
+>
+</next-century-search>
+```
+
+#### Transforming Filter Data Sent from My Visualization
+
+![NCCL Filter Output Transforms](./images/NCCL-Filter-Out-Transforms.jpg)
+
+1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-output-event` attribute to the Filter Component.
+2. Define a transform function that accepts your Visualization element's filter event data, transforms it into a **[filter data array](#filter-data-array)**, and sends the filter data array to the Filter Component by calling its `updateFilters` function.
+3. Add your transform function as an event listener to your filter event on your Visualization element (or call the transform function by whatever method you desire).
+
+```js
+const transformFilterEventData = function(event) {
+    // Transform the filter event data from your visualization-element's output data format.
+    const filterDataArray = [event.detail.your_property];
+    
+    // Send the filter data array to the Filter Component by calling updateFilters.
+    const filter1 = document.getElementById('filter1');
+    filter1.updateFilters(filterDataArray);
+};
+
+const vis1 = document.getElementById('vis1');
+vis1.addEventListener('yourFilterEvent', transformFilterEventData);
+```
+
+```html
+<visualization-element id="vis1"></visualization-element>
+
+<next-century-search
+    id="search1"
+    data-host="localhost:9200"
+    data-type="elasticsearchrest"
+    search-field-key="es1.index_name.index_type.*"
+    server="http://localhost:8090/"
+    vis-draw-function="drawData"
+    vis-element-id="vis1"
+>
+</next-century-search>
+
+<next-century-filter
+    id="filter1"
+    list-field-key="es1.index_name.index_type.id_field"
+    list-operator="="
+    search-element-id="search1"
+    vis-element-id="vis1"
+    vis-filter-input-function="changeSelectedData"
+>
+</next-century-filter>
+```
+
+#### Transforming Filter Data to Send to My Visualization
+
+![NCCL Filter Input Transforms](./images/NCCL-Filter-In-Transforms.jpg)
+
+1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-input-function` attribute to the Filter Component.
+2. Define a transform function that accepts a **[filter data array](#filter-data-array)**, transforms it into your data format, and sends the transformed filter data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
+3. Add your transform function as an event listener to the `filtersChanged` event on the Filter Component.
+
+```js
+const transformFilterDataArray = function(filterDataArray) {
+    // Transform the filterDataArray into your visualization-element's expected data format.
+    const yourData = filterDataArray.reduce((filterData) => { ... }, []);
+    
+    // Send the transformed filter data to your visualization-element by whatever method you desire.
+    const vis1 = document.getElementById('vis1');
+    vis1.changeFilters(yourData);
+};
+
+const filter1 = document.getElementById('filter1');
+filter1.addEventListener('filtersChanged', transformFilterDataArray);
+```
+
+```html
+<visualization-element id="vis1"></visualization-element>
+
+<next-century-search
+    id="search1"
+    data-host="localhost:9200"
+    data-type="elasticsearchrest"
+    search-field-key="es1.index_name.index_type.*"
+    server="http://localhost:8090/"
+    vis-draw-function="drawData"
+    vis-element-id="vis1"
+>
+</next-century-search>
+
+<next-century-filter
+    id="filter1"
+    list-field-key="es1.index_name.index_type.id_field"
+    list-operator="="
+    search-element-id="search1"
+    vis-element-id="vis1"
+    vis-filter-output-event="dataSelected"
+>
+</next-century-filter>
+```
 
 ### Developing in Angular
 
@@ -605,7 +735,88 @@ Most filterable visualizations have a way to generate filters by interacting wit
 
 An **externally set filter** is a filter that is applicable to the visualization but was not originally generated by the visualization.  This way, you have the option to change or redraw your visualization based on these filters.
 
-### What is a related field?
+### What is a relation?
+
+A **relation** identifies two or more fields in separate tables, databases, or datastores that are equivalent to one another and are filtered on simultaneously.  This allows your datastores to be designed following a [relational data model](https://en.wikipedia.org/wiki/Relational_model).  Relations are defined as an optional property in your **[Dataset](#datasets)**.  If your data is separated into multiple tables (or indexes), we recommend that you [denormalize your data](https://en.wikipedia.org/wiki/Denormalization) and **add relations for all shared fields on which you want to filter**.
+
+The `relations` property expects an array of arrays.  Each element in the nested array can be either an object containing `datastore`, `database`, `table`, and `field` string properties or an array of such objects.  If a relation contains three nested arrays, then filters must have exactly the fields defined in the third nested array.
+
+Example:
+
+```js
+relations: [
+    [
+        // Relation of two date/time fields in separate tables.
+        // Defined as single objects.  Filter must have exactly one field.
+        {
+            datastore: 'datastore_id',
+            database: 'database_name_1',
+            table: 'table_name_1A',
+            field: 'date_field'
+        }, {
+            datastore: 'datastore_id',
+            database: 'database_name_1',
+            table: 'table_name_1B',
+            field: 'time_field'
+        }
+    ], [
+        // Relation of three user/name fields in separate databases.
+        // Defined as arrays of single objects, but could also be defined as single objects.
+        [
+            {
+                datastore: 'datastore_id',
+                database: 'database_name_1',
+                table: 'table_name_1A',
+                field: 'name_field'
+             }
+        ], [
+            {
+                datastore: 'datastore_id',
+                database: 'database_name_2',
+                table: 'table_name_2A',
+                field: 'user_field'
+             }
+        ], [
+            {
+                datastore: 'datastore_id',
+                database: 'database_name_3',
+                table: 'table_name_3A',
+                field: 'username_field'
+             }
+        ]
+    ], [
+        // Relation of two latitude/longitude fields in separate datastores.
+        // Defined as arrays of two objects.  Filters must have exactly both fields.
+        [
+            {
+                datastore: 'datastore_id',
+                database: 'database_name',
+                table: 'table_name',
+                field: 'latitude_field'
+             }, {
+                datastore: 'datastore_id',
+                database: 'database_name',
+                table: 'table_name',
+                field: 'longitude_field'
+             }
+        ], [
+            {
+                datastore: 'another_datastore_id',
+                database: 'another_database_name',
+                table: 'another_table_name',
+                field: 'another_latitude_field'
+             }, {
+                datastore: 'another_datastore_id',
+                database: 'another_database_name',
+                table: 'another_table_name',
+                field: 'another_longitude_field'
+             }
+         ]
+    ]
+]
+```
+
+TODO more examples
 
 ## The Neon Dashboard
 
