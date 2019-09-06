@@ -752,7 +752,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', null)
+            new WidgetNumberOption('west', 'West', null),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

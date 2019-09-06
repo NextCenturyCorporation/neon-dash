@@ -360,6 +360,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.optionsNotReified.bind(this)),
             new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', ''),
             new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -691,6 +693,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.').join('\n') : cleanLabel;
         cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join('\n') : cleanLabel;
 
+        //Break the text at every 3rd spave and start a newline for the purpose of wrapping lengthy label text
         if(cleanLabel.indexOf(' ') > -1 && cleanLabel.indexOf('\n') == -1){
             let splitSpace = cleanLabel.split(' ');
             let lastIndex = 0;
@@ -1392,7 +1395,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            this.exchangeFilters(filters);
+            if(this.options.toggleFiltered){
+                this.toggleFilters(filters);
+            } else {
+                this.exchangeFilters(filters);
+            }
         }
     }
 
