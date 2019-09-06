@@ -576,7 +576,7 @@ TODO
 
 ## Definitions
 
-#### Aggregation Type
+### Aggregation Type
 
 * Count (`'count'`), the default
 * Average (`'avg'`)
@@ -597,7 +597,7 @@ An **externally set filter** is a filter that is applicable to the visualization
 
 A **field key** is a string containing a **unique datastore identifier**, **database name**, **table name**, and **field name**, separated by dots (i.e. `datastore_id.database_name.table_name.field_name`).  Remember that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.
 
-#### Filter Data Array
+### Filter Data Array
 
 A **filter data array** contains filtered values in a format depending on the [type of filter](#filter-type) that will be created.  Values should be `boolean`, `number`, or `string` primitives, `Date` objects, or `null`.
 
@@ -761,7 +761,7 @@ Filter Component Attributes:
 
 TODO
 
-#### Group Type
+### Group Type
 
 By default, the Group Component creates a grouping on a specific field.  Instead, you may create one of the following advanced groupings:
 
@@ -854,7 +854,7 @@ relations: [
 
 TODO more examples
 
-#### Search Data Object
+### Search Data Object
 
 A **search data object** contains three properties: `aggregations`, an object containing the names and values of all aggregations returned by the search query; `fields`, an object containing the names and values of all fields returned by the search query; and `filtered`, a boolean indicating if the record is filtered based on the Search Component's [filter designs](#filter-design).
 
