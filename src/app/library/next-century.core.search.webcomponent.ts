@@ -55,8 +55,6 @@ export class NextCenturySearch extends NextCenturyElement {
 
     static get observedAttributes(): string[] {
         return [
-            'data-host',
-            'data-type',
             'enable-hide-if-unfiltered',
             'enable-ignore-self-filter',
             'id',
@@ -83,8 +81,6 @@ export class NextCenturySearch extends NextCenturyElement {
             case 'id':
                 this._registerWithFilterService(oldValue, newValue);
                 // Falls through
-            case 'data-host':
-            case 'data-type':
             case 'enable-hide-if-unfiltered':
             case 'enable-ignore-self-filter':
             case 'search-field-key':
@@ -487,8 +483,7 @@ export class NextCenturySearch extends NextCenturyElement {
      * Returns if the required properties have been initialized to run a search.
      */
     private _isReady(): boolean {
-        return !!(this._filterService && this._searchService && this.hasAttribute('data-host') && this.hasAttribute('data-type') &&
-            this.hasAttribute('search-field-key') && this.hasAttribute('id'));
+        return !!(this._filterService && this._searchService && this.hasAttribute('search-field-key') && this.hasAttribute('id'));
     }
 
     /**
@@ -549,22 +544,18 @@ export class NextCenturySearch extends NextCenturyElement {
             this._runningQuery.abort();
         }
 
-        const dataHost = this.getAttribute('data-host');
-        const dataType = this.getAttribute('data-type');
+        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
+        // Returns a list of [DatastoreMetaData, DatabaseMetaData, TableMetaData, FieldMetaData]
+        const metaData = fieldKey ? DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, this._dataset) : [null, null, null, null];
+        const dataHost = metaData[0] ? metaData[0].host : null;
+        const dataType = metaData[0] ? metaData[0].type : null;
+        const labels = metaData[2] ? metaData[2].labelOptions : {};
         const hideIfUnfiltered = !!this.getAttribute('enable-hide-if-unfiltered');
 
         // Don't run a search query if it is not possible, or if enable-hide-if-unfiltered is true and the search query is not filtered.
-        if (!this._searchService.canRunSearch(dataType, dataHost) || (hideIfUnfiltered && !isFiltered)) {
+        if (dataHost && dataType && !this._searchService.canRunSearch(dataType, dataHost) || (hideIfUnfiltered && !isFiltered)) {
             this._handleQuerySuccess({ data: [] });
             return;
-        }
-
-        let labels = {};
-        const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
-        if (fieldKey) {
-            const metaData = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, this._dataset);
-            const table = metaData[2];
-            labels = table ? table.labelOptions : {};
         }
 
         this._searchService.transformFilterClauseValues(queryPayload, labels);
