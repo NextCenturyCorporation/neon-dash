@@ -1380,6 +1380,7 @@ dashboards:
                                 group_field_key_topics_2: es1.ilocano_tab.ui_output.Type
                                 sf_location: es1.ilocano_sf.ui_output.location
                                 entity_name_tab: es1.ilocano_tab.ui_output.EntityName
+                                cluster_name_field: es1.ilocano_sf.ui_output.cluster_name
                             contributors:
                                 USC-ISI:
                                     orgName: 'University of Southern California, Information Sciences Institute'
@@ -3333,18 +3334,36 @@ layouts:
             col: 1
             row: 1
             sizex: 4
-            sizey: 14
+            sizey: 8
             bindings:
                 title: Document Feed
                 tableKey: table_key_1
                 idField: id_field_key_1
                 contentField: translated_text_key
                 secondaryContentField: original_text_key
+                secondaryContentLabel: Original Text
                 sortField: date_field_key
                 dateField: date_field_key
                 filterField: id_field_key_DocumentID
                 titleContentField: translated_text_key
                 limit: 100
+          - name: Bar Chart
+            type: aggregation
+            icon: bar_chart
+            col: 1
+            row: 9
+            sizex: 4
+            sizey: 6
+            bindings:
+                title: Situation Cluster
+                type: bar-h
+                tableKey: table_key_1
+                xField: cluster_name_field
+                limit: 11
+                sortByAggregation: true
+                ignoreSelf: true
+                contributionKeys:
+                  - USC-ISI
           - name: Map
             type: map
             icon: Map64
