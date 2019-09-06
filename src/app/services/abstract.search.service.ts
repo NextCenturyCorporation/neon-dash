@@ -42,10 +42,11 @@ export abstract class AbstractSearchService {
      *
      * @arg {string} groupField
      * @arg {TimeInterval} interval
+     * @arg {string} [name]
      * @return {QueryGroup}
      * @abstract
      */
-    public abstract buildDateQueryGroup(groupField: string, interval: TimeInterval): QueryGroup;
+    public abstract buildDateQueryGroup(groupField: string, interval: TimeInterval, name?: string): QueryGroup;
 
     /**
      * Returns a new filter clause using the given field, operator, and value.

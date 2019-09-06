@@ -71,11 +71,12 @@ export class SearchService extends AbstractSearchService {
      *
      * @arg {string} groupField
      * @arg {TimeInterval} interval
+     * @arg {string} [name]
      * @return {NeonGroupWrapper}
      * @override
      */
-    public buildDateQueryGroup(groupField: string, interval: TimeInterval): NeonGroupWrapper {
-        return new NeonGroupWrapper(new query.GroupByFunctionClause('' + interval, groupField, '_' + interval));
+    public buildDateQueryGroup(groupField: string, interval: TimeInterval, name?: string): NeonGroupWrapper {
+        return new NeonGroupWrapper(new query.GroupByFunctionClause('' + interval, groupField, name || ('_' + interval)));
     }
 
     /**
