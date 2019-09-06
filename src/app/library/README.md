@@ -27,6 +27,7 @@
   * [Developing in Vue](#developing-in-vue)
 * [Definitions](#definitions)
   * [Aggregation Type](#aggregation-type)
+  * [Datastore Type](#datastore-type)
   * [Externally Filtered Data](#externally-filtered-data)
   * [Field Key](#field-key)
   * [Filter Data Array](#filter-data-array)
@@ -100,6 +101,8 @@ The **ConnectionService** facilitates the connections and communication between 
 
 A **Dataset** contains the datastores, databases, tables, and fields that you want to show in your frontend application.  A simple Dataset may have just a single datastore, database, and table.
 
+A **datastore** object must have:  a `host` string property containing the `hostname` or `hostname:port` of the datastore WITHOUT `http` prefix; and a `type` string property containing the [type of datastore](#datastore-type).
+
 TODO
 
 Note that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.  See the [NCCL Data Server's README file](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) on more information regarding Elasticsearch datastore configuration.
@@ -145,14 +148,14 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 ![NCCL Workflow](./images/NCCL-Workflow.jpg)
 
-#### Setup
+### Setup
 
 * Import the NCCL Core Components and the Web Component polyfills into your frontend application.
 * Define a [**Search Component**](#search-component) and zero or more [**Filter Components**](#filter-component) for each of your application's data visualizations (or import and use NCCL [**Visualization Components**](#visualizations)).
 * Create [**Dataset**](#datasets), [**FilterService**](#filterservice), and [**SearchService**](#searchservice) objects and use them to initialize your Search and Filter Components.
 * Separately, deploy the [**NCCL Data Server**](#the-data-server) so that it can communicate with your frontend application and your datastores.
 
-#### Runtime
+### Runtime
 
 1. When a **Search Component** is initialized (typically on page load), it will automatically run a search query using its configured attributes, dataset, and services.  The query request is sent using the **SearchService** to the **Data Server** which passes the query to the datastore and returns the query results back to that **Search Component**.
 2. The **Search Component** transforms the query results into a [search data object](#search-data-object), combining each result with the query's corresponding aggregations and its filtered status.
@@ -205,7 +208,7 @@ const databaseObject = DatabaseMetaData.get({
 });
 const datastoreObject = DatastoreMetaData.get({
     name: 'datastore_id',
-    host: 'localhost',
+    host: 'localhost:9200',
     type: 'elasticsearchrest',
     databases: {
         database_name: databaseObject
@@ -228,18 +231,15 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 1. Define your **Visualization element** and give it an `id` attribute.
 2. Define a **[Search Component](#search-component)** and give it an `id` attribute.
-3. This Search Component will be querying a specific datastore.  Give the Search Component a `data-type` attribute containing the [type of this datastore](#) and a `data-host` attribute containing the `hostname:port` of this datastore WITHOUT any `http` prefix (or just `hostname` if using the default port).
-4. This Search Component will be querying one or more fields in a specific table.  Give the Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
-5. Give the Search Component a `server` attribute containing the hostname of your deployed [NCCL Data Server](#the-data-server) WITH the `http` prefix if needed.
-6. Unless your Visualization element does not have an applicable "draw data" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Search Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-draw-function` attribute containing the name of the Visualization's"draw data" function.
+3. This Search Component will be querying one or more fields in a specific datastore/database/table.  Give the Search element a `search-field-key` attribute containing the [field-key](#field-key) of the specific query field, or replace the field in the field key with a `*` (wildcard symbol) if querying multiple fields in the table.
+4. Give the Search Component a `server` attribute containing the hostname of your deployed [NCCL Data Server](#the-data-server) WITH the `http` prefix if needed.
+5. Unless your Visualization element does not have an applicable "draw data" function (see [Using My Visualization Elements](#using-my-visualization-elements) below), give the Search Component a `vis-element-id` attribute containing the `id` of your Visualization element and a `vis-draw-function` attribute containing the name of the Visualization's"draw data" function.
 
 ```html
 <visualization-element id="vis1"></visualization-element>
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -260,8 +260,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.username_field"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -295,8 +293,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -324,8 +320,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.username_field"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -364,8 +358,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -456,8 +448,6 @@ search1.addEventListener('dataReceived', transformSearchDataArray);
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
 >
@@ -492,8 +482,6 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -541,8 +529,6 @@ filter1.addEventListener('filtersChanged', transformFilterDataArray);
 
 <next-century-search
     id="search1"
-    data-host="localhost:9200"
-    data-type="elasticsearchrest"
     search-field-key="es1.index_name.index_type.*"
     server="http://localhost:8090/"
     vis-draw-function="drawData"
@@ -583,6 +569,10 @@ TODO
 * Maximum (`'max'`)
 * Minimum (`'min'`)
 * Sum (`'sum'`)
+
+### Datastore Type
+
+* Elasticsearch 6+ (`'elasticsearchrest'`)
 
 ### Externally Filtered Data
 
@@ -903,3 +893,4 @@ The Next Century Component Library is made available by [Next Century](http://ww
 ## Contact
 
 Email: [neon-support@nextcentury.com](mailto:neon-support@nextcentury.com)
+
