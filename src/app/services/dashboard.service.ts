@@ -15,14 +15,14 @@
 import { Injectable } from '@angular/core';
 
 import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
+import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
-import { Connection } from './connection.service';
 import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
+import { DatasetUtil } from '../util/dataset.util';
 
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
@@ -60,20 +60,25 @@ export class DashboardService {
     }
 
     onConfigChange(config: NeonConfig): Observable<NeonConfig> {
-        const dataStoreMerges = Object
-            .values(config.datastores)
-            .map((datastore) => {
-                DashboardUtil.validateDatabases(datastore);
+        const promises = Object.values(config.datastores).map((datastore) => {
+            DashboardUtil.validateDatabases(datastore);
 
-                const connection = this.connectionService.connect(datastore.type, datastore.host);
-                if (connection) {
-                    return this.mergeDatastoreRemoteState(datastore, connection);
-                }
-                return undefined;
-            })
-            .filter((val) => !!val);
+            const connection = this.connectionService.connect(datastore.type, datastore.host);
+            if (connection && !datastore['hasUpdatedFields']) {
+                return DatasetUtil.updateDatabasesFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
+                    datastore['hasUpdatedFields'] = !failedDatabases.length;
 
-        return from(dataStoreMerges.length ? Promise.all(dataStoreMerges) : Promise.resolve(null))
+                    failedDatabases.forEach((database) => {
+                        console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
+                        DashboardUtil.deleteInvalidDashboards(config.dashboards, database.name);
+                    });
+                });
+            }
+
+            return undefined;
+        }).filter((promise) => !!promise);
+
+        return from(promises.length ? Promise.all(promises) : Promise.resolve(null))
             .pipe(
                 map(() => this.applyConfig(config))
             );
@@ -133,84 +138,6 @@ export class DashboardService {
         });
         this.addDatastore(out);
         this.state.datastore = out;
-    }
-
-    /**
-     * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
-     */
-    private mergeDatastoreRemoteState(datastore: NeonDatastoreConfig, connection: Connection): any {
-        let promiseArray = datastore['hasUpdatedFields'] ? [] : Object.values(datastore.databases).map((database) =>
-            this.mergeTableNamesAndFieldNames(connection, database));
-
-        return Promise.all(promiseArray).then((__response) => {
-            datastore['hasUpdatedFields'] = true;
-            return datastore;
-        });
-    }
-
-    /**
-     * Wraps connection.getTableNamesAndFieldNames() in a promise object. If a database not found error occurs,
-     * associated dashboards are deleted. Any other error will return a rejected promise.
-     */
-    private mergeTableNamesAndFieldNames(connection: Connection, database: NeonDatabaseMetaData): Promise<any> {
-        let promiseFields = [];
-        return new Promise<any>((resolve, reject) => {
-            connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-                Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
-                    let table = database.tables[tableName];
-
-                    if (table) {
-                        let existingFields = new Set(table.fields.map((field) => field.columnName));
-
-                        tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
-                            if (!existingFields.has(fieldName)) {
-                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
-                                    columnName: fieldName,
-                                    prettyName: fieldName,
-                                    // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
-                                    hide: existingFields.size > 25,
-                                    // Set the default type to text.
-                                    type: 'text'
-                                });
-                                table.fields.push(newField);
-                            }
-                        });
-
-                        promiseFields.push(this.mergeFieldTypes(connection, database, table));
-                    }
-                });
-
-                Promise.all(promiseFields).then(resolve, reject);
-            }, (error) => {
-                if (error.status === 404) {
-                    console.warn('Database ' + database.name + ' does not exist; deleting associated dashboards.');
-                    DashboardUtil.deleteInvalidDashboards(
-                        'choices' in this.config.dashboards ? this.config.dashboards.choices : {}, database.name
-                    );
-                }
-                resolve();
-            });
-        });
-    }
-
-    /**
-     * Wraps connection.getFieldTypes() in a promise object.
-     */
-    private mergeFieldTypes(
-        connection: Connection,
-        database: NeonDatabaseMetaData,
-        table: NeonTableMetaData
-    ): Promise<NeonFieldMetaData[]> {
-        return new Promise<NeonFieldMetaData[]>((resolve) => connection.getFieldTypes(database.name, table.name, (types) => {
-            for (let field of table.fields) {
-                if (types && types[field.columnName]) {
-                    field.type = types[field.columnName];
-                }
-            }
-            resolve(table.fields);
-        }, (__error) => {
-            resolve([]);
-        }));
     }
 
     /**

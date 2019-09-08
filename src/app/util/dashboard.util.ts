@@ -70,13 +70,17 @@ export class DashboardUtil {
     static validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
         ConfigUtil.visitDashboards(dashboard, {
             leaf: (leaf, path) => {
-                let parent = path[path.length - 1];
-                parent.choices = parent.choices || {};
+                let parent = path[path.length - 2];
 
                 // If no choices are present, then this might be the last level of nested choices,
                 // which should instead have table keys and a layout specified. If not, delete choice.
                 if (!leaf['layout'] || !leaf['tables']) {
-                    delete parent.choices[leaf.name];
+                    Object.keys(parent.choices).forEach((choiceId) => {
+                        if (parent.choices[choiceId].name === leaf.name) {
+                            delete parent.choices[choiceId];
+                        }
+                    });
+                    return;
                 }
 
                 if (leaf.options.simpleFilter) {
@@ -110,13 +114,17 @@ export class DashboardUtil {
         ConfigUtil.visitDashboards(dashboard, {
             leaf: (leaf, path) => {
                 let tableKeys = Object.keys(leaf.tables);
-                const parent = path[path.length - 1];
+                const parent = path[path.length - 2];
 
                 for (const tableKey of tableKeys) {
                     const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
 
                     if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
-                        delete parent.choices[leaf.name];
+                        Object.keys(parent.choices).forEach((choiceId) => {
+                            if (parent.choices[choiceId].name === leaf.name) {
+                                delete parent.choices[choiceId];
+                            }
+                        });
                         return;
                     }
                 }

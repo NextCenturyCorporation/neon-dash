@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Connection } from '../services/connection.service';
 import { Dataset, FieldKey, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 
 export class DatasetUtil {
@@ -64,5 +65,87 @@ export class DatasetUtil {
      */
     static translateFieldKeyToFieldName(fieldKey: string, fieldKeys: Record<string, string>): string {
         return DatasetUtil.deconstructTableOrFieldKeySafely(fieldKey, fieldKeys).field || fieldKey;
+    }
+
+    /**
+     * Retrieves the information for the databases in the given datastore from the data server and updates the database objects.
+     */
+    static updateDatabasesFromDataServer(
+        connection: Connection,
+        datastore: NeonDatastoreConfig,
+        onFinish?: (failedDatabases: NeonDatabaseMetaData[]) => void
+    ): Promise<void> {
+        return Promise.all(Object.values(datastore.databases).map((database: NeonDatabaseMetaData) =>
+            DatasetUtil.updateTablesFromDataServer(connection, database))).then((databases: NeonDatabaseMetaData[]) => {
+            if (onFinish) {
+                onFinish(databases.filter((database) => !!database));
+            }
+        });
+    }
+
+    /**
+     * Retrieves the information for the tables in the given database from the data server and updates the table objects.
+     */
+    static updateTablesFromDataServer(connection: Connection, database: NeonDatabaseMetaData): Promise<NeonDatabaseMetaData> {
+        return new Promise<NeonDatabaseMetaData>((resolve) => {
+            connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames: Record<string, string[]>) => {
+                let promisesOnFields = [];
+
+                Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
+                    let table = database.tables[tableName];
+
+                    if (table) {
+                        let existingFields = new Set(table.fields.map((field) => field.columnName));
+
+                        tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
+                            if (!existingFields.has(fieldName)) {
+                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
+                                    columnName: fieldName,
+                                    prettyName: fieldName,
+                                    // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
+                                    hide: existingFields.size > 25,
+                                    // Set the default type to text.
+                                    type: 'text'
+                                });
+                                table.fields.push(newField);
+                            }
+                        });
+
+                        promisesOnFields.push(DatasetUtil.updateFieldsFromDataServer(connection, database, table));
+                    }
+                });
+
+                Promise.all(promisesOnFields).then((tables: NeonTableMetaData[]) => {
+                    // Don't return this database if it and all its tables don't error.
+                    resolve(tables.filter((table) => !!table).length ? database : null);
+                });
+            }, (__error) => {
+                // Return this database if it errors.
+                resolve(database);
+            });
+        });
+    }
+
+    /**
+     * Wraps connection.getFieldTypes() in a promise object.
+     */
+    static updateFieldsFromDataServer(
+        connection: Connection,
+        database: NeonDatabaseMetaData,
+        table: NeonTableMetaData
+    ): Promise<NeonTableMetaData> {
+        return new Promise<NeonTableMetaData>((resolve) =>
+            connection.getFieldTypes(database.name, table.name, (fieldTypes: Record<string, string>) => {
+                if (fieldTypes) {
+                    table.fields.forEach((field: NeonFieldMetaData) => {
+                        field.type = fieldTypes[field.columnName] || field.type;
+                    });
+                }
+                // Don't return this table if it doesn't error.
+                resolve(null);
+            }, (__error) => {
+                // Return this table if it errors.
+                resolve(table);
+            }));
     }
 }
