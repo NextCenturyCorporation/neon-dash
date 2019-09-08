@@ -83,49 +83,24 @@ export const FIELD_KEYS: Record<string, string> = {
     field_key_1: 'datastore1.testDatabase1.testTable1.testFieldKeyField'
 };
 
-export const DATASET: Dataset = {
-    datastores: {
-        datastore1: DATASTORE
-    },
-    tableKeys: TABLE_KEYS,
-    fieldKeys: FIELD_KEYS,
-    relations: [
+const RELATIONS: string[][][] = [
+    [
         [
-            [
-                {
-                    datastore: 'datastore1',
-                    database: DATABASES.testDatabase1.name,
-                    table: TABLES.testTable1.name,
-                    field: FIELD_MAP.RELATION_A.columnName
-                } as FieldKey
-            ],
-            [
-                {
-                    datastore: 'datastore1',
-                    database: DATABASES.testDatabase2.name,
-                    table: TABLES.testTable2.name,
-                    field: FIELD_MAP.RELATION_A.columnName
-                } as FieldKey
-            ]
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName
         ],
         [
-            [
-                {
-                    datastore: 'datastore1',
-                    database: DATABASES.testDatabase1.name,
-                    table: TABLES.testTable1.name,
-                    field: FIELD_MAP.RELATION_B.columnName
-                } as FieldKey
-            ],
-            [
-                {
-                    datastore: 'datastore1',
-                    database: DATABASES.testDatabase2.name,
-                    table: TABLES.testTable2.name,
-                    field: FIELD_MAP.RELATION_B.columnName
-                } as FieldKey
-            ]
+            DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' + FIELD_MAP.RELATION_A.columnName
+        ]
+    ],
+    [
+        [
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName
+        ],
+        [
+            DATASTORE.name + '.' + DATABASES.testDatabase2.name + '.' + TABLES.testTable2.name + '.' + FIELD_MAP.RELATION_B.columnName
         ]
     ]
-} as Dataset;
+];
+
+export const DATASET: Dataset = new Dataset({ datastore1: DATASTORE }, null, null, RELATIONS, TABLE_KEYS, FIELD_KEYS);
 
