@@ -15,14 +15,13 @@
 import { Injectable } from '@angular/core';
 
 import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
+import { DatasetUtil, NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
 import { DashboardUtil } from '../util/dashboard.util';
-import { DatasetUtil } from '../util/dataset.util';
 
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';

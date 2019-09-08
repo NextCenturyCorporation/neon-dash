@@ -15,9 +15,8 @@
 import * as _ from 'lodash';
 
 import { NeonDashboardConfig } from '../models/types';
-import { FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
+import { DatasetUtil, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
 import { ConfigUtil } from './config.util';
-import { DatasetUtil } from './dataset.util';
 
 /**
  * Common Utility functions for dashboards, specifically

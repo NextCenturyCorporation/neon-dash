@@ -27,13 +27,12 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DatasetUtil } from '../../util/dataset.util';
 import { FilterConfig } from '../../models/filter';
 import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { DatasetUtil, NeonFieldMetaData } from '../../models/dataset';
 import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,

@@ -27,8 +27,14 @@ import {
     PairOfValues,
     SimpleFilterConfig
 } from '../models/filter';
-import { Dataset, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
-import { DatasetUtil } from './dataset.util';
+import {
+    Dataset,
+    DatasetUtil,
+    FieldKey,
+    NeonDatabaseMetaData,
+    NeonFieldMetaData,
+    NeonTableMetaData
+} from '../models/dataset';
 import { DateFormat, DateUtil } from './date.util';
 
 import * as _ from 'lodash';
@@ -119,12 +125,12 @@ export class FilterUtil {
         let filter: AbstractFilter = null;
 
         if (this.isSimpleFilterConfig(filterConfig)) {
-            const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey({
+            const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey({
                 datastore: filterConfig.datastore,
                 database: filterConfig.database,
                 table: filterConfig.table,
                 field: filterConfig.field
-            } as FieldKey, dataset);
+            } as FieldKey);
 
             if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName &&
                 typeof filterConfig.value !== 'undefined') {
@@ -353,15 +359,15 @@ export abstract class AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {FieldKey[]} equivalentRelationFilterFields
-     * @arg {FieldKey[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentFieldKeyList
+     * @arg {FieldKey[]} substituteFieldKeyList
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @abstract
      */
     public abstract createRelationFilter(
-        equivalentRelationFilterFields: FieldKey[],
-        substituteRelationFilterFields: FieldKey[],
+        equivalentFieldKeyList: FieldKey[],
+        substituteFieldKeyList: FieldKey[],
         dataset: Dataset
     ): AbstractFilter;
 
@@ -455,7 +461,7 @@ export class SimpleFilter extends AbstractFilter {
             const value = dataList[4];
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, dataset);
+                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
                 return new SimpleFilter(datastore.name, database, table, field, operator, value, id, relations);
             }
         }
@@ -478,35 +484,29 @@ export class SimpleFilter extends AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {FieldKey[]} equivalentRelationFilterFields
-     * @arg {FieldKey[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentFieldKeyList
+     * @arg {FieldKey[]} substituteFieldKeyList
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @override
      */
     public createRelationFilter(
-        equivalentRelationFilterFields: FieldKey[],
-        substituteRelationFilterFields: FieldKey[],
+        equivalentFieldKeyList: FieldKey[],
+        substituteFieldKeyList: FieldKey[],
         dataset: Dataset
     ): AbstractFilter {
-        if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
+        if (equivalentFieldKeyList.length !== substituteFieldKeyList.length) {
             return null;
         }
 
         let relationFilter: SimpleFilter = null;
 
-        equivalentRelationFilterFields.forEach((equivalent, index) => {
-            if (equivalent.datastore === this.datastore && equivalent.database === this.database.name &&
-                equivalent.table === this.table.name && equivalent.field === this.field.columnName) {
-                let substitute: FieldKey = substituteRelationFilterFields[index];
-
-                if (substitute.database && substitute.table && substitute.field) {
-                    let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[substitute.datastore] : null;
-                    let database: NeonDatabaseMetaData = datastore ? datastore.databases[substitute.database] : null;
-                    let table: NeonTableMetaData = database ? database.tables[substitute.table] : null;
-                    let field: NeonFieldMetaData = table ? table.fields.filter((element) => element.columnName === substitute.field)[0] :
-                        null;
-
+        equivalentFieldKeyList.forEach((equivalentFieldKey, index) => {
+            if (equivalentFieldKey.datastore === this.datastore && equivalentFieldKey.database === this.database.name &&
+                equivalentFieldKey.table === this.table.name && equivalentFieldKey.field === this.field.columnName) {
+                const substituteFieldKey: FieldKey = substituteFieldKeyList[index];
+                if (substituteFieldKey.database && substituteFieldKey.table && substituteFieldKey.field) {
+                    const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(substituteFieldKey);
                     if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName) {
                         relationFilter = new SimpleFilter(datastore.name, database, table, field, this.operator, this.value);
                     }
@@ -660,26 +660,26 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Creates and returns a relation filter of this filter by exchanging the given equivalent fields with the given substitute fields.
      *
-     * @arg {FieldKey[]} equivalentRelationFilterFields
-     * @arg {FieldKey[]} substituteRelationFilterFields
+     * @arg {FieldKey[]} equivalentFieldKeyList
+     * @arg {FieldKey[]} substituteFieldKeyList
      * @arg {Dataset} dataset
      * @return {AbstractFilter}
      * @override
      */
     public createRelationFilter(
-        equivalentRelationFilterFields: FieldKey[],
-        substituteRelationFilterFields: FieldKey[],
+        equivalentFieldKeyList: FieldKey[],
+        substituteFieldKeyList: FieldKey[],
         dataset: Dataset
     ): AbstractFilter {
-        if (equivalentRelationFilterFields.length !== substituteRelationFilterFields.length) {
+        if (equivalentFieldKeyList.length !== substituteFieldKeyList.length) {
             return null;
         }
 
         let nestedRelationExists = false;
 
         let relationFilter: CompoundFilter = this.createCompoundFilter((filter) => {
-            let nestedRelationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationFilterFields,
-                substituteRelationFilterFields, dataset);
+            let nestedRelationFilter: AbstractFilter = filter.createRelationFilter(equivalentFieldKeyList,
+                substituteFieldKeyList, dataset);
             nestedRelationExists = nestedRelationExists || !!nestedRelationFilter;
             // A compound filter can exchange one of its nested filters with a relation and keep the rest of the original nested filters.
             return nestedRelationFilter || filter;
@@ -864,8 +864,8 @@ export class BoundsFilter extends CompoundFilter {
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
             if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey1, dataset);
-                const [datastore2, database2, table2, field2] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey2, dataset);
+                const [datastore1, database1, table1, field1] = dataset.retrieveMetaDataFromFieldKey(fieldKey1);
+                const [datastore2, database2, table2, field2] = dataset.retrieveMetaDataFromFieldKey(fieldKey2);
                 return new BoundsFilter(fieldKeyString1, fieldKeyString2, begin1, begin2, end1, end2, [
                     new SimpleFilter(datastore1.name, database1, table1, field1, '>=', begin1),
                     new SimpleFilter(datastore1.name, database1, table1, field1, '<=', end1),
@@ -972,7 +972,7 @@ export class DomainFilter extends CompoundFilter {
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, dataset);
+                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
                 return new DomainFilter(fieldKeyString, begin, end, [
                     new SimpleFilter(datastore.name, database, table, field, '>=', begin),
                     new SimpleFilter(datastore.name, database, table, field, '<=', end)
@@ -1070,7 +1070,7 @@ export class ListFilter extends CompoundFilter {
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, dataset);
+                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
                 return new ListFilter(type, fieldKeyString, operator, values, values.map((value) =>
                     new SimpleFilter(datastore.name, database, table, field, operator, value)), id, relations);
             }
@@ -1176,8 +1176,8 @@ export class PairFilter extends CompoundFilter {
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
             if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey1, dataset);
-                const [datastore2, database2, table2, field2] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey2, dataset);
+                const [datastore1, database1, table1, field1] = dataset.retrieveMetaDataFromFieldKey(fieldKey1);
+                const [datastore2, database2, table2, field2] = dataset.retrieveMetaDataFromFieldKey(fieldKey2);
                 return new PairFilter(type, fieldKeyString1, fieldKeyString2, operator1, operator2, value1, value2, [
                     new SimpleFilter(datastore1.name, database1, table1, field1, operator1, value1),
                     new SimpleFilter(datastore2.name, database2, table2, field2, operator2, value2)
