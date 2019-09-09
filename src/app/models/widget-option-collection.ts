@@ -12,8 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from './dataset';
-import { DatasetUtil } from '../util/dataset.util';
+import { Dataset, DatasetUtil, DatabaseConfig, DatastoreConfig, FieldConfig, TableConfig } from './dataset';
 import * as _ from 'lodash';
 import * as uuidv4 from 'uuid/v4';
 import {
@@ -45,13 +44,13 @@ export class OptionCollection {
     private _collection: { [bindingKey: string]: WidgetOption } = {};
 
     public _id: string;
-    public database: NeonDatabaseMetaData = null;
-    public databases: NeonDatabaseMetaData[] = [];
-    public datastore: NeonDatastoreConfig = null;
-    public datastores: NeonDatastoreConfig[] = [];
-    public fields: NeonFieldMetaData[] = [];
-    public table: NeonTableMetaData = null;
-    public tables: NeonTableMetaData[] = [];
+    public database: DatabaseConfig = null;
+    public databases: DatabaseConfig[] = [];
+    public datastore: DatastoreConfig = null;
+    public datastores: DatastoreConfig[] = [];
+    public fields: FieldConfig[] = [];
+    public table: TableConfig = null;
+    public tables: TableConfig[] = [];
 
     /**
      * @constructor
@@ -60,8 +59,8 @@ export class OptionCollection {
     constructor(protected config: OptionConfig = new OptionConfig({})) {
         // TODO Do not use a default _id.  Throw an error if undefined!
         this._id = this.config.get('_id', uuidv4());
-        this.append(new WidgetDatabaseOption(), NeonDatabaseMetaData.get());
-        this.append(new WidgetTableOption(), NeonTableMetaData.get());
+        this.append(new WidgetDatabaseOption(), DatabaseConfig.get());
+        this.append(new WidgetTableOption(), TableConfig.get());
     }
 
     [key: string]: any; // Ordering demands it be placed here
@@ -122,10 +121,10 @@ export class OptionCollection {
      * Returns the field object with the given column name or undefinied if the field does not exist.
      *
      * @arg {string} columnName
-     * @return {NeonFieldMetaData}
+     * @return {FieldConfig}
      */
-    public findField(columnName: string): NeonFieldMetaData {
-        let outputFields = !columnName ? [] : this.fields.filter((field: NeonFieldMetaData) => field.columnName === columnName);
+    public findField(columnName: string): FieldConfig {
+        let outputFields = !columnName ? [] : this.fields.filter((field: FieldConfig) => field.columnName === columnName);
 
         if (!outputFields.length && this.fields.length) {
             // Check if the column name is actually an array index rather than a name.
@@ -141,18 +140,18 @@ export class OptionCollection {
     /**
      * Returns the field object for the given binding key or an empty field object.
      */
-    public findFieldObject(dataset: Dataset, bindingKey: string): NeonFieldMetaData {
+    public findFieldObject(dataset: Dataset, bindingKey: string): FieldConfig {
         let fieldKey = this.config.get(bindingKey, '');
-        return this.findField(DatasetUtil.translateFieldKeyToFieldName(fieldKey, dataset.fieldKeys)) || NeonFieldMetaData.get();
+        return this.findField(DatasetUtil.translateFieldKeyToFieldName(fieldKey, dataset.fieldKeyCollection)) || FieldConfig.get();
     }
 
     /**
      * Returns the array of field objects for the given binding key or an array of empty field objects.
      */
-    public findFieldObjects(dataset: Dataset, bindingKey: string): NeonFieldMetaData[] {
+    public findFieldObjects(dataset: Dataset, bindingKey: string): FieldConfig[] {
         let bindings = this.config.get(bindingKey, []);
         return (Array.isArray(bindings) ? bindings : []).map((fieldKey) => this.findField(DatasetUtil.translateFieldKeyToFieldName(
-            fieldKey, dataset.fieldKeys
+            fieldKey, dataset.fieldKeyCollection
         ))).filter((fieldsObject) => !!fieldsObject);
     }
 
@@ -198,15 +197,16 @@ export class OptionCollection {
 
         if (this.databases.length) {
             // By default, set the initial database to the first one in the dataset's configured table keys.
-            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredTableKeys = Object.keys(dataset.tableKeyCollection || {});
             let configuredDatabase = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
-                configuredTableKeys[0], dataset.tableKeys
+                configuredTableKeys[0], dataset.tableKeyCollection
             ).database;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
-            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredDatabase = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey, dataset.tableKeys).database;
+            if (configuredTableKey && dataset.tableKeyCollection[configuredTableKey]) {
+                configuredDatabase = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey,
+                    dataset.tableKeyCollection).database;
             }
 
             if (configuredDatabase) {
@@ -262,15 +262,16 @@ export class OptionCollection {
 
         if (this.tables.length > 0) {
             // By default, set the initial table to the first one in the dataset's configured table keys.
-            let configuredTableKeys = Object.keys(dataset.tableKeys || {});
+            let configuredTableKeys = Object.keys(dataset.tableKeyCollection || {});
             let configuredTable = !configuredTableKeys.length ? null : DatasetUtil.deconstructTableOrFieldKeySafely(
-                configuredTableKeys[0], dataset.tableKeys
+                configuredTableKeys[0], dataset.tableKeyCollection
             ).table;
 
             // Look for the table key configured for the specific visualization.
             let configuredTableKey = this.config.get('tableKey', null);
-            if (configuredTableKey && dataset.tableKeys[configuredTableKey]) {
-                configuredTable = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey, dataset.tableKeys).table;
+            if (configuredTableKey && dataset.tableKeyCollection[configuredTableKey]) {
+                configuredTable = DatasetUtil.deconstructTableOrFieldKeySafely(configuredTableKey,
+                    dataset.tableKeyCollection).table;
             }
 
             if (configuredTable) {
@@ -300,7 +301,7 @@ export class WidgetOptionCollection extends OptionCollection {
      * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        protected dataset: Dataset = Dataset.get(),
+        protected dataset: Dataset = new Dataset({}),
         protected createOptionsCallback: () => WidgetOption[] = () => [],
         defaultTitle: string = '',
         defaultLimit: number = 0,
@@ -343,7 +344,7 @@ export class WidgetOptionCollection extends OptionCollection {
      * @override
      */
     protected onUpdateFields(): void {
-        // Create the field options and assign the default value as NeonFieldMetaData objects.
+        // Create the field options and assign the default value as FieldConfig objects.
         this.createOptions().forEach((option) => {
             if (option.optionType === OptionType.FIELD) {
                 this.append(option, this.findFieldObject(this.dataset, option.bindingKey));
@@ -374,7 +375,7 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      * @arg {OptionConfig} [config] An object with configured bindings.
      */
     constructor(
-        dataset: Dataset = Dataset.get(),
+        dataset: Dataset = new Dataset({}),
         createOptionsCallback: () => WidgetOption[] = () => [],
         protected createOptionsForLayerCallback: () => WidgetOption[] = () => [],
         defaultTitle: string = '',

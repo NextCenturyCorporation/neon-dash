@@ -29,7 +29,7 @@ import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardS
 
 import { TimelineModule } from './timeline.module';
 import { DomainFilterDesign, FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { TimeInterval } from '../../models/widget-option';
 
 describe('Component: Timeline', () => {
@@ -180,7 +180,7 @@ describe('Component: Timeline', () => {
     it('finalizeVisualizationQuery does return expected query without id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -248,9 +248,9 @@ describe('Component: Timeline', () => {
     it('finalizeVisualizationQuery does return expected query with id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
-        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             filter: {
@@ -326,9 +326,9 @@ describe('Component: Timeline', () => {
     it('transformVisualizationQueryResults does return expected data with id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
-        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         component.options.granularity = TimeInterval.MONTH;
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -381,7 +381,7 @@ describe('Component: Timeline', () => {
     it('transformVisualizationQueryResults does return expected data without id and filter fields', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
             testIdField: 'id1',
@@ -479,9 +479,9 @@ describe('Component: Timeline', () => {
     it('findDateInPreviousItem does not return a previous item when the current item is not within range of granularity', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.dateField = NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
-        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.dateField = FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field' });
+        component.options.filterField = FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         component.options.granularity = TimeInterval.HOUR;
 
         let previousItem = component.findDateInPreviousItem([{
