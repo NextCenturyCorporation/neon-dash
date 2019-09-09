@@ -15,6 +15,8 @@
 
 import { Connection, ConnectionService } from '../services/connection.service';
 
+import * as _ from 'lodash';
+
 // Needed to call setNeonServerUrl
 import * as neon from 'neon-framework';
 
@@ -151,8 +153,8 @@ export class Dataset {
         public tableKeyCollection: Record<string, string> = {},
         public fieldKeyCollection: Record<string, string> = {}
     ) {
-        this._updateDatastores(this._datastores);
-        this._updateDataServer(this._dataServer);
+        this._datastores = this._updateDatastores(this._datastores);
+        this._handleDataServer(this._dataServer);
         this._relations = this._validateRelations(relations);
     }
 
@@ -161,8 +163,7 @@ export class Dataset {
     }
 
     set datastores(newDatastores: Record<string, NeonDatastoreConfig>) {
-        this._updateDatastores(newDatastores);
-        this._datastores = newDatastores;
+        this._datastores = this._updateDatastores(newDatastores);
     }
 
     get dataServer(): string {
@@ -170,7 +171,7 @@ export class Dataset {
     }
 
     set dataServer(newDataServer: string) {
-        this._updateDataServer(newDataServer);
+        this._handleDataServer(newDataServer);
         this._dataServer = newDataServer;
     }
 
@@ -186,7 +187,7 @@ export class Dataset {
      */
     public retrieveDatabase(datastoreId: string, databaseName: string): NeonDatabaseMetaData {
         const datastore: NeonDatastoreConfig = this.retrieveDatastore(datastoreId);
-        return datastore ? datastore.databases[databaseName] : null;
+        return datastore ? datastore.databases[databaseName] : undefined;
     }
 
     /**
@@ -198,7 +199,7 @@ export class Dataset {
         }
         // Backwards compatibility:  in old saved states, assume an empty datastore references the first datastore.
         const datastoreNames = Object.keys(this._datastores);
-        return datastoreNames.length ? this._datastores[datastoreNames[0]] : null;
+        return datastoreNames.length ? this._datastores[datastoreNames[0]] : undefined;
     }
 
     /**
@@ -206,7 +207,7 @@ export class Dataset {
      */
     public retrieveField(datastoreId: string, databaseName: string, tableName: string, fieldName: string): NeonFieldMetaData {
         const table: NeonTableMetaData = this.retrieveTable(datastoreId, databaseName, tableName);
-        return table ? table.fields.filter((element) => element.columnName === fieldName)[0] : null;
+        return table ? table.fields.filter((element) => element.columnName === fieldName)[0] : undefined;
     }
 
     /**
@@ -228,7 +229,7 @@ export class Dataset {
      */
     public retrieveTable(datastoreId: string, databaseName: string, tableName: string): NeonTableMetaData {
         const database: NeonDatabaseMetaData = this.retrieveDatabase(datastoreId, databaseName);
-        return database ? database.tables[tableName] : null;
+        return database ? database.tables[tableName] : undefined;
     }
 
     /**
@@ -238,21 +239,23 @@ export class Dataset {
         this._relations = this._validateRelations(relations);
     }
 
-    private _updateDatastores(datastores: Record<string, NeonDatastoreConfig>): void {
-        if (this._connectionService) {
-            Object.keys(datastores).forEach((datastoreId) => {
-                const connection = this._connectionService.connect(datastores[datastoreId].type, datastores[datastoreId].host);
-                if (connection) {
-                    DatasetUtil.updateDatabasesFromDataServer(connection, datastores[datastoreId]);
-                }
-            });
-        }
-    }
-
-    private _updateDataServer(dataServer: string): void {
+    private _handleDataServer(dataServer: string): void {
         if (dataServer) {
             neon.setNeonServerUrl(dataServer);
         }
+    }
+
+    private _updateDatastores(datastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
+        const validated: Record<string, NeonDatastoreConfig> = DatasetUtil.validateDatastores(datastores);
+        if (this._connectionService) {
+            Object.keys(validated).forEach((datastoreId) => {
+                const connection = this._connectionService.connect(validated[datastoreId].type, validated[datastoreId].host);
+                if (connection) {
+                    DatasetUtil.updateDatastoreFromDataServer(connection, validated[datastoreId]);
+                }
+            });
+        }
+        return validated;
     }
 
     /**
@@ -336,15 +339,15 @@ export class DatasetUtil {
     }
 
     /**
-     * Retrieves the information for the databases in the given datastore from the data server and updates the database objects.
+     * Retrieves the tables and fields from the data server for the databases in the given datastore and updates the objects as needed.
      */
-    static updateDatabasesFromDataServer(
+    static updateDatastoreFromDataServer(
         connection: Connection,
         datastore: NeonDatastoreConfig,
         onFinish?: (failedDatabases: NeonDatabaseMetaData[]) => void
     ): Promise<void> {
         return Promise.all(Object.values(datastore.databases).map((database: NeonDatabaseMetaData) =>
-            DatasetUtil.updateTablesFromDataServer(connection, database))).then((databases: NeonDatabaseMetaData[]) => {
+            DatasetUtil.updateFieldNamesFromDataServer(connection, database))).then((databases: NeonDatabaseMetaData[]) => {
             if (onFinish) {
                 onFinish(databases.filter((database) => !!database));
             }
@@ -352,9 +355,9 @@ export class DatasetUtil {
     }
 
     /**
-     * Retrieves the information for the tables in the given database from the data server and updates the table objects.
+     * Retrieves the field names from the data server for the tables in the given database and updates the fields in the table objects.
      */
-    static updateTablesFromDataServer(connection: Connection, database: NeonDatabaseMetaData): Promise<NeonDatabaseMetaData> {
+    static updateFieldNamesFromDataServer(connection: Connection, database: NeonDatabaseMetaData): Promise<NeonDatabaseMetaData> {
         return new Promise<NeonDatabaseMetaData>((resolve) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames: Record<string, string[]>) => {
                 let promisesOnFields = [];
@@ -379,12 +382,12 @@ export class DatasetUtil {
                             }
                         });
 
-                        promisesOnFields.push(DatasetUtil.updateFieldsFromDataServer(connection, database, table));
+                        promisesOnFields.push(DatasetUtil.updateFieldTypesFromDataServer(connection, database, table));
                     }
                 });
 
                 Promise.all(promisesOnFields).then((tables: NeonTableMetaData[]) => {
-                    // Don't return this database if it and all its tables don't error.
+                    // Don't return this database if it and all its tables didn't error.
                     resolve(tables.filter((table) => !!table).length ? database : null);
                 });
             }, (__error) => {
@@ -395,9 +398,9 @@ export class DatasetUtil {
     }
 
     /**
-     * Wraps connection.getFieldTypes() in a promise object.
+     * Retrieves the field types from the data server for the given table and updates the individual field objects.
      */
-    static updateFieldsFromDataServer(
+    static updateFieldTypesFromDataServer(
         connection: Connection,
         database: NeonDatabaseMetaData,
         table: NeonTableMetaData
@@ -409,11 +412,60 @@ export class DatasetUtil {
                         field.type = fieldTypes[field.columnName] || field.type;
                     });
                 }
-                // Don't return this table if it doesn't error.
+                // Don't return this table if it didn't error.
                 resolve(null);
             }, (__error) => {
                 // Return this table if it errors.
                 resolve(table);
             }));
+    }
+
+    /**
+     * Ensures that the given datastore and its databases, tables, and fields have the required properties and returns it if valid.
+     */
+    static validateDatastore(datastore: NeonDatastoreConfig): NeonDatastoreConfig {
+        datastore.databases = Object.keys(datastore.databases || {}).reduce((outputDatabases, databaseName) => {
+            let database: NeonDatabaseMetaData = datastore.databases[databaseName];
+            database.name = databaseName;
+            database.prettyName = database.prettyName || database.name;
+            database.tables = Object.keys(database.tables || {}).reduce((outputTables, tableName) => {
+                let table = database.tables[tableName];
+                table.name = tableName;
+                table.prettyName = table.prettyName || table.name;
+                // Create a copy to maintain the original config file data.
+                table.labelOptions = _.cloneDeep(table.labelOptions || {});
+                table.fields = (table.fields || []).filter((field) => !!field.columnName).map((field) => {
+                    field.prettyName = field.prettyName || field.columnName;
+                    field.type = field.type || 'text';
+                    return field;
+                });
+                // Always keep the table since its fields can be discovered with updateFieldNamesFromDataServer
+                outputTables[tableName] = table;
+                return outputTables;
+            }, {});
+            if (Object.keys(database.tables).length) {
+                outputDatabases[databaseName] = database;
+            } else {
+                console.warn('Ignoring database ' + databaseName + ' because it does not have any tables');
+            }
+            return outputDatabases;
+        }, {});
+        return (datastore.name && datastore.host && datastore.type && Object.keys(datastore.databases).length) ? datastore : null;
+    }
+
+    /**
+     * Ensures that the given datastores and their databases, tables, and fields have the required properties and returns the valid ones.
+     */
+    static validateDatastores(datastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
+        return Object.keys(datastores).reduce((outputDatastores, datastoreId) => {
+            let datastore: NeonDatastoreConfig = datastores[datastoreId];
+            datastore.name = datastoreId;
+            outputDatastores[datastoreId] = DatasetUtil.validateDatastore(datastore);
+            if (!outputDatastores[datastoreId]) {
+                console.warn('Ignoring datastore ' + datastoreId + ' because it does not have correct configuration');
+                delete outputDatastores[datastoreId];
+            }
+            return outputDatastores;
+        }, {});
     }
 }

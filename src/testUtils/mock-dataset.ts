@@ -38,7 +38,7 @@ export const FIELD_MAP = {
     TYPE: NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', type: 'string' }),
     X: NeonFieldMetaData.get({ columnName: 'testXField', prettyName: 'Test X Field', type: 'float' }),
     Y: NeonFieldMetaData.get({ columnName: 'testYField', prettyName: 'Test Y Field', type: 'float' }),
-    ES_ID: NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id' })
+    ES_ID: NeonFieldMetaData.get({ columnName: '_id', prettyName: '_id', type: 'string' })
 };
 
 // Keep in alphabetical order.
@@ -70,8 +70,7 @@ export const DATASTORE: NeonDatastoreConfig = NeonDatastoreConfig.get({
     name: 'datastore1',
     host: 'testHostname',
     type: 'testDatastore',
-    databases: DATABASES,
-    hasUpdatedFields: true
+    databases: DATABASES
 });
 
 export const TABLE_KEYS: Record<string, string> = {

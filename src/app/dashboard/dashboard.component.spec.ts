@@ -885,8 +885,8 @@ describe('Dashboard Custom', () => {
         const config = NeonConfig.get({
             projectTitle: 'Test Config',
             datastores: {
-                testName1: { host: 'testHost1', type: 'testType1' },
-                testName2: { host: 'testHost2', type: 'testType2' }
+                testName1: { host: 'testHost1', type: 'testType1', databases: DashboardServiceMock.DATABASES },
+                testName2: { host: 'testHost2', type: 'testType2', databases: DashboardServiceMock.DATABASES }
             },
             layouts: {
                 DISCOVERY: [
@@ -969,8 +969,8 @@ describe('Dashboard Custom', () => {
         const config = NeonConfig.get({
             projectTitle: 'Test Config',
             datastores: {
-                testName1: { host: 'testHost1', type: 'testType1' },
-                testName2: { host: 'testHost2', type: 'testType2' }
+                testName1: { host: 'testHost1', type: 'testType1', databases: DashboardServiceMock.DATABASES },
+                testName2: { host: 'testHost2', type: 'testType2', databases: DashboardServiceMock.DATABASES }
             },
             layouts: {
                 DISCOVERY: {
