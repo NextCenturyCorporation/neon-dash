@@ -150,178 +150,172 @@ describe('Component: WikiViewer', () => {
     });
 });
 
-// Describe('Component: WikiViewer with mock HTTP', () => {
-//     let component: WikiViewerComponent;
-//     let fixture: ComponentFixture<WikiViewerComponent>;
-//     let backend;
+describe('Component: WikiViewer with mock HTTP', () => {
+    let component: WikiViewerComponent;
+    let fixture: ComponentFixture<WikiViewerComponent>;
+    let backend;
 
-//     initializeTestBed('Wiki Viewer', {
-//         providers: [
-//             DashboardService,
-//             InjectableFilterService,
-//             { provide: AbstractSearchService, useClass: SearchServiceMock },
-//             Injector
+    initializeTestBed('Wiki Viewer', {
+        providers: [
+            DashboardService,
+            InjectableFilterService,
+            { provide: AbstractSearchService, useClass: SearchServiceMock },
+            Injector
 
-//         ],
-//         imports: [
-//             WikiViewerModule,
-//             HttpClientTestingModule
-//         ]
-//     });
+        ],
+        imports: [
+            WikiViewerModule,
+            HttpClientTestingModule
+        ]
+    });
 
-//     beforeEach(() => {
-//         fixture = TestBed.createComponent(WikiViewerComponent);
-//         component = fixture.componentInstance;
-//         fixture.detectChanges();
-//     });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(WikiViewerComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-//     beforeEach(inject([HttpTestingController], (injectedBackend) => {
-//         backend = injectedBackend;
-//     }));
+    beforeEach(inject([HttpTestingController], (injectedBackend) => {
+        backend = injectedBackend;
+    }));
 
-//     it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
-//         (component as any).errorMessage = 'testErrorMessage';
+    it('handleTransformVisualizationQueryResults with no data does call callback function with expected data', (done) => {
+        (component as any).errorMessage = 'testErrorMessage';
 
-//         let successCallback = (elementCount) => {
-//             expect(elementCount).toEqual(0);
-//             done();
-//         };
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(0);
+            done();
+        };
 
-//         let failureCallback = () => {
-//             fail();
-//             done();
-//         };
+        let failureCallback = () => {
+            fail();
+            done();
+        };
 
-//         (component as any).handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
-//     });
+        (component as any).handleTransformVisualizationQueryResults(component.options, [], successCallback, failureCallback);
+    });
 
-//     it('handleTransformVisualizationQueryResults with data does call http.get', (done) => {
-//         component.options.linkField.columnName = 'testLinkField';
+    it('handleTransformVisualizationQueryResults with data does call http.get', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
 
-//         let successCallback = (elementCount) => {
-//             expect(elementCount).toEqual(1);
-//             expect(component.wikiViewerData.length).toEqual(1);
-//             expect(component.wikiViewerData[0].name).toEqual('Test Title');
-//             expect(component.wikiViewerData[0].text.toString()).toBe(
-//                 'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)'
-//             );
-//             done();
-//         };
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)'
+            );
+            done();
+        };
 
-//         let failureCallback = () => {
-//             fail();
-//             done();
-//         };
+        let failureCallback = () => {
+            fail();
+            done();
+        };
 
-//         (component as any).handleTransformVisualizationQueryResults(component.options, [{
-//             testLinkField: 'testLinkValue'
-//         }], successCallback, failureCallback);
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue'
+        }], successCallback, failureCallback);
 
-//         let request = backend.expectOne({
-//             url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
-//             method: 'GET'
-//         });
-//         request.flush({
-//             body: JSON.stringify({
-//                 parse: {
-//                     text: {
-//                         '*': '<p>Test Content</p>'
-//                     },
-//                     title: 'Test Title'
-//                 }
-//             })
-//         });
-//     });
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            parse: {
+                text: {
+                    '*': '<p>Test Content</p>'
+                },
+                title: 'Test Title'
+            }
+        });
+    });
 
-//     it('handleTransformVisualizationQueryResults on fail does call http.get', (done) => {
-//         component.options.linkField.columnName = 'testLinkField';
+    it('handleTransformVisualizationQueryResults on fail does call http.get', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
 
-//         let successCallback = (elementCount) => {
-//             expect(elementCount).toEqual(1);
-//             expect(component.wikiViewerData.length).toEqual(1);
-//             expect(component.wikiViewerData[0].name).toEqual('testLinkValue');
-//             expect(component.wikiViewerData[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
-//             done();
-//         };
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(1);
+            expect(component.wikiViewerData.length).toEqual(1);
+            expect(component.wikiViewerData[0].name).toEqual('testLinkValue');
+            expect(component.wikiViewerData[0].text.toString()).toBe('Missing Title: The page you specified doesn\'t exist.');
+            done();
+        };
 
-//         let failureCallback = () => {
-//             fail();
-//             done();
-//         };
+        let failureCallback = () => {
+            fail();
+            done();
+        };
 
-//         (component as any).handleTransformVisualizationQueryResults(component.options, [{
-//             testLinkField: 'testLinkValue'
-//         }], successCallback, failureCallback);
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: 'testLinkValue'
+        }], successCallback, failureCallback);
 
-//         let request = backend.expectOne({
-//             url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
-//             method: 'GET'
-//         });
-//         request.flush({
-//             error: {
-//                 code: 'Missing Title',
-//                 info: 'The page you specified doesn\'t exist.'
-//             }
-//         });
-//     });
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            error: {
+                code: 'Missing Title',
+                info: 'The page you specified doesn\'t exist.'
+            }
+        });
+    });
 
-//     it('handleTransformVisualizationQueryResults with multiple links does call http.get multiple times', (done) => {
-//         component.options.linkField.columnName = 'testLinkField';
+    it('handleTransformVisualizationQueryResults with multiple links does call http.get multiple times', (done) => {
+        component.options.linkField.columnName = 'testLinkField';
 
-//         let successCallback = (elementCount) => {
-//             expect(elementCount).toEqual(2);
-//             expect(component.wikiViewerData.length).toEqual(2);
-//             expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
-//             expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
-//             expect(component.wikiViewerData[0].text.toString()).toBe(
-//                 'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)'
-//             );
-//             expect(component.wikiViewerData[1].text.toString()).toBe(
-//                 'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)'
-//             );
-//             done();
-//         };
+        let successCallback = (elementCount) => {
+            expect(elementCount).toEqual(2);
+            expect(component.wikiViewerData.length).toEqual(2);
+            expect(component.wikiViewerData[0].name).toEqual('Test Title 1');
+            expect(component.wikiViewerData[1].name).toEqual('Test Title 2');
+            expect(component.wikiViewerData[0].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)'
+            );
+            expect(component.wikiViewerData[1].text.toString()).toBe(
+                'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)'
+            );
+            done();
+        };
 
-//         let failureCallback = () => {
-//             fail();
-//             done();
-//         };
+        let failureCallback = () => {
+            fail();
+            done();
+        };
 
-//         (component as any).handleTransformVisualizationQueryResults(component.options, [{
-//             testLinkField: ['testLinkValue1', 'testLinkValue2']
-//         }], successCallback, failureCallback);
+        (component as any).handleTransformVisualizationQueryResults(component.options, [{
+            testLinkField: ['testLinkValue1', 'testLinkValue2']
+        }], successCallback, failureCallback);
 
-//         let request1 = backend.expectOne({
-//             url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue1',
-//             method: 'GET'
-//         });
-//         request1.flush({
-//             body: JSON.stringify({
-//                 parse: {
-//                     text: {
-//                         '*': '<p>Test Content 1</p>'
-//                     },
-//                     title: 'Test Title 1'
-//                 }
-//             })
-//         });
+        let request1 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue1',
+            method: 'GET'
+        });
+        request1.flush({
+            parse: {
+                text: {
+                    '*': '<p>Test Content 1</p>'
+                },
+                title: 'Test Title 1'
+            }
+        });
 
-//         let request2 = backend.expectOne({
-//             url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue2',
-//             method: 'GET'
-//         });
-//         request2.flush({
-//             body: JSON.stringify({
-//                 parse: {
-//                     text: {
-//                         '*': '<p>Test Content 2</p>'
-//                     },
-//                     title: 'Test Title 2'
-//                 }
-//             })
-//         });
-//     });
-// });
+        let request2 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue2',
+            method: 'GET'
+        });
+        request2.flush({
+            parse: {
+                text: {
+                    '*': '<p>Test Content 2</p>'
+                },
+                title: 'Test Title 2'
+            }
+        });
+    });
+});
 
 describe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
