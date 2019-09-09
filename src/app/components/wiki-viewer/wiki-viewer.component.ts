@@ -36,9 +36,11 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
-    WidgetOption
+    WidgetOption,
+    WidgetSelectOption
 } from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
@@ -57,8 +59,8 @@ export class WikiData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
-
+    static WIKI_LINK_PREFIX_TITLE: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
+    static WIKI_LINK_PREFIX_ID: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&pageid=';
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -109,7 +111,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         return [
             new WidgetFieldOption('idField', 'ID Field', true),
             new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFreeTextOption('id', 'ID', false, '')
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetSelectOption('useWikipediaPageID', 'Use Wikipedia Page ID', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -278,7 +281,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.retrieveWikiPage(links.slice(1), data, callback);
         };
 
-        this.http.get(WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).subscribe((wikiResponse: any) => {
+        this.http.get( (this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID : WikiViewerComponent.WIKI_LINK_PREFIX_TITLE ) + links[0]).subscribe((wikiResponse: any) => {
             if (wikiResponse.error) {
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
