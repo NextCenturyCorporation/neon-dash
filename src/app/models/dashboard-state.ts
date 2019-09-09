@@ -12,16 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, FieldKey, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from './dataset';
+import { Dataset, DatasetUtil, FieldKey, DatastoreConfig, FieldConfig } from './dataset';
 import { NeonDashboardLeafConfig } from './types';
-import { DatasetUtil } from '../util/dataset.util';
 
 export class DashboardState {
     modified = false;
 
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
-        public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
+        public datastore: DatastoreConfig = DatastoreConfig.get()
     ) { }
 
     get id() {
@@ -39,7 +38,7 @@ export class DashboardState {
      *
      * @param simpleField The new field for the simple search
      */
-    public setSimpleFilterFieldName(simpleField: NeonFieldMetaData) {
+    public setSimpleFilterFieldName(simpleField: FieldConfig) {
         this.createSimpleFilter();
         this.dashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
@@ -65,7 +64,7 @@ export class DashboardState {
     /**
      * Returns the active table fields
      */
-    public getActiveFields(): NeonFieldMetaData[] {
+    public getActiveFields(): FieldConfig[] {
         return this.datastore.databases[0].tables[0].fields;
     }
 
@@ -112,66 +111,6 @@ export class DashboardState {
     }
 
     /**
-     * Returns the database with the given name or an Object with an empty name if no such database exists in the datastore.
-     * @param  The database name
-     * @return The database containing {String} name, {Array} fields, and {Object} labelOptions if a match exists
-     * or undefined otherwise.
-     */
-    public getDatabaseWithName(databaseName: string): NeonDatabaseMetaData {
-        return this.datastore.databases[databaseName];
-    }
-
-    /**
-     * Returns the tables for the database with the given name in the active datastore.
-     * @return An array of table Objects containing {String} name, {Array} fields, and {Object} labelOptions.
-     */
-    public getTables(databaseName: string): { [key: string]: NeonTableMetaData } {
-        let database = this.getDatabaseWithName(databaseName);
-        return database ? database.tables : {};
-    }
-
-    /**
-     * Returns the table with the given name or an Object with an empty name if no such table exists in the database with the given name.
-     * @return {Object} The table containing {String} name, {Array} fields, and {Object} labelOptions if a match exists
-     * or undefined otherwise.
-     */
-    public getTableWithName(databaseName: string, tableName: string): NeonTableMetaData {
-        let tables = this.getTables(databaseName);
-        return tables[tableName];
-    }
-
-    /**
-     * Returns the field with the given name or an Object with an empty name if no such field exists in the database and table with the
-     * given names.
-     *
-     * @return The field containing {String} columnName and {String} prettyName if a match exists or undefined otherwise.
-     */
-    public getFieldWithName(databaseName: string, tableName: string, fieldName: string): NeonFieldMetaData {
-        let fields: NeonFieldMetaData[] = this.getFields(databaseName, tableName);
-        for (let field of fields) {
-            if (field.columnName === fieldName) {
-                return field;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Returns the field objects for the database and table with the given names.
-     * @return The array of field objects if a match exists or an empty array otherwise.
-     */
-    public getFields(databaseName: string, tableName: string): NeonFieldMetaData[] {
-        let table = this.getTableWithName(databaseName, tableName);
-
-        if (!table) {
-            return [];
-        }
-
-        return table.fields;
-    }
-
-    /**
      * Returns the options for the current dashboard.
      */
     public getOptions(): NeonDashboardLeafConfig['options'] {
@@ -179,100 +118,13 @@ export class DashboardState {
     }
 
     /**
-     * Returns the pretty name for the given table name in the given database.
-     */
-    public getPrettyNameForTable(databaseName: string, tableName: string): string {
-        let name = tableName;
-        const tbl = this.getTables(databaseName)[tableName];
-        return tbl ? tbl.prettyName : name;
-    }
-
-    /**
-     * Returns the pretty name for the given database name.
-     */
-    public getPrettyNameForDatabase(databaseName: string): string {
-        const db = this.datastore.databases[databaseName];
-        return db ? db.prettyName : databaseName;
-    }
-
-    /**
-     * Returns the list of relation data for the current datastore:  elements of the outer array are individual relations and elements of
-     * the inner array are specific fields within the relations.
-     */
-    public findRelationDataList(): FieldKey[][][] {
-        // Either expect string list structure:  [[a1, a2, a3], [b1, b2]]
-        // ....Or expect nested list structure:  [[[x1, y1], [x2, y2], [x3, y3]], [[z1], [z2]]]
-        let configRelationDataList: (string | string[])[][] = this.dashboard.relations || [];
-
-        // Each element in the 1st (outermost) list is a separate relation.
-        // Each element in the 2nd list is a relation field.
-        // Each element in the 3rd (innermost) list is an ordered set of relation fields.  A filter must have each relation field within
-        // the ordered set for the relation to be applied.
-        //
-        // EX: [ // relation list
-        //       [ // single relation
-        //         [ // relation fields
-        //           'datastore1.database1.table1.fieldA',
-        //           'datastore1.database1.table1.fieldB'
-        //         ],
-        //         [ // relation fields
-        //           'datastore2.database2.table2.fieldX',
-        //           'datastore2.database2.table2.fieldY'
-        //         ]
-        //       ]
-        //     ]
-        // Whenever a filter contains both fieldA and fieldB, create a relation filter by replacing fieldA with fieldX and fieldB with
-        // fieldY.  Do the reverse whenever a filter contains both fieldX and fieldY.  Do not create a relation filter if a filter contains
-        // just fieldA, or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more than fieldX and fieldY.
-        return configRelationDataList.map((configRelationData) => configRelationData.map((configRelationFilterFields) => {
-            // A relation is an array of arrays.  The elements in the outer array are the fields-to-substitute and the elements in the
-            // inner arrays are the filtered fields.  The inner arrays must be the same length (the same number of filtered fields).
-            let relationFilterFields: string[] = Array.isArray(configRelationFilterFields) ? configRelationFilterFields :
-                [configRelationFilterFields];
-
-            return relationFilterFields.map((item) => {
-                const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item);
-                // Verify that the datastore, database, table, and field are all objects that exist within the current dashboard state.
-                const databaseObject: NeonDatabaseMetaData = this.getDatabaseWithName(fieldKey.database);
-                const tableObject: NeonTableMetaData = this.getTableWithName(fieldKey.database, fieldKey.table);
-                const fieldObject: NeonFieldMetaData = this.getFieldWithName(fieldKey.database, fieldKey.table, fieldKey.field);
-                return (this.datastore && databaseObject && tableObject && fieldObject) ? fieldKey : null;
-            }).filter((item) => !!item);
-        })).filter((relationData) => {
-            if (relationData.length > 1) {
-                // Ensure each inner array element has the same non-zero length because they must have the same number of filtered fields.
-                let size = relationData[0].length;
-                return size && relationData.every((relationFilterFields) => relationFilterFields.length === size);
-            }
-            return false;
-        });
-    }
-
-    /**
-     * Returns entire value of matching table key from current dashboard.
-     */
-    public getTableByKey(key: string): string {
-        return this.dashboard.tables[key];
-    }
-
-    /**
-     * Returns entire value of matching field key from current dashboard.
-     */
-    public getFieldByKey(key: string): string {
-        return this.dashboard.fields[key];
-    }
-
-    /**
      * Returns the current dashboard state as a dataset.
      */
     public asDataset(): Dataset {
         let datastores = {};
-        datastores[this.datastore.name] = this.datastore;
-        return {
-            datastores: datastores,
-            tableKeys: this.dashboard.tables,
-            fieldKeys: this.dashboard.fields,
-            relations: this.findRelationDataList()
-        };
+        if (this.datastore && this.datastore.name) {
+            datastores[this.datastore.name] = this.datastore;
+        }
+        return new Dataset(datastores, null, null, this.dashboard.relations, this.dashboard.tables, this.dashboard.fields);
     }
 }

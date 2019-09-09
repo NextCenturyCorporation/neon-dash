@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { NeonDashboardLeafConfig } from '../../app/models/types';
-import { NeonDatastoreConfig, NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../app/models/dataset';
+import { DatastoreConfig, DatabaseConfig, FieldConfig, TableConfig } from '../../app/models/dataset';
 import { DashboardService } from '../../app/services/dashboard.service';
 import { ConfigService } from '../../app/services/config.service';
 import { InjectableConnectionService } from '../../app/services/injectable.connection.service';

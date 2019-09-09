@@ -32,7 +32,7 @@ import { BoundsFilterDesign, FilterCollection, FilterUtil, PairFilterDesign, Sim
 
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { WidgetOptionCollection } from '../../models/widget-option-collection';
 
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -60,8 +60,8 @@ class TestMapComponent extends MapComponent {
         return this.injector;
     }
 
-    getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: NeonFieldMetaData[], lngField: string,
-        latField: string, colorField: string, hoverPopupField: NeonFieldMetaData, data: any[]) {
+    getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldConfig[], lngField: string,
+        latField: string, colorField: string, hoverPopupField: FieldConfig, data: any[]) {
         return super.getMapPoints(databaseName, tableName, idField, filterFields, lngField, latField, colorField, hoverPopupField, data);
     }
 
@@ -228,13 +228,13 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.options.layers[0].fields).toEqual(DashboardServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Layer 1');
-        expect(component.options.layers[0].idField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].colorField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].hoverPopupField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].dateField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].latitudeField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].longitudeField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.layers[0].sizeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.layers[0].idField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].colorField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].hoverPopupField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].dateField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].latitudeField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].longitudeField).toEqual(FieldConfig.get());
+        expect(component.options.layers[0].sizeField).toEqual(FieldConfig.get());
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -365,21 +365,21 @@ describe('Component: Map', () => {
         };
 
         let mapPoints1 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat',
-            'category', NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset1.data);
+            [FieldConfig.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat',
+            'category', FieldConfig.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset1.data);
         expect(mapPoints1).toEqual(dataset1.expected);
         // TODO expect(mapPoints1[0].name).toEqual(dataset1.expected[0].name);
         let mapPoints2 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
-            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset2.data);
+            [FieldConfig.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            FieldConfig.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset2.data);
         expect(mapPoints2).toEqual(dataset2.expected);
         let mapPoints3 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
-            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset3.data);
+            [FieldConfig.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            FieldConfig.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset3.data);
         expect(mapPoints3).toEqual(dataset3.expected);
         let mapPoints4 = component.getMapPoints('myDatabase', 'myTable', 'id',
-            [NeonFieldMetaData.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
-            NeonFieldMetaData.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset4.data);
+            [FieldConfig.get({ columnName: 'filterFields', prettyName: 'Filter Fields' })], 'lng', 'lat', 'category',
+            FieldConfig.get({ columnName: 'hoverPopupField', prettyName: 'Hover Popup Field' }), dataset4.data);
         expect(mapPoints4).toEqual(dataset4.expected);
     });
 
