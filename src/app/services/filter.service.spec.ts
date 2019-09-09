@@ -62,17 +62,11 @@ describe('FilterService with filters', () => {
     beforeEach(() => {
         filterService = new FilterService();
         dataset = _.cloneDeep(DATASET);
-        dataset.relations = [[[{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_A.columnName
-        }], [{
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase1.name,
-            table: TABLES.testTable1.name,
-            field: FIELD_MAP.RELATION_B.columnName
-        }]]];
+        dataset.setRelations([[[
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_A.columnName
+        ], [
+            DATASTORE.name + '.' + DATABASES.testDatabase1.name + '.' + TABLES.testTable1.name + '.' + FIELD_MAP.RELATION_B.columnName
+        ]]]);
 
         source1 = [{
             datastore: DATASTORE.name,

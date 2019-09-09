@@ -47,27 +47,28 @@ export class FilterService {
     private _createRelationFilterList(filter: AbstractFilter, dataset: Dataset): AbstractFilter[] {
         let filterDataSourceList: FilterDataSource[] = FilterUtil.createFilterDataSourceListFromConfig(filter.toConfig(), true);
 
-        return dataset.relations.reduce((returnList, relationData) => {
+        return dataset.getRelations().reduce((returnList, relation) => {
             let relationFilterList: AbstractFilter[] = [];
 
-            // Assume that each item within the relationData list is a nested list with the same length.
+            // Assume that each item within the relation list is a nested list with the same length.
             // EX:  [[x1, y1], [x2, y2], [x3, y3]]
-            if (relationData.length && relationData[0].length === filterDataSourceList.length) {
-                let equivalentRelationList: FieldKey[][] = relationData.filter((relationFilterFields) =>
-                    // Each item within the relationFilterFields must be equivalent to a FilterDataSource.
-                    relationFilterFields.every((relatedField) => filterDataSourceList.some((filterDataSource) =>
-                        this._isRelationEquivalent(relatedField, filterDataSource))) &&
-                    // Each FilterDataSource must be equivalent to an item within the relationFilterFields.
-                    filterDataSourceList.every((filterDataSource) => relationFilterFields.some((relatedField) =>
-                        this._isRelationEquivalent(relatedField, filterDataSource))));
+            if (relation.length && relation[0].length === filterDataSourceList.length) {
+                let equivalentRelationList: FieldKey[][] = relation.filter((relationFieldKeyList) =>
+                    // Each item within the relationFieldKeyList must be equivalent to a FilterDataSource.
+                    relationFieldKeyList.every((relationFieldKey) => filterDataSourceList.some((filterDataSource) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))) &&
+                    // Each FilterDataSource must be equivalent to an item within the relationFieldKeyList.
+                    filterDataSourceList.every((filterDataSource) => relationFieldKeyList.some((relationFieldKey) =>
+                        this._isRelationEquivalent(relationFieldKey, filterDataSource))));
 
                 // The length of equivalentRelationList should be either 0 or 1.
                 if (equivalentRelationList.length) {
                     // Create new relation filters.
-                    relationData.forEach((relation) => {
+                    relation.forEach((relationFieldKeyList) => {
                         // Do not create a relation that is the same as the original filter.
-                        if (relation !== equivalentRelationList[0]) {
-                            let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0], relation, dataset);
+                        if (relationFieldKeyList !== equivalentRelationList[0]) {
+                            let relationFilter: AbstractFilter = filter.createRelationFilter(equivalentRelationList[0],
+                                relationFieldKeyList, dataset);
                             relationFilterList.push(relationFilter);
                         }
                     });
@@ -297,14 +298,14 @@ export class FilterService {
     /**
      * Returns if the given field is equivalent to the given data source.
      *
-     * @arg {FieldKey} inputField
+     * @arg {FieldKey} fieldKey
      * @arg {FilterDataSource} filterDataSource
      * @return {boolean}
      * @private
      */
-    private _isRelationEquivalent(inputField: FieldKey, filterDataSource: FilterDataSource): boolean {
-        return !!(inputField.datastore === filterDataSource.datastore && inputField.database === filterDataSource.database &&
-            inputField.table === filterDataSource.table && inputField.field === filterDataSource.field);
+    private _isRelationEquivalent(fieldKey: FieldKey, filterDataSource: FilterDataSource): boolean {
+        return !!(fieldKey.datastore === filterDataSource.datastore && fieldKey.database === filterDataSource.database &&
+            fieldKey.table === filterDataSource.table && fieldKey.field === filterDataSource.field);
     }
 
     /**

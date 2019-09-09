@@ -20,7 +20,6 @@ import { eventing } from 'neon-framework';
 import { DashboardService } from '../../services/dashboard.service';
 
 import * as _ from 'lodash';
-import { DashboardUtil } from '../../util/dashboard.util';
 import { Router } from '@angular/router';
 
 @Component({
@@ -74,7 +73,7 @@ export class DashboardSelectorComponent implements OnInit, OnDestroy {
         this.dashboardChoice = dashboard;
         if (!this.dashboards || !('choices' in this.dashboards)) {
             this.dashboards = NeonDashboardChoiceConfig.get({
-                category: DashboardUtil.DASHBOARD_CATEGORY_DEFAULT,
+                category: DashboardService.DASHBOARD_CATEGORY_DEFAULT,
                 choices: dashboard ? { [dashboard.name]: dashboard } : {}
             });
         }
