@@ -238,8 +238,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 console.log(links);
-                links.forEach(function(link, index) {
-                    if(link.includes("https://en.wikipedia.org/wiki/")){
+                links.forEach((link, index) => {
+                    if (link.includes('https://en.wikipedia.org/wiki/')) {
                         links[index] = link.substring(30);
                     }
                 });
@@ -281,7 +281,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.retrieveWikiPage(links.slice(1), data, callback);
         };
 
-        this.http.get( (this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID : WikiViewerComponent.WIKI_LINK_PREFIX_TITLE ) + links[0]).subscribe((wikiResponse: any) => {
+        this.http.get((this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID : WikiViewerComponent.WIKI_LINK_PREFIX_TITLE) + links[0]).subscribe((wikiResponse: any) => {
             if (wikiResponse.error) {
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
