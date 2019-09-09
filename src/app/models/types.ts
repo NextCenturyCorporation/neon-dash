@@ -14,7 +14,7 @@
  */
 
 import { ColorMap } from './color';
-import { DeepPartial, NeonDatastoreConfig, translateValues } from './dataset';
+import { DeepPartial, DatastoreConfig, translateValues } from './dataset';
 import { FilterConfig } from './filter';
 
 export interface NeonSimpleSearchFilter {
@@ -158,7 +158,7 @@ export interface NeonConfig {
     lastModified?: number;
     modified?: boolean;
 
-    datastores: Record<string, NeonDatastoreConfig>;
+    datastores: Record<string, DatastoreConfig>;
     dashboards: NeonDashboardConfig;
     layouts: Record<string, NeonLayoutConfig[]> | Record<string, Record<string, NeonLayoutConfig[]>>;
     errors?: any[];
@@ -177,7 +177,7 @@ export class NeonConfig {
             projectTitle: '',
             ...config,
             dashboards: NeonDashboardUtil.get(config.dashboards || {}),
-            datastores: translateValues(config.datastores || {}, NeonDatastoreConfig.get.bind(null), true)
+            datastores: translateValues(config.datastores || {}, DatastoreConfig.get.bind(null), true)
         } as NeonConfig;
     }
 }

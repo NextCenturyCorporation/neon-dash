@@ -15,7 +15,7 @@
 import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilterCollection } from '../../util/filter.util';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { Injector } from '@angular/core';
 
 import { } from 'jasmine-core';
@@ -71,18 +71,18 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
-        expect(component.options.categoryField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.compareField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.categoryField).toEqual(FieldConfig.get());
+        expect(component.options.compareField).toEqual(FieldConfig.get());
         expect(component.options.filterFields).toEqual([]);
-        expect(component.options.idField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.linkField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.nameField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.objectIdField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.objectNameField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.percentField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.predictedNameField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.sortField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.typeField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.idField).toEqual(FieldConfig.get());
+        expect(component.options.linkField).toEqual(FieldConfig.get());
+        expect(component.options.nameField).toEqual(FieldConfig.get());
+        expect(component.options.objectIdField).toEqual(FieldConfig.get());
+        expect(component.options.objectNameField).toEqual(FieldConfig.get());
+        expect(component.options.percentField).toEqual(FieldConfig.get());
+        expect(component.options.predictedNameField).toEqual(FieldConfig.get());
+        expect(component.options.sortField).toEqual(FieldConfig.get());
+        expect(component.options.typeField).toEqual(FieldConfig.get());
 
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
@@ -170,22 +170,22 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('does show thumbnail-grid-div-scaled elements if gridArray is non-empty array', async(() => {
-        component.options.linkField = NeonFieldMetaData.get({
+        component.options.linkField = FieldConfig.get({
             columnName: 'testLinkField', prettyName: 'Test Link Field'
         });
-        component.options.nameField = NeonFieldMetaData.get({
+        component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectIdField = NeonFieldMetaData.get({
+        component.options.objectIdField = FieldConfig.get({
             columnName: 'testObjectIdField', prettyName: 'Test Object ID Field'
         });
-        component.options.objectNameField = NeonFieldMetaData.get({
+        component.options.objectNameField = FieldConfig.get({
             columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
         });
-        component.options.percentField = NeonFieldMetaData.get({
+        component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = NeonFieldMetaData.get({
+        component.options.predictedNameField = FieldConfig.get({
             columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
         });
 
@@ -305,8 +305,8 @@ describe('Component: ThumbnailGrid', () => {
     it('finalizeVisualizationQuery does return expected query', () => {
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
         component.options.table = DashboardServiceMock.TABLES.testTable1;
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
-        component.options.sortField = NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field' });
+        component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.sortField = FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field' });
 
         expect(component.finalizeVisualizationQuery(component.options, {}, [])).toEqual({
             fields: ['*'],
@@ -374,7 +374,7 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.objectNameField = NeonFieldMetaData.get({
+        component.options.objectNameField = FieldConfig.get({
             columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
         });
 
@@ -387,7 +387,7 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.predictedNameField = NeonFieldMetaData.get({
+        component.options.predictedNameField = FieldConfig.get({
             columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
         });
 
@@ -408,7 +408,7 @@ describe('Component: ThumbnailGrid', () => {
             testPercentField: 0.1234
         })).toEqual('');
 
-        component.options.percentField = NeonFieldMetaData.get({
+        component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
 
@@ -445,16 +445,16 @@ describe('Component: ThumbnailGrid', () => {
             testPredictedNameField: 'myPredictedName'
         })).toEqual('');
 
-        component.options.nameField = NeonFieldMetaData.get({
+        component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectNameField = NeonFieldMetaData.get({
+        component.options.objectNameField = FieldConfig.get({
             columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
         });
-        component.options.percentField = NeonFieldMetaData.get({
+        component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = NeonFieldMetaData.get({
+        component.options.predictedNameField = FieldConfig.get({
             columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
         });
 
@@ -467,16 +467,16 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getThumbnailTitle does use textMap', () => {
-        component.options.nameField = NeonFieldMetaData.get({
+        component.options.nameField = FieldConfig.get({
             columnName: 'testNameField', prettyName: 'Test Name Field'
         });
-        component.options.objectNameField = NeonFieldMetaData.get({
+        component.options.objectNameField = FieldConfig.get({
             columnName: 'testObjectNameField', prettyName: 'Test Object Name Field'
         });
-        component.options.percentField = NeonFieldMetaData.get({
+        component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField', prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = NeonFieldMetaData.get({
+        component.options.predictedNameField = FieldConfig.get({
             columnName: 'testPredictedNameField', prettyName: 'Test Predicted Name Field'
         });
         component.options.textMap = {
@@ -518,9 +518,9 @@ describe('Component: ThumbnailGrid', () => {
         component.options.openOnMouseClick = false;
         expect(component.isSelectable()).toEqual(false);
 
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
         expect(component.isSelectable()).toEqual(true);
-        component.options.idField = NeonFieldMetaData.get();
+        component.options.idField = FieldConfig.get();
 
         component.options.openOnMouseClick = true;
         expect(component.isSelectable()).toEqual(true);
@@ -547,56 +547,56 @@ describe('Component: ThumbnailGrid', () => {
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
         expect(component.validateVisualizationQuery(component.options)).toEqual(true);
     });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
-        component.options.categoryField = NeonFieldMetaData.get({
+        component.options.categoryField = FieldConfig.get({
             columnName: 'testCategoryField',
             prettyName: 'Test Category Field'
         });
-        component.options.compareField = NeonFieldMetaData.get({
+        component.options.compareField = FieldConfig.get({
             columnName: 'testCompareField',
             prettyName: 'Test Compare Field'
         });
-        component.options.filterFields = [NeonFieldMetaData.get({
+        component.options.filterFields = [FieldConfig.get({
             columnName: 'testFilterField',
             prettyName: 'Test Filter Field'
         })];
-        component.options.idField = NeonFieldMetaData.get({
+        component.options.idField = FieldConfig.get({
             columnName: '_id',
             prettyName: 'Test ID Field'
         });
-        component.options.linkField = NeonFieldMetaData.get({
+        component.options.linkField = FieldConfig.get({
             columnName: 'testLinkField',
             prettyName: 'Test Link Field'
         });
-        component.options.nameField = NeonFieldMetaData.get({
+        component.options.nameField = FieldConfig.get({
             columnName: 'testNameField',
             prettyName: 'Test Name Field'
         });
-        component.options.objectIdField = NeonFieldMetaData.get({
+        component.options.objectIdField = FieldConfig.get({
             columnName: 'testObjectIdField',
             prettyName: 'Test Object ID Field'
         });
-        component.options.objectNameField = NeonFieldMetaData.get({
+        component.options.objectNameField = FieldConfig.get({
             columnName: 'testObjectNameField',
             prettyName: 'Test Object Name Field'
         });
-        component.options.percentField = NeonFieldMetaData.get({
+        component.options.percentField = FieldConfig.get({
             columnName: 'testPercentField',
             prettyName: 'Test Percent Field'
         });
-        component.options.predictedNameField = NeonFieldMetaData.get({
+        component.options.predictedNameField = FieldConfig.get({
             columnName: 'testPredictedNameField',
             prettyName: 'Test Predicted Name Field'
         });
-        component.options.sortField = NeonFieldMetaData.get({
+        component.options.sortField = FieldConfig.get({
             columnName: 'testSortField',
             prettyName: 'Test Sort Field'
         });
-        component.options.typeField = NeonFieldMetaData.get({
+        component.options.typeField = FieldConfig.get({
             columnName: 'testTypeField',
             prettyName: 'Test Type Field'
         });
@@ -663,7 +663,7 @@ describe('Component: ThumbnailGrid', () => {
 
     it('transformVisualizationQueryResults with empty aggregation query data does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
 
         let actual = component.transformVisualizationQueryResults(component.options, [], new FilterCollection());
 
@@ -673,11 +673,11 @@ describe('Component: ThumbnailGrid', () => {
 
     it('transformVisualizationQueryResults with link prefix does return expected data', () => {
         component.options.fields = DashboardServiceMock.FIELDS;
-        component.options.idField = NeonFieldMetaData.get({ columnName: '_id', prettyName: 'Test ID Field' });
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
-        component.options.nameField = NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field' });
-        component.options.percentField = NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
-        component.options.typeField = NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field' });
+        component.options.idField = FieldConfig.get({ columnName: '_id', prettyName: 'Test ID Field' });
+        component.options.linkField = FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
+        component.options.nameField = FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field' });
+        component.options.percentField = FieldConfig.get({ columnName: 'testSizeField', prettyName: 'Test Size Field' });
+        component.options.typeField = FieldConfig.get({ columnName: 'testTypeField', prettyName: 'Test Type Field' });
         component.options.linkPrefix = 'prefix/';
 
         let actual = component.transformVisualizationQueryResults(component.options, [{
@@ -727,7 +727,7 @@ describe('Component: ThumbnailGrid', () => {
         });
         expect(spy.calls.count()).toEqual(0);
 
-        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+        component.options.idField = FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
         component.selectGridItem({
             testIdField: 'id1'
@@ -847,43 +847,43 @@ describe('Component: ThumbnailGrid with config', () => {
         });
 
         expect(component.options.categoryField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
         );
         expect(component.options.compareField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testCategoryField', prettyName: 'Test Category Field', hide: false, type: 'string' })
         );
         expect(component.options.dateField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' })
+            FieldConfig.get({ columnName: 'testDateField', prettyName: 'Test Date Field', hide: false, type: 'date' })
         );
         expect(component.options.filterFields).toEqual(
-            [NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' })]
+            [FieldConfig.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field', hide: false, type: 'string' })]
         );
         expect(component.options.idField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
         );
         expect(component.options.linkField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testLinkField', prettyName: 'Test Link Field', hide: false, type: 'string' })
         );
         expect(component.options.nameField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
         );
         expect(component.options.objectIdField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testIdField', prettyName: 'Test ID Field', hide: false, type: 'string' })
         );
         expect(component.options.objectNameField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
         );
         expect(component.options.percentField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' })
+            FieldConfig.get({ columnName: 'testSizeField', prettyName: 'Test Size Field', hide: false, type: 'float' })
         );
         expect(component.options.predictedNameField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testNameField', prettyName: 'Test Name Field', hide: false, type: 'string' })
         );
         expect(component.options.sortField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testSortField', prettyName: 'Test Sort Field', hide: false, type: 'string' })
         );
         expect(component.options.typeField).toEqual(
-            NeonFieldMetaData.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' })
+            FieldConfig.get({ columnName: 'testTypeField', prettyName: 'Test Type Field', hide: false, type: 'string' })
         );
     });
 

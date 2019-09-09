@@ -31,9 +31,9 @@ import {
     Dataset,
     DatasetUtil,
     FieldKey,
-    NeonDatabaseMetaData,
-    NeonFieldMetaData,
-    NeonTableMetaData
+    DatabaseConfig,
+    FieldConfig,
+    TableConfig
 } from '../models/dataset';
 import { DateFormat, DateUtil } from './date.util';
 
@@ -125,7 +125,7 @@ export class FilterUtil {
         let filter: AbstractFilter = null;
 
         if (this.isSimpleFilterConfig(filterConfig)) {
-            const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey({
+            const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey({
                 datastore: filterConfig.datastore,
                 database: filterConfig.database,
                 table: filterConfig.table,
@@ -461,7 +461,7 @@ export class SimpleFilter extends AbstractFilter {
             const value = dataList[4];
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
+                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
                 return new SimpleFilter(datastore.name, database, table, field, operator, value, id, relations);
             }
         }
@@ -470,9 +470,9 @@ export class SimpleFilter extends AbstractFilter {
 
     constructor(
         public datastore: string,
-        public database: NeonDatabaseMetaData,
-        public table: NeonTableMetaData,
-        public field: NeonFieldMetaData,
+        public database: DatabaseConfig,
+        public table: TableConfig,
+        public field: FieldConfig,
         public operator: string,
         public value: any,
         id?: string,
@@ -506,7 +506,7 @@ export class SimpleFilter extends AbstractFilter {
                 equivalentFieldKey.table === this.table.name && equivalentFieldKey.field === this.field.columnName) {
                 const substituteFieldKey: FieldKey = substituteFieldKeyList[index];
                 if (substituteFieldKey.database && substituteFieldKey.table && substituteFieldKey.field) {
-                    const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(substituteFieldKey);
+                    const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(substituteFieldKey);
                     if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName) {
                         relationFilter = new SimpleFilter(datastore.name, database, table, field, this.operator, this.value);
                     }
@@ -864,8 +864,8 @@ export class BoundsFilter extends CompoundFilter {
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
             if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = dataset.retrieveMetaDataFromFieldKey(fieldKey1);
-                const [datastore2, database2, table2, field2] = dataset.retrieveMetaDataFromFieldKey(fieldKey2);
+                const [datastore1, database1, table1, field1] = dataset.retrieveConfigDataFromFieldKey(fieldKey1);
+                const [datastore2, database2, table2, field2] = dataset.retrieveConfigDataFromFieldKey(fieldKey2);
                 return new BoundsFilter(fieldKeyString1, fieldKeyString2, begin1, begin2, end1, end2, [
                     new SimpleFilter(datastore1.name, database1, table1, field1, '>=', begin1),
                     new SimpleFilter(datastore1.name, database1, table1, field1, '<=', end1),
@@ -972,7 +972,7 @@ export class DomainFilter extends CompoundFilter {
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
+                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
                 return new DomainFilter(fieldKeyString, begin, end, [
                     new SimpleFilter(datastore.name, database, table, field, '>=', begin),
                     new SimpleFilter(datastore.name, database, table, field, '<=', end)
@@ -1070,7 +1070,7 @@ export class ListFilter extends CompoundFilter {
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
-                const [datastore, database, table, field] = dataset.retrieveMetaDataFromFieldKey(fieldKey);
+                const [datastore, database, table, field] = dataset.retrieveConfigDataFromFieldKey(fieldKey);
                 return new ListFilter(type, fieldKeyString, operator, values, values.map((value) =>
                     new SimpleFilter(datastore.name, database, table, field, operator, value)), id, relations);
             }
@@ -1176,8 +1176,8 @@ export class PairFilter extends CompoundFilter {
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
             if (fieldKey1 && fieldKey2) {
-                const [datastore1, database1, table1, field1] = dataset.retrieveMetaDataFromFieldKey(fieldKey1);
-                const [datastore2, database2, table2, field2] = dataset.retrieveMetaDataFromFieldKey(fieldKey2);
+                const [datastore1, database1, table1, field1] = dataset.retrieveConfigDataFromFieldKey(fieldKey1);
+                const [datastore2, database2, table2, field2] = dataset.retrieveConfigDataFromFieldKey(fieldKey2);
                 return new PairFilter(type, fieldKeyString1, fieldKeyString2, operator1, operator2, value1, value2, [
                     new SimpleFilter(datastore1.name, database1, table1, field1, operator1, value1),
                     new SimpleFilter(datastore2.name, database2, table2, field2, operator2, value2)
