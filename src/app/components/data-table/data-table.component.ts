@@ -27,13 +27,12 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { DatasetUtil } from '../../util/dataset.util';
 import { FilterConfig } from '../../models/filter';
 import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { DatasetUtil, FieldConfig } from '../../models/dataset';
 import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
@@ -125,13 +124,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    private createFilterConfigOnArrayValue(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterConfigOnArrayValue(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
         return new ListFilterDesign(compoundFilterType, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }
 
-    private createFilterConfigOnOneValue(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfigOnOneValue(field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
             '=', value);
     }

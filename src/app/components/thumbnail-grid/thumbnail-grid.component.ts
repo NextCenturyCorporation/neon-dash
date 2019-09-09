@@ -33,7 +33,7 @@ import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../ut
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { MediaTypes } from '../../models/types';
 import { CoreUtil } from '../../util/core.util';
 import {
@@ -119,12 +119,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.toggleFilters(filters);
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfigOnItem(field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
             '=', value);
     }
 
-    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '=', values);
     }

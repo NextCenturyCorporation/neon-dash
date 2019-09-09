@@ -31,7 +31,7 @@ import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../ut
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
@@ -59,7 +59,7 @@ export interface TaxonomyNode {
     level?: number;
     checked?: boolean;
     indeterminate?: boolean;
-    description: NeonFieldMetaData;
+    description: FieldConfig;
 }
 
 export interface TaxonomyGroup extends TaxonomyNode {
@@ -133,7 +133,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    private createFilterConfigsForField(field: NeonFieldMetaData): FilterConfig[] {
+    private createFilterConfigsForField(field: FieldConfig): FilterConfig[] {
         let designs: FilterConfig[] = [];
         // Match a single NOT EQUALS filter on the specific filter field.
         designs.push(this.createFilterConfig(field));
@@ -142,12 +142,12 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return designs;
     }
 
-    private createFilterConfig(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfig(field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
             '!=', value);
     }
 
-    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+    private createFilterConfigOnList(field: FieldConfig, values: any[] = [undefined]): ListFilterDesign {
         return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
             this.options.table.name + '.' + field.columnName, '!=', values);
     }
@@ -255,7 +255,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         return 'Taxonomy Viewer';
     }
 
-    private isTaxonomyNodeFiltered(filters: FilterCollection, field: NeonFieldMetaData, value: any) {
+    private isTaxonomyNodeFiltered(filters: FilterCollection, field: FieldConfig, value: any) {
         let filterConfig: FilterConfig = this.createFilterConfig(field, value);
         let listFilterConfig: FilterConfig = this.createFilterConfigOnList(field, [value]);
         return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);

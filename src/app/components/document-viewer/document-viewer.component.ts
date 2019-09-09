@@ -136,7 +136,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             new WidgetSelectOption('showSelect', 'Select Button', false, false, OptionChoices.HideFalseShowTrue),
             new WidgetSelectOption('sortDescending', 'Sort', false, true, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetSelectOption('hideSource', 'Source Button', false, false, OptionChoices.ShowFalseHideTrue),
-            // TODO THOR-950 Change metadataFields and popoutFields to arrays of NeonFieldMetaData objects!
+            // TODO THOR-950 Change metadataFields and popoutFields to arrays of FieldConfig objects!
             new WidgetNonPrimitiveOption('metadataFields', 'Metadata Fields', false, []),
             new WidgetNonPrimitiveOption('popoutFields', 'Popout Fields', false, [])
         ];
@@ -154,7 +154,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
-        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of NeonFieldMetaData objects.
+        // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of FieldConfig objects.
         let fields = CoreUtil.flatten(options.metadataFields).map((item) => item.field)
             .concat(CoreUtil.flatten(options.popoutFields).map((item) => item.field));
 

@@ -32,7 +32,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { AbstractSubcomponent } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import {
     AggregationType,
     OptionChoices,
@@ -104,7 +104,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.initializeSubcomponent();
     }
 
-    private createFilterConfig(field: NeonFieldMetaData, value?: any): FilterConfig {
+    private createFilterConfig(field: FieldConfig, value?: any): FilterConfig {
         return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
             '=', value);
     }
