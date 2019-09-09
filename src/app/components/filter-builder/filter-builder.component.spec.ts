@@ -15,7 +15,7 @@
 import { } from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -41,13 +41,13 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[0].tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.filterClauses[0].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[0].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.filterClauses[0].field).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[0].field).toEqual(FieldConfig.get());
         expect(component.filterClauses[0].operator.value).toEqual('contains');
         expect(component.filterClauses[0].value).toEqual('');
         expect(component.filterClauses[0]._id).toBeDefined();
         expect(component.filterClauses[0].changeDatabase).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.filterClauses[0].changeTable).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component.filterClauses[0].changeField).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[0].changeField).toEqual(FieldConfig.get());
 
         expect(component.compoundTypeIsOr).toEqual(false);
     });
@@ -61,13 +61,13 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[1].tables).toEqual(DashboardServiceMock.TABLES_LIST);
         expect(component.filterClauses[1].table).toEqual(DashboardServiceMock.TABLES.testTable1);
         expect(component.filterClauses[1].fields).toEqual(DashboardServiceMock.FIELDS);
-        expect(component.filterClauses[1].field).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[1].field).toEqual(FieldConfig.get());
         expect(component.filterClauses[1].operator.value).toEqual('contains');
         expect(component.filterClauses[1].value).toEqual('');
         expect(component.filterClauses[1]._id).toBeDefined();
         expect(component.filterClauses[1].changeDatabase).toEqual(DashboardServiceMock.DATABASES.testDatabase1);
         expect(component.filterClauses[1].changeTable).toEqual(DashboardServiceMock.TABLES.testTable1);
-        expect(component.filterClauses[1].changeField).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[1].changeField).toEqual(FieldConfig.get());
     });
 
     it('addBlankFilterClause does use the database, table, and/or field from the existing filter clause', () => {
@@ -77,7 +77,7 @@ describe('Component: Filter Builder', () => {
         component.filterClauses[0].fields = DashboardServiceMock.FIELDS;
         component.filterClauses[0].changeDatabase = DashboardServiceMock.DATABASES.testDatabase2;
         component.filterClauses[0].changeTable = DashboardServiceMock.TABLES.testTable2;
-        component.filterClauses[0].changeField = NeonFieldMetaData.get();
+        component.filterClauses[0].changeField = FieldConfig.get();
 
         // Act
         component.addBlankFilterClause();
@@ -91,7 +91,7 @@ describe('Component: Filter Builder', () => {
         expect(component.filterClauses[1].value).toEqual('');
         expect(component.filterClauses[1].changeDatabase).toEqual(DashboardServiceMock.DATABASES.testDatabase2);
         expect(component.filterClauses[1].changeTable).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.filterClauses[1].changeField).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[1].changeField).toEqual(FieldConfig.get());
     });
 
     it('clearEveryFilterClause does remove all the filter clauses from the internal list', () => {
@@ -122,11 +122,11 @@ describe('Component: Filter Builder', () => {
     });
 
     it('handleChangeFieldOfClause does update field', () => {
-        component.filterClauses[0].changeField = NeonFieldMetaData.get();
+        component.filterClauses[0].changeField = FieldConfig.get();
 
         component.handleChangeFieldOfClause(component.filterClauses[0]);
 
-        expect(component.filterClauses[0].field).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[0].field).toEqual(FieldConfig.get());
     });
 
     it('handleChangeTableOfClause does update table/fields', () => {
@@ -135,7 +135,7 @@ describe('Component: Filter Builder', () => {
         component.handleChangeTableOfClause(component.filterClauses[0]);
 
         expect(component.filterClauses[0].table).toEqual(DashboardServiceMock.TABLES.testTable2);
-        expect(component.filterClauses[0].field).toEqual(NeonFieldMetaData.get());
+        expect(component.filterClauses[0].field).toEqual(FieldConfig.get());
     });
 
     it('removeClause does remove the given filter clause from the internal list of filter clauses', () => {
@@ -257,7 +257,7 @@ describe('Component: Filter Builder', () => {
     it('validateFilters does return expected boolean', () => {
         // Arrange
         // Must have column name to be a valid filter
-        component.filterClauses[0].field = NeonFieldMetaData.get({ columnName: 'testColumn' });
+        component.filterClauses[0].field = FieldConfig.get({ columnName: 'testColumn' });
 
         // Act and Assert
         expect(component.validateFilters(component.filterClauses)).toEqual(true);
