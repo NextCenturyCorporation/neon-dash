@@ -49,7 +49,7 @@ import {
     whiteString
 } from './map.type.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DatasetUtil, NeonFieldMetaData } from '../../models/dataset';
+import { DatasetUtil, FieldConfig } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
 import { CoreUtil } from '../../util/core.util';
 import {
@@ -300,13 +300,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      * @arg {string} lngField
      * @arg {string} latField
      * @arg {string} colorField
-     * @arg {NeonFieldMetaData} hoverPopupField
+     * @arg {FieldConfig} hoverPopupField
      * @arg {array} data
      * @return {array}
      * @protected
      */
-    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: NeonFieldMetaData[],
-        lngField: string, latField: string, colorField: string, hoverPopupField: NeonFieldMetaData, data: any[]): any[] {
+    protected getMapPoints(databaseName: string, tableName: string, idField: string, filterFields: FieldConfig[],
+        lngField: string, latField: string, colorField: string, hoverPopupField: FieldConfig, data: any[]): any[] {
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
@@ -672,7 +672,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    private createFilterConfigOnValue(layer: any, field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+    private createFilterConfigOnValue(layer: any, field: FieldConfig, value?: any): SimpleFilterDesign {
         return new SimpleFilterDesign(layer.datastore.name, layer.database.name, layer.table.name, field.columnName, '=', value);
     }
 

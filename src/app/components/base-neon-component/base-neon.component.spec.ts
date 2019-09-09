@@ -34,7 +34,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeonConfig } from '../../models/types';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import {
     AggregationType,
     OptionChoices,
@@ -304,7 +304,7 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
             new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
@@ -757,7 +757,7 @@ describe('BaseNeonComponent', () => {
             operator: '!=',
             rhs: 'testIdValue'
         };
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
         component.options.append(new WidgetFieldOption('testField', 'Test Field', false), DashboardServiceMock.FIELD_MAP.CATEGORY);
         component.options.append(
             new WidgetFieldArrayOption('testFieldArray', 'Test Field Array', false),
@@ -953,7 +953,7 @@ describe('BaseNeonComponent', () => {
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([]);
 
-        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), NeonFieldMetaData.get());
+        component.options.append(new WidgetFieldOption('testEmptyField', 'Test Empty Field', false), FieldConfig.get());
         component.options.append(new WidgetFieldOption('testField1', 'Test Field 1', false), DashboardServiceMock.FIELD_MAP.NAME);
         component.options.append(new WidgetFieldOption('testField2', 'Test Field 2', false), DashboardServiceMock.FIELD_MAP.TYPE);
         component.options.append(

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Dataset, DatasetUtil, FieldKey, NeonDatastoreConfig, NeonFieldMetaData } from './dataset';
+import { Dataset, DatasetUtil, FieldKey, DatastoreConfig, FieldConfig } from './dataset';
 import { NeonDashboardLeafConfig } from './types';
 
 export class DashboardState {
@@ -20,7 +20,7 @@ export class DashboardState {
 
     constructor(
         public dashboard: NeonDashboardLeafConfig = NeonDashboardLeafConfig.get(),
-        public datastore: NeonDatastoreConfig = NeonDatastoreConfig.get()
+        public datastore: DatastoreConfig = DatastoreConfig.get()
     ) { }
 
     get id() {
@@ -38,7 +38,7 @@ export class DashboardState {
      *
      * @param simpleField The new field for the simple search
      */
-    public setSimpleFilterFieldName(simpleField: NeonFieldMetaData) {
+    public setSimpleFilterFieldName(simpleField: FieldConfig) {
         this.createSimpleFilter();
         this.dashboard.options.simpleFilter.fieldName = simpleField.columnName;
     }
@@ -64,7 +64,7 @@ export class DashboardState {
     /**
      * Returns the active table fields
      */
-    public getActiveFields(): NeonFieldMetaData[] {
+    public getActiveFields(): FieldConfig[] {
         return this.datastore.databases[0].tables[0].fields;
     }
 

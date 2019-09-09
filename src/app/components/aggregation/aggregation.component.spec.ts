@@ -40,7 +40,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { Color } from '../../models/color';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
 import { SearchServiceMock } from '../../../testUtils/MockServices/SearchServiceMock';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Aggregation', () => {
@@ -74,10 +74,10 @@ describe('Component: Aggregation', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.aggregationField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.groupField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.xField).toEqual(NeonFieldMetaData.get());
-        expect(component.options.yField).toEqual(NeonFieldMetaData.get());
+        expect(component.options.aggregationField).toEqual(FieldConfig.get());
+        expect(component.options.groupField).toEqual(FieldConfig.get());
+        expect(component.options.xField).toEqual(FieldConfig.get());
+        expect(component.options.yField).toEqual(FieldConfig.get());
 
         expect(component.options.aggregation).toEqual(AggregationType.COUNT);
         expect(component.options.dualView).toEqual('');
