@@ -117,6 +117,12 @@ interface ArrowUpdate {
     color?: Record<string, any>;
 }
 
+interface NodeUpdate {
+    id: string;
+    x: number;
+    y: number;
+}
+
 interface EdgeColorProperties {
     color: string;
     highlight: string;
@@ -173,6 +179,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public totalNodes: number;
     public prettifiedNodeLegendLabels: string[] = [];
     public prettifiedEdgeLegendLabels: string[] = [];
+
+    public updatedNodePositions: NodeUpdate[] = [];
 
     existingNodeNames: string[];
     view: any[];
@@ -351,7 +359,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
             new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', '')
+            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', ''),
+            new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -689,6 +700,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.').join('\n') : cleanLabel;
         cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join('\n') : cleanLabel;
 
+        //Break the text at every 3rd spave and start a newline for the purpose of wrapping lengthy label text
         if(cleanLabel.indexOf(' ') > -1 && cleanLabel.indexOf('\n') == -1){
             let splitSpace = cleanLabel.split(' ');
             let lastIndex = 0;
@@ -782,8 +794,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.createRelationsAsLinksGraphProperties() : this.createTabularGraphProperties();
 
         if (graphProperties) {
-            this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
-                array.findIndex((object) => object.id === value.id) === index).length;
+            this.totalNodes = graphProperties.nodes.filter((node, index, array) =>
+                array.findIndex((nodeObject) => nodeObject.id === node.id) === index).length;
 
             this.graphData.clear();
             if (this.displayGraph) {
@@ -937,9 +949,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         for (let entry of data) {
             let colorMapVal = entry[colorField];
             let id = entry[idField];
+            let updatedPosition = this.updatedNodePositions.findIndex(node => node.id === id);
             let name = nameField && entry[nameField];
-            let xPosition = entry[xPositionField];
-            let yPosition = entry[yPositionField];
+            let xPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].x : entry[xPositionField];
+            let yPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].y : entry[yPositionField];
             let filterFieldData: any[] = [];
 
             // Create a tabular network graph
@@ -1176,6 +1189,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let linkNameColumn = this.options.linkNameField.columnName;
         let nodeName = this.options.nodeField.columnName;
         let nodeNameColumn = this.options.nodeNameField.columnName;
+        let relationNameColumn = this.options.relationNameField.columnName ? this.options.relationNameField.columnName : nodeNameColumn;
         let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let nodeColor = this.options.nodeColor;
@@ -1216,13 +1230,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             // Convert relation nodes to edges. Ensure that the relation link object has two nodes before adding it to the network graph
             for (let relationNode of this.relationNodes) {
-                let linkNames = this.edgeLabelFormat(relationNode[nodeNameColumn]);
+                let linkNames = this.edgeLabelFormat(relationNode[relationNameColumn]);
                 if (relationNode.nodes.length === 2) {
                     graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
                         relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id), true));
                 }
             }
         }
+
         return graph;
     }
 
@@ -1361,7 +1376,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     onSelect(properties: { nodes: string[] }) {
         if (properties.nodes.length === 1) {
             let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
-
             let filters: FilterConfig[] = [];
 
             for (let filterField of selectedNode.filterFields) {
@@ -1376,7 +1390,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            this.toggleFilters(filters);
+            if(this.options.toggleFiltered){
+                this.toggleFilters(filters);
+            } else {
+                this.exchangeFilters(filters);
+            }
         }
     }
 
