@@ -234,6 +234,12 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         new Promise<number>((resolve, reject) => {
             try {
                 let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+                console.log(links);
+                links.forEach(function(link, index) {
+                    if(link.includes("https://en.wikipedia.org/wiki/")){
+                        links[index] = link.substring(30);
+                    }
+                });
                 this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
                     this.wikiViewerData = data || [];
                     resolve(data ? data.length : 0);
