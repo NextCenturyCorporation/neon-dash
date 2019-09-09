@@ -122,7 +122,9 @@ export class DashboardState {
      */
     public asDataset(): Dataset {
         let datastores = {};
-        datastores[this.datastore.name] = this.datastore;
+        if (this.datastore && this.datastore.name) {
+            datastores[this.datastore.name] = this.datastore;
+        }
         return new Dataset(datastores, null, null, this.dashboard.relations, this.dashboard.tables, this.dashboard.fields);
     }
 }

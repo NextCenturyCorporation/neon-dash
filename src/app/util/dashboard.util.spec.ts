@@ -29,13 +29,16 @@ describe('Util: DashboardUtil', () => {
 
         DashboardUtil.appendDatastoresFromConfig({
             datastore1: NeonDatastoreConfig.get({
+                name: 'datastore1',
                 host: 'host1',
                 type: 'type1',
                 databases: {
                     database1: {
+                        name: 'database1',
                         prettyName: 'Database 1',
                         tables: {
                             table1: {
+                                name: 'table1',
                                 prettyName: 'Table 1',
                                 labelOptions: {
                                     valueA: 'labelA',
@@ -94,13 +97,16 @@ describe('Util: DashboardUtil', () => {
 
         DashboardUtil.appendDatastoresFromConfig({
             datastore1: NeonDatastoreConfig.get({
+                name: 'datastore1',
                 host: 'host1',
                 type: 'type1',
                 databases: {
                     database1: {
+                        name: 'database1',
                         prettyName: 'Database 1',
                         tables: {
                             table1: {
+                                name: 'table1',
                                 prettyName: 'Table 1',
                                 labelOptions: {
                                     valueA: 'labelA',
@@ -123,13 +129,16 @@ describe('Util: DashboardUtil', () => {
                 }
             }),
             datastore2: NeonDatastoreConfig.get({
+                name: 'datastore2',
                 host: 'host2',
                 type: 'type2',
                 databases: {
                     database2: {
+                        name: 'database2',
                         prettyName: 'Database 2',
                         tables: {
                             table2: {
+                                name: 'table2',
                                 prettyName: 'Table 2',
                                 labelOptions: {
                                     valueC: 'labelC',
@@ -159,9 +168,11 @@ describe('Util: DashboardUtil', () => {
             type: 'type1',
             databases: {
                 database1: {
+                    name: 'database1',
                     prettyName: 'Database 1',
                     tables: {
                         table1: {
+                            name: 'table1',
                             prettyName: 'Table 1',
                             labelOptions: {
                                 valueA: 'labelA',
@@ -184,9 +195,11 @@ describe('Util: DashboardUtil', () => {
             type: 'type2',
             databases: {
                 database2: {
+                    name: 'database2',
                     prettyName: 'Database 2',
                     tables: {
                         table2: {
+                            name: 'table2',
                             prettyName: 'Table 2',
                             labelOptions: {
                                 valueC: 'labelC',
@@ -203,57 +216,6 @@ describe('Util: DashboardUtil', () => {
         });
 
         expect(input).toEqual({ [datastore1.name]: datastore1, [datastore2.name]: datastore2 });
-    });
-
-    it('appendDatastoresFromConfig does keep updated fields if config hasUpdatedFields', () => {
-        let input = {};
-
-        DashboardUtil.appendDatastoresFromConfig({
-            datastore1: NeonDatastoreConfig.get({
-                host: 'host1',
-                type: 'type1',
-                databases: {
-                    database1: {
-                        prettyName: 'Database 1',
-                        tables: {
-                            table1: {
-                                prettyName: 'Table 1',
-                                labelOptions: {
-                                    valueA: 'labelA',
-                                    valueB: 'labelB'
-                                },
-                                fields: [{
-                                    columnName: 'fieldA',
-                                    prettyName: 'Field A',
-                                    hide: false,
-                                    type: 'text'
-                                }, {
-                                    columnName: 'fieldB',
-                                    prettyName: 'Field B',
-                                    hide: true,
-                                    type: 'date'
-                                }]
-                            }
-                        }
-                    }
-                }
-            })
-        }, input);
-
-        let table1 = NeonTableMetaData.get({ name: 'table1', prettyName: 'Table 1' });
-        table1.fields = [
-            NeonFieldMetaData.get({ columnName: 'fieldA', prettyName: 'Field A', hide: false, type: 'text' }),
-            NeonFieldMetaData.get({ columnName: 'fieldB', prettyName: 'Field B', hide: true, type: 'date' })
-        ];
-        table1.labelOptions = {
-            valueA: 'labelA',
-            valueB: 'labelB'
-        };
-        let database1 = NeonDatabaseMetaData.get({ name: 'database1', prettyName: 'Database 1' });
-        database1.tables = { [table1.name]: table1 };
-        let datastore1 = NeonDatastoreConfig.get({ name: 'datastore1', host: 'host1', type: 'type1' });
-        datastore1.databases = { [database1.name]: database1 };
-        expect(input).toEqual({ [datastore1.name]: datastore1 });
     });
 
     it('appendDatastoresFromConfig with config and existing datastores should update given datastores', () => {
@@ -279,9 +241,11 @@ describe('Util: DashboardUtil', () => {
                 type: 'type2',
                 databases: {
                     database2: {
+                        name: 'database2',
                         prettyName: 'Database 2',
                         tables: {
                             table2: {
+                                name: 'table2',
                                 prettyName: 'Table 2',
                                 labelOptions: {
                                     valueC: 'labelC',
@@ -344,9 +308,11 @@ describe('Util: DashboardUtil', () => {
                 type: 'type1',
                 databases: {
                     database1: {
+                        name: 'database1',
                         prettyName: 'Database 1',
                         tables: {
                             table1: {
+                                name: 'table1',
                                 prettyName: 'Table 1',
                                 labelOptions: {
                                     valueA: 'labelA',
