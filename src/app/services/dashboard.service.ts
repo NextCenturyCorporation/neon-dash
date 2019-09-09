@@ -59,21 +59,19 @@ export class DashboardService {
     }
 
     onConfigChange(config: NeonConfig): Observable<NeonConfig> {
-        const promises = Object.values(config.datastores).map((datastore) => {
-            DashboardUtil.validateDatabases(datastore);
+        const datastores: NeonDatastoreConfig[] = Object.values(config.datastores)
+            .map((datastore) => DatasetUtil.validateDatastore(datastore)).filter((datastore) => !!datastore);
 
+        const promises = datastores.map((datastore: NeonDatastoreConfig) => {
             const connection = this.connectionService.connect(datastore.type, datastore.host);
-            if (connection && !datastore['hasUpdatedFields']) {
-                return DatasetUtil.updateDatabasesFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
-                    datastore['hasUpdatedFields'] = !failedDatabases.length;
-
+            if (connection) {
+                return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
                     failedDatabases.forEach((database) => {
                         console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
                         DashboardUtil.deleteInvalidDashboards(config.dashboards, database.name);
                     });
                 });
             }
-
             return undefined;
         }).filter((promise) => !!promise);
 
@@ -100,14 +98,6 @@ export class DashboardService {
         });
     }
 
-    /**
-     * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
-     */
-    public addDatastore(datastore: NeonDatastoreConfig) {
-        DashboardUtil.validateDatabases(datastore);
-        this.config.datastores[datastore.name] = datastore;
-    }
-
     public setActiveDashboard(dashboard: NeonDashboardLeafConfig) {
         this.state.dashboard = dashboard;
 
@@ -131,12 +121,11 @@ export class DashboardService {
     // TODO: THOR-1062: this will likely be more like "set active dashboard/config" to allow
     // to connect to multiple datasets
     public setActiveDatastore(datastore: NeonDatastoreConfig): void {
-        const out = NeonDatastoreConfig.get({
-            name: 'Unknown Dataset',
-            ...datastore
-        });
-        this.addDatastore(out);
-        this.state.datastore = out;
+        const validated: NeonDatastoreConfig = DatasetUtil.validateDatastore(datastore);
+        if (validated) {
+            this.config.datastores[validated.name] = validated;
+            this.state.datastore = validated;
+        }
     }
 
     /**

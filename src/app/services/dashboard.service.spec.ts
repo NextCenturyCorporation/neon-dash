@@ -51,22 +51,6 @@ describe('Service: DashboardService', () => {
         expect(dashboardService.state.dashboard.name).not.toBeDefined();
     });
 
-    it('should return datastores by name', () => {
-        dashboardService.addDatastore({
-            name: 'd1',
-            host: '',
-            type: '',
-            databases: {}
-        });
-
-        expect(dashboardService.config.datastores.d1).toEqual({
-            name: 'd1',
-            host: '',
-            type: '',
-            databases: {}
-        });
-    });
-
     it('getFiltersToSaveInURL should return expected JSON string', () => {
         expect(dashboardService.getFiltersToSaveInURL()).toEqual(ConfigUtil.translate('[]', ConfigUtil.encodeFiltersMap));
 
@@ -125,10 +109,11 @@ describe('Service: DashboardService with Mock Data', () => {
     });
 
     it('should have active datastore at creation', () => {
-        let datastore = { name: 'datastore1', host: 'testHostname', type: 'testDatastore', databases: {} };
-        datastore.databases = DashboardServiceMock.DATABASES;
-        datastore['hasUpdatedFields'] = true;
-        expect(dashboardService.state.datastore).toEqual(datastore);
+        expect(dashboardService.state.datastore).toEqual(DashboardServiceMock.DATASTORE);
+    });
+
+    it('should return active datastores by name', () => {
+        expect(dashboardService.config.datastores.datastore1).toEqual(DashboardServiceMock.DATASTORE);
     });
 
     it('should have active dashboard at creation', () => {
@@ -263,14 +248,7 @@ describe('Service: DashboardService with Mock Data', () => {
                                     fields: [
                                         { columnName: 'testTypeField', type: 'string', prettyName: 'Field2' }
                                     ]
-                                },
-                                tableC: { prettyName: 'tableC' }
-                            }
-                        },
-                        databaseX: {
-                            prettyName: 'databaseX',
-                            tables: {
-                                tableD: { prettyName: 'tableD' }
+                                }
                             }
                         }
                     }

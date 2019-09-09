@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from 'lodash';
 
 import { NeonDashboardConfig } from '../models/types';
-import { DatasetUtil, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../models/dataset';
+import { DatasetUtil, FieldKey, NeonDatastoreConfig } from '../models/dataset';
 import { ConfigUtil } from './config.util';
 
 /**
@@ -24,43 +23,6 @@ import { ConfigUtil } from './config.util';
  */
 export class DashboardUtil {
     static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
-
-    static validateFields(table: NeonTableMetaData): void {
-        for (let idx = table.fields.length - 1; idx >= 0; idx--) {
-            const field = table.fields[idx];
-            if (!field.columnName) {
-                table.fields.splice(idx, 1);
-            } else {
-                field.prettyName = field.prettyName || field.columnName;
-            }
-        }
-    }
-
-    static validateTables(database: NeonDatabaseMetaData): void {
-        for (const key of Object.keys(database.tables)) {
-            const table = database.tables[key];
-            if (!table.name) {
-                delete database.tables[key];
-            } else {
-                table.prettyName = table.prettyName || table.name;
-                table.fields = table.fields || [];
-                table.labelOptions = table.labelOptions || {};
-                DashboardUtil.validateFields(table);
-            }
-        }
-    }
-
-    static validateDatabases(dataset: NeonDatastoreConfig): void {
-        for (const key of Object.keys(dataset.databases)) {
-            const database = dataset.databases[key];
-            if (!(database.name || database.tables || database.tables.length)) {
-                delete dataset.databases[key];
-            } else {
-                database.prettyName = database.prettyName || database.name;
-                DashboardUtil.validateTables(database);
-            }
-        }
-    }
 
     /**
      * Validate top level category of dashboards object in the config, then call
@@ -136,53 +98,12 @@ export class DashboardUtil {
     static appendDatastoresFromConfig(
         configDatastores: Record<string, NeonDatastoreConfig>, existingDatastores: Record<string, NeonDatastoreConfig>
     ): Record<string, NeonDatastoreConfig> {
-        // Transform the datastores from config file structures to Datastore objects.
-        Object.keys(configDatastores).forEach((datastoreKey) => {
-            let configDatastore = configDatastores[datastoreKey] || NeonDatastoreConfig.get();
-            let outputDatastore = NeonDatastoreConfig.get({
-                name: datastoreKey,
-                host: configDatastore.host,
-                type: configDatastore.type
-            });
-
-            // Keep whether the datastore's fields are already updated (important for loading a saved state).
-            if (configDatastore['hasUpdatedFields']) {
-                outputDatastore['hasUpdatedFields'] = true;
-            } else {
-                delete outputDatastore['hasUpdatedFields'];
-            }
-
-            let configDatabases = configDatastore.databases || NeonDatabaseMetaData.get();
-            outputDatastore.databases = Object.keys(configDatabases).reduce((dbs, databaseKey) => {
-                let configDatabase = configDatabases[databaseKey] || NeonDatabaseMetaData.get();
-                let outputDatabase = NeonDatabaseMetaData.get({ name: databaseKey, prettyName: configDatabase.prettyName });
-
-                let configTables = configDatabase.tables || NeonTableMetaData.get();
-                outputDatabase.tables = Object.keys(configTables).reduce((acc, tableKey) => {
-                    let configTable = configTables[tableKey] || NeonTableMetaData.get();
-                    let outputTable = NeonTableMetaData.get({ name: tableKey, prettyName: configTable.prettyName });
-
-                    outputTable.fields = (configTable.fields || []).map((configField) =>
-                        NeonFieldMetaData.get(configField));
-
-                    // Create copies to maintain original config data.
-                    outputTable.labelOptions = _.cloneDeep(configTable.labelOptions);
-
-                    acc[outputTable.name] = outputTable;
-
-                    return acc;
-                }, {} as { [key: string]: NeonTableMetaData });
-
-                dbs[outputDatabase.name] = outputDatabase;
-                return dbs;
-            }, {} as { [key: string]: NeonDatabaseMetaData });
-
+        Object.values(configDatastores).forEach((datastore) => {
             // Ignore the datastore if another datastore with the same name already exists (each name should be unique).
-            if (!existingDatastores[outputDatastore.name]) {
-                existingDatastores[outputDatastore.name] = outputDatastore;
+            if (!existingDatastores[datastore.name]) {
+                existingDatastores[datastore.name] = datastore;
             }
         });
-
         return existingDatastores;
     }
 }
