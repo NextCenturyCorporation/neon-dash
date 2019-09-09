@@ -44,4 +44,5 @@ The following 3rd party libraries are used by the Neon Geo Temporal Dashboard:
 | tslib@1.10.0 | [Apache-2.0](https://github.com/Microsoft/tslib/raw/master/LICENSE.txt) |
 | uuid@3.3.2 | [MIT](https://github.com/kelektiv/node-uuid/raw/master/LICENSE.md) |
 | vis@4.21.0 | [(Apache-2.0 OR MIT)](https://github.com/almende/vis/raw/master/LICENSE-APACHE-2.0) |
+| visjs-network@4.24.10 | [(Apache-2.0 OR MIT)](https://github.com/visjs-community/visjs-network/raw/master/LICENSE-APACHE-2.0) |
 | zone.js@0.9.1 | [MIT](https://github.com/angular/zone.js/raw/master/LICENSE) |
