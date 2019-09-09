@@ -7,21 +7,21 @@ datastores:
             kb-events:
                 prettyName: Events
                 tables:
-                    union:
+                    _doc:
                         prettyName: Seedling Index
                         fields:
                         labelOptions:
             kb-geo:
                 prettyName: Geolocation
                 tables:
-                    union:
+                    _doc:
                         prettyName: Seedling Index
                         fields:
                         labelOptions:
             kb-union:
                 prettyName: Network
                 tables:
-                    rdf-kb:
+                    _doc:
                         prettyName: Seedling Index
                         fields:
                         labelOptions:
@@ -30,20 +30,6 @@ datastores:
                 tables:
                     normal:
                         prettyName: RDF Index
-                        fields:
-                        labelOptions:
-            verdi-rdf-kb:
-                prettyName: Knowledge Elements
-                tables:
-                    kb:
-                      prettyName: Knowledge Base Index
-                      fields:
-                      labelOptions:
-            verdi-rdf-reified:
-                prettyName: Reified Documents
-                tables:
-                    reified:
-                        prettyName: Reified Index
                         fields:
                         labelOptions:
             verdi-rdf_docs-parents:
@@ -92,7 +78,7 @@ dashboards:
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
                                 normal_table: es1.verdi-rdf-normal.normal
-                                kb_table: es1.kb-union.rdf-kb
+                                kb_table: es1.kb-union._doc
                             fields:
                                 document_field_id: es1.verdi-rdf_docs-parents.parents.id
                                 document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
@@ -114,33 +100,33 @@ dashboards:
                                 normal_field_doctype: es1.verdi-rdf-normal.normal.docType
                                 normal_field_sourceid: es1.verdi-rdf-normal.normal.isPartOf
 
-                                kb_field_objectid: es1.kb-union.rdf-kb.kbid
-                                kb_field_category: es1.kb-union.rdf-kb.categories
-                                kb_field_documentid: es1.kb-union.rdf-kb.docIds
-                                kb_field_edgecategory: es1.kb-union.rdf-kb.edgeCategories
-                                kb_field_edgename: es1.kb-union.rdf-kb.edgeLabel
-                                kb_field_edgetarget: es1.kb-union.rdf-kb.edgeTarget
-                                kb_field_edgetargetname: es1.kb-union.rdf-kb.edgeTargetName
-                                kb_field_x: es1.kb-union.rdf-kb.x
-                                kb_field_y: es1.kb-union.rdf-kb.y
-                                kb_field_edgex: es1.kb-union.rdf-kb.edgeX
-                                kb_field_edgey: es1.kb-union.rdf-kb.edgeY
-                                kb_field_name: es1.kb-union.rdf-kb.name
-                                kb_field_type: es1.kb-union.rdf-kb.types
+                                kb_field_objectid: es1.kb-union._doc.kbid
+                                kb_field_category: es1.kb-union._doc.categories
+                                kb_field_documentid: es1.kb-union._doc.docIds
+                                kb_field_edgecategory: es1.kb-union._doc.edgeCategories
+                                kb_field_edgename: es1.kb-union._doc.edgeLabel
+                                kb_field_edgetarget: es1.kb-union._doc.edgeTarget
+                                kb_field_edgetargetname: es1.kb-union._doc.edgeTargetName
+                                kb_field_x: es1.kb-union._doc.x
+                                kb_field_y: es1.kb-union._doc.y
+                                kb_field_edgex: es1.kb-union._doc.edgeX
+                                kb_field_edgey: es1.kb-union._doc.edgeY
+                                kb_field_name: es1.kb-union._doc.name
+                                kb_field_type: es1.kb-union._doc.types
                             relations:
                                 #- - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   #- 'es1.verdi-rdf-normal.normal.@id'
-                                  - es1.kb-union.rdf-kb.docIds
+                                  - es1.kb-union._doc.docIds
                                 # This is an ambitious assumption being that documents and kb elements have
                                 # a many to many relationship. Removing this.
                                 #- - es1.verdi-rdf_docs-parents.parents.date
-                                #  - es1.kb-union.rdf-kb.docDate
+                                #  - es1.kb-union._doc.docDate
                             options:
                                 connectOnLoad: true
                                 colorMaps:
                                     kb-union:
-                                        rdf-kb:
+                                        _doc:
                                             categories:
                                                 ENTITY: '#ADD8E6'
                                                 EVENT: '#D98C8C'
@@ -151,7 +137,7 @@ dashboards:
                             tables:
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
-                                event_table: es1.kb-events.union
+                                event_table: es1.kb-events._doc
                             fields:
                                 document_field_id: es1.verdi-rdf_docs-parents.parents.id
                                 document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
@@ -167,18 +153,18 @@ dashboards:
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
-                                event_field_objectid: es1.kb-events.union.kbid
-                                event_field_type: es1.kb-events.union.types
-                                event_field_name: es1.kb-events.union.name
-                                event_field_category: es1.kb-events.union.categories
-                                event_field_documentid: es1.kb-events.union.docIds
-                                event_field_docdate: es1.kb-events.union.docDate
-                                event_field_link: es1.kb-events.union.url
-                                event_field_doctype: es1.kb-events.union.docType
+                                event_field_objectid: es1.kb-events._doc.kbid
+                                event_field_type: es1.kb-events._doc.types
+                                event_field_name: es1.kb-events._doc.name
+                                event_field_category: es1.kb-events._doc.categories
+                                event_field_documentid: es1.kb-events._doc.docIds
+                                event_field_docdate: es1.kb-events._doc.docDate
+                                event_field_link: es1.kb-events._doc.url
+                                event_field_doctype: es1.kb-events._doc.docType
                             relations:
                                # - - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
-                                  - es1.kb-events.union.docIds
+                                  - es1.kb-events._doc.docIds
                             options:
                                 connectOnLoad: false
                         map:
@@ -187,7 +173,7 @@ dashboards:
                             tables:
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
-                                geo_table: es1.kb-geo.union
+                                geo_table: es1.kb-geo._doc
                             fields:
                                 document_field_id: es1.verdi-rdf_docs-parents.parents.id
                                 document_field_date: es1.verdi-rdf_docs-parents.parents.download_date
@@ -203,18 +189,18 @@ dashboards:
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
-                                geo_field_objectid: es1.kb-geo.union.kbid
-                                geo_field_name: es1.kb-geo.union.name
-                                geo_field_latitude: es1.kb-geo.union.geoLocation.lat
-                                geo_field_longitude: es1.kb-geo.union.geoLocation.lon
-                                geo_field_type: es1.kb-geo.union.types
-                                geo_field_category: es1.kb-geo.union.categories
-                                geo_field_documentid: es1.kb-geo.union.docIds
-                                geo_field_docdate: es1.kb-geo.union.docDate
+                                geo_field_objectid: es1.kb-geo._doc.kbid
+                                geo_field_name: es1.kb-geo._doc.name
+                                geo_field_latitude: es1.kb-geo._doc.geoLocation.lat
+                                geo_field_longitude: es1.kb-geo._doc.geoLocation.lon
+                                geo_field_type: es1.kb-geo._doc.types
+                                geo_field_category: es1.kb-geo._doc.categories
+                                geo_field_documentid: es1.kb-geo._doc.docIds
+                                geo_field_docdate: es1.kb-geo._doc.docDate
                             relations:
                                # - - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
-                                  - es1.kb-geo.union.docIds
+                                  - es1.kb-geo._doc.docIds
                             options:
                                 connectOnLoad: false
                 ldc-ta3:
@@ -228,7 +214,7 @@ dashboards:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
-                                kb_table: es1.kb-union.rdf-kb
+                                kb_table: es1.kb-union._doc
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
@@ -250,33 +236,33 @@ dashboards:
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
-                                kb_field_objectid: es1.kb-union.rdf-kb.kbid
-                                kb_field_category: es1.kb-union.rdf-kb.categories
-                                kb_field_documentid: es1.kb-union.rdf-kb.docIds
-                                kb_field_docdate: es1.kb-union.rdf-kb.docDate
-                                kb_field_edgecategory: es1.kb-union.rdf-kb.edgeCategories
-                                kb_field_edgename: es1.kb-union.rdf-kb.edgeLabel
-                                kb_field_edgetarget: es1.kb-union.rdf-kb.edgeTarget
-                                kb_field_edgetargetname: es1.kb-union.rdf-kb.edgeTargetName
-                                kb_field_x: es1.kb-union.rdf-kb.x
-                                kb_field_y: es1.kb-union.rdf-kb.y
-                                kb_field_edgex: es1.kb-union.rdf-kb.edgeX
-                                kb_field_edgey: es1.kb-union.rdf-kb.edgeY
-                                kb_field_name: es1.kb-union.rdf-kb.name
-                                kb_field_type: es1.kb-union.rdf-kb.types
-                                kb_field_hypotheses: es1.kb-union.rdf-kb.hypotheses
+                                kb_field_objectid: es1.kb-union._doc.kbid
+                                kb_field_category: es1.kb-union._doc.categories
+                                kb_field_documentid: es1.kb-union._doc.docIds
+                                kb_field_docdate: es1.kb-union._doc.docDate
+                                kb_field_edgecategory: es1.kb-union._doc.edgeCategories
+                                kb_field_edgename: es1.kb-union._doc.edgeLabel
+                                kb_field_edgetarget: es1.kb-union._doc.edgeTarget
+                                kb_field_edgetargetname: es1.kb-union._doc.edgeTargetName
+                                kb_field_x: es1.kb-union._doc.x
+                                kb_field_y: es1.kb-union._doc.y
+                                kb_field_edgex: es1.kb-union._doc.edgeX
+                                kb_field_edgey: es1.kb-union._doc.edgeY
+                                kb_field_name: es1.kb-union._doc.name
+                                kb_field_type: es1.kb-union._doc.types
+                                kb_field_hypotheses: es1.kb-union._doc.hypotheses
                             relations:
                                # - - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
-                                  - es1.kb-union.rdf-kb.docIds
+                                  - es1.kb-union._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
-                                  - es1.kb-union.rdf-kb.hypotheses
+                                  - es1.kb-union._doc.hypotheses
                             options:
                                 connectOnLoad: false
                                 colorMaps:
                                     kb-union:
-                                        rdf-kb:
+                                        _doc:
                                             categories:
                                                 ENTITY: '#ADD8E6'
                                                 EVENT: '#D98C8C'
@@ -289,7 +275,7 @@ dashboards:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
-                                event_table: es1.kb-events.union
+                                event_table: es1.kb-events._doc
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
@@ -311,22 +297,22 @@ dashboards:
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
 
-                                event_field_objectid: es1.kb-events.union.kbid
-                                event_field_type: es1.kb-events.union.types
-                                event_field_name: es1.kb-events.union.name
-                                event_field_category: es1.kb-events.union.categories
-                                event_field_documentid: es1.kb-events.union.docIds
-                                event_field_docdate: es1.kb-events.union.docDate
-                                event_field_link: es1.kb-events.union.url
-                                event_field_doctype: es1.kb-events.union.docType
-                                event_field_hypotheses: es1.kb-events.union.hypotheses
+                                event_field_objectid: es1.kb-events._doc.kbid
+                                event_field_type: es1.kb-events._doc.types
+                                event_field_name: es1.kb-events._doc.name
+                                event_field_category: es1.kb-events._doc.categories
+                                event_field_documentid: es1.kb-events._doc.docIds
+                                event_field_docdate: es1.kb-events._doc.docDate
+                                event_field_link: es1.kb-events._doc.url
+                                event_field_doctype: es1.kb-events._doc.docType
+                                event_field_hypotheses: es1.kb-events._doc.hypotheses
                             relations:
                                # - - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
-                                  - es1.kb-events.union.docIds
+                                  - es1.kb-events._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
-                                  - es1.kb-events.union.hypotheses
+                                  - es1.kb-events._doc.hypotheses
                             options:
                                 connectOnLoad: false
                         map:
@@ -336,7 +322,7 @@ dashboards:
                                 hypotheses_table: es1.verdi-support-hypothesis.hypothesis-info
                                 document_table: es1.verdi-rdf_docs-parents.parents
                                 children_table: es1.verdi-rdf_docs-parent_children.parent_children
-                                geo_table: es1.kb-geo.union
+                                geo_table: es1.kb-geo._doc
                             fields:
                                 hypotheses_field_id: es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
                                 hypotheses_field_date: es1.verdi-support-hypothesis.hypothesis-info.date
@@ -358,22 +344,22 @@ dashboards:
                                 document_field_annotations: es1.verdi-rdf_docs-parents.parents.reconstructed
                                 document_field_host: es1.verdi-rdf_docs-parents.parents.host
 
-                                geo_field_objectid: es1.kb-geo.union.kbid
-                                geo_field_name: es1.kb-geo.union.name
-                                geo_field_latitude: es1.kb-geo.union.geoLocation.lat
-                                geo_field_longitude: es1.kb-geo.union.geoLocation.lon
-                                geo_field_type: es1.kb-geo.union.types
-                                geo_field_category: es1.kb-geo.union.categories
-                                geo_field_documentid: es1.kb-geo.union.docIds
-                                geo_field_docdate: es1.kb-geo.union.docDate
-                                geo_field_hypotheses: es1.kb-geo.union.hypotheses
+                                geo_field_objectid: es1.kb-geo._doc.kbid
+                                geo_field_name: es1.kb-geo._doc.name
+                                geo_field_latitude: es1.kb-geo._doc.geoLocation.lat
+                                geo_field_longitude: es1.kb-geo._doc.geoLocation.lon
+                                geo_field_type: es1.kb-geo._doc.types
+                                geo_field_category: es1.kb-geo._doc.categories
+                                geo_field_documentid: es1.kb-geo._doc.docIds
+                                geo_field_docdate: es1.kb-geo._doc.docDate
+                                geo_field_hypotheses: es1.kb-geo._doc.hypotheses
                             relations:
                                # - - es1.verdi-rdf_docs-parents.parents.children
                                 - - es1.verdi-rdf_docs-parent_children.parent_children.id
-                                  - es1.kb-geo.union.docIds
+                                  - es1.kb-geo._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
-                                  - es1.kb-geo.union.hypotheses
+                                  - es1.kb-geo._doc.hypotheses
                             options:
                                 connectOnLoad: false
 
@@ -443,6 +429,7 @@ layouts:
               targetColorField: kb_field_edgecategory
               cleanLegendLabels: true
               legendFiltering: false
+              toggleFiltered: true
 
         - type: timeline
           row: 16
@@ -576,7 +563,7 @@ layouts:
               idField: event_field_objectid
               filterField: event_field_documentid
               dateField: event_field_docdate
-              granularity: month
+              granularity: dayOfMonth
               hideUnfiltered: false
 
         - type: thumbnailGrid
@@ -721,9 +708,13 @@ layouts:
               extendedFilter: true
               extensionFields:
                   - database: kb-union
-                    table: rdf-kb
+                    table: _doc
                     idField: docIds
                     filterField: hypotheses
+                  - database: verdi-support-hypothesis
+                    table: hypothesis-info
+                    idField: hypothesis_id
+                    filterField: hypothesis_id
 
         - type: newsFeed
           row: 2
@@ -744,6 +735,7 @@ layouts:
               sortField: hypotheses_field_id
               ascending: true
               ignoreSelf: false
+              applyPreviousFilter: true
 
 
         - type: networkGraph
@@ -789,6 +781,7 @@ layouts:
               edgeColorField:
               cleanLegendLabels: true
               legendFiltering: false
+              applyPreviousFilter: true
 
         - type: timeline
           row: 16
@@ -799,7 +792,7 @@ layouts:
               title: Document Timeline
               tableKey: children_table
               idField: children_field_id
-              filterField: children_field_id
+              filterField:
               dateField: children_field_parentdate
               granularity: month
               hideUnfiltered: true
@@ -857,9 +850,13 @@ layouts:
               extendedFilter: true
               extensionFields:
                   - database: kb-events
-                    table: union
+                    table: _doc
                     idField: docIds
                     filterField: hypotheses
+                  - database: verdi-support-hypothesis
+                    table: hypothesis-info
+                    idField: hypothesis_id
+                    filterField: hypothesis_id
 
         - type: newsFeed
           row: 2
@@ -880,6 +877,7 @@ layouts:
               sortField: hypotheses_field_id
               ascending: true
               ignoreSelf: false
+              applyPreviousFilter: true
 
         - type: thumbnailGrid
           row: 2
@@ -905,7 +903,8 @@ layouts:
               hideUnfiltered: true
               sortField: event_field_docdate
               filterFields:
-                - event_field_objectid
+                  - event_field_objectid
+                  - event_field_documentid
               ascending: false
               canvasSize: 180.00
               viewType: card
@@ -933,9 +932,9 @@ layouts:
               title: Event Timeline
               tableKey: event_table
               idField: event_field_objectid
-              filterField: event_field_documentid
+              filterField:
               dateField: event_field_docdate
-              granularity: month
+              granularity: dayOfMonth
               hideUnfiltered: true
 
         - type: thumbnailGrid
@@ -991,9 +990,13 @@ layouts:
               extendedFilter: true
               extensionFields:
                   - database: kb-geo
-                    table: union
+                    table: _doc
                     idField: docIds
                     filterField: hypotheses
+                  - database: verdi-support-hypothesis
+                    table: hypothesis-info
+                    idField: hypothesis_id
+                    filterField: hypothesis_id
         - type: newsFeed
           row: 2
           col: 1
@@ -1013,7 +1016,7 @@ layouts:
               sortField: hypotheses_field_id
               ascending: true
               ignoreSelf: false
-
+              applyPreviousFilter: true
         - type: map
           row: 2
           col: 4
@@ -1030,6 +1033,7 @@ layouts:
               filterable: true
               hideUnfiltered: true
               showPointDataOnHover: true
+              applyPreviousFilter: true
               layers:
                     - title: Map
                       tableKey: geo_table

@@ -50,7 +50,7 @@ import {
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
-import * as vis from 'vis/dist/vis-network.min';
+import * as vis from 'visjs-network/dist/vis-network.min';
 import { MatDialog } from '@angular/material';
 import {clean} from '@angular-devkit/core';
 
@@ -141,7 +141,8 @@ class Edge {
         /* TODO: width seem to breaking directed arrows, removing for now
         public width?: number*/
         public font?: Record<string, any>,
-        public chosen?: Record<string, any>
+        public chosen?: Record<string, any>,
+        public title?: HTMLElement | string
     ) { }
 }
 
@@ -497,14 +498,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 maxVelocity: 146,
                 solver: 'forceAtlas2Based',
                 timestep: 1,
-                stabilization: { iterations: 50 }
+                stabilization: { iterations: 1 }
+            },
+            nodes: {
+                physics: false
             },
             edges: {
                 smooth: {
-                    enabled: true,
-                    type: 'continuous',
-                    roundness: 0
-                }
+                    type: 'dynamic'
+                },
+                physics: true
             },
             interaction: {
                 hideEdgesOnDrag: true
@@ -512,9 +515,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         };
 
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
+
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
+        this.graph.on('dragEnd', this.onDrag.bind(this));
+        //beforeDrawing, initRedraw
+        this.graph.once('initRedraw', this.onInitialStabilize.bind(this));
     }
 
     private restartPhysics(): void {
@@ -525,7 +532,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         });
 
         // Turn on physics if enabled
-        this.graph.setOptions({ physics: { enabled: this.options.physics } });
+        this.graph.setOptions({ physics: { enabled: true } });
     }
 
     setInterpolationType(curveType) {
@@ -797,23 +804,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
         }
 
-        this.graph.on("dragEnd", params => {
-            for (let i = 0; i < params.nodes.length; i++) {
-                let nodeId = params.nodes[i];
-                let x = this.graph.getPositions([nodeId])[nodeId].x;
-                let y = this.graph.getPositions([nodeId])[nodeId].y;
-
-                let indexToUpdate = this.updatedNodePositions.findIndex(node => node.id === nodeId);
-                if(indexToUpdate > -1 ){
-                    this.updatedNodePositions[indexToUpdate].x = x;
-                    this.updatedNodePositions[indexToUpdate].y = y;
-                }
-                else{
-                    this.updatedNodePositions.push({id: nodeId, x: x, y: y});
-                }
-            }
-        });
-
         this.loadingCount--;
     }
 
@@ -1046,7 +1036,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     // Create edges between source and destinations specified by destinationField
     private getEdgesFromOneEntry(names: string[], colorField: string, originalColorMapVal: string, originalColor: string, source: string,
-        destinations: string[]) {
+        destinations: string[],showToolTip?: boolean) {
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
@@ -1095,8 +1085,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
             if (source && destinations[index]) {
-                ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
-                    colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
+                if(showToolTip){
+                    ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
+                        colorObject, colorMapVal, edgeTextObject, edgeChosenObject, this.edgeLabelFormat(names[index])));
+                }else{
+                    ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
+                        colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
+                }
             }
         }
         return ret;
@@ -1227,7 +1222,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (nodes) {
                         for (const nodeEntry of nodes) {
                             graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(linkNames, edgeColorField, entryEdgeColor,
-                                edgeColor, nodeEntry, links));
+                                edgeColor, nodeEntry, links, true));
                         }
                     }
                 }
@@ -1238,7 +1233,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let linkNames = this.edgeLabelFormat(relationNode[relationNameColumn]);
                 if (relationNode.nodes.length === 2) {
                     graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
-                        relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
+                        relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id), true));
                 }
             }
         }
@@ -1401,6 +1396,27 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.exchangeFilters(filters);
             }
         }
+    }
+
+    onDrag(properties: { nodes: string[] }) {
+        for (let i = 0; i < properties.nodes.length; i++) {
+            let nodeId = properties.nodes[i];
+            let x = this.graph.getPositions([nodeId])[nodeId].x;
+            let y = this.graph.getPositions([nodeId])[nodeId].y;
+
+            let indexToUpdate = this.updatedNodePositions.findIndex(node => node.id === nodeId);
+            if(indexToUpdate > -1 ){
+                this.updatedNodePositions[indexToUpdate].x = x;
+                this.updatedNodePositions[indexToUpdate].y = y;
+            }
+            else{
+                this.updatedNodePositions.push({id: nodeId, x: x, y: y});
+            }
+        }
+    }
+
+    onInitialStabilize(properties: { nodes: string[] }) {
+        this.graph.fit();
     }
 
     /*
