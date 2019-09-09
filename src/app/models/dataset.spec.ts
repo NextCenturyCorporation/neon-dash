@@ -18,6 +18,24 @@ import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtil
 import * as _ from 'lodash';
 
 describe('Dataset Tests', () => {
+    it('retrieveConfigDataFromFieldKey does return expected list', () => {
+        expect(DATASET.retrieveConfigDataFromFieldKey({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.ID.columnName
+        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+    });
+
+    it('retrieveConfigDataFromFieldKey does work with empty datastore', () => {
+        expect(DATASET.retrieveConfigDataFromFieldKey({
+            datastore: '',
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.ID.columnName
+        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+    });
+
     it('retrieveDatabase does return expected object', () => {
         expect(DATASET.retrieveDatabase(DATASTORE.name, DATABASES.testDatabase1.name)).toEqual(DATABASES.testDatabase1);
         expect(DATASET.retrieveDatabase(DATASTORE.name, DATABASES.testDatabase2.name)).toEqual(DATABASES.testDatabase2);
@@ -50,24 +68,6 @@ describe('Dataset Tests', () => {
         // Backwards compatibility
         expect(DATASET.retrieveField('', DATABASES.testDatabase2.name, TABLES.testTable2.name, FIELD_MAP.ID.columnName))
             .toEqual(FIELD_MAP.ID);
-    });
-
-    it('retrieveMetaDataFromFieldKey does return expected list', () => {
-        expect(DATASET.retrieveMetaDataFromFieldKey({
-            datastore: DATASTORE.name,
-            database: DATABASES.testDatabase2.name,
-            table: TABLES.testTable2.name,
-            field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
-    });
-
-    it('retrieveMetaDataFromFieldKey does work with empty datastore', () => {
-        expect(DATASET.retrieveMetaDataFromFieldKey({
-            datastore: '',
-            database: DATABASES.testDatabase2.name,
-            table: TABLES.testTable2.name,
-            field: FIELD_MAP.ID.columnName
-        })).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
     });
 
     it('retrieveTable does return expected object', () => {

@@ -32,7 +32,7 @@ import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { NeonFieldMetaData } from '../../models/dataset';
+import { FieldConfig } from '../../models/dataset';
 import { CoreUtil } from '../../util/core.util';
 import {
     OptionChoices,
@@ -52,10 +52,10 @@ export class Annotation {
 }
 
 export class AnnotationFields {
-    startCharacterField: NeonFieldMetaData;
-    endCharacterField: NeonFieldMetaData;
-    textField: NeonFieldMetaData;
-    typeField: NeonFieldMetaData;
+    startCharacterField: FieldConfig;
+    endCharacterField: FieldConfig;
+    textField: FieldConfig;
+    typeField: FieldConfig;
 }
 
 export class Data {
@@ -78,7 +78,7 @@ export class Part {
 
 export class Details {
     detailLabel: string;
-    detailField: NeonFieldMetaData;
+    detailField: FieldConfig;
 }
 
 @Component({

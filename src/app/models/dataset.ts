@@ -60,78 +60,78 @@ function translate<T>(values: Partial<T>[], transform: (input: Partial<T>) => T)
     return values.map(transform);
 }
 
-export interface NeonFieldMetaData {
+export interface FieldConfig {
     columnName: string;
     prettyName: string;
     hide: boolean;
     type: string;
 }
 
-export class NeonFieldMetaData {
-    static get(field: DeepPartial<NeonFieldMetaData> = {}) {
+export class FieldConfig {
+    static get(field: DeepPartial<FieldConfig> = {}) {
         return {
             columnName: '',
             prettyName: '',
             hide: false,
             type: '',
             ...field
-        } as NeonFieldMetaData;
+        } as FieldConfig;
     }
 }
 
-export interface NeonTableMetaData {
+export interface TableConfig {
     name: string;
     prettyName: string;
-    fields: NeonFieldMetaData[];
+    fields: FieldConfig[];
     labelOptions: Record<string, any | Record<string, any>>;
 }
 
-export class NeonTableMetaData {
-    static get(table: DeepPartial<NeonTableMetaData> = {}) {
+export class TableConfig {
+    static get(table: DeepPartial<TableConfig> = {}) {
         return {
             name: '',
             prettyName: '',
             mappings: {},
             labelOptions: {},
             ...table,
-            fields: translate(table.fields || [], NeonFieldMetaData.get.bind(null))
-        } as NeonTableMetaData;
+            fields: translate(table.fields || [], FieldConfig.get.bind(null))
+        } as TableConfig;
     }
 }
 
-export interface NeonDatabaseMetaData {
+export interface DatabaseConfig {
     name: string;
     prettyName: string;
-    tables: Record<string, NeonTableMetaData>;
+    tables: Record<string, TableConfig>;
 }
 
-export class NeonDatabaseMetaData {
-    static get(db: DeepPartial<NeonDatabaseMetaData> = {}) {
+export class DatabaseConfig {
+    static get(db: DeepPartial<DatabaseConfig> = {}) {
         return {
             name: '',
             prettyName: '',
             ...db,
-            tables: translateValues(db.tables || {}, NeonTableMetaData.get.bind(null), true)
-        } as NeonDatabaseMetaData;
+            tables: translateValues(db.tables || {}, TableConfig.get.bind(null), true)
+        } as DatabaseConfig;
     }
 }
 
-export interface NeonDatastoreConfig {
+export interface DatastoreConfig {
     name: string;
     host: string;
     type: string;
-    databases: Record<string, NeonDatabaseMetaData>;
+    databases: Record<string, DatabaseConfig>;
 }
 
-export class NeonDatastoreConfig {
-    static get(config: DeepPartial<NeonDatastoreConfig> = {}) {
+export class DatastoreConfig {
+    static get(config: DeepPartial<DatastoreConfig> = {}) {
         return {
             name: '',
             host: '',
             type: '',
             ...config,
-            databases: translateValues(config.databases || {}, NeonDatabaseMetaData.get.bind(null), true)
-        } as NeonDatastoreConfig;
+            databases: translateValues(config.databases || {}, DatabaseConfig.get.bind(null), true)
+        } as DatastoreConfig;
     }
 }
 
@@ -146,7 +146,7 @@ export class Dataset {
     private _relations: FieldKey[][][];
 
     constructor(
-        private _datastores: Record<string, NeonDatastoreConfig>,
+        private _datastores: Record<string, DatastoreConfig>,
         private _connectionService: ConnectionService = null,
         private _dataServer: string = null,
         relations: (string|string[])[][] = [],
@@ -158,11 +158,11 @@ export class Dataset {
         this._relations = this._validateRelations(relations);
     }
 
-    get datastores(): Record<string, NeonDatastoreConfig> {
+    get datastores(): Record<string, DatastoreConfig> {
         return this._datastores;
     }
 
-    set datastores(newDatastores: Record<string, NeonDatastoreConfig>) {
+    set datastores(newDatastores: Record<string, DatastoreConfig>) {
         this._datastores = this._updateDatastores(newDatastores);
     }
 
@@ -185,15 +185,15 @@ export class Dataset {
     /**
      * Returns the database with the given name from the given datastore in this dataset.
      */
-    public retrieveDatabase(datastoreId: string, databaseName: string): NeonDatabaseMetaData {
-        const datastore: NeonDatastoreConfig = this.retrieveDatastore(datastoreId);
+    public retrieveDatabase(datastoreId: string, databaseName: string): DatabaseConfig {
+        const datastore: DatastoreConfig = this.retrieveDatastore(datastoreId);
         return datastore ? datastore.databases[databaseName] : undefined;
     }
 
     /**
      * Returns the dashboard dataset.
      */
-    public retrieveDatastore(datastoreId: string): NeonDatastoreConfig {
+    public retrieveDatastore(datastoreId: string): DatastoreConfig {
         if (datastoreId) {
             return this._datastores[datastoreId];
         }
@@ -205,17 +205,15 @@ export class Dataset {
     /**
      * Returns the field with the given name from the given datastore/database/table in this dataset.
      */
-    public retrieveField(datastoreId: string, databaseName: string, tableName: string, fieldName: string): NeonFieldMetaData {
-        const table: NeonTableMetaData = this.retrieveTable(datastoreId, databaseName, tableName);
+    public retrieveField(datastoreId: string, databaseName: string, tableName: string, fieldName: string): FieldConfig {
+        const table: TableConfig = this.retrieveTable(datastoreId, databaseName, tableName);
         return table ? table.fields.filter((element) => element.columnName === fieldName)[0] : undefined;
     }
 
     /**
      * Returns the datastore, database, table, and field objects using the given field key object.
      */
-    public retrieveMetaDataFromFieldKey(
-        fieldKey: FieldKey,
-    ): [NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData] {
+    public retrieveConfigDataFromFieldKey(fieldKey: FieldKey): [DatastoreConfig, DatabaseConfig, TableConfig, FieldConfig] {
         return [
             this.retrieveDatastore(fieldKey.datastore),
             this.retrieveDatabase(fieldKey.datastore, fieldKey.database),
@@ -227,8 +225,8 @@ export class Dataset {
     /**
      * Returns the table with the given name from the given datastore/database in this dataset.
      */
-    public retrieveTable(datastoreId: string, databaseName: string, tableName: string): NeonTableMetaData {
-        const database: NeonDatabaseMetaData = this.retrieveDatabase(datastoreId, databaseName);
+    public retrieveTable(datastoreId: string, databaseName: string, tableName: string): TableConfig {
+        const database: DatabaseConfig = this.retrieveDatabase(datastoreId, databaseName);
         return database ? database.tables[tableName] : undefined;
     }
 
@@ -245,8 +243,8 @@ export class Dataset {
         }
     }
 
-    private _updateDatastores(datastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
-        const validated: Record<string, NeonDatastoreConfig> = DatasetUtil.validateDatastores(datastores);
+    private _updateDatastores(datastores: Record<string, DatastoreConfig>): Record<string, DatastoreConfig> {
+        const validated: Record<string, DatastoreConfig> = DatasetUtil.validateDatastores(datastores);
         if (this._connectionService) {
             Object.keys(validated).forEach((datastoreId) => {
                 const connection = this._connectionService.connect(validated[datastoreId].type, validated[datastoreId].host);
@@ -292,7 +290,7 @@ export class Dataset {
             let relationFields: string[] = Array.isArray(configRelationFields) ? configRelationFields : [configRelationFields];
             return relationFields.map((item) => {
                 const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(item);
-                const [datastore, database, table, field] = this.retrieveMetaDataFromFieldKey(fieldKey);
+                const [datastore, database, table, field] = this.retrieveConfigDataFromFieldKey(fieldKey);
                 // Verify that the datastore, database, table, and field are all objects that exist within the dataset.
                 return (datastore && database && table && field) ? fieldKey : null;
             }).filter((item) => !!item);
@@ -343,11 +341,11 @@ export class DatasetUtil {
      */
     static updateDatastoreFromDataServer(
         connection: Connection,
-        datastore: NeonDatastoreConfig,
-        onFinish?: (failedDatabases: NeonDatabaseMetaData[]) => void
+        datastore: DatastoreConfig,
+        onFinish?: (failedDatabases: DatabaseConfig[]) => void
     ): Promise<void> {
-        return Promise.all(Object.values(datastore.databases).map((database: NeonDatabaseMetaData) =>
-            DatasetUtil.updateFieldNamesFromDataServer(connection, database))).then((databases: NeonDatabaseMetaData[]) => {
+        return Promise.all(Object.values(datastore.databases).map((database: DatabaseConfig) =>
+            DatasetUtil.updateFieldNamesFromDataServer(connection, database))).then((databases: DatabaseConfig[]) => {
             if (onFinish) {
                 onFinish(databases.filter((database) => !!database));
             }
@@ -357,8 +355,8 @@ export class DatasetUtil {
     /**
      * Retrieves the field names from the data server for the tables in the given database and updates the fields in the table objects.
      */
-    static updateFieldNamesFromDataServer(connection: Connection, database: NeonDatabaseMetaData): Promise<NeonDatabaseMetaData> {
-        return new Promise<NeonDatabaseMetaData>((resolve) => {
+    static updateFieldNamesFromDataServer(connection: Connection, database: DatabaseConfig): Promise<DatabaseConfig> {
+        return new Promise<DatabaseConfig>((resolve) => {
             connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames: Record<string, string[]>) => {
                 let promisesOnFields = [];
 
@@ -370,7 +368,7 @@ export class DatasetUtil {
 
                         tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
                             if (!existingFields.has(fieldName)) {
-                                let newField: NeonFieldMetaData = NeonFieldMetaData.get({
+                                let newField: FieldConfig = FieldConfig.get({
                                     columnName: fieldName,
                                     prettyName: fieldName,
                                     // If a lot of existing fields were defined (> 25), but this field wasn't, then hide this field.
@@ -386,7 +384,7 @@ export class DatasetUtil {
                     }
                 });
 
-                Promise.all(promisesOnFields).then((tables: NeonTableMetaData[]) => {
+                Promise.all(promisesOnFields).then((tables: TableConfig[]) => {
                     // Don't return this database if it and all its tables didn't error.
                     resolve(tables.filter((table) => !!table).length ? database : null);
                 });
@@ -402,13 +400,13 @@ export class DatasetUtil {
      */
     static updateFieldTypesFromDataServer(
         connection: Connection,
-        database: NeonDatabaseMetaData,
-        table: NeonTableMetaData
-    ): Promise<NeonTableMetaData> {
-        return new Promise<NeonTableMetaData>((resolve) =>
+        database: DatabaseConfig,
+        table: TableConfig
+    ): Promise<TableConfig> {
+        return new Promise<TableConfig>((resolve) =>
             connection.getFieldTypes(database.name, table.name, (fieldTypes: Record<string, string>) => {
                 if (fieldTypes) {
-                    table.fields.forEach((field: NeonFieldMetaData) => {
+                    table.fields.forEach((field: FieldConfig) => {
                         field.type = fieldTypes[field.columnName] || field.type;
                     });
                 }
@@ -423,9 +421,9 @@ export class DatasetUtil {
     /**
      * Ensures that the given datastore and its databases, tables, and fields have the required properties and returns it if valid.
      */
-    static validateDatastore(datastore: NeonDatastoreConfig): NeonDatastoreConfig {
+    static validateDatastore(datastore: DatastoreConfig): DatastoreConfig {
         datastore.databases = Object.keys(datastore.databases || {}).reduce((outputDatabases, databaseName) => {
-            let database: NeonDatabaseMetaData = datastore.databases[databaseName];
+            let database: DatabaseConfig = datastore.databases[databaseName];
             database.name = databaseName;
             database.prettyName = database.prettyName || database.name;
             database.tables = Object.keys(database.tables || {}).reduce((outputTables, tableName) => {
@@ -456,9 +454,9 @@ export class DatasetUtil {
     /**
      * Ensures that the given datastores and their databases, tables, and fields have the required properties and returns the valid ones.
      */
-    static validateDatastores(datastores: Record<string, NeonDatastoreConfig>): Record<string, NeonDatastoreConfig> {
+    static validateDatastores(datastores: Record<string, DatastoreConfig>): Record<string, DatastoreConfig> {
         return Object.keys(datastores).reduce((outputDatastores, datastoreId) => {
-            let datastore: NeonDatastoreConfig = datastores[datastoreId];
+            let datastore: DatastoreConfig = datastores[datastoreId];
             datastore.name = datastoreId;
             outputDatastores[datastoreId] = DatasetUtil.validateDatastore(datastore);
             if (!outputDatastores[datastoreId]) {

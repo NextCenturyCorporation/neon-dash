@@ -26,7 +26,7 @@ import {
 } from '../../util/filter.util';
 import { FilterConfig, FilterDataSource } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
-import { Dataset, DatasetUtil, NeonFieldMetaData } from '../../models/dataset';
+import { Dataset, DatasetUtil, FieldConfig } from '../../models/dataset';
 import { neonEvents } from '../../models/neon-namespaces';
 import {
     AggregationType,
@@ -956,10 +956,10 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
     /**
      * Creates and returns a new empty field object.
      *
-     * @return {NeonFieldMetaData}
+     * @return {FieldConfig}
      */
-    public createEmptyField(): NeonFieldMetaData {
-        return NeonFieldMetaData.get();
+    public createEmptyField(): FieldConfig {
+        return FieldConfig.get();
     }
 
     /**

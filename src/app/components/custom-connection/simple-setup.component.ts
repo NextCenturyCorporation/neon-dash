@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 
 import { CustomConnectionStep } from './custom-connection-step';
-import { NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData } from '../../models/dataset';
+import { DatabaseConfig, TableConfig, FieldConfig } from '../../models/dataset';
 import { Connection } from '../../services/connection.service';
 import { InjectableConnectionService } from '../../services/injectable.connection.service';
 
@@ -40,18 +40,18 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     // Variables associated with selecting databases and tables.
     public selectedDatabase: {
-        database: NeonDatabaseMetaData;
+        database: DatabaseConfig;
         selectedTable: {
             selected: boolean;
-            table: NeonTableMetaData;
+            table: TableConfig;
         };
     };
 
     public customDatabases: {
-        database: NeonDatabaseMetaData;
+        database: DatabaseConfig;
         customTables: {
             selected: boolean;
-            table: NeonTableMetaData;
+            table: TableConfig;
         }[];
     }[];
 
@@ -77,7 +77,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     onComplete(): void {
         this.data.selectedDatabases = this.customDatabases.map(
             (customDatabase) => {
-                let database = NeonDatabaseMetaData.get({
+                let database = DatabaseConfig.get({
                     name: customDatabase.database.name,
                     prettyName: customDatabase.database.prettyName
                 });
@@ -86,7 +86,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                 ).reduce((acc, table) => {
                     acc[table.name] = table;
                     return acc;
-                }, {} as { [key: string]: NeonTableMetaData });
+                }, {} as { [key: string]: TableConfig });
                 return database;
             }
         );
@@ -121,7 +121,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             (databaseNames) => {
                 databaseNames.forEach((databaseName) => {
                     this.data.allDatabases.push(
-                        NeonDatabaseMetaData.get({ name: databaseName, prettyName: databaseName })
+                        DatabaseConfig.get({ name: databaseName, prettyName: databaseName })
                     );
                 });
                 this.updateDatabases(connection);
@@ -148,10 +148,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                     this.tableDone(tablesDone, tableNames, connection, index);
                 }
                 tableNames.forEach((tableName) => {
-                    let table = NeonTableMetaData.get({ name: tableName, prettyName: tableName });
+                    let table = TableConfig.get({ name: tableName, prettyName: tableName });
                     tableNamesAndFieldNames[tableName].forEach((fieldName) => {
                         table.fields.push(
-                            NeonFieldMetaData.get({ columnName: fieldName, prettyName: fieldName })
+                            FieldConfig.get({ columnName: fieldName, prettyName: fieldName })
                         );
                     });
                     database.tables[table.name] = table;
@@ -199,7 +199,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     selectDatabase(): void {
         this.selectedDatabase.selectedTable = {
             selected: false,
-            table: NeonTableMetaData.get()
+            table: TableConfig.get()
         };
     }
 
@@ -241,10 +241,10 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
 
     resetSelectedDatabase(): void {
         this.selectedDatabase = {
-            database: NeonDatabaseMetaData.get(),
+            database: DatabaseConfig.get(),
             selectedTable: {
                 selected: false,
-                table: NeonTableMetaData.get()
+                table: TableConfig.get()
             }
         };
     }

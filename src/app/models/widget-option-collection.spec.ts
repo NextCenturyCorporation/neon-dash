@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from './dataset';
+import { DatabaseConfig, FieldConfig, TableConfig } from './dataset';
 import {
     WidgetDatabaseOption,
     WidgetFieldOption,
@@ -99,7 +99,7 @@ describe('OptionCollection', () => {
 
     it('find field functions do not error if fields are not set', () => {
         expect(options.findField('testNameField')).toEqual(undefined);
-        expect(options.findFieldObject(DATASET, 'testName')).toEqual(NeonFieldMetaData.get());
+        expect(options.findFieldObject(DATASET, 'testName')).toEqual(FieldConfig.get());
         expect(options.findFieldObjects(DATASET, 'testList')).toEqual([]);
     });
 
@@ -134,8 +134,8 @@ describe('OptionCollection', () => {
         expect(options.findFieldObject(DATASET, 'testName')).toEqual(FIELD_MAP.NAME);
         expect(options.findFieldObject(DATASET, 'testSize')).toEqual(FIELD_MAP.SIZE);
         expect(options.findFieldObject(DATASET, 'testFieldKey')).toEqual(FIELD_MAP.FIELD_KEY);
-        expect(options.findFieldObject(DATASET, 'testFake')).toEqual(NeonFieldMetaData.get());
-        expect(options.findFieldObject(DATASET, 'fakeBind')).toEqual(NeonFieldMetaData.get());
+        expect(options.findFieldObject(DATASET, 'testFake')).toEqual(FieldConfig.get());
+        expect(options.findFieldObject(DATASET, 'fakeBind')).toEqual(FieldConfig.get());
     });
 
     it('findFieldObjects does return expected array', () => {
@@ -224,9 +224,9 @@ describe('OptionCollection', () => {
 
     it('list does return an array of all widget options', () => {
         let databaseOption = new WidgetDatabaseOption();
-        databaseOption.valueCurrent = NeonDatabaseMetaData.get();
+        databaseOption.valueCurrent = DatabaseConfig.get();
         let tableOption = new WidgetTableOption();
-        tableOption.valueCurrent = NeonTableMetaData.get();
+        tableOption.valueCurrent = TableConfig.get();
         expect(options.list()).toEqual([databaseOption, tableOption]);
 
         let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
@@ -243,9 +243,9 @@ describe('OptionCollection', () => {
 
     it('updateDatabases does update databases, tables, and fields', () => {
         options.databases = [];
-        options.database = NeonDatabaseMetaData.get();
+        options.database = DatabaseConfig.get();
         options.tables = [];
-        options.table = NeonTableMetaData.get();
+        options.table = TableConfig.get();
         options.fields = [];
 
         options.updateDatabases(DATASET);
@@ -277,7 +277,7 @@ describe('OptionCollection', () => {
         options.databases = DATABASES_LIST;
         options.database = DATABASES.testDatabase1;
         options.tables = [];
-        options.table = NeonTableMetaData.get();
+        options.table = TableConfig.get();
         options.fields = [];
 
         options.updateTables(DATASET);
@@ -325,9 +325,9 @@ describe('WidgetOptionCollection', () => {
 
     it('updateDatabases does update databases, tables, and fields with custom properties', () => {
         options.databases = [];
-        options.database = NeonDatabaseMetaData.get();
+        options.database = DatabaseConfig.get();
         options.tables = [];
-        options.table = NeonTableMetaData.get();
+        options.table = TableConfig.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
@@ -367,7 +367,7 @@ describe('WidgetOptionCollection', () => {
         options.databases = DATABASES_LIST;
         options.database = DATABASES.testDatabase2;
         options.tables = [];
-        options.table = NeonTableMetaData.get();
+        options.table = TableConfig.get();
         options.fields = [];
         options.testCustomField = null;
         options.testCustomFieldArray = null;
@@ -405,7 +405,7 @@ describe('WidgetOptionCollection with no bindings', () => {
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('Test Title');
 
-        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
+        expect(options.testCustomField).toEqual(FieldConfig.get());
         expect(options.testCustomFieldArray).toEqual([]);
         expect(options.testCustomKey).toEqual('default value');
     });
@@ -482,7 +482,7 @@ describe('RootWidgetOptionCollection', () => {
         expect(options.layers[1].tables).toEqual(TABLES_LIST);
         expect(options.layers[1].table).toEqual(TABLES.testTable1);
         expect(options.layers[1].fields).toEqual(FIELDS);
-        expect(options.layers[1].testCustomLayerField).toEqual(NeonFieldMetaData.get());
+        expect(options.layers[1].testCustomLayerField).toEqual(FieldConfig.get());
         expect(options.layers[1].testCustomLayerFieldArray).toEqual([]);
         expect(options.layers[1].testCustomLayerKey).toEqual('default layer value');
         expect(newLayer).toEqual(options.layers[1]);
@@ -561,7 +561,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('Test Title');
 
-        expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
+        expect(options.testCustomField).toEqual(FieldConfig.get());
         expect(options.testCustomFieldArray).toEqual([]);
         expect(options.testCustomKey).toEqual('default value');
 
@@ -573,7 +573,7 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.layers[0].fields).toEqual(FIELDS);
         expect(options.layers[0].limit).toEqual(100);
         expect(options.layers[0].title).toEqual('Layer 1');
-        expect(options.layers[0].testCustomLayerField).toEqual(NeonFieldMetaData.get());
+        expect(options.layers[0].testCustomLayerField).toEqual(FieldConfig.get());
         expect(options.layers[0].testCustomLayerFieldArray).toEqual([]);
         expect(options.layers[0].testCustomLayerKey).toEqual('default layer value');
     });
