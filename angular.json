@@ -31,7 +31,7 @@
               },
               {
                 "glob": "vis-network.min.css",
-                "input": "node_modules/vis/dist",
+                "input": "node_modules/visjs-network/dist",
                 "output": "assets/vis/dist"
               },
               {
