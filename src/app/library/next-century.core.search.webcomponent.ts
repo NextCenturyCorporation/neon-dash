@@ -14,7 +14,7 @@
  */
 
 import { AggregationType, CompoundFilterType, SortOrder, TimeInterval } from '../models/widget-option';
-import { Dataset, FieldKey } from '../models/dataset';
+import { Dataset, DatasetUtil, FieldKey } from '../models/dataset';
 import { BoundsValues, CompoundValues, DomainValues, FilterValues, ListOfValues, OneValue, PairOfValues } from '../models/filter';
 
 import { AbstractSearchService, FilterClause, QueryGroup, QueryPayload } from '../services/abstract.search.service';
@@ -22,7 +22,6 @@ import { FilterService } from '../services/filter.service';
 import { RequestWrapper } from '../services/connection.service';
 
 import { CoreUtil } from '../util/core.util';
-import { DatasetUtil } from '../util/dataset.util';
 import { AbstractFilter, CompoundFilterDesign, FilterUtil } from '../util/filter.util';
 
 import { NextCenturyElement } from './next-century.core.element.webcomponent';
@@ -545,8 +544,8 @@ export class NextCenturySearch extends NextCenturyElement {
         }
 
         const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(this.getAttribute('search-field-key'));
-        // Returns a list of [DatastoreMetaData, DatabaseMetaData, TableMetaData, FieldMetaData]
-        const metaData = fieldKey ? DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, this._dataset) : [null, null, null, null];
+        // Returns a list of [DatastoreConfig, DatabaseConfig, TableConfig, FieldConfig]
+        const metaData = fieldKey ? this._dataset.retrieveConfigDataFromFieldKey(fieldKey) : [null, null, null, null];
         const dataHost = metaData[0] ? metaData[0].host : null;
         const dataType = metaData[0] ? metaData[0].type : null;
         const labels = metaData[2] ? metaData[2].labelOptions : {};
