@@ -61,6 +61,7 @@ export class WikiData {
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX_TITLE: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
     static WIKI_LINK_PREFIX_ID: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&pageid=';
+    static WIKI_LINK_PREFIX_URL: string = 'https://en.wikipedia.org/wiki/';
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -238,8 +239,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             try {
                 let links = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 links = (Array.isArray(links) ? links : [links]).map((link) => {
-                    if (link.includes('https://en.wikipedia.org/wiki/')) {
-                        return link.substring(30);
+                    if ( !this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
+                        return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL.length);
                     }
                     return link;
                 });
