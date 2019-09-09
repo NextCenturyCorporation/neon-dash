@@ -14,14 +14,13 @@
  */
 import { Injectable } from '@angular/core';
 
-import { NeonConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
-import { DatasetUtil, NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
+import { NeonConfig, NeonDashboardConfig, NeonDashboardLeafConfig, NeonDashboardChoiceConfig } from '../models/types';
+import { DatasetUtil, FieldKey, NeonDatastoreConfig, NeonDatabaseMetaData } from '../models/dataset';
 
 import * as _ from 'lodash';
 import { ConfigService } from './config.service';
 import { InjectableConnectionService } from './injectable.connection.service';
 import { DashboardState } from '../models/dashboard-state';
-import { DashboardUtil } from '../util/dashboard.util';
 
 import { GridState } from '../models/grid-state';
 import { Observable, from, Subject } from 'rxjs';
@@ -35,6 +34,8 @@ import { InjectableFilterService } from './injectable.filter.service';
     providedIn: 'root'
 })
 export class DashboardService {
+    static DASHBOARD_CATEGORY_DEFAULT: string = 'Select an option...';
+
     public readonly config = NeonConfig.get();
     public readonly state = new DashboardState();
     public readonly gridState = new GridState({ max_cols: 12, max_rows: 0 });
@@ -59,7 +60,7 @@ export class DashboardService {
     }
 
     onConfigChange(config: NeonConfig): Observable<NeonConfig> {
-        const datastores: NeonDatastoreConfig[] = Object.values(config.datastores)
+        const datastores: NeonDatastoreConfig[] = Object.values(config.datastores || {})
             .map((datastore) => DatasetUtil.validateDatastore(datastore)).filter((datastore) => !!datastore);
 
         const promises = datastores.map((datastore: NeonDatastoreConfig) => {
@@ -68,7 +69,7 @@ export class DashboardService {
                 return DatasetUtil.updateDatastoreFromDataServer(connection, datastore, (failedDatabases: NeonDatabaseMetaData[]) => {
                     failedDatabases.forEach((database) => {
                         console.warn('Database failed on ' + database.name + ' ... deleting all associated dashboards.');
-                        DashboardUtil.deleteInvalidDashboards(config.dashboards, database.name);
+                        this._deleteInvalidDashboards(config.dashboards, database.name);
                     });
                 });
             }
@@ -84,12 +85,15 @@ export class DashboardService {
     private applyConfig(config: NeonConfig) {
         return Object.assign(this.config, {
             errors: config.errors,
-            dashboards: DashboardUtil.validateDashboards(
-                config.dashboards ?
-                    _.cloneDeep(config.dashboards) :
-                    NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })
-            ),
-            datastores: DashboardUtil.appendDatastoresFromConfig(config.datastores || {}, {}),
+            dashboards: this._validateDashboards(config.dashboards ? _.cloneDeep(config.dashboards) :
+                NeonDashboardChoiceConfig.get({ category: 'No Dashboards' })),
+            datastores: Object.values(config.datastores || {}).reduce((datastores, datastore) => {
+                // Ignore the datastore if another datastore with the same name already exists.  Assume that each name is unique.
+                if (!datastores[datastore.name]) {
+                    datastores[datastore.name] = datastore;
+                }
+                return datastores;
+            }, this.config.datastores || {}),
             layouts: _.cloneDeep(config.layouts || {}),
             lastModified: config.lastModified,
             projectTitle: config.projectTitle,
@@ -102,7 +106,7 @@ export class DashboardService {
         this.state.dashboard = dashboard;
 
         // Assign first datastore
-        const firstName = Object.keys(this.config.datastores).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
+        const firstName = Object.keys(this.config.datastores || {}).sort((ds1, ds2) => ds1.localeCompare(ds2))[0];
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
@@ -178,5 +182,72 @@ export class DashboardService {
                 this.state.asDataset()));
         }
         return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig, this.state.asDataset()));
+    }
+
+    /**
+     * Validate top level category of dashboards object in the config, then call
+     * separate function to check the choices within recursively.
+     */
+    private _validateDashboards(dashboard: NeonDashboardConfig): NeonDashboardConfig {
+        ConfigUtil.visitDashboards(dashboard, {
+            leaf: (leaf, path) => {
+                let parent = path[path.length - 2];
+
+                // If no choices are present, then this might be the last level of nested choices,
+                // which should instead have table keys and a layout specified. If not, delete choice.
+                if (!leaf['layout'] || !leaf['tables']) {
+                    Object.keys(parent.choices).forEach((choiceId) => {
+                        if (parent.choices[choiceId].name === leaf.name) {
+                            delete parent.choices[choiceId];
+                        }
+                    });
+                    return;
+                }
+
+                if (leaf.options.simpleFilter) {
+                    const filter = leaf.options.simpleFilter;
+                    if (filter.fieldKey) {
+                        const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.fields[filter.fieldKey]);
+                        filter.databaseName = fieldKeyObject.database;
+                        filter.tableName = fieldKeyObject.table;
+                        filter.fieldName = '';
+                        filter.fieldName = fieldKeyObject ? fieldKeyObject.field : '';
+                    } else {
+                        delete leaf.options.simpleFilter;
+                    }
+                }
+            },
+            choice: (choice) => {
+                choice.category = DashboardService.DASHBOARD_CATEGORY_DEFAULT;
+            }
+        });
+        return dashboard;
+    }
+
+    /**
+     * Delete dashboards associated with the given database so users cannot select them.
+     */
+    private _deleteInvalidDashboards(dashboard: NeonDashboardConfig, invalidDatabaseName: string): any {
+        ConfigUtil.visitDashboards(dashboard, {
+            leaf: (leaf, path) => {
+                let tableKeys = Object.keys(leaf.tables);
+                const parent = path[path.length - 2];
+
+                for (const tableKey of tableKeys) {
+                    const databaseKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKey(leaf.tables[tableKey]);
+
+                    if (!databaseKeyObject || databaseKeyObject.database === invalidDatabaseName) {
+                        Object.keys(parent.choices).forEach((choiceId) => {
+                            if (parent.choices[choiceId].name === leaf.name) {
+                                delete parent.choices[choiceId];
+                            }
+                        });
+                        return;
+                    }
+                }
+            }
+        });
+
+        return null;
     }
 }
