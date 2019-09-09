@@ -236,14 +236,14 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     ): void {
         new Promise<number>((resolve, reject) => {
             try {
-                let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
-                console.log(links);
-                links.forEach((link, index) => {
+                let links = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+                links = (Array.isArray(links) ? links : [links]).map((link) => {
                     if (link.includes('https://en.wikipedia.org/wiki/')) {
-                        links[index] = link.substring(30);
+                        return link.substring(30);
                     }
+                    return link;
                 });
-                this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
+                this.retrieveWikiPage(links, [], (data: WikiData[]) => {
                     this.wikiViewerData = data || [];
                     resolve(data ? data.length : 0);
                 });
@@ -281,7 +281,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.retrieveWikiPage(links.slice(1), data, callback);
         };
 
-        this.http.get((this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID : WikiViewerComponent.WIKI_LINK_PREFIX_TITLE) + links[0]).subscribe((wikiResponse: any) => {
+        let link = (this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID :
+            WikiViewerComponent.WIKI_LINK_PREFIX_TITLE) + links[0];
+
+        this.http.get(link).subscribe((wikiResponse: any) => {
             if (wikiResponse.error) {
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
