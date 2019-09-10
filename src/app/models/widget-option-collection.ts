@@ -21,7 +21,6 @@ import {
     OptionChoices,
     OptionType,
     WidgetDatabaseOption,
-    WidgetFieldOption,
     WidgetFreeTextOption,
     WidgetNonPrimitiveOption,
     WidgetOption,
@@ -428,12 +427,10 @@ export class RootWidgetOptionCollection extends WidgetOptionCollection {
      */
     protected createOptions(): WidgetOption[] {
         return [
-            new WidgetFieldOption('unsharedFilterField', 'Local Filter Field', false, true),
             new WidgetNonPrimitiveOption('customEventsToPublish', 'Custom Events To Publish', [], true),
             new WidgetNonPrimitiveOption('customEventsToReceive', 'Custom Events To Receive', [], true),
             new WidgetNonPrimitiveOption('filter', 'Custom Widget Filter', null),
             new WidgetSelectOption('hideUnfiltered', 'Hide Widget if Unfiltered', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('unsharedFilterValue', 'Local Filter Value', '', true),
             new WidgetNonPrimitiveOption('contributionKeys', 'Contribution Keys', null, true),
             ...super.createOptions()
         ];
