@@ -412,6 +412,8 @@ TODO
 
 ### Using My Visualization Elements
 
+![NCCL Assumptions](./images/NCCL-Assumptions.jpg)
+
 To use your own Visualization Elements:
 
 1. It's best if your Visualization element has a "draw data" function that accepts an **[array of search data objects](#search-data-object)**.  If it does not, you will need to add a `dataReceived` event listener to a Search Component and use [search data transformations](#transforming-search-data-to-send-to-my-visualization) to notify your Visualization element to render the search data.
@@ -420,9 +422,9 @@ To use your own Visualization Elements:
 
 ### Using Custom Data Transformations
 
-#### Transforming Search Data to Send to My Visualization
+![NCCL Transformations](./images/NCCL-Transformations.jpg)
 
-![NCCL Search Transforms](./images/NCCL-Search-Transforms.jpg)
+#### Transforming Search Data to Send to My Visualization
 
 1. Define your Visualization element and Search Component as normal ([see above](#search-and-visualize)), but you do not need to add the `vis-element-id` or `vis-draw-function` attributes to the Search Component.
 2. Define a transform function that accepts an **[array of search data objects](#search-data-object)**, transforms it into your data format, and sends the transformed visualization data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
@@ -455,8 +457,6 @@ search1.addEventListener('dataReceived', transformSearchDataArray);
 ```
 
 #### Transforming Filter Data Sent from My Visualization
-
-![NCCL Filter Output Transforms](./images/NCCL-Filter-Out-Transforms.jpg)
 
 1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-output-event` attribute to the Filter Component.
 2. Define a transform function that accepts your Visualization element's filter event data, transforms it into a **[filter data array](#filter-data-array)**, and sends the filter data array to the Filter Component by calling its `updateFilters` function.
@@ -502,8 +502,6 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 ```
 
 #### Transforming Filter Data to Send to My Visualization
-
-![NCCL Filter Input Transforms](./images/NCCL-Filter-In-Transforms.jpg)
 
 1. Define and initialize your Visualization element, Search Component, and Filter Component as normal ([see above](#search-and-filter)), but you do not need to add the `vis-filter-input-function` attribute to the Filter Component.
 2. Define a transform function that accepts a **[filter data array](#filter-data-array)**, transforms it into your data format, and sends the transformed filter data to your Visualization element by whatever method you desire (like a direct function call or attribute data binding).
