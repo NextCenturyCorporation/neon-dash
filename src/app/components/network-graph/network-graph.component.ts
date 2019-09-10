@@ -351,6 +351,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.optionsDoesHaveColorField.bind(this)),
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('edgePhysics', 'Edge Physics', true, OptionChoices.NoFalseYesTrue),
             new WidgetColorOption('edgeColor', 'Edge Color', NetworkGraphComponent.DEFAULT_EDGE_COLOR, this.optionsNotReified.bind(this)),
             new WidgetNumberOption('edgeWidth', 'Edge Width', 1),
             new WidgetColorOption('fontColor', 'Font Color', NetworkGraphComponent.DEFAULT_FONT_COLOR, this.optionsNotReified.bind(this)),
@@ -498,16 +499,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 maxVelocity: 146,
                 solver: 'forceAtlas2Based',
                 timestep: 1,
-                stabilization: { iterations: 1 }
+                stabilization: { iterations: 50 }
             },
             nodes: {
-                physics: false
+                physics: this.options.physics
             },
             edges: {
                 smooth: {
                     type: 'dynamic'
                 },
-                physics: true
+                physics: this.options.edgePhysics
             },
             interaction: {
                 hideEdgesOnDrag: true
@@ -520,8 +521,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
         this.graph.on('dragEnd', this.onDrag.bind(this));
-        //beforeDrawing, initRedraw
-        this.graph.once('initRedraw', this.onInitialStabilize.bind(this));
+        this.graph.once('afterDrawing', this.afterDrawing.bind(this));
     }
 
     private restartPhysics(): void {
@@ -529,10 +529,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.graph.on('stabilized', () => {
             this.graph.setOptions({ physics: { enabled: false } });
             this.graph.off('stabilized');
+
         });
 
-        // Turn on physics if enabled
-        this.graph.setOptions({ physics: { enabled: true } });
+        // To avoid edge overlap the physics must always be on for edges.
+        this.graph.setOptions({ physics: { enabled: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics } });
     }
 
     setInterpolationType(curveType) {
@@ -1415,8 +1416,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }
     }
 
-    onInitialStabilize(properties: { nodes: string[] }) {
-        this.graph.fit();
+    afterDrawing() {
+        this.graph.moveTo({
+            scale: .03
+        })
     }
 
     /*
