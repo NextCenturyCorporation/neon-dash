@@ -46,9 +46,9 @@
 
 ![NCCL Introduction](./images/NCCL-Introduction.jpg)
 
-The **Next Century Component Library** (or NCCL) allows you to rapidly integrate **aggregated searching** and **filtering** capabilities into your **big data visualization application** with **simple, easy-to-use "plug-and-play" components** that interact directly with your datastores.  The NCCL also offers a collection of configurable data visualizations that you can use in your own application.
+The **Next Century Component Library** (or NCCL) allows you to rapidly and easily integrate **aggregated searching** and **filtering** capabilities into your **big data visualization application** with **simple, "plug-and-play" components** that interact directly with your own datastores.  The NCCL also offers a collection of customizable data visualizations that you can add to your own application.
 
-The NCCL is designed for any JavaScript application that searches on, filters, and visualizes big data.  The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
+The NCCL is designed for any JavaScript application that searches, filters, and visualizes data.  The NCCL's core components are **framework-agnostic** so they can be used with Angular, React, Vue, and more.
 
 ## Why should I use the Next Century Component Library?
 
@@ -57,7 +57,7 @@ The Next Century Component Library grants multiple unique benefits over other da
 * It is **free** and **open-source**
 * It supports **different types of datastores** (see the full list [here](https://github.com/NextCenturyCorporation/neon-server#datastore-support))
 * It lets you **view and filter on data from separate datastores at the same time**
-* It operates on your own datastores, so it **doesn't need to load and save a copy of your data** in order to work (though we have suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use out of the NCCL)
+* It operates on your own datastores, so it **doesn't need to load and save a copy of your data** (though we have some suggestions on how you should [configure your datastores](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) so you can make the best use of the NCCL)
 
 ## What are the parts of the Next Century Component Library?
 
@@ -65,19 +65,19 @@ The Next Century Component Library grants multiple unique benefits over other da
 
 ### Search Component
 
-The **Search Component** is an HTML Element (JavaScript Web Component) that builds and runs search queries (using the SearchService), transforms query results, and sends data to its corresponding visualization element.  It also appends filters (from the FilterService) to its search queries and saves [filter designs](#filter-design) from its corresponding Filter Component(s) so they can be used to generate the [search data](#search-data-object) and if `enable-ignore-self-filter` is true.
+The **Search Component** is an HTML Element (JavaScript Web Component) that you define referencing a specific visualization element.  It builds and runs search queries (using the [SearchService](#searchservice)); transforms query results; sends data to its corresponding visualization element; and appends any filters (from the [FilterService](#filterservice)) to its search queries.  It saves [filter designs](#filter-design) from its corresponding [Filter Component(s)](#filter-component) so it can use them to generate the [search data](#search-data-object) and ignore filters on itself (if `enable-ignore-self-filter` is `true`).  Each visualization element should have one Search Component.
 
 ### Filter Component
 
-The **Filter Component** is an HTML Element (JavaScript Web Component) that listens to filter events from its corresponding visualization element, creates [filter designs](#filter-design) from the filtered values, and sends the filter designs to the FilterService.  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#externally-filtered-data) to the visualization element.
+The **Filter Component** is an HTML Element (JavaScript Web Component) that you define referencing a specific visualization element.  It listens to filter events from its corresponding visualization element; creates [filter designs](#filter-design) from the filtered values; and sends the filter designs to the [FilterService](#filterservice).  It also listens when filters are changed by other sources and, if they match its internal filter designs, sends the [externally filtered data](#externally-filtered-data) to the visualization element.  Each visualization element can have zero or more Filter Components.
 
 ### Aggregation Component
 
-The **Aggregation Component** lets you define an [aggregate function](https://en.wikipedia.org/wiki/Aggregate_function) on a field in your search query, like the corresponding SQL functions ([COUNT, AVG, SUM](https://www.w3schools.com/sql/sql_count_avg_sum.asp), [MIN, MAX](https://www.w3schools.com/sql/sql_min_max.asp)).
+The **Aggregation Component** lets you define an [aggregate function](https://en.wikipedia.org/wiki/Aggregate_function) on a field in your search query, like the equivalent SQL functions ([COUNT, AVG, SUM](https://www.w3schools.com/sql/sql_count_avg_sum.asp), [MIN, MAX](https://www.w3schools.com/sql/sql_min_max.asp)).
 
 ### Group Component
 
-The **Group Component** lets you define a data grouping on a field in your search query, often combined with an [aggregate function](#aggregation), like the corresponding SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
+The **Group Component** lets you define a data grouping on a field in your search query, usually combined with an [aggregate function](#aggregation), like the equivalent SQL function ([GROUP_BY](https://www.w3schools.com/sql/sql_groupby.asp)).  You can also have a "date group" on a date field using a specific time interval.
 
 ### Visualization Components
 
@@ -85,9 +85,11 @@ TODO
 
 ### Services
 
+The Services are singleton classes (not visible elements) that run in your frontend application.
+
 #### FilterService
 
-The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#filter-design) to decide how filters should be added and deleted based on their common data sources (datastore/database/table/field), operators, and formats; notifies listeners whenever filters are changed; and creates filters on configured [relations](#relation).
+The **FilterService** manages all of the filters created by your frontend application.  It uses [filter designs](#filter-design) to decide how filters should be added and deleted based on their common fields, operators, and [filter types](#filter-type); notifies listeners whenever filters are changed; and creates filters on configured [relations](#relation).
 
 #### SearchService
 
@@ -99,44 +101,88 @@ The **ConnectionService** facilitates the connections and communication between 
 
 ### Datasets
 
-A **Dataset** contains the datastores, databases, tables, and fields that you want to show in your frontend application.  A simple Dataset may have just a single datastore, database, and table.
+A **Dataset** contains the datastores, databases, tables, and fields that you want to show in your frontend application.  A simple Dataset may have just a single datastore, database, and table.  Each Dataset should have the **datastores object** needed for your application, the [ConnectionService](#connectionService) for your application, the URL for your deployment of the [NCCL Data Server](#the-data-server), and, optionally, a **relations array** of [relations](#relation) for your data.
 
-A **datastore** object must have:  a `host` string property containing the `hostname` or `hostname:port` of the datastore WITHOUT `http` prefix; and a `type` string property containing the [type of datastore](#datastore-type).
+The **datastores object** contains **datastore IDs** as keys and **datastore objects** as values.  Each **datastore object** must have a `host` string property containing the `hostname` or `hostname:port` of the datastore WITHOUT the `http` prefix; a `type` string property containing the [datastore type](#datastore-type); and a `databases` object property containing **database names** as keys and **database objects** as values.  Each **database object** must have a `tables` object property containing **table names** as keys and **table objects** as values.  Each **table object** may optionally have a `fields` array property of **field objects**.  Each **field object** must have a `columnName` string property containing the field name and may optionally have a `type` string property containing the [field type](#field-type).  A database object, table object, or field object may optionally have a `prettyName` string property containing the object's user-friendly name.
 
-TODO
+The **relations array** contains one or more nested **relation arrays**; each **relation array** contains one or more strings or nested string arrays; each string, or each individual nested string array, is a **set of relation fields**.  A **relation array** must have more than one **set of relation fields**, and each **set of relation fields** must have the same number of array elements (or must all be single strings).  Creating a filter containing a combination of fields exactly matching one **set of relation fields** will automatically generate additional filters with the same operators and [type](#filter-type) but substituting each other **set of relation fields** (one filter per set).  See [Relation Examples](#relation-examples) below.
 
 Note that, with Elasticsearch, we equate **indexes** with databases and **mapping types** with tables.  See the [NCCL Data Server's README file](https://github.com/NextCenturyCorporation/neon-server#datastore-configuration) on more information regarding Elasticsearch datastore configuration.
 
-Example:
+#### Dataset Examples
 
 ```js
-{
-    datastores: {
-        datastore_id_1: {
-            name: 'datastore_id_1',
-            host: 'localhost:9200',
-            type: 'elasticsearchrest',
-            databases: {
-                database_name_1: {
-                    name: 'database_name_1',
-                    prettyName: 'Database 1',
-                    tables: {
-                        table_name_1: {
-                            name: 'table_name_1',
-                            prettyName: 'Table 1'
-                        }
+const datastores = {
+    datastore_id_1: {
+        host: 'localhost:9200',
+        type: 'elasticsearchrest',
+        databases: {
+            database_name_1: {
+                prettyName: 'Database 1',
+                tables: {
+                    table_name_1: {
+                        prettyName: 'Table 1'
                     }
                 }
             }
         }
-    },
-    tableKeys: {
-    },
-    fieldKeys: {
-    },
-    relations: []
-}
+    }
+};
+const connectionService = new ConnectionService();
+const dataServerUrl = 'http://localhost:8090';
+const relations = [
+    [
+        // Relation of two date/time fields in separate tables.
+        // Defined as single strings.
+        // All matching filters must have exactly one field.
+        'datastore_id.database_name_1.table_name_1A.date_field',
+        'datastore_id.database_name_1.table_name_1B.time_field'
+    ], [
+        // Relation of three user/name fields in separate databases.
+        // Defined as arrays of one string, but could also be defined as single strings.
+        // All matching filters must have exactly one field.
+        ['datastore_id.database_name_1.table_name_1A.name_field'],
+        ['datastore_id.database_name_2.table_name_2A.user_field'],
+        ['datastore_id.database_name_3.table_name_3A.username_field']
+    ], [
+        // Relation of two latitude/longitude fields in separate datastores.
+        // Defined as arrays of two strings.
+        // All matching filters must have exactly both fields.
+        [
+            'datastore_id.database_name.table_name.latitude_field',
+            'datastore_id.database_name.table_name.longitude_field'
+        ],
+        [
+            'other_datastore_id.other_database_name.other_table_name.latitude_field',
+            'other_datastore_id.other_database_name.other_table_name.longitude_field'
+         ]
+    ]
+];
+const dataset = new Dataset(datastores, connectionService, dataServerUrl, relations);
 ```
+
+#### Relation Examples
+
+```js
+const relations = [ // relations array
+    [ // single nested relation array
+        [ // set of relation fields
+            'datastore1.database1.table1.fieldA',
+            'datastore1.database1.table1.fieldB'
+        ],
+        [
+            'datastore1.database1.table2.fieldX',
+            'datastore1.database1.table2.fieldY'
+        ]
+    ]
+];
+// Whenever the FilterService creates a filter containing both fieldA and fieldB, create a
+// relation filter by copying the filter and replacing fieldA with fieldX and fieldB with
+// fieldY.  Do the reverse whenever the FilterService creates a filter containing both
+// fieldX and fieldY.  Do not create a relation filter on a filter containing just fieldA,
+// or just fieldB, or just fieldX, or just fieldY, or more than fieldA and fieldB, or more
+// than fieldX and fieldY.
+```          
 
 ### The Data Server
 
@@ -761,86 +807,7 @@ By default, the Group Component creates a grouping on a specific field.  Instead
 
 ### Relation
 
-A **relation** identifies two or more fields in separate tables, databases, or datastores that are equivalent to one another and are filtered on simultaneously.  This allows your datastores to be designed following a [relational data model](https://en.wikipedia.org/wiki/Relational_model).  Relations are defined as an optional property in your **[Dataset](#datasets)**.  If your data is separated into multiple tables (or indexes), we recommend that you [denormalize your data](https://en.wikipedia.org/wiki/Denormalization) and **add relations for all shared fields on which you want to filter**.
-
-The `relations` property expects an array of arrays.  Each element in the nested array can be either an object containing `datastore`, `database`, `table`, and `field` string properties or an array of such objects.  If a relation contains three nested arrays, then filters must have exactly the fields defined in the third nested array.
-
-Example:
-
-```js
-relations: [
-    [
-        // Relation of two date/time fields in separate tables.
-        // Defined as single objects.  Filter must have exactly one field.
-        {
-            datastore: 'datastore_id',
-            database: 'database_name_1',
-            table: 'table_name_1A',
-            field: 'date_field'
-        }, {
-            datastore: 'datastore_id',
-            database: 'database_name_1',
-            table: 'table_name_1B',
-            field: 'time_field'
-        }
-    ], [
-        // Relation of three user/name fields in separate databases.
-        // Defined as arrays of single objects, but could also be defined as single objects.
-        [
-            {
-                datastore: 'datastore_id',
-                database: 'database_name_1',
-                table: 'table_name_1A',
-                field: 'name_field'
-             }
-        ], [
-            {
-                datastore: 'datastore_id',
-                database: 'database_name_2',
-                table: 'table_name_2A',
-                field: 'user_field'
-             }
-        ], [
-            {
-                datastore: 'datastore_id',
-                database: 'database_name_3',
-                table: 'table_name_3A',
-                field: 'username_field'
-             }
-        ]
-    ], [
-        // Relation of two latitude/longitude fields in separate datastores.
-        // Defined as arrays of two objects.  Filters must have exactly both fields.
-        [
-            {
-                datastore: 'datastore_id',
-                database: 'database_name',
-                table: 'table_name',
-                field: 'latitude_field'
-             }, {
-                datastore: 'datastore_id',
-                database: 'database_name',
-                table: 'table_name',
-                field: 'longitude_field'
-             }
-        ], [
-            {
-                datastore: 'another_datastore_id',
-                database: 'another_database_name',
-                table: 'another_table_name',
-                field: 'another_latitude_field'
-             }, {
-                datastore: 'another_datastore_id',
-                database: 'another_database_name',
-                table: 'another_table_name',
-                field: 'another_longitude_field'
-             }
-         ]
-    ]
-]
-```
-
-TODO more examples
+A **relation** identifies two or more fields in separate tables, databases, or datastores that are equivalent to one another and are filtered on simultaneously.  This allows your datastores to be designed following a [relational data model](https://en.wikipedia.org/wiki/Relational_model).  Relations can be defined as an optional property in your **Dataset**; see [Datasets](#datasets) for more information.  If your data is separated into multiple tables (or indexes), we recommend that you [denormalize your data](https://en.wikipedia.org/wiki/Denormalization) and **add relations for all shared fields on which you want to filter**.
 
 ### Search Data Object
 
