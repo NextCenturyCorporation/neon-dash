@@ -391,7 +391,7 @@ layouts:
           row: 2
           col: 4
           sizex: 7
-          sizey: 12
+          sizey: 16
           bindings:
               title: Network Graph
               tableKey: kb_table
@@ -418,7 +418,7 @@ layouts:
               isDirected: false
               hideUnfiltered: false
               physics: false
-              edgePhysics: true
+              edgePhysics: false
               filterFields:
                   - kb_field_documentid
               idField: kb_field_objectid
@@ -430,20 +430,6 @@ layouts:
               targetColorField: kb_field_edgecategory
               cleanLegendLabels: true
               legendFiltering: false
-
-        - type: timeline
-          row: 16
-          col: 4
-          sizex: 7
-          sizey: 4
-          bindings:
-              title: Document Timeline
-              tableKey: children_table
-              idField: children_field_id
-              filterField: children_field_id
-              dateField: children_field_parentdate
-              granularity: month
-              hideUnfiltered: false
 
         - type: thumbnailGrid
           row: 0
@@ -511,7 +497,7 @@ layouts:
           row: 2
           col: 4
           sizex: 7
-          sizey: 12
+          sizey: 16
           bindings:
               title: Events
               tableKey: event_table
@@ -551,20 +537,6 @@ layouts:
                   mp3: aud
                   svg: img
                   html: htm
-
-        - type: timeline
-          row: 16
-          col: 4
-          sizex: 7
-          sizey: 4
-          bindings:
-              title: Event Timeline
-              tableKey: event_table
-              idField: event_field_objectid
-              filterField: event_field_documentid
-              dateField: event_field_docdate
-              granularity: dayOfMonth
-              hideUnfiltered: false
 
         - type: thumbnailGrid
           row: 0
@@ -743,7 +715,7 @@ layouts:
           row: 2
           col: 4
           sizex: 7
-          sizey: 12
+          sizey: 16
           bindings:
               title: Network Graph
               tableKey: kb_table
@@ -770,7 +742,7 @@ layouts:
               isDirected: false
               hideUnfiltered: true
               physics: false
-              edgePhysics: true
+              edgePhysics: false
               filterFields:
                   - kb_field_documentid
               idField: kb_field_objectid
@@ -784,20 +756,6 @@ layouts:
               cleanLegendLabels: true
               legendFiltering: false
               applyPreviousFilter: true
-
-        - type: timeline
-          row: 16
-          col: 4
-          sizex: 7
-          sizey: 4
-          bindings:
-              title: Document Timeline
-              tableKey: children_table
-              idField: children_field_id
-              filterField:
-              dateField: children_field_parentdate
-              granularity: month
-              hideUnfiltered: true
 
         - type: thumbnailGrid
           row: 2
@@ -885,7 +843,7 @@ layouts:
           row: 2
           col: 4
           sizex: 7
-          sizey: 12
+          sizey: 16
           bindings:
               title: Events
               tableKey: event_table
@@ -924,20 +882,6 @@ layouts:
                   mp3: aud
                   svg: img
                   html: htm
-
-        - type: timeline
-          row: 16
-          col: 4
-          sizex: 7
-          sizey: 4
-          bindings:
-              title: Event Timeline
-              tableKey: event_table
-              idField: event_field_objectid
-              filterField:
-              dateField: event_field_docdate
-              granularity: dayOfMonth
-              hideUnfiltered: true
 
         - type: thumbnailGrid
           row: 2
