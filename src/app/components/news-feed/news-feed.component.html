@@ -45,35 +45,12 @@
                 <div>
                     <div class="text multiple-line" *ngIf="item.field[options.contentField.columnName]">
                         <h4 *ngIf="options.contentLabel">{{options.contentLabel}}</h4>
-                        <p>
-                            <ng-container *ngIf="hasUrl(item.field[options.contentField.columnName])">
-                                <ng-container *ngFor="let link of this.url; let i = index">
-                                    {{this.text[i]}}
-                                    <a href="{{link}}" target="_blank">
-                                        {{link}}</a>
-                                </ng-container>
-                                {{this.text.slice(-1)[0]}}
-                            </ng-container>
-                            <ng-container *ngIf="!hasUrl(item.field[options.contentField.columnName])">
-                                {{item.field[options.contentField.columnName]}}
-                            </ng-container>
-                        </p>
+                        <app-text-with-url [text]=item.field[options.contentField.columnName]></app-text-with-url>
                     </div>
                     <div class="text multiple-line" *ngIf="item.field[options.secondaryContentField.columnName]">
                         <h4 *ngIf="options.secondaryContentLabel">{{options.secondaryContentLabel}}</h4>
-                        <p>
-                            <ng-container *ngIf="hasUrl(item.field[options.secondaryContentField.columnName])">
-                                <ng-container *ngFor="let link of this.url; let i = index">
-                                    {{this.text[i]}}
-                                    <a href="{{link}}" target="_blank">
-                                        {{link}}</a>
-                                </ng-container>
-                                {{this.text.slice(-1)[0]}}
-                            </ng-container>
-                            <ng-container *ngIf="!hasUrl(item.field[options.secondaryContentField.columnName])">
-                                {{item.field[options.secondaryContentField.columnName]}}
-                            </ng-container>
-                        </p>
+                        <app-text-with-url [text]=item.field[options.secondaryContentField.columnName]>
+                        </app-text-with-url>
                     </div>
                     <div class="appendix">
                         <span class="date">{{ item.field[options.dateField.columnName] }}</span>

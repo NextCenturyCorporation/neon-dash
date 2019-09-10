@@ -12,26 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NewsFeedComponent } from './news-feed.component';
-import { CommonWidgetModule } from '../../common-widget.module';
-import { DataMessageModule } from '../data-message/data-message.module';
-import { MatExpansionModule } from '@angular/material';
-import { MediaGroupModule } from '../media-group/media-group.module';
-import { TextWithUrlModule } from '../text-with-url/text-with-url.module';
+import { TextWithUrlComponent } from './text-with-url.component';
 
 @NgModule({
-    declarations: [NewsFeedComponent],
-    exports: [NewsFeedComponent],
-    entryComponents: [NewsFeedComponent],
+    declarations: [TextWithUrlComponent],
+    exports: [TextWithUrlComponent],
+    entryComponents: [TextWithUrlComponent],
     imports: [
-        MatExpansionModule,
-        CommonWidgetModule,
-        CommonModule,
-        DataMessageModule,
-        MediaGroupModule,
-        TextWithUrlModule
+        CommonModule
     ]
 })
-export class NewsFeedModule { }
+export class TextWithUrlModule { }

@@ -330,7 +330,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterConfig[]} filterConfigList
      * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[]): void {
+    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[], keepSameFilters?: boolean): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -340,7 +340,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete, this.options.keepSameFiltersOn);
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete,
+            keepSameFilters, this.options.applyPreviousFilter);
     }
 
     /**
@@ -446,7 +447,13 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
             return list;
         }, []);
 
-        if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
+        if (Array.isArray(options.filter)) {
+            options.filter.forEach((filter) => {
+                if (filter && filter.lhs && filter.operator && typeof filter.rhs !== 'undefined') {
+                    fields = [filter.lhs].concat(fields);
+                }
+            });
+        } else if (options.filter && options.filter.lhs && options.filter.operator && typeof options.filter.rhs !== 'undefined') {
             fields = [options.filter.lhs].concat(fields);
         }
 
@@ -480,14 +487,16 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         let filterClauses: FilterClause[] = this.retrieveApplicableFilters(options).map((filter) =>
             this.searchService.generateFilterClauseFromFilter(filter));
 
-        if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
+        if (Array.isArray(options.filter)) {
+            options.filter.forEach((filter) => {
+                if (filter && filter.lhs && filter.operator && filter.rhs) {
+                    filterClauses = filterClauses.concat(this.searchService.buildFilterClause(filter.lhs, filter.operator,
+                        filter.rhs));
+                }
+            });
+        } else if (options.filter && options.filter.lhs && options.filter.operator && options.filter.rhs) {
             filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.filter.lhs, options.filter.operator,
                 options.filter.rhs));
-        }
-
-        if (this.hasUnsharedFilter(options)) {
-            filterClauses = filterClauses.concat(this.searchService.buildFilterClause(options.unsharedFilterField.columnName, '=',
-                options.unsharedFilterValue));
         }
 
         return filterClauses;
@@ -787,17 +796,6 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      */
     public handleChangeSubcomponentType(options?: WidgetOptionCollection | any) {
         this.handleChangeData(options);
-    }
-
-    /**
-     * Returns whether the local unshared filter field and value are set.
-     *
-     * @arg {any} [options=this.options] A WidgetOptionCollection object.
-     * @return {boolean}
-     */
-    private hasUnsharedFilter(options?: WidgetOptionCollection | { [key: string]: any }): boolean {
-        return !!((options || this.options).unsharedFilterField && (options || this.options).unsharedFilterField.columnName &&
-            typeof (options || this.options).unsharedFilterValue !== 'undefined' && (options || this.options).unsharedFilterValue !== '');
     }
 
     /**
