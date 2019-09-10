@@ -15,8 +15,11 @@
 */
 @import '../base-neon-component/base-neon.component';
 
+$vis-title-expected-height-offset: 20px; //This is to account for the wiki tab height
+
 :host {
     .mat-tab-group {
-        height: calc(100% - #{$vis-title-expected-height});
+        height: calc(100% - (#{$vis-title-expected-height} - #{$vis-title-expected-height-offset}));
+        padding-left: 2px;
     }
 }
