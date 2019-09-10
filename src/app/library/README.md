@@ -112,21 +112,26 @@ Note that, with Elasticsearch, we equate **indexes** with databases and **mappin
 #### Dataset Examples
 
 ```js
-const datastores = {
-    datastore_id_1: {
-        host: 'localhost:9200',
-        type: 'elasticsearchrest',
-        databases: {
-            database_name_1: {
-                prettyName: 'Database 1',
-                tables: {
-                    table_name_1: {
-                        prettyName: 'Table 1'
-                    }
-                }
-            }
-        }
+const fieldArray = [];
+const tableObject = TableConfig.get({
+    prettyName: 'Table Name',
+    fields: fieldArray
+});
+const databaseObject = DatabaseConfig.get({
+    prettyName: 'Database Name',
+    tables: {
+        table_name: tableObject
     }
+});
+const datastoreObject = DatastoreConfig.get({
+    host: 'localhost:9200',
+    type: 'elasticsearchrest',
+    databases: {
+        database_name: databaseObject
+    }
+});
+const datastores = {
+    datastore_id: datastoreObject
 };
 const connectionService = new ConnectionService();
 const dataServerUrl = 'http://localhost:8090';
@@ -192,6 +197,8 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 ![NCCL Sequence](./images/NCCL-Sequence.jpg)
 
+**Next Century Component Library Workflow Diagram**
+
 ![NCCL Workflow](./images/NCCL-Workflow.jpg)
 
 ### Setup
@@ -234,37 +241,42 @@ Additionally, you must have a deployed instance of the [NCCL Data Server](https:
 4. Initialize each of your [Search Components](#search-and-filter) with the Dataset, FilterService, and SearchService.
 
 ```js
-// Create a single copy of each of the core Services to share with ALL of your NCCL Components.
+// Create a single copy of each of the core Services to share with each of your NCCL Components.
+const connectionService = new ConnectionService();
 const filterService = new FilterService();
-const searchService = new SearchService(new ConnectionService());
+const searchService = new SearchService(connectionService);
 
-// Create a single Dataset containing each of your datastores, databases, and tables.
-const fieldArray = []; // Fields will be automatically detected by the NCCL if not defined here.
-const tableObject = TableMetaData.get({
-    name: 'table_name',
+// Define your NCCL Data Server hostname.
+const dataServer = 'http://localhost:8090';
+
+// Define your datastores, databases, tables, and fields.
+// Note that fields are optional.  The NCCL will automatically detect fields if they are not defined.
+const fieldArray = [];
+const tableObject = TableConfig.get({
     prettyName: 'Table Name',
     fields: fieldArray
 });
-const databaseObject = DatabaseMetaData.get({
-    name: 'database_name',
+const databaseObject = DatabaseConfig.get({
     prettyName: 'Database Name',
     tables: {
         table_name: tableObject
     }
 });
-const datastoreObject = DatastoreMetaData.get({
-    name: 'datastore_id',
+const datastoreObject = DatastoreConfig.get({
     host: 'localhost:9200',
     type: 'elasticsearchrest',
     databases: {
         database_name: databaseObject
     }
 });
-const datasetObject = Dataset.get({
-    datastores: {
-        datastore_id: datastoreObject
-    }
-});
+
+// Define your datastore relations, if any.
+const relations = [];
+
+// Create a single Dataset object with your datastores, connectionService, dataServer, and relations.
+const datasetObject = new Dataset({
+    datastore_id: datastoreObject
+}, connectionService, dataServer, relations);
 
 // Initialize each of your Filter Components with the Dataset and FilterService.
 document.getElementById('filter1').init(datasetObject, filterService);
@@ -287,7 +299,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -307,7 +318,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.username_field"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -340,7 +350,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -367,7 +376,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.username_field"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -405,7 +413,6 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -454,7 +461,128 @@ document.getElementById('search1').init(datasetObject, filterService, searchServ
 
 ### Using NCCL Visualization Components
 
-TODO
+```html
+<!-- Simple Examples -->
+<next-century-text-cloud
+    term-field-key="es1.index_name.index_type.text_field"
+>
+</next-century-text-cloud>
+
+<!-- Advanced Examples -->
+<next-century-text-cloud
+    enable-hide-if-unfiltered
+    enable-ignore-self-filter
+    enable-intersection-filter
+    enable-show-counts
+    strength-aggregation="avg"
+    strength-field-key="es1.index_name.index_type.size_field"
+    term-field-key="es1.index_name.index_type.text_field"
+>
+</next-century-text-cloud>
+```
+
+#### What Does It Render?
+
+In your application, this...
+
+```html
+<next-century-map-leaflet
+    category-field-key="es1.index_name.index_type.category_field"
+    latitude-field-key="es1.index_name.index_type.latitude_field"
+    longitude-field-key="es1.index_name.index_type.longitude_field"
+>
+</next-century-map-leaflet>
+```
+
+...will turn into this...
+
+```html
+<!-- Element IDs are made with unique alphanumeric indentifiers. -->
+<div id="map_1234">
+    <!-- Leaflet code -->
+</div>
+
+<next-century-search
+    id="search_1234"
+    search-field-key="es1.index_name.index_type.*"
+>
+</next-century-search>
+
+<!-- On-Draw-Bounds Filter -->
+<next-century-filter
+    id="filter_1234"
+    bounds-field-key-x="es1.index_name.index_type.latitude_field"
+    bounds-field-key-y="es1.index_name.index_type.longitude_field"
+    search-element-id="search_1234"
+    type="bounds"
+>
+</next-century-filter>
+
+<!-- On-Point-Click Filter -->
+<next-century-filter
+    id="filter_1235"
+    pair-field-key-1="es1.index_name.index_type.latitude_field"
+    pair-field-key-2="es1.index_name.index_type.longitude_field"
+    pair-operator-1="="
+    pair-operator-2="="
+    search-element-id="search_1234"
+    type="pair"
+>
+</next-century-filter>
+
+<!-- Secondary On-Point-Click Filter -->
+<next-century-filter
+    id="filter_1236"
+    list-field-key="es1.index_name.index_type.category_field"
+    list-operator="="
+    search-element-id="search_1234"
+    type="list"
+>
+</next-century-filter>
+
+<!-- Legend Filter -->
+<next-century-filter
+    id="filter_1237"
+    list-field-key="es1.index_name.index_type.category_field"
+    list-operator="!="
+    search-element-id="search_1234"
+    type="list"
+>
+</next-century-filter>
+```
+
+...with custom transformation functions:
+
+```js
+const transformSearchDataArray = function(searchDataArray) { /* ... */ };
+const transformBoundsEventFilterData = function(event) { /* ... */ };
+const transformPointsEventFilterData = function(event) { /* ... */ };
+const transformLegendEventFilterData = function(event) { /* ... */ };
+const transformBoundsFilterDataArray = function(event) { /* ... */ };
+const transformPointsLocationFilterDataArray = function(event) { /* ... */ };
+const transformPointsCategoryFilterDataArray = function(event) { /* ... */ };
+const transformLegendFilterDataArray = function(event) { /* ... */ };
+
+const searchElement = document.getElementById('search_1234');
+searchElement.addEventListener('dataReceived', transformSearchDataArray);
+
+const mapElement = document.getElementById('map_1234');
+mapElement.addEventListener('onBounds', transformBoundsEventFilterData);
+mapElement.addEventListener('onPoints', transformPointsEventFilterData);
+mapElement.addEventListener('onLegend', transformLegendEventFilterData);
+
+const boundsFilterElement = document.getElementById('filter_1234');
+boundsFilterElement.addEventListener('filtersChanged', transformBoundsFilterDataArray);
+
+const pointsLocationFilterElement = document.getElementById('filter_1235');
+pointsLocationFilterElement.addEventListener('filtersChanged', transformPointsLocationFilterDataArray);
+
+const pointsCategoryFilterElement = document.getElementById('filter_1236');
+pointsCategoryFilterElement.addEventListener('filtersChanged', transformPointsCategoryFilterDataArray);
+
+const legendFilterElement = document.getElementById('filter_1237');
+legendFilterElement.addEventListener('filtersChanged', transformLegendFilterDataArray);
+```
 
 ### Using My Visualization Elements
 
