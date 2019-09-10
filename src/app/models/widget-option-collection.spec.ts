@@ -430,8 +430,6 @@ describe('RootWidgetOptionCollection', () => {
             hideUnfiltered: true,
             limit: '1234',
             title: 'Test Custom Title',
-            unsharedFilterField: 'testFilterField',
-            unsharedFilterValue: 'testFilterValue',
             testCustomField: 'testTextField',
             testCustomFieldArray: ['testNameField', 'testTypeField'],
             testCustomKey: 'testCustomValue',
@@ -458,8 +456,6 @@ describe('RootWidgetOptionCollection', () => {
         expect(options.hideUnfiltered).toEqual(true);
         expect(options.limit).toEqual('1234');
         expect(options.title).toEqual('Test Custom Title');
-        expect(options.unsharedFilterField).toEqual(FIELD_MAP.FILTER);
-        expect(options.unsharedFilterValue).toEqual('testFilterValue');
 
         expect(options.testCustomField).toEqual(FIELD_MAP.TEXT);
         expect(options.testCustomFieldArray).toEqual([FIELD_MAP.NAME, FIELD_MAP.TYPE]);
@@ -565,8 +561,6 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.hideUnfiltered).toEqual(false);
         expect(options.limit).toEqual(100);
         expect(options.title).toEqual('Test Title');
-        expect(options.unsharedFilterField).toEqual(NeonFieldMetaData.get());
-        expect(options.unsharedFilterValue).toEqual('');
 
         expect(options.testCustomField).toEqual(NeonFieldMetaData.get());
         expect(options.testCustomFieldArray).toEqual([]);

@@ -113,7 +113,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return;
         }
 
-        this.toggleFilters([this.createFilterConfigOnText(text)]);
+        if(this.options.toggleFiltered){
+            this.toggleFilters([this.createFilterConfigOnText(text)]);
+        } else {
+            this.exchangeFilters([this.createFilterConfigOnText(text)]);
+        }
     }
 
     private createFilterConfigOnText(value?: any): FilterConfig {
@@ -152,7 +156,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue, this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', null),
             new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {})
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -421,12 +427,5 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     appendPrefixIfNeeded(link: string, prefix: string) {
         return ((!!link && link.indexOf(prefix) !== 0 && link.indexOf('http') !== 0) ? (prefix + link) : link);
-    }
-
-    hasUrl(text: string) {
-        let textObject = neonUtilities.hasUrl(text);
-        this.url = textObject.url;
-        this.text = textObject.splitText;
-        return textObject.test;
     }
 }

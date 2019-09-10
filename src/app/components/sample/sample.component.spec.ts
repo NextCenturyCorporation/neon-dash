@@ -562,9 +562,7 @@ describe('Component: Sample with config', () => {
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
             { provide: 'tableKey', useValue: 'table_key_2' },
-            { provide: 'title', useValue: 'Test Title' },
-            { provide: 'unsharedFilterField', useValue: 'testFilterField' },
-            { provide: 'unsharedFilterValue', useValue: 'testFilterValue' }
+            { provide: 'title', useValue: 'Test Title' }
         ],
         imports: [
             CommonWidgetModule
@@ -582,8 +580,6 @@ describe('Component: Sample with config', () => {
         expect(component.options.table).toEqual(DashboardServiceMock.TABLES.testTable2);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
-        expect(component.options.unsharedFilterField).toEqual(DashboardServiceMock.FIELD_MAP.FILTER);
-        expect(component.options.unsharedFilterValue).toEqual('testFilterValue');
         expect(component.options.customEventsToPublish).toEqual([{
             id: 'test_publish_event',
             fields: [{

@@ -125,7 +125,7 @@ export class WidgetOption {
         public optionType: OptionType,
         public isRequired: boolean,
         public bindingKey: string,
-        public prettyName: string,
+        public prettyName: string | Function,
         public valueDefault: any,
         public valueChoices: OptionChoice[],
         public hideFromMenu: boolean | OptionCallback = false
@@ -151,7 +151,7 @@ export class WidgetColorOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
@@ -187,7 +187,7 @@ export class WidgetFieldArrayOption extends WidgetOption {
      * @arg {boolean} isRequired
      * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean, hideFromMenu: boolean | OptionCallback = false) {
+    constructor(bindingKey: string, prettyName: string | Function, isRequired: boolean, hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD_ARRAY, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
@@ -211,7 +211,10 @@ export class WidgetFieldOption extends WidgetOption {
      * @arg {boolean} [isRequired=false]
      * @arg {boolean|function} [hideFromMenu=false]
      */
-    constructor(bindingKey: string, prettyName: string, isRequired: boolean = false, hideFromMenu: boolean | OptionCallback = false) {
+    constructor(bindingKey: string,
+        prettyName: string | Function,
+        isRequired: boolean = false,
+        hideFromMenu: boolean | OptionCallback = false) {
         // Value default and choices are set elsewhere.
         super(OptionType.FIELD, isRequired, bindingKey, prettyName, undefined, undefined, hideFromMenu);
     }
@@ -237,7 +240,7 @@ export class WidgetFreeTextOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
@@ -256,7 +259,7 @@ export class WidgetMultipleSelectOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
@@ -277,7 +280,7 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
@@ -314,7 +317,7 @@ export class WidgetNonPrimitiveOption extends WidgetOption {
 }
 
 export class WidgetNumberOption extends WidgetOption {
-    private _intermediateValue: number|string;
+    private _intermediateValue: number | string;
 
     /**
      * @constructor
@@ -325,7 +328,7 @@ export class WidgetNumberOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         hideFromMenu: boolean | OptionCallback = false
     ) {
@@ -372,7 +375,7 @@ export class WidgetSelectOption extends WidgetOption {
      */
     constructor(
         bindingKey: string,
-        prettyName: string,
+        prettyName: string | Function,
         valueDefault: any,
         valueChoices: OptionChoice[],
         hideFromMenu: boolean | OptionCallback = false
