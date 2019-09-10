@@ -36,9 +36,11 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { neonUtilities } from '../../models/neon-namespaces';
 import {
+    OptionChoices,
     WidgetFieldOption,
     WidgetFreeTextOption,
-    WidgetOption
+    WidgetOption,
+    WidgetSelectOption
 } from '../../models/widget-option';
 import { MatDialog } from '@angular/material';
 
@@ -57,8 +59,9 @@ export class WikiData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
-
+    static WIKI_LINK_PREFIX_TITLE: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
+    static WIKI_LINK_PREFIX_ID: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&pageid=';
+    static WIKI_LINK_PREFIX_URL: string = 'https://en.wikipedia.org/wiki/';
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -109,7 +112,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         return [
             new WidgetFieldOption('idField', 'ID Field', true),
             new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFreeTextOption('id', 'ID', false, '')
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetSelectOption('useWikipediaPageID', 'Use Wikipedia Page ID', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -233,8 +237,14 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     ): void {
         new Promise<number>((resolve, reject) => {
             try {
-                let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
-                this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
+                let links = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+                links = (Array.isArray(links) ? links : [links]).map((link) => {
+                    if ( !this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
+                        return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL.length);
+                    }
+                    return link;
+                });
+                this.retrieveWikiPage(links, [], (data: WikiData[]) => {
                     this.wikiViewerData = data || [];
                     resolve(data ? data.length : 0);
                 });
@@ -272,17 +282,15 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.retrieveWikiPage(links.slice(1), data, callback);
         };
 
-        this.http.get(WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).subscribe((wikiResponse: any) => {
+        let link = (this.options.useWikipediaPageID ? WikiViewerComponent.WIKI_LINK_PREFIX_ID :
+            WikiViewerComponent.WIKI_LINK_PREFIX_TITLE) + links[0];
+
+        this.http.get(link).subscribe((wikiResponse: any) => {
             if (wikiResponse.error) {
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
             }
-            let responseBody = JSON.parse(wikiResponse.body);
-            if (responseBody.error) {
-                data.push(new WikiData(links[0], this.sanitizer.bypassSecurityTrustHtml(responseBody.error.info)));
-            } else {
-                data.push(new WikiData(responseBody.parse.title, this.sanitizer.bypassSecurityTrustHtml(responseBody.parse.text['*'])));
-            }
+            data.push(new WikiData(wikiResponse.parse.title, this.sanitizer.bypassSecurityTrustHtml(wikiResponse.parse.text['*'])));
             return this.retrieveWikiPage(links.slice(1), data, callback);
         }, (error: HttpErrorResponse) => handleErrorOrFailure(error.error));
     }
