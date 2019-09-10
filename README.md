@@ -10,6 +10,7 @@ The Neon Dashboard is a big data exploration and visualization user interface th
 * [Production Deployment Instructions](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#production-deployment-instructions)
 * [Custom Dashboard Configuration](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#custom-dashboard-configuration)
 * [Technical Stack](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#technical-stack)
+* [Ongoing Efforts](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#ongoing-efforts)
 * [License](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#apache-2-open-source-license)
 * [References](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#references)
 * [Contact Us](https://github.com/NextCenturyCorporation/neon-dash-internal/blob/master/README.md#contact-us)
@@ -231,6 +232,24 @@ In Elasticsearch 7, mapping types have been removed.  In the Neon Dashboard's co
 ## Technical Stack
 
 The Neon Dashboard is an [Angular](https://angular.io/) web application.
+
+## Ongoing Efforts
+
+### Data Tasks
+
+* Additional datastore support:  SQL, SPARQL, Cypher
+* Edit or annotate live data in your datastores
+* "Join" on data across tables/databases/datastores if data denormalization isn't possible
+* Data ingest helper scripts
+
+### UI Tasks
+
+* Custom dataset and dashboard configuration wizard
+* Export data to CSV, PDF, etc.
+* Show GeoJSON regions in the Map
+* Tabbed widgets
+* New visualizations
+* Selenium testing
 
 ## Apache 2 Open Source License
 
