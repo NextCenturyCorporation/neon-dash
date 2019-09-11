@@ -61,7 +61,10 @@ export class WikiData {
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX_TITLE: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
     static WIKI_LINK_PREFIX_ID: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&pageid=';
-    static WIKI_LINK_PREFIX_URL: string = 'https://en.wikipedia.org/wiki/';
+    static WIKI_LINK_PREFIX_URL_HTTPS: string = 'https://en.wikipedia.org/wiki/';
+    static WIKI_LINK_PREFIX_URL: string = 'en.wikipedia.org/wiki/';
+    static WIKI_LINK_PREFIX_WIKI: string = '/wiki/';
+    static WIKI_LINK_PREFIX_WIKI_FULL: string = 'https://en.wikipedia.org/wiki/';
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -239,7 +242,9 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             try {
                 let links = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 links = (Array.isArray(links) ? links : [links]).map((link) => {
-                    if ( !this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
+                    if (!this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL_HTTPS)) {
+                        return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL_HTTPS.length);
+                    } else if (!this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
                         return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL.length);
                     }
                     return link;
@@ -290,7 +295,13 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
                 return handleErrorOrFailure(errorMessage);
             }
-            data.push(new WikiData(wikiResponse.parse.title, this.sanitizer.bypassSecurityTrustHtml(wikiResponse.parse.text['*'])));
+            data.push(new WikiData(wikiResponse.parse.title, this.sanitizer.bypassSecurityTrustHtml(
+                wikiResponse.parse.text['*'].split(
+                    WikiViewerComponent.WIKI_LINK_PREFIX_WIKI
+                ).join(
+                    WikiViewerComponent.WIKI_LINK_PREFIX_WIKI_FULL
+                )
+            )));
             return this.retrieveWikiPage(links.slice(1), data, callback);
         }, (error: HttpErrorResponse) => handleErrorOrFailure(error.error));
     }
