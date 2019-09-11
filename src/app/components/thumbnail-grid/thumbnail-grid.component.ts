@@ -377,7 +377,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name);
+        return !!(options.database.name && options.table.name && options.idField.columnName);
     }
 
     /**
