@@ -168,13 +168,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('sortField', 'Sort Field', false),
             new WidgetFieldOption('typeField', 'Type Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('autoplay', 'Autoplay', false, OptionChoices.NoFalseYesTrue),
-            new WidgetFreeTextOption('border', 'Border', ''),
-            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', '',
+            new WidgetSelectOption('autoplay', 'Autoplay', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('border', 'Border', false, ''),
+            new WidgetFreeTextOption('borderCompareValue', 'Border Comparison Field Equals', false, '',
                 this.optionsBorderIsPercentCompareOrValueCompare.bind(this)),
-            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', 0.5,
+            new WidgetNumberOption('borderPercentThreshold', 'Border Probability Greater Than', false, 0.5,
                 this.optionsBorderIsPercentCompareOrPercentField.bind(this)),
-            new WidgetSelectOption('cropAndScale', 'Crop or Scale', '', [{
+            new WidgetSelectOption('cropAndScale', 'Crop or Scale', false, '', [{
                 prettyName: 'None',
                 variable: ''
             }, {
@@ -187,18 +187,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Both',
                 variable: 'both'
             }]),
-            new WidgetFreeTextOption('defaultLabel', 'Default Label', ''),
-            new WidgetFreeTextOption('defaultPercent', 'Default Percent', ''),
-            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', ''),
-            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('showLabelName', 'Label Names', false, OptionChoices.HideFalseShowTrue),
-            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetNonPrimitiveOption('textMap', 'Text Map', {}),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', {}),
-            new WidgetSelectOption('viewType', 'View', ViewType.TITLE, [{
+            new WidgetFreeTextOption('defaultLabel', 'Default Label', false, ''),
+            new WidgetFreeTextOption('defaultPercent', 'Default Percent', false, ''),
+            new WidgetSelectOption('detailedThumbnails', 'Detailed Thumbnails', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
+            new WidgetSelectOption('openOnMouseClick', 'Open Media on Mouse Click', false, true, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('showLabelName', 'Label Names', false, false, OptionChoices.HideFalseShowTrue),
+            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
+            new WidgetNonPrimitiveOption('textMap', 'Text Map', false, {}),
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
+            new WidgetSelectOption('viewType', 'View', false, ViewType.TITLE, [{
                 prettyName: 'Title',
                 variable: ViewType.TITLE
             }, {
@@ -208,10 +208,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 prettyName: 'Card',
                 variable: ViewType.CARD
             }]),
-            new WidgetNumberOption('canvasSize', 'Canvas Size', this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', { value: false, length: 0 }),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
+            new WidgetNumberOption('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 })
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -366,7 +366,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     appendType(link: string, type: string) {
-        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' +  type) : link);
+        return ((!!type && link.indexOf(type) < 0 && link.indexOf('.') < 0) ? (link + '.' + type) : link);
     }
 
     /**
@@ -600,7 +600,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return value ? (Array.isArray(value) ? value : value.toString().search(/,/g) > -1 ? value.toString().split(',') : [value]) : [];
     }
 
-    private defaultDocumentThumbnail(thumbnail){
+    private defaultDocumentThumbnail(thumbnail) {
         let img: HTMLImageElement = new Image();
         img.src = './assets/icons/dashboard/document.svg';
 
@@ -643,7 +643,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Todo: when canvases lose focus the images disappear. May need to go back to div
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view');
 
-        if(canvases.length){
+        if (canvases.length) {
             // TODO Move this code into separate functions
             /* eslint-disable-next-line complexity */
             this.gridArray.forEach((grid, index) => {
@@ -766,8 +766,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         case 'percentCompare': {
                             if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
                                 let percentFloat = parseFloat(percentage);
-                                if ((percentFloat > this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
-                                    (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
+                                if ((percentFloat > this.options.borderPercentThreshold &&
+                                    comparison === this.options.borderCompareValue) ||
+                                    (percentFloat < this.options.borderPercentThreshold &&
+                                    comparison !== this.options.borderCompareValue)) {
                                     borderColor = 'blue';
                                 } else {
                                     borderColor = 'red';
@@ -848,7 +850,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     displayMediaTab(item) {
-        if(item[this.constructedLinkField]) {
+        if( item[this.constructedLinkField] ) {
             if (this.options.openOnMouseClick) {
                 window.open(item[this.constructedLinkField]);
             }

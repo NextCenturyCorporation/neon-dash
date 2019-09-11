@@ -125,14 +125,14 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         return [
             new WidgetFieldOption('sampleRequiredField', 'Sample Required Field', true),
             new WidgetFieldOption('sampleOptionalField', 'Sample Optional Field', false),
-            new WidgetSelectOption('subcomponentType', 'Subcomponent Type', 'Impl1', [{
+            new WidgetSelectOption('subcomponentType', 'Subcomponent Type', true, 'Impl1', [{
                 prettyName: 'Implementation 1',
                 variable: 'Impl1'
             }, {
                 prettyName: 'Implementation 2',
                 variable: 'Impl2'
             }]),
-            new WidgetSelectOption('sortDescending', 'Sort', false, OptionChoices.AscendingFalseDescendingTrue)
+            new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue)
         ];
     }
 
