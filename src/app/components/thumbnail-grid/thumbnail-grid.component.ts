@@ -209,7 +209,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetNumberOption('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 })
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 }),
             new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, false, OptionChoices.NoFalseYesTrue)
         ];

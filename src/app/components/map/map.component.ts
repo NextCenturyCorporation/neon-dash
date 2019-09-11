@@ -724,7 +724,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             new WidgetFieldOption('idField', 'ID Field', false),
             new WidgetFieldOption('sizeField', 'Size Field', false),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('cluster', 'Cluster', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('cluster', 'Cluster', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -752,8 +752,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', false, null)
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
+            new WidgetNumberOption('west', 'West', false, null),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
