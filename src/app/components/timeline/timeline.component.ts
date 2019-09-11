@@ -107,7 +107,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
-        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+        // Console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
         this.redrawOnResize = true;
     }
 
@@ -209,7 +209,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnItem(this.options.filterField, value)));
         }
 
-        this.exchangeFilters(filters, [], true);
+        this.exchangeFilters(filters);
 
         this.filterAndRefreshData(this.timelineQueryResults);
     }
