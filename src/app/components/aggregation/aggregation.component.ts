@@ -1292,7 +1292,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (doNotReplace) {
             this.toggleFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)], [], true);
+            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         }
     }
 
@@ -1316,7 +1316,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (doNotReplace) {
             this.toggleFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)], [], true);
+            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         }
     }
 
