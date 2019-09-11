@@ -539,7 +539,7 @@ describe('Component: ThumbnailGrid', () => {
         })).toEqual(true);
     });
 
-    /*    It('validateVisualizationQuery does return expected boolean', () => {
+    it('validateVisualizationQuery does return expected boolean', () => {
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
 
         component.options.database = DashboardServiceMock.DATABASES.testDatabase1;
@@ -547,10 +547,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.options.table = DashboardServiceMock.TABLES.testTable1;
         expect(component.validateVisualizationQuery(component.options)).toEqual(false);
-
-        component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField', prettyName: 'Test Link Field' });
-        expect(component.validateVisualizationQuery(component.options)).toEqual(true);
-    });*/
+    });
 
     it('transformVisualizationQueryResults with aggregation query data does return expected data', () => {
         component.options.categoryField = NeonFieldMetaData.get({
