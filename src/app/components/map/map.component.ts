@@ -196,7 +196,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public filterByLocation(box: BoundingBoxByDegrees): void {
         let filters: FilterConfig[] = this.options.layers.map((layer) => this.createFilterConfigOnBox(layer, box.north, box.south,
             box.east, box.west));
-        this.exchangeFilters(filters, [], true);
+        this.exchangeFilters(filters);
     }
 
     /**
@@ -736,23 +736,23 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
      */
     protected createOptions(): WidgetOption[] {
         return [
-            new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', 15),
-            new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, OptionChoices.HideFalseShowTrue),
+            new WidgetNumberOption('clusterPixelRange', 'Cluster Pixel Range', false, 15),
+            new WidgetSelectOption('showPointDataOnHover', 'Coordinates on Point Hover', false, false, OptionChoices.HideFalseShowTrue),
             // Properties of customServer:  useCustomServer: boolean, mapUrl: string, layer: string
-            new WidgetNonPrimitiveOption('customServer', 'Custom Server', null),
-            new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('east', 'East', null),
+            new WidgetNonPrimitiveOption('customServer', 'Custom Server', false, null),
+            new WidgetSelectOption('disableCtrlZoom', 'Disable Control Zoom', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetNumberOption('east', 'East', false, null),
             // Properties of hoverSelect:  hoverTime: number
-            new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', null),
-            new WidgetNumberOption('minClusterSize', 'Minimum Cluster Size', 5),
-            new WidgetNumberOption('north', 'North', null),
-            new WidgetSelectOption('singleColor', 'Single Color', false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('south', 'South', null),
-            new WidgetSelectOption('type', 'Map Type', MapType.Leaflet, [{
+            new WidgetNonPrimitiveOption('hoverSelect', 'Hover Select', false, null),
+            new WidgetNumberOption('minClusterSize', 'Minimum Cluster Size', false, 5),
+            new WidgetNumberOption('north', 'North', false, null),
+            new WidgetSelectOption('singleColor', 'Single Color', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetNumberOption('south', 'South', false, null),
+            new WidgetSelectOption('type', 'Map Type', true, MapType.Leaflet, [{
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', null),
+            new WidgetNumberOption('west', 'West', false, null)
             new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
         ];
     }

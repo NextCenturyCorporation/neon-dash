@@ -52,7 +52,6 @@ import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as vis from 'vis/dist/vis-network.min';
 import { MatDialog } from '@angular/material';
-import {clean} from '@angular-devkit/core';
 
 let styleImport: any;
 
@@ -328,40 +327,44 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFieldOption('yTargetPositionField', 'Y Target Position Field', false, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('typeField', 'Type Field', false, this.optionsNotReified.bind(this)),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('isReified', 'Data Format', false, [{
+            new WidgetSelectOption('cleanLegendLabels', 'Clean Legend Labels', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('isReified', 'Data Format', false, false, [{
                 prettyName: 'Tabular',
                 variable: false
             }, {
                 prettyName: 'Reified',
                 variable: true
             }]),
-            new WidgetSelectOption('isDirected', 'Directed', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('filterable', 'Filterable', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('isDirected', 'Directed', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('filterable', 'Filterable', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-949 Rename option and change to boolean.
-            new WidgetSelectOption('multiFilterOperator', 'Filter Operator', 'or', [{
+            new WidgetSelectOption('multiFilterOperator', 'Filter Operator', false, 'or', [{
                 prettyName: 'OR',
                 variable: 'or'
             }, {
                 prettyName: 'AND',
                 variable: 'and'
             }], this.optionsFilterable.bind(this)),
-            new WidgetSelectOption('displayLegend', 'Legend', false, OptionChoices.HideFalseShowTrue,
+            new WidgetSelectOption('displayLegend', 'Legend', false, false, OptionChoices.HideFalseShowTrue,
                 this.optionsDoesHaveColorField.bind(this)),
-            new WidgetSelectOption('legendFiltering', 'Legend Filtering', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('physics', 'Physics', true, OptionChoices.NoFalseYesTrue),
-            new WidgetColorOption('edgeColor', 'Edge Color', NetworkGraphComponent.DEFAULT_EDGE_COLOR, this.optionsNotReified.bind(this)),
-            new WidgetNumberOption('edgeWidth', 'Edge Width', 1),
-            new WidgetColorOption('fontColor', 'Font Color', NetworkGraphComponent.DEFAULT_FONT_COLOR, this.optionsNotReified.bind(this)),
-            new WidgetColorOption('linkColor', 'Link Color', NetworkGraphComponent.DEFAULT_NODE_COLOR, this.optionsNotReified.bind(this)),
-            new WidgetColorOption('nodeColor', 'Node Color', NetworkGraphComponent.DEFAULT_NODE_COLOR, this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('nodeShape', 'Node Shape', 'box'),
-            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, OptionChoices.NoFalseYesTrue,
+            new WidgetSelectOption('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetColorOption('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
                 this.optionsNotReified.bind(this)),
-            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', ''),
+            new WidgetNumberOption('edgeWidth', 'Edge Width', false, 1),
+            new WidgetColorOption('fontColor', 'Font Color', false, NetworkGraphComponent.DEFAULT_FONT_COLOR,
+                this.optionsNotReified.bind(this)),
+            new WidgetColorOption('linkColor', 'Link Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+                this.optionsNotReified.bind(this)),
+            new WidgetColorOption('nodeColor', 'Node Color', false, NetworkGraphComponent.DEFAULT_NODE_COLOR,
+                this.optionsNotReified.bind(this)),
+            new WidgetFreeTextOption('nodeShape', 'Node Shape', false, 'box'),
+            new WidgetSelectOption('showRelationLinks', 'Show Relations as Links', false, false, OptionChoices.NoFalseYesTrue,
+                this.optionsNotReified.bind(this)),
+            new WidgetFreeTextOption('relationNodeIdentifier', 'Relation Node Identifier', false, '')
             new WidgetFieldOption('relationNameField', 'Relation Name Field', false, this.optionsNotReified.bind(this)),
-            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -379,7 +382,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             new WidgetFieldOption('param1Field', 'Parameter 1 Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldOption('param2Field', 'Parameter 2 Field', true, this.optionsNotReified.bind(this)),
             new WidgetFieldArrayOption('filterFields', 'Filter Fields', false),
-            new WidgetFreeTextOption('layerType', 'Layer Type', '', false)
+            new WidgetFreeTextOption('layerType', 'Layer Type', true, '', false)
         ];
     }
 
@@ -691,23 +694,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     edgeLabelFormat(label: any) {
         let cleanLabel = label instanceof Array ? label[0] : label;
         cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.').join('\n') : cleanLabel;
+        cleanLabel = cleanLabel.indexOf(',') > -1 ? cleanLabel.split(',').join('\n') : cleanLabel;
         cleanLabel = cleanLabel.indexOf('_') > -1 ? cleanLabel.split('_').join('\n') : cleanLabel;
-
-        //Break the text at every 3rd spave and start a newline for the purpose of wrapping lengthy label text
-        if(cleanLabel.indexOf(' ') > -1 && cleanLabel.indexOf('\n') == -1){
-            let splitSpace = cleanLabel.split(' ');
-            let lastIndex = 0;
-
-            for(let i = 1; i < splitSpace.length && lastIndex < splitSpace.length ; i++){
-                if(Math.floor(i%3) == 0){
-                    splitSpace.splice(i + lastIndex, 0, '\n');
-                    lastIndex++;
-                }
-            }
-
-            cleanLabel = splitSpace.join(' ');
-        }
-
         return cleanLabel;
     }
 
@@ -787,8 +775,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.createRelationsAsLinksGraphProperties() : this.createTabularGraphProperties();
 
         if (graphProperties) {
-            this.totalNodes = graphProperties.nodes.filter((node, index, array) =>
-                array.findIndex((nodeObject) => nodeObject.id === node.id) === index).length;
+            this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
+                array.findIndex((object) => object.id === value.id) === index).length;
 
             this.graphData.clear();
             if (this.displayGraph) {
@@ -796,23 +784,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.graphData.update(graphProperties);
             }
         }
-
-        this.graph.on("dragEnd", params => {
-            for (let i = 0; i < params.nodes.length; i++) {
-                let nodeId = params.nodes[i];
-                let x = this.graph.getPositions([nodeId])[nodeId].x;
-                let y = this.graph.getPositions([nodeId])[nodeId].y;
-
-                let indexToUpdate = this.updatedNodePositions.findIndex(node => node.id === nodeId);
-                if(indexToUpdate > -1 ){
-                    this.updatedNodePositions[indexToUpdate].x = x;
-                    this.updatedNodePositions[indexToUpdate].y = y;
-                }
-                else{
-                    this.updatedNodePositions.push({id: nodeId, x: x, y: y});
-                }
-            }
-        });
 
         this.loadingCount--;
     }
@@ -959,10 +930,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         for (let entry of data) {
             let colorMapVal = entry[colorField];
             let id = entry[idField];
-            let updatedPosition = this.updatedNodePositions.findIndex(node => node.id === id);
             let name = nameField && entry[nameField];
-            let xPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].x : entry[xPositionField];
-            let yPosition = updatedPosition > -1 ? this.updatedNodePositions[updatedPosition].y : entry[yPositionField];
+            let xPosition = entry[xPositionField];
+            let yPosition = entry[yPositionField];
             let filterFieldData: any[] = [];
 
             // Create a tabular network graph
@@ -985,7 +955,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeNames: any[] = [];
                 let typeExtension: string = this.options.typeField.columnName && relationNodeIdentifier &&
                 name.toLowerCase() !== this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() ?
-                    '\n : '+  this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() + '' : '';
+                    '\n' + this.getArray(entry[this.options.typeField.columnName])[0].toLowerCase() + '' : '';
 
                 if (name) {
                     for (const title of this.getArray(name)) {
@@ -1194,7 +1164,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let linkNameColumn = this.options.linkNameField.columnName;
         let nodeName = this.options.nodeField.columnName;
         let nodeNameColumn = this.options.nodeNameField.columnName;
-        let relationNameColumn = this.options.relationNameField.columnName ? this.options.relationNameField.columnName : nodeNameColumn;
         let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let nodeColor = this.options.nodeColor;
@@ -1235,14 +1204,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             // Convert relation nodes to edges. Ensure that the relation link object has two nodes before adding it to the network graph
             for (let relationNode of this.relationNodes) {
-                let linkNames = this.edgeLabelFormat(relationNode[relationNameColumn]);
+                let linkNames = this.edgeLabelFormat(relationNode[nodeNameColumn]);
                 if (relationNode.nodes.length === 2) {
                     graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
                         relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
                 }
             }
         }
-
         return graph;
     }
 
@@ -1381,6 +1349,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     onSelect(properties: { nodes: string[] }) {
         if (properties.nodes.length === 1) {
             let selectedNode = this.graphData.nodes.get(properties.nodes[0]) as Node;
+
             let filters: FilterConfig[] = [];
 
             for (let filterField of selectedNode.filterFields) {
@@ -1395,11 +1364,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
 
-            if(this.options.toggleFiltered){
-                this.toggleFilters(filters);
-            } else {
-                this.exchangeFilters(filters);
-            }
+            this.toggleFilters(filters);
         }
     }
 

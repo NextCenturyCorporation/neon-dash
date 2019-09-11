@@ -190,19 +190,19 @@ describe('Component: ThumbnailGrid', () => {
         });
 
         component.gridArray = [{
-            testLinkField: 'link1',
             testNameField: 'name1',
             testObjectIdField: 'objectId1',
             testObjectNameField: 'objectName1',
             testPercentField: 0.1,
-            testPredictedNameField: 'predictedName1'
+            testPredictedNameField: 'predictedName1',
+            constructedUrl: 'link1'
         }, {
-            testLinkField: 'link2',
             testNameField: 'name2',
             testObjectIdField: 'objectId2',
             testObjectNameField: 'objectName2',
             testPercentField: 0.2,
-            testPredictedNameField: 'predictedName2'
+            testPredictedNameField: 'predictedName2',
+            constructedUrl: 'link2'
         }];
 
         // Force the component to update all its ngFor and ngIf elements.
@@ -635,7 +635,7 @@ describe('Component: ThumbnailGrid', () => {
             testCategoryField: 'category1',
             testCompareField: 'compare1',
             testFilterField: 'filter1',
-            testLinkField: 'link1',
+            constructedUrl: 'link1.type1',
             testNameField: 'name1',
             testObjectIdField: 'objectId1',
             testObjectNameField: 'objectName1',
@@ -649,7 +649,7 @@ describe('Component: ThumbnailGrid', () => {
             testCategoryField: 'category2',
             testCompareField: 'compare2',
             testFilterField: 'filter2',
-            testLinkField: 'link2',
+            constructedUrl: 'link2.type2',
             testNameField: 'name2',
             testObjectIdField: 'objectId2',
             testObjectNameField: 'objectName2',
@@ -697,14 +697,14 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.gridArray).toEqual([{
             _filtered: false,
             _id: 'id1',
-            testLinkField: 'prefix/link1',
+            constructedUrl: 'prefix/link1.type1',
             testNameField: 'name1',
             testSizeField: 0.1,
             testTypeField: 'type1'
         }, {
             _filtered: false,
             _id: 'id2',
-            testLinkField: 'prefix/link2',
+            constructedUrl: 'prefix/link2.type2',
             testNameField: 'name2',
             testSizeField: 0.2,
             testTypeField: 'type2'

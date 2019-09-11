@@ -64,21 +64,12 @@ mat-toolbar {
     width: calc(100% - 10px);
 }
 
-ngx-monaco-editor /deep/ .monaco-editor,
-ngx-monaco-editor  {
-    height: 10em;
-    width: 100%;
-}
-
 .editor {
+    padding: 5px;
+
     label {
         display: block;
         font-size: 14px;
-        opacity: 0.7;
         padding-bottom: 0.25em;
-    }
-
-    & {
-        padding: 5px;
     }
 }
