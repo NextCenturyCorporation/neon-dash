@@ -240,16 +240,18 @@ The Neon Dashboard is an [Angular](https://angular.io/) web application.
 * Additional datastore support:  SQL, SPARQL, Cypher
 * Edit or annotate live data in your datastores
 * "Join" on data across tables/databases/datastores if data denormalization isn't possible
-* Data ingest helper scripts
+* Make scripts to help users ingest their data
 
 ### UI Tasks
 
-* Custom dataset and dashboard configuration wizard
+* Create a custom dataset and dashboard configuration wizard
 * Export data to CSV, PDF, etc.
 * Show GeoJSON regions in the Map
-* Tabbed widgets
-* New visualizations
-* Selenium testing
+* Design tabbed dashboard widgets
+* Expand Selenium test suites
+* Set data access restrictions
+* Plan new data visualizations
+* Move visualizations into the Next Century Component Library
 
 ## Apache 2 Open Source License
 
