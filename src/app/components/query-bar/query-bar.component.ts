@@ -354,7 +354,7 @@ export class QueryBarComponent extends BaseNeonComponent {
         let queryClauses = [];
         for (const value of values) {
             queryClauses.push(query.where(extensionField.filterField, '=', value[this.options.idField.columnName]));
-            filterFieldValues.push(value[this.options.idField.columnName])
+            filterFieldValues.push(value[this.options.idField.columnName]);
         }
 
         extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
@@ -364,7 +364,7 @@ export class QueryBarComponent extends BaseNeonComponent {
                 response.data.forEach((result) => {
                     let idResultValues = neonUtilities.deepFind(result, extensionField.idField);
                     let filterResultValues = neonUtilities.deepFind(result, extensionField.filterField);
-                    if(filterResultValues.find(val => filterFieldValues.includes(val))){
+                    if (filterResultValues.find((val) => filterFieldValues.includes(val))) {
                         if (typeof idResultValues !== 'undefined') {
                             if (idResultValues instanceof Array) {
                                 for (const value of idResultValues) {

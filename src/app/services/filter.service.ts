@@ -31,7 +31,7 @@ export class FilterService {
 
     private _notifier: FilterChangeListener;
     private _cachedFilters: Map<string, Map<FilterDataSource[], AbstractFilter[]>> =
-        new Map<string, Map<FilterDataSource[], AbstractFilter[]>>();
+    new Map<string, Map<FilterDataSource[], AbstractFilter[]>>();
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
