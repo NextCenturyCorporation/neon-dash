@@ -113,7 +113,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return;
         }
 
-        if(this.options.toggleFiltered){
+        if (this.options.toggleFiltered) {
             this.toggleFilters([this.createFilterConfigOnText(text)]);
         } else {
             this.exchangeFilters([this.createFilterConfigOnText(text)]);
@@ -159,7 +159,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
             new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
             new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action', false, false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+                false, false, OptionChoices.NoFalseYesTrue)
 
         ];
     }

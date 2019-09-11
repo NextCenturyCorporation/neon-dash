@@ -239,7 +239,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             try {
                 let links = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
                 links = (Array.isArray(links) ? links : [links]).map((link) => {
-                    if ( !this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
+                    if (!this.options.useWikipediaPageID && link.includes(WikiViewerComponent.WIKI_LINK_PREFIX_URL)) {
                         return link.substring(WikiViewerComponent.WIKI_LINK_PREFIX_URL.length);
                     }
                     return link;

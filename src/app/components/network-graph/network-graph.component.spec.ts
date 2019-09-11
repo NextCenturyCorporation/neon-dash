@@ -570,6 +570,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
+        component.options.toggleFiltered = true;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -637,6 +638,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
+        component.options.toggleFiltered = true;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -718,6 +720,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'or';
+        component.options.toggleFiltered = true;
 
         component.transformVisualizationQueryResults(component.options, [{
             testLinkField: 'testLinkValue',
@@ -785,7 +788,9 @@ describe('Component: NetworkGraph', () => {
     }));
 
     it('does create simple filters on multiple filter fields for graph when graph node is selected', (() => {
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'idLinkField' });
         component.options.linkField = NeonFieldMetaData.get({ columnName: 'testLinkField' });
+        component.options.typeField = NeonFieldMetaData.get({ columnName: 'testTypeField' });
         component.options.linkNameField = NeonFieldMetaData.get({ columnName: 'testLinkNameField' });
         component.options.nodeNameField = NeonFieldMetaData.get({ columnName: 'testNodeNameField' });
         component.options.nodeField = NeonFieldMetaData.get({ columnName: 'testNodeField' });
@@ -799,6 +804,7 @@ describe('Component: NetworkGraph', () => {
         component.options.isReified = false;
         component.options.limit = Infinity;
         component.options.multiFilterOperator = 'and';
+        component.options.toggleFiltered = true;
 
         component.transformVisualizationQueryResults(component.options, [{
             testIdField: 1,
