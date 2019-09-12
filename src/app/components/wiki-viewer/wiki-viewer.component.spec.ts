@@ -222,14 +222,12 @@ describe('Component: WikiViewer with mock HTTP', () => {
             method: 'GET'
         });
         request.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content</p>'
-                    },
-                    title: 'Test Title'
-                }
-            })
+            parse: {
+                text: {
+                    '*': '<p>Test Content</p>'
+                },
+                title: 'Test Title'
+            }
         });
     });
 
@@ -296,14 +294,12 @@ describe('Component: WikiViewer with mock HTTP', () => {
             method: 'GET'
         });
         request1.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content 1</p>'
-                    },
-                    title: 'Test Title 1'
-                }
-            })
+            parse: {
+                text: {
+                    '*': '<p>Test Content 1</p>'
+                },
+                title: 'Test Title 1'
+            }
         });
 
         let request2 = backend.expectOne({
@@ -311,14 +307,12 @@ describe('Component: WikiViewer with mock HTTP', () => {
             method: 'GET'
         });
         request2.flush({
-            body: JSON.stringify({
-                parse: {
-                    text: {
-                        '*': '<p>Test Content 2</p>'
-                    },
-                    title: 'Test Title 2'
-                }
-            })
+            parse: {
+                text: {
+                    '*': '<p>Test Content 2</p>'
+                },
+                title: 'Test Title 2'
+            }
         });
     });
 });

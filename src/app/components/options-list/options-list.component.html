@@ -11,8 +11,7 @@
     <!-- Field Option Type-->
     <mat-form-field class="option-container" *ngSwitchCase="'FIELD'">
         <mat-select placeholder={{getPrettyName(getOption(bindingKey).prettyName)}} [(ngModel)]="options[bindingKey]"
-            required="getOption(bindingKey).isRequired" [name]="options._id + '_' + bindingKey"
-            (ngModelChange)="updateOnChange(bindingKey)">
+            [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)">
             <mat-option *ngIf="!getOption(bindingKey).isRequired" [value]="createEmptyField()">
                 (None)</mat-option>
             <mat-option *ngFor="let field of fields" [value]="field">{{ field.prettyName }}
@@ -21,15 +20,14 @@
     </mat-form-field>
     <!-- Color Field Option Type-->
     <mat-form-field class="option-container" *ngSwitchCase="'COLOR'">
-        <input matInput type="color" [placeholder]="getPrettyName(getOption(bindingKey).prettyName)"
-            [required]="getOption(bindingKey).isRequired" [name]="options._id + '_' + bindingKey" [(ngModel)]="options[bindingKey]"
-            (ngModelChange)="updateOnChange(bindingKey)">
+        <input matInput type="color" [placeholder]="getPrettyName(getOption(bindingKey).prettyName)" [name]="options._id + '_' + bindingKey"
+            [(ngModel)]="options[bindingKey]" (ngModelChange)="updateOnChange(bindingKey)">
     </mat-form-field>
     <!-- Free Text Option Type-->
     <div mat-fill class="flex center" *ngSwitchCase="'FREE_TEXT'">
         <mat-form-field class='option-container'>
             <input matInput placeholder={{getPrettyName(getOption(bindingKey).prettyName)}} [(ngModel)]="options[bindingKey]"
-                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)" required="true">
+                [name]="options._id + '_' + bindingKey" (ngModelChange)="updateOnChange(bindingKey)">
         </mat-form-field>
     </div>
     <!-- Number Option Type-->
@@ -38,13 +36,14 @@
             <mat-label>{{getPrettyName(getOption(bindingKey).prettyName)}}</mat-label>
             <input matInput placeholder={{getPrettyName(getOption(bindingKey).valueDefault)}}
                 [(ngModel)]="getOption(bindingKey).intermediateValue" [name]="options._id + '_' + bindingKey"
-                (ngModelChange)="updateOnChange(bindingKey);" required="true">
+                (ngModelChange)="updateOnChange(bindingKey);">
         </mat-form-field>
     </div>
     <!-- Non Primitive Option Type-->
     <div mat-fill class="editor" *ngSwitchCase="'NON_PRIMITIVE'">
         <label>{{ getPrettyName(getOption(bindingKey).prettyName) }}</label>
         <ngx-monaco-editor #editor [options]="{
+                automaticLayout: true,
                 theme: 'vs', 
                 language: 'yaml', 
                 lineNumbers: true,
