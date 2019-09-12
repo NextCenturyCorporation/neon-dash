@@ -164,7 +164,9 @@ describe('FilterService with filters', () => {
         relationFilter2.relations = [relationFilter1.id];
 
         relationConfig1.id = relationFilter1.id;
+        relationConfig1.relations = relationFilter1.relations;
         relationConfig2.id = relationFilter2.id;
+        relationConfig2.relations = relationFilter2.relations;
     };
 
     it('should have expected properties', () => {
@@ -384,6 +386,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
 
         relationConfig1.id = listComplete[0].id;
+        relationConfig1.relations = listComplete[0].relations;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
@@ -394,6 +397,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
 
         relationConfig2.id = listComplete[0].id;
+        relationConfig2.relations = listComplete[0].relations;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -429,7 +433,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testExchangeRelation');
 
         let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testExchangeRelation', listComplete[0].id);
+            FIELD_MAP.RELATION_A.columnName, '=', 'testExchangeRelation', listComplete[0].id, listComplete[0].relations);
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
@@ -440,6 +444,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testExchangeRelation');
 
         testConfig2.id = listComplete[0].id;
+        testConfig2.relations = listComplete[0].relations;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -924,6 +929,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
 
         relationConfig1.id = listComplete[0].id;
+        relationConfig1.relations = listComplete[0].relations;
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(1);
@@ -934,6 +940,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[0] as SimpleFilter).value).toEqual('testRelation');
 
         relationConfig2.id = listComplete[0].id;
+        relationConfig2.relations = listComplete[0].relations;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -970,7 +977,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[1] as SimpleFilter).value).toEqual('testToggleRelation');
 
         let testConfig1 = new SimpleFilterDesign(DATASTORE.name, DATABASES.testDatabase1.name, TABLES.testTable1.name,
-            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation', listComplete[1].id);
+            FIELD_MAP.RELATION_A.columnName, '=', 'testToggleRelation', listComplete[1].id, listComplete[1].relations);
 
         listComplete = filterService['filterCollection'].getFilters(relationSource2);
         expect(listComplete.length).toEqual(2);
@@ -982,6 +989,7 @@ describe('FilterService with filters', () => {
         expect((listComplete[1] as SimpleFilter).value).toEqual('testToggleRelation');
 
         testConfig2.id = listComplete[1].id;
+        testConfig2.relations = listComplete[1].relations;
 
         expect(actual.size).toEqual(4);
         let keys = Array.from(actual.keys());
@@ -1033,7 +1041,9 @@ describe('FilterService with filters', () => {
         testFilter2.relations = [testFilter1.id];
 
         testConfig1.id = testFilter1.id;
+        testConfig1.relations = testFilter1.relations;
         testConfig2.id = testFilter2.id;
+        testConfig2.relations = testFilter2.relations;
 
         filterService['filterCollection'].setFilters(relationSource1, [relationFilter1, testFilter1]);
         filterService['filterCollection'].setFilters(relationSource2, [relationFilter2, testFilter2]);

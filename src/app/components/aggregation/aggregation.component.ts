@@ -1042,7 +1042,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
-                const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues()[0];
+                const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues();
                 const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
                 const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
                 if (fieldKey1.field === this.options.xField.columnName && fieldKey2.field === this.options.yField.columnName) {
@@ -1064,7 +1064,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }
 
             for (const domainFilter of domainFilters) {
-                let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues()[0];
+                let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
                 const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
                 if (fieldKey.field === this.options.xField.columnName) {
                     this.subcomponentMain.select([{
