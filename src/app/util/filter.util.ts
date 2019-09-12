@@ -17,10 +17,12 @@ import { CompoundFilterType } from '../models/widget-option';
 import {
     BoundsValues,
     CompoundFilterConfig,
+    CompoundValues,
     DomainValues,
     FilterConfig,
     FilterDataSource,
     FilterValues,
+    ListOfValues,
     OneValue,
     PairOfValues,
     SimpleFilterConfig
@@ -30,7 +32,6 @@ import { DatasetUtil } from './dataset.util';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import * as uuidv4 from 'uuid/v4';
 
 export class FilterUtil {
     /**
@@ -127,22 +128,23 @@ export class FilterUtil {
 
             if (datastore && datastore.name && database && database.name && table && table.name && field && field.columnName &&
                 typeof filterConfig.value !== 'undefined') {
-                filter = new SimpleFilter(datastore.name, database, table, field, filterConfig.operator, filterConfig.value);
+                filter = new SimpleFilter(datastore.name, database, table, field, filterConfig.operator, filterConfig.value,
+                    filterConfig.id, filterConfig.relations);
             }
         } else if (this.isCompoundFilterConfig(filterConfig)) {
             const nestedFilters: AbstractFilter[] = filterConfig.filters.map((nestedConfig) =>
                 this.createFilterFromConfig(nestedConfig, dataset));
 
             if (filterConfig instanceof BoundsFilterDesign) {
-                filter = BoundsFilter.fromFilters(nestedFilters);
+                filter = BoundsFilter.fromFilters(nestedFilters, filterConfig.id, filterConfig.relations);
             } else if (filterConfig instanceof DomainFilterDesign) {
-                filter = DomainFilter.fromFilters(nestedFilters);
+                filter = DomainFilter.fromFilters(nestedFilters, filterConfig.id, filterConfig.relations);
             } else if (filterConfig instanceof ListFilterDesign) {
-                filter = ListFilter.fromFilters(nestedFilters, filterConfig.type);
+                filter = ListFilter.fromFilters(nestedFilters, filterConfig.type, filterConfig.id, filterConfig.relations);
             } else if (filterConfig instanceof PairFilterDesign) {
-                filter = PairFilter.fromFilters(nestedFilters, filterConfig.type);
+                filter = PairFilter.fromFilters(nestedFilters, filterConfig.type, filterConfig.id, filterConfig.relations);
             } else {
-                filter = new CompoundFilter(filterConfig.type, nestedFilters);
+                filter = new CompoundFilter(filterConfig.type, nestedFilters, filterConfig.id, filterConfig.relations);
             }
         }
 
@@ -335,12 +337,17 @@ export class FilterCollection {
     }
 }
 
-export abstract class AbstractFilter {
-    public id: string;
-    public relations: string[] = [];
+let filterIdCollection: Map<string, boolean> = new Map<string, boolean>();
+let nextFilterId = 1;
 
-    constructor() {
-        this.id = uuidv4();
+export abstract class AbstractFilter {
+    constructor(public id?: string, public relations: string[] = []) {
+        if (!this.id) {
+            do {
+                this.id = 'id' + (nextFilterId++);
+            } while (filterIdCollection.get(this.id));
+        }
+        filterIdCollection.set(this.id, true);
     }
 
     /**
@@ -419,7 +426,7 @@ export abstract class AbstractFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public abstract retrieveValues(): FilterValues[];
+    public abstract retrieveValues(): FilterValues;
 
     /**
      * Returns the filter config for the filter object.
@@ -440,14 +447,16 @@ export class SimpleFilter extends AbstractFilter {
      * Creates and returns a simple filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): SimpleFilter {
-        if (dataList.length === 3) {
-            const fieldKeyString = dataList[0];
-            const operator = dataList[1];
-            const value = dataList[2];
+        if (dataList.length === 5 && !(dataList[0] === 'and' || dataList[0] === 'or')) {
+            const id = dataList[0];
+            const relations = dataList[1];
+            const fieldKeyString = dataList[2];
+            const operator = dataList[3];
+            const value = dataList[4];
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
                 const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, dataset);
-                return new SimpleFilter(datastore.name, database, table, field, operator, value);
+                return new SimpleFilter(datastore.name, database, table, field, operator, value, id, relations);
             }
         }
         return null;
@@ -459,9 +468,11 @@ export class SimpleFilter extends AbstractFilter {
         public table: NeonTableMetaData,
         public field: NeonFieldMetaData,
         public operator: string,
-        public value: any
+        public value: any,
+        id?: string,
+        relations?: string[]
     ) {
-        super();
+        super(id, relations);
     }
 
     /**
@@ -593,12 +604,8 @@ export class SimpleFilter extends AbstractFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): FilterValues[] {
-        return [{
-            field: this.field.columnName,
-            operator: this.operator,
-            value: this.value
-        } as OneValue];
+    public retrieveValues(): OneValue {
+        return new OneValue(this.field.columnName, this.operator, this.value);
     }
 
     /**
@@ -608,7 +615,7 @@ export class SimpleFilter extends AbstractFilter {
      */
     public toConfig(): FilterConfig {
         return new SimpleFilterDesign(this.datastore, this.database.name, this.table.name, this.field.columnName, this.operator,
-            this.value, this.id);
+            this.value, this.id, this.relations);
     }
 
     /**
@@ -617,7 +624,11 @@ export class SimpleFilter extends AbstractFilter {
     public toDataList(): any[] {
         const value = (typeof this.value === 'number' && (/[<>]=?/).test(this.operator) && (/[.]\d{4,100}/).test(`${this.value}`)) ?
             parseFloat(this.value.toFixed(3)) : this.value;
-        return [`${this.datastore}.${this.database.name}.${this.table.name}.${this.field.columnName}`, this.operator, value];
+        return [this.id,
+            this.relations,
+            `${this.datastore}.${this.database.name}.${this.table.name}.${this.field.columnName}`,
+            this.operator,
+            value];
     }
 }
 
@@ -627,17 +638,19 @@ export class CompoundFilter extends AbstractFilter {
      */
     static fromDataList(dataList: any[], dataset: Dataset): CompoundFilter {
         if (dataList.length && (dataList[0] === 'and' || dataList[0] === 'or')) {
-            const [type, ...filters] = dataList;
-            return new CompoundFilter(type, filters.map((filter) => FilterUtil.createFilterFromDataList(filter, dataset)));
+            const [type, id, relations, ...filters] = dataList;
+            return new CompoundFilter(type, filters.map((filter) => FilterUtil.createFilterFromDataList(filter, dataset)), id, relations);
         }
         return null;
     }
 
     constructor(
         public type: CompoundFilterType,
-        public filters: AbstractFilter[]
+        public filters: AbstractFilter[],
+        id?: string,
+        relations?: string[]
     ) {
-        super();
+        super(id, relations);
     }
 
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
@@ -812,8 +825,8 @@ export class CompoundFilter extends AbstractFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): FilterValues[] {
-        return this.filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []);
+    public retrieveValues(): FilterValues {
+        return new CompoundValues(this.type, this.filters.reduce((list, filter) => list.concat(filter.retrieveValues()), []));
     }
 
     /**
@@ -822,14 +835,14 @@ export class CompoundFilter extends AbstractFilter {
      * @return {FilterConfig}
      */
     public toConfig(): FilterConfig {
-        return new CompoundFilterDesign(this.type, this.filters.map((filter) => filter.toConfig()), this.id);
+        return new CompoundFilterDesign(this.type, this.filters.map((filter) => filter.toConfig()), this.id, this.relations);
     }
 
     /**
      * Returns the filter as a data list to save as a string in a text file or URL.
      */
     public toDataList(): any[] {
-        return ([this.type] as any[]).concat(this.filters.map((filter) => filter.toDataList()));
+        return ([this.type, this.id, this.relations] as any[]).concat(this.filters.map((filter) => filter.toDataList()));
     }
 }
 
@@ -838,13 +851,15 @@ export class BoundsFilter extends CompoundFilter {
      * Creates and returns a bounds filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): BoundsFilter {
-        if (dataList.length === 7 && dataList[0] === 'bounds') {
-            const fieldKeyString1 = dataList[1];
-            const begin1 = dataList[2];
-            const end1 = dataList[3];
-            const fieldKeyString2 = dataList[4];
-            const begin2 = dataList[5];
-            const end2 = dataList[6];
+        if (dataList.length === 9 && dataList[0] === 'bounds') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const fieldKeyString1 = dataList[3];
+            const begin1 = dataList[4];
+            const end1 = dataList[5];
+            const fieldKeyString2 = dataList[6];
+            const begin2 = dataList[7];
+            const end2 = dataList[8];
 
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
@@ -856,7 +871,7 @@ export class BoundsFilter extends CompoundFilter {
                     new SimpleFilter(datastore1.name, database1, table1, field1, '<=', end1),
                     new SimpleFilter(datastore2.name, database2, table2, field2, '>=', begin2),
                     new SimpleFilter(datastore2.name, database2, table2, field2, '<=', end2)
-                ]);
+                ], id, relations);
             }
         }
         return null;
@@ -865,7 +880,7 @@ export class BoundsFilter extends CompoundFilter {
     /**
      * Creates and returns a bounds filter object using the given array of four simple filter objects.
      */
-    static fromFilters(filters: AbstractFilter[]): BoundsFilter {
+    static fromFilters(filters: AbstractFilter[], id?: string, relations?: string[]): BoundsFilter {
         if (filters.length === 4 && filters.every((filter) => filter instanceof SimpleFilter)) {
             let fieldKeys = _.uniq(filters.map((filter) => {
                 let simple = filter as SimpleFilter;
@@ -880,7 +895,7 @@ export class BoundsFilter extends CompoundFilter {
 
                 if (filter1 && filter2 && filter3 && filter4) {
                     return new BoundsFilter(fieldKeys[0], fieldKeys[1], filter1.value, filter3.value, filter2.value, filter4.value,
-                        [filter1, filter2, filter3, filter4]);
+                        [filter1, filter2, filter3, filter4], id, relations);
                 }
             }
         }
@@ -894,9 +909,11 @@ export class BoundsFilter extends CompoundFilter {
         public begin2: any,
         public end1: any,
         public end2: any,
-        public filters: AbstractFilter[]
+        filters: AbstractFilter[],
+        id?: string,
+        relations?: string[]
     ) {
-        super(CompoundFilterType.AND, filters);
+        super(CompoundFilterType.AND, filters, id, relations);
     }
 
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
@@ -921,29 +938,23 @@ export class BoundsFilter extends CompoundFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): BoundsValues[] {
-        return [{
-            begin1: this.begin1,
-            begin2: this.begin2,
-            field1: this.fieldKey1,
-            field2: this.fieldKey2,
-            end1: this.end1,
-            end2: this.end2
-        } as BoundsValues];
+    public retrieveValues(): BoundsValues {
+        return new BoundsValues(this.begin1, this.begin2, this.fieldKey1, this.fieldKey2, this.end1, this.end2);
     }
 
     /**
      * Returns the filter config for the filter object.
      */
     public toConfig(): FilterConfig {
-        return new BoundsFilterDesign(this.fieldKey1, this.fieldKey2, this.begin1, this.begin2, this.end1, this.end2, this.id);
+        return new BoundsFilterDesign(this.fieldKey1, this.fieldKey2, this.begin1, this.begin2, this.end1, this.end2, this.id,
+            this.relations);
     }
 
     /**
      * Returns the filter as a data list to save as a string in a text file or URL.
      */
     public toDataList(): any[] {
-        return ['bounds', this.fieldKey1, this.begin1, this.end1, this.fieldKey2, this.begin2, this.end2];
+        return ['bounds', this.id, this.relations, this.fieldKey1, this.begin1, this.end1, this.fieldKey2, this.begin2, this.end2];
     }
 }
 
@@ -952,10 +963,12 @@ export class DomainFilter extends CompoundFilter {
      * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): DomainFilter {
-        if (dataList.length === 4 && dataList[0] === 'domain') {
-            const fieldKeyString = dataList[1];
-            const begin = dataList[2];
-            const end = dataList[3];
+        if (dataList.length === 6 && dataList[0] === 'domain') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const fieldKeyString = dataList[3];
+            const begin = dataList[4];
+            const end = dataList[5];
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
@@ -963,7 +976,7 @@ export class DomainFilter extends CompoundFilter {
                 return new DomainFilter(fieldKeyString, begin, end, [
                     new SimpleFilter(datastore.name, database, table, field, '>=', begin),
                     new SimpleFilter(datastore.name, database, table, field, '<=', end)
-                ]);
+                ], id, relations);
             }
         }
         return null;
@@ -972,7 +985,7 @@ export class DomainFilter extends CompoundFilter {
     /**
      * Creates and returns a domain filter object using the given array of two simple filter objects.
      */
-    static fromFilters(filters: AbstractFilter[]): DomainFilter {
+    static fromFilters(filters: AbstractFilter[], id?: string, relations?: string[]): DomainFilter {
         if (filters.length === 2 && filters.every((filter) => filter instanceof SimpleFilter)) {
             let fieldKeys = _.uniq(filters.map((filter) => {
                 let simple = filter as SimpleFilter;
@@ -984,15 +997,22 @@ export class DomainFilter extends CompoundFilter {
                 const filter2: SimpleFilter = FilterUtil.findFilterWithFieldKey(filters as SimpleFilter[], fieldKeys[0], '<=');
 
                 if (filter1 && filter2) {
-                    return new DomainFilter(fieldKeys[0], filter1.value, filter2.value, [filter1, filter2]);
+                    return new DomainFilter(fieldKeys[0], filter1.value, filter2.value, [filter1, filter2], id, relations);
                 }
             }
         }
         return null;
     }
 
-    constructor(public fieldKey: string, public begin: any, public end: any, filters: AbstractFilter[]) {
-        super(CompoundFilterType.AND, filters);
+    constructor(
+        public fieldKey: string,
+        public begin: any,
+        public end: any,
+        filters: AbstractFilter[],
+        id?: string,
+        relations?: string[]
+    ) {
+        super(CompoundFilterType.AND, filters, id, relations);
     }
 
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
@@ -1016,26 +1036,22 @@ export class DomainFilter extends CompoundFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): DomainValues[] {
-        return [{
-            begin: this.begin,
-            field: this.fieldKey,
-            end: this.end
-        } as DomainValues];
+    public retrieveValues(): DomainValues {
+        return new DomainValues(this.begin, this.fieldKey, this.end);
     }
 
     /**
      * Returns the filter config for the filter object.
      */
     public toConfig(): FilterConfig {
-        return new DomainFilterDesign(this.fieldKey, this.begin, this.end, this.id);
+        return new DomainFilterDesign(this.fieldKey, this.begin, this.end, this.id, this.relations);
     }
 
     /**
      * Returns the filter as a data list to save as a string in a text file or URL.
      */
     public toDataList(): any[] {
-        return ['domain', this.fieldKey, this.begin, this.end];
+        return ['domain', this.id, this.relations, this.fieldKey, this.begin, this.end];
     }
 }
 
@@ -1044,17 +1060,19 @@ export class ListFilter extends CompoundFilter {
      * Creates and returns a list filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): ListFilter {
-        if (dataList.length >= 5 && dataList[0] === 'list') {
-            const type = dataList[1];
-            const fieldKeyString = dataList[2];
-            const operator = dataList[3];
-            const values = dataList.slice(4);
+        if (dataList.length >= 7 && dataList[0] === 'list') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const type = dataList[3];
+            const fieldKeyString = dataList[4];
+            const operator = dataList[5];
+            const values = dataList.slice(6);
 
             const fieldKey: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString);
             if (fieldKey) {
                 const [datastore, database, table, field] = DatasetUtil.retrieveMetaDataFromFieldKey(fieldKey, dataset);
                 return new ListFilter(type, fieldKeyString, operator, values, values.map((value) =>
-                    new SimpleFilter(datastore.name, database, table, field, operator, value)));
+                    new SimpleFilter(datastore.name, database, table, field, operator, value)), id, relations);
             }
         }
         return null;
@@ -1063,7 +1081,7 @@ export class ListFilter extends CompoundFilter {
     /**
      * Creates and returns a list filter object using the given array of one or more simple filter objects and the filter type.
      */
-    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType): ListFilter {
+    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType, id?: string, relations?: string[]): ListFilter {
         if (filters.length && filters.every((filter) => filter instanceof SimpleFilter)) {
             let sample = filters[0] as SimpleFilter;
             let fieldKey = sample.datastore + '.' + sample.database.name + '.' + sample.table.name + '.' + sample.field.columnName;
@@ -1074,20 +1092,23 @@ export class ListFilter extends CompoundFilter {
                 return simple.operator === operator && (simple.datastore + '.' + simple.database.name + '.' + simple.table.name + '.' +
                     simple.field.columnName) === fieldKey;
             })) {
-                return new ListFilter(type, fieldKey, operator, filters.map((filter) => (filter as SimpleFilter).value), filters);
+                return new ListFilter(type, fieldKey, operator, filters.map((filter) => (filter as SimpleFilter).value), filters, id,
+                    relations);
             }
         }
         return null;
     }
 
     constructor(
-        public type: CompoundFilterType,
+        type: CompoundFilterType,
         public fieldKey: string,
         public operator: string,
         public values: any[],
-        public filters: AbstractFilter[]
+        filters: AbstractFilter[],
+        id?: string,
+        relations?: string[]
     ) {
-        super(type, filters);
+        super(type, filters, id, relations);
     }
 
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
@@ -1117,26 +1138,22 @@ export class ListFilter extends CompoundFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): OneValue[] {
-        return this.values.map((value) => ({
-            field: this.fieldKey,
-            operator: this.operator,
-            value
-        } as OneValue));
+    public retrieveValues(): ListOfValues {
+        return new ListOfValues(this.type, this.fieldKey, this.operator, this.values);
     }
 
     /**
      * Returns the filter config for the filter object.
      */
     public toConfig(): FilterConfig {
-        return new ListFilterDesign(this.type, this.fieldKey, this.operator, this.values, this.id);
+        return new ListFilterDesign(this.type, this.fieldKey, this.operator, this.values, this.id, this.relations);
     }
 
     /**
      * Returns the filter as a data list to save as a string in a text file or URL.
      */
     public toDataList(): any[] {
-        return ['list', this.type, this.fieldKey, this.operator].concat(this.values.map((value) => value));
+        return ['list', this.id, this.relations, this.type, this.fieldKey, this.operator].concat(this.values.map((value) => value));
     }
 }
 
@@ -1145,14 +1162,16 @@ export class PairFilter extends CompoundFilter {
      * Creates and returns a pair filter object using the given data list (or null if it is not the correct type of data list).
      */
     static fromDataList(dataList: any[], dataset: Dataset): PairFilter {
-        if (dataList.length === 8 && dataList[0] === 'pair') {
-            const type = dataList[1];
-            const fieldKeyString1 = dataList[2];
-            const operator1 = dataList[3];
-            const value1 = dataList[4];
-            const fieldKeyString2 = dataList[5];
-            const operator2 = dataList[6];
-            const value2 = dataList[7];
+        if (dataList.length === 10 && dataList[0] === 'pair') {
+            const id = dataList[1];
+            const relations = dataList[2];
+            const type = dataList[3];
+            const fieldKeyString1 = dataList[4];
+            const operator1 = dataList[5];
+            const value1 = dataList[6];
+            const fieldKeyString2 = dataList[7];
+            const operator2 = dataList[8];
+            const value2 = dataList[9];
 
             const fieldKey1: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString1);
             const fieldKey2: FieldKey = DatasetUtil.deconstructTableOrFieldKey(fieldKeyString2);
@@ -1162,7 +1181,7 @@ export class PairFilter extends CompoundFilter {
                 return new PairFilter(type, fieldKeyString1, fieldKeyString2, operator1, operator2, value1, value2, [
                     new SimpleFilter(datastore1.name, database1, table1, field1, operator1, value1),
                     new SimpleFilter(datastore2.name, database2, table2, field2, operator2, value2)
-                ]);
+                ], id, relations);
             }
         }
         return null;
@@ -1171,7 +1190,7 @@ export class PairFilter extends CompoundFilter {
     /**
      * Creates and returns a pair filter object using the given array of two simple filter objects and the filter type.
      */
-    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType): PairFilter {
+    static fromFilters(filters: AbstractFilter[], type: CompoundFilterType, id?: string, relations?: string[]): PairFilter {
         if (filters.length === 2 && filters.every((filter) => filter instanceof SimpleFilter)) {
             let fieldKeys = _.uniq(filters.map((filter) => {
                 let simple = filter as SimpleFilter;
@@ -1184,7 +1203,7 @@ export class PairFilter extends CompoundFilter {
 
                 if (filter1 && filter2) {
                     return new PairFilter(type, fieldKeys[0], fieldKeys[1], filter1.operator, filter2.operator, filter1.value,
-                        filter2.value, [filter1, filter2]);
+                        filter2.value, [filter1, filter2], id, relations);
                 }
             }
         }
@@ -1192,16 +1211,18 @@ export class PairFilter extends CompoundFilter {
     }
 
     constructor(
-        public type: CompoundFilterType,
+        type: CompoundFilterType,
         public fieldKey1: string,
         public fieldKey2: string,
         public operator1: any,
         public operator2: any,
         public value1: any,
         public value2: any,
-        public filters: AbstractFilter[]
+        filters: AbstractFilter[],
+        id?: string,
+        relations?: string[]
     ) {
-        super(type, filters);
+        super(type, filters, id, relations);
     }
 
     protected createCompoundFilter(filterTransformation: (filters) => AbstractFilter): CompoundFilter {
@@ -1234,15 +1255,8 @@ export class PairFilter extends CompoundFilter {
     /**
      * Returns the filtered values for the filter object.
      */
-    public retrieveValues(): PairOfValues[] {
-        return [{
-            field1: this.fieldKey1,
-            field2: this.fieldKey2,
-            operator1: this.operator1,
-            operator2: this.operator2,
-            value1: this.value1,
-            value2: this.value2
-        } as PairOfValues];
+    public retrieveValues(): PairOfValues {
+        return new PairOfValues(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2);
     }
 
     /**
@@ -1250,18 +1264,28 @@ export class PairFilter extends CompoundFilter {
      */
     public toConfig(): FilterConfig {
         return new PairFilterDesign(this.type, this.fieldKey1, this.fieldKey2, this.operator1, this.operator2, this.value1, this.value2,
-            this.id);
+            this.id, this.relations);
     }
 
     /**
      * Returns the filter as a data list to save as a string in a text file or URL.
      */
     public toDataList(): any[] {
-        return ['pair', this.type, this.fieldKey1, this.operator1, this.value1, this.fieldKey2, this.operator2, this.value2];
+        return ['pair',
+            this.id,
+            this.relations,
+            this.type,
+            this.fieldKey1,
+            this.operator1,
+            this.value1,
+            this.fieldKey2,
+            this.operator2,
+            this.value2];
     }
 }
 
 export abstract class AbstractFilterDesign {
+    constructor(public id?: string, public relations: string[] = []) { }
 }
 
 export class SimpleFilterDesign extends AbstractFilterDesign implements SimpleFilterConfig {
@@ -1277,9 +1301,10 @@ export class SimpleFilterDesign extends AbstractFilterDesign implements SimpleFi
         public field: string,
         public operator: string,
         public value?: any,
-        public id?: string
+        id?: string,
+        relations?: string[]
     ) {
-        super();
+        super(id, relations);
     }
 }
 
@@ -1293,9 +1318,10 @@ export class CompoundFilterDesign extends AbstractFilterDesign implements Compou
     constructor(
         public type: CompoundFilterType,
         public filters: (SimpleFilterConfig | CompoundFilterConfig)[],
-        public id?: string
+        id?: string,
+        relations?: string[]
     ) {
-        super();
+        super(id, relations);
         this.designs = this.filters.map((filter) => filter instanceof AbstractFilterDesign ? filter :
             (FilterUtil.isSimpleFilterConfig(filter) ? SimpleFilterDesign.fromConfig(filter) : CompoundFilterDesign.fromConfig(filter)));
     }
@@ -1351,9 +1377,11 @@ export class BoundsFilterDesign extends CompoundFilterDesign {
         public begin2: any,
         public end1: any,
         public end2: any,
-        public id?: string
+        id?: string,
+        relations?: string[]
     ) {
-        super(CompoundFilterType.AND, BoundsFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, begin1, begin2, end1, end2), id);
+        super(CompoundFilterType.AND, BoundsFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, begin1, begin2, end1, end2), id,
+            relations);
     }
 }
 
@@ -1378,8 +1406,8 @@ export class DomainFilterDesign extends CompoundFilterDesign {
         }] as SimpleFilterConfig[];
     }
 
-    constructor(public fieldKey: string, public begin: any, public end: any, public id?: string) {
-        super(CompoundFilterType.AND, DomainFilterDesign.createFilterConfigs(fieldKey, begin, end), id);
+    constructor(public fieldKey: string, public begin: any, public end: any, id?: string, relations?: string[]) {
+        super(CompoundFilterType.AND, DomainFilterDesign.createFilterConfigs(fieldKey, begin, end), id, relations);
     }
 }
 
@@ -1398,13 +1426,14 @@ export class ListFilterDesign extends CompoundFilterDesign {
     }
 
     constructor(
-        public type: CompoundFilterType,
+        type: CompoundFilterType,
         public fieldKey: string,
         public operator: string,
         public values: any[],
-        public id?: string
+        id?: string,
+        relations?: string[]
     ) {
-        super(type, ListFilterDesign.createFilterConfigs(fieldKey, operator, values), id);
+        super(type, ListFilterDesign.createFilterConfigs(fieldKey, operator, values), id, relations);
     }
 }
 
@@ -1438,16 +1467,17 @@ export class PairFilterDesign extends CompoundFilterDesign {
     }
 
     constructor(
-        public type: CompoundFilterType,
+        type: CompoundFilterType,
         public fieldKey1: string,
         public fieldKey2: string,
         public operator1: any,
         public operator2: any,
         public value1: any,
         public value2: any,
-        public id?: string
+        id?: string,
+        relations?: string[]
     ) {
-        super(type, PairFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, operator1, operator2, value1, value2), id);
+        super(type, PairFilterDesign.createFilterConfigs(fieldKey1, fieldKey2, operator1, operator2, value1, value2), id, relations);
     }
 }
 

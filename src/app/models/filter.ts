@@ -25,6 +25,7 @@ export interface FilterDataSource {
 
 export interface SimpleFilterConfig {
     id?: string;
+    relations?: string[];
     datastore: string;
     database: string;
     table: string;
@@ -35,41 +36,68 @@ export interface SimpleFilterConfig {
 
 export interface CompoundFilterConfig {
     id?: string;
+    relations?: string[];
     type: CompoundFilterType;
     filters: (SimpleFilterConfig | CompoundFilterConfig)[];
 }
 
 export type FilterConfig = SimpleFilterConfig | CompoundFilterConfig;
 
-export interface BoundsValues {
-    begin1: boolean|number|string;
-    begin2: boolean|number|string;
-    field1: string;
-    field2: string;
-    end1: boolean|number|string;
-    end2: boolean|number|string;
+export abstract class FilterValues { }
+
+export class BoundsValues extends FilterValues {
+    constructor(
+        public begin1: boolean|number|string,
+        public begin2: boolean|number|string,
+        public field1: string,
+        public field2: string,
+        public end1: boolean|number|string,
+        public end2: boolean|number|string
+    ) {
+        super();
+    }
 }
 
-export interface DomainValues {
-    begin: boolean|number|string|Date;
-    field: string;
-    end: boolean|number|string|Date;
+export class CompoundValues extends FilterValues {
+    constructor(public type: CompoundFilterType, public nested: FilterValues[]) {
+        super();
+    }
 }
 
-export interface PairOfValues {
-    field1: string;
-    field2: string;
-    operator1: string;
-    operator2: string;
-    value1: boolean|number|string;
-    value2: boolean|number|string;
+export class DomainValues extends FilterValues {
+    constructor(public begin: boolean|number|string|Date, public field: string, public end: boolean|number|string|Date) {
+        super();
+    }
 }
 
-export interface OneValue {
-    field: string;
-    operator: string;
-    value: boolean|number|string;
+export class ListOfValues extends FilterValues {
+    constructor(
+        public type: CompoundFilterType,
+        public field: string,
+        public operator: string,
+        public values: (boolean|number|string)[]
+    ) {
+        super();
+    }
 }
 
-export type FilterValues = BoundsValues | DomainValues | PairOfValues | OneValue;
+export class OneValue extends FilterValues {
+    constructor(public field: string, public operator: string, public value: boolean|number|string) {
+        super();
+    }
+}
+
+export class PairOfValues extends FilterValues {
+    constructor(
+        public type: CompoundFilterType,
+        public field1: string,
+        public field2: string,
+        public operator1: string,
+        public operator2: string,
+        public value1: boolean|number|string,
+        public value2: boolean|number|string
+    ) {
+        super();
+    }
+}
 
