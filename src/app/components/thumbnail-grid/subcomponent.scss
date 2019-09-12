@@ -78,9 +78,9 @@
     border-bottom: solid 1px darkgray;
     padding: 0.4em;
     flex: 1 1;
-    max-height: 113px;
+    max-height: 107px;
     flex-flow: row nowrap;
-    min-width: 250px;
+    min-width: 228px;
 }
 
 .thumbnail-flag-details {
@@ -92,8 +92,9 @@
     overflow-y: auto;
 
     p {
-        font-size: 0.8em;
+        font-size: 0.75em;
         margin: 4px;
+        word-break: break-word;
 
         &:first-child {
             @extend .title-bold;

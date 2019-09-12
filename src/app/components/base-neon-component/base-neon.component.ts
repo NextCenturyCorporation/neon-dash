@@ -331,7 +331,7 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
      * @arg {FilterConfig[]} filterConfigList
      * @arg {FilterConfig[]} [filterConfigListToDelete]
      */
-    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[]): void {
+    public exchangeFilters(filterConfigList: FilterConfig[], filterConfigListToDelete?: FilterConfig[], keepSameFilters?: boolean): void {
         if (this.cachedPage <= 0) {
             this.cachedPage = this.page;
         }
@@ -341,7 +341,8 @@ export abstract class BaseNeonComponent implements AfterViewInit, OnInit, OnDest
         }
 
         // Update the filters only once the page is changed.
-        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete);
+        this.filterService.exchangeFilters(this.id, filterConfigList, this.dataset, filterConfigListToDelete,
+            keepSameFilters, this.options.applyPreviousFilter);
     }
 
     /**
