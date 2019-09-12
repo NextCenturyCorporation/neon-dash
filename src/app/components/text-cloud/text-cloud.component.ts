@@ -175,11 +175,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return [
             new WidgetFieldOption('dataField', 'Term Field', true),
             new WidgetFieldOption('sizeField', 'Size Field', false, this.optionsAggregationIsNotCount.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation),
-            new WidgetSelectOption('andFilters', 'Filter Operator', true, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('showCounts', 'Show Counts', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation),
+            new WidgetSelectOption('andFilters', 'Filter Operator', false, true, OptionChoices.OrFalseAndTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('paragraphs', 'Show as Paragraphs', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('showCounts', 'Show Counts', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 

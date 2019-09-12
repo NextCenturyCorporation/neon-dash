@@ -68,6 +68,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
+        component.options.toggleFiltered = true;
         let spy = spyOn((component as any), 'toggleFilters');
 
         component.createFilter('testText');
@@ -329,42 +330,26 @@ describe('Component: NewsFeed', () => {
 
     // Private get array values method test?
 
-    // for selectGridItem method
-    it('selectGridItem does call publishSelectId if idField is set', () => {
+    it('expandOrCollapse does call publishSelectId if ID is expanded', () => {
         let spy = spyOn(component, 'publishSelectId');
-
-        component.selectItem({
-            testIdField: 'id1'
-        });
-        expect(spy.calls.count()).toEqual(0);
 
         component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
 
-        component.selectItem({
-            field: {
-                testIdField: 'id1'
-            }
-        });
+        component.expandOrCollapse('id1');
+
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['id1']);
     });
 
-    it('selectGridItem does call createFilter if filterField is set', () => {
-        let spy = spyOn(component, 'createFilter');
+    it('expandOrCollapse does not call publishSelectId if ID is not expanded', () => {
+        let spy = spyOn(component, 'publishSelectId');
 
-        component.selectItem({
-            testFilterField: 'filter1'
-        });
+        component.options.idField = NeonFieldMetaData.get({ columnName: 'testIdField', prettyName: 'Test ID Field' });
+
+        component['_expandedIdList'] = ['id1'];
+
+        component.expandOrCollapse('id1');
+
         expect(spy.calls.count()).toEqual(0);
-
-        component.options.filterField = NeonFieldMetaData.get({ columnName: 'testFilterField', prettyName: 'Test Filter Field' });
-
-        component.filterItem({
-            field: {
-                testFilterField: 'filter1'
-            }
-        });
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['filter1']);
     });
 });

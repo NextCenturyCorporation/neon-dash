@@ -140,8 +140,8 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
             new WidgetFieldOption('testRequiredField', 'Test Required Field', true),
             new WidgetFieldOption('testOptionalField', 'Test Optional Field', false),
             new WidgetFieldArrayOption('testMultipleFields', 'Test Multiple Fields', false),
-            new WidgetFreeTextOption('testFreeText', 'Test Free Text', ''),
-            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', [], [{
+            new WidgetFreeTextOption('testFreeText', 'Test Free Text', false, ''),
+            new WidgetMultipleSelectOption('testMultipleSelect', 'Test Multiple Select', false, [], [{
                 prettyName: 'A',
                 variable: 'a'
             }, {
@@ -151,9 +151,9 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'C',
                 variable: 'c'
             }]),
-            new WidgetNonPrimitiveOption('testArray', 'Test Array', []),
-            new WidgetNonPrimitiveOption('testObject', 'Test Object', {}),
-            new WidgetSelectOption('testSelect', 'Test Select', 'y', [{
+            new WidgetNonPrimitiveOption('testArray', 'Test Array', false, []),
+            new WidgetNonPrimitiveOption('testObject', 'Test Object', false, {}),
+            new WidgetSelectOption('testSelect', 'Test Select', false, 'y', [{
                 prettyName: 'X',
                 variable: 'x'
             }, {
@@ -163,7 +163,7 @@ class TestAdvancedNeonComponent extends TestBaseNeonComponent {
                 prettyName: 'Z',
                 variable: 'z'
             }]),
-            new WidgetSelectOption('testToggle', 'Test Toggle', false, OptionChoices.NoFalseYesTrue)
+            new WidgetSelectOption('testToggle', 'Test Toggle', false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 }
@@ -337,10 +337,10 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
+                'testIdField',
                 'testDateField',
                 'testLinkField',
                 'testNameField',
@@ -352,6 +352,53 @@ describe('BaseNeonComponent', () => {
                 field: 'testIdField',
                 operator: '!=',
                 value: 'testIdValue'
+            }
+        });
+    });
+
+    it('createCompleteVisualizationQuery with multiple config filters does return expected query object', () => {
+        component.options.filter = [{
+            lhs: 'testNameField',
+            operator: '!=',
+            rhs: 'testName'
+        }, {
+            lhs: 'testTypeField',
+            operator: '!=',
+            rhs: 'testType'
+        }];
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            filter: {
+                type: 'and',
+                filters: [{
+                    field: 'testNameField',
+                    operator: '!=',
+                    value: 'testName'
+                }, {
+                    field: 'testTypeField',
+                    operator: '!=',
+                    value: 'testType'
+                }]
+            }
+        });
+    });
+
+    it('createCompleteVisualizationQuery with fieldkey config filters does return expected query object', () => {
+        component.options.filter = [{
+            lhs: 'field_key_1',
+            operator: '=',
+            rhs: 'testValue'
+        }];
+        expect(component.createCompleteVisualizationQuery(component.options)).toEqual({
+            database: 'testDatabase1',
+            table: 'testTable1',
+            fields: ['*'],
+            filter: {
+                field: 'testFieldKeyField',
+                operator: '=',
+                value: 'testValue'
             }
         });
     });
@@ -749,10 +796,10 @@ describe('BaseNeonComponent', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testIdField',
                 'testCategoryField',
                 'testXField',
                 'testYField',
+                'testIdField',
                 'testDateField',
                 'testLinkField',
                 'testNameField',
@@ -1474,7 +1521,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined, undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(10);
     });
@@ -1493,7 +1540,7 @@ describe('BaseNeonComponent', () => {
         component.exchangeFilters(filters);
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined]);
+        expect(spy.calls.argsFor(0)).toEqual(['testId', filters, component['dataset'], undefined, undefined, undefined]);
         expect(component['cachedPage']).toEqual(10);
         expect(component['page']).toEqual(1);
     });
@@ -1721,11 +1768,11 @@ describe('Advanced BaseNeonComponent with config', () => {
             database: 'testDatabase2',
             table: 'testTable2',
             fields: [
-                'testConfigField',
                 'testSizeField',
                 'testNameField',
                 'testXField',
                 'testYField',
+                'testConfigField',
                 'testPublishColumnName',
                 'testReceiveColumnName'
             ],

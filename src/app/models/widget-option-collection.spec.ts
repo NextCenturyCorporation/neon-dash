@@ -59,8 +59,8 @@ describe('OptionCollection', () => {
     });
 
     it('access does return widget option with given key', () => {
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', 'default2', []);
+        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -73,7 +73,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does add given widget option', () => {
-        options.append(new WidgetSelectOption('key1', 'label1', 'default1', []), 'current1');
+        options.append(new WidgetSelectOption('key1', 'label1', false, 'default1', []), 'current1');
         expect(options.key1).toEqual('current1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -82,7 +82,7 @@ describe('OptionCollection', () => {
     });
 
     it('append does ignore provided binding', () => {
-        options.append(new WidgetSelectOption('keyA', 'labelA', 'defaultA', []), 'currentA');
+        options.append(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []), 'currentA');
         expect(options.keyA).toEqual('currentA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -154,7 +154,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option with provided binding', () => {
-        options.inject(new WidgetSelectOption('keyA', 'labelA', 'defaultA', []));
+        options.inject(new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []));
         expect(options.keyA).toEqual('provideA');
         options.keyA = '';
         expect(options.keyA).toEqual('');
@@ -163,7 +163,7 @@ describe('OptionCollection', () => {
     });
 
     it('inject does add given widget option without provided binding', () => {
-        options.inject(new WidgetSelectOption('key1', 'label1', 'default1', []));
+        options.inject(new WidgetSelectOption('key1', 'label1', false, 'default1', []));
         expect(options.key1).toEqual('default1');
         options.key1 = '';
         expect(options.key1).toEqual('');
@@ -173,8 +173,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', 'defaultA', []),
-            new WidgetSelectOption('keyB', 'labelB', 'defaultB', [])
+            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
+            new WidgetSelectOption('keyB', 'labelB', false, 'defaultB', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.keyB).toEqual('provideB');
@@ -190,8 +190,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('key1', 'label1', 'default1', []),
-            new WidgetSelectOption('key2', 'label2', 'default2', [])
+            new WidgetSelectOption('key1', 'label1', false, 'default1', []),
+            new WidgetSelectOption('key2', 'label2', false, 'default2', [])
         ]);
         expect(options.key1).toEqual('default1');
         expect(options.key2).toEqual('default2');
@@ -207,8 +207,8 @@ describe('OptionCollection', () => {
 
     it('inject does add multiple given widget options with and without provided bindings', () => {
         options.inject([
-            new WidgetSelectOption('keyA', 'labelA', 'defaultA', []),
-            new WidgetSelectOption('key1', 'label1', 'default1', [])
+            new WidgetSelectOption('keyA', 'labelA', false, 'defaultA', []),
+            new WidgetSelectOption('key1', 'label1', false, 'default1', [])
         ]);
         expect(options.keyA).toEqual('provideA');
         expect(options.key1).toEqual('default1');
@@ -229,8 +229,8 @@ describe('OptionCollection', () => {
         tableOption.valueCurrent = NeonTableMetaData.get();
         expect(options.list()).toEqual([databaseOption, tableOption]);
 
-        let widgetOption1 = new WidgetSelectOption('key1', 'label1', 'default1', []);
-        let widgetOption2 = new WidgetSelectOption('key2', 'label2', 'default2', []);
+        let widgetOption1 = new WidgetSelectOption('key1', 'label1', false, 'default1', []);
+        let widgetOption2 = new WidgetSelectOption('key2', 'label2', false, 'default2', []);
 
         options.append(widgetOption1, 'current1');
         options.append(widgetOption2, 'current2');
@@ -297,7 +297,7 @@ describe('WidgetOptionCollection', () => {
         options = new WidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100, new OptionConfig({
             tableKey: 'table_key_2',
             limit: '1234',
@@ -391,7 +391,7 @@ describe('WidgetOptionCollection with no bindings', () => {
         options = new WidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
         ], 'Test Title', 100);
     });
 
@@ -418,13 +418,12 @@ describe('RootWidgetOptionCollection', () => {
         options = new RootWidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
+            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true, new OptionConfig({
-            tableKey: 'table_key_2',
             contributionKeys: ['next_century'],
             filter: { lhs: 'a', operator: '!=', rhs: 'b' },
             hideUnfiltered: true,
@@ -446,9 +445,9 @@ describe('RootWidgetOptionCollection', () => {
 
     it('does have databases, fields, tables, custom properties, and custom layers', () => {
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase2);
+        expect(options.database).toEqual(null);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable2);
+        expect(options.table).toEqual(null);
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.contributionKeys).toEqual(['next_century']);
@@ -541,19 +540,19 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         options = new RootWidgetOptionCollection(DATASET, () => [
             new WidgetFieldOption('testCustomField', 'Test Custom Field', false),
             new WidgetFieldArrayOption('testCustomFieldArray', 'Test Custom Field Array', false),
-            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', 'default value')
+            new WidgetFreeTextOption('testCustomKey', 'Test Custom Key', false, 'default value')
         ], () => [
             new WidgetFieldOption('testCustomLayerField', 'Test Custom Layer Field', false),
             new WidgetFieldArrayOption('testCustomLayerFieldArray', 'Test Custom Layer Field Array', false),
-            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', 'default layer value')
+            new WidgetFreeTextOption('testCustomLayerKey', 'Test Custom Layer Key', false, 'default layer value')
         ], 'Test Title', 100, true);
     });
 
     it('does have databases, fields, tables, custom properties, and custom layers with default values', () => {
         expect(options.databases).toEqual(DATABASES_LIST);
-        expect(options.database).toEqual(DATABASES.testDatabase1);
+        expect(options.database).toEqual(null);
         expect(options.tables).toEqual(TABLES_LIST);
-        expect(options.table).toEqual(TABLES.testTable1);
+        expect(options.table).toEqual(null);
         expect(options.fields).toEqual(FIELDS);
 
         expect(options.contributionKeys).toEqual(null);
@@ -567,6 +566,11 @@ describe('RootWidgetOptionCollection with no bindings', () => {
         expect(options.testCustomKey).toEqual('default value');
 
         expect(options.layers.length).toEqual(1);
+        expect(options.layers[0].databases).toEqual(DATABASES_LIST);
+        expect(options.layers[0].database).toEqual(DATABASES.testDatabase1);
+        expect(options.layers[0].tables).toEqual(TABLES_LIST);
+        expect(options.layers[0].table).toEqual(TABLES.testTable1);
+        expect(options.layers[0].fields).toEqual(FIELDS);
         expect(options.layers[0].limit).toEqual(100);
         expect(options.layers[0].title).toEqual('Layer 1');
         expect(options.layers[0].testCustomLayerField).toEqual(NeonFieldMetaData.get());
@@ -577,17 +581,17 @@ describe('RootWidgetOptionCollection with no bindings', () => {
 
 describe('NonPrimitive Fields', () => {
     it('Objects initialize properly', () => {
-        const optEmpty = new WidgetNonPrimitiveOption('test', 'Test', {}, true);
+        const optEmpty = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
         expect(optEmpty.valueDefault).toEqual({});
         expect(optEmpty.intermediateValue).toEqual('');
         expect(optEmpty.getValueToSaveInBindings()).toEqual({});
 
-        const optNull = new WidgetNonPrimitiveOption('test', 'Test', undefined, true);
+        const optNull = new WidgetNonPrimitiveOption('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual('');
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
 
-        const optComplex = new WidgetNonPrimitiveOption('test', 'Test', { a: 5, b: [1, 2, { c: 3 }] }, true);
+        const optComplex = new WidgetNonPrimitiveOption('test', 'Test', false, { a: 5, b: [1, 2, { c: 3 }] }, true);
         expect(optComplex.valueDefault).toEqual({ a: 5, b: [1, 2, { c: 3 }] });
         expect(optComplex.intermediateValue).toEqual(yaml.safeDump({ a: 5, b: [1, 2, { c: 3 }] }));
 
@@ -608,7 +612,7 @@ describe('NonPrimitive Fields', () => {
     });
 
     it('Objects update properly', () => {
-        const option = new WidgetNonPrimitiveOption('test', 'Test', {}, true);
+        const option = new WidgetNonPrimitiveOption('test', 'Test', false, {}, true);
         expect(option.valueDefault).toEqual({});
         option.intermediateValue = 'a: [1,2,3]';
         expect(option.getValueToSaveInBindings()).toEqual({ a: [1, 2, 3] });
@@ -631,19 +635,19 @@ describe('NonPrimitive Fields', () => {
 
 describe('Number Fields', () => {
     it('Object initializes correctly', () => {
-        const optEmpty = new WidgetNumberOption('test', 'Test', 0, true);
+        const optEmpty = new WidgetNumberOption('test', 'Test', false, 0, true);
         expect(optEmpty.valueDefault).toEqual(0);
         expect(optEmpty.intermediateValue).toEqual(0);
         expect(optEmpty.getValueToSaveInBindings()).toEqual(0);
 
-        const optNull = new WidgetNumberOption('test', 'Test', undefined, true);
+        const optNull = new WidgetNumberOption('test', 'Test', false, undefined, true);
         expect(optNull.valueDefault).toEqual(undefined);
         expect(optNull.intermediateValue).toEqual(undefined);
         expect(optNull.getValueToSaveInBindings()).toEqual(undefined);
     });
 
     it('Object updates properly', () => {
-        const opt = new WidgetNumberOption('test', 'Test', 0, true);
+        const opt = new WidgetNumberOption('test', 'Test', false, 0, true);
         expect(opt.valueDefault).toEqual(0);
         opt.intermediateValue = 7;
         expect(opt.getValueToSaveInBindings()).toEqual(7);
