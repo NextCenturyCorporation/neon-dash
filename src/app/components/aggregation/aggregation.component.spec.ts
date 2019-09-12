@@ -27,8 +27,14 @@ import { AbstractSearchService } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { AggregationType, CompoundFilterType, TimeInterval } from '../../models/widget-option';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection, SimpleFilter } from '../../util/filter.util';
+import {
+    BoundsFilterDesign,
+    DomainFilterDesign,
+    FilterCollection,
+    ListFilterDesign,
+    SimpleFilter,
+    SimpleFilterDesign
+} from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { Color } from '../../models/color';
@@ -756,14 +762,10 @@ describe('Component: Aggregation', () => {
             value: 'testValue'
         });
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.CATEGORY.columnName,
-            operator: '!=',
-            value: 'testValue'
-        } as SimpleFilterConfig]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.CATEGORY.columnName, '!=', 'testValue')
+        ]]);
     });
 
     it('handleLegendItemSelected does not call toggleFilters if notFilterable=true', () => {
@@ -3305,38 +3307,14 @@ describe('Component: Aggregation', () => {
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 12
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 56
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '>=',
-                value: 34
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '<=',
-                value: 78
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new BoundsFilterDesign(
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName,
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.Y.columnName, 12, 34, 56, 78
+            )
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3357,38 +3335,15 @@ describe('Component: Aggregation', () => {
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 'testText1'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 'testText3'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '>=',
-                value: 'testText2'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '<=',
-                value: 'testText4'
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new BoundsFilterDesign(
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName,
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.Y.columnName, 'testText1', 'testText2',
+                'testText3', 'testText4'
+            )
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3410,38 +3365,14 @@ describe('Component: Aggregation', () => {
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 12
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 56
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '>=',
-                value: 34
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.Y.columnName,
-                operator: '<=',
-                value: 78
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy2.calls.argsFor(0)).toEqual([[
+            new BoundsFilterDesign(
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName,
+                DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.Y.columnName, 12, 34, 56, 78
+            )
+        ]]);
     });
 
     it('subcomponentRequestsFilterOnBounds does not remove selectedArea if ignoreSelf=true', () => {
@@ -3507,24 +3438,10 @@ describe('Component: Aggregation', () => {
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 12
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 34
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName, 12, 34)
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3545,24 +3462,10 @@ describe('Component: Aggregation', () => {
 
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 'testText1'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 'testText2'
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName, 'testText1', 'testText2')
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3584,24 +3487,10 @@ describe('Component: Aggregation', () => {
         expect(component.selectedArea).toEqual(null);
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '>=',
-                value: 12
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '<=',
-                value: 34
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy2.calls.argsFor(0)).toEqual([[
+            new DomainFilterDesign(DashboardServiceMock.DATASTORE.name + '.' + DashboardServiceMock.DATABASES.testDatabase1.name + '.' +
+                DashboardServiceMock.TABLES.testTable1.name + '.' + DashboardServiceMock.FIELD_MAP.X.columnName, 12, 34)
+        ]]);
     });
 
     it('subcomponentRequestsFilterOnDomain does not remove selectedArea if ignoreSelf=true', () => {
@@ -3659,14 +3548,10 @@ describe('Component: Aggregation', () => {
         component.subcomponentRequestsFilter('testCategory', 1234);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.X.columnName,
-            operator: '=',
-            value: 1234
-        } as SimpleFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.X.columnName, '=', 1234)
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3680,14 +3565,10 @@ describe('Component: Aggregation', () => {
         component.subcomponentRequestsFilter('testCategory', 'testText1');
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.X.columnName,
-            operator: '=',
-            value: 'testText1'
-        } as SimpleFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.X.columnName, '=', 'testText1')
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3701,14 +3582,10 @@ describe('Component: Aggregation', () => {
         component.subcomponentRequestsFilter('testCategory', 1234);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.X.columnName,
-            operator: '=',
-            value: 1234
-        } as SimpleFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.X.columnName, '=', 1234)
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 
@@ -3723,14 +3600,10 @@ describe('Component: Aggregation', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
-        expect(spy2.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.X.columnName,
-            operator: '=',
-            value: 1234
-        } as SimpleFilterConfig]]);
+        expect(spy2.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.X.columnName, '=', 1234)
+        ]]);
     });
 
     it('subcomponentRequestsFilter does call exchangeFilters with multiple items if doNotReplace=true and requireAll=true', () => {
@@ -3743,40 +3616,21 @@ describe('Component: Aggregation', () => {
         component.subcomponentRequestsFilter('testCategory', 1234, true);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([[{
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '=',
-                value: 1234
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234])
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
 
         component.subcomponentRequestsFilter('testCategory', 5678, true);
 
         expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([[{
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '=',
-                value: 1234
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.X.columnName,
-                operator: '=',
-                value: 5678
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spy1.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.X.columnName, '=', [1234, 5678])
+        ]]);
         expect(spy2.calls.count()).toEqual(0);
     });
 

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FieldKey } from '../models/dataset';
+import { Dataset, FieldKey, NeonDatabaseMetaData, NeonDatastoreConfig, NeonFieldMetaData, NeonTableMetaData } from '../models/dataset';
 
 export class DatasetUtil {
     /**
@@ -35,7 +35,28 @@ export class DatasetUtil {
      */
     static deconstructTableOrFieldKey(key: string, keys: Record<string, string> = {}): FieldKey {
         const fieldKeyObject: FieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(key, keys);
-        return (fieldKeyObject.datastore && fieldKeyObject.database && fieldKeyObject.table) ? fieldKeyObject : null;
+        return (fieldKeyObject.database && fieldKeyObject.table) ? fieldKeyObject : null;
+    }
+
+    /**
+     * Returns the datastore, database, table, and field objects using the given field key object.
+     */
+    static retrieveMetaDataFromFieldKey(
+        fieldKey: FieldKey,
+        dataset: Dataset
+    ): [NeonDatastoreConfig, NeonDatabaseMetaData, NeonTableMetaData, NeonFieldMetaData] {
+        let datastore: NeonDatastoreConfig = dataset ? dataset.datastores[fieldKey.datastore] : null;
+        // Backwards compatibility:  in old saved states, assume an empty datastore references the first datastore.
+        if (!datastore && !fieldKey.datastore) {
+            const datastoreNames = Object.keys(dataset.datastores);
+            if (datastoreNames.length) {
+                datastore = dataset.datastores[datastoreNames[0]];
+            }
+        }
+        const database: NeonDatabaseMetaData = datastore ? datastore.databases[fieldKey.database] : null;
+        const table: NeonTableMetaData = database ? database.tables[fieldKey.table] : null;
+        const field: NeonFieldMetaData = table ? table.fields.filter((element) => element.columnName === fieldKey.field)[0] : null;
+        return [datastore, database, table, field];
     }
 
     /**

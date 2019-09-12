@@ -15,8 +15,8 @@
 import { ElementRef } from '@angular/core';
 import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
 import { Color } from '../../models/color';
+import { DateUtil } from '../../util/date.util';
 
-import * as moment from 'moment';
 import * as Chart from 'chart.js';
 
 export abstract class AbstractChartJsDataset {
@@ -708,10 +708,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @protected
      */
     protected padEndDate(endDate: any) {
-        let newEndDate = moment.utc(endDate);
-        newEndDate.add(1, this.options.granularity as moment.unitOfTime.DurationConstructor);
-        newEndDate.subtract(1, 'second');
-        return moment(newEndDate).toDate();
+        return DateUtil.addOneOfIntervalToDate(endDate, this.options.granularity);
     }
 
     /**
@@ -979,7 +976,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let beginLabelX = chart.data.datasets[0].data[beginIndexX].x;
             let endLabelX = chart.data.datasets[0].data[endIndexX].x;
             if (this.findAxisTypeX() === 'date') {
-                beginLabelX = moment.utc(beginLabelX).toDate();
+                beginLabelX = DateUtil.fromStringToDate(beginLabelX);
                 endLabelX = this.padEndDate(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {

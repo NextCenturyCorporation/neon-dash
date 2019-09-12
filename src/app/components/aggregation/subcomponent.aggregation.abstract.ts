@@ -14,8 +14,9 @@
  */
 import { ElementRef } from '@angular/core';
 
+import { DateFormat, DateUtil } from '../../util/date.util';
+
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 export interface AggregationSubcomponentListener {
 
@@ -162,7 +163,7 @@ export abstract class AbstractAggregationSubcomponent {
      * @return {boolean}
      */
     protected isDateString(text: string): boolean {
-        return moment(text, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').isValid();
+        return DateUtil.verifyDateStringStrict(text);
     }
 
     /**
@@ -197,7 +198,7 @@ export abstract class AbstractAggregationSubcomponent {
      * @return {string}
      */
     protected toDateLongString(item: Date | string): string {
-        return moment(item, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+        return DateUtil.fromDateToString(item, DateFormat.PRETTY);
     }
 
     /**
@@ -207,17 +208,16 @@ export abstract class AbstractAggregationSubcomponent {
      * @return {string}
      */
     protected toDateShortLabel(item: Date | string): string {
-        let dateObject = moment(item, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
         switch (this.options.granularity) {
             case 'minute':
             case 'hour':
-                return dateObject.format('MMM D, YYYY, h:mm A');
+                return DateUtil.fromDateToString(item, DateFormat.MINUTE);
             case 'day':
-                return dateObject.format('MMM D, YYYY');
+                return DateUtil.fromDateToString(item, DateFormat.DAY);
             case 'month':
-                return dateObject.format('MMM YYYY');
+                return DateUtil.fromDateToString(item, DateFormat.MONTH);
             case 'year':
-                return dateObject.format('YYYY');
+                return DateUtil.fromDateToString(item, DateFormat.YEAR);
         }
         return '';
     }

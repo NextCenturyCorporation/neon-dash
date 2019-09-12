@@ -19,8 +19,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 import { AbstractSearchService } from '../../services/abstract.search.service';
+import { CompoundFilterType } from '../../models/widget-option';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { By } from '@angular/platform-browser';
 import { DashboardServiceMock } from '../../../testUtils/MockServices/DashboardServiceMock';
@@ -504,53 +505,37 @@ describe('Component: NetworkGraph', () => {
 
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue']]);
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '!=',
-            value: 'testTypeValue'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeValue')
+        ]]);
 
         component.legendItemSelected({ currentlyActive: true, value: 'testTypeValue2' });
 
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue'], ['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '!=',
-            value: 'testTypeValue2'
-        }]]);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeValue2')
+        ]]);
 
         component.legendItemSelected({ currentlyActive: false, value: 'testTypeValue' });
 
         expect((component as any).disabledSet).toEqual([['testTypeField', 'testTypeValue2']]);
         expect(spy.calls.count()).toEqual(3);
-        expect(spy.calls.argsFor(2)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '!=',
-            value: 'testTypeValue'
-        }]]);
+        expect(spy.calls.argsFor(2)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeValue')
+        ]]);
 
         component.legendItemSelected({ currentlyActive: false, value: 'testTypeValue2' });
 
         expect((component as any).disabledSet).toEqual([]);
         expect(spy.calls.count()).toEqual(4);
-        expect(spy.calls.argsFor(3)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '!=',
-            value: 'testTypeValue2'
-        }]]);
+        expect(spy.calls.argsFor(3)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '!=', 'testTypeValue2')
+        ]]);
     }));
 
     it('does create simple filter for graph when graph node is selected', (() => {
@@ -600,26 +585,18 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({ nodes: ['testNodeValue'] });
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValue'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', 'testTypeValue')
+        ]]);
 
         component.onSelect({ nodes: ['testNodeValue2'] });
 
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValue2'
-        }]]);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', 'testTypeValue2')
+        ]]);
     }));
 
     it('does create compound AND filter for graph when graph node with data list is selected', (() => {
@@ -666,43 +643,20 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({ nodes: ['testNodeValue'] });
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValueA'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeValueA'])
+        ]]);
 
         component.onSelect({ nodes: ['testNodeValue2'] });
 
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            type: 'and',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueB'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueC'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueD'
-            }]
-        }]]);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeValueB', 'testTypeValueC', 'testTypeValueD'])
+        ]]);
     }));
 
     it('does create compound OR filter for graph when graph node with data list is selected', (() => {
@@ -748,43 +702,20 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({ nodes: ['testNodeValue'] });
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValueA'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeValueA'])
+        ]]);
 
         component.onSelect({ nodes: ['testNodeValue2'] });
 
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            type: 'or',
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueB'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueC'
-            }, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-                operator: '=',
-                value: 'testTypeValueD'
-            }]
-        }]]);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.OR, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', ['testTypeValueB', 'testTypeValueC', 'testTypeValueD'])
+        ]]);
     }));
 
     it('does create simple filters on multiple filter fields for graph when graph node is selected', (() => {
@@ -834,40 +765,22 @@ describe('Component: NetworkGraph', () => {
         component.onSelect({ nodes: ['testNodeValue'] });
 
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 1
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValue'
-        }]]);
+        expect(spy.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.ID.columnName, '=', 1),
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', 'testTypeValue')
+        ]]);
 
         component.onSelect({ nodes: ['testNodeValue2'] });
 
         expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.ID.columnName,
-            operator: '=',
-            value: 2
-        }, {
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TYPE.columnName,
-            operator: '=',
-            value: 'testTypeValue2'
-        }]]);
+        expect(spy.calls.argsFor(1)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.ID.columnName, '=', 2),
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TYPE.columnName, '=', 'testTypeValue2')
+        ]]);
     }));
 
     it('designEachFilterWithNoValues does return expected object', () => {

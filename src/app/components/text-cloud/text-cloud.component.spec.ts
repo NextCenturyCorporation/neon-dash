@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CompoundFilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { NeonDatabaseMetaData, NeonFieldMetaData, NeonTableMetaData } from '../../models/dataset';
 
 import { Injector } from '@angular/core';
@@ -151,14 +150,10 @@ describe('Component: TextCloud', () => {
 
         expect(spyExchange.calls.count()).toEqual(0);
         expect(spyToggle.calls.count()).toEqual(1);
-        expect(spyToggle.calls.argsFor(0)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-            operator: '=',
-            value: 'testText1'
-        } as SimpleFilterConfig]]);
+        expect(spyToggle.calls.argsFor(0)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', 'testText1')
+        ]]);
 
         component.onClick({
             key: 'testText2'
@@ -166,14 +161,10 @@ describe('Component: TextCloud', () => {
 
         expect(spyExchange.calls.count()).toEqual(0);
         expect(spyToggle.calls.count()).toEqual(2);
-        expect(spyToggle.calls.argsFor(1)).toEqual([[{
-            datastore: DashboardServiceMock.DATASTORE.name,
-            database: DashboardServiceMock.DATABASES.testDatabase1.name,
-            table: DashboardServiceMock.TABLES.testTable1.name,
-            field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-            operator: '=',
-            value: 'testText2'
-        } as SimpleFilterConfig]]);
+        expect(spyToggle.calls.argsFor(1)).toEqual([[
+            new SimpleFilterDesign(DashboardServiceMock.DATASTORE.name, DashboardServiceMock.DATABASES.testDatabase1.name,
+                DashboardServiceMock.TABLES.testTable1.name, DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', 'testText2')
+        ]]);
 
         component.options.andFilters = true;
 
@@ -183,31 +174,11 @@ describe('Component: TextCloud', () => {
 
         expect(spyToggle.calls.count()).toEqual(2);
         expect(spyExchange.calls.count()).toEqual(1);
-        expect(spyExchange.calls.argsFor(0)).toEqual([[{
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText1'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText2'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText3'
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spyExchange.calls.argsFor(0)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1', 'testText2', 'testText3'])
+        ]]);
 
         component.onClick({
             key: 'testText4'
@@ -215,38 +186,11 @@ describe('Component: TextCloud', () => {
 
         expect(spyToggle.calls.count()).toEqual(2);
         expect(spyExchange.calls.count()).toEqual(2);
-        expect(spyExchange.calls.argsFor(1)).toEqual([[{
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText1'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText2'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText3'
-            } as SimpleFilterConfig, {
-                datastore: DashboardServiceMock.DATASTORE.name,
-                database: DashboardServiceMock.DATABASES.testDatabase1.name,
-                table: DashboardServiceMock.TABLES.testTable1.name,
-                field: DashboardServiceMock.FIELD_MAP.TEXT.columnName,
-                operator: '=',
-                value: 'testText4'
-            } as SimpleFilterConfig]
-        } as CompoundFilterConfig]]);
+        expect(spyExchange.calls.argsFor(1)).toEqual([[
+            new ListFilterDesign(CompoundFilterType.AND, DashboardServiceMock.DATASTORE.name + '.' +
+                DashboardServiceMock.DATABASES.testDatabase1.name + '.' + DashboardServiceMock.TABLES.testTable1.name + '.' +
+                DashboardServiceMock.FIELD_MAP.TEXT.columnName, '=', ['testText1', 'testText2', 'testText3', 'testText4'])
+        ]]);
     });
 
     it('redrawFilters does update textCloudData if no text is selected', () => {
