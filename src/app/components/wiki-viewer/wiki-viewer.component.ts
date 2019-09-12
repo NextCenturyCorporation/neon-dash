@@ -34,7 +34,7 @@ import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     WidgetFieldOption,
     WidgetFreeTextOption,
@@ -233,7 +233,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     ): void {
         new Promise<number>((resolve, reject) => {
             try {
-                let links: string[] = neonUtilities.deepFind(results[0], options.linkField.columnName) || [];
+                let links: string[] = CoreUtil.deepFind(results[0], options.linkField.columnName) || [];
                 this.retrieveWikiPage((Array.isArray(links) ? links : [links]), [], (data: WikiData[]) => {
                     this.wikiViewerData = data || [];
                     resolve(data ? data.length : 0);

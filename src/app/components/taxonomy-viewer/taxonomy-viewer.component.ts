@@ -32,7 +32,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { KEYS, TREE_ACTIONS, TreeNode } from 'angular-tree-component';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -391,21 +391,21 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         const find = (data: any, field: string) =>
             options[field].columnName ?
-                neonUtilities.deepFind(data, options[field].columnName) :
+                CoreUtil.deepFind(data, options[field].columnName) :
                 null;
 
         for (const data of results) {
             let types: string[];
             let subTypes: string[];
-            const categories = neonUtilities.deepFind(data, options.categoryField.columnName);
+            const categories = CoreUtil.deepFind(data, options.categoryField.columnName);
 
             if (options.typeField.columnName) {
-                const val = neonUtilities.deepFind(data, options.typeField.columnName);
+                const val = CoreUtil.deepFind(data, options.typeField.columnName);
                 types = Array.isArray(val) ? val : [val];
             }
 
             if (options.subTypeField.columnName && options.subTypeField.columnName !== options.typeField.columnName) {
-                const val = neonUtilities.deepFind(data, options.subTypeField.columnName);
+                const val = CoreUtil.deepFind(data, options.subTypeField.columnName);
                 subTypes = Array.isArray(val) ? val : [val];
             }
 
@@ -483,9 +483,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             group.sourceIds = [];
 
             data.forEach((result) => {
-                let description = neonUtilities.deepFind(result, group.description.columnName);
-                let lineage = neonUtilities.deepFind(result, this.options.categoryField.columnName);
-                let id = neonUtilities.deepFind(result, this.options.idField.columnName);
+                let description = CoreUtil.deepFind(result, group.description.columnName);
+                let lineage = CoreUtil.deepFind(result, this.options.categoryField.columnName);
+                let id = CoreUtil.deepFind(result, this.options.idField.columnName);
 
                 let nameExists = description instanceof Array ? description.find((str) => str.includes(group.name)) :
                     description.includes(group.name);
@@ -494,7 +494,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     lineage.find((str) => (str === group.lineage)) : (lineage === group.lineage);
 
                 if (!!nameExists && !!lineageExists && !group.nodeIds.includes(id)) {
-                    let sourceIds = neonUtilities.deepFind(result, this.options.sourceIdField.columnName);
+                    let sourceIds = CoreUtil.deepFind(result, this.options.sourceIdField.columnName);
                     group.nodeIds.push(id);
                     group.sourceIds.push(sourceIds);
                     count++;
@@ -502,7 +502,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             });
 
             group.nodeCount = count;
-            group.sourceIds = neonUtilities.flatten(group.sourceIds)
+            group.sourceIds = CoreUtil.flatten(group.sourceIds)
                 .filter((value, index, array) => array.indexOf(value) === index);
 
             if (group.hasOwnProperty('children')) {
@@ -519,9 +519,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     sortTaxonomyArrays(array: any[]) {
         if (this.options.ascending) {
-            neonUtilities.sortArrayOfObjects(array, 'name', 1);
+            CoreUtil.sortArrayOfObjects(array, 'name', 1);
         } else {
-            neonUtilities.sortArrayOfObjects(array, 'name', -1);
+            CoreUtil.sortArrayOfObjects(array, 'name', -1);
         }
     }
 
