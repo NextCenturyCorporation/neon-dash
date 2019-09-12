@@ -132,28 +132,27 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     protected createOptions(): WidgetOption[] {
         return [
             new WidgetFieldOption('contentField', 'Content Field', false),
-            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
-            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
             new WidgetFieldOption('dateField', 'Date Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetFieldOption('linkField', 'Link Field', false),
+            new WidgetFieldOption('secondaryContentField', 'Secondary Content Field', false),
             new WidgetFieldOption('sortField', 'Sort Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', true),
-            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
-            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
-            new WidgetFreeTextOption('contentLabel', 'Content Label', false, '', true),
-            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', false, '', true),
-            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue, true),
+            new WidgetFieldOption('titleContentField', 'Title Content Field', false),
+            new WidgetFieldOption('typeField', 'Type Field', false),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+                false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetFreeTextOption('contentLabel', 'Content Label', false, ''),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', false, null),
+            new WidgetFreeTextOption('delimiter', 'Link Delimiter', false, ','),
+            new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
+            new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', false, ''),
             new WidgetSelectOption('sortDescending', 'Sort', false, false, OptionChoices.AscendingFalseDescendingTrue),
-            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {}),
             new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
-                false, false, OptionChoices.NoFalseYesTrue)
-
+            new WidgetNonPrimitiveOption('typeMap', 'Type Map', false, {})
         ];
     }
 
