@@ -197,8 +197,6 @@ The NCCL [**Data Server**](https://github.com/NextCenturyCorporation/neon-server
 
 ![NCCL Sequence](./images/NCCL-Sequence.jpg)
 
-**Next Century Component Library Workflow Diagram**
-
 ![NCCL Workflow](./images/NCCL-Workflow.jpg)
 
 ### Setup
@@ -553,6 +551,8 @@ In your application, this...
 
 ...with custom transformation functions:
 
+(TODO / WIP)
+
 ```js
 const transformSearchDataArray = function(searchDataArray) { /* ... */ };
 const transformBoundsEventFilterData = function(event) { /* ... */ };
@@ -625,7 +625,6 @@ search1.addEventListener('dataReceived', transformSearchDataArray);
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
 >
 </next-century-search>
 ```
@@ -657,7 +656,6 @@ vis1.addEventListener('yourFilterEvent', transformFilterEventData);
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
@@ -702,7 +700,6 @@ filter1.addEventListener('filtersChanged', transformFilterDataArray);
 <next-century-search
     id="search1"
     search-field-key="es1.index_name.index_type.*"
-    server="http://localhost:8090/"
     vis-draw-function="drawData"
     vis-element-id="vis1"
 >
