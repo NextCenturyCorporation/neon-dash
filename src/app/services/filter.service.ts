@@ -30,6 +30,8 @@ export class FilterService {
     private _listeners: Map<string, FilterChangeListener> = new Map<string, FilterChangeListener>();
 
     private _notifier: FilterChangeListener;
+    private _cachedFilters: Map<string, Map<FilterDataSource[], AbstractFilter[]>> =
+    new Map<string, Map<FilterDataSource[], AbstractFilter[]>>();
 
     constructor() {
         this._notifier = this.notifyFilterChangeListeners.bind(this);
@@ -176,13 +178,16 @@ export class FilterService {
      * @arg {FilterConfig[]} filterConfigList
      * @arg {Dataset} dataset
      * @arg {FilterConfig[]} [filterConfigListToDelete=[]]
+     * @arg {boolean} [keepSameFilters=false]
      * @return {Map<FilterDataSource[], FilterConfig[]>}
      */
     public exchangeFilters(
         callerId: string,
         filterConfigList: FilterConfig[],
         dataset: Dataset,
-        filterConfigListToDelete: FilterConfig[] = []
+        filterConfigListToDelete: FilterConfig[] = [],
+        keepSameFilters: boolean = false,
+        applyPreviousFilter: boolean = false
     ): Map<FilterDataSource[], FilterConfig[]> {
         let updateCollection: FilterCollection = new FilterCollection();
         let returnCollection: Map<FilterDataSource[], FilterConfig[]> = new Map<FilterDataSource[], FilterConfig[]>();
@@ -217,15 +222,42 @@ export class FilterService {
             updateCollection.setFilters(filterDataSourceList, []);
         });
 
+        if (!this._cachedFilters.get(callerId)) {
+            this._cachedFilters.set(callerId, new Map<FilterDataSource[], AbstractFilter[]>());
+        }
+
         // Delete the old filters (if any) from and add the new filters (if any) to the data source of each filter passed as an argument.
         // Loop over the data sources of the complete collection to delete the old relation filters in each data source with no exchanges.
         this.filterCollection.getDataSources().forEach((filterDataSourceList) => {
             let modifiedFilterList: AbstractFilter[] = updateCollection.getFilters(filterDataSourceList);
+            let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
 
             // If this is a data source with no exchanges, keep the old filters but remove any old relation filters as needed.
             if (!modifiedFilterList.length) {
-                let previousFilterList: AbstractFilter[] = this.filterCollection.getFilters(filterDataSourceList);
                 modifiedFilterList = previousFilterList.filter((filter) => deleteIdList.indexOf(filter.id) < 0);
+            } else {
+                // If each filter in the new ("modified") list is the same as each filter in the old ("previous") list, just remove them.
+                if (!keepSameFilters && modifiedFilterList.length === previousFilterList.length &&
+                    modifiedFilterList.every((modifiedFilter, index) => modifiedFilter.isEquivalentToFilter(previousFilterList[index]))) {
+                    modifiedFilterList = [];
+                }
+
+                if (applyPreviousFilter) {
+                    // If modifiedFilterList is empty, add any cached filters with an equivalent data-source-list to modifiedFilterList.
+                    if (!modifiedFilterList.length) {
+                        let callerCachedFilters: Map<FilterDataSource[], AbstractFilter[]> = this._cachedFilters.get(callerId);
+                        callerCachedFilters.forEach((cachedFilter, cachedDataSourceList) => {
+                            if (FilterUtil.areFilterDataSourceListsEquivalent(cachedDataSourceList, filterDataSourceList)) {
+                                modifiedFilterList = [...modifiedFilterList, ...cachedFilter];
+                                // Remove the cached filters once they have been un-cached here.
+                                callerCachedFilters.set(cachedDataSourceList, []);
+                            }
+                        });
+                        this._cachedFilters.set(callerId, callerCachedFilters);
+                    } else {
+                        this._cachedFilters.get(callerId).set(filterDataSourceList, previousFilterList);
+                    }
+                }
             }
 
             // Update the global filter collection and use its data source in the return data (in case the objects are different).

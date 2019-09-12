@@ -196,7 +196,12 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
     public filterByLocation(box: BoundingBoxByDegrees): void {
         let filters: FilterConfig[] = this.options.layers.map((layer) => this.createFilterConfigOnBox(layer, box.north, box.south,
             box.east, box.west));
-        this.exchangeFilters(filters);
+
+        if ((this.options.toggleFiltered)) {
+            this.toggleFilters(filters);
+        } else {
+            this.exchangeFilters(filters, [], true);
+        }
     }
 
     /**
@@ -228,7 +233,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
             });
         });
 
-        this.exchangeFilters(filters, filtersToDelete);
+        if ((this.options.toggleFiltered)) {
+            this.toggleFilters(filters);
+        } else {
+            this.exchangeFilters(filters, filtersToDelete);
+        }
     }
 
     /**
@@ -752,7 +761,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
                 prettyName: 'Leaflet',
                 variable: MapType.Leaflet
             }]),
-            new WidgetNumberOption('west', 'West', false, null)
+            new WidgetNumberOption('west', 'West', false, null),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+                false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
