@@ -107,7 +107,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
-        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+        // Console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
         this.redrawOnResize = true;
     }
 
@@ -154,8 +154,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFieldOption('dateField', 'Date Field', true),
             new WidgetFieldOption('idField', 'Id Field', false),
             new WidgetFieldOption('filterField', 'Filter Field', false),
-            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity),
-            new WidgetFreeTextOption('yLabel', 'Count', '')
+            new WidgetSelectOption('granularity', 'Date Granularity', true, TimeInterval.YEAR, OptionChoices.DateGranularity),
+            new WidgetFreeTextOption('yLabel', 'Count', false, '')
         ];
     }
 
@@ -209,7 +209,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             filters = filters.concat(filterValues.map((value) => this.createFilterConfigOnItem(this.options.filterField, value)));
         }
 
-        this.exchangeFilters(filters, [], true);
+        this.exchangeFilters(filters);
 
         this.filterAndRefreshData(this.timelineQueryResults);
     }
