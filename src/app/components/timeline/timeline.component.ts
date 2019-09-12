@@ -44,7 +44,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     AggregationType,
     OptionChoices,
@@ -175,7 +175,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.selected = [beginDate, endDate];
 
         if (this.options.filterField.columnName) {
-            let filterValues: any[] = neonUtilities.flatten((selectedData || []).map((selectedItem) => selectedItem.filters)).filter(
+            let filterValues: any[] = CoreUtil.flatten((selectedData || []).map((selectedItem) => selectedItem.filters)).filter(
                 (value, index, array) => array.indexOf(value) === index
             );
 

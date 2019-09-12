@@ -48,6 +48,7 @@ import {
     SimpleFilterDesign
 } from '../../util/filter.util';
 import { DatasetUtil } from '../../util/dataset.util';
+import { DateUtil } from '../../util/date.util';
 import { BoundsValues, DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
@@ -81,9 +82,8 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import { MatDialog } from '@angular/material';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 
 @Component({
     selector: 'app-aggregation',
@@ -752,12 +752,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         let createTransformationFromItem = (item: any) => {
-            let group = options.groupField.columnName ? neonUtilities.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
+            let group = options.groupField.columnName ? CoreUtil.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
             return {
                 color: findGroupColor(group),
                 group: group,
-                x: neonUtilities.deepFind(item, options.xField.columnName),
-                y: isXY ? neonUtilities.deepFind(item, options.yField.columnName) :
+                x: CoreUtil.deepFind(item, options.xField.columnName),
+                y: isXY ? CoreUtil.deepFind(item, options.yField.columnName) :
                     (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
             };
         };
@@ -802,7 +802,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 options.granularity === TimeInterval.YEAR ? 1 : 0);
 
             // Create the X list now so it is properly sorted.  Items will be removed as needed.
-            xList = _.range(xDomainLength).map((index) => moment(this.dateBucketizer.getDateForBucket(index)).toISOString());
+            xList = _.range(xDomainLength).map((index) => DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)));
 
             queryResults.forEach((item) => {
                 let transformation = createTransformationFromItem(item);
@@ -814,7 +814,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }
                 let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationName('date')]));
                 // Fix the X so it is a readable date string.
-                transformation.x = moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
+                transformation.x = DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index));
                 transformations[index].push(transformation);
             });
 
@@ -829,7 +829,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         transformationArray.length ? transformationArray : [{
                             color: findGroupColor(group),
                             group: group,
-                            x: moment(this.dateBucketizer.getDateForBucket(index)).toISOString(),
+                            x: DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)),
                             y: 0
                         }]);
                 }
