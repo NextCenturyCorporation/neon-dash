@@ -50,7 +50,7 @@ import {
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
-import * as vis from 'vis/dist/vis-network.min';
+import * as vis from 'visjs-network/dist/vis-network.min';
 import { MatDialog } from '@angular/material';
 
 let styleImport: any;
@@ -140,7 +140,8 @@ class Edge {
         /* TODO: width seem to breaking directed arrows, removing for now
         public width?: number*/
         public font?: Record<string, any>,
-        public chosen?: Record<string, any>
+        public chosen?: Record<string, any>,
+        public title?: HTMLElement | string
     ) { }
 }
 
@@ -336,6 +337,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.optionsDoesHaveColorField.bind(this)),
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
             new WidgetColorOption('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
                 this.optionsNotReified.bind(this)),
             new WidgetNumberOption('edgeWidth', 'Edge Width', false, 1),
@@ -490,12 +492,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 timestep: 1,
                 stabilization: { iterations: 50 }
             },
+            nodes: {
+                physics: this.options.physics
+            },
             edges: {
                 smooth: {
-                    enabled: true,
-                    type: 'continuous',
-                    roundness: 0
-                }
+                    type: 'dynamic'
+                },
+                physics: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics
             },
             interaction: {
                 hideEdgesOnDrag: true
@@ -506,6 +510,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (this.options.filterable) {
             this.graph.on('doubleClick', this.onSelect.bind(this));
         }
+        this.graph.on('dragEnd', this.onDrag.bind(this));
+        this.graph.once('afterDrawing', this.afterDrawing.bind(this));
     }
 
     private restartPhysics(): void {
@@ -515,8 +521,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graph.off('stabilized');
         });
 
-        // Turn on physics if enabled
-        this.graph.setOptions({ physics: { enabled: this.options.physics } });
+        // To avoid edge overlap the physics must always be on for edges.
+        this.graph.setOptions({ physics: { enabled: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics } });
     }
 
     setInterpolationType(curveType) {
@@ -1020,7 +1026,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     // Create edges between source and destinations specified by destinationField
     private getEdgesFromOneEntry(names: string[], colorField: string, originalColorMapVal: string, originalColor: string, source: string,
-        destinations: string[]) {
+        destinations: string[], showToolTip?: boolean) {
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
@@ -1069,8 +1075,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
             if (source && destinations[index]) {
-                ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
-                    colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
+                if (showToolTip) {
+                    ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
+                        colorObject, colorMapVal, edgeTextObject, edgeChosenObject, this.edgeLabelFormat(names[index])));
+                } else {
+                    ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
+                        colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
+                }
             }
         }
         return ret;
@@ -1201,7 +1212,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (nodes) {
                         for (const nodeEntry of nodes) {
                             graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(linkNames, edgeColorField, entryEdgeColor,
-                                edgeColor, nodeEntry, links));
+                                edgeColor, nodeEntry, links, true));
                         }
                     }
                 }
@@ -1212,7 +1223,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let linkNames = this.edgeLabelFormat(relationNode[relationNameColumn]);
                 if (relationNode.nodes.length === 2) {
                     graph.edges = graph.edges.concat(this.getEdgesFromOneEntry(this.getArray(linkNames), edgeColorField,
-                        relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id)));
+                        relationNode[edgeColorField], linkColor, relationNode.nodes[0].id, this.getArray(relationNode.nodes[1].id), true));
                 }
             }
         }
@@ -1370,6 +1381,27 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.exchangeFilters(filters);
             }
         }
+    }
+
+    onDrag(properties: { nodes: string[] }) {
+        for (let nodeId of properties.nodes) {
+            let xPosition = this.graph.getPositions([nodeId])[nodeId].x;
+            let yPosition = this.graph.getPositions([nodeId])[nodeId].y;
+
+            let indexToUpdate = this.updatedNodePositions.findIndex((node) => node.id === nodeId);
+            if (indexToUpdate > -1) {
+                this.updatedNodePositions[indexToUpdate].x = xPosition;
+                this.updatedNodePositions[indexToUpdate].y = yPosition;
+            } else {
+                this.updatedNodePositions.push({ id: nodeId, x: xPosition, y: yPosition });
+            }
+        }
+    }
+
+    afterDrawing() {
+        this.graph.moveTo({
+            scale: 0.03
+        });
     }
 
     /*
