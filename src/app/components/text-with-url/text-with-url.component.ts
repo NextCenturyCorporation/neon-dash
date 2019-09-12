@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 import { ChangeDetectionStrategy, ViewEncapsulation, Component, Input } from '@angular/core';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 
 @Component({
     selector: 'app-text-with-url',
@@ -28,7 +28,7 @@ export class TextWithUrlComponent {
     public url = [];
     public splitText = [];
     hasUrl(text: string) {
-        let textObject = neonUtilities.hasUrl(text);
+        let textObject = CoreUtil.hasUrl(text);
         this.url = textObject.url;
         this.splitText = textObject.splitText;
         return textObject.test;

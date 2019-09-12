@@ -34,7 +34,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -513,7 +513,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
+                    row[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
                 }
             }
             return row;

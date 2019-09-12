@@ -27,13 +27,14 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { DateFormat, DateUtil } from '../../util/date.util';
 import { FilterCollection } from '../../util/filter.util';
 import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     OptionChoices,
     SortOrder,
@@ -44,7 +45,6 @@ import {
     WidgetSelectOption
 } from '../../models/widget-option';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
@@ -155,8 +155,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let filter: FilterClause = this.searchService.buildFilterClause(this.options.dataField.columnName, '!=', null);
 
         // TODO THOR-950 Don't call updateFields once metadataFields and popoutFields are arrays of NeonFieldMetaData objects.
-        let fields = neonUtilities.flatten(options.metadataFields).map((item) => item.field)
-            .concat(neonUtilities.flatten(options.popoutFields).map((item) => item.field));
+        let fields = CoreUtil.flatten(options.metadataFields).map((item) => item.field)
+            .concat(CoreUtil.flatten(options.popoutFields).map((item) => item.field));
 
         if (fields.length) {
             this.searchService.updateFields(query, fields);
@@ -203,8 +203,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], __filters: FilterCollection): number {
-        let configFields: { name?: string, field: string, arrayFilter?: any }[] = neonUtilities.flatten(options.metadataFields).concat(
-            neonUtilities.flatten(options.popoutFields)
+        let configFields: { name?: string, field: string, arrayFilter?: any }[] = CoreUtil.flatten(options.metadataFields).concat(
+            CoreUtil.flatten(options.popoutFields)
         );
 
         if (!configFields.some((configField) => configField.field === options.dataField.columnName)) {
@@ -260,7 +260,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     populateActiveItem(activeItem: { data: any, rows: { name: string, text: string }[] }, responseItem: any,
         configFields: { name?: string, field: string, arrayFilter?: any }[], field: string, name: string = '', arrayFilter: any = null,
         nested: boolean = false) {
-        let activeItemData = neonUtilities.deepFind(responseItem, field);
+        let activeItemData = CoreUtil.deepFind(responseItem, field);
         if (!nested) {
             activeItem.data[field] = activeItemData;
         }
@@ -314,12 +314,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     createTableRowText(activeItemData: any, arrayFilter?: any): string {
         if (_.isDate(activeItemData)) {
-            return moment.utc(activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+            return DateUtil.fromDateToString(activeItemData, DateFormat.PRETTY);
         }
 
         if (typeof activeItemData === 'string' || typeof activeItemData === 'number' || typeof activeItemData === 'boolean') {
-            if (moment('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]', true).isValid()) {
-                return moment.utc('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+            if (DateUtil.verifyDateStringStrict('' + activeItemData)) {
+                return DateUtil.fromDateToString('' + activeItemData, DateFormat.PRETTY);
             }
             return ('' + activeItemData) || '';
         }
@@ -373,7 +373,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             item: activeItemData,
             showText: this.options.showText,
             textField: this.options.dataField.columnName,
-            metadataFields: neonUtilities.flatten(this.options.metadataFields).concat(neonUtilities.flatten(this.options.popoutFields))
+            metadataFields: CoreUtil.flatten(this.options.metadataFields).concat(CoreUtil.flatten(this.options.popoutFields))
         };
 
         this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
