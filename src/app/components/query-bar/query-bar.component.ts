@@ -25,7 +25,7 @@ import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -219,10 +219,10 @@ export class QueryBarComponent extends BaseNeonComponent {
             let item = {};
             for (let field of options.fields) {
                 if (field.columnName === options.filterField.columnName && setValues) {
-                    this.queryValues.push(neonUtilities.deepFind(result, options.filterField.columnName));
+                    this.queryValues.push(CoreUtil.deepFind(result, options.filterField.columnName));
                 }
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(result, field.columnName);
+                    let value = CoreUtil.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
@@ -342,7 +342,7 @@ export class QueryBarComponent extends BaseNeonComponent {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {
-                    let resultValues = neonUtilities.deepFind(result, extensionField.idField);
+                    let resultValues = CoreUtil.deepFind(result, extensionField.idField);
                     if (typeof resultValues !== 'undefined') {
                         if (resultValues instanceof Array) {
                             for (const value of resultValues) {

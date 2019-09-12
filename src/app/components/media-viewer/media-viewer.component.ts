@@ -34,7 +34,7 @@ import { InjectableFilterService } from '../../services/injectable.filter.servic
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { MediaTypes } from '../../models/types';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     OptionChoices,
     SortOrder,
@@ -124,16 +124,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         fields.forEach((fieldsConfig) => {
             if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
-                links = links.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                links = links.concat(CoreUtil.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'mask') {
-                masks = masks.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                masks = masks.concat(CoreUtil.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'name') {
-                names = names.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                names = names.concat(CoreUtil.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
             if (fieldsConfig.type === 'type') {
-                types = types.concat(neonUtilities.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+                types = types.concat(CoreUtil.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
             }
         });
 
@@ -424,24 +424,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             let types = [];
 
             if (options.maskField.columnName) {
-                masks = neonUtilities.deepFind(result, options.maskField.columnName) || '';
-                masks = neonUtilities.transformToStringArray(masks, options.delimiter);
+                masks = CoreUtil.deepFind(result, options.maskField.columnName) || '';
+                masks = CoreUtil.transformToStringArray(masks, options.delimiter);
             }
 
             if (options.nameField.columnName) {
-                names = neonUtilities.deepFind(result, options.nameField.columnName);
+                names = CoreUtil.deepFind(result, options.nameField.columnName);
                 names = typeof names === 'undefined' ? [] : names;
-                names = neonUtilities.transformToStringArray(names, options.delimiter);
+                names = CoreUtil.transformToStringArray(names, options.delimiter);
             }
 
             if (options.typeField.columnName) {
-                types = neonUtilities.deepFind(result, options.typeField.columnName) || '';
-                types = neonUtilities.transformToStringArray(types, options.delimiter);
+                types = CoreUtil.deepFind(result, options.typeField.columnName) || '';
+                types = CoreUtil.transformToStringArray(types, options.delimiter);
             }
 
             options.linkFields.forEach((linkField) => {
-                let links = neonUtilities.deepFind(result, linkField.columnName) || '';
-                links = neonUtilities.transformToStringArray(links, options.delimiter);
+                let links = CoreUtil.deepFind(result, linkField.columnName) || '';
+                links = CoreUtil.transformToStringArray(links, options.delimiter);
                 mediaMetaDataList.push(this.createMediaMetaData(links, masks, names, types));
             });
         });

@@ -26,12 +26,13 @@ import {
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { DateFormat, DateUtil } from '../../util/date.util';
 import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
 import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     OptionChoices,
     SortOrder,
@@ -43,7 +44,6 @@ import {
 } from '../../models/widget-option';
 import { MatDialog, MatAccordion } from '@angular/material';
 
-import * as moment from 'moment';
 import { MediaMetaData } from '../media-group/media-group.component';
 import { MediaTypes } from '../../models/types';
 
@@ -97,10 +97,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     relativeTime(date: Date) {
-        if (moment(date).diff(Date.now(), 'd', true) < -3) {
-            return moment(date).format('YYYY/MM/DD');
-        }
-        return moment(date).fromNow();
+        return DateUtil.retrievePastTime(date, DateFormat.SHORT);
     }
 
     /**
@@ -266,17 +263,17 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
 
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(result, field.columnName);
+                    let value = CoreUtil.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item.field[field.columnName] = value;
                     }
                 }
             }
             if (this.options.linkField.columnName && item.field[this.options.linkField.columnName]) {
-                let links = neonUtilities.transformToStringArray(item.field[this.options.linkField.columnName], this.options.delimiter);
+                let links = CoreUtil.transformToStringArray(item.field[this.options.linkField.columnName], this.options.delimiter);
                 let types = links.map((link) => link.substring(link.lastIndexOf('.') + 1).toLowerCase());
                 if (this.options.typeField.columnName && item.field[this.options.typeField.columnName]) {
-                    types = neonUtilities.transformToStringArray(item.field[this.options.typeField.columnName], this.options.delimiter);
+                    types = CoreUtil.transformToStringArray(item.field[this.options.typeField.columnName], this.options.delimiter);
                 }
                 types = types.map((type) => (this.options.typeMap || {})[type] || type);
 
