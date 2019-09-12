@@ -30,10 +30,13 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    CompoundFilter,
-    FilterCollection
+    BoundsFilter,
+    BoundsFilterDesign,
+    FilterCollection,
+    PairFilterDesign,
+    SimpleFilterDesign
 } from '../../util/filter.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { BoundsValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -48,7 +51,7 @@ import {
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { LeafletNeonMap } from './map.type.leaflet';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -59,6 +62,7 @@ import {
     WidgetOption,
     WidgetSelectOption
 } from '../../models/widget-option';
+import { DatasetUtil } from '../../util/dataset.util';
 import * as geohash from 'geo-hash';
 import { MatDialog } from '@angular/material';
 
@@ -221,7 +225,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         this.options.layers.forEach((layer) => {
             filters.push(this.createFilterConfigOnPoint(layer, lat, lon));
             layer.filterFields.forEach((filterField) => {
-                let filterValues: any[] = neonUtilities.flatten(filterFieldToValueList.map((filterFieldToValue) =>
+                let filterValues: any[] = CoreUtil.flatten(filterFieldToValueList.map((filterFieldToValue) =>
                     filterFieldToValue.get(filterField.columnName))).filter((value) => !!value);
                 if (!filterValues.length) {
                     // Delete any previous filters on the filter field.
@@ -316,15 +320,15 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         let map = new Map<string, UniqueLocationPoint>();
 
         for (let point of data) {
-            let lngCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, lngField));
-            let latCoord = this.convertToFloatIfString(neonUtilities.deepFind(point, latField));
-            let colorValue = neonUtilities.deepFind(point, colorField);
-            let idValue = neonUtilities.deepFind(point, idField);
+            let lngCoord = this.convertToFloatIfString(CoreUtil.deepFind(point, lngField));
+            let latCoord = this.convertToFloatIfString(CoreUtil.deepFind(point, latField));
+            let colorValue = CoreUtil.deepFind(point, colorField);
+            let idValue = CoreUtil.deepFind(point, idField);
             let filterValues = new Map<string, any>();
-            let hoverPopupValue = hoverPopupField.columnName ? neonUtilities.deepFind(point, hoverPopupField.columnName) : '';
+            let hoverPopupValue = hoverPopupField.columnName ? CoreUtil.deepFind(point, hoverPopupField.columnName) : '';
 
             for (let field of filterFields) {
-                let fieldValue = neonUtilities.deepFind(point, field.columnName);
+                let fieldValue = CoreUtil.deepFind(point, field.columnName);
                 filterValues.set(field.columnName, fieldValue);
             }
 
@@ -503,15 +507,20 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         // Add or remove a bounding box on the map depending on if the bounds is filtered.
         // TODO THOR-1102 Does this work with multiple layers?  Should a bounds filter on one layer always affect all of the other layers?
         this.options.layers.forEach((options) => {
-            let boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBox(options));
+            const boundsFilters: AbstractFilter[] = filters.getCompatibleFilters(this.createFilterConfigOnBox(options));
             if (boundsFilters.length) {
                 // TODO THOR-1102 How should we handle multiple filters?  Should we draw multiple bounding boxes?
                 for (const boundsFilter of boundsFilters) {
-                    let bounds = (boundsFilter as CompoundFilter).asBoundsFilter();
-                    if (bounds.upperA.field.columnName === options.latitudeField.columnName) {
-                        this.mapObject.drawBoundary([bounds.upperA.value, bounds.upperB.value], [bounds.lowerA.value, bounds.lowerB.value]);
-                    } else {
-                        this.mapObject.drawBoundary([bounds.upperB.value, bounds.upperA.value], [bounds.lowerB.value, bounds.lowerA.value]);
+                    const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues();
+                    const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
+                    const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
+                    if (fieldKey1.field === options.latitudeField.columnName && fieldKey2.field === options.longitudeField.columnName) {
+                        this.mapObject.drawBoundary([bounds.end1 as number, bounds.end2 as number], [bounds.begin1 as number,
+                            bounds.begin2 as number]);
+                    }
+                    if (fieldKey2.field === options.latitudeField.columnName && fieldKey1.field === options.longitudeField.columnName) {
+                        this.mapObject.drawBoundary([bounds.end2 as number, bounds.end1 as number], [bounds.begin2 as number,
+                            bounds.begin1 as number]);
                     }
                 }
                 removeFilter = false;
@@ -650,71 +659,31 @@ export class MapComponent extends BaseNeonComponent implements OnInit, OnDestroy
         );
     }
 
-    private createFilterConfigOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.latitudeField.columnName,
-                operator: '>=',
-                value: south
-            }, {
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.latitudeField.columnName,
-                operator: '<=',
-                value: north
-            }, {
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.longitudeField.columnName,
-                operator: '>=',
-                value: west
-            }, {
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.longitudeField.columnName,
-                operator: '<=',
-                value: east
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnBox(layer: any, north?: number, south?: number, east?: number, west?: number): BoundsFilterDesign {
+        return new BoundsFilterDesign(
+            layer.datastore.name + '.' + layer.database.name + '.' + layer.table.name + '.' + layer.latitudeField.columnName,
+            layer.datastore.name + '.' + layer.database.name + '.' + layer.table.name + '.' + layer.longitudeField.columnName,
+            south,
+            west,
+            north,
+            east
+        );
     }
 
-    private createFilterConfigOnPoint(layer: any, latitude?: number, longitude?: number): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.latitudeField.columnName,
-                operator: '=',
-                value: latitude
-            }, {
-                datastore: layer.datastore.name,
-                database: layer.database.name,
-                table: layer.table.name,
-                field: layer.longitudeField.columnName,
-                operator: '=',
-                value: longitude
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnPoint(layer: any, latitude?: number, longitude?: number): PairFilterDesign {
+        return new PairFilterDesign(
+            CompoundFilterType.AND,
+            layer.datastore.name + '.' + layer.database.name + '.' + layer.table.name + '.' + layer.latitudeField.columnName,
+            layer.datastore.name + '.' + layer.database.name + '.' + layer.table.name + '.' + layer.longitudeField.columnName,
+            '=',
+            '=',
+            latitude,
+            longitude
+        );
     }
 
-    private createFilterConfigOnValue(layer: any, field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: layer.datastore.name,
-            database: layer.database.name,
-            table: layer.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnValue(layer: any, field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(layer.datastore.name, layer.database.name, layer.table.name, field.columnName, '=', value);
     }
 
     /**

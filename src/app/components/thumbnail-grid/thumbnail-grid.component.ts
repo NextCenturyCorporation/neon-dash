@@ -28,14 +28,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
 import { MediaTypes } from '../../models/types';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -112,7 +112,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 (Array.isArray(item[filterField.columnName]) ? item[filterField.columnName] : [item[filterField.columnName]]);
             if (filterValues.length) {
                 filters.push(filterValues.length === 1 ? this.createFilterConfigOnItem(filterField, filterValues[0]) :
-                    this.createFilterConfigOnList(filterValues.map((value) => this.createFilterConfigOnItem(filterField, value))));
+                    this.createFilterConfigOnList(filterField, filterValues));
             }
         });
 
@@ -123,22 +123,14 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
-    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
-        return {
-            type: CompoundFilterType.OR,
-            filters: filters
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '=', values);
     }
 
     /**
@@ -228,7 +220,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 // Match a single EQUALS filter on the specific filter field.
                 designs.push(this.createFilterConfigOnItem(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnList([this.createFilterConfigOnItem(filterField)]));
+                designs.push(this.createFilterConfigOnList(filterField));
             }
             return designs;
         }, [] as FilterConfig[]);
@@ -398,7 +390,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 _filtered: this.options.filterFields.length ? this.options.filterFields.every((filterField) => {
                     if (filterField.columnName) {
                         let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, result[filterField.columnName]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
+                        let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [result[filterField.columnName]]);
+                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                     }
                     return false;
                 }) : false
@@ -406,62 +399,62 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
             let links = [];
             if (options.linkField && options.linkField.columnName) {
-                links = this.getArrayValues(neonUtilities.deepFind(result, options.linkField.columnName) || '');
+                links = this.getArrayValues(CoreUtil.deepFind(result, options.linkField.columnName) || '');
             }
 
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             if (options.categoryField.columnName) {
-                item[options.categoryField.columnName] = neonUtilities.deepFind(result, options.categoryField.columnName);
+                item[options.categoryField.columnName] = CoreUtil.deepFind(result, options.categoryField.columnName);
             }
             if (options.compareField.columnName) {
-                item[options.compareField.columnName] = neonUtilities.deepFind(result, options.compareField.columnName);
+                item[options.compareField.columnName] = CoreUtil.deepFind(result, options.compareField.columnName);
             }
             options.filterFields.filter((filterField) => !!filterField.columnName).forEach((filterField) => {
-                item[filterField.columnName] = neonUtilities.deepFind(result, filterField.columnName);
+                item[filterField.columnName] = CoreUtil.deepFind(result, filterField.columnName);
             });
             if (options.idField.columnName) {
-                item[options.idField.columnName] = neonUtilities.deepFind(result, options.idField.columnName);
+                item[options.idField.columnName] = CoreUtil.deepFind(result, options.idField.columnName);
             }
             if (options.nameField.columnName) {
-                item[options.nameField.columnName] = neonUtilities.deepFind(result, options.nameField.columnName);
+                item[options.nameField.columnName] = CoreUtil.deepFind(result, options.nameField.columnName);
             }
             if (options.objectIdField.columnName) {
-                item[options.objectIdField.columnName] = neonUtilities.deepFind(result, options.objectIdField.columnName);
+                item[options.objectIdField.columnName] = CoreUtil.deepFind(result, options.objectIdField.columnName);
             }
             if (options.objectNameField.columnName) {
-                item[options.objectNameField.columnName] = neonUtilities.deepFind(result, options.objectNameField.columnName);
+                item[options.objectNameField.columnName] = CoreUtil.deepFind(result, options.objectNameField.columnName);
             }
             if (options.percentField.columnName) {
-                item[options.percentField.columnName] = neonUtilities.deepFind(result, options.percentField.columnName);
+                item[options.percentField.columnName] = CoreUtil.deepFind(result, options.percentField.columnName);
             }
             if (options.predictedNameField.columnName) {
-                item[options.predictedNameField.columnName] = neonUtilities.deepFind(result, options.predictedNameField.columnName);
+                item[options.predictedNameField.columnName] = CoreUtil.deepFind(result, options.predictedNameField.columnName);
             }
             if (options.sortField.columnName) {
-                item[options.sortField.columnName] = neonUtilities.deepFind(result, options.sortField.columnName);
+                item[options.sortField.columnName] = CoreUtil.deepFind(result, options.sortField.columnName);
             }
             if (options.typeField.columnName) {
-                item[options.typeField.columnName] = neonUtilities.deepFind(result, options.typeField.columnName);
+                item[options.typeField.columnName] = CoreUtil.deepFind(result, options.typeField.columnName);
             }
             if (options.dateField.columnName) {
-                item[options.dateField.columnName] = neonUtilities.deepFind(result, options.dateField.columnName);
+                item[options.dateField.columnName] = CoreUtil.deepFind(result, options.dateField.columnName);
             }
             if (options.flagLabel.columnName) {
-                item[options.flagLabel.columnName] = neonUtilities.deepFind(result, options.flagLabel.columnName);
+                item[options.flagLabel.columnName] = CoreUtil.deepFind(result, options.flagLabel.columnName);
             }
             if (options.flagSubLabel1.columnName) {
-                item[options.flagSubLabel1.columnName] = neonUtilities.deepFind(result, options.flagSubLabel1.columnName);
+                item[options.flagSubLabel1.columnName] = CoreUtil.deepFind(result, options.flagSubLabel1.columnName);
             }
             if (options.flagSubLabel2.columnName) {
-                item[options.flagSubLabel2.columnName] = neonUtilities.deepFind(result, options.flagSubLabel2.columnName);
+                item[options.flagSubLabel2.columnName] = CoreUtil.deepFind(result, options.flagSubLabel2.columnName);
             }
             if (options.flagSubLabel3.columnName) {
-                item[options.flagSubLabel3.columnName] = neonUtilities.deepFind(result, options.flagSubLabel3.columnName);
+                item[options.flagSubLabel3.columnName] = CoreUtil.deepFind(result, options.flagSubLabel3.columnName);
             }
 
             options.customEventsToPublish.forEach((config) => {
                 (config.fields || []).forEach((fieldsConfig) => {
-                    item[fieldsConfig.columnName] = neonUtilities.deepFind(result, fieldsConfig.columnName);
+                    item[fieldsConfig.columnName] = CoreUtil.deepFind(result, fieldsConfig.columnName);
                 });
             });
 
@@ -547,7 +540,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             item._filtered = this.options.filterFields.every((filterField) => {
                 if (filterField.columnName) {
                     let filterConfig: FilterConfig = this.createFilterConfigOnItem(filterField, item[filterField.columnName]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnList([filterConfig]));
+                    let listFilterConfig: FilterConfig = this.createFilterConfigOnList(filterField, [item[filterField.columnName]]);
+                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                 }
                 return false;
             });

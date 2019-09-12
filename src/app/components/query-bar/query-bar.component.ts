@@ -20,12 +20,12 @@ import { map, startWith } from 'rxjs/operators';
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -88,33 +88,23 @@ export class QueryBarComponent extends BaseNeonComponent {
         tableName: string,
         fieldName: string,
         value?: any
-    ): FilterConfig {
-        return {
-            datastore: this.dashboardState.datastore.name,
-            database: databaseName,
-            table: tableName,
-            field: fieldName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    ): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.dashboardState.datastore.name, databaseName, tableName, fieldName, '=', value);
     }
 
-    private createFilterConfigOnList(filters: FilterConfig[]): FilterConfig {
-        return {
-            type: CompoundFilterType.OR,
-            filters: filters
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(
+        databaseName: string,
+        tableName: string,
+        fieldName: string,
+        values: any[] = [undefined]
+    ): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.OR, this.dashboardState.datastore.name + '.' + databaseName + '.' + tableName +
+            '.' + fieldName, '=', values);
     }
 
-    private createFilterConfigOnText(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.filterField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnText(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.filterField.columnName, '=', value);
     }
 
     /**
@@ -153,8 +143,7 @@ export class QueryBarComponent extends BaseNeonComponent {
                     extensionField.idField));
 
                 // Match a compound OR filter with one or more EQUALS filters on the extension database/table/field.
-                designs.push(this.createFilterConfigOnList([this.createFilterConfigOnExtensionField(extensionField.database,
-                    extensionField.table, extensionField.idField)]));
+                designs.push(this.createFilterConfigOnList(extensionField.database, extensionField.table, extensionField.idField));
             });
         }
 
@@ -230,10 +219,10 @@ export class QueryBarComponent extends BaseNeonComponent {
             let item = {};
             for (let field of options.fields) {
                 if (field.columnName === options.filterField.columnName && setValues) {
-                    this.queryValues.push(neonUtilities.deepFind(result, options.filterField.columnName));
+                    this.queryValues.push(CoreUtil.deepFind(result, options.filterField.columnName));
                 }
                 if (field.type || field.columnName === '_id') {
-                    let value = neonUtilities.deepFind(result, field.columnName);
+                    let value = CoreUtil.deepFind(result, field.columnName);
                     if (typeof value !== 'undefined') {
                         item[field.columnName] = value;
                     }
@@ -335,13 +324,6 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     /**
      * Extends filtering across databases/indices that do not have related fields. Executes a query if necessary.
-     *
-     * @arg {string} text
-     * @arg {any} extensionField
-     * @arg {any} array
-     * @return {FilterConfig[]}
-     *
-     * @private
      */
     private extensionFilter(text: string, extensionField: any, values: any[], collectionId: string): void {
         this.extensionFiltersCollection.set(collectionId, null);
@@ -362,8 +344,8 @@ export class QueryBarComponent extends BaseNeonComponent {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {
-                    let idResultValues = neonUtilities.deepFind(result, extensionField.idField);
-                    let filterResultValues = neonUtilities.deepFind(result, extensionField.filterField);
+                    let idResultValues = CoreUtil.deepFind(result, extensionField.idField);
+                    let filterResultValues = CoreUtil.deepFind(result, extensionField.filterField);
                     if (filterResultValues.find((val) => filterFieldValues.includes(val))) {
                         if (typeof idResultValues !== 'undefined') {
                             if (idResultValues instanceof Array) {
@@ -387,22 +369,13 @@ export class QueryBarComponent extends BaseNeonComponent {
 
     /**
      * Adds extension filters for the visualization
-     *
-     * @arg {string} text
-     * @arg {any} extensionField
-     * @arg {any} array
-     * @return {FilterConfig}
-     *
-     * @private
      */
-    private extensionAddFilter(__text: string, extensionField: any, array: any[]): FilterConfig {
-        let filters: FilterConfig[] = array.map((element) => {
-            let value: any = ((typeof element === 'object' && element.hasOwnProperty(extensionField.idField)) ?
-                element[extensionField.idField] : element);
-            return this.createFilterConfigOnExtensionField(extensionField.database, extensionField.table, extensionField.idField, value);
-        }).filter((filterConfig) => !!filterConfig);
+    private extensionAddFilter(__text: string, extensionField: any, values: any[]): FilterConfig {
+        let filterValues: any[] = values.map((value) => ((typeof value === 'object' && value.hasOwnProperty(extensionField.idField)) ?
+            value[extensionField.idField] : value));
 
-        return filters.length ? this.createFilterConfigOnList(filters) : null;
+        return filterValues.length ? this.createFilterConfigOnList(extensionField.database, extensionField.table, extensionField.idField,
+            filterValues) : null;
     }
 
     public removeFilters() {
