@@ -148,7 +148,7 @@ dashboards:
 
                                 children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
                                 children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
-                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_link: es1.verdi-rdf_docs-parent_children.parent_children.url
                                 children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
@@ -184,7 +184,7 @@ dashboards:
 
                                 children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
                                 children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
-                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_link: es1.verdi-rdf_docs-parent_children.parent_children.url
                                 children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
@@ -231,7 +231,7 @@ dashboards:
 
                                 children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
                                 children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
-                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_link: es1.verdi-rdf_docs-parent_children.parent_children.url
                                 children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
@@ -292,7 +292,7 @@ dashboards:
 
                                 children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
                                 children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
-                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_link: es1.verdi-rdf_docs-parent_children.parent_children.url
                                 children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
@@ -332,7 +332,7 @@ dashboards:
 
                                 children_field_id: es1.verdi-rdf_docs-parent_children.parent_children.id
                                 children_field_parentdate: es1.verdi-rdf_docs-parent_children.parent_children.download_date
-                                children_field_parentlink: es1.verdi-rdf_docs-parent_children.parent_children.url
+                                children_field_link: es1.verdi-rdf_docs-parent_children.parent_children.url
                                 children_field_parentid: es1.verdi-rdf_docs-parent_children.parent_children.parent_uid
                                 children_field_annotations: es1.verdi-rdf_docs-parent_children.parent_children.reconstructed
                                 children_field_host: es1.verdi-rdf_docs-parent_children.parent_children.host
@@ -418,7 +418,7 @@ layouts:
               isDirected: false
               hideUnfiltered: false
               physics: false
-              edgePhysics: false
+              edgePhysics: true
               filterFields:
                   - kb_field_documentid
               idField: kb_field_objectid
@@ -742,7 +742,7 @@ layouts:
               isDirected: false
               hideUnfiltered: true
               physics: false
-              edgePhysics: false
+              edgePhysics: true
               filterFields:
                   - kb_field_documentid
               idField: kb_field_objectid
