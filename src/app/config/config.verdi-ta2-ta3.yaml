@@ -114,8 +114,8 @@ dashboards:
                                 kb_field_name: es1.kb-union._doc.name
                                 kb_field_type: es1.kb-union._doc.types
                             relations:
-                                #- - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                                #- - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   #- 'es1.verdi-rdf-normal.normal.@id'
                                   - es1.kb-union._doc.docIds
                                 # This is an ambitious assumption being that documents and kb elements have
@@ -162,8 +162,8 @@ dashboards:
                                 event_field_link: es1.kb-events._doc.url
                                 event_field_doctype: es1.kb-events._doc.docType
                             relations:
-                               # - - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                                #- - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-events._doc.docIds
                             options:
                                 connectOnLoad: false
@@ -198,8 +198,8 @@ dashboards:
                                 geo_field_documentid: es1.kb-geo._doc.docIds
                                 geo_field_docdate: es1.kb-geo._doc.docDate
                             relations:
-                               # - - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                                #- - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-geo._doc.docIds
                             options:
                                 connectOnLoad: false
@@ -252,8 +252,8 @@ dashboards:
                                 kb_field_type: es1.kb-union._doc.types
                                 kb_field_hypotheses: es1.kb-union._doc.hypotheses
                             relations:
-                               # - - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                                #- - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-union._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -307,8 +307,8 @@ dashboards:
                                 event_field_doctype: es1.kb-events._doc.docType
                                 event_field_hypotheses: es1.kb-events._doc.hypotheses
                             relations:
-                               # - - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                                #- - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-events._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -354,8 +354,8 @@ dashboards:
                                 geo_field_docdate: es1.kb-geo._doc.docDate
                                 geo_field_hypotheses: es1.kb-geo._doc.hypotheses
                             relations:
-                               # - - es1.verdi-rdf_docs-parents.parents.children
-                                - - es1.verdi-rdf_docs-parent_children.parent_children.id
+                                - - es1.verdi-rdf_docs-parents.parents.children
+                               # - - es1.verdi-rdf_docs-parent_children.parent_children.id
                                   - es1.kb-geo._doc.docIds
 
                                 - - es1.verdi-support-hypothesis.hypothesis-info.hypothesis_id
@@ -438,10 +438,10 @@ layouts:
           sizey: 4
           bindings:
               title: Document Timeline
-              tableKey: children_table
-              idField: children_field_id
-              filterField: children_field_id
-              dateField: children_field_parentdate
+              tableKey: document_table
+              idField: document_field_id
+              filterField: document_field_id
+              dateField: document_field_date
               granularity: month
               hideUnfiltered: false
 
@@ -452,24 +452,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -573,24 +573,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -663,24 +663,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: false
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               toggleFiltered: true
@@ -792,10 +792,10 @@ layouts:
           sizey: 4
           bindings:
               title: Document Timeline
-              tableKey: children_table
-              idField: children_field_id
+              tableKey: document_table
+              idField: document_field_id
               filterField:
-              dateField: children_field_parentdate
+              dateField: document_field_date
               granularity: month
               hideUnfiltered: true
 
@@ -806,24 +806,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               limit: 8
@@ -946,24 +946,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               limit: 8
@@ -1055,24 +1055,24 @@ layouts:
           sizey: 16
           bindings:
               title: Documents
-              tableKey: children_table
-              idField: children_field_id
-              flagSubLabel1: children_field_parentdate
-              flagSubLabel2: children_field_parentid
+              tableKey: document_table
+              idField: document_field_id
+              flagSubLabel1: document_field_date
+              flagSubLabel2: document_field_id
               flagSubLabel3:
               linkPrefix: '../Reconstructed/html_seedling/'
-              linkField: children_field_annotations
-              dateField: children_field_parentdate
+              linkField: document_field_annotations
+              dateField: document_field_date
               objectNameField:
-              objectIdField: children_field_id
-              typeField: children_field_host
+              objectIdField: document_field_id
+              typeField: document_field_host
               predictedNameField:
               percentField:
               openOnMouseClick: true
               hideUnfiltered: true
-              sortField: children_field_id
+              sortField: document_field_id
               filterField:
-                - children_field_id
+                - document_field_children
               ascending: true
               viewType: details
               limit: 8
