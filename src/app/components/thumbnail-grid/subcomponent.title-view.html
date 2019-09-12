@@ -7,7 +7,7 @@
 </div>
 <div (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()"
     [class.selected]="thumbnailGrid.isSelected(item)">
-    <canvas  *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
-        (click)="thumbnailGrid.displayMediaTab(item)">
+    <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view" [class.with-border]="options.border != ''" height="100"
+        width="100" (click)="thumbnailGrid.displayMediaTab(item)">
     </canvas>
 </div>

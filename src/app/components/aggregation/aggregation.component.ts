@@ -422,13 +422,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             new WidgetFieldOption('groupField', 'Group Field', false),
             new WidgetFieldOption('xField', 'X Field', true),
             new WidgetFieldOption('yField', 'Y Field', true, this.optionsTypeIsXY.bind(this)),
-            new WidgetSelectOption('aggregation', 'Aggregation', AggregationType.COUNT, OptionChoices.Aggregation,
+            new WidgetSelectOption('aggregation', 'Aggregation', false, AggregationType.COUNT, OptionChoices.Aggregation,
                 this.optionsTypeIsNotXY.bind(this)),
-            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('timeFill', 'Date Fill', false, OptionChoices.NoFalseYesTrue, this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('granularity', 'Date Granularity', TimeInterval.YEAR, OptionChoices.DateGranularity,
+            new WidgetSelectOption('countByAggregation', 'Count Aggregations', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('timeFill', 'Date Fill', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsXFieldIsDate.bind(this)),
-            new WidgetSelectOption('dualView', 'Dual View', '', [{
+            new WidgetSelectOption('granularity', 'Date Granularity', false, TimeInterval.YEAR, OptionChoices.DateGranularity,
+                this.optionsXFieldIsDate.bind(this)),
+            new WidgetSelectOption('dualView', 'Dual View', false, '', [{
                 prettyName: 'Always Off',
                 variable: ''
             }, {
@@ -438,16 +439,16 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Only On Filter',
                 variable: 'filter'
             }], this.optionsTypeIsDualViewCompatible.bind(this)),
-            new WidgetSelectOption('notFilterable', 'Filterable', false, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('requireAll', 'Filter Operator', false, OptionChoices.OrFalseAndTrue),
-            new WidgetSelectOption('ignoreSelf', 'Filter Self', true, OptionChoices.YesFalseNoTrue),
-            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, OptionChoices.ShowFalseHideTrue,
+            new WidgetSelectOption('notFilterable', 'Filterable', false, false, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('requireAll', 'Filter Operator', false, false, OptionChoices.OrFalseAndTrue),
+            new WidgetSelectOption('ignoreSelf', 'Filter Self', false, true, OptionChoices.YesFalseNoTrue),
+            new WidgetSelectOption('hideGridLines', 'Grid Lines', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, OptionChoices.ShowFalseHideTrue,
+            new WidgetSelectOption('hideGridTicks', 'Grid Ticks', false, false, OptionChoices.ShowFalseHideTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', '', this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', 0.3, [{
+            new WidgetFreeTextOption('axisLabelX', 'Label of X-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetFreeTextOption('axisLabelY', 'Label of Y-Axis', false, '', this.optionsTypeUsesGrid.bind(this)),
+            new WidgetSelectOption('lineCurveTension', 'Line Curve Tension', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -475,27 +476,28 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: '0.9',
                 variable: 0.9
             }], this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, OptionChoices.NoFalseYesTrue,
+            new WidgetSelectOption('lineFillArea', 'Line Fill Area Under Curve', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeIsLine.bind(this)),
-            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, OptionChoices.NoFalseYesTrue,
+            new WidgetSelectOption('logScaleX', 'Log X-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, OptionChoices.NoFalseYesTrue,
+            new WidgetSelectOption('logScaleY', 'Log Y-Axis Scale', false, false, OptionChoices.NoFalseYesTrue,
                 this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, OptionChoices.NoFalseYesTrue),
-            new WidgetNumberOption('scaleMinX', 'Scale Min X', null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxX', 'Scale Max X', null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMinY', 'Scale Min Y', null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', null, this.optionsTypeUsesGrid.bind(this)),
-            new WidgetSelectOption('showHeat', 'Show Heated List', false, OptionChoices.NoFalseYesTrue, this.optionsTypeIsList.bind(this)),
-            new WidgetSelectOption('showLegend', 'Show Legend', true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('sortByAggregation', 'Sort By', false, [{
+            new WidgetSelectOption('savePrevious', 'Save Previously Seen', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetNumberOption('scaleMinX', 'Scale Min X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxX', 'Scale Max X', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMinY', 'Scale Min Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetNumberOption('scaleMaxY', 'Scale Max Y', false, null, this.optionsTypeUsesGrid.bind(this)),
+            new WidgetSelectOption('showHeat', 'Show Heated List', false, false, OptionChoices.NoFalseYesTrue,
+                this.optionsTypeIsList.bind(this)),
+            new WidgetSelectOption('showLegend', 'Show Legend', false, true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('sortByAggregation', 'Sort By', false, false, [{
                 prettyName: 'Label',
                 variable: false
             }, {
                 prettyName: 'Aggregation',
                 variable: true
             }]),
-            new WidgetSelectOption('type', 'Visualization Type', 'line', [{
+            new WidgetSelectOption('type', 'Visualization Type', true, 'line', [{
                 prettyName: 'Bar, Horizontal (Aggregations)',
                 variable: 'bar-h'
             }, {
@@ -526,7 +528,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 prettyName: 'Text List (Aggregations)',
                 variable: 'list'
             }]),
-            new WidgetSelectOption('yPercentage', 'Y-Axis Max Width', 0.3, [{
+            new WidgetSelectOption('yPercentage', 'Y-Axis Max Width', false, 0.3, [{
                 prettyName: '0.1',
                 variable: 0.1
             }, {
@@ -1290,7 +1292,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (doNotReplace) {
             this.toggleFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)], [], true);
+            this.exchangeFilters([this.createFilterConfigOnBounds(beginX, endX, beginY, endY)]);
         }
     }
 
@@ -1314,7 +1316,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (doNotReplace) {
             this.toggleFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         } else {
-            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)], [], true);
+            this.exchangeFilters([this.createFilterConfigOnDomain(beginX, endX)]);
         }
     }
 

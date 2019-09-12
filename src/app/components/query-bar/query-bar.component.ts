@@ -127,11 +127,11 @@ export class QueryBarComponent extends BaseNeonComponent {
         return [
             new WidgetFieldOption('filterField', 'Filter Field', true),
             new WidgetFieldOption('idField', 'ID Field', true),
-            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('extendedFilter', 'Extended Filter', false, false, OptionChoices.NoFalseYesTrue),
             // TODO THOR-950 Rename extensionFields because it is not an array of NeonFieldMetaData objects!
-            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', []),
-            new WidgetFreeTextOption('id', 'ID', ''),
-            new WidgetFreeTextOption('placeHolder', 'Place Holder', 'Query')
+            new WidgetNonPrimitiveOption('extensionFields', 'Extension Fields', false, []),
+            new WidgetFreeTextOption('id', 'ID', false, ''),
+            new WidgetFreeTextOption('placeHolder', 'Place Holder', false, 'Query')
         ];
     }
 
@@ -350,9 +350,11 @@ export class QueryBarComponent extends BaseNeonComponent {
         let execute = this.searchService.runSearch(this.dashboardState.getDatastoreType(), this.dashboardState.getDatastoreHost(), {
             query: extensionQuery
         });
+        let filterFieldValues = [];
         let queryClauses = [];
         for (const value of values) {
             queryClauses.push(query.where(extensionField.filterField, '=', value[this.options.idField.columnName]));
+            filterFieldValues.push(value[this.options.idField.columnName]);
         }
 
         extensionQuery.withFields(queryFields).where(query.or.apply(extensionQuery, queryClauses));
@@ -360,14 +362,17 @@ export class QueryBarComponent extends BaseNeonComponent {
             let responseValues = [];
             if (response && response.data && response.data.length) {
                 response.data.forEach((result) => {
-                    let resultValues = neonUtilities.deepFind(result, extensionField.idField);
-                    if (typeof resultValues !== 'undefined') {
-                        if (resultValues instanceof Array) {
-                            for (const value of resultValues) {
-                                responseValues.push(value);
+                    let idResultValues = neonUtilities.deepFind(result, extensionField.idField);
+                    let filterResultValues = neonUtilities.deepFind(result, extensionField.filterField);
+                    if (filterResultValues.find((val) => filterFieldValues.includes(val))) {
+                        if (typeof idResultValues !== 'undefined') {
+                            if (idResultValues instanceof Array) {
+                                for (const value of idResultValues) {
+                                    responseValues.push(value);
+                                }
+                            } else {
+                                responseValues.push(idResultValues);
                             }
-                        } else {
-                            responseValues.push(resultValues);
                         }
                     }
                 });
