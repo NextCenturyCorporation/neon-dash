@@ -27,13 +27,13 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection } from '../../util/filter.util';
-import { FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { FilterCollection, SimpleFilterDesign } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     OptionChoices,
     WidgetFieldOption,
@@ -133,15 +133,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.visualizationQueryPaginates = true;
     }
 
-    private createFilterConfigOnAnnotationText(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.documentTextField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnAnnotationText(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.documentTextField.columnName, '=', value);
     }
 
     /**
@@ -683,10 +677,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 parts: [],
                 validAnnotations: null
             };
-            dataItem.annotationStartIndex = neonUtilities.deepFind(result, options.startCharacterField.columnName);
-            dataItem.annotationEndIndex = neonUtilities.deepFind(result, options.endCharacterField.columnName);
-            dataItem.annotationTextList = neonUtilities.deepFind(result, options.textField.columnName);
-            dataItem.annotationTypeList = neonUtilities.deepFind(result, options.typeField.columnName);
+            dataItem.annotationStartIndex = CoreUtil.deepFind(result, options.startCharacterField.columnName);
+            dataItem.annotationEndIndex = CoreUtil.deepFind(result, options.endCharacterField.columnName);
+            dataItem.annotationTextList = CoreUtil.deepFind(result, options.textField.columnName);
+            dataItem.annotationTypeList = CoreUtil.deepFind(result, options.typeField.columnName);
 
             dataItem.documents = result[this.displayField];
             if (dataItem.documents) {
@@ -720,7 +714,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     hasUrl(text: string) {
-        let textObject = neonUtilities.hasUrl(text);
+        let textObject = CoreUtil.hasUrl(text);
         this.url = textObject.url;
         this.text = textObject.splitText;
         return textObject.test;

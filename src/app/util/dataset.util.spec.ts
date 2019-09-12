@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { DatasetUtil } from './dataset.util';
+import { DATABASES, DATASET, DATASTORE, FIELD_MAP, TABLES } from '../../testUtils/mock-dataset';
 
 describe('Dataset Util Tests', () => {
     it('deconstructTableOrFieldKeySafely should work as expected', () => {
@@ -136,6 +137,24 @@ describe('Dataset Util Tests', () => {
             table: 'c',
             field: 'd.e.f'
         });
+    });
+
+    it('retrieveMetaDataFromFieldKey does return expected list', () => {
+        expect(DatasetUtil.retrieveMetaDataFromFieldKey({
+            datastore: DATASTORE.name,
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.ID.columnName
+        }, DATASET)).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
+    });
+
+    it('retrieveMetaDataFromFieldKey does work with empty datastore', () => {
+        expect(DatasetUtil.retrieveMetaDataFromFieldKey({
+            datastore: '',
+            database: DATABASES.testDatabase2.name,
+            table: TABLES.testTable2.name,
+            field: FIELD_MAP.ID.columnName
+        }, DATASET)).toEqual([DATASTORE, DATABASES.testDatabase2, TABLES.testTable2, FIELD_MAP.ID]);
     });
 
     it('translateFieldKeyToFieldName does return expected string', () => {

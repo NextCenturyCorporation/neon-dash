@@ -29,7 +29,7 @@ import { Observable, from, Subject } from 'rxjs';
 import { map, shareReplay, mergeMap } from 'rxjs/operators';
 import { ConfigUtil } from '../util/config.util';
 import { FilterConfig } from '../models/filter';
-import { FilterUtil } from '../util/filter.util';
+import { AbstractFilter, FilterUtil } from '../util/filter.util';
 import { InjectableFilterService } from './injectable.filter.service';
 
 @Injectable({
@@ -112,9 +112,7 @@ export class DashboardService {
         this.setActiveDatastore(this.config.datastores[firstName]);
 
         // Load filters
-        let filters = this._translateFilters(dashboard.filters);
-
-        this.filterService.setFiltersFromConfig(filters || [], this.state.asDataset());
+        this.filterService.setFilters(this._translateFilters(dashboard.filters) || []);
         this.stateSubject.next(this.state);
     }
 
@@ -254,15 +252,16 @@ export class DashboardService {
      * Returns the filters as string for use in URL
      */
     public getFiltersToSaveInURL(): string {
-        let filters: FilterConfig[] = this.filterService.getFilters();
-        return ConfigUtil.translate(JSON.stringify(FilterUtil.toPlainFilterJSON(filters)), ConfigUtil.encodeFiltersMap);
+        let filters: AbstractFilter[] = this.filterService.getRawFilters();
+        return ConfigUtil.translate(JSON.stringify(filters.map((filter) => filter.toDataList())), ConfigUtil.encodeFiltersMap);
     }
 
-    private _translateFilters(filters: FilterConfig[] | string): FilterConfig[] {
-        if (typeof filters === 'string') {
-            const stringFilters = ConfigUtil.translate(filters, ConfigUtil.decodeFiltersMap);
-            return (JSON.parse(stringFilters) as any[]).map((stringFilter) => FilterUtil.fromPlainFilterJSON(stringFilter));
+    private _translateFilters(filterConfigs: FilterConfig[] | string): AbstractFilter[] {
+        if (typeof filterConfigs === 'string') {
+            const stringFilters = ConfigUtil.translate(filterConfigs, ConfigUtil.decodeFiltersMap);
+            return (JSON.parse(stringFilters) as any[]).map((dataList) => FilterUtil.createFilterFromDataList(dataList,
+                this.state.asDataset()));
         }
-        return filters;
+        return filterConfigs.map((filterConfig) => FilterUtil.createFilterFromConfig(filterConfig, this.state.asDataset()));
     }
 }
