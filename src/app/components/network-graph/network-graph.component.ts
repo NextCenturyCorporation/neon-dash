@@ -1039,7 +1039,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     // Create edges between source and destinations specified by destinationField
     private getEdgesFromOneEntry(names: string[], colorField: string, originalColorMapVal: string, originalColor: string, source: string,
-        destinations: string[],showToolTip?: boolean) {
+        destinations: string[], showToolTip?: boolean) {
         let ret: Edge[] = [];
         let colorMapVal = originalColorMapVal;
         let color = originalColor;
@@ -1088,10 +1088,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             }
             if (source && destinations[index]) {
-                if(showToolTip){
+                if (showToolTip) {
                     ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
                         colorObject, colorMapVal, edgeTextObject, edgeChosenObject, this.edgeLabelFormat(names[index])));
-                }else{
+                } else {
                     ret.push(new Edge(source, destinations[index], this.edgeLabelFormat(names[index]), { to: this.options.isDirected }, 1,
                         colorObject, colorMapVal, edgeTextObject, edgeChosenObject));
                 }
@@ -1401,26 +1401,24 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     onDrag(properties: { nodes: string[] }) {
-        for (let i = 0; i < properties.nodes.length; i++) {
-            let nodeId = properties.nodes[i];
-            let x = this.graph.getPositions([nodeId])[nodeId].x;
-            let y = this.graph.getPositions([nodeId])[nodeId].y;
+        for (let nodeId of properties.nodes) {
+            let xPosition = this.graph.getPositions([nodeId])[nodeId].x;
+            let yPosition = this.graph.getPositions([nodeId])[nodeId].y;
 
-            let indexToUpdate = this.updatedNodePositions.findIndex(node => node.id === nodeId);
-            if(indexToUpdate > -1 ){
-                this.updatedNodePositions[indexToUpdate].x = x;
-                this.updatedNodePositions[indexToUpdate].y = y;
-            }
-            else{
-                this.updatedNodePositions.push({id: nodeId, x: x, y: y});
+            let indexToUpdate = this.updatedNodePositions.findIndex((node) => node.id === nodeId);
+            if (indexToUpdate > -1) {
+                this.updatedNodePositions[indexToUpdate].x = xPosition;
+                this.updatedNodePositions[indexToUpdate].y = yPosition;
+            } else {
+                this.updatedNodePositions.push({ id: nodeId, x: xPosition, y: yPosition });
             }
         }
     }
 
     afterDrawing() {
         this.graph.moveTo({
-            scale: .03
-        })
+            scale: 0.03
+        });
     }
 
     /*
