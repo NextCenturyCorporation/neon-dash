@@ -116,7 +116,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
         });
 
-        this.toggleFilters(filters);
+        if (this.options.toggleFiltered) {
+            this.toggleFilters(filters);
+        } else {
+            this.exchangeFilters(filters);
+        }
     }
 
     private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): FilterConfig {
@@ -153,8 +157,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             new WidgetFieldOption('flagSubLabel1', 'Flag Sub-Label Field 1', false),
             new WidgetFieldOption('flagSubLabel2', 'Flag Sub-Label Field 2', false),
             new WidgetFieldOption('flagSubLabel3', 'Flag Sub-Label Field 3', false),
-            new WidgetFieldOption('idField', 'ID Field', false),
-            new WidgetFieldOption('linkField', 'Link Field', true),
+            new WidgetFieldOption('idField', 'ID Field', true),
+            new WidgetFieldOption('linkField', 'Link Field', false),
             new WidgetFieldOption('nameField', 'Name Field', false),
             new WidgetFieldOption('objectIdField', 'Object ID Field', false),
             new WidgetFieldOption('objectNameField', 'Actual Name Field', false),
@@ -204,7 +208,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 variable: ViewType.CARD
             }]),
             new WidgetNumberOption('canvasSize', 'Canvas Size', false, this.CANVAS_SIZE),
-            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 })
+            new WidgetNonPrimitiveOption('truncateLabel', 'Truncate Label', false, { value: false, length: 0 }),
+            new WidgetSelectOption('toggleFiltered', 'Toggle Filtered Items', false, false, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('applyPreviousFilter', 'Apply the previous filter on remove filter action',
+                false, false, OptionChoices.NoFalseYesTrue)
         ];
     }
 
@@ -239,7 +246,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     finalizeVisualizationQuery(options: any, query: QueryPayload, sharedFilters: FilterClause[]): QueryPayload {
         let filters = sharedFilters;
 
-        if (this.options.sortField.columnName) {
+        if (this.options.linkField && this.options.linkField.columnName && this.options.sortField.columnName) {
             filters = [
                 ...filters,
                 this.searchService.buildFilterClause(options.linkField.columnName, '!=', null),
@@ -370,7 +377,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     validateVisualizationQuery(options: any): boolean {
-        return !!(options.database.name && options.table.name && options.linkField.columnName);
+        return !!(options.database.name && options.table.name && options.idField.columnName);
     }
 
     /**
@@ -398,7 +405,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             };
 
             let links = [];
-            if (options.linkField.columnName) {
+            if (options.linkField && options.linkField.columnName) {
                 links = this.getArrayValues(neonUtilities.deepFind(result, options.linkField.columnName) || '');
             }
 
@@ -458,11 +465,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 });
             });
 
-            for (let link of links) {
-                this.retreiveMedia(item, link);
+            if (links.length) {
+                for (let link of links) {
+                    this.retreiveMedia(item, link);
+                }
+            } else {
+                this.gridArray.push(item);
             }
 
-            this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length !== 1);
+            this.showingZeroOrMultipleElementsPerResult = this.showingZeroOrMultipleElementsPerResult || (links.length > 1);
         });
 
         return this.gridArray.length;
@@ -566,7 +577,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     private retreiveMedia(item, link) {
         let gridIndex = this.gridArray.length > 0 ? this.gridArray.length : 0;
         let grid = item;
-        grid[this.constructedLinkField] = this.options.linkPrefix + this.appendType(link, grid[this.options.typeField.columnName]);
+        if (!link || link === 'n/a') {
+            grid[this.constructedLinkField] = '';
+        } else {
+            grid[this.constructedLinkField] = this.options.linkPrefix + this.appendType(link, grid[this.options.typeField.columnName]);
+        }
+
         this.gridArray[gridIndex] = grid;
     }
 
@@ -583,6 +599,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     private defaultDocumentThumbnail(thumbnail) {
         let img: HTMLImageElement = new Image();
         img.src = './assets/icons/dashboard/document.svg';
+
+        img.onload = () => {
+            if (this.options.viewType === ViewType.CARD) {
+                thumbnail.drawImage(img, this.options.canvasSize * 0.41, this.options.canvasSize * 0.25,
+                    img.width + 2, img.height + 6);
+            } else {
+                thumbnail.drawImage(img, this.options.canvasSize * 0.37, this.options.canvasSize * 0.35,
+                    img.width - 4, img.height);
+            }
+        };
+
+        return thumbnail;
+    }
+
+    private invalidLinkThumbnail(thumbnail) {
+        let img: HTMLImageElement = new Image();
+        img.src = './assets/icons/dashboard/invalid_link.svg';
 
         img.onload = () => {
             if (this.options.viewType === ViewType.CARD) {
@@ -621,7 +654,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 thumbnail.fillStyle = '#ffffff';
                 thumbnail.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
 
-                if (link && link !== 'n/a') {
+                if (link) {
                     switch (type) {
                         case this.mediaTypes.image: {
                             let image: HTMLImageElement = new Image();
@@ -710,7 +743,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         }
                     }
                 } else {
-                    thumbnail = this.defaultDocumentThumbnail(thumbnail);
+                    thumbnail = this.invalidLinkThumbnail(thumbnail);
                 }
 
                 // TODO Move this to a separate function and unit test all behavior.
@@ -789,7 +822,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getMediaType(item) {
         let link = item[this.constructedLinkField];
-        let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
+        let fileType = link ? link.substring(link.lastIndexOf('.') + 1).toLowerCase() : '';
 
         return this.options.typeMap[fileType] ? this.options.typeMap[fileType] : item[this.options.typeField.columnName];
     }
@@ -813,7 +846,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     displayMediaTab(item) {
-        if (item[this.constructedLinkField] && item[this.constructedLinkField] !== 'n/a') {
+        if (item[this.constructedLinkField]) {
             if (this.options.openOnMouseClick) {
                 window.open(item[this.constructedLinkField]);
             }

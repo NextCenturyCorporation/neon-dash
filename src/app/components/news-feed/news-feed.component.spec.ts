@@ -68,6 +68,7 @@ describe('Component: NewsFeed', () => {
     });
 
     it('createFilter does call filterService.toggleFilters as expected', () => {
+        component.options.toggleFiltered = true;
         let spy = spyOn((component as any), 'toggleFilters');
 
         component.createFilter('testText');
