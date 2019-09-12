@@ -107,7 +107,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             dialog
         );
 
-        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+        // Console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
         this.redrawOnResize = true;
     }
 
