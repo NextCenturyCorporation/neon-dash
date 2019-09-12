@@ -65,7 +65,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild(MatAccordion) accordion: MatAccordion;
 
     public newsFeedData: any[] = null;
-    public selectedItem: object = undefined;
     public noDataId: string = undefined;
     public queryItems: any[] = [];
     public selectedTabIndex: number = 0;
@@ -73,6 +72,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public mediaTypes: any = MediaTypes;
     public url: string[] = [];
     public text: string[] = [];
+
+    private _expandedIdList: any[] = [];
 
     constructor(
         dashboardService: DashboardService,
@@ -148,7 +149,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             new WidgetFreeTextOption('linkPrefix', 'Link Prefix', false, ''),
             new WidgetFreeTextOption('contentLabel', 'Content Label', false, '', true),
             new WidgetFreeTextOption('secondaryContentLabel', 'Secondary Content Label', false, '', true),
-            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, false, OptionChoices.NoFalseYesTrue, true),
+            new WidgetSelectOption('multiOpen', 'Allow for Multiple Open', false, true, OptionChoices.NoFalseYesTrue, true),
             new WidgetSelectOption('ignoreSelf', 'Filter Self', false, false, OptionChoices.YesFalseNoTrue,
                 this.optionsFilterable.bind(this)),
             new WidgetFreeTextOption('id', 'ID', false, null),
@@ -261,6 +262,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     transformVisualizationQueryResults(options: any, results: any[], filters: FilterCollection): number {
+        this._expandedIdList = [];
+
         this.newsFeedData = results.map((result) => {
             let item = {
                 _filtered: !!(this.options.filterField.columnName && filters.isFiltered(this.createFilterConfigOnText(
@@ -367,15 +370,15 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Selects the given item item.
-     *
-     * @arg {object} item
-     * @private
+     * Expands or collapses the item with the given ID.
      */
-    selectItem(item) {
-        this.selectedItem = item;
-        if (this.options.idField.columnName) {
-            this.publishSelectId(item.field[this.options.idField.columnName]);
+    expandOrCollapse(id: any) {
+        const index = this._expandedIdList.indexOf(id);
+        if (index < 0) {
+            this._expandedIdList.push(id);
+            this.publishSelectId(id);
+        } else {
+            this._expandedIdList.splice(index, 1);
         }
     }
 
@@ -408,8 +411,11 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         return item._filtered;
     }
 
-    isExpanded(item) {
-        return this.selectedItem === item;
+    /**
+     * Returns whether the item with the given ID is expanded.
+     */
+    isExpanded(id: any) {
+        return (this._expandedIdList.indexOf(id) >= 0);
     }
 
     /**
