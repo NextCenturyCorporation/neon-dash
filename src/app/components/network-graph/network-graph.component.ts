@@ -350,7 +350,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 this.optionsDoesHaveColorField.bind(this)),
             new WidgetSelectOption('legendFiltering', 'Legend Filtering', false, true, OptionChoices.NoFalseYesTrue),
             new WidgetSelectOption('physics', 'Physics', false, true, OptionChoices.NoFalseYesTrue),
-            new WidgetSelectOption('edgePhysics', 'Edge Physics', true, OptionChoices.NoFalseYesTrue),
+            new WidgetSelectOption('edgePhysics', 'Edge Physics', false, false, OptionChoices.NoFalseYesTrue),
             new WidgetColorOption('edgeColor', 'Edge Color', false, NetworkGraphComponent.DEFAULT_EDGE_COLOR,
                 this.optionsNotReified.bind(this)),
             new WidgetNumberOption('edgeWidth', 'Edge Width', false, 1),
@@ -510,15 +510,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             },
             edges: {
                 smooth: {
-                    enabled: true,
-                    type: 'continuous',
-                    roundness: 0
-                }
-
-/*                smooth: {
                     type: 'dynamic'
                 },
-                physics: this.options.edgePhysics*/
+                physics: this.options.edgePhysics ? this.options.edgePhysics : this.options.physics
             },
             interaction: {
                 hideEdgesOnDrag: true
