@@ -1,4 +1,4 @@
-<div class="group remove-all">
+<div class="buttons">
     <button mat-icon-button mat-raised-button (click)="removeAll()" color="warn">
         <mat-icon (click)="removeAll()">clear_all</mat-icon>
     </button>
@@ -11,7 +11,7 @@
                 <span [title]="filter.getLabel()">
                     <span>{{filter.getLabelForOperator()}} {{filter.getLabelForValue(true)}}</span>
                 </span>
-                <mat-icon matChipRemove (click)="remove(filter)">cancel</mat-icon>
+                <mat-icon matChipRemove class="neon-icon-small" (click)="remove(filter)">cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>
         <span class="group-name" *ngIf="group.filters.length > 5">...and {{group.filters.length - 5}} more</span>
