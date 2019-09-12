@@ -37,11 +37,19 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
+    BoundsFilter,
+    BoundsFilterDesign,
     CompoundFilter,
+    DomainFilter,
+    DomainFilterDesign,
     FilterCollection,
-    SimpleFilter
+    ListFilterDesign,
+    SimpleFilter,
+    SimpleFilterDesign
 } from '../../util/filter.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { DatasetUtil } from '../../util/dataset.util';
+import { DateUtil } from '../../util/date.util';
+import { BoundsValues, DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
@@ -74,9 +82,8 @@ import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import { MatDialog } from '@angular/material';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 
 @Component({
     selector: 'app-aggregation',
@@ -325,89 +332,34 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         return query;
     }
 
-    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '>=',
-                value: beginX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '<=',
-                value: endX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.yField.columnName,
-                operator: '>=',
-                value: beginY
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.yField.columnName,
-                operator: '<=',
-                value: endY
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnBounds(beginX?: any, endX?: any, beginY?: any, endY?: any): BoundsFilterDesign {
+        return new BoundsFilterDesign(
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.yField.columnName}`,
+            beginX, beginY, endX, endY
+        );
     }
 
-    private createFilterConfigOnDomain(beginX?: any, endX?: any): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '>=',
-                value: beginX
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.xField.columnName,
-                operator: '<=',
-                value: endX
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnDomain(beginX?: any, endX?: any): DomainFilterDesign {
+        return new DomainFilterDesign(
+            `${this.options.datastore.name}.${this.options.database.name}.${this.options.table.name}.${this.options.xField.columnName}`,
+            beginX, endX
+        );
     }
 
-    private createFilterConfigOnLegend(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.groupField.columnName,
-            operator: '!=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.groupField.columnName, '!=', value);
     }
 
-    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: values.map((value) => this.createFilterConfigOnSingleItem(value))
-        } as CompoundFilterConfig;
+    private createFilterConfigOnMultipleItems(values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(CompoundFilterType.AND, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + this.options.xField.columnName, '=', values);
     }
 
-    private createFilterConfigOnSingleItem(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.xField.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnSingleItem(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.xField.columnName, '=', value);
     }
 
     /**
@@ -800,12 +752,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         let createTransformationFromItem = (item: any) => {
-            let group = options.groupField.columnName ? neonUtilities.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
+            let group = options.groupField.columnName ? CoreUtil.deepFind(item, options.groupField.columnName) : this.DEFAULT_GROUP;
             return {
                 color: findGroupColor(group),
                 group: group,
-                x: neonUtilities.deepFind(item, options.xField.columnName),
-                y: isXY ? neonUtilities.deepFind(item, options.yField.columnName) :
+                x: CoreUtil.deepFind(item, options.xField.columnName),
+                y: isXY ? CoreUtil.deepFind(item, options.yField.columnName) :
                     (Math.round(item[this.searchService.getAggregationName()] * 10000) / 10000)
             };
         };
@@ -850,7 +802,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 options.granularity === TimeInterval.YEAR ? 1 : 0);
 
             // Create the X list now so it is properly sorted.  Items will be removed as needed.
-            xList = _.range(xDomainLength).map((index) => moment(this.dateBucketizer.getDateForBucket(index)).toISOString());
+            xList = _.range(xDomainLength).map((index) => DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)));
 
             queryResults.forEach((item) => {
                 let transformation = createTransformationFromItem(item);
@@ -862,7 +814,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 }
                 let index = this.dateBucketizer.getBucketIndex(new Date(item[this.searchService.getAggregationName('date')]));
                 // Fix the X so it is a readable date string.
-                transformation.x = moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
+                transformation.x = DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index));
                 transformations[index].push(transformation);
             });
 
@@ -877,7 +829,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         transformationArray.length ? transformationArray : [{
                             color: findGroupColor(group),
                             group: group,
-                            x: moment(this.dateBucketizer.getDateForBucket(index)).toISOString(),
+                            x: DateUtil.fromDateToString(this.dateBucketizer.getDateForBucket(index)),
                             y: 0
                         }]);
                 }
@@ -1090,30 +1042,36 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (boundsFilters.length || domainFilters.length) {
             // TODO THOR-1100 How should we handle multiple bounds and/or domain filters?  Should we draw multiple selected areas?
             for (const boundsFilter of boundsFilters) {
-                let bounds = (boundsFilter as CompoundFilter).asBoundsFilter();
-                if (bounds.lowerA.field.columnName === this.options.xField.columnName) {
+                const bounds: BoundsValues = (boundsFilter as BoundsFilter).retrieveValues();
+                const fieldKey1 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field1);
+                const fieldKey2 = DatasetUtil.deconstructTableOrFieldKeySafely(bounds.field2);
+                if (fieldKey1.field === this.options.xField.columnName && fieldKey2.field === this.options.yField.columnName) {
                     this.subcomponentMain.select([{
-                        beginX: bounds.lowerA.value,
-                        endX: bounds.upperA.value,
-                        beginY: bounds.lowerB.value,
-                        endY: bounds.upperB.value
+                        beginX: bounds.begin1,
+                        endX: bounds.end1,
+                        beginY: bounds.begin2,
+                        endY: bounds.end2
                     }]);
-                } else {
+                }
+                if (fieldKey1.field === this.options.yField.columnName && fieldKey2.field === this.options.xField.columnName) {
                     this.subcomponentMain.select([{
-                        beginX: bounds.lowerB.value,
-                        endX: bounds.upperB.value,
-                        beginY: bounds.lowerA.value,
-                        endY: bounds.upperA.value
+                        beginX: bounds.begin2,
+                        endX: bounds.end2,
+                        beginY: bounds.begin1,
+                        endY: bounds.end1
                     }]);
                 }
             }
 
             for (const domainFilter of domainFilters) {
-                let domain = (domainFilter as CompoundFilter).asDomainFilter();
-                this.subcomponentMain.select([{
-                    beginX: domain.lower.value,
-                    endX: domain.upper.value
-                }]);
+                let domain: DomainValues = (domainFilter as DomainFilter).retrieveValues();
+                const fieldKey = DatasetUtil.deconstructTableOrFieldKeySafely(domain.field);
+                if (fieldKey.field === this.options.xField.columnName) {
+                    this.subcomponentMain.select([{
+                        beginX: domain.begin,
+                        endX: domain.end
+                    }]);
+                }
             }
 
             // TODO THOR-1057 Update the selectedArea

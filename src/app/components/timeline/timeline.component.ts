@@ -33,19 +33,20 @@ import { InjectableColorThemeService } from '../../services/injectable.color-the
 import { DashboardService } from '../../services/dashboard.service';
 import {
     AbstractFilter,
-    CompoundFilter,
-    FilterCollection
+    DomainFilter,
+    DomainFilterDesign,
+    FilterCollection,
+    SimpleFilterDesign
 } from '../../util/filter.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
+import { DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     AggregationType,
-    CompoundFilterType,
     OptionChoices,
     TimeInterval,
     WidgetFieldOption,
@@ -111,36 +112,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.redrawOnResize = true;
     }
 
-    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
-    private createFilterConfigOnTimeline(begin?: Date, end?: Date): FilterConfig {
-        return {
-            type: CompoundFilterType.AND,
-            filters: [{
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.dateField.columnName,
-                operator: '>=',
-                value: begin
-            }, {
-                datastore: this.options.datastore.name,
-                database: this.options.database.name,
-                table: this.options.table.name,
-                field: this.options.dateField.columnName,
-                operator: '<=',
-                value: end
-            }] as SimpleFilterConfig[]
-        } as CompoundFilterConfig;
+    private createFilterConfigOnTimeline(begin?: Date, end?: Date): DomainFilterDesign {
+        return new DomainFilterDesign(this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name +
+            '.' + this.options.dateField.columnName, begin, end);
     }
 
     /**
@@ -196,7 +175,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.selected = [beginDate, endDate];
 
         if (this.options.filterField.columnName) {
-            let filterValues: any[] = neonUtilities.flatten((selectedData || []).map((selectedItem) => selectedItem.filters)).filter(
+            let filterValues: any[] = CoreUtil.flatten((selectedData || []).map((selectedItem) => selectedItem.filters)).filter(
                 (value, index, array) => array.indexOf(value) === index
             );
 
@@ -235,8 +214,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         if (timelineFilters.length) {
             // TODO THOR-1105 How should we handle multiple filters?  Should we draw multiple brushes?
             for (const timelineFilter of timelineFilters) {
-                let domain = (timelineFilter as CompoundFilter).asDomainFilter();
-                this.selected = [domain.lower.value, domain.upper.value];
+                let domain: DomainValues = (timelineFilter as DomainFilter).retrieveValues();
+                this.selected = [domain.begin as Date, domain.end as Date];
                 // TODO THOR-1106 Update the brush element in the timelineChart.
             }
         } else {

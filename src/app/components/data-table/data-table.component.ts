@@ -28,13 +28,13 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { DatasetUtil } from '../../util/dataset.util';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -125,23 +125,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.refreshVisualization();
     }
 
-    private createFilterConfigOnArrayValue(filters: FilterConfig[]): FilterConfig {
+    private createFilterConfigOnArrayValue(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
         let compoundFilterType = this.options.arrayFilterOperator === 'and' ? CompoundFilterType.AND : CompoundFilterType.OR;
-        return {
-            type: compoundFilterType,
-            filters: filters
-        } as CompoundFilterConfig;
+        return new ListFilterDesign(compoundFilterType, this.options.datastore.name + '.' + this.options.database.name + '.' +
+            this.options.table.name + '.' + field.columnName, '=', values);
     }
 
-    private createFilterConfigOnOneValue(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnOneValue(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name, field.columnName,
+            '=', value);
     }
 
     /**
@@ -198,7 +190,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 // Match a single EQUALS filter on the specific filter field.
                 designs.push(this.createFilterConfigOnOneValue(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specific filter field.
-                designs.push(this.createFilterConfigOnArrayValue([this.createFilterConfigOnOneValue(filterField)]));
+                designs.push(this.createFilterConfigOnArrayValue(filterField));
             }
             return designs;
         }, [] as FilterConfig[]);
@@ -396,7 +388,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             item._filtered = !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
                 if (filterField.columnName) {
                     let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, item[filterField.columnName]);
-                    return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnArrayValue([filterConfig]));
+                    let listFilterConfig: FilterConfig = this.createFilterConfigOnArrayValue(filterField, [item[filterField.columnName]]);
+                    return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                 }
                 return false;
             });
@@ -510,7 +503,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 _filtered: !this.options.filterFields.length ? false : this.options.filterFields.every((filterField: any) => {
                     if (filterField.columnName) {
                         let filterConfig: FilterConfig = this.createFilterConfigOnOneValue(filterField, result[filterField.columnName]);
-                        return filters.isFiltered(filterConfig) || filters.isFiltered(this.createFilterConfigOnArrayValue([filterConfig]));
+                        let listFilterConfig: FilterConfig = this.createFilterConfigOnArrayValue(filterField,
+                            [result[filterField.columnName]]);
+                        return filters.isFiltered(filterConfig) || filters.isFiltered(listFilterConfig);
                     }
                     return false;
                 })
@@ -518,7 +513,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // TODO THOR-1335 Wrap all of the field properties in the data item to avoid any overlap with the _filtered property.
             for (let field of options.fields) {
                 if (field.type || field.columnName === '_id') {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(result, field.columnName), field.type);
+                    row[field.columnName] = this.toCellString(CoreUtil.deepFind(result, field.columnName), field.type);
                 }
             }
             return row;
@@ -647,17 +642,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                         rowValue = rowValue.substring(1, rowValue.length - 1).split(',');
                     }
 
-                    let filterConfigs: FilterConfig[] = (Array.isArray(rowValue) ? rowValue : [rowValue]).map((value) =>
-                        this.createFilterConfigOnOneValue(filterField, value));
+                    let filterConfig: FilterConfig = (Array.isArray(rowValue) ? this.createFilterConfigOnArrayValue(filterField,
+                        rowValue) : this.createFilterConfigOnOneValue(filterField, rowValue));
 
-                    let singleFilterConfig: FilterConfig = filterConfigs.length ? (filterConfigs.length === 1 ? filterConfigs[0] :
-                        this.createFilterConfigOnArrayValue(filterConfigs)) : null;
-
-                    if (singleFilterConfig) {
+                    if (filterConfig) {
                         if (this.options.singleFilter) {
-                            this.exchangeFilters([singleFilterConfig]);
+                            this.exchangeFilters([filterConfig]);
                         } else {
-                            this.toggleFilters([singleFilterConfig]);
+                            this.toggleFilters([filterConfig]);
                         }
                     }
                 }

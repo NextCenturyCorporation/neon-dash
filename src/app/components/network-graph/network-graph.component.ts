@@ -28,13 +28,13 @@ import {
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { CompoundFilterConfig, FilterConfig, SimpleFilterConfig } from '../../models/filter';
-import { FilterCollection } from '../../util/filter.util';
+import { FilterConfig } from '../../models/filter';
+import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { NeonFieldMetaData } from '../../models/dataset';
-import { neonUtilities } from '../../models/neon-namespaces';
+import { CoreUtil } from '../../util/core.util';
 import {
     CompoundFilterType,
     OptionChoices,
@@ -276,33 +276,20 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.displayGraph = !this.options.hideUnfiltered;
     }
 
-    private createFilterConfigOnLegend(value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: this.options.edgeColorField.columnName,
-            operator: '!=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnLegend(value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            this.options.edgeColorField.columnName, '!=', value);
     }
 
-    private createFilterConfigOnList(filterConfigs: FilterConfig[]): FilterConfig {
-        return {
-            type: this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
-            filters: filterConfigs
-        } as CompoundFilterConfig;
+    private createFilterConfigOnList(field: NeonFieldMetaData, values: any[] = [undefined]): ListFilterDesign {
+        return new ListFilterDesign(this.options.multiFilterOperator === 'or' ? CompoundFilterType.OR : CompoundFilterType.AND,
+            this.options.datastore.name + '.' + this.options.database.name + '.' + this.options.table.name + '.' + field.columnName, '=',
+            values);
     }
 
-    private createFilterConfigOnNodeDataItem(field: NeonFieldMetaData, value?: any): FilterConfig {
-        return {
-            datastore: this.options.datastore.name,
-            database: this.options.database.name,
-            table: this.options.table.name,
-            field: field.columnName,
-            operator: '=',
-            value: value
-        } as SimpleFilterConfig;
+    private createFilterConfigOnNodeDataItem(field: NeonFieldMetaData, value?: any): SimpleFilterDesign {
+        return new SimpleFilterDesign(this.options.datastore.name, this.options.database.name, this.options.table.name,
+            field.columnName, '=', value);
     }
 
     /**
@@ -409,7 +396,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 // Match a single EQUALS filter on the specified filter field.
                 designs.push(this.createFilterConfigOnNodeDataItem(filterField));
                 // Match a compound filter with one or more EQUALS filters on the specified filter field.
-                designs.push(this.createFilterConfigOnList([this.createFilterConfigOnNodeDataItem(filterField)]));
+                designs.push(this.createFilterConfigOnList(filterField));
             }
             return designs;
         }, this.options.edgeColorField.columnName ? [this.createFilterConfigOnLegend()] : [] as FilterConfig[]);
@@ -740,7 +727,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 for (let field of options.fields) {
                     if ([options.nodeColorField.columnName, options.targetColorField.columnName].includes(field.columnName) &&
                         options.cleanLegendLabels && options.displayLegend) {
-                        let types = neonUtilities.deepFind(result, field.columnName);
+                        let types = CoreUtil.deepFind(result, field.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedNodeLegendLabels.push(this.labelAbbreviation(value));
@@ -751,7 +738,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                     if (field.columnName === options.edgeColorField.columnName && options.cleanLegendLabels &&
                         options.displayLegend) {
-                        let types = neonUtilities.deepFind(result, options.edgeColorField.columnName);
+                        let types = CoreUtil.deepFind(result, options.edgeColorField.columnName);
                         if (types instanceof Array) {
                             for (let value of types) {
                                 this.prettifiedEdgeLegendLabels.push(this.labelAbbreviation(value));
@@ -1371,13 +1358,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             let filters: FilterConfig[] = [];
             for (let filterField of selectedNode.filterFields) {
                 if (filterField.field && filterField.field.columnName) {
-                    let specificFilters: FilterConfig[] = (Array.isArray(filterField.data) ? filterField.data : [filterField.data])
-                        .map((item) => this.createFilterConfigOnNodeDataItem(filterField.field, item));
-
-                    if (specificFilters.length) {
-                        filters = filters.concat(specificFilters.length === 1 ? specificFilters[0] :
-                            this.createFilterConfigOnList(specificFilters));
-                    }
+                    let filterConfig: FilterConfig = (Array.isArray(filterField.data) ? this.createFilterConfigOnList(filterField.field,
+                        filterField.data) : this.createFilterConfigOnNodeDataItem(filterField.field, filterField.data));
+                    filters = filters.concat(filterConfig);
                 }
             }
 
