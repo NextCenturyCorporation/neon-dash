@@ -35,10 +35,11 @@ import {
     AbstractFilter,
     DomainFilter,
     DomainFilterDesign,
+    DomainValues,
     FilterCollection,
+    FilterConfig,
     SimpleFilterDesign
-} from '../../util/filter.util';
-import { DomainValues, FilterConfig } from '../../models/filter';
+} from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';

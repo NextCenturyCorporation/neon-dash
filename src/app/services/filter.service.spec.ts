@@ -13,9 +13,16 @@
  * limitations under the License.
  */
 
-import { CompoundFilter, CompoundFilterDesign, FilterUtil, SimpleFilter, SimpleFilterDesign } from '../util/filter.util';
+import {
+    CompoundFilter,
+    CompoundFilterDesign,
+    FilterConfig,
+    FilterDataSource,
+    FilterUtil,
+    SimpleFilter,
+    SimpleFilterDesign
+} from '../models/filters';
 import { CompoundFilterType } from '../models/widget-option';
-import { FilterDataSource, FilterConfig } from '../models/filter';
 import { Dataset } from '../models/dataset';
 import { FilterChangeListener, FilterService } from './filter.service';
 

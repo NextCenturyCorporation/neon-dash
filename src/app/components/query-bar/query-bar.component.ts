@@ -20,8 +20,7 @@ import { map, startWith } from 'rxjs/operators';
 import { AbstractSearchService, FilterClause, QueryPayload } from '../../services/abstract.search.service';
 import { InjectableColorThemeService } from '../../services/injectable.color-theme.service';
 import { DashboardService } from '../../services/dashboard.service';
-import { FilterCollection, ListFilterDesign, SimpleFilterDesign } from '../../util/filter.util';
-import { FilterConfig } from '../../models/filter';
+import { FilterCollection, FilterConfig, ListFilterDesign, SimpleFilterDesign } from '../../models/filters';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';

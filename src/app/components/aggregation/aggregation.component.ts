@@ -39,17 +39,19 @@ import {
     AbstractFilter,
     BoundsFilter,
     BoundsFilterDesign,
+    BoundsValues,
     CompoundFilter,
     DomainFilter,
     DomainFilterDesign,
+    DomainValues,
     FilterCollection,
+    FilterConfig,
     ListFilterDesign,
     SimpleFilter,
     SimpleFilterDesign
-} from '../../util/filter.util';
+} from '../../models/filters';
 import { DatasetUtil } from '../../models/dataset';
 import { DateUtil } from '../../util/date.util';
-import { BoundsValues, DomainValues, FilterConfig } from '../../models/filter';
 import { InjectableFilterService } from '../../services/injectable.filter.service';
 
 import {
