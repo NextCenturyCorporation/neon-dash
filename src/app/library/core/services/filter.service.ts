@@ -203,22 +203,9 @@ export class FilterService {
     }
 
     /**
-     * Returns the filter configs for the given data sources, or all filter configs if no data sources are given.
-     *
-     * @arg {FilterDataSource[]} [filterDataSourceList]
-     * @return {FilterConfig[]}
+     * Returns the filters for the given data sources, or all the filters if no data sources are given.
      */
-    public getFilters(filterDataSourceList?: FilterDataSource[]): FilterConfig[] {
-        return this.getRawFilters(filterDataSourceList).map((filter) => filter.toConfig());
-    }
-
-    /**
-     * Returns the raw filters for the given data sources, or all filters if no data sources are given.
-     *
-     * @arg {FilterDataSource[]} [filterDataSourceList]
-     * @return {AbstractFilter[]}
-     */
-    public getRawFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
+    public getFilters(filterDataSourceList?: FilterDataSource[]): AbstractFilter[] {
         if (filterDataSourceList) {
             return this.filterCollection.getFilters(filterDataSourceList);
         }
