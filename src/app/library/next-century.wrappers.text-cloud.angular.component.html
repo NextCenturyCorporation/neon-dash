@@ -1,0 +1,37 @@
+<next-century-text-cloud [ng-attr-id]="id + 'TextCloud'"
+    [attr.id]="id + 'TextCloud'"
+    [attr.aggregation-field]="'aggregations._' + aggregationType"
+    [attr.text-field]="'fields.' + findFieldName(textFieldKey)"
+>
+</next-century-text-cloud>
+
+<next-century-search [ng-attr-id]="id + 'TextCloudSearch'"
+    [attr.id]="id + 'TextCloudSearch'"
+    enable-igonre-self-filter
+    [attr.search-field-key]="textFieldKey"
+    search-limit=10000
+    [attr.sort-aggregation]="'_' + aggregationType"
+    sort-order="descending"
+    vis-draw-function="drawData"
+    [attr.vis-element-id]="id + 'TextCloud'"
+>
+    <next-century-aggregation
+        [attr.field-key]="textFieldKey"
+        [attr.name]="'_' + aggregationType"
+        [attr.type]="aggregationType"
+    ></next-century-aggregation>
+    <next-century-group
+        [attr.field-key]="textFieldKey"
+    ></next-century-group>
+</next-century-search>
+
+<next-century-filter [ng-attr-id]="id + 'TextCloudFilter'"
+    [attr.id]="id + 'TextCloudFilter'"
+    [attr.list-field-key]="textFieldKey"
+    list-operator="="
+    [attr.search-element-id]="id + 'TextCloudSearch'"
+    [attr.vis-element-id]="id + 'TextCloud'"
+    vis-filter-input-function="changeFilteredText"
+    vis-filter-output-event="filter"
+></next-century-filter>
+
