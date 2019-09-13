@@ -379,19 +379,24 @@ describe('CoreUtil', () => {
 
     it('hasUrl correctly recognizes different link prefixes or postfixes', () => {
         let ftpString = 'Hello World, ftp://www.files.org Goodbye world.';
-        let queryString = 'Hello World, ftp://www.files.org/there?next=free Goodbye world.';
-        let fragIdString = 'Hello World, ftp://www.files.org/there.html#bar Goodbye world.';
+        let queryString = 'Hello World, http://www.files.org/there?next=free Goodbye world.';
+        let fragIdString = 'Hello World, http://www.files.org/there.html#bar Goodbye world.';
+        let fileString = 'Hello World, file://document.pdf Goodbye world.';
 
         let testOut = CoreUtil.hasUrl(ftpString);
         expect(testOut.url).toEqual(['ftp://www.files.org']);
         expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
 
         testOut = CoreUtil.hasUrl(queryString);
-        expect(testOut.url).toEqual(['ftp://www.files.org/there?next=free']);
+        expect(testOut.url).toEqual(['http://www.files.org/there?next=free']);
         expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
 
         testOut = CoreUtil.hasUrl(fragIdString);
-        expect(testOut.url).toEqual(['ftp://www.files.org/there.html#bar']);
+        expect(testOut.url).toEqual(['http://www.files.org/there.html#bar']);
+        expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
+
+        testOut = CoreUtil.hasUrl(fileString);
+        expect(testOut.url).toEqual(['file://document.pdf']);
         expect(testOut.splitText).toEqual(['Hello World, ', ' Goodbye world.']);
     });
 });
