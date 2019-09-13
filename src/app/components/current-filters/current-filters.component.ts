@@ -72,7 +72,7 @@ export class CurrentFiltersComponent implements OnInit, OnDestroy {
 
     updateFilters() {
         this.groups = [];
-        for (const filter of this.filterService.getRawFilters()) {
+        for (const filter of this.filterService.getFilters()) {
             const filterFieldLabel = filter.getLabelForField(true);
             const fieldGroup = this.groups.find((group) => group.name === filterFieldLabel);
             if (!fieldGroup) {
